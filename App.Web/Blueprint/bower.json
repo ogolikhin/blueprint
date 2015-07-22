@@ -1,0 +1,17 @@
+{
+  "name": "blueprint-web-app",
+  "description": "Requirements Management Software Web Application",
+  "version": "7.0.0",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-mocks": "~1.4.0",
+    "angular-ui-router": "~0.2.15",
+    "bootbox": "~4.4.0",
+    "bootstrap": "~3.2.0",
+    "d3": "~3.4.0",
+    "fontawesome": "~4.1.0",
+    "jquery": "~1.11.0",
+    "jbox": "~0.3.2"
+  }
+}

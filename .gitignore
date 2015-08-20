@@ -1,8 +1,3 @@
-# Blueprint
-pub/
-node_modules/
-bower_components/
-
 # Windows
 [Tt]humbs.db
 *.DS_Store

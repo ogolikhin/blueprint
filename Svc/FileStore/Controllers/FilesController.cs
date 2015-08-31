@@ -6,6 +6,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -16,120 +17,99 @@ namespace FileStore.Controllers
 	[RoutePrefix("api/books")]
 	public class FilesController : ApiController
 	{
-		private FileStoreContext db = new FileStoreContext();
+		private readonly FileStoreContext _db = new FileStoreContext();
 
-		// GET: api/Files
-		public IQueryable<FileRecord> GetFileRecords()
+		[HttpHead]
+		[Route("files/{id}")]
+		[ResponseType(typeof(FileDetail))]
+		public async Task<IHttpActionResult> GetFileDetail(string id)
 		{
-			return db.FileRecords;
-		}
-
-		// GET: api/Files/5
-		[ResponseType(typeof(FileRecord))]
-		public async Task<IHttpActionResult> GetFileRecord(string id)
-		{
-			FileRecord fileRecord = await db.FileRecords.FindAsync(id);
-			if (fileRecord == null)
-			{
-				return NotFound();
-			}
-
-			return Ok(fileRecord);
-		}
-
-		// PUT: api/Files/5
-		[ResponseType(typeof(void))]
-		public async Task<IHttpActionResult> PutFileRecord(string id, FileRecord fileRecord)
-		{
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
-
-			if (id != fileRecord.FileId)
+			Guid guid;
+			if (!Guid.TryParseExact(id, "N", out guid))
 			{
 				return BadRequest();
 			}
-
-			db.Entry(fileRecord).State = EntityState.Modified;
-
-			try
+			var fd = await _db.FileDetails.FindAsync(guid);
+			if (fd == null)
 			{
-				await db.SaveChangesAsync();
+				// TODO: CHECK FILESTREAM
+				return NotFound();
 			}
-			catch (DbUpdateConcurrencyException)
-			{
-				if (!FileRecordExists(id))
-				{
-					return NotFound();
-				}
-				else
-				{
-					throw;
-				}
-			}
-
-			return StatusCode(HttpStatusCode.NoContent);
+			return Ok(fd);
 		}
 
-		// POST: api/Files
-		[ResponseType(typeof(FileRecord))]
-		public async Task<IHttpActionResult> PostFileRecord(FileRecord fileRecord)
+		[HttpGet]
+		[Route("files/{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> GetFile(string id)
 		{
-			if (!ModelState.IsValid)
+			Guid guid;
+			if (!Guid.TryParseExact(id, "N", out guid))
 			{
-				return BadRequest(ModelState);
+				return BadRequest();
 			}
+			var file = await _db.Files.FindAsync(guid);
+			if (file == null)
+			{
+				// TODO: CHECK FILESTREAM
+				return NotFound();
+			}
+			var response = Request.CreateResponse(HttpStatusCode.OK);
+			response.Content = new ByteArrayContent(file.FileContent);
+			response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+			response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+			response.Headers.Add("Content-Disposition", "filename=\"" + file.FileName + "\"");
+			response.Headers.Add("Content-Type", file.FileType);
+			return ResponseMessage(response);
+		}
 
-			db.FileRecords.Add(fileRecord);
-
+		[HttpPost]
+		[Route("files")]
+		[ResponseType(typeof(string))]
+		public async Task<IHttpActionResult> PostFile()
+		{
+			var file = new File();
+			// TODO: POPULATE FILE with info from headers
+			_db.Files.Add(file);
 			try
 			{
-				await db.SaveChangesAsync();
+				await _db.SaveChangesAsync();
 			}
 			catch (DbUpdateException)
 			{
-				if (FileRecordExists(fileRecord.FileId))
-				{
-					return Conflict();
-				}
-				else
-				{
-					throw;
-				}
+				return Conflict();
 			}
-
-			return CreatedAtRoute("DefaultApi", new { id = fileRecord.FileId }, fileRecord);
+			return Ok(file.FileId);
 		}
 
-		// DELETE: api/Files/5
-		[ResponseType(typeof(FileRecord))]
-		public async Task<IHttpActionResult> DeleteFileRecord(string id)
+		[HttpDelete]
+		[Route("files/{id}")]
+		[ResponseType(typeof(string))]
+		public async Task<IHttpActionResult> DeleteFile(string id)
 		{
-			FileRecord fileRecord = await db.FileRecords.FindAsync(id);
-			if (fileRecord == null)
+			Guid guid;
+			if (!Guid.TryParseExact(id, "N", out guid))
 			{
+				return BadRequest();
+			}
+			var file = await _db.Files.FindAsync(guid);
+			if (file == null)
+			{
+				// TODO: CHECK FILESTREAM and DELETE FILESTREAM
 				return NotFound();
 			}
-
-			db.FileRecords.Remove(fileRecord);
-			await db.SaveChangesAsync();
-
-			return Ok(fileRecord);
+			_db.Files.Remove(file);
+			await _db.SaveChangesAsync();
+			return Ok(file.FileId);
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
-				db.Dispose();
+				_db.Dispose();
 			}
 			base.Dispose(disposing);
-		}
-
-		private bool FileRecordExists(string id)
-		{
-			return db.FileRecords.Count(e => e.FileId == id) > 0;
 		}
 	}
 }

@@ -18,5 +18,12 @@
   "bugs": {
     "url": "https://github.com/BlueprintSys/blueprint/issues"
   },
-  "homepage": "https://github.com/BlueprintSys/blueprint#readme"
+  "homepage": "https://github.com/BlueprintSys/blueprint#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-filelog": "^0.4.1",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-spsave": "0.0.2",
+    "wrench": "^1.5.8"
+  }
 }

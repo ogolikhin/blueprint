@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,17 +7,27 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using FileStore.Models;
+using System.Web;
+using HttpMultipartParser;
+using System.Net.Http.Headers;
+using FileStore.Repo;
+using System.Net.Http.Formatting;
 
 namespace FileStore.Controllers
 {
-	[RoutePrefix("api/books")]
-	public class FilesController : ApiController
+	[RoutePrefix("")]
+	public sealed class FilesController : ApiController
 	{
-		private readonly FileStoreContext _db = new FileStoreContext();
+        private IRepo _repo;
 
-		[HttpHead]
+        public FilesController()
+        {
+            _repo = new SqlRepo();
+        }
+
+        [HttpHead]
 		[Route("files/{id}")]
-		[ResponseType(typeof(FileDetail))]
+		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileDetail(string id)
 		{
 			Guid guid;
@@ -29,16 +35,23 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-			var fd = await _db.FileDetails.FindAsync(guid);
-			if (fd == null)
+            File fileInfo = await _repo.GetFileInfo(guid);
+            if (fileInfo == null)
 			{
 				// TODO: CHECK FILESTREAM
 				return NotFound();
 			}
-			return Ok(fd);
-		}
 
-		[HttpGet]
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+            response.Headers.Add("File-Name", fileInfo.FileName);
+            response.Headers.Add("File-Type", fileInfo.FileType);
+            response.Headers.Add("Stored-Date", fileInfo.StoredTime.ToString());
+            return ResponseMessage(response);
+        }
+
+        [HttpGet]
 		[Route("files/{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFile(string id)
@@ -48,19 +61,22 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-			var file = await _db.Files.FindAsync(guid);
-			if (file == null)
+
+            File file = await _repo.GetFile(guid);
+            
+            if (file == null)
 			{
 				// TODO: CHECK FILESTREAM
 				return NotFound();
 			}
-			var response = Request.CreateResponse(HttpStatusCode.OK);
-			response.Content = new ByteArrayContent(file.FileContent);
-			response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-			response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-			response.Headers.Add("Content-Disposition", "filename=\"" + file.FileName + "\"");
-			response.Headers.Add("Content-Type", file.FileType);
-			return ResponseMessage(response);
+
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new ByteArrayContent(file.FileContent);
+            response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+            return ResponseMessage(response);
 		}
 
 		[HttpPost]
@@ -68,18 +84,36 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-			var file = new File();
-			// TODO: POPULATE FILE with info from headers
-			_db.Files.Add(file);
+            var stream = HttpContext.Current.Request.InputStream;
+            stream.Position = 0;
+
+            //TODO: replace MultipartFormDataParser with one used in Blueprint
+            var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+            var file = parser.Files.First();
+
+            System.IO.Stream data = file.Data;
+
+            var fileData = new File();
+            // Unescape space in file name
+            fileData.FileId = Guid.NewGuid();
+            fileData.FileName = file.FileName.Replace("%20", " ");
+            fileData.FileContent = ReadFully(data);
+            fileData.FileType = file.ContentType;
+            fileData.StoredTime = DateTime.Now;
+
+            // TODO: POPULATE FILE with info from headers
 			try
 			{
-				await _db.SaveChangesAsync();
-			}
-			catch (DbUpdateException)
+                if (!await _repo.AddFile(fileData))
+                {
+                    return Conflict();
+                }
+            }
+            catch 
 			{
 				return Conflict();
 			}
-			return Ok(file.FileId);
+			return Ok(fileData.FileId);
 		}
 
 		[HttpDelete]
@@ -87,29 +121,39 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> DeleteFile(string id)
 		{
-			Guid guid;
-			if (!Guid.TryParseExact(id, "N", out guid))
+			Guid fileId;
+			if (!Guid.TryParseExact(id, "N", out fileId))
 			{
 				return BadRequest();
 			}
-			var file = await _db.Files.FindAsync(guid);
-			if (file == null)
-			{
-				// TODO: CHECK FILESTREAM and DELETE FILESTREAM
-				return NotFound();
-			}
-			_db.Files.Remove(file);
-			await _db.SaveChangesAsync();
+            File file = await _repo.GetFileInfo(fileId);
+            if (file == null)
+            {
+                // TODO: CHECK FILESTREAM
+                return NotFound();
+            }
+            else
+            {
+                if (!await _repo.DeleteFile(fileId))
+                {
+                    return Conflict();
+                }
+            }
 			return Ok(file.FileId);
 		}
 
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_db.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-	}
+        private static byte[] ReadFully(System.IO.Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (var ms = new System.IO.MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
+    }
 }

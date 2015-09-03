@@ -1,26 +1,20 @@
 namespace FileStore.Models
 {
-	using System;
-	using System.Collections.Generic;
-	using System.ComponentModel.DataAnnotations;
-	using System.ComponentModel.DataAnnotations.Schema;
-	using System.Data.Entity.Spatial;
+    using Newtonsoft.Json;
+    using System;
 
-	public partial class File
+    [JsonObject]
+    public class File
 	{
-		[Key]
-		public Guid FileId { get; set; }
-
-		public DateTime StoredTime { get; set; }
-
-		[Required]
-		[StringLength(256)]
-		public string FileName { get; set; }
-
-		[Required]
-		[StringLength(64)]
-		public string FileType { get; set; }
-
-		public byte[] FileContent { get; set; }
+        [JsonProperty]
+        public Guid FileId { get; set; }
+        [JsonProperty]
+        public DateTime StoredTime { get; set; }
+        [JsonProperty]
+        public string FileName { get; set; }
+        [JsonProperty]
+        public string FileType { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public byte[] FileContent { get; set; }
 	}
 }

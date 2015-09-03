@@ -47,7 +47,7 @@ namespace FileStore.Controllers
             response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
             response.Headers.Add("File-Name", fileInfo.FileName);
             response.Headers.Add("File-Type", fileInfo.FileType);
-            response.Headers.Add("Stored-Date", fileInfo.StoredTime.ToString());
+            response.Headers.Add("Stored-Date", fileInfo.StoredTime.ToString("o"));
             return ResponseMessage(response);
         }
 
@@ -76,6 +76,7 @@ namespace FileStore.Controllers
             response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
             response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+            response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
             return ResponseMessage(response);
 		}
 

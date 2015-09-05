@@ -13,5 +13,6 @@ namespace FileStore.Repositories
 		Task<File> HeadFile(Guid guid);
 		Task<File> GetFile(Guid guid);
 		Task<Guid?> DeleteFile(Guid guid);
+		Task<bool> GetStatus();
 	}
 }

@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.DataProtection.Repositories;
-using Microsoft.AspNet.Mvc;
 using FileStore.Repositories;
 using System.Net;
-using Microsoft.AspNet.Http;
-using HttpMultipartParser;
 using System.Text;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web.Http;
+using System.Web.Http.Description;
+using HttpMultipartParser;
 
 namespace FileStore.Controllers
 {
-	[Route("files")]
-	public class FilesController : Controller
+	[RoutePrefix("files")]
+	public class FilesController : ApiController
 	{
 		private readonly IFilesRepository _fr;
 
@@ -28,45 +29,37 @@ namespace FileStore.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> PostFile()
+		[Route("")]
+		[ResponseType(typeof(string))]
+		public async Task<IHttpActionResult> PostFile()
 		{
-			//TODO: replace MultipartFormDataParser with one used in Blueprint
-			var pf = (new MultipartFormDataParser(Request.Body, Encoding.UTF8)).Files.First();
-
+			var parser = new MultipartFormDataParser(await Request.Content.ReadAsStreamAsync(), Encoding.UTF8);
+			var upload = parser.Files.First();
+			var stream = new MemoryStream();
+			upload.Data.CopyTo(stream);
 			var file = new Models.File()
 			{
 				StoredTime = DateTime.UtcNow, // use UTC time to store data
-				FileName = pf.FileName.Replace("%20", " "),
-				FileType = pf.ContentType
+				FileName = upload.FileName.Replace("%20", " "),
+				FileType = upload.ContentType,
+				FileSize = upload.Data.Length,
+				FileContent = stream.ToArray()
 			};
-			// TODO: FORWARD STREAM FROM REQUEST TO DB - file.FileContent = ReadFully(data);
-			var stream = pf.Data;
-			stream.Position = 0;
-			byte[] buffer = new byte[16 * 1024];
-			using (var ms = new System.IO.MemoryStream())
-			{
-				int read;
-				while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-				{
-					ms.Write(buffer, 0, read);
-				}
-				file.FileContent = ms.ToArray();
-			}
 			try
 			{
 				await _fr.PostFile(file);
 			}
 			catch
 			{
-				return new HttpStatusCodeResult(Response.StatusCode = 500);
+				return InternalServerError();
 			}
-			Response.StatusCode = 200;
-			return Content(Models.File.ConvertFileId(file.FileId));
+			return Ok(Models.File.ConvertFileId(file.FileId));
 		}
 
-		[AcceptVerbs("HEAD")]
-		[Route("files/{id}")]
-		public async Task<IActionResult> HeadFile(string id)
+		[HttpHead]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> HeadFile(string id)
 		{
 			try
 			{
@@ -74,25 +67,31 @@ namespace FileStore.Controllers
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
-					return HttpNotFound();
+					return NotFound();
 				}
-				Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate"; // HTTP 1.1.
-				Response.Headers["Pragma"] = "no-cache"; // HTTP 1.0.
-				Response.Headers["Unique-Identifier"] = file.FileId.ToString("N");
-				Response.Headers["Stored-Date"] = file.StoredTime.ToString("o");
-				Response.Headers["Content-Disposition"] = "attachment;filename=" + file.FileName;
-				Response.ContentType = file.FileType;
-				Response.StatusCode = 204;
-				return new HttpStatusCodeResult(Response.StatusCode);
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Content = new ByteArrayContent(file.FileContent);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+				return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{
-				return HttpBadRequest();
+				return BadRequest();
 			}
-      }
+			catch
+			{
+				return InternalServerError();
+			}
+		}
 
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetFile(string id)
+		[HttpGet]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> GetFile(string id)
 		{
 			try
 			{
@@ -100,44 +99,52 @@ namespace FileStore.Controllers
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
-					return HttpNotFound();
+					return NotFound();
 				}
-				Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate"; // HTTP 1.1.
-				Response.Headers["Pragma"] = "no-cache"; // HTTP 1.0.
-				Response.Headers["Unique-Identifier"] = file.FileId.ToString("N");
-				Response.Headers["Stored-Date"] = file.StoredTime.ToString("o");
-				Response.Headers["Content-Disposition"] = "attachment;filename=" + file.FileName;
-				Response.ContentType = file.FileType;
-				Response.StatusCode = 200;
-				// TODO: FORWARD STREAM FROM DB TO RESPONSE - Response.Body = file.FileContent;
-				return File(file.FileContent, file.FileType);
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Content = new ByteArrayContent(file.FileContent);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+				return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{
-				return HttpBadRequest();
+				return BadRequest();
+			}
+			catch
+			{
+				return InternalServerError();
 			}
 		}
 
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteFile(string id)
+		[HttpDelete]
+		[Route("{id}")]
+		[ResponseType(typeof(string))]
+		public async Task<IHttpActionResult> DeleteFile(string id)
 		{
 			try
 			{
 				var guid = await _fr.DeleteFile(Models.File.ConvertFileId(id));
-            if (guid != null)
+            if (guid.HasValue)
 				{
-					Response.StatusCode = 200;
-					return Content(Models.File.ConvertFileId(guid.Value));
+					return Ok(Models.File.ConvertFileId(guid.Value));
 				}
 				else
 				{
 					// TODO: CHECK FILESTREAM
-					return HttpNotFound();
+					return NotFound();
 				}
 			}
 			catch (FormatException)
 			{
-				return HttpBadRequest();
+				return BadRequest();
+			}
+			catch
+			{
+				return InternalServerError();
 			}
 		}
 	}

@@ -1,7 +1,0 @@
-﻿{
-	"Data": {
-		"Databases": {
-			"FileStoreDatabase": "data source=.;initial catalog=FileStore;integrated security=True;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;"
-		}
-	}
-}

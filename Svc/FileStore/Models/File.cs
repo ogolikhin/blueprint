@@ -15,7 +15,7 @@ namespace FileStore.Models
 		[JsonProperty]
 		public string FileType { get; set; }
 		[JsonProperty]
-		public int FileSize { get; set; }
+		public long FileSize { get; set; }
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public byte[] FileContent { get; set; }
 

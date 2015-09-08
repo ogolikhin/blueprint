@@ -81,13 +81,15 @@ namespace FileStore.Controllers
 					return NotFound();
 				}
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				response.Content = new ByteArrayContent(file.FileContent);
+				response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
 				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-				return ResponseMessage(response);
+                response.Content.Headers.ContentLength = file.FileSize;
+                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+                response.Headers.Add("File-Size", file.FileSize.ToString());
+                return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{
@@ -117,9 +119,11 @@ namespace FileStore.Controllers
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-				return ResponseMessage(response);
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+                response.Content.Headers.ContentLength = file.FileSize;
+                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+                response.Headers.Add("File-Size", file.FileSize.ToString());
+                return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{

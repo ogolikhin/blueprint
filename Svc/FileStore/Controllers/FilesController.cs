@@ -57,7 +57,7 @@ namespace FileStore.Controllers
 			};
 			try
 			{
-				await _fr.PostFile(file);
+                file.FileId = (await _fr.PostFile(file)).Value;
 			}
 
 			catch (Exception ex)

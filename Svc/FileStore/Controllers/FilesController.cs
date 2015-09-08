@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using HttpMultipartParser;
+using System.Web;
 
 namespace FileStore.Controllers
 {
@@ -18,23 +19,32 @@ namespace FileStore.Controllers
 	public class FilesController : ApiController
 	{
 		private readonly IFilesRepository _fr;
+        private Stream _inputStream;
 
-		public FilesController() : this(new SqlFilesRepository())
+        public FilesController() : this(new SqlFilesRepository(), null)
 		{
 		}
 
-		internal FilesController(IFilesRepository fr)
+		internal FilesController(IFilesRepository fr, Stream inputStream)
 		{
 			_fr = fr;
-		}
+            _inputStream = inputStream;
+        }
 
-		[HttpPost]
+        [HttpPost]
 		[Route("")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-			var parser = new MultipartFormDataParser(await Request.Content.ReadAsStreamAsync(), Encoding.UTF8);
+            if (_inputStream == null)
+            {
+                _inputStream = HttpContext.Current.Request.InputStream;
+            }
+            _inputStream.Position = 0;
+
+            var parser = new MultipartFormDataParser(_inputStream, Encoding.UTF8);
 			var upload = parser.Files.First();
+
 			var stream = new MemoryStream();
 			upload.Data.CopyTo(stream);
 			var file = new Models.File()
@@ -49,7 +59,7 @@ namespace FileStore.Controllers
 			{
 				await _fr.PostFile(file);
 			}
-			catch
+			catch 
 			{
 				return InternalServerError();
 			}
@@ -128,7 +138,7 @@ namespace FileStore.Controllers
 			try
 			{
 				var guid = await _fr.DeleteFile(Models.File.ConvertFileId(id));
-            if (guid.HasValue)
+                if (guid.HasValue)
 				{
 					return Ok(Models.File.ConvertFileId(guid.Value));
 				}

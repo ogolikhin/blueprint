@@ -30,7 +30,7 @@ namespace FileStore.Controllers
 		[HttpGet]
 		[Route("")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetFile(string id)
+		public async Task<IHttpActionResult> GetStatus()
 		{
 			try
 			{

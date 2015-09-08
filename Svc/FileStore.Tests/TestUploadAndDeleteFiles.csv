@@ -1,0 +1,2 @@
+StatusUriCall,FilesUriCall,AttachmentFileName
+http://localhost:52618/status/,http://localhost:52618/files/,BitmapAttachment.bmp

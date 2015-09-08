@@ -5,6 +5,12 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using System.Text;
 using System.Linq;
+using Moq;
+using FileStore.Repositories;
+using FileStore.Controllers;
+using System.Threading.Tasks;
+using System.Globalization;
+using FileStore.Models;
 
 namespace FileStore.Tests
 {
@@ -12,9 +18,13 @@ namespace FileStore.Tests
     public class FileStoreSvcTest
     {
         [TestMethod]
-        public void FileStorePostTest()
+        public void PostFile_MultipartSingleFile_Success()
         {
-            // Arrange
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+
             string fileName4Upload = "UploadTest.txt";
             string fileContent4Upload = "This is the content of the uploaded test file";
 
@@ -23,11 +33,12 @@ namespace FileStore.Tests
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new Controllers.FilesController(new MockRepo(), multiPartContent.ReadAsStreamAsync().Result);
+            var controller = new FilesController(moq.Object);
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Content = multiPartContent
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -38,35 +49,44 @@ namespace FileStore.Tests
 
             // Act
             // 1. Upload file
-            var strGuid = (OkNegotiatedContentResult<string>)controller.PostFile().Result;
-            var newFileId = new Guid(strGuid.Content);
+            var actionResult = controller.PostFile().Result;
 
-            // 2. Download file
-            var secondActionResult = controller.GetFile(newFileId.ToString().Replace("-", "")).Result;
-
+            //Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = secondActionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
             var content = response.Content;
             var fileContent4Download = content.ReadAsStringAsync().Result;
             var contentType = content.Headers.ContentType;
-            var fileName4Download = content.Headers.ContentDisposition.FileName;
-            var storedTime = response.Headers.GetValues("Stored-Date");
 
             // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileContent4Upload == fileContent4Download);
-            Assert.IsTrue(fileName4Upload == fileName4Download);
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
         [TestMethod]
-        public void FileStoreGetTest()
+        public void PostFile_MultipartMultipleFiles_BadRequestFailure()
         {
-            // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+
+            string fileName4Upload = "UploadTest.txt";
+            string fileContent4Upload = "This is the content of the uploaded test file";
+
+            var multiPartContent1 = new MultipartFormDataContent("----MyGreatBoundary");
+            ByteArrayContent byteArrayContent1 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            ByteArrayContent byteArrayContent2 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            byteArrayContent1.Headers.Add("Content-Type", "multipart/form-data");
+            multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);            
+            multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
+
+            var controller = new FilesController(moq.Object);
+
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Content = multiPartContent1
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -76,28 +96,111 @@ namespace FileStore.Tests
                 defaults: new { id = RouteParameter.Optional });
 
             // Act
-            var actionResult = controller.GetFile("22222222222222222222222222222222").Result;
+            // 1. Upload file
+            var actionResult = controller.PostFile().Result;
 
+            //Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
             var content = response.Content;
-            var fileContent = content.ReadAsStringAsync().Result;
-            var contentType = content.Headers.ContentType;
-            var fileName = content.Headers.ContentDisposition.FileName;
-            var storedTime = response.Headers.GetValues("Stored-Date");
 
             // Assert
-            Assert.IsTrue(response.IsSuccessStatusCode);
-            Assert.IsTrue(fileName == "Test2.txt");
-            Assert.IsTrue(fileContent == "Test2 content");
-            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
         [TestMethod]
-        public void FileStoreHeadTest()
+        public void PostFile_NonMultipart_BadRequestFailure()
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+
+            var httpContent = new StringContent("my file");
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files"),
+                Content = httpContent
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = controller.PostFile().Result;
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public void PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFile(It.IsAny<File>())).Throws(new Exception());
+
+            string fileName4Upload = "UploadTest.txt";
+            string fileContent4Upload = "This is the content of the uploaded test file";
+
+            MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
+            ByteArrayContent byteArrayContent = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
+            multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files"),
+                Content = multiPartContent
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = controller.PostFile().Result;
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+        }        
+
+        [TestMethod]
+        public void HeadFile_GetHeadForExistentFile_Success()
         {
             // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            var moq = new Mock<IFilesRepository>();
+            var file = new File();
+            file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
+            file.FileName = "Test3.txt";
+            file.FileContent = Encoding.UTF8.GetBytes("Test3 content");
+            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
+            file.FileType = "text/html";
+
+            moq.Setup(t => t.HeadFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+
+            var controller = new FilesController(moq.Object);
+
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")
@@ -127,10 +230,344 @@ namespace FileStore.Tests
         }
 
         [TestMethod]
-        public void FileStoreDeleteTest()
+        public void HeadFile_GetHeadForNonExistentFile_Failure()
         {
             // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            var moq = new Mock<IFilesRepository>();
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.HeadFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
+        }
+
+        [TestMethod]
+        public void HeadFile_ImproperGuid_FormatException()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.HeadFile("333333333!@#@!@!@!33333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public void HeadFile_UnknownException_InternalServerErrorFailure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.HeadFile(It.IsAny<Guid>())).Throws(new Exception());
+
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.HeadFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+        }
+
+        [TestMethod]
+        public void GetFile_ImproperGuid_FormatException()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("333333333!@#@!@!@!33333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public void GetFile_UnknownException_InternalServerErrorFailure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Throws(new Exception());
+
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+        }
+
+        [TestMethod]
+        public void GetFile_NonExistentFile_NotFoundFailure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult<File>(null));
+
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
+        }
+
+        [TestMethod]
+        public void GetFile_ProperRequest_Success()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var file = new Models.File();
+            file.FileId = new Guid("22222222-2222-2222-2222-222222222222");
+            file.FileName = "Test2.txt";
+            file.FileContent = Encoding.UTF8.GetBytes("Test2 content");
+            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
+            file.FileType = "text/html";
+
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+
+            var controller = new FilesController(moq.Object);
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("22222222222222222222222222222222").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            var content = response.Content;
+            var fileContent = content.ReadAsStringAsync().Result;
+            var contentType = content.Headers.ContentType;
+            var fileName = content.Headers.ContentDisposition.FileName;
+            var storedTime = response.Headers.GetValues("Stored-Date");
+
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(fileName == "Test2.txt");
+            Assert.IsTrue(fileContent == "Test2 content");
+            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
+
+
+        [TestMethod]
+        public void DeleteFile_ImproperGuid_FormatException()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.DeleteFile("333333333!@#@!@!@!33333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public void DeleteFile_UnknownException_InternalServerErrorFailure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Throws(new Exception());
+
+
+            var controller = new FilesController(moq.Object);
+
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.DeleteFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+        }
+
+        [TestMethod]
+        public void DeleteFile_NonExistentFile_NotFoundFailure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var file = new File();
+            file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
+            file.FileName = "Test3.txt";
+            file.FileContent = Encoding.UTF8.GetBytes("Test3 content");
+            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
+            file.FileType = "text/html";
+
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Returns(Task.FromResult<Guid?>(null));
+
+            var controller = new FilesController(moq.Object);
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.DeleteFile("33333333333333333333333333333333").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
+        }
+
+        [TestMethod]
+        public void DeleteFile_ProperRequest_Success()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+
+            var file = new File();
+            file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
+            file.FileName = "Test3.txt";
+            file.FileContent = Encoding.UTF8.GetBytes("Test3 content");
+            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
+            file.FileType = "text/html";
+
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Returns(Task.FromResult<Guid?>(Guid.Parse("33333333333333333333333333333333")));
+
+            var controller = new FilesController(moq.Object);
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")

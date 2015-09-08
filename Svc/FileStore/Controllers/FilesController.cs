@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
-using HttpMultipartParser;
 using System.Web;
 
 namespace FileStore.Controllers
@@ -18,17 +17,15 @@ namespace FileStore.Controllers
 	[RoutePrefix("files")]
 	public class FilesController : ApiController
 	{
-		private readonly IFilesRepository _fr;
-        private Stream _inputStream;
+		private readonly IFilesRepository _fileRepo;
 
-        public FilesController() : this(new SqlFilesRepository(), null)
+        public FilesController() : this(new SqlFilesRepository())
 		{
 		}
 
-		internal FilesController(IFilesRepository fr, Stream inputStream)
+		internal FilesController(IFilesRepository fr)
 		{
-			_fr = fr;
-            _inputStream = inputStream;
+			_fileRepo = fr;
         }
 
         [HttpPost]
@@ -36,36 +33,36 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-            if (_inputStream == null)
+            var isMultipart = Request.Content.IsMimeMultipartContent();
+            Models.File file = null;
+            if (isMultipart)
             {
-                _inputStream = HttpContext.Current.Request.InputStream;
+                var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
+                if (multipartMemoryStreamProvider.Contents.Count > 1)
+                {
+                    return BadRequest();
+                }
+                var httpContent = multipartMemoryStreamProvider.Contents.First();
+                file = await GetFileInfo(httpContent);
             }
-            _inputStream.Position = 0;
-
-            var parser = new MultipartFormDataParser(_inputStream, Encoding.UTF8);
-			var upload = parser.Files.First();
-
-			var stream = new MemoryStream();
-			upload.Data.CopyTo(stream);
-			var file = new Models.File()
-			{
-				StoredTime = DateTime.UtcNow, // use UTC time to store data
-				FileName = upload.FileName.Replace("%20", " "),
-				FileType = upload.ContentType,
-				FileSize = upload.Data.Length,
-				FileContent = stream.ToArray()
-			};
+            else
+            {
+                //Temporarily allow only multipart uploads
+                return BadRequest();
+            }
+            
 			try
 			{
-                file.FileId = (await _fr.PostFile(file)).Value;
-			}
 
-			catch (Exception ex)
+				var postFileResult = await _fileRepo.PostFile(file);                
+                file.FileId = postFileResult.Value;
+			}
+			catch
 			{
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
-		}
+		}        
 
 		[HttpHead]
 		[Route("{id}")]
@@ -74,7 +71,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var file = await _fr.HeadFile(Models.File.ConvertFileId(id));
+				var file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
@@ -108,7 +105,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var file = await _fr.GetFile(Models.File.ConvertFileId(id));
+				var file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
@@ -142,7 +139,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var guid = await _fr.DeleteFile(Models.File.ConvertFileId(id));
+				var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
                 if (guid.HasValue)
 				{
 					return Ok(Models.File.ConvertFileId(guid.Value));
@@ -162,5 +159,29 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 		}
-	}
+
+        #region Private Methods
+
+        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
+        {
+            using (var stream = await httpContent.ReadAsStreamAsync())
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    var fileArray = memoryStream.ToArray();
+                    return new Models.File()
+                    {
+                        StoredTime = DateTime.UtcNow, // use UTC time to store data
+                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
+                        FileType = httpContent.Headers.ContentType.MediaType,
+                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
+                        FileContent = fileArray
+                    };
+                }
+            }
+        }
+
+        #endregion
+    }
 }

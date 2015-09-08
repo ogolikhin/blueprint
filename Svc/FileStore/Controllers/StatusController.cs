@@ -37,7 +37,7 @@ namespace FileStore.Controllers
 				await _fr.GetStatus();
 				return Ok();
 			}
-			catch (Exception ex)
+			catch
 			{
 				return InternalServerError();
 			}

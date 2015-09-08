@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
-using HttpMultipartParser;
 
 namespace FileStore.Controllers
 {
@@ -33,28 +32,60 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-			var parser = new MultipartFormDataParser(await Request.Content.ReadAsStreamAsync(), Encoding.UTF8);
-			var upload = parser.Files.First();
-			var stream = new MemoryStream();
-			upload.Data.CopyTo(stream);
-			var file = new Models.File()
-			{
-				StoredTime = DateTime.UtcNow, // use UTC time to store data
-				FileName = upload.FileName.Replace("%20", " "),
-				FileType = upload.ContentType,
-				FileSize = upload.Data.Length,
-				FileContent = stream.ToArray()
-			};
+            var isMultipart = Request.Content.IsMimeMultipartContent();
+            Models.File file = null;
+            if (isMultipart)
+            {
+                var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
+                if (multipartMemoryStreamProvider.Contents.Count > 1)
+                {
+                    return BadRequest();
+                }
+                var httpContent = multipartMemoryStreamProvider.Contents.First();
+                file = await GetFileInfo(httpContent);
+            }
+            else
+            {
+                if (Request.Content.Headers.ContentDisposition == null || 
+                    string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName))
+                {
+                    return BadRequest();
+                }
+                file = await GetFileInfo(Request.Content);
+            }
+			
+			
 			try
 			{
 				await _fr.PostFile(file);
 			}
-			catch
+			catch (Exception ex)
 			{
+                System.Diagnostics.Trace.Write(ex);
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
 		}
+
+        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
+        {
+            using (var stream = await httpContent.ReadAsStreamAsync())
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    var fileArray = memoryStream.ToArray();
+                    return new Models.File()
+                    {
+                        StoredTime = DateTime.UtcNow, // use UTC time to store data
+                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
+                        FileType = httpContent.Headers.ContentType.MediaType,
+                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
+                        FileContent = fileArray
+                    };
+                }
+            }
+        }
 
 		[HttpHead]
 		[Route("{id}")]

@@ -18,7 +18,6 @@ namespace FileStore.Controllers
 	public class FilesController : ApiController
 	{
 		private readonly IFilesRepository _fileRepo;
-        private Stream _inputStream;
 
         public FilesController() : this(new SqlFilesRepository())
 		{
@@ -48,12 +47,8 @@ namespace FileStore.Controllers
             }
             else
             {
-                if (Request.Content.Headers.ContentDisposition == null || 
-                    string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName))
-                {
-                    return BadRequest();
-                }
-                file = await GetFileInfo(Request.Content);
+                //Temporarily allow only multipart uploads
+                return BadRequest();
             }
             
 			try
@@ -67,27 +62,7 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
-		}
-
-        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
-        {
-            using (var stream = await httpContent.ReadAsStreamAsync())
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-                    var fileArray = memoryStream.ToArray();
-                    return new Models.File()
-                    {
-                        StoredTime = DateTime.UtcNow, // use UTC time to store data
-                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
-                        FileType = httpContent.Headers.ContentType.MediaType,
-                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
-                        FileContent = fileArray
-                    };
-                }
-            }
-        }
+		}        
 
 		[HttpHead]
 		[Route("{id}")]
@@ -180,5 +155,29 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 		}
-	}
+
+        #region Private Methods
+
+        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
+        {
+            using (var stream = await httpContent.ReadAsStreamAsync())
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    var fileArray = memoryStream.ToArray();
+                    return new Models.File()
+                    {
+                        StoredTime = DateTime.UtcNow, // use UTC time to store data
+                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
+                        FileType = httpContent.Headers.ContentType.MediaType,
+                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
+                        FileContent = fileArray
+                    };
+                }
+            }
+        }
+
+        #endregion
+    }
 }

@@ -18,7 +18,6 @@ namespace FileStore.Controllers
 	public class FilesController : ApiController
 	{
 		private readonly IFilesRepository _fileRepo;
-        private Stream _inputStream;
 
         public FilesController() : this(new SqlFilesRepository())
 		{
@@ -48,12 +47,8 @@ namespace FileStore.Controllers
             }
             else
             {
-                if (Request.Content.Headers.ContentDisposition == null || 
-                    string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName))
-                {
-                    return BadRequest();
-                }
-                file = await GetFileInfo(Request.Content);
+                //Temporarily allow only multipart uploads
+                return BadRequest();
             }
             
 			try
@@ -67,27 +62,7 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
-		}
-
-        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
-        {
-            using (var stream = await httpContent.ReadAsStreamAsync())
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-                    var fileArray = memoryStream.ToArray();
-                    return new Models.File()
-                    {
-                        StoredTime = DateTime.UtcNow, // use UTC time to store data
-                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
-                        FileType = httpContent.Headers.ContentType.MediaType,
-                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
-                        FileContent = fileArray
-                    };
-                }
-            }
-        }
+		}        
 
 		[HttpHead]
 		[Route("{id}")]
@@ -103,13 +78,15 @@ namespace FileStore.Controllers
 					return NotFound();
 				}
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				response.Content = new ByteArrayContent(file.FileContent);
+				response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
 				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-				return ResponseMessage(response);
+                response.Content.Headers.ContentLength = file.FileSize;
+                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+                response.Headers.Add("File-Size", file.FileSize.ToString());
+                return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{
@@ -125,7 +102,7 @@ namespace FileStore.Controllers
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFile(string id)
-		{
+		{ 
 			try
 			{
 				var file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
@@ -139,9 +116,11 @@ namespace FileStore.Controllers
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-				return ResponseMessage(response);
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+                response.Content.Headers.ContentLength = file.FileSize;
+                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+                response.Headers.Add("File-Size", file.FileSize.ToString());
+                return ResponseMessage(response);
 			}
 			catch (FormatException)
 			{
@@ -180,5 +159,29 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 		}
-	}
+
+        #region Private Methods
+
+        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
+        {
+            using (var stream = await httpContent.ReadAsStreamAsync())
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    var fileArray = memoryStream.ToArray();
+                    return new Models.File()
+                    {
+                        StoredTime = DateTime.UtcNow, // use UTC time to store data
+                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
+                        FileType = httpContent.Headers.ContentType.MediaType,
+                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
+                        FileContent = fileArray
+                    };
+                }
+            }
+        }
+
+        #endregion
+    }
 }

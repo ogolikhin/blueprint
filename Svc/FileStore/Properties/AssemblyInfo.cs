@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("FileStore")]
-[assembly: AssemblyDescription("File Store Web Service")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Blueprint Software Systems")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("FileStore")]
-[assembly: AssemblyCopyright("Copyright © 2015")]
-[assembly: AssemblyTrademark("Blueprint")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0d8f0a8b-8cf6-4982-a796-0c46973b4c4a")]
+[assembly: Guid("cff54a06-4b33-44bf-9034-7ba48d95cc8b")]
 
 // Version information for an assembly consists of the following four values:
 //

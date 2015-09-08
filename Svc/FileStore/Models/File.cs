@@ -1,26 +1,32 @@
+using Newtonsoft.Json;
+using System;
+
 namespace FileStore.Models
 {
-	using System;
-	using System.Collections.Generic;
-	using System.ComponentModel.DataAnnotations;
-	using System.ComponentModel.DataAnnotations.Schema;
-	using System.Data.Entity.Spatial;
-
-	public partial class File
+	[JsonObject]
+	public class File
 	{
-		[Key]
+		[JsonProperty]
 		public Guid FileId { get; set; }
-
+		[JsonProperty]
 		public DateTime StoredTime { get; set; }
-
-		[Required]
-		[StringLength(256)]
+		[JsonProperty]
 		public string FileName { get; set; }
-
-		[Required]
-		[StringLength(64)]
+		[JsonProperty]
 		public string FileType { get; set; }
-
+		[JsonProperty]
+		public long FileSize { get; set; }
+		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public byte[] FileContent { get; set; }
+
+		public static string ConvertFileId(Guid guid)
+		{
+			return guid.ToString("N");
+		}
+
+		public static Guid ConvertFileId(string str)
+		{
+			return Guid.ParseExact(str, "N");
+		}
 	}
 }

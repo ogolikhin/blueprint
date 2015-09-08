@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web.Http;
 
@@ -13,12 +14,8 @@ namespace FileStore
 
 			// Web API routes
 			config.MapHttpAttributeRoutes();
-
-			config.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "api/{controller}/{id}",
-				 defaults: new { id = RouteParameter.Optional }
-			);
 		}
+
+		public static string FileStoreDatabase = ConfigurationManager.ConnectionStrings["FileStoreDatabase"].ConnectionString;
 	}
 }

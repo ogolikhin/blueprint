@@ -1,115 +1,151 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using FileStore.Repositories;
+using System.Net;
+using System.Text;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
-using FileStore.Models;
+using HttpMultipartParser;
 
 namespace FileStore.Controllers
 {
-	[RoutePrefix("api/books")]
+	[RoutePrefix("files")]
 	public class FilesController : ApiController
 	{
-		private readonly FileStoreContext _db = new FileStoreContext();
+		private readonly IFilesRepository _fr;
 
-		[HttpHead]
-		[Route("files/{id}")]
-		[ResponseType(typeof(FileDetail))]
-		public async Task<IHttpActionResult> GetFileDetail(string id)
+		public FilesController() : this(new SqlFilesRepository())
 		{
-			Guid guid;
-			if (!Guid.TryParseExact(id, "N", out guid))
-			{
-				return BadRequest();
-			}
-			var fd = await _db.FileDetails.FindAsync(guid);
-			if (fd == null)
-			{
-				// TODO: CHECK FILESTREAM
-				return NotFound();
-			}
-			return Ok(fd);
 		}
 
-		[HttpGet]
-		[Route("files/{id}")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetFile(string id)
+		internal FilesController(IFilesRepository fr)
 		{
-			Guid guid;
-			if (!Guid.TryParseExact(id, "N", out guid))
-			{
-				return BadRequest();
-			}
-			var file = await _db.Files.FindAsync(guid);
-			if (file == null)
-			{
-				// TODO: CHECK FILESTREAM
-				return NotFound();
-			}
-			var response = Request.CreateResponse(HttpStatusCode.OK);
-			response.Content = new ByteArrayContent(file.FileContent);
-			response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-			response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-			response.Headers.Add("Content-Disposition", "filename=\"" + file.FileName + "\"");
-			response.Headers.Add("Content-Type", file.FileType);
-			return ResponseMessage(response);
+			_fr = fr;
 		}
 
 		[HttpPost]
-		[Route("files")]
+		[Route("")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-			var file = new File();
-			// TODO: POPULATE FILE with info from headers
-			_db.Files.Add(file);
+			var parser = new MultipartFormDataParser(await Request.Content.ReadAsStreamAsync(), Encoding.UTF8);
+			var upload = parser.Files.First();
+			var stream = new MemoryStream();
+			upload.Data.CopyTo(stream);
+			var file = new Models.File()
+			{
+				StoredTime = DateTime.UtcNow, // use UTC time to store data
+				FileName = upload.FileName.Replace("%20", " "),
+				FileType = upload.ContentType,
+				FileSize = upload.Data.Length,
+				FileContent = stream.ToArray()
+			};
 			try
 			{
-				await _db.SaveChangesAsync();
+				await _fr.PostFile(file);
 			}
-			catch (DbUpdateException)
+			catch
 			{
-				return Conflict();
+				return InternalServerError();
 			}
-			return Ok(file.FileId);
+			return Ok(Models.File.ConvertFileId(file.FileId));
 		}
 
-		[HttpDelete]
-		[Route("files/{id}")]
-		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> DeleteFile(string id)
+		[HttpHead]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> HeadFile(string id)
 		{
-			Guid guid;
-			if (!Guid.TryParseExact(id, "N", out guid))
+			try
+			{
+				var file = await _fr.HeadFile(Models.File.ConvertFileId(id));
+				if (file == null)
+				{
+					// TODO: CHECK FILESTREAM
+					return NotFound();
+				}
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Content = new ByteArrayContent(file.FileContent);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+				return ResponseMessage(response);
+			}
+			catch (FormatException)
 			{
 				return BadRequest();
 			}
-			var file = await _db.Files.FindAsync(guid);
-			if (file == null)
+			catch
 			{
-				// TODO: CHECK FILESTREAM and DELETE FILESTREAM
-				return NotFound();
+				return InternalServerError();
 			}
-			_db.Files.Remove(file);
-			await _db.SaveChangesAsync();
-			return Ok(file.FileId);
 		}
 
-		protected override void Dispose(bool disposing)
+		[HttpGet]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> GetFile(string id)
 		{
-			if (disposing)
+			try
 			{
-				_db.Dispose();
+				var file = await _fr.GetFile(Models.File.ConvertFileId(id));
+				if (file == null)
+				{
+					// TODO: CHECK FILESTREAM
+					return NotFound();
+				}
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Content = new ByteArrayContent(file.FileContent);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+				response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
+				return ResponseMessage(response);
 			}
-			base.Dispose(disposing);
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
+
+		[HttpDelete]
+		[Route("{id}")]
+		[ResponseType(typeof(string))]
+		public async Task<IHttpActionResult> DeleteFile(string id)
+		{
+			try
+			{
+				var guid = await _fr.DeleteFile(Models.File.ConvertFileId(id));
+            if (guid.HasValue)
+				{
+					return Ok(Models.File.ConvertFileId(guid.Value));
+				}
+				else
+				{
+					// TODO: CHECK FILESTREAM
+					return NotFound();
+				}
+			}
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
 		}
 	}
 }

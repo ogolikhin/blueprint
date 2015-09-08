@@ -17,6 +17,7 @@ namespace FileStore.Tests
     [TestClass]
     public class FileStoreSvcTest
     {
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartSingleFile_Success()
         {
@@ -63,6 +64,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.IsSuccessStatusCode);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartMultipleFiles_BadRequestFailure()
         {
@@ -109,6 +111,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_NonMultipart_BadRequestFailure()
         {
@@ -144,6 +147,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
         {
@@ -183,8 +187,9 @@ namespace FileStore.Tests
 
             // Assert
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
-        }        
+        }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForExistentFile_Success()
         {
@@ -203,7 +208,8 @@ namespace FileStore.Tests
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Method = HttpMethod.Head
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -213,7 +219,7 @@ namespace FileStore.Tests
                 defaults: new { id = RouteParameter.Optional });
 
             // Act
-            var actionResult = controller.HeadFile("33333333333333333333333333333333").Result;
+            var actionResult = controller.GetFile("33333333333333333333333333333333").Result;
 
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
@@ -229,6 +235,7 @@ namespace FileStore.Tests
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForNonExistentFile_Failure()
         {
@@ -239,7 +246,8 @@ namespace FileStore.Tests
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Method = HttpMethod.Head
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -249,7 +257,7 @@ namespace FileStore.Tests
                 defaults: new { id = RouteParameter.Optional });
 
             // Act
-            var actionResult = controller.HeadFile("33333333333333333333333333333333").Result;
+            var actionResult = controller.GetFile("33333333333333333333333333333333").Result;
 
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
@@ -258,6 +266,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_ImproperGuid_FormatException()
         {
@@ -268,7 +277,8 @@ namespace FileStore.Tests
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Method = HttpMethod.Head
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -278,7 +288,7 @@ namespace FileStore.Tests
                 defaults: new { id = RouteParameter.Optional });
 
             // Act
-            var actionResult = controller.HeadFile("333333333!@#@!@!@!33333333333333333333333").Result;
+            var actionResult = controller.GetFile("333333333!@#@!@!@!33333333333333333333333").Result;
 
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
@@ -287,6 +297,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_UnknownException_InternalServerErrorFailure()
         {
@@ -299,7 +310,8 @@ namespace FileStore.Tests
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Method = HttpMethod.Head
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -309,7 +321,7 @@ namespace FileStore.Tests
                 defaults: new { id = RouteParameter.Optional });
 
             // Act
-            var actionResult = controller.HeadFile("33333333333333333333333333333333").Result;
+            var actionResult = controller.GetFile("33333333333333333333333333333333").Result;
 
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
@@ -318,6 +330,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ImproperGuid_FormatException()
         {
@@ -347,6 +360,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_UnknownException_InternalServerErrorFailure()
         {
@@ -378,6 +392,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NonExistentFile_NotFoundFailure()
         {
@@ -409,6 +424,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ProperRequest_Success()
         {
@@ -454,7 +470,7 @@ namespace FileStore.Tests
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
-
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_ImproperGuid_FormatException()
         {
@@ -484,6 +500,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_UnknownException_InternalServerErrorFailure()
         {
@@ -515,6 +532,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_NonExistentFile_NotFoundFailure()
         {
@@ -552,6 +570,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
         }
 
+        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_ProperRequest_Success()
         {

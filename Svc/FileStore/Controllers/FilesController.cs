@@ -62,57 +62,40 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
-		}        
-
-		[HttpHead]
-		[Route("{id}")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> HeadFile(string id)
-		{
-			try
-			{
-				var file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
-				if (file == null)
-				{
-					// TODO: CHECK FILESTREAM
-					return NotFound();
-				}
-				var response = Request.CreateResponse(HttpStatusCode.OK);
-				response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-                response.Content.Headers.ContentLength = file.FileSize;
-                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-                response.Headers.Add("File-Size", file.FileSize.ToString());
-                return ResponseMessage(response);
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
 		}
 
 		[HttpGet]
+        [HttpHead]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFile(string id)
 		{ 
 			try
 			{
-				var file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
+                Models.File file = null;
+                bool isHead = Request.Method == HttpMethod.Head;
+                if (isHead)
+                {
+                    file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));                    
+                }
+                else
+                {
+                    file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
+                }
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
 					return NotFound();
 				}
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				response.Content = new ByteArrayContent(file.FileContent);
+                if (isHead)
+                {
+                    response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));                    
+                }
+                else
+                {
+                    response.Content = new ByteArrayContent(file.FileContent);
+                }
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };

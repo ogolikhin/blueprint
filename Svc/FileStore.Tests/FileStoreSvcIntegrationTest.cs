@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace FileStore.Tests
 {
@@ -12,13 +13,13 @@ namespace FileStore.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Api-Integration")]
+        [TestCategory("FileStoreSvc-Integration")]
         public void TestUploadAndDeleteFiles()
         {
-            var postCallUri = "";
+            var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
             {
-                postCallUri = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
             }
 
             var attachmentFileName = "";
@@ -33,16 +34,35 @@ namespace FileStore.Tests
                 statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
             }
 
+            //Get status of Web service
             var status = GetStatus(statusCallUri);
 
             Assert.IsTrue(status);
 
-            var fileGuid = PostFile(postCallUri, attachmentFileName);
+            //post file and get guid
+            var fileGuid = PostFile(filesUriCall, attachmentFileName);
 
             Assert.IsNotNull(fileGuid);
 
-            
+            //Correct guid for further usage
+            fileGuid = fileGuid.Replace("\"", string.Empty);
+
+            //Call Head Method
+            CheckGetHead(filesUriCall, fileGuid, attachmentFileName);
+
+            //Download file
+            DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
+
+            //Delete File
+            DeleteFile(filesUriCall, fileGuid);
+
+            //Try to call methods again again to ensure that NotFound is returned
+            CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
+            DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName, true);
+            DeleteFile(filesUriCall, fileGuid, true);
         }
+
+        #region Private Service Call Methods
 
         private bool GetStatus(string statusCallUri)
         {
@@ -66,18 +86,7 @@ namespace FileStore.Tests
                 objResponse = (HttpWebResponse)e.Response;
             }
 
-            Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK);
-            bool isRunning = false;
-            using (var stream = objResponse.GetResponseStream())
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    var value = reader.ReadToEnd();
-                    bool.TryParse(value, out isRunning);
-                }
-            }
-
-            return isRunning;
+            return objResponse.StatusCode == HttpStatusCode.OK;
         }
 
         private string PostFile(string postCallUri, string attachmentFileName)
@@ -140,5 +149,168 @@ namespace FileStore.Tests
 
             return fileGuid;
         }
+
+        private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
+        {
+            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
+            fetchRequest.Method = "Head";
+            fetchRequest.Accept = "application/json";
+            fetchRequest.KeepAlive = true;
+            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+
+            HttpWebResponse objResponse = null;
+            try
+            {
+                objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+            }
+            catch (WebException e)
+            {
+                if (e.Response == null)
+                {
+                    throw;
+                }
+                objResponse = (HttpWebResponse)e.Response;
+            }
+
+            if (expectedToFail)
+            {
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode);
+                return;
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
+
+            var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
+            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader);
+
+            var contentType = objResponse.Headers["Content-Type"];
+            Assert.AreEqual("image/bmp", contentType);
+
+            var fileInfo = new FileInfo(originalFileName);
+            var fileSize = fileInfo.Length;
+
+            var contentLength = objResponse.Headers["File-Size"];
+            var actualFileSize = 0;
+            int.TryParse(contentLength, out actualFileSize);
+            Assert.AreEqual(fileSize, actualFileSize);
+        }
+
+        private void DownloadUploadedFile(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
+        {
+            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
+            fetchRequest.Method = "Get";
+            fetchRequest.Accept = "application/json";
+            fetchRequest.KeepAlive = true;
+            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+
+            HttpWebResponse objResponse = null;
+            try
+            {
+                objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+            }
+            catch (WebException e)
+            {
+                if (e.Response == null)
+                {
+                    throw;
+                }
+                objResponse = (HttpWebResponse)e.Response;
+            }
+
+            if (expectedToFail)
+            {
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode);
+                return;
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
+
+            var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
+            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader);
+
+            var contentType = objResponse.Headers["Content-Type"];
+            Assert.AreEqual("image/bmp", contentType);
+
+            var fileInfo = new FileInfo(originalFileName);
+            var fileSize = fileInfo.Length;
+
+            var contentLength = objResponse.Headers["Content-Length"];
+            var actualFileSize = 0;
+            int.TryParse(contentLength, out actualFileSize);
+            Assert.AreEqual(fileSize, actualFileSize);
+
+            string expectedMD5 = null;
+            string actualMD5 = null;
+
+            using (var expectedFileStream = fileInfo.OpenRead())
+            {
+                expectedMD5 = GetMD5ForFileStream(expectedFileStream);
+            }
+
+            using (var stream = objResponse.GetResponseStream())
+            {
+                actualMD5 = GetMD5ForFileStream(stream);
+            }
+
+            Assert.AreEqual(expectedMD5, actualMD5);
+        }
+
+        private void DeleteFile(string filesUriCall, string fileGuid, bool expectedToFail = false)
+        {
+            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
+            fetchRequest.Method = "Delete";
+            fetchRequest.Accept = "application/json";
+            fetchRequest.KeepAlive = true;
+            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+
+            HttpWebResponse objResponse = null;
+            try
+            {
+                objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+            }
+            catch (WebException e)
+            {
+                if (e.Response == null)
+                {
+                    throw;
+                }
+                objResponse = (HttpWebResponse)e.Response;
+            }
+
+            if (expectedToFail)
+            {
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode);
+                return;
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
+            string actualDeletedFileGuid = null;
+            using (var stream = objResponse.GetResponseStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    actualDeletedFileGuid = reader.ReadToEnd();
+                }
+            }
+
+            Assert.AreEqual(fileGuid, actualDeletedFileGuid.Replace("\"",string.Empty));
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private string GetMD5ForFileStream(Stream stream)
+        {
+            using (var md5 = MD5.Create())
+            {
+                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+            }
+        }
+
+        #endregion
     }
 }

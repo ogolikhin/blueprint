@@ -16,15 +16,15 @@ namespace FileStore.Controllers
 	[RoutePrefix("status")]
 	public class StatusController : ApiController
 	{
-		private readonly IFilesRepository _fr;
+		private readonly IFilesRepository _fileRepo;
 
 		public StatusController() : this(new SqlFilesRepository())
 		{
 		}
 
-		internal StatusController(IFilesRepository fr)
+		internal StatusController(IFilesRepository fileRepo)
 		{
-			_fr = fr;
+			_fileRepo = fileRepo;
 		}
 
 		[HttpGet]
@@ -34,7 +34,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				await _fr.GetStatus();
+				await _fileRepo.GetStatus();
 				return Ok();
 			}
 			catch

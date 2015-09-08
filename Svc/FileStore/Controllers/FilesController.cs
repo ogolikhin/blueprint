@@ -59,7 +59,8 @@ namespace FileStore.Controllers
 			{
 				await _fr.PostFile(file);
 			}
-			catch 
+
+			catch (Exception ex)
 			{
 				return InternalServerError();
 			}

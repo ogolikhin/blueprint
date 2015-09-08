@@ -184,6 +184,7 @@ function uploadFile(webUrl, options, digestValue, auth){
 
 
 function isOnPrem(url){
+
     return (urlparse(url)).host.indexOf(".sharepoint.com") === -1;
 }
 

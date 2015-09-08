@@ -1,4 +1,5 @@
 var spsave = require('./spsave/lib/spsave'),
+	spfolder = require('./spsave/lib/spfolder'),
     gutil = require('gulp-util'),
     PluginError = gutil.PluginError,
     path = require("path"),
@@ -22,17 +23,30 @@ function gulpspsave(options) {
         }
 
         if (file.isBuffer()) {
-            options.fileName = path.basename(file.path);
-            options.fileContent = file.contents;
+			options.newFolder = path.dirname(path.relative('.', file.path));			
+			options.folder = options.siteFolder + '/' + options.newFolder;			
 			
-			spsave(options, function(err, data){
+			options.fileName = path.basename(file.path);			
+            options.fileContent = file.contents;
+			options.folders = [];
+			
+			spfolder(options, function(err, data){
 				if(err){
 					console.log(err);
-					this.emit('error', new PluginError(PLUGIN_NAME, err.message));
-				}
-				
-				return cb();
-			});            
+					this.emit('error', new PluginError('gulp-spfolder', err.message));
+				}				
+				spsave(options, function(err, data){
+					if(err){
+						console.log(err);
+						this.emit('error', new PluginError(PLUGIN_NAME, err.message));
+					}
+					
+					return cb();
+				}); 
+
+			}); 			
+			
+           
         }
     });
 }

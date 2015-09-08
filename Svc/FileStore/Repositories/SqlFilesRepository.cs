@@ -35,7 +35,7 @@ namespace FileStore.Repositories
 				return (await cxn.QueryAsync<File>("HeadFile", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 			}
 		}
-
+         
 		public async Task<File> GetFile(Guid guid)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))

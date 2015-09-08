@@ -102,7 +102,7 @@ namespace FileStore.Controllers
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFile(string id)
-		{
+		{ 
 			try
 			{
 				var file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));

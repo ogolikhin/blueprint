@@ -5,6 +5,10 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using System.Text;
 using System.Linq;
+using Moq;
+using FileStore.Repositories;
+using FileStore.Controllers;
+using System.Threading.Tasks;
 
 namespace FileStore.Tests
 {
@@ -15,6 +19,10 @@ namespace FileStore.Tests
         public void FileStorePostTest()
         {
             // Arrange
+            //var guid = new Task<Guid?>(() => { return Guid.NewGuid(); });
+            //var moq = new Mock<IFilesRepository>();
+            //moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(guid);
+
             string fileName4Upload = "UploadTest.txt";
             string fileContent4Upload = "This is the content of the uploaded test file";
 
@@ -23,11 +31,12 @@ namespace FileStore.Tests
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new Controllers.FilesController(new MockRepo(), multiPartContent.ReadAsStreamAsync().Result);
+            var controller = new FilesController(new MockRepo());// moq.Object);
 
             controller.Request = new HttpRequestMessage
             {
-                RequestUri = new Uri("http://localhost/files")
+                RequestUri = new Uri("http://localhost/files"),
+                Content = multiPartContent
             };
 
             controller.Configuration = new HttpConfiguration();
@@ -63,7 +72,7 @@ namespace FileStore.Tests
         public void FileStoreGetTest()
         {
             // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            var controller = new Controllers.FilesController(new MockRepo());
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")
@@ -97,7 +106,7 @@ namespace FileStore.Tests
         public void FileStoreHeadTest()
         {
             // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            var controller = new Controllers.FilesController(new MockRepo());
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")
@@ -130,7 +139,7 @@ namespace FileStore.Tests
         public void FileStoreDeleteTest()
         {
             // Arrange
-            var controller = new Controllers.FilesController(new MockRepo(), null);
+            var controller = new FilesController(new MockRepo());
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")

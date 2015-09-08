@@ -17,17 +17,16 @@ namespace FileStore.Controllers
 	[RoutePrefix("files")]
 	public class FilesController : ApiController
 	{
-		private readonly IFilesRepository _fr;
+		private readonly IFilesRepository _fileRepo;
         private Stream _inputStream;
 
-        public FilesController() : this(new SqlFilesRepository(), null)
+        public FilesController() : this(new SqlFilesRepository())
 		{
 		}
 
-		internal FilesController(IFilesRepository fr, Stream inputStream)
+		internal FilesController(IFilesRepository fr)
 		{
-			_fr = fr;
-            _inputStream = inputStream;
+			_fileRepo = fr;
         }
 
         [HttpPost]
@@ -59,11 +58,10 @@ namespace FileStore.Controllers
             
 			try
 			{
-				await _fr.PostFile(file);
+				await _fileRepo.PostFile(file);
 			}
-			catch (Exception ex)
+			catch
 			{
-                System.Diagnostics.Trace.Write(ex);
 				return InternalServerError();
 			}
 			return Ok(Models.File.ConvertFileId(file.FileId));
@@ -96,7 +94,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var file = await _fr.HeadFile(Models.File.ConvertFileId(id));
+				var file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
@@ -128,7 +126,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var file = await _fr.GetFile(Models.File.ConvertFileId(id));
+				var file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
 				if (file == null)
 				{
 					// TODO: CHECK FILESTREAM
@@ -160,7 +158,7 @@ namespace FileStore.Controllers
 		{
 			try
 			{
-				var guid = await _fr.DeleteFile(Models.File.ConvertFileId(id));
+				var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
                 if (guid.HasValue)
 				{
 					return Ok(Models.File.ConvertFileId(guid.Value));

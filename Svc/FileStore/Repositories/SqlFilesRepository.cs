@@ -19,9 +19,10 @@ namespace FileStore.Repositories
 				prm.Add("@FileName", file.FileName);
 				prm.Add("@FileType", file.FileType);
 				prm.Add("@FileContent", file.FileContent);
-                file.FileId = (await cxn.QueryAsync<Guid>("PostFile", prm, commandType: CommandType.StoredProcedure)).Single();
-                await cxn.ExecuteAsync("AddFile", prm, commandType: CommandType.StoredProcedure);
-                return prm.Get<Guid>("FileId");
+                prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+                await cxn.ExecuteAsync("PostFile", prm, commandType: CommandType.StoredProcedure);
+                var fileId = prm.Get<Guid>("FileId");
+                return fileId != Guid.Empty ? fileId : (Guid?) null;
 			}
 		}
 

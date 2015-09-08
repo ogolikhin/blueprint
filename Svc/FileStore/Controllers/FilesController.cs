@@ -58,7 +58,9 @@ namespace FileStore.Controllers
             
 			try
 			{
-				await _fileRepo.PostFile(file);
+
+				var postFileResult = await _fileRepo.PostFile(file);                
+                file.FileId = postFileResult.Value;
 			}
 			catch
 			{

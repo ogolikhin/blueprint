@@ -19,8 +19,9 @@ namespace FileStore.Repositories
 				prm.Add("@FileName", file.FileName);
 				prm.Add("@FileType", file.FileType);
 				prm.Add("@FileContent", file.FileContent);
-				file.FileId = (await cxn.QueryAsync<Guid>("PostFile", prm, commandType: CommandType.StoredProcedure)).Single();
-				return (file.FileId != Guid.Empty) ? file.FileId : (Guid?)null;
+                prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+                await cxn.ExecuteAsync("PostFile", prm, commandType: CommandType.StoredProcedure);
+                return prm.Get<Guid?>("FileId");
 			}
 		}
 
@@ -34,7 +35,7 @@ namespace FileStore.Repositories
 				return (await cxn.QueryAsync<File>("HeadFile", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 			}
 		}
-
+         
 		public async Task<File> GetFile(Guid guid)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
@@ -53,7 +54,9 @@ namespace FileStore.Repositories
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@FileId", guid);
-				return (await cxn.QueryAsync<int>("DeleteFile", prm, commandType: CommandType.StoredProcedure)).Single() > 0 ? guid : (Guid?)null;
+                prm.Add("@DeletedFileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+                await cxn.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
+                return prm.Get<Guid?>("DeletedFileId");
 			}
 		}
 

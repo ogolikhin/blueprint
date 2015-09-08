@@ -16,7 +16,7 @@
     <RootNamespace>FileStore</RootNamespace>
     <AssemblyName>FileStore</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -43,8 +43,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper-Async.1.03\lib\net45\Dapper.dll</HintPath>
+    <Reference Include="Dapper, Version=1.40.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.42\lib\net45\Dapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -100,13 +100,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IFilesRepository.cs" />
     <Compile Include="Repositories\SqlFilesRepository.cs" />
-    <Compile Include="Utilities\BinaryStreamStack.cs" />
-    <Compile Include="Utilities\FilePart.cs" />
-    <Compile Include="Utilities\MultipartFormDataParser.cs" />
-    <Compile Include="Utilities\MultipartParseException.cs" />
-    <Compile Include="Utilities\ParameterPart.cs" />
-    <Compile Include="Utilities\RebufferableBinaryReader.cs" />
-    <Compile Include="Utilities\SubsequenceFinder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -135,7 +128,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>52618</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52618/</IISUrl>
+          <IISUrl>http://localhost:52617/FileStore</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

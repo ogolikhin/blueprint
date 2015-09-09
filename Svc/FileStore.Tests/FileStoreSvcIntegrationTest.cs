@@ -37,12 +37,12 @@ namespace FileStore.Tests
             //Get status of Web service
             var status = GetStatus(statusCallUri);
 
-            Assert.IsTrue(status);
+            Assert.IsTrue(status, "Service health check failed");
 
             //post file and get guid
             var fileGuid = PostFile(filesUriCall, attachmentFileName);
 
-            Assert.IsNotNull(fileGuid);
+            Assert.IsNotNull(fileGuid, "file could not be uploaded");
 
             //Correct guid for further usage
             fileGuid = fileGuid.Replace("\"", string.Empty);
@@ -137,7 +137,7 @@ namespace FileStore.Tests
                 objResponse = (HttpWebResponse)e.Response;
             }
 
-            Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK);
+            Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
             string fileGuid = null;
             using (var stream = objResponse.GetResponseStream())
             {
@@ -175,17 +175,18 @@ namespace FileStore.Tests
 
             if (expectedToFail)
             {
-                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode);
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Service returned valid Head for file which is expected to not exist");
                 return;
             }
 
-            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Head for file which is expected to exist");
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader);
+            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader, 
+                "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
-            Assert.AreEqual("image/bmp", contentType);
+            Assert.AreEqual("image/bmp", contentType, "Service content type value does not match");
 
             var fileInfo = new FileInfo(originalFileName);
             var fileSize = fileInfo.Length;
@@ -193,7 +194,7 @@ namespace FileStore.Tests
             var contentLength = objResponse.Headers["File-Size"];
             var actualFileSize = 0;
             int.TryParse(contentLength, out actualFileSize);
-            Assert.AreEqual(fileSize, actualFileSize);
+            Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
         }
 
         private void DownloadUploadedFile(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
@@ -228,10 +229,11 @@ namespace FileStore.Tests
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader);
+            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader,
+                "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
-            Assert.AreEqual("image/bmp", contentType);
+            Assert.AreEqual("image/bmp", contentType, "Service content type value does not match");
 
             var fileInfo = new FileInfo(originalFileName);
             var fileSize = fileInfo.Length;
@@ -239,7 +241,7 @@ namespace FileStore.Tests
             var contentLength = objResponse.Headers["Content-Length"];
             var actualFileSize = 0;
             int.TryParse(contentLength, out actualFileSize);
-            Assert.AreEqual(fileSize, actualFileSize);
+            Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
 
             string expectedMD5 = null;
             string actualMD5 = null;
@@ -254,7 +256,7 @@ namespace FileStore.Tests
                 actualMD5 = GetMD5ForFileStream(stream);
             }
 
-            Assert.AreEqual(expectedMD5, actualMD5);
+            Assert.AreEqual(expectedMD5, actualMD5, "Downloaded File content does not match uploaded file content");
         }
 
         private void DeleteFile(string filesUriCall, string fileGuid, bool expectedToFail = false)
@@ -282,11 +284,11 @@ namespace FileStore.Tests
 
             if (expectedToFail)
             {
-                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode);
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Non-existent file was deleted by server");
                 return;
             }
 
-            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Existent file was deleted by server");
             string actualDeletedFileGuid = null;
             using (var stream = objResponse.GetResponseStream())
             {
@@ -296,7 +298,7 @@ namespace FileStore.Tests
                 }
             }
 
-            Assert.AreEqual(fileGuid, actualDeletedFileGuid.Replace("\"",string.Empty));
+            Assert.AreEqual(fileGuid, actualDeletedFileGuid.Replace("\"",string.Empty), "Incorrect file was deleted by FileStoreService");
         }
 
         #endregion

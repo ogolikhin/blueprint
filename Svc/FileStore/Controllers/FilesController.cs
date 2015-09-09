@@ -14,134 +14,140 @@ using System.Web;
 
 namespace FileStore.Controllers
 {
-	[RoutePrefix("files")]
-	public class FilesController : ApiController
-	{
-		private readonly IFilesRepository _fileRepo;
+    [RoutePrefix("files")]
+    public class FilesController : ApiController
+    {
+        private readonly IFilesRepository _fileRepo;
 
         public FilesController() : this(new SqlFilesRepository())
-		{
-		}
+        {
+        }
 
-		internal FilesController(IFilesRepository fr)
-		{
-			_fileRepo = fr;
+        internal FilesController(IFilesRepository fr)
+        {
+            _fileRepo = fr;
         }
 
         [HttpPost]
-		[Route("")]
-		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> PostFile()
-		{
-            var isMultipart = Request.Content.IsMimeMultipartContent();
-            Models.File file = null;
-            if (isMultipart)
+        [Route("")]
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> PostFile()
+        {
+            try
             {
-                var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
-                if (multipartMemoryStreamProvider.Contents.Count > 1)
+                var isMultipart = Request.Content.IsMimeMultipartContent();
+                Models.File file = null;
+                if (isMultipart)
                 {
-                    return BadRequest();
+                    var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
+                    if (multipartMemoryStreamProvider.Contents.Count > 1)
+                    {
+                        return BadRequest();
+                    }
+                    var httpContent = multipartMemoryStreamProvider.Contents.First();
+                    file = await GetFileInfo(httpContent);
                 }
-                var httpContent = multipartMemoryStreamProvider.Contents.First();
-                file = await GetFileInfo(httpContent);
-            }
-            else
-            {
-                //Temporarily allow only multipart uploads
-                return BadRequest();
-            }
-            
-			try
-			{
+                else
+                {
+                    //Temporarily allow only multipart uploads
+                    if (Request.Content.Headers.ContentDisposition == null ||
+                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName) ||
+                       Request.Content.Headers.ContentType == null ||
+                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType.MediaType))
+                    {
+                        return BadRequest();
+                    }
+                    file = await GetFileInfo(Request.Content);
+                }
 
-				var postFileResult = await _fileRepo.PostFile(file);                
+                var postFileResult = await _fileRepo.PostFile(file);
                 file.FileId = postFileResult.Value;
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-			return Ok(Models.File.ConvertFileId(file.FileId));
-		}
+                return Ok(Models.File.ConvertFileId(file.FileId));
+            }
+            catch
+            {
+                return InternalServerError();
+            }            
+        }
 
-		[HttpGet]
+        [HttpGet]
         [HttpHead]
-		[Route("{id}")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetFile(string id)
-		{ 
-			try
-			{
+        [Route("{id}")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetFile(string id)
+        {
+            try
+            {
                 Models.File file = null;
                 bool isHead = Request.Method == HttpMethod.Head;
                 if (isHead)
                 {
-                    file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));                    
+                    file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
                 }
                 else
                 {
                     file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
                 }
-				if (file == null)
-				{
-					// TODO: CHECK FILESTREAM
-					return NotFound();
-				}
-				var response = Request.CreateResponse(HttpStatusCode.OK);
+                if (file == null)
+                {
+                    // TODO: CHECK FILESTREAM
+                    return NotFound();
+                }
+                var response = Request.CreateResponse(HttpStatusCode.OK);
                 if (isHead)
                 {
-                    response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));                    
+                    response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
                 }
                 else
                 {
                     response.Content = new ByteArrayContent(file.FileContent);
                 }
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
                 response.Content.Headers.ContentLength = file.FileSize;
                 response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
                 response.Headers.Add("File-Size", file.FileSize.ToString());
                 return ResponseMessage(response);
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
 
-		[HttpDelete]
-		[Route("{id}")]
-		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> DeleteFile(string id)
-		{
-			try
-			{
-				var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
+        [HttpDelete]
+        [Route("{id}")]
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> DeleteFile(string id)
+        {
+            try
+            {
+                var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
                 if (guid.HasValue)
-				{
-					return Ok(Models.File.ConvertFileId(guid.Value));
-				}
-				else
-				{
-					// TODO: CHECK FILESTREAM
-					return NotFound();
-				}
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
+                {
+                    return Ok(Models.File.ConvertFileId(guid.Value));
+                }
+                else
+                {
+                    // TODO: CHECK FILESTREAM
+                    return NotFound();
+                }
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
 
         #region Private Methods
 

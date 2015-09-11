@@ -23,7 +23,7 @@ function gulpspsave(options) {
         }
 
         if (file.isBuffer()) {
-			options.newFolder = path.dirname(path.relative('.', file.path));			
+			options.newFolder = path.dirname(path.relative('../', file.path));			
 			options.folder = options.siteFolder + '/' + options.newFolder;			
 			
 			options.fileName = path.basename(file.path);			

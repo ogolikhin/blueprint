@@ -6,12 +6,12 @@ var gulp = require('gulp');
 //    pattern: ['gulp-*', 'main-bower-files', 'uglify-save-license', 'del']
 //});
 
-var spsave = require('./../gulp-spsave/index');
+var spsave = require('./gulp-spsave/index');
 
 
 gulp.task('upload-doc', function () {
     console.log('upload-doc is done');
-    gulp.src('./**/doc/*', {base: './'} )
+    gulp.src(['../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
         .pipe(spsave( {
 				username: "build@blueprintsys.com",
 				password: "Bu1ld100",

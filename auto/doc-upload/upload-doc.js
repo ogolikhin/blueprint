@@ -16,6 +16,6 @@ gulp.task('upload-doc', function () {
 				username: "build@blueprintsys.com",
 				password: "Bu1ld100",
 				siteUrl: "https://blueprintsys.sharepoint.com/rnd/",
-				siteFolder: "Shared Documents/Architecture/GitHub"
+				siteFolder: "Shared Documents/Architecture/Document Repository"
         }));
 });

@@ -19,3 +19,14 @@ gulp.task('upload-doc', function () {
 				siteFolder: "Shared Documents/Architecture/Document Repository"
         }));
 });
+
+gulp.task('upload-doc-master', function () {
+    console.log('upload-doc is done');
+    gulp.src(['../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
+        .pipe(spsave( {
+				username: "build@blueprintsys.com",
+				password: "Bu1ld100",
+				siteUrl: "https://blueprintsys.sharepoint.com/rnd/",
+				siteFolder: "Shared Documents/Architecture/Document Repository (master)"
+        }));
+});

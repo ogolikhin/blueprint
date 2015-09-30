@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStore", "FileStore\File
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStore.Tests", "FileStore.Tests\FileStore.Tests.csproj", "{957F3DCC-DA08-48A0-B057-3F142A9A80D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl", "AccessControl\AccessControl.csproj", "{7FC77681-0B52-478D-AC13-38F8CEF84695}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl.Tests", "AccessControl.Tests\AccessControl.Tests.csproj", "{0DE32927-676B-4913-8C40-61894786B931}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{957F3DCC-DA08-48A0-B057-3F142A9A80D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{957F3DCC-DA08-48A0-B057-3F142A9A80D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{957F3DCC-DA08-48A0-B057-3F142A9A80D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FC77681-0B52-478D-AC13-38F8CEF84695}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FC77681-0B52-478D-AC13-38F8CEF84695}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FC77681-0B52-478D-AC13-38F8CEF84695}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FC77681-0B52-478D-AC13-38F8CEF84695}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DE32927-676B-4913-8C40-61894786B931}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DE32927-676B-4913-8C40-61894786B931}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DE32927-676B-4913-8C40-61894786B931}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DE32927-676B-4913-8C40-61894786B931}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

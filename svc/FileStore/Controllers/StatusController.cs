@@ -14,33 +14,10 @@ using System.Web.Http.Description;
 namespace FileStore.Controllers
 {
 	[RoutePrefix("status")]
-	public class StatusController : ApiController
+	public class StatusController : StatusControl.Controllers.StatusController
 	{
-		private readonly IFilesRepository _fileRepo;
-
-		public StatusController() : this(new SqlFilesRepository())
+		public StatusController() : base(WebApiConfig.FileStoreDatabase, "GetStatus")
 		{
-		}
-
-		internal StatusController(IFilesRepository fileRepo)
-		{
-			_fileRepo = fileRepo;
-		}
-
-		[HttpGet]
-		[Route("")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetStatus()
-		{
-			try
-			{
-				await _fileRepo.GetStatus();
-				return Ok();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
 		}
 	}
 }

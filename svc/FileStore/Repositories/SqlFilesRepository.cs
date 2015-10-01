@@ -59,14 +59,5 @@ namespace FileStore.Repositories
                 return prm.Get<Guid?>("DeletedFileId");
 			}
 		}
-
-		public async Task<bool> GetStatus()
-		{
-			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
-			{
-				cxn.Open();
-				return (await cxn.QueryAsync<int>("GetStatus", commandType: CommandType.StoredProcedure)).Single() >=0;
-			}
-		}
 	}
 }

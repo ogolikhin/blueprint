@@ -17,7 +17,7 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
-        private readonly IFilesRepository _fileRepo;
+        private readonly IFilesRepository _filesRepo;
 
         public FilesController() : this(new SqlFilesRepository())
         {
@@ -25,7 +25,7 @@ namespace FileStore.Controllers
 
         internal FilesController(IFilesRepository fr)
         {
-            _fileRepo = fr;
+            _filesRepo = fr;
         }
 
         [HttpPost]
@@ -60,7 +60,7 @@ namespace FileStore.Controllers
                     file = await GetFileInfo(Request.Content);
                 }
 
-                var postFileResult = await _fileRepo.PostFile(file);
+                var postFileResult = await _filesRepo.PostFile(file);
                 file.FileId = postFileResult.Value;
                 return Ok(Models.File.ConvertFileId(file.FileId));
             }
@@ -82,11 +82,11 @@ namespace FileStore.Controllers
                 bool isHead = Request.Method == HttpMethod.Head;
                 if (isHead)
                 {
-                    file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
+                    file = await _filesRepo.HeadFile(Models.File.ConvertFileId(id));
                 }
                 else
                 {
-                    file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
+                    file = await _filesRepo.GetFile(Models.File.ConvertFileId(id));
                 }
                 if (file == null)
                 {
@@ -128,7 +128,7 @@ namespace FileStore.Controllers
         {
             try
             {
-                var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
+                var guid = await _filesRepo.DeleteFile(Models.File.ConvertFileId(id));
                 if (guid.HasValue)
                 {
                     return Ok(Models.File.ConvertFileId(guid.Value));

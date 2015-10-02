@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AccessCotrol.Repositories;
+using AccessControl.Repositories;
 using System.Net;
 using System.Text;
 using System.IO;
@@ -14,24 +14,24 @@ using System.Web;
 
 namespace AccessCotrol.Controllers
 {
-    [RoutePrefix("files")]
+    [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private readonly IFilesRepository _fileRepo;
+        private readonly ISessionsRepository _sessionsRepo;
 
-        public SessionsController() : this(new SqlFilesRepository())
+        public SessionsController() : this(new SqlSessionsRepository())
         {
         }
 
-        internal SessionsController(IFilesRepository fr)
+        internal SessionsController(ISessionsRepository sr)
         {
-            _fileRepo = fr;
+            _sessionsRepo = sr;
         }
 
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> PostFile()
+        public async Task<IHttpActionResult> PostSession(int uid)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace AccessCotrol.Controllers
                     file = await GetFileInfo(Request.Content);
                 }
 
-                var postFileResult = await _fileRepo.PostFile(file);
+                var postFileResult = await _sessionsRepo.PostFile(file);
                 file.FileId = postFileResult.Value;
                 return Ok(Models.File.ConvertFileId(file.FileId));
             }
@@ -82,11 +82,11 @@ namespace AccessCotrol.Controllers
                 bool isHead = Request.Method == HttpMethod.Head;
                 if (isHead)
                 {
-                    file = await _fileRepo.HeadFile(Models.File.ConvertFileId(id));
+                    file = await _sessionsRepo.HeadFile(Models.File.ConvertFileId(id));
                 }
                 else
                 {
-                    file = await _fileRepo.GetFile(Models.File.ConvertFileId(id));
+                    file = await _sessionsRepo.GetFile(Models.File.ConvertFileId(id));
                 }
                 if (file == null)
                 {
@@ -128,7 +128,7 @@ namespace AccessCotrol.Controllers
         {
             try
             {
-                var guid = await _fileRepo.DeleteFile(Models.File.ConvertFileId(id));
+                var guid = await _sessionsRepo.DeleteFile(Models.File.ConvertFileId(id));
                 if (guid.HasValue)
                 {
                     return Ok(Models.File.ConvertFileId(guid.Value));

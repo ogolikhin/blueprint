@@ -9,10 +9,10 @@ namespace AccessControl.Repositories
 {
 	public interface ISessionsRepository
 	{
-		Task<Guid?> PostFile(Session session);
-		Task<Session> HeadFile(Guid guid);
-		Task<Session> GetFile(Guid guid);
-		Task<Guid?> DeleteFile(Guid guid);
-		Task<bool> GetStatus();
+		Task<Guid?> CreateSession(Session session);
+		Task<Guid?> UpdateSession(Session session);
+		Task<Session> ReadSession(Guid guid);
+		Task<Guid?> DeleteSession(Guid guid);
+		Task<IEnumerable<Session>> SelectSessions(int ps, int pn);
 	}
 }

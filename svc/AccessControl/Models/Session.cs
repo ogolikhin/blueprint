@@ -7,26 +7,18 @@ namespace AccessControl.Models
 	public class Session
 	{
 		[JsonProperty]
-		public Guid FileId { get; set; }
+		public Guid SessionId { get; set; }
 		[JsonProperty]
-		public DateTime StoredTime { get; set; }
+		public int UserId { get; set; }
 		[JsonProperty]
-		public string FileName { get; set; }
+		public DateTime BeginTime { get; set; }
 		[JsonProperty]
-		public string FileType { get; set; }
-		[JsonProperty]
-		public long FileSize { get; set; }
-		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-		public byte[] FileContent { get; set; }
+		public DateTime EndTime { get; set; }
 
-		public static string ConvertFileId(Guid guid)
+		public string SessionKey
 		{
-			return guid.ToString("N");
-		}
-
-		public static Guid ConvertFileId(string str)
-		{
-			return Guid.ParseExact(str, "N");
+			get { return SessionId.ToString(("N")); }
+			set { Guid.ParseExact(value, "N"); }
 		}
 	}
 }

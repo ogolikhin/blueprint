@@ -15,10 +15,19 @@ namespace AccessControl.Models
 		[JsonProperty]
 		public DateTime EndTime { get; set; }
 
-		public string SessionKey
+		public static string Convert(Guid guid)
 		{
-			get { return SessionId.ToString(("N")); }
-			set { Guid.ParseExact(value, "N"); }
+			return guid.ToString(("N"));
+		}
+
+		public static Guid Convert(string val)
+		{ 
+			return Guid.ParseExact(val, "N");
+		}
+
+		public Session(int ext)
+		{
+			EndTime = BeginTime.AddSeconds(ext);
 		}
 	}
 }

@@ -9,9 +9,8 @@ namespace AccessControl.Repositories
 {
 	public interface ISessionsRepository
 	{
-		Task<Guid?> CreateSession(Session session);
-		Task<Guid?> UpdateSession(Session session);
-		Task<Session> ReadSession(Guid guid);
+		Task<Guid?> CreateSession(int ext);
+		Task<Session> ReadSession(Guid guid, int ext);
 		Task<Guid?> DeleteSession(Guid guid);
 		Task<IEnumerable<Session>> SelectSessions(int ps, int pn);
 	}

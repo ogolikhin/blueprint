@@ -12,10 +12,11 @@ namespace AccessControl.Repositories
 {
 	public class SqlSessionsRepository : ISessionsRepository
 	{
-		public async Task<Guid?> CreateSession(Session session)
+		public virtual async Task<Guid?> CreateSession(int ext)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
+				var session = new Session(ext);
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@UserId", session.UserId);
@@ -28,44 +29,31 @@ namespace AccessControl.Repositories
 			}
 		}
 
-		public async Task<Guid?> UpdateSession(Session session)
-		{
-			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
-			{
-				cxn.Open();
-				var prm = new DynamicParameters();
-				prm.Add("@SessionId", session.SessionId);
-				prm.Add("@EndTime", session.EndTime);
-				await cxn.ExecuteAsync("UpdateSession", prm, commandType: CommandType.StoredProcedure);
-				return session.SessionId;
-			}
-		}
-
-		public async Task<Session> ReadSession(Guid guid)
+		public virtual async Task<Session> ReadSession(Guid guid, int ext)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@SessionId", guid);
-				return (await cxn.QueryAsync<Session>("HeadFile", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+				prm.Add("@Ext", ext);
+				return (await cxn.QueryAsync<Session>("ReadSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 			}
 		}
 
-		public async Task<Guid?> DeleteSession(Guid guid)
+		public virtual async Task<Guid?> DeleteSession(Guid guid)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@SessionId", guid);
-				prm.Add("@DeletedSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
 				await cxn.ExecuteAsync("DeleteSession", prm, commandType: CommandType.StoredProcedure);
-				return prm.Get<Guid?>("DeletedSessionId");
+				return guid;
 			}
 		}
 
-		public async Task<IEnumerable<Session>> SelectSessions(int ps, int pn)
+		public virtual async Task<IEnumerable<Session>> SelectSessions(int ps, int pn)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{

@@ -91,9 +91,9 @@ namespace FileStore.Controllers
                 if (file == null)
                 {
                     // CHECK FILESTREAM
-                    FileStreamAPI fsapi = new FileStreamAPI();
+                    IFileStreamRepository fsapi = new FileStreamRepository();
 
-                    file = await fsapi.GetFile(Models.File.ConvertFileId(id), GetRequestContentType());
+                    file = fsapi.GetFile(Models.File.ConvertFileId(id), GetRequestContentType());
 
                     if (file == null)
                     {

@@ -9,94 +9,51 @@ namespace FileStore.Repositories
 {
 	public class FileStreamRepository : IFileStreamRepository
 	{
- 
-        public async Task<byte[]> GetTSqlFileStreamAsync(Guid guid)
+        public Models.File GetFile(Guid fileGuid, string contentType)
         {
-            // For best performance and optimum usage of the SQL Server resources, 
-            // FILESTREAM data should not generally be accessed using TSQL. This method
-            // provides a fallback if there are issues with the streaming APIs
+            if (fileGuid == null || fileGuid == Guid.Empty) throw new ArgumentException("fileGuid param is null or empty.");
+
+            // return a FILE object with the FILESTREAM content 
+            // if FILESTREAM data file is not found return null
+
+            Models.File file = null;
 
             byte[] buffer = null;
 
-            using (var db = new SqlConnection(WebApiConfig.FileStreamDatabase))
+            using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid))
             {
-                await db.OpenAsync();
-
-                using (var sqlCommand = new SqlCommand())
+                try
                 {
-                    sqlCommand.Connection = db;
+                    // get the length of the FILESTREAM so we can allocate a buffer
+                    long len = fileStreamReader.Length;
 
-                    sqlCommand.CommandText =
-                        String.Format("SELECT [Content] FROM Files WHERE(FileGuid = '{0}')", guid.ToString());
-
-                    var result = await sqlCommand.ExecuteScalarAsync();
-
-                    buffer = result != null ? result as byte[] : null;
-                }
-            }
-            return buffer;
-
-        }
-
-        public async Task<byte[]> GetFileStreamAsync(Guid guid)
-        {
-            // This method uses the streaming APIs exposed by SQL Server
-            // to retrieve a FILESTREAM data file 
-
-            byte[] buffer = null;
-
-            using (var db = new SqlConnection(WebApiConfig.FileStreamDatabase))
-            {
-                await db.OpenAsync();
-
-                // Retrieve the PathName() and transaction context
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = db;
-
-                    cmd.CommandText = String.Format("SELECT [Content].PathName() AS filePath, " +
-                        "GET_FILESTREAM_TRANSACTION_CONTEXT() AS txContext " +
-                        "FROM Files WHERE ( FileGuid = '{0}' )", guid);
-
-                    // Begin a transaction
-                    using (SqlTransaction trn = db.BeginTransaction("fsTransaction"))
+                    if (len > 0)
                     {
-                        try
-                        {
-                            cmd.Transaction = trn;
+                        buffer = new byte[len];
 
-                            // Execute the query
-                            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        // retrieve the FILESTREAM content
+
+                        int count = fileStreamReader.Read(buffer, 0, buffer.Length);
+
+                        if (count > 0)
+                        {
+                            file = new Models.File()
                             {
-                                if (reader.Read())
-                                {
-                                    // Open and read file using SqlFileStream Class
-                                    string filePath = reader.GetString(0);
-                                    object objContext = reader.GetValue(1);
-                                    byte[] txContext = (byte[])objContext;
-
-                                    using (SqlFileStream fs = new SqlFileStream(
-                                            filePath, txContext, System.IO.FileAccess.Read))
-                                    {
-                                        if (fs != null)
-                                        {
-                                            buffer = new byte[(int)fs.Length];
-                                            fs.Read(buffer, 0, (int)fs.Length);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            trn.Rollback();
-                            throw;
+                                FileId = fileGuid,
+                                FileContent = buffer,
+                                FileSize = buffer.Length,
+                                FileType = contentType ?? "application/octet-stream"
+                            };
                         }
                     }
                 }
+                catch
+                {
+                    // handle all exceptions upstream
+                    throw;
+                }
             }
-
-            return buffer;
+            return file;
         }
     }
 }

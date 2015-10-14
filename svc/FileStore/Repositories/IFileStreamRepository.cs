@@ -9,7 +9,6 @@ namespace FileStore.Repositories
 {
 	public interface IFileStreamRepository
 	{
-        Task<byte[]> GetTSqlFileStreamAsync(Guid guid);
-        Task<byte[]> GetFileStreamAsync(Guid guid);
+        File GetFile(Guid guid, string contentType);
     }
 }

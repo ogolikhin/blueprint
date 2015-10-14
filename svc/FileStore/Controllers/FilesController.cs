@@ -67,7 +67,7 @@ namespace FileStore.Controllers
             catch
             {
                 return InternalServerError();
-            }            
+            }
         }
 
         [HttpGet]
@@ -90,8 +90,16 @@ namespace FileStore.Controllers
                 }
                 if (file == null)
                 {
-                    // TODO: CHECK FILESTREAM
-                    return NotFound();
+                    // CHECK FILESTREAM
+                    IFileStreamRepository fsapi = new FileStreamRepository();
+
+                    file = fsapi.GetFile(Models.File.ConvertFileId(id), GetRequestContentType());
+
+                    if (file == null)
+                    {
+                        return NotFound();
+                    }
+
                 }
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 if (isHead)
@@ -149,6 +157,7 @@ namespace FileStore.Controllers
             }
         }
 
+
         #region Private Methods
 
         private async Task<Models.File> GetFileInfo(HttpContent httpContent)
@@ -169,6 +178,20 @@ namespace FileStore.Controllers
                     };
                 }
             }
+        }
+
+        private string GetRequestContentType()
+        {
+            string contentType = null;
+
+            if (Request != null &&
+                Request.Content != null &&
+                Request.Content.Headers != null &&
+                Request.Content.Headers.ContentType != null)
+            {
+                contentType = Request.Content.Headers.ContentType.ToString();
+            }
+            return contentType;
         }
 
         #endregion

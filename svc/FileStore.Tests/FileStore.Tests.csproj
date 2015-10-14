@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileStoreSvcTest.cs" />
+    <Compile Include="FileStreamAPITest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileStoreSvcIntegrationTest.cs" />
   </ItemGroup>

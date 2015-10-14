@@ -17,6 +17,6 @@ namespace AccessControl
 		}
 
 		public static string AdminStoreDatabase = ConfigurationManager.ConnectionStrings["AdminStoreDatabase"].ConnectionString;
-		public static string SessionTimeoutInterval = ConfigurationManager.AppSettings["SessionTimeoutInterval"];
+		public static int SessionTimeoutInterval = Int32.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
 	}
 }

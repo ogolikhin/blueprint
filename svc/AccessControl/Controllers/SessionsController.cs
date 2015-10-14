@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AccessControl.Repositories;
@@ -8,169 +10,187 @@ using System.Text;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web;
+using System.Web.Http.Results;
+using AccessControl;
+using AccessControl.Models;
 
 namespace AccessCotrol.Controllers
 {
-    [RoutePrefix("sessions")]
-    public class SessionsController : ApiController
-    {
-        private readonly ISessionsRepository _sessionsRepo;
+	[RoutePrefix("sessions")]
+	public class SessionsController : ApiController
+	{
+		private static readonly MemoryCache Cache = new MemoryCache("SessionsCache");
 
-        public SessionsController() : this(new SqlSessionsRepository())
-        {
-        }
+		private readonly ISessionsRepository _repo = new SqlSessionsRepository();
 
-        internal SessionsController(ISessionsRepository sr)
-        {
-            _sessionsRepo = sr;
-        }
+		static SessionsController()
+		{
+			var repo = new SqlSessionsRepository();
+			int ps = 100;
+			int pn = 0;
+			IEnumerable<Session> sessions = null;
+			do
+			{
+				sessions = repo.SelectSessions(ps, pn).Result;
+				foreach (var session in sessions)
+				{
+					Cache.Add(Session.Convert(session.SessionId), session.UserId, new CacheItemPolicy()
+					{
+						SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
+						//UpdateCallback = new CacheEntryUpdateCallback(i => repo.EndSession(Session.Convert(i.Key)))
+					});
+				}
+			} while (sessions.Count() == ps);
+		}
 
-        [HttpPost]
-        [Route("")]
-        [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> PostSession(int uid)
-        {
-            try
-            {
-                var isMultipart = Request.Content.IsMimeMultipartContent();
-                Models.File file = null;
-                if (isMultipart)
-                {
-                    var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
-                    if (multipartMemoryStreamProvider.Contents.Count > 1)
-                    {
-                        return BadRequest();
-                    }
-                    var httpContent = multipartMemoryStreamProvider.Contents.First();
-                    file = await GetFileInfo(httpContent);
-                }
-                else
-                {
-                    //Temporarily allow only multipart uploads
-                    if (Request.Content.Headers.ContentDisposition == null ||
-                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName) ||
-                       Request.Content.Headers.ContentType == null ||
-                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType.MediaType))
-                    {
-                        return BadRequest();
-                    }
-                    file = await GetFileInfo(Request.Content);
-                }
+		public SessionsController()
+		{
+		}
 
-                var postFileResult = await _sessionsRepo.PostFile(file);
-                file.FileId = postFileResult.Value;
-                return Ok(Models.File.ConvertFileId(file.FileId));
-            }
-            catch
-            {
-                return InternalServerError();
-            }            
-        }
+		internal SessionsController(ISessionsRepository repo)
+		{
+			_repo = repo;
+		}
 
-        [HttpGet]
-        [HttpHead]
-        [Route("{id}")]
-        [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetFile(string id)
-        {
-            try
-            {
-                Models.File file = null;
-                bool isHead = Request.Method == HttpMethod.Head;
-                if (isHead)
-                {
-                    file = await _sessionsRepo.HeadFile(Models.File.ConvertFileId(id));
-                }
-                else
-                {
-                    file = await _sessionsRepo.GetFile(Models.File.ConvertFileId(id));
-                }
-                if (file == null)
-                {
-                    // TODO: CHECK FILESTREAM
-                    return NotFound();
-                }
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                if (isHead)
-                {
-                    response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
-                }
-                else
-                {
-                    response.Content = new ByteArrayContent(file.FileContent);
-                }
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
-                response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
-                response.Content.Headers.ContentLength = file.FileSize;
-                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-                response.Headers.Add("File-Size", file.FileSize.ToString());
-                return ResponseMessage(response);
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
-            }
-            catch
-            {
-                return InternalServerError();
-            }
-        }
+		[HttpPost]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> PostSession(int id)
+		{
+			try
+			{
+				var val = await _repo.BeginSession(id);
+				if (val == null)
+				{
+					throw new KeyNotFoundException();
+				}
+				var guid = val.Value;
+				var token = Session.Convert(guid);
+				Cache.Add(token, (object) id, new CacheItemPolicy()
+				{
+					SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
+					UpdateCallback = new CacheEntryUpdateCallback(i => _repo.EndSession(Session.Convert(i.Key)))
+				});
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Headers.Add("Session-Token", token);
+				return ResponseMessage(response);
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
 
-        [HttpDelete]
-        [Route("{id}")]
-        [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> DeleteFile(string id)
-        {
-            try
-            {
-                var guid = await _sessionsRepo.DeleteFile(Models.File.ConvertFileId(id));
-                if (guid.HasValue)
-                {
-                    return Ok(Models.File.ConvertFileId(guid.Value));
-                }
-                else
-                {
-                    // TODO: CHECK FILESTREAM
-                    return NotFound();
-                }
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
-            }
-            catch
-            {
-                return InternalServerError();
-            }
-        }
+		[HttpPut]
+		[Route("{op}/{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public IHttpActionResult PutSession(string op, int id)
+		{
+			try
+			{
+				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+				Session.Convert(token);
+				var val = Cache.Get(token);
+				if (val == null)
+				{
+					throw new KeyNotFoundException();
+				}
+				var response = Request.CreateResponse(HttpStatusCode.OK);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				response.Headers.Add("Session-Token", token);
+				return ResponseMessage(response);
+			}
+			catch (ArgumentNullException)
+			{
+				return BadRequest();
+			}
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
 
-        #region Private Methods
+		[HttpDelete]
+		[Route("")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> DeleteSession()
+		{
+			try
+			{
+				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+				var guid = Session.Convert(token);
+				if (Cache.Remove(token) == null)
+				{
+					throw new KeyNotFoundException();
+				}
+				await _repo.EndSession(guid);
+				return Ok();
+			}
+			catch (ArgumentNullException)
+			{
+				return BadRequest();
+			}
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
 
-        private async Task<Models.File> GetFileInfo(HttpContent httpContent)
-        {
-            using (var stream = await httpContent.ReadAsStreamAsync())
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    stream.CopyTo(memoryStream);
-                    var fileArray = memoryStream.ToArray();
-                    return new Models.File()
-                    {
-                        StoredTime = DateTime.UtcNow, // use UTC time to store data
-                        FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
-                        FileType = httpContent.Headers.ContentType.MediaType,
-                        FileSize = httpContent.Headers.ContentLength.GetValueOrDefault(),
-                        FileContent = fileArray
-                    };
-                }
-            }
-        }
 
-        #endregion
-    }
+		[HttpGet]
+		[Route("{ps}/{pn}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
+		{
+			try
+			{
+				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+				var guid = Session.Convert(token);
+				return Ok(await _repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session timeouts
+			}
+			catch (ArgumentNullException)
+			{
+				return BadRequest();
+			}
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
+	}
 }

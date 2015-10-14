@@ -7,9 +7,9 @@ namespace AccessControl.Models
 	public class Session
 	{
 		[JsonProperty]
-		public Guid SessionId { get; set; }
-		[JsonProperty]
 		public int UserId { get; set; }
+		[JsonProperty]
+		public Guid SessionId { get; set; }
 		[JsonProperty]
 		public DateTime BeginTime { get; set; }
 		[JsonProperty]
@@ -23,11 +23,6 @@ namespace AccessControl.Models
 		public static Guid Convert(string val)
 		{ 
 			return Guid.ParseExact(val, "N");
-		}
-
-		public Session(int ext)
-		{
-			EndTime = BeginTime.AddSeconds(ext);
 		}
 	}
 }

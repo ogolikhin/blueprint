@@ -12,44 +12,29 @@ namespace AccessControl.Repositories
 {
 	public class SqlSessionsRepository : ISessionsRepository
 	{
-		public virtual async Task<Guid?> CreateSession(int ext)
+		public virtual async Task<Guid?> BeginSession(int id)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
-				var session = new Session(ext);
 				cxn.Open();
 				var prm = new DynamicParameters();
-				prm.Add("@UserId", session.UserId);
-				prm.Add("@BeginTime", session.BeginTime);
-				prm.Add("@EndTime", session.EndTime);
+				prm.Add("@UserId", id);
+				prm.Add("@BeginTime", DateTime.UtcNow);
 				prm.Add("@SessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-				await cxn.ExecuteAsync("CreateSession", prm, commandType: CommandType.StoredProcedure);
-				session.SessionId = prm.Get<Guid?>("SessionId") ?? default(Guid);
-            return session.SessionId;
+				await cxn.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);
+				return prm.Get<Guid?>("SessionId");
 			}
 		}
 
-		public virtual async Task<Session> ReadSession(Guid guid, int ext)
+		public virtual async Task EndSession(Guid guid)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@SessionId", guid);
-				prm.Add("@Ext", ext);
-				return (await cxn.QueryAsync<Session>("ReadSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
-			}
-		}
-
-		public virtual async Task<Guid?> DeleteSession(Guid guid)
-		{
-			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
-			{
-				cxn.Open();
-				var prm = new DynamicParameters();
-				prm.Add("@SessionId", guid);
-				await cxn.ExecuteAsync("DeleteSession", prm, commandType: CommandType.StoredProcedure);
-				return guid;
+				prm.Add("@EndTime", DateTime.UtcNow);
+				await cxn.ExecuteAsync("EndSession", prm, commandType: CommandType.StoredProcedure);
 			}
 		}
 

@@ -1,50 +1,55 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AccessControl.Repositories;
 using System.Net;
-using System.Text;
-using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web;
-using System.Web.Http.Results;
-using AccessControl;
 using AccessControl.Models;
 
-namespace AccessCotrol.Controllers
+namespace AccessControl.Controllers
 {
 	[RoutePrefix("sessions")]
 	public class SessionsController : ApiController
 	{
-		private static readonly MemoryCache Cache = new MemoryCache("SessionsCache");
-
-		private readonly ISessionsRepository _repo = new SqlSessionsRepository();
+		private static readonly ObjectCache Cache = new MemoryCache("SessionsCache");
+		private static ISessionsRepository Repo = new SqlSessionsRepository();
 
 		static SessionsController()
 		{
-			var repo = new SqlSessionsRepository();
-			int ps = 100;
-			int pn = 0;
-			IEnumerable<Session> sessions = null;
-			do
+			if (!EventLog.SourceExists(WebApiConfig.ServiceLogSource))
+				EventLog.CreateEventSource(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName);
+			Task.Run(() =>
 			{
-				sessions = repo.SelectSessions(ps, pn).Result;
-				foreach (var session in sessions)
+				try
 				{
-					Cache.Add(Session.Convert(session.SessionId), session.UserId, new CacheItemPolicy()
+					EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", EventLogEntryType.Information);
+					var ps = 100;
+					var pn = 1;
+					var count = 0;
+					do
 					{
-						SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
-						//UpdateCallback = new CacheEntryUpdateCallback(i => repo.EndSession(Session.Convert(i.Key)))
-					});
+						count = 0;
+						var sessions = Repo.SelectSessions(ps, pn).Result;
+						foreach (var session in sessions)
+						{
+							++count;
+							AddSession(Session.Convert(session.SessionId), session.UserId);
+						}
+						++pn;
+					} while (count == ps);
+					StatusController.Ready.Set();
+					EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", EventLogEntryType.Information);
 				}
-			} while (sessions.Count() == ps);
+				catch (Exception)
+				{
+					EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", EventLogEntryType.Error);
+				}
+			});
 		}
 
 		public SessionsController()
@@ -53,28 +58,63 @@ namespace AccessCotrol.Controllers
 
 		internal SessionsController(ISessionsRepository repo)
 		{
-			_repo = repo;
+			Repo = repo;
 		}
 
-		[HttpPost]
-		[Route("{id}")]
+		[HttpGet]
+		[Route("")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> PostSession(int id)
+		public async Task<IHttpActionResult> GetSession()
 		{
 			try
 			{
-				var val = await _repo.BeginSession(id);
-				if (val == null)
+				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+				var session = await Repo.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
+				if (session == null)
 				{
 					throw new KeyNotFoundException();
 				}
-				var guid = val.Value;
-				var token = Session.Convert(guid);
-				Cache.Add(token, (object) id, new CacheItemPolicy()
+				var response = Request.CreateResponse(HttpStatusCode.OK, session);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				return ResponseMessage(response);
+			}
+			catch (ArgumentNullException)
+			{
+				return BadRequest();
+			}
+			catch (FormatException)
+			{
+				return BadRequest();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
+
+		[HttpPost]
+		[Route("{uid}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> PostSession(int uid)
+		{
+			try
+			{
+				var guids = await Repo.BeginSession(uid);
+				if (!guids[0].HasValue)
 				{
-					SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
-					UpdateCallback = new CacheEntryUpdateCallback(i => _repo.EndSession(Session.Convert(i.Key)))
-				});
+					throw new KeyNotFoundException();
+				}
+				var token = Session.Convert(guids[0].Value);
+				if (guids[1].HasValue)
+				{
+					Cache.Remove(Session.Convert(guids[1].Value));
+				}
+				AddSession(token, uid);
 				var response = Request.CreateResponse(HttpStatusCode.OK);
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
@@ -92,20 +132,20 @@ namespace AccessCotrol.Controllers
 		}
 
 		[HttpPut]
-		[Route("{op}/{id}")]
+		[Route("{op}/{aid}")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public IHttpActionResult PutSession(string op, int id)
+		public IHttpActionResult PutSession(string op, int aid)
 		{
 			try
 			{
 				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
 				Session.Convert(token);
-				var val = Cache.Get(token);
-				if (val == null)
+				var uid = Cache.Get(token);
+				if (uid == null)
 				{
 					throw new KeyNotFoundException();
 				}
-				var response = Request.CreateResponse(HttpStatusCode.OK);
+				var response = Request.CreateResponse(HttpStatusCode.OK, uid);
 				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				response.Headers.Add("Session-Token", token);
@@ -142,7 +182,7 @@ namespace AccessCotrol.Controllers
 				{
 					throw new KeyNotFoundException();
 				}
-				await _repo.EndSession(guid);
+				await Repo.EndSession(guid);
 				return Ok();
 			}
 			catch (ArgumentNullException)
@@ -165,7 +205,7 @@ namespace AccessCotrol.Controllers
 
 
 		[HttpGet]
-		[Route("{ps}/{pn}")]
+		[Route("select?ps={ps}&pn={pn}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
 		{
@@ -173,7 +213,7 @@ namespace AccessCotrol.Controllers
 			{
 				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
 				var guid = Session.Convert(token);
-				return Ok(await _repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session timeouts
+				return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
 			}
 			catch (ArgumentNullException)
 			{
@@ -191,6 +231,15 @@ namespace AccessCotrol.Controllers
 			{
 				return InternalServerError();
 			}
+		}
+
+		private static void AddSession(string key, int id)
+		{
+			Cache.Add(key, (object) id, new CacheItemPolicy()
+			{
+				SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
+				UpdateCallback = new CacheEntryUpdateCallback(a => Repo.EndSession(Session.Convert(a.Key)))
+			});
 		}
 	}
 }

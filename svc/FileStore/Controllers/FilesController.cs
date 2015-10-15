@@ -15,6 +15,11 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
+	    static FilesController()
+	    {
+		    StatusController.Ready.Set();
+	    }
+
         //remove unnecessary headers from web api
         //http://www.4guysfromrolla.com/articles/120209-1.aspx
 
@@ -105,22 +110,22 @@ namespace FileStore.Controllers
                     {
                        file = _fileStreamRepo.HeadFile(guid);
                         isFileStoreGuid = false;
-                    }
+                }
                 }
                 else
                 {
                     file = await _filesRepo.GetFile(guid);
-                    if (file == null)
-                    {
+                if (file == null)
+                {
                         file = _fileStreamRepo.GetFile(guid);
                         isFileStoreGuid = false;
                     }
                 }
 
                 if (file == null || (!isFileStoreGuid && file.FileName == ""))
-                {
-                    return NotFound();
-                }
+                    {
+                        return NotFound();
+                    }
 
                 var mappedContentType = isFileStoreGuid ? file.FileType : _fileMapperRepo.GetMappedOutputContentType(file.FileType);
                 if (string.IsNullOrWhiteSpace(mappedContentType))
@@ -139,11 +144,11 @@ namespace FileStore.Controllers
                     if (isFileStoreGuid)
                     {
                         responseContent = new ByteArrayContent(file.FileContent);
-                    }
-                    else
-                    {
+                }
+                else
+                {
                         responseContent = new StreamContent(file.FileStream);
-                    }
+                }
                 }
 
                 response.Content = responseContent;

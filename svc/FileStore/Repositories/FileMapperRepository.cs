@@ -3,6 +3,19 @@
     public class FileMapperRepository : IFileMapperRepository
     {
         internal const string DefaultMediaType = "application/octet-stream";
+        internal const string TextMediaType = "text/plain";
+        internal const string RichTextMediaType = "text/richtext";
+        internal const string PngMediaType = "image/png";
+        internal const string JpgMediaType = "image/jpeg";
+        internal const string BmpMediaType = "image/bmp";
+        internal const string IefMediaType = "image/ief";
+
+        internal const string SvgMediaType = "image/svg+xml";
+        internal const string TiffMediaType = "image/tiff";
+        internal const string CssMediaType = "text/css";
+        internal const string HtmlMediaType = "text/html";
+
+        internal const string RichTextFormatMediaType = "application/rtf";
 
         public string GetMappedOutputContentType(string fileType)
         {
@@ -11,33 +24,35 @@
             {
                 return DefaultMediaType;
             }
-            switch (fileType.ToLower().TrimStart('.'))
+            switch (fileType.ToLower().Trim().TrimStart('.'))
             {
                 case "txt":
-                    return "text/plain";
+                    return TextMediaType;
                 case "rtx":
-                    return "text/richtext";
+                    return RichTextMediaType;
+                case "rtf":
+                    return RichTextFormatMediaType;
                 case "png":
-                    return "image/png";
+                    return PngMediaType;
                 case "jpg":
                 case "jpeg":
                 case "jpe":
-                    return "image/jpeg";
+                    return JpgMediaType;
                 case "bmp":
-                    return "image/bmp";
+                    return BmpMediaType;
                 case "ief":
-                    return "image/ief";
+                    return IefMediaType;
                 case "svg":
-                    return "image/svg+xml";
+                    return SvgMediaType;
                 case "tif":
                 case "tiff":
-                    return "image/tiff";
+                    return TiffMediaType;
                 case "css":
-                    return "text/css";
+                    return CssMediaType;
                 case "htm":
                 case "html":
                 case "stm":
-                    return "text/html";
+                    return HtmlMediaType;
             }
                     
             return DefaultMediaType;

@@ -7,7 +7,10 @@ namespace FileStore.Repositories
     {
         public File GetFile(Guid fileGuid)
         {
-            if (fileGuid == null || fileGuid == Guid.Empty) throw new ArgumentException("fileGuid param is null or empty.");
+            if (fileGuid == null || fileGuid == Guid.Empty)
+            {
+                throw new ArgumentException("fileGuid param is null or empty.");
+            }
 
             // return a FILE object with the FILESTREAM content 
             // if FILESTREAM data file is not found return null

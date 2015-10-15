@@ -56,7 +56,7 @@ namespace FileStore.Tests
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            new SqlFilesRepository().DeleteFile(Models.File.ConvertToFileStoreId(fileGuid));
+            new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);

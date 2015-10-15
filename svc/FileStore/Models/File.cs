@@ -29,14 +29,16 @@ namespace FileStore.Models
             return guid.ToString("N");
         }
 
-        public static Guid ConvertToFileStoreId(string str)
+        public static Guid ConvertToStoreId(string str)
         {
-            return Guid.ParseExact(str, "N");
-        }
-
-        public static Guid ConvertToBlueprintStoreId(string str)
-        {
-            return Guid.ParseExact(str, "D");
+            try
+            {
+                return Guid.ParseExact(str, "N");
+            }
+            catch (FormatException)
+            {
+                return Guid.ParseExact(str, "D");
+            }
         }
     }
 }

@@ -1,15 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Results;
-using System.Text;
-using System.Linq;
-using Moq;
 using FileStore.Repositories;
-using FileStore.Controllers;
-using System.Threading.Tasks;
-using System.Globalization;
 using FileStore.Models;
 
 namespace FileStore.Tests
@@ -27,7 +18,7 @@ namespace FileStore.Tests
             try
             {
                 // Act 
-                File file = fsapi.GetFile(File.ConvertToFileStoreId("333333333!@#@!@!@!33333333333333333333333"));
+                File file = fsapi.GetFile(File.ConvertToStoreId("333333333!@#@!@!@!33333333333333333333333"));
             }
             catch (FormatException)
             {

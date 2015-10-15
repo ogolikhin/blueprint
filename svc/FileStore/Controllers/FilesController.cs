@@ -94,34 +94,27 @@ namespace FileStore.Controllers
             {
                 Models.File file;
                 bool isHead = Request.Method == HttpMethod.Head;
-                
-                var isFileStoreGuid = false;
 
-                Guid guid = Guid.Empty;
+                var guid = Models.File.ConvertToStoreId(id);
 
-                try
-                {
-                    guid = Models.File.ConvertToFileStoreId(id);
-                    isFileStoreGuid = true;
-                }
-                catch (FormatException)
-                {
-                    guid = Models.File.ConvertToBlueprintStoreId(id);
-                    isFileStoreGuid = false;
-                }
-
-                if (guid == Guid.Empty)
-                {
-                    return BadRequest();
-                }
-
+                var isFileStoreGuid = true;
                 if (isHead)
                 {
-                    file = isFileStoreGuid ? await _filesRepo.HeadFile(guid) : _fileStreamRepo.HeadFile(guid);
+                    file = await _filesRepo.HeadFile(guid);
+                    if (file == null)
+                    {
+                       file = _fileStreamRepo.HeadFile(guid);
+                        isFileStoreGuid = false;
+                    }
                 }
                 else
                 {
-                    file = isFileStoreGuid ? await _filesRepo.GetFile(guid) : _fileStreamRepo.GetFile(guid);
+                    file = await _filesRepo.GetFile(guid);
+                    if (file == null)
+                    {
+                        file = _fileStreamRepo.GetFile(guid);
+                        isFileStoreGuid = false;
+                    }
                 }
 
                 if (file == null || (!isFileStoreGuid && file.FileName == ""))

@@ -24,6 +24,9 @@ namespace FileStore.Tests
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+
             moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
 
             string fileName4Upload = "UploadTest.txt";
@@ -34,7 +37,7 @@ namespace FileStore.Tests
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -72,6 +75,8 @@ namespace FileStore.Tests
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             string fileName4Upload = "UploadTest.txt";
             string fileContent4Upload = "This is the content of the uploaded test file";
@@ -83,7 +88,7 @@ namespace FileStore.Tests
             multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);            
             multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -119,9 +124,11 @@ namespace FileStore.Tests
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             var httpContent = new StringContent("my file");
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -154,6 +161,8 @@ namespace FileStore.Tests
             //Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFile(It.IsAny<File>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             string fileName4Upload = "UploadTest.txt";
             string fileContent4Upload = "This is the content of the uploaded test file";
@@ -163,7 +172,7 @@ namespace FileStore.Tests
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -195,6 +204,9 @@ namespace FileStore.Tests
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+
             var file = new File();
             file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
             file.FileName = "Test3.txt";
@@ -204,7 +216,7 @@ namespace FileStore.Tests
 
             moq.Setup(t => t.HeadFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -241,8 +253,10 @@ namespace FileStore.Tests
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -272,8 +286,10 @@ namespace FileStore.Tests
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -304,9 +320,10 @@ namespace FileStore.Tests
             // Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.HeadFile(It.IsAny<Guid>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -336,8 +353,10 @@ namespace FileStore.Tests
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -367,9 +386,10 @@ namespace FileStore.Tests
             // Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -399,9 +419,10 @@ namespace FileStore.Tests
             // Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult<File>(null));
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -430,6 +451,8 @@ namespace FileStore.Tests
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             var file = new Models.File();
             file.FileId = new Guid("22222222-2222-2222-2222-222222222222");
@@ -440,7 +463,7 @@ namespace FileStore.Tests
 
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")
@@ -470,14 +493,17 @@ namespace FileStore.Tests
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
+        [ExpectedException(typeof(NotSupportedException))]
         [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_ImproperGuid_FormatException()
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -500,6 +526,7 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
+        [ExpectedException(typeof(NotSupportedException))]
         [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_UnknownException_InternalServerErrorFailure()
@@ -507,9 +534,10 @@ namespace FileStore.Tests
             // Arrange
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
-
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
 
             controller.Request = new HttpRequestMessage
             {
@@ -532,12 +560,15 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
         }
 
+        [ExpectedException(typeof(NotSupportedException))]
         [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_NonExistentFile_NotFoundFailure()
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             var file = new File();
             file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
@@ -548,7 +579,7 @@ namespace FileStore.Tests
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Returns(Task.FromResult<Guid?>(null));
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")
@@ -570,12 +601,15 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
         }
 
+        [ExpectedException(typeof(NotSupportedException))]
         [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void DeleteFile_ProperRequest_Success()
         {
             // Arrange
             var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             var file = new File();
             file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
@@ -586,7 +620,7 @@ namespace FileStore.Tests
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>())).Returns(Task.FromResult<Guid?>(Guid.Parse("33333333333333333333333333333333")));
 
-            var controller = new FilesController(moq.Object);
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
             controller.Request = new HttpRequestMessage
             {
                 RequestUri = new Uri("http://localhost/files")

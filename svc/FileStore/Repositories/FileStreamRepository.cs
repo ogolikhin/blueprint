@@ -1,59 +1,70 @@
 ﻿using System;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
-using System.Data.SqlTypes;
- 
+using FileStore.Models;
+
 namespace FileStore.Repositories
 {
-	public class FileStreamRepository : IFileStreamRepository
-	{
-        public Models.File GetFile(Guid fileGuid, string contentType)
+    public class FileStreamRepository : IFileStreamRepository
+    {
+        public File GetFile(Guid fileGuid)
         {
             if (fileGuid == null || fileGuid == Guid.Empty) throw new ArgumentException("fileGuid param is null or empty.");
 
             // return a FILE object with the FILESTREAM content 
             // if FILESTREAM data file is not found return null
 
-            Models.File file = null;
+            File file = null;
 
             byte[] buffer = null;
 
             using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid))
             {
-                try
+
+                // get the length of the FILESTREAM so we can allocate a buffer
+                long len = fileStreamReader.Length;
+
+                if (len > 0)
                 {
-                    // get the length of the FILESTREAM so we can allocate a buffer
-                    long len = fileStreamReader.Length;
+                    buffer = new byte[len];
 
-                    if (len > 0)
+                    // retrieve the FILESTREAM content
+
+                    int count = fileStreamReader.Read(buffer, 0, buffer.Length);
+
+                    if (count > 0)
                     {
-                        buffer = new byte[len];
-
-                        // retrieve the FILESTREAM content
-
-                        int count = fileStreamReader.Read(buffer, 0, buffer.Length);
-
-                        if (count > 0)
+                        file = new File
                         {
-                            file = new Models.File()
-                            {
-                                FileId = fileGuid,
-                                FileContent = buffer,
-                                FileSize = buffer.Length,
-                                FileType = contentType ?? "application/octet-stream"
-                            };
-                        }
+                            FileId = fileGuid,
+                            FileContent = buffer,
+                            FileSize = buffer.Length,
+                            FileName = fileStreamReader.FileName,
+                            FileType = fileStreamReader.FileType ?? "application/octet-stream"
+                        };
                     }
                 }
-                catch
-                {
-                    // handle all exceptions upstream
-                    throw;
-                }
+
             }
             return file;
+        }
+
+        public File HeadFile(Guid guid)
+        {
+            if (guid == null || guid == Guid.Empty)
+            {
+                throw new ArgumentException("fileGuid param is null or empty.");
+            }
+
+            using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, guid))
+            {
+                return new File
+                {
+                    FileId = guid,
+                    FileContent = null,
+                    FileSize = fileStreamReader.Length,
+                    FileName = fileStreamReader.FileName,
+                    FileType = fileStreamReader.FileType ?? "application/octet-stream"
+                };
+            }
         }
     }
 }

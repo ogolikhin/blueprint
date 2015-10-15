@@ -27,7 +27,7 @@ namespace FileStore.Tests
             try
             {
                 // Act 
-                File file = fsapi.GetFile(File.ConvertFileId("333333333!@#@!@!@!33333333333333333333333"), null);
+                File file = fsapi.GetFile(File.ConvertToFileStoreId("333333333!@#@!@!@!33333333333333333333333"));
             }
             catch (FormatException)
             {

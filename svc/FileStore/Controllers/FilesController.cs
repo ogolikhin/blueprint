@@ -17,6 +17,11 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
+	    static FilesController()
+	    {
+		    StatusController.Ready.Set();
+	    }
+
         private readonly IFilesRepository _filesRepo;
 
         public FilesController() : this(new SqlFilesRepository())

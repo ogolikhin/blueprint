@@ -6,13 +6,23 @@ using System.Threading.Tasks;
 using Dapper;
 using AccessControl.Models;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 
 namespace AccessControl.Repositories
 {
 	public class SqlSessionsRepository : ISessionsRepository
 	{
-		public virtual async Task<Guid?> BeginSession(int id)
+		public virtual async Task<Session> GetSession(Guid guid)
+		{
+			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
+			{
+				cxn.Open();
+				var prm = new DynamicParameters();
+				prm.Add("@SessionId", guid);
+				return (await cxn.QueryAsync<Session>("GetSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+			}
+		}
+
+		public virtual async Task<Guid?[]> BeginSession(int id)
 		{
 			using (var cxn = new SqlConnection(WebApiConfig.AdminStoreDatabase))
 			{
@@ -20,9 +30,10 @@ namespace AccessControl.Repositories
 				var prm = new DynamicParameters();
 				prm.Add("@UserId", id);
 				prm.Add("@BeginTime", DateTime.UtcNow);
-				prm.Add("@SessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+				prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+				prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
 				await cxn.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);
-				return prm.Get<Guid?>("SessionId");
+				return new Guid?[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
 			}
 		}
 

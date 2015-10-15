@@ -117,11 +117,11 @@ namespace FileStore.Controllers
 
                 if (isHead)
                 {
-                    file = await _filesRepo.HeadFile(guid) ?? _fileStreamRepo.HeadFile(guid);
+                    file = isFileStoreGuid ? await _filesRepo.HeadFile(guid) : _fileStreamRepo.HeadFile(guid);
                 }
                 else
                 {
-                    file = await _filesRepo.GetFile(guid) ?? _fileStreamRepo.GetFile(guid);
+                    file = isFileStoreGuid ? await _filesRepo.GetFile(guid) : _fileStreamRepo.GetFile(guid);
                 }
 
                 if (file == null || (!isFileStoreGuid && file.FileName == ""))
@@ -129,23 +129,36 @@ namespace FileStore.Controllers
                     return NotFound();
                 }
 
-                var mappedContentType = new FileMapperRepository().GetMappedOutputContentType(file.FileType);
-
-                //var originalRequestContentMediaType = GetRequestContentMediaType();
-                //if (!string.IsNullOrWhiteSpace(originalRequestContentMediaType) && !string.Equals(originalRequestContentMediaType, mappedContentType, StringComparison.InvariantCultureIgnoreCase))
-                //{
-                //    return BadRequest();
-                //}
+                var mappedContentType = isFileStoreGuid ? file.FileType : _fileMapperRepo.GetMappedOutputContentType(file.FileType);
+                if (string.IsNullOrWhiteSpace(mappedContentType))
+                {
+                    mappedContentType = FileMapperRepository.DefaultMediaType;
+                }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContent responseContent;
+                if (isHead)
+                {
+                    responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
+                }
+                else
+                {
+                    if (isFileStoreGuid)
+                    {
+                        responseContent = new ByteArrayContent(file.FileContent);
+                    }
+                    else
+                    {
+                        responseContent = new StreamContent(file.FileStream);
+                    }
+                }
 
-                response.Content = isHead ? new ByteArrayContent(Encoding.UTF8.GetBytes("")) : new ByteArrayContent(file.FileContent);
+                response.Content = responseContent;
 
                 response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
                 response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
-                response.Content.Headers.ContentType = isFileStoreGuid ? new MediaTypeHeaderValue(file.FileType) : 
-                    !string.IsNullOrWhiteSpace(mappedContentType) ? new MediaTypeHeaderValue(mappedContentType) : null;
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
                 response.Content.Headers.ContentLength = file.FileSize;
                 response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
                 response.Headers.Add(FileSize, file.FileSize.ToString());
@@ -191,20 +204,6 @@ namespace FileStore.Controllers
                     };
                 }
             }
-        }
-
-        private string GetRequestContentMediaType()
-        {
-            string contentType = null;
-
-            if (Request != null &&
-                Request.Content != null &&
-                Request.Content.Headers != null &&
-                Request.Content.Headers.ContentType != null)
-            {
-                contentType = Request.Content.Headers.ContentType.MediaType;
-            }
-            return contentType;
         }
 
         #endregion

@@ -14,35 +14,23 @@ namespace FileStore.Repositories
 
             File file = null;
 
-            byte[] buffer = null;
+            var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid);
 
-            using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid))
+            // get the length of the FILESTREAM so we can allocate a buffer
+            long len = fileStreamReader.Length;
+
+            if (len > 0)
             {
+                // retrieve the FILESTREAM content
 
-                // get the length of the FILESTREAM so we can allocate a buffer
-                long len = fileStreamReader.Length;
-
-                if (len > 0)
+                file = new File
                 {
-                    buffer = new byte[len];
-
-                    // retrieve the FILESTREAM content
-
-                    int count = fileStreamReader.Read(buffer, 0, buffer.Length);
-
-                    if (count > 0)
-                    {
-                        file = new File
-                        {
-                            FileId = fileGuid,
-                            FileContent = buffer,
-                            FileSize = buffer.Length,
-                            FileName = fileStreamReader.FileName,
-                            FileType = fileStreamReader.FileType ?? "application/octet-stream"
-                        };
-                    }
-                }
-
+                    FileId = fileGuid,
+                    FileStream = fileStreamReader,
+                    FileSize = len,
+                    FileName = fileStreamReader.FileName,
+                    FileType = fileStreamReader.FileType ?? "application/octet-stream"
+                };
             }
             return file;
         }
@@ -59,7 +47,6 @@ namespace FileStore.Repositories
                 return new File
                 {
                     FileId = guid,
-                    FileContent = null,
                     FileSize = fileStreamReader.Length,
                     FileName = fileStreamReader.FileName,
                     FileType = fileStreamReader.FileType ?? "application/octet-stream"

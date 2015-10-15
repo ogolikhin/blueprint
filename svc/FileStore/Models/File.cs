@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using FileStore.Repositories;
 
 namespace FileStore.Models
 {
@@ -16,8 +17,12 @@ namespace FileStore.Models
         public string FileType { get; set; }
         [JsonProperty]
         public long FileSize { get; set; }
+
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public byte[] FileContent { get; set; }
+        internal byte[] FileContent { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        internal ContentReadStream FileStream { get; set; }
 
         public static string ConvertFileId(Guid guid)
         {

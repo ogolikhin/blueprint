@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using System;
-using FileStore.Repositories;
+using System.IO;
 
 namespace FileStore.Models
 {
@@ -22,7 +22,7 @@ namespace FileStore.Models
         internal byte[] FileContent { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        internal ContentReadStream FileStream { get; set; }
+        internal Stream FileStream { get; set; }
 
         public static string ConvertFileId(Guid guid)
         {

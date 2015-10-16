@@ -26,7 +26,32 @@ namespace FileStore.Tests
                 return;
             }
             Assert.Fail("No exception was thrown.");
+        }
 
+        [TestCategory("FileStreamSvc-UnitTests")]
+        [TestMethod]
+        public void GetFileFromFileStream_ProperGuid_NFormat()
+        {
+            // Arrange
+            var guid = Guid.NewGuid().ToString("N");
+
+            // Act 
+            var actualGuid = File.ConvertToStoreId(guid);
+
+            Assert.IsTrue(actualGuid != Guid.Empty);
+        }
+
+        [TestCategory("FileStreamSvc-UnitTests")]
+        [TestMethod]
+        public void GetFileFromFileStream_ProperGuid_DFormat()
+        {
+            // Arrange
+            var guid = Guid.NewGuid().ToString("D");
+
+            // Act 
+            var actualGuid = File.ConvertToStoreId(guid);
+
+            Assert.IsTrue(actualGuid != Guid.Empty);
         }
     }
 }

@@ -10,9 +10,21 @@ namespace FileStore.Repositories
 {
 	public class SqlFilesRepository : IFilesRepository
 	{
-		public async Task<Guid?> PostFile(File file)
+        private readonly IConfigRepository _configRepository;
+
+        public SqlFilesRepository() : this(new ConfigRepository())
+        {
+
+        }
+
+        internal SqlFilesRepository(IConfigRepository configRepository)
+        {
+            _configRepository = configRepository;
+        }
+
+        public async Task<Guid?> PostFile(File file)
 		{
-			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
+			using (var cxn = new SqlConnection(_configRepository.FileStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
@@ -27,7 +39,7 @@ namespace FileStore.Repositories
 
 		public async Task<File> HeadFile(Guid guid)
 		{
-			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
+			using (var cxn = new SqlConnection(_configRepository.FileStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
@@ -38,7 +50,7 @@ namespace FileStore.Repositories
          
 		public async Task<File> GetFile(Guid guid)
 		{
-			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
+			using (var cxn = new SqlConnection(_configRepository.FileStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();
@@ -49,7 +61,7 @@ namespace FileStore.Repositories
 
 		public async Task<Guid?> DeleteFile(Guid guid)
 		{
-			using (var cxn = new SqlConnection(WebApiConfig.FileStoreDatabase))
+			using (var cxn = new SqlConnection(_configRepository.FileStoreDatabase))
 			{
 				cxn.Open();
 				var prm = new DynamicParameters();

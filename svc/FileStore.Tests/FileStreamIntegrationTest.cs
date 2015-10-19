@@ -18,6 +18,9 @@ namespace FileStore.Tests
     [TestClass]
     public class FileStreamIntegrationTest
     {
+        // Note: database connection strings for integration testing are in app.config 
+        // The connection strings will be loaded into WebApiConfig static variables when 
+        // the service initializes  
 
         private struct TestSetup
         {
@@ -31,15 +34,7 @@ namespace FileStore.Tests
         
 
         public TestContext TestContext { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            // Note: database connection strings for integration testing are in app.config 
-            // The connection strings will be loaded into WebApiConfig static variables when 
-            // the service initializes  
-        }
-
+ 
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FileStore.Repositories;
@@ -10,7 +9,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web;
 
 namespace FileStore.Controllers
 {
@@ -22,15 +20,31 @@ namespace FileStore.Controllers
 		    StatusController.Ready.Set();
 	    }
 
-        private readonly IFilesRepository _filesRepo;
+        //remove unnecessary headers from web api
+        //http://www.4guysfromrolla.com/articles/120209-1.aspx
 
-        public FilesController() : this(new SqlFilesRepository())
+        private readonly IFilesRepository _filesRepo;
+        private readonly IFileStreamRepository _fileStreamRepo;
+        private readonly IFileMapperRepository _fileMapperRepo;
+
+        private const string CacheControl = "Cache-Control";
+        private const string Pragma = "Pragma";
+        private const string StoredDate = "Stored-Date";
+        private const string FileSize = "File-Size";
+        private const string Attachment = "attachment";
+        private const string NoCache = "no-cache";
+        private const string NoStore = "no-store";
+        private const string MustRevalidate = "must-revalidate";
+
+        public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository())
         {
         }
 
-        internal FilesController(IFilesRepository fr)
+        internal FilesController(IFilesRepository fr, IFileStreamRepository fsr, IFileMapperRepository fmr)
         {
             _filesRepo = fr;
+            _fileStreamRepo = fsr;
+            _fileMapperRepo = fmr;
         }
 
         [HttpPost]
@@ -41,7 +55,7 @@ namespace FileStore.Controllers
             try
             {
                 var isMultipart = Request.Content.IsMimeMultipartContent();
-                Models.File file = null;
+                Models.File file;
                 if (isMultipart)
                 {
                     var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
@@ -83,45 +97,70 @@ namespace FileStore.Controllers
         {
             try
             {
-                Models.File file = null;
+                Models.File file;
                 bool isHead = Request.Method == HttpMethod.Head;
+
+                var guid = Models.File.ConvertToStoreId(id);
+
+                var isFileStoreGuid = true;
                 if (isHead)
                 {
-                    file = await _filesRepo.HeadFile(Models.File.ConvertFileId(id));
-                }
-                else
-                {
-                    file = await _filesRepo.GetFile(Models.File.ConvertFileId(id));
-                }
-                if (file == null)
-                {
-                    // CHECK FILESTREAM
-                    IFileStreamRepository fsapi = new FileStreamRepository();
-
-                    file = fsapi.GetFile(Models.File.ConvertFileId(id), GetRequestContentType());
-
+                    file = await _filesRepo.HeadFile(guid);
                     if (file == null)
                     {
-                        return NotFound();
+                       file = _fileStreamRepo.HeadFile(guid);
+                        isFileStoreGuid = false;
                     }
-
-                }
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                if (isHead)
-                {
-                    response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
                 }
                 else
                 {
-                    response.Content = new ByteArrayContent(file.FileContent);
+                    file = await _filesRepo.GetFile(guid);
+                    if (file == null)
+                    {
+                            file = _fileStreamRepo.GetFile(guid);
+                            isFileStoreGuid = false;
+                    }
                 }
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = file.FileName };
-                response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.FileType);
+
+                if (file == null || (!isFileStoreGuid && string.IsNullOrEmpty(file.FileName)))
+                {
+                    return NotFound();
+                }
+
+                var mappedContentType = isFileStoreGuid ? file.FileType : _fileMapperRepo.GetMappedOutputContentType(file.FileType);
+                if (string.IsNullOrWhiteSpace(mappedContentType))
+                {
+                    mappedContentType = FileMapperRepository.DefaultMediaType;
+                }
+
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                HttpContent responseContent;
+                if (isHead)
+                {
+                    responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
+                }
+                else
+                {
+                    if (isFileStoreGuid)
+                    {
+                        responseContent = new ByteArrayContent(file.FileContent);
+                    }
+                    else
+                    {
+                        responseContent = new StreamContent(file.FileStream, 1048576);
+                    }
+                }
+
+                response.Content = responseContent;
+
+                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
+                response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
                 response.Content.Headers.ContentLength = file.FileSize;
-                response.Headers.Add("Stored-Date", file.StoredTime.ToString("o"));
-                response.Headers.Add("File-Size", file.FileSize.ToString());
+                response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+                response.Headers.Add(FileSize, file.FileSize.ToString());
+
                 return ResponseMessage(response);
             }
             catch (FormatException)
@@ -137,29 +176,9 @@ namespace FileStore.Controllers
         [HttpDelete]
         [Route("{id}")]
         [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> DeleteFile(string id)
+        public Task<IHttpActionResult> DeleteFile(string id)
         {
-            try
-            {
-                var guid = await _filesRepo.DeleteFile(Models.File.ConvertFileId(id));
-                if (guid.HasValue)
-                {
-                    return Ok(Models.File.ConvertFileId(guid.Value));
-                }
-                else
-                {
-                    // TODO: CHECK FILESTREAM
-                    return NotFound();
-                }
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
-            }
-            catch
-            {
-                return InternalServerError();
-            }
+            throw new NotSupportedException();
         }
 
 
@@ -183,20 +202,6 @@ namespace FileStore.Controllers
                     };
                 }
             }
-        }
-
-        private string GetRequestContentType()
-        {
-            string contentType = null;
-
-            if (Request != null &&
-                Request.Content != null &&
-                Request.Content.Headers != null &&
-                Request.Content.Headers.ContentType != null)
-            {
-                contentType = Request.Content.Headers.ContentType.ToString();
-            }
-            return contentType;
         }
 
         #endregion

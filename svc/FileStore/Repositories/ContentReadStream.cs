@@ -15,73 +15,87 @@ namespace FileStore.Repositories
     /// <summary>
     ///
     /// </summary>
-    public class ContentReadStream : Stream
+    public class ContentReadStream : Stream, IContentReadStream
     {
         // The time in seconds to wait for the command to execute. The default is 30 seconds.
 
-        private const int COMMAND_TIMEOUT = 60;
+        private const int CommandTimeout = 60;
 
         /// <summary>
         ///
         /// </summary>
-        internal SqlConnection sqlConnection;
+        private SqlConnection _sqlConnection;
 
         /// <summary>
         ///
         /// </summary>
-        internal Guid fileGuid;
+        private Guid _fileGuid;
 
         /// <summary>
         ///
         /// </summary>
-        internal SqlCommand sqlCommand;
+        private SqlCommand _sqlCommand;
 
         /// <summary>
         ///
         /// </summary>
-        internal SqlParameter pContent;
+        private SqlParameter _pContent;
 
         /// <summary>
         ///
         /// </summary>
-        internal SqlParameter pOffset;
+        private SqlParameter _pOffset;
 
         /// <summary>
         ///
         /// </summary>
-        internal SqlParameter pCount;
+        private SqlParameter _pCount;
 
         /// <summary>
         ///
         /// </summary>
-        internal long length = -1L;
+        private long _length = -1L;
 
         /// <summary>
         ///
         /// </summary>
-        internal long position = 0L;
+        private long _position;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _fileType;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _fileName;
 
         /// <summary>
         ///
         /// </summary>
-        internal ContentReadStream(string connectionString, Guid fileGuid)
-            : base()
+        internal ContentReadStream()
+        {
+            
+        }
+
+        public void Setup(string connectionString, Guid fileGuid)
         {
             if (connectionString == null)
             {
                 throw new ArgumentNullException("connectionString");
             }
-            sqlConnection = new SqlConnection(connectionString);
-            this.fileGuid = fileGuid;
-            sqlCommand = sqlConnection.CreateCommand();
-            sqlCommand.CommandTimeout = COMMAND_TIMEOUT; 
-            sqlCommand.CommandType = CommandType.Text;
-            sqlCommand.CommandText = "SELECT @pContent = SUBSTRING([Content], @pOffset, @pCount ) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
-            sqlCommand.Parameters.AddWithValue("@pFileGuid", fileGuid);
-            pOffset = sqlCommand.Parameters.AddWithValue("@pOffset", 0L);
-            pCount = sqlCommand.Parameters.AddWithValue("@pCount", 0L);
-            pContent = sqlCommand.Parameters.Add("@pContent", SqlDbType.VarBinary, int.MaxValue);
-            pContent.Direction = ParameterDirection.Output;
+            _sqlConnection = new SqlConnection(connectionString);
+            _fileGuid = fileGuid;
+            _sqlCommand = _sqlConnection.CreateCommand();
+            _sqlCommand.CommandTimeout = CommandTimeout;
+            _sqlCommand.CommandType = CommandType.Text;
+            _sqlCommand.CommandText = "SELECT @pContent = SUBSTRING([Content], @pOffset, @pCount ) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
+            _sqlCommand.Parameters.AddWithValue("@pFileGuid", fileGuid);
+            _pOffset = _sqlCommand.Parameters.AddWithValue("@pOffset", 0L);
+            _pCount = _sqlCommand.Parameters.AddWithValue("@pCount", 0L);
+            _pContent = _sqlCommand.Parameters.Add("@pContent", SqlDbType.VarBinary, int.MaxValue);
+            _pContent.Direction = ParameterDirection.Output;
         }
 
         /// <summary>
@@ -91,7 +105,7 @@ namespace FileStore.Repositories
         {
             get
             {
-                return (sqlConnection != null);
+                return (_sqlConnection != null);
             }
         }
 
@@ -102,7 +116,7 @@ namespace FileStore.Repositories
         {
             get
             {
-                return (sqlConnection != null);
+                return (_sqlConnection != null);
             }
         }
 
@@ -124,34 +138,110 @@ namespace FileStore.Repositories
         {
             get
             {
-                if (sqlConnection == null)
+                if (_sqlConnection == null)
                 {
                     throw new ObjectDisposedException(string.Empty);
                 }
-                if (length < 0L)
+                if (_length < 0L)
                 {
                     try
                     {
-                        if (sqlConnection.State != ConnectionState.Open)
+                        if (_sqlConnection.State != ConnectionState.Open)
                         {
-                            sqlConnection.Open();
+                            _sqlConnection.Open();
                         }
-                        SqlCommand sqlCommand = sqlConnection.CreateCommand();
-                        sqlCommand.CommandTimeout = COMMAND_TIMEOUT;
+                        SqlCommand sqlCommand = _sqlConnection.CreateCommand();
+                        sqlCommand.CommandTimeout = CommandTimeout;
                         sqlCommand.CommandType = CommandType.Text;
                         sqlCommand.CommandText = "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
-                        sqlCommand.Parameters.AddWithValue("@pFileGuid", fileGuid);
+                        sqlCommand.Parameters.AddWithValue("@pFileGuid", _fileGuid);
                         SqlParameter pLength = sqlCommand.Parameters.AddWithValue("@pLength", 0L);
                         pLength.Direction = ParameterDirection.Output;
                         sqlCommand.ExecuteNonQuery();
-                        length = (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
+                        _length = (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
                     }
                     catch (Exception e)
                     {
                         throw new IOException(e.Message, e);
                     }
                 }
-                return length;
+                return _length;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public string FileType
+        {
+            get
+            {
+                if (_sqlConnection == null)
+                {
+                    throw new ObjectDisposedException(string.Empty);
+                }
+                if (_fileType == null)
+                {
+                    try
+                    {
+                        if (_sqlConnection.State != ConnectionState.Open)
+                        {
+                            _sqlConnection.Open();
+                        }
+                        SqlCommand sqlCommand = _sqlConnection.CreateCommand();
+                        sqlCommand.CommandTimeout = CommandTimeout;
+                        sqlCommand.CommandType = CommandType.Text;
+                        sqlCommand.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                        sqlCommand.Parameters.AddWithValue("@pFileGuid", _fileGuid);
+                        SqlParameter pType = sqlCommand.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
+                        pType.Direction = ParameterDirection.Output;
+                        sqlCommand.ExecuteNonQuery();
+                        _fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new IOException(e.Message, e);
+                    }
+                }
+                return _fileType;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public string FileName
+        {
+            get
+            {
+                if (_sqlConnection == null)
+                {
+                    throw new ObjectDisposedException(string.Empty);
+                }
+                if (_fileName == null)
+                {
+                    try
+                    {
+                        if (_sqlConnection.State != ConnectionState.Open)
+                        {
+                            _sqlConnection.Open();
+                        }
+                        SqlCommand sqlCommand = _sqlConnection.CreateCommand();
+                        sqlCommand.CommandTimeout = CommandTimeout;
+                        sqlCommand.CommandType = CommandType.Text;
+                        sqlCommand.CommandText = "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                        sqlCommand.Parameters.AddWithValue("@pFileGuid", _fileGuid);
+                        SqlParameter pName = sqlCommand.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+                        pName.Direction = ParameterDirection.Output;
+                        sqlCommand.ExecuteNonQuery();
+                        _fileName = (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new IOException(e.Message, e);
+                    }
+                }
+                return _fileName;
             }
         }
 
@@ -162,11 +252,11 @@ namespace FileStore.Repositories
         {
             get
             {
-                if (sqlConnection == null)
+                if (_sqlConnection == null)
                 {
                     throw new ObjectDisposedException(string.Empty);
                 }
-                return position;
+                return _position;
             }
             set
             {
@@ -175,7 +265,7 @@ namespace FileStore.Repositories
                 {
                     throw new IOException(string.Empty, new ArgumentOutOfRangeException("value"));
                 }
-                position = value;
+                _position = value;
             }
         }
 
@@ -184,22 +274,23 @@ namespace FileStore.Repositories
         /// </summary>
         protected override void Dispose(bool disposing)
         {
-            if (sqlConnection == null)
+            if (_sqlConnection == null)
             {
                 return;
             }
             try
             {
-                if (sqlConnection.State != ConnectionState.Closed)
+                if (_sqlConnection.State != ConnectionState.Closed)
                 {
-                    sqlConnection.Close();
+                    _sqlConnection.Close();
                 }
             }
-            catch (Exception)
+            catch
             {
+                // ignored
             }
-            sqlConnection.Dispose();
-            sqlConnection = null;
+            _sqlConnection.Dispose();
+            _sqlConnection = null;
         }
 
         /// <summary>
@@ -220,42 +311,42 @@ namespace FileStore.Repositories
             }
             if (offset < 0)
             {
-                new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException("offset");
             }
             if (count < 0)
             {
-                new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException("count");
             }
             if (buffer.Length < (offset + count))
             {
-                new ArgumentException("buffer");
+                throw new ArgumentException("buffer");
             }
             long length = Length; // throws ObjectDisposedException
-            if (count > (length - position))
+            if (count > (length - _position))
             {
-                count = (int)(length - position);
+                count = (int)(length - _position);
             }
             if (count > 0)
             {
                 try
                 {
-                    if (sqlConnection.State != ConnectionState.Open)
+                    if (_sqlConnection.State != ConnectionState.Open)
                     {
-                        sqlConnection.Open();
+                        _sqlConnection.Open();
                     }
-                    pOffset.Value = position + 1;
-                    pCount.Value = (long)count;
-                    sqlCommand.ExecuteNonQuery();
-                    if (pContent.Value is DBNull)
+                    _pOffset.Value = _position + 1;
+                    _pCount.Value = (long)count;
+                    _sqlCommand.ExecuteNonQuery();
+                    if (_pContent.Value is DBNull)
                     {
                         count = 0;
                     }
                     else
                     {
-                        byte[] content = (byte[])pContent.Value;
+                        byte[] content = (byte[])_pContent.Value;
                         count = content.Length;
                         Buffer.BlockCopy(content, 0, buffer, offset, count);
-                        position += count;
+                        _position += count;
                     }
                 }
                 catch (Exception e)
@@ -267,9 +358,9 @@ namespace FileStore.Repositories
             {
                 try
                 {
-                    if (sqlConnection.State != ConnectionState.Closed)
+                    if (_sqlConnection.State != ConnectionState.Closed)
                     {
-                        sqlConnection.Close();
+                        _sqlConnection.Close();
                     }
                 }
                 catch (Exception e)
@@ -285,7 +376,7 @@ namespace FileStore.Repositories
         /// </summary>
         public override int ReadByte()
         {
-            if (sqlConnection == null)
+            if (_sqlConnection == null)
             {
                 throw new ObjectDisposedException(string.Empty);
             }
@@ -305,26 +396,26 @@ namespace FileStore.Repositories
                     {
                         throw new IOException(string.Empty, new ArgumentOutOfRangeException("offset"));
                     }
-                    position = offset;
+                    _position = offset;
                     break;
                 case SeekOrigin.Current:
-                    if (((position + offset) < 0L) || (length < (position + offset)))
+                    if (((_position + offset) < 0L) || (length < (_position + offset)))
                     {
                         throw new IOException(string.Empty, new ArgumentOutOfRangeException("offset"));
                     }
-                    position += offset;
+                    _position += offset;
                     break;
                 case SeekOrigin.End:
                     if (((length + offset) < 0L) || (length < (length + offset)))
                     {
                         throw new IOException(string.Empty, new ArgumentOutOfRangeException("offset"));
                     }
-                    position = length + offset;
+                    _position = length + offset;
                     break;
                 default:
                     throw new NotSupportedException();
             }
-            return position;
+            return _position;
         }
 
         /// <summary>

@@ -1,59 +1,77 @@
 ﻿using System;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
-using System.Data.SqlTypes;
- 
+using System.IO;
+using File = FileStore.Models.File;
+
 namespace FileStore.Repositories
 {
-	public class FileStreamRepository : IFileStreamRepository
-	{
-        public Models.File GetFile(Guid fileGuid, string contentType)
+    public class FileStreamRepository : IFileStreamRepository
+    {
+        private readonly IConfigRepository _configRepository;
+        private readonly IContentReadStream _contentReadStream;
+
+        public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
         {
-            if (fileGuid == null || fileGuid == Guid.Empty) throw new ArgumentException("fileGuid param is null or empty.");
+            
+        }
+
+        internal FileStreamRepository(IConfigRepository configRepository, IContentReadStream contentReadStream)
+        {
+            _configRepository = configRepository;
+            _contentReadStream = contentReadStream;
+        }
+
+        public File GetFile(Guid fileGuid)
+        {
+            if (fileGuid == Guid.Empty)
+            {
+                throw new ArgumentException("fileGuid param is empty.");
+            }
 
             // return a FILE object with the FILESTREAM content 
             // if FILESTREAM data file is not found return null
 
-            Models.File file = null;
+            File file = null;
 
-            byte[] buffer = null;
+            _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileGuid);
 
-            using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid))
+            // get the length of the FILESTREAM so we can allocate a buffer
+            long len = _contentReadStream.Length;
+
+            if (len > 0)
             {
-                try
+                // retrieve the FILESTREAM content
+
+                file = new File
                 {
-                    // get the length of the FILESTREAM so we can allocate a buffer
-                    long len = fileStreamReader.Length;
-
-                    if (len > 0)
-                    {
-                        buffer = new byte[len];
-
-                        // retrieve the FILESTREAM content
-
-                        int count = fileStreamReader.Read(buffer, 0, buffer.Length);
-
-                        if (count > 0)
-                        {
-                            file = new Models.File()
-                            {
-                                FileId = fileGuid,
-                                FileContent = buffer,
-                                FileSize = buffer.Length,
-                                FileType = contentType ?? "application/octet-stream"
-                            };
-                        }
-                    }
-                }
-                catch
-                {
-                    // handle all exceptions upstream
-                    throw;
-                }
+                    FileId = fileGuid,
+                    FileStream = _contentReadStream as Stream,
+                    FileSize = len,
+                    FileName = _contentReadStream.FileName,
+                    FileType = _contentReadStream.FileType ?? "application/octet-stream"
+                };
             }
             return file;
+        }
+
+        public File HeadFile(Guid guid)
+        {
+            if (guid == Guid.Empty)
+            {
+                throw new ArgumentException("fileGuid param is empty.");
+            }
+
+            using (_contentReadStream)
+            {
+                _contentReadStream.Setup(_configRepository.FileStreamDatabase, guid);
+
+                return new File
+                {
+                    FileId = guid,
+                    FileSize = _contentReadStream.Length,
+                    FileName = _contentReadStream.FileName,
+                    FileType = _contentReadStream.FileType ?? "application/octet-stream"
+                };
+            }
         }
     }
 }

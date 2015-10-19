@@ -15,10 +15,10 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
-        static FilesController()
-        {
-            StatusController.Ready.Set();
-        }
+	    static FilesController()
+	    {
+		    StatusController.Ready.Set();
+	    }
 
         //remove unnecessary headers from web api
         //http://www.4guysfromrolla.com/articles/120209-1.aspx
@@ -108,7 +108,7 @@ namespace FileStore.Controllers
                     file = await _filesRepo.HeadFile(guid);
                     if (file == null)
                     {
-                        file = _fileStreamRepo.HeadFile(guid);
+                       file = _fileStreamRepo.HeadFile(guid);
                         isFileStoreGuid = false;
                     }
                 }
@@ -117,8 +117,8 @@ namespace FileStore.Controllers
                     file = await _filesRepo.GetFile(guid);
                     if (file == null)
                     {
-                        file = _fileStreamRepo.GetFile(guid);
-                        isFileStoreGuid = false;
+                            file = _fileStreamRepo.GetFile(guid);
+                            isFileStoreGuid = false;
                     }
                 }
 

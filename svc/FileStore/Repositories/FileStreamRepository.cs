@@ -1,15 +1,30 @@
 ﻿using System;
-using FileStore.Models;
+using System.IO;
+using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
 {
     public class FileStreamRepository : IFileStreamRepository
     {
+        private readonly IConfigRepository _configRepository;
+        private readonly IContentReadStream _contentReadStream;
+
+        public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
+        {
+            
+        }
+
+        internal FileStreamRepository(IConfigRepository configRepository, IContentReadStream contentReadStream)
+        {
+            _configRepository = configRepository;
+            _contentReadStream = contentReadStream;
+        }
+
         public File GetFile(Guid fileGuid)
         {
-            if (fileGuid == null || fileGuid == Guid.Empty)
+            if (fileGuid == Guid.Empty)
             {
-                throw new ArgumentException("fileGuid param is null or empty.");
+                throw new ArgumentException("fileGuid param is empty.");
             }
 
             // return a FILE object with the FILESTREAM content 
@@ -17,10 +32,10 @@ namespace FileStore.Repositories
 
             File file = null;
 
-            var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, fileGuid);
+            _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileGuid);
 
             // get the length of the FILESTREAM so we can allocate a buffer
-            long len = fileStreamReader.Length;
+            long len = _contentReadStream.Length;
 
             if (len > 0)
             {
@@ -29,10 +44,10 @@ namespace FileStore.Repositories
                 file = new File
                 {
                     FileId = fileGuid,
-                    FileStream = fileStreamReader,
+                    FileStream = _contentReadStream as Stream,
                     FileSize = len,
-                    FileName = fileStreamReader.FileName,
-                    FileType = fileStreamReader.FileType ?? "application/octet-stream"
+                    FileName = _contentReadStream.FileName,
+                    FileType = _contentReadStream.FileType ?? "application/octet-stream"
                 };
             }
             return file;
@@ -40,19 +55,21 @@ namespace FileStore.Repositories
 
         public File HeadFile(Guid guid)
         {
-            if (guid == null || guid == Guid.Empty)
+            if (guid == Guid.Empty)
             {
-                throw new ArgumentException("fileGuid param is null or empty.");
+                throw new ArgumentException("fileGuid param is empty.");
             }
 
-            using (var fileStreamReader = new ContentReadStream(WebApiConfig.FileStreamDatabase, guid))
+            using (_contentReadStream)
             {
+                _contentReadStream.Setup(_configRepository.FileStreamDatabase, guid);
+
                 return new File
                 {
                     FileId = guid,
-                    FileSize = fileStreamReader.Length,
-                    FileName = fileStreamReader.FileName,
-                    FileType = fileStreamReader.FileType ?? "application/octet-stream"
+                    FileSize = _contentReadStream.Length,
+                    FileName = _contentReadStream.FileName,
+                    FileType = _contentReadStream.FileType ?? "application/octet-stream"
                 };
             }
         }

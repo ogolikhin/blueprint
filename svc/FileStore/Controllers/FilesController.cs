@@ -46,7 +46,7 @@ namespace FileStore.Controllers
             _fileStreamRepo = fsr;
             _fileMapperRepo = fmr;
         }
- 
+
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(string))]
@@ -122,7 +122,7 @@ namespace FileStore.Controllers
                     }
                 }
 
-                if (file == null || (!isFileStoreGuid && file.FileName == ""))
+                if (file == null || (!isFileStoreGuid && string.IsNullOrEmpty(file.FileName)))
                 {
                     return NotFound();
                 }
@@ -147,7 +147,7 @@ namespace FileStore.Controllers
                     }
                     else
                     {
-                            responseContent = new StreamContent(file.FileStream);
+                        responseContent = new StreamContent(file.FileStream, 1048576);
                     }
                 }
 

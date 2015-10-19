@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Web.Http;
+﻿using System.Web.Http;
 
 namespace FileStore
 {
@@ -12,9 +11,5 @@ namespace FileStore
             // Web API routes
             config.MapHttpAttributeRoutes();
         }
-
-        public static string FileStoreDatabase = ConfigurationManager.ConnectionStrings["FileStoreDatabase"].ConnectionString;
-        public static string FileStreamDatabase = ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
-
     }
 }

@@ -98,9 +98,12 @@
     </Compile>
     <Compile Include="Models\File.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ConfigRepository.cs" />
     <Compile Include="Repositories\ContentReadStream.cs" />
     <Compile Include="Repositories\FileMapperRepository.cs" />
     <Compile Include="Repositories\FileStreamRepository.cs" />
+    <Compile Include="Repositories\IConfigRepository.cs" />
+    <Compile Include="Repositories\IContentReadStream.cs" />
     <Compile Include="Repositories\IFileMapperRepository.cs" />
     <Compile Include="Repositories\IFilesRepository.cs" />
     <Compile Include="Repositories\IFileStreamRepository.cs" />

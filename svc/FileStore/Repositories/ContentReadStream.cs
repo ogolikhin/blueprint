@@ -15,7 +15,7 @@ namespace FileStore.Repositories
     /// <summary>
     ///
     /// </summary>
-    public class ContentReadStream : Stream
+    public class ContentReadStream : Stream, IContentReadStream
     {
         // The time in seconds to wait for the command to execute. The default is 30 seconds.
 
@@ -29,27 +29,27 @@ namespace FileStore.Repositories
         /// <summary>
         ///
         /// </summary>
-        private readonly Guid _fileGuid;
+        private Guid _fileGuid;
 
         /// <summary>
         ///
         /// </summary>
-        private readonly SqlCommand _sqlCommand;
+        private SqlCommand _sqlCommand;
 
         /// <summary>
         ///
         /// </summary>
-        private readonly SqlParameter _pContent;
+        private SqlParameter _pContent;
 
         /// <summary>
         ///
         /// </summary>
-        private readonly SqlParameter _pOffset;
+        private SqlParameter _pOffset;
 
         /// <summary>
         ///
         /// </summary>
-        private readonly SqlParameter _pCount;
+        private SqlParameter _pCount;
 
         /// <summary>
         ///
@@ -74,7 +74,12 @@ namespace FileStore.Repositories
         /// <summary>
         ///
         /// </summary>
-        internal ContentReadStream(string connectionString, Guid fileGuid)
+        internal ContentReadStream()
+        {
+            
+        }
+
+        public void Setup(string connectionString, Guid fileGuid)
         {
             if (connectionString == null)
             {
@@ -83,7 +88,7 @@ namespace FileStore.Repositories
             _sqlConnection = new SqlConnection(connectionString);
             _fileGuid = fileGuid;
             _sqlCommand = _sqlConnection.CreateCommand();
-            _sqlCommand.CommandTimeout = CommandTimeout; 
+            _sqlCommand.CommandTimeout = CommandTimeout;
             _sqlCommand.CommandType = CommandType.Text;
             _sqlCommand.CommandText = "SELECT @pContent = SUBSTRING([Content], @pOffset, @pCount ) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
             _sqlCommand.Parameters.AddWithValue("@pFileGuid", fileGuid);

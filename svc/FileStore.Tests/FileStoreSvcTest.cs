@@ -10,6 +10,7 @@ using FileStore.Repositories;
 using FileStore.Controllers;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Net;
 using FileStore.Models;
 
 namespace FileStore.Tests
@@ -459,10 +460,11 @@ namespace FileStore.Tests
             file.FileName = "Test2.txt";
             file.FileContent = Encoding.UTF8.GetBytes("Test2 content");
             file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
-            file.FileType = "text/html";
+            file.FileType = FileMapperRepository.DefaultMediaType;
 
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
-
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
+                .Returns(FileMapperRepository.DefaultMediaType);
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
             controller.Request = new HttpRequestMessage
             {
@@ -491,6 +493,76 @@ namespace FileStore.Tests
             Assert.IsTrue(fileName == "Test2.txt");
             Assert.IsTrue(fileContent == "Test2 content");
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
+
+        [TestCategory("FileStoreSvc-UnitTests")]
+        [TestMethod]
+        public void GetFile_NoFileRetrieved_Failure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+
+            Models.File file = null;
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("22222222222222222222222222222222").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
+
+        [TestCategory("FileStoreSvc-UnitTests")]
+        [TestMethod]
+        public void GetFile_NoFileRetrievedEmptyName_Failure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+
+            Models.File file = new File();
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult((Models.File)null));
+            moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
+            controller.Request = new HttpRequestMessage
+            {
+                RequestUri = new Uri("http://localhost/files")
+            };
+
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "files/{id}",
+                defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = controller.GetFile("22222222222222222222222222222222").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
         [ExpectedException(typeof(NotSupportedException))]

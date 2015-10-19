@@ -46,7 +46,7 @@ namespace FileStore.Controllers
             _fileStreamRepo = fsr;
             _fileMapperRepo = fmr;
         }
-
+ 
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(string))]
@@ -110,22 +110,22 @@ namespace FileStore.Controllers
                     {
                        file = _fileStreamRepo.HeadFile(guid);
                         isFileStoreGuid = false;
-                }
+                    }
                 }
                 else
                 {
                     file = await _filesRepo.GetFile(guid);
-                if (file == null)
-                {
-                        file = _fileStreamRepo.GetFile(guid);
-                        isFileStoreGuid = false;
+                    if (file == null)
+                    {
+                            file = _fileStreamRepo.GetFile(guid);
+                            isFileStoreGuid = false;
                     }
                 }
 
                 if (file == null || (!isFileStoreGuid && file.FileName == ""))
-                    {
-                        return NotFound();
-                    }
+                {
+                    return NotFound();
+                }
 
                 var mappedContentType = isFileStoreGuid ? file.FileType : _fileMapperRepo.GetMappedOutputContentType(file.FileType);
                 if (string.IsNullOrWhiteSpace(mappedContentType))
@@ -144,11 +144,11 @@ namespace FileStore.Controllers
                     if (isFileStoreGuid)
                     {
                         responseContent = new ByteArrayContent(file.FileContent);
-                }
-                else
-                {
-                        responseContent = new StreamContent(file.FileStream);
-                }
+                    }
+                    else
+                    {
+                            responseContent = new StreamContent(file.FileStream);
+                    }
                 }
 
                 response.Content = responseContent;

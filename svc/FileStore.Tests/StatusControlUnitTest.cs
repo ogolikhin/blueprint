@@ -2,14 +2,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.Results;
-using System.Text;
-using System.Linq;
 using Moq;
 using StatusControl.Repositories;
-using StatusControl.Controllers;
 using System.Threading.Tasks;
-using System.Globalization;
+using FileStore.Controllers;
 
 namespace StatusControl.Tests
 {

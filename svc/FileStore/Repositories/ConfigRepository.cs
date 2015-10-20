@@ -6,7 +6,7 @@ namespace FileStore.Repositories
     public class ConfigRepository : IConfigRepository
     {
         string _fileStoreDatabase;
-        string IConfigRepository.FileStoreDatabase
+        public string FileStoreDatabase
         {
             get {
                 return _fileStoreDatabase ??
@@ -16,7 +16,7 @@ namespace FileStore.Repositories
         }
 
         string _fileStreamDatabase;
-        string IConfigRepository.FileStreamDatabase
+        public string FileStreamDatabase
         {
             get {
                 return _fileStreamDatabase ??

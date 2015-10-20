@@ -15,10 +15,6 @@ namespace FileStore.Controllers
     [RoutePrefix("files")]
     public class FilesController : ApiController
     {
-	    static FilesController()
-	    {
-		    StatusController.Ready.Set();
-	    }
 
         //remove unnecessary headers from web api
         //http://www.4guysfromrolla.com/articles/120209-1.aspx
@@ -35,6 +31,8 @@ namespace FileStore.Controllers
         private const string NoCache = "no-cache";
         private const string NoStore = "no-store";
         private const string MustRevalidate = "must-revalidate";
+
+        static FilesController() { }
 
         public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository())
         {
@@ -172,15 +170,6 @@ namespace FileStore.Controllers
                 return InternalServerError();
             }
         }
-
-        [HttpDelete]
-        [Route("{id}")]
-        [ResponseType(typeof(string))]
-        public Task<IHttpActionResult> DeleteFile(string id)
-        {
-            throw new NotSupportedException();
-        }
-
 
         #region Private Methods
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
@@ -12,11 +13,10 @@ namespace FileStore.Tests
     {
         public TestContext TestContext { get; set; }
 
-        [Ignore]
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [TestCategory("FileStoreSvc-Integration")]
-        public void TestUploadAndDeleteFiles()
+        public void TestUploadAndDeleteFilesUsingMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -62,6 +62,91 @@ namespace FileStore.Tests
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName, true);
             DeleteFile(filesUriCall, fileGuid, true);
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        [TestCategory("FileStoreSvc-Integration")]
+        public void TestUploadAndDeleteFilesUsingNonMultipart()
+        {
+            var filesUriCall = "";
+            if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
+            {
+                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+            }
+
+            var attachmentFileName = "";
+            if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
+            {
+                attachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+            }
+
+            var statusCallUri = "";
+            if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
+            {
+                statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+            }
+
+            //Get status of Web service
+            var status = GetStatus(statusCallUri);
+
+            Assert.IsTrue(status, "Service health check failed");
+
+            //post file and get guid
+            var fileGuid = PostFileNonMultipart(filesUriCall, attachmentFileName, true);
+
+            Assert.IsNotNull(fileGuid, "file could not be uploaded");
+
+            //Correct guid for further usage
+            fileGuid = fileGuid.Replace("\"", string.Empty);
+
+            //Call Head Method
+            CheckGetHead(filesUriCall, fileGuid, attachmentFileName);
+
+            //Download file
+            DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
+
+            //Delete File
+            new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+
+            //Try to call methods again again to ensure that NotFound is returned
+            CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
+            DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName, true);
+            DeleteFile(filesUriCall, fileGuid, true);
+        }
+
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        [TestCategory("FileStoreSvc-Integration")]
+        public void TestUploadAndDeleteFilesUsingNonMultipartNoHeadersFailure()
+        {
+            var filesUriCall = "";
+            if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
+            {
+                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+            }
+
+            var attachmentFileName = "";
+            if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
+            {
+                attachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+            }
+
+            var statusCallUri = "";
+            if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
+            {
+                statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+            }
+
+            //Get status of Web service
+            var status = GetStatus(statusCallUri);
+
+            Assert.IsTrue(status, "Service health check failed");
+
+            //post file and get guid
+            var fileGuid = PostFileNonMultipart(filesUriCall, attachmentFileName, false);
+
+            Assert.IsNull(fileGuid, "file should not be uploaded");
         }
 
         #region Private Service Call Methods
@@ -139,6 +224,70 @@ namespace FileStore.Tests
                 objResponse = (HttpWebResponse)e.Response;
             }
 
+            Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
+            string fileGuid = null;
+            using (var stream = objResponse.GetResponseStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    fileGuid = reader.ReadToEnd();
+                }
+            }
+
+            return fileGuid;
+        }
+
+        private string PostFileNonMultipart(string postCallUri, string attachmentFileName, bool addContentHeaders)
+        {
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(postCallUri);
+            fetchRequest.Accept = "*/*";
+            fetchRequest.Method = "POST";
+            fetchRequest.KeepAlive = true;
+            if (addContentHeaders)
+            {
+                string headerTemplate =
+                    "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+                string header = string.Format(headerTemplate, "attachment", attachmentFileName, "image/bmp");
+                fetchRequest.ContentType = "image/bmp";
+                var headers = new WebHeaderCollection();
+                var nameValueCollection = new NameValueCollection
+                {
+                    {"content-disposition", string.Format("attachment;filename=\"{0}\"", attachmentFileName)}
+                };
+                headers.Add(nameValueCollection);
+                fetchRequest.Headers.Add(headers);
+            }
+            using (Stream rs = fetchRequest.GetRequestStream())
+            {
+                using (var fileStream = new FileStream(attachmentFileName, FileMode.Open, FileAccess.Read))
+                {
+                    var buffer = new byte[4096];
+                    int bytesRead = 0;
+                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        rs.Write(buffer, 0, bytesRead);
+                    }
+                }
+            }
+
+            HttpWebResponse objResponse = null;
+            try
+            {
+                objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+            }
+            catch (WebException e)
+            {
+                if (e.Response == null)
+                {
+                    throw;
+                }
+                objResponse = (HttpWebResponse)e.Response;
+            }
+            if (!addContentHeaders)
+            {
+                Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.BadRequest, "Bad Request should be returned");
+                return null;
+            }
             Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
             string fileGuid = null;
             using (var stream = objResponse.GetResponseStream())
@@ -286,7 +435,7 @@ namespace FileStore.Tests
 
             if (expectedToFail)
             {
-                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Non-existent file was deleted by server");
+                Assert.AreEqual(HttpStatusCode.MethodNotAllowed, objResponse.StatusCode, "Non-existent file was deleted by server");
                 return;
             }
 

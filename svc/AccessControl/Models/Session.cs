@@ -11,9 +11,9 @@ namespace AccessControl.Models
 		[JsonProperty]
 		public Guid SessionId { get; set; }
 		[JsonProperty]
-		public DateTime BeginTime { get; set; }
+		public DateTime? BeginTime { get; set; }
 		[JsonProperty]
-		public DateTime EndTime { get; set; }
+		public DateTime? EndTime { get; set; }
 
 		public static string Convert(Guid guid)
 		{

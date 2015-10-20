@@ -9,7 +9,7 @@ using Dapper;
 
 namespace StatusControl.Repositories
 {
-	class SqlStatusRepository : IStatusRepository
+	public class SqlStatusRepository : IStatusRepository
 	{
 		private readonly string _cxn;
 		private readonly string _cmd;

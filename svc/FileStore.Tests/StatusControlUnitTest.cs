@@ -3,9 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using System.Web.Http;
 using Moq;
-using StatusControl.Repositories;
 using System.Threading.Tasks;
 using FileStore.Controllers;
+using ServiceLibrary.Repositories;
 
 namespace StatusControl.Tests
 {

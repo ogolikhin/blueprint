@@ -3,15 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using FileStore.Repositories;
-using FileStore.Controllers;
-using System.Net.Http;
-using System.Web.Http;
-using System.Configuration;
+using System.Net.Mime;
 
 namespace FileStore.Tests
 {
@@ -24,40 +16,27 @@ namespace FileStore.Tests
 
         private struct TestSetup
         {
-            public string fileStoreSvcUri;
-            public string fileGuid;
-            public string fileName;
-            public int fileSize;
-            public string contentType;
-            public FilesController controller;
+            public string FileStoreSvcUri;
+            public string FileGuid;
+            public string FileName;
+            public int FileSize;
+            public string ContentType;
         }
         
 
         public TestContext TestContext { get; set; }
- 
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
         [TestCategory("FileStream-Integration")]
         public void TestGetFileInfoWhenFileExists()
         {
-            // Request HEAD info from FileStream database 
-            // Repeat this test for each row in the datasource csv file 
+            TestSetup thisTest = SetupTest();
+            
+            //Call Head Method
+            var response = GetResponse(thisTest.FileStoreSvcUri, thisTest.FileGuid, "HEAD");
 
-            // Setup 
-            TestSetup thisTest = SetupTest(HttpMethod.Head);
-
-            // Act
-            var actionResult = thisTest.controller.GetFile(thisTest.fileGuid).Result;
-
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
-
-            // Assert
             AssertResponseHeadersMatch(thisTest, response);
-
-            AssertFileContentIsEmpty(response);
-
         }
 
         [TestMethod]
@@ -67,15 +46,12 @@ namespace FileStore.Tests
         {
             // Request file content from FileStream database 
             // Repeat this test for each row in the datasource csv file 
- 
+
             // Setup 
-            TestSetup thisTest = SetupTest(HttpMethod.Get);
+            TestSetup thisTest = SetupTest();
 
             // Act
-            var actionResult = thisTest.controller.GetFile(thisTest.fileGuid).Result;
-
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            var response = GetResponse(thisTest.FileStoreSvcUri, thisTest.FileGuid, "GET");
 
             // Assert
             AssertResponseHeadersMatch(thisTest, response);
@@ -95,14 +71,11 @@ namespace FileStore.Tests
             // Repeat this test for each row in the datasource csv file 
 
             // Setup 
-            TestSetup thisTest = SetupTest(HttpMethod.Get);
+            TestSetup thisTest = SetupTest();
+            thisTest.FileGuid = "9E9A2E81-6363-463A-8467-8E2DF5635B60";
 
             // Act
-            string fileIdNotFound = "9E9A2E81-6363-463A-8467-8E2DF5635B60";
-            var actionResult = thisTest.controller.GetFile(fileIdNotFound).Result;
-
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            var response = GetResponse(thisTest.FileStoreSvcUri, thisTest.FileGuid, "GET");
 
             // Assert
             AssertResponseStatusCodeNotFound(response);
@@ -110,64 +83,92 @@ namespace FileStore.Tests
             AssertFileContentIsEmpty(response);
 
         }
+        
         #region [ Private Methods]
 
-        private TestSetup SetupTest(HttpMethod requestType)
+        private TestSetup SetupTest()
         {
             var testSetup = new TestSetup()
             {
-                controller = new FilesController(),
-                contentType = Convert.ToString(TestContext.DataRow["ContentType"]),             
-                fileGuid = Convert.ToString(TestContext.DataRow["FileGuid"]),
-                fileName = Convert.ToString(TestContext.DataRow["FileName"]),
-                fileSize = Convert.ToInt32(TestContext.DataRow["FileSize"]),
-                fileStoreSvcUri = ConfigurationManager.AppSettings["FileStoreSvcUri"]
+                ContentType = Convert.ToString(TestContext.DataRow["ContentType"]),             
+                FileGuid = Convert.ToString(TestContext.DataRow["FileGuid"]),
+                FileName = Convert.ToString(TestContext.DataRow["FileName"]),
+                FileSize = Convert.ToInt32(TestContext.DataRow["FileSize"]),
+                FileStoreSvcUri = Convert.ToString(TestContext.DataRow["FilesUriCall"])
             };
-
-            testSetup.controller.Request = new HttpRequestMessage
-            {
-                RequestUri = new Uri(String.Format(testSetup.fileStoreSvcUri, testSetup.fileGuid)),
-                Method = requestType
-            };
-
-            testSetup.controller.Configuration = new HttpConfiguration();
-            testSetup.controller.Configuration.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "files/{id}",
-                defaults: new { id = RouteParameter.Optional });
 
             return testSetup;
 
         }
 
-        private void AssertResponseHeadersMatch(TestSetup thisTest, HttpResponseMessage response)
+        private HttpWebResponse GetResponse(string filesUriCall, string fileGuid, string method)
         {
+            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
+            fetchRequest.Method = method;
+            fetchRequest.Accept = "application/json";
+            fetchRequest.KeepAlive = true;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode,
-                String.Format("Service Head request for file id {0} failed.", thisTest.fileGuid));
+            HttpWebResponse objResponse;
+            try
+            {
+                objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+            }
+            catch (WebException e)
+            {
+                if (e.Response == null)
+                {
+                    throw;
+                }
+                objResponse = (HttpWebResponse)e.Response;
+            }
 
-            var contentDispositionHeader = response.Content.Headers.ContentDisposition;
-            string receivedFileName = contentDispositionHeader.FileName.ToString().Replace("\"", " ").Trim();
+            return objResponse;
+        }
 
-            Assert.IsTrue(String.Equals(thisTest.fileName, receivedFileName,
+        private void AssertResponseHeadersMatch(TestSetup thisTest, HttpWebResponse response)
+        {
+            var contentDispositionHeader = response.Headers["Content-Disposition"];
+            var contentDispositionHeaderValue = new ContentDisposition(contentDispositionHeader);
+            //var contentDispositionHeaderValue = new ContentDispositionHeaderValue(contentDispositionHeader);
+
+            string receivedFileName = contentDispositionHeaderValue.FileName.Replace("\"", " ").Trim();
+
+            Assert.IsTrue(String.Equals(thisTest.FileName, receivedFileName,
                 StringComparison.InvariantCultureIgnoreCase),
                 String.Format("Content disposition header file name is different. " +
                 "Expecting file name to be {0} but got {1}.",
-                thisTest.fileName, contentDispositionHeader.FileName));
+                thisTest.FileName, contentDispositionHeaderValue.FileName));
 
-
-            Assert.IsTrue(String.Equals(thisTest.contentType, response.Content.Headers.ContentType.ToString(),
+            Assert.IsTrue(String.Equals(thisTest.ContentType, response.ContentType,
                 StringComparison.InvariantCultureIgnoreCase),
-                String.Format("ContentType does not match. Expected {0} but got {1}", thisTest.contentType,
-                response.Content.Headers.ContentType.ToString()));
+                String.Format("ContentType does not match. Expected {0} but got {1}", thisTest.ContentType,
+                response.ContentType));
 
-
-            Assert.AreEqual(thisTest.fileSize, response.Content.Headers.ContentLength,
-               "ContentLength does not match. Expected {0} but got {1}", thisTest.fileSize,
-               response.Content.Headers.ContentLength);
+            var contentLength = response.Headers["File-Size"];
+            var actualFileSize = 0;
+            int.TryParse(contentLength, out actualFileSize);
+            Assert.AreEqual(thisTest.FileSize, actualFileSize, "ContentLength does not match. Expected {0} but got {1}", thisTest.FileSize,
+               actualFileSize);
         }
 
-        private void AssertResponseStatusCodeNotFound(HttpResponseMessage response)
+        private void AssertFileContentNotEmpty(TestSetup thisTest, HttpWebResponse response)
+        {
+
+            using (var stream = response.GetResponseStream())
+            {
+                var md5 = GetMD5ForFileStream(stream);
+                Assert.IsNotNull(md5, String.Format("File content is null. Expected {0} bytes got 0 bytes", thisTest.FileSize));
+            }
+
+            Assert.AreEqual(response.ContentLength, thisTest.FileSize,
+                String.Format("File download failed. Expected {0} bytes got {1} bytes",
+                thisTest.FileSize, response.ContentLength));
+
+        }
+
+        private void AssertResponseStatusCodeNotFound(HttpWebResponse response)
         {
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode,
@@ -175,27 +176,12 @@ namespace FileStore.Tests
  
         }
 
-        private void AssertFileContentNotEmpty(TestSetup thisTest, HttpResponseMessage response)
+        
+        private void AssertFileContentIsEmpty(HttpWebResponse response)
         {
-
-            byte[] content = response.Content.ReadAsByteArrayAsync().Result;
-
-            Assert.IsNotNull(content,
-                String.Format("File content is null. Expected {0} bytes got 0 bytes", thisTest.fileSize));
-
-            Assert.AreEqual(content.Length, thisTest.fileSize,
-                String.Format("File download failed. Expected {0} bytes got {1} bytes", 
-                thisTest.fileSize, content.Length));
-
-        }
-        private void AssertFileContentIsEmpty(HttpResponseMessage response)
-        {
-
-            byte[] content = response.Content != null ? response.Content.ReadAsByteArrayAsync().Result : new byte[0];
- 
-            Assert.AreEqual(content.Length, 0,
+            Assert.AreEqual(response.ContentLength, 0,
                 String.Format("Request for file info returned content as well. Expected 0 bytes got {0} bytes",
-                content.Length));
+                response.ContentLength));
 
         }
 

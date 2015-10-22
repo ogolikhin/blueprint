@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using AccessControl.Repositories;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AccessControl.Models;
+using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 
 namespace AccessControl.Controllers
 {
@@ -17,7 +17,7 @@ namespace AccessControl.Controllers
 	public class SessionsController : ApiController
 	{
 		private static readonly ObjectCache Cache = new MemoryCache("SessionsCache");
-		private static ISessionsRepository Repo = new SqlSessionsRepository();
+		private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStoreDatabase);
 
 		static SessionsController()
 		{
@@ -59,42 +59,6 @@ namespace AccessControl.Controllers
 		internal SessionsController(ISessionsRepository repo)
 		{
 			Repo = repo;
-		}
-
-		[HttpGet]
-		[Route("")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetSession()
-		{
-			try
-			{
-				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-				var session = await Repo.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
-				if (session == null)
-				{
-					throw new KeyNotFoundException();
-				}
-				var response = Request.CreateResponse(HttpStatusCode.OK, session);
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-				return ResponseMessage(response);
-			}
-			catch (ArgumentNullException)
-			{
-				return BadRequest();
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
 		}
 
 		[HttpPost]
@@ -184,36 +148,6 @@ namespace AccessControl.Controllers
 				}
 				await Repo.EndSession(guid);
 				return Ok();
-			}
-			catch (ArgumentNullException)
-			{
-				return BadRequest();
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
-
-
-		[HttpGet]
-		[Route("select?ps={ps}&pn={pn}")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
-		{
-			try
-			{
-				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-				var guid = Session.Convert(token);
-				return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
 			}
 			catch (ArgumentNullException)
 			{

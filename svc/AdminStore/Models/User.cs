@@ -1,10 +1,10 @@
 using Newtonsoft.Json;
 using System;
 
-namespace AccessControl.Models
+namespace AdminStore.Models
 {
 	[JsonObject]
-	public class Session
+	public class User
 	{
 		[JsonProperty]
 		public int UserId { get; set; }

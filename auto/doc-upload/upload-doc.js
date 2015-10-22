@@ -11,7 +11,7 @@ var spsave = require('./gulp-spsave/index');
 
 gulp.task('upload-doc', function () {
     console.log('upload-doc is done');
-    gulp.src(['../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
+    gulp.src(['../doc/**/*','../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
         .pipe(spsave( {
 				username: "build@blueprintsys.com",
 				password: "Bu1ld100",
@@ -22,7 +22,7 @@ gulp.task('upload-doc', function () {
 
 gulp.task('upload-doc-master', function () {
     console.log('upload-doc is done');
-    gulp.src(['../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
+    gulp.src(['../doc/**/*','../**/doc/*', '!../node_modules/**/doc/*'], {base: './'} )
         .pipe(spsave( {
 				username: "build@blueprintsys.com",
 				password: "Bu1ld100",

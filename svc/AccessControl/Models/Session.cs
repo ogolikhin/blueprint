@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using System;
 
-namespace ServiceLibrary.Models
+namespace AccessControl.Models
 {
 	[JsonObject]
 	public class Session

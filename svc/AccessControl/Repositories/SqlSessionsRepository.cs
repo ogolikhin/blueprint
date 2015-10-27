@@ -4,10 +4,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
-using ServiceLibrary.Models;
+using AccessControl.Models;
 using System.Collections.Generic;
 
-namespace ServiceLibrary.Repositories
+namespace AccessControl.Repositories
 {
 	public class SqlSessionsRepository : ISessionsRepository
 	{

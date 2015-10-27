@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ServiceLibrary.Models;
+using AccessControl.Models;
 
-namespace ServiceLibrary.Repositories
+namespace AccessControl.Repositories
 {
 	public interface ISessionsRepository
 	{

@@ -21,6 +21,8 @@ namespace AdminStore
 
 		public static string RaptorMainDatabase = ConfigurationManager.ConnectionStrings["RaptorMainDatabase"].ConnectionString;
 
+		public static string AccessControlSvc = ConfigurationManager.AppSettings["AccessControlSvc"];
+
 		public static string ServiceLogSource =
 			typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 

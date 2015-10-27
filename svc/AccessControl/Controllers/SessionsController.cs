@@ -62,9 +62,9 @@ namespace AccessControl.Controllers
 		}
 
 		[HttpGet]
-		[Route("")]
+		[Route("{uid}")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetSession()
+		public async Task<IHttpActionResult> GetSession(int uid)
 		{
 			try
 			{

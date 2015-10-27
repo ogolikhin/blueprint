@@ -9,6 +9,8 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
 using AdminStore.Models;
+using System.Net.Http.Headers;
+using System.Runtime.Remoting;
 
 namespace AdminStore.Controllers
 {
@@ -26,10 +28,23 @@ namespace AdminStore.Controllers
 		{
 			try
 			{
-				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-				// var guid = Session.Convert(token);
-				// return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
-				return Ok(); // TODO: read from AccessControl SelectSessions
+				using (var http = new HttpClient())
+				{
+					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.DefaultRequestHeaders.Accept.Clear();
+					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+					var result = await http.GetAsync(String.Format("sessions/select?ps={0}&pn={1}", ps, pn));
+					if (!result.IsSuccessStatusCode)
+					{
+						throw new ServerException();
+					}
+					var response = Request.CreateResponse(HttpStatusCode.OK, result.Content);
+					response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+					response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+					response.Headers.Add("Session-Token", result.Headers.GetValues("Session-Token").FirstOrDefault());
+					return ResponseMessage(response);
+				}
 			}
 			catch (ArgumentNullException)
 			{
@@ -38,10 +53,6 @@ namespace AdminStore.Controllers
 			catch (FormatException)
 			{
 				return BadRequest();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
 			}
 			catch
 			{
@@ -52,21 +63,44 @@ namespace AdminStore.Controllers
 		[HttpPost]
 		[Route("")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> PostSession(string un, string pw)
+		public async Task<IHttpActionResult> PostSession(string un, string pw, bool force = false)
 		{
 			try
 			{
-				var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-				//var session = await _repoSessions.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
-				object session = null; // read from AccessControl getSession
-				if (session == null)
+				// TODO: AUTHENTICATE, find user id (uid) for username (un) provided, throw KeyNotFoundException if un/pw combination is wrong
+				var uid = 0;
+				if (!force)
 				{
-					throw new KeyNotFoundException();
+					using (var http = new HttpClient())
+					{
+						http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+						http.DefaultRequestHeaders.Accept.Clear();
+						http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+						var result = await http.GetAsync("sessions/" + uid.ToString());
+						if (result.IsSuccessStatusCode) // session exists
+						{
+							throw new ApplicationException("Conflict");
+						}
+					}
 				}
-				var response = Request.CreateResponse(HttpStatusCode.OK, session);
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-				return ResponseMessage(response);
+				using (var http = new HttpClient())
+				{
+					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.DefaultRequestHeaders.Accept.Clear();
+					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+					var result = await http.PostAsJsonAsync("sessions/" + uid.ToString(), uid);
+					if (!result.IsSuccessStatusCode)
+					{
+						throw new ServerException();
+					}
+					var response = Request.CreateResponse(HttpStatusCode.OK);
+					response.Headers.Add("Session-Token", result.Headers.GetValues("Session-Token").FirstOrDefault());
+					return ResponseMessage(response);
+				}
+			}
+			catch (ApplicationException)
+			{
+				return Conflict();
 			}
 			catch (ArgumentNullException)
 			{
@@ -93,6 +127,7 @@ namespace AdminStore.Controllers
 		{
 			try
 			{
+				// TODO: Migrate code from blueprint-current to handle SAML response
 				return Ok();
 			}
 			catch (KeyNotFoundException)
@@ -112,20 +147,19 @@ namespace AdminStore.Controllers
 		{
 			try
 			{
-				// call access control to kill session
-				return Ok();
-			}
-			catch (ArgumentNullException)
-			{
-				return BadRequest();
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
+				using (var http = new HttpClient())
+				{
+					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.DefaultRequestHeaders.Accept.Clear();
+					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+					var result = await http.DeleteAsync("sessions");
+					if (!result.IsSuccessStatusCode)
+					{
+						throw new ServerException();
+					}
+					return Ok();
+				}
 			}
 			catch
 			{

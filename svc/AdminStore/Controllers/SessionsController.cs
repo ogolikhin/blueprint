@@ -128,7 +128,7 @@ namespace AdminStore.Controllers
 			try
 			{
 				// TODO: Migrate code from blueprint-current to handle SAML response
-				return Ok();
+				return await Task.FromResult(Ok());
 			}
 			catch (KeyNotFoundException)
 			{

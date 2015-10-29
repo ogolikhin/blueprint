@@ -18,7 +18,7 @@ namespace AdminStore.Repositories
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@Locale", locale);
-				return await cxn.QueryAsync<ApplicationLabel>("GetLabels", prm, commandType: CommandType.StoredProcedure);
+				return await cxn.QueryAsync<ApplicationLabel>("GetApplicationLabels", prm, commandType: CommandType.StoredProcedure);
 			}
 		}
 	}

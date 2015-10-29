@@ -18,7 +18,7 @@ namespace ConfigControl.Repositories
 				cxn.Open();
 				var prm = new DynamicParameters();
 				prm.Add("@AllowRestricted", allowRestricted);
-				return await cxn.QueryAsync<ConfigSetting>("GetSettings", prm, commandType: CommandType.StoredProcedure);
+				return await cxn.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
 			}
 		}
 	}

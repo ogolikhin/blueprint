@@ -17,11 +17,13 @@ namespace AdminStore
             config.MapHttpAttributeRoutes();
         }
 
-		public static string AdminStoreDatabase = ConfigurationManager.ConnectionStrings["AdminStoreDatabase"].ConnectionString;
+		public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-		public static string RaptorMainDatabase = ConfigurationManager.ConnectionStrings["RaptorMainDatabase"].ConnectionString;
+		public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
 
-		public static string AccessControlSvc = ConfigurationManager.AppSettings["AccessControlSvc"];
+		public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
+
+		public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
 		public static string ServiceLogSource =
 			typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();

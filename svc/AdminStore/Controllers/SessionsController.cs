@@ -30,19 +30,15 @@ namespace AdminStore.Controllers
 			{
 				using (var http = new HttpClient())
 				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 					http.DefaultRequestHeaders.Accept.Clear();
 					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
 					var result = await http.GetAsync(String.Format("sessions/select?ps={0}&pn={1}", ps, pn));
-					if (!result.IsSuccessStatusCode)
-					{
-						throw new ServerException();
-					}
+					result.EnsureSuccessStatusCode();
 					var response = Request.CreateResponse(HttpStatusCode.OK, result.Content);
 					response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 					response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-					response.Headers.Add("Session-Token", result.Headers.GetValues("Session-Token").FirstOrDefault());
 					return ResponseMessage(response);
 				}
 			}
@@ -73,7 +69,7 @@ namespace AdminStore.Controllers
 				{
 					using (var http = new HttpClient())
 					{
-						http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+						http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 						http.DefaultRequestHeaders.Accept.Clear();
 						http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 						var result = await http.GetAsync("sessions/" + uid.ToString());
@@ -85,7 +81,7 @@ namespace AdminStore.Controllers
 				}
 				using (var http = new HttpClient())
 				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 					http.DefaultRequestHeaders.Accept.Clear();
 					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 					var result = await http.PostAsJsonAsync("sessions/" + uid.ToString(), uid);
@@ -93,8 +89,9 @@ namespace AdminStore.Controllers
 					{
 						throw new ServerException();
 					}
-					var response = Request.CreateResponse(HttpStatusCode.OK);
-					response.Headers.Add("Session-Token", result.Headers.GetValues("Session-Token").FirstOrDefault());
+					var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
+               var response = Request.CreateResponse(HttpStatusCode.OK, token);
+					response.Headers.Add("Session-Token", token);
 					return ResponseMessage(response);
 				}
 			}
@@ -127,8 +124,20 @@ namespace AdminStore.Controllers
 		{
 			try
 			{
-				// TODO: Migrate code from blueprint-current to handle SAML response
-				return Ok();
+				// TODO: Migrate code from blueprint-current to handle SAML response and get user id (uid) from database
+				var uid = 0;
+				using (var http = new HttpClient())
+				{
+					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+					http.DefaultRequestHeaders.Accept.Clear();
+					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+					var result = await http.PostAsJsonAsync("sessions/" + uid.ToString(), uid);
+					result.EnsureSuccessStatusCode();
+					var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
+					var response = Request.CreateResponse(HttpStatusCode.OK, token);
+					response.Headers.Add("Session-Token", token);
+					return ResponseMessage(response);
+				}
 			}
 			catch (KeyNotFoundException)
 			{
@@ -149,15 +158,12 @@ namespace AdminStore.Controllers
 			{
 				using (var http = new HttpClient())
 				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControlSvc);
+					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 					http.DefaultRequestHeaders.Accept.Clear();
 					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
 					var result = await http.DeleteAsync("sessions");
-					if (!result.IsSuccessStatusCode)
-					{
-						throw new ServerException();
-					}
+					result.EnsureSuccessStatusCode();
 					return Ok();
 				}
 			}

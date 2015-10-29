@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\Blueprint.Common.props" Condition="Exists('..\..\Blueprint.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1264057E-460A-4C70-AAC6-F1C9CD911466}</ProjectGuid>
+    <ProjectGuid>{F21993C2-FE84-416B-B046-C0DA85A2EA3A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FileStorage</RootNamespace>
-    <AssemblyName>FileStorage</AssemblyName>
+    <RootNamespace>StorageUtils</RootNamespace>
+    <AssemblyName>StorageUtils</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,33 +44,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\Iteration1\M00001_CreateInitialVersion.cs" />
+    <Compile Include="MigrationExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Functions\" />
-    <Folder Include="Views\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="CreateDB.bat" />
-    <None Include="MigrateDB.bat" />
+    <None Include="CreateDB.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\StorageUtils\StorageUtils.csproj">
-      <Project>{f21993c2-fe84-416b-b046-c0da85a2ea3a}</Project>
-      <Name>StorageUtils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Procedures\DeleteFile.sql" />
-    <EmbeddedResource Include="Procedures\GetFile.sql" />
-    <EmbeddedResource Include="Procedures\GetStatus.sql" />
-    <EmbeddedResource Include="Procedures\HeadFile.sql" />
-    <EmbeddedResource Include="Procedures\PostFile.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Scripts\EnableFullText.sql" />
+    <EmbeddedResource Include="Templates\Function.sql" />
+    <EmbeddedResource Include="Templates\StoredProcedure.sql" />
+    <EmbeddedResource Include="Templates\View.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

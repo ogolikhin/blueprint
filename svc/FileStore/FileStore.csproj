@@ -87,7 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Scripts\FileStoreDatabase.sql" />
+    <Content Include="Scripts\FileStorage.sql" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

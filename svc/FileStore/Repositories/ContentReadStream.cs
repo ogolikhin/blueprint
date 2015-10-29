@@ -162,7 +162,7 @@ namespace FileStore.Repositories
                     }
                     catch (Exception e)
                     {
-                        throw new IOException(e.Message, e);
+                        throw new InvalidOperationException(e.Message, e);
                     }
                 }
                 return _length;
@@ -200,7 +200,7 @@ namespace FileStore.Repositories
                     }
                     catch (Exception e)
                     {
-                        throw new IOException(e.Message, e);
+                        throw new InvalidOperationException(e.Message, e);
                     }
                 }
                 return _fileType;
@@ -238,7 +238,7 @@ namespace FileStore.Repositories
                     }
                     catch (Exception e)
                     {
-                        throw new IOException(e.Message, e);
+                        throw new InvalidOperationException(e.Message, e);
                     }
                 }
                 return _fileName;

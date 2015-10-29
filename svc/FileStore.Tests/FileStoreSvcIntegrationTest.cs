@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using FileStore.Repositories;
 
 namespace FileStore.Tests
@@ -16,7 +17,7 @@ namespace FileStore.Tests
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [TestCategory("FileStoreSvc-Integration")]
-        public void TestUploadAndDeleteFilesUsingMultipart()
+        public async Task TestUploadAndDeleteFilesUsingMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -56,7 +57,7 @@ namespace FileStore.Tests
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -67,7 +68,7 @@ namespace FileStore.Tests
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [TestCategory("FileStoreSvc-Integration")]
-        public void TestUploadAndDeleteFilesUsingNonMultipart()
+        public async Task TestUploadAndDeleteFilesUsingNonMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -107,7 +108,7 @@ namespace FileStore.Tests
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -157,9 +158,9 @@ namespace FileStore.Tests
             fetchRequest.Method = "Get";
             fetchRequest.Accept = "application/json";
             fetchRequest.KeepAlive = true;
-            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -173,6 +174,7 @@ namespace FileStore.Tests
                 objResponse = (HttpWebResponse)e.Response;
             }
 
+            Assert.IsNotNull(objResponse, "objResponse is null");
             return objResponse.StatusCode == HttpStatusCode.OK;
         }
 
@@ -182,7 +184,7 @@ namespace FileStore.Tests
             fetchRequest.Accept = "application/json";
             fetchRequest.Method = "POST";
             fetchRequest.KeepAlive = true;
-            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
@@ -199,7 +201,7 @@ namespace FileStore.Tests
                 using (var fileStream = new FileStream(attachmentFileName, FileMode.Open, FileAccess.Read))
                 {
                     var buffer = new byte[4096];
-                    int bytesRead = 0;
+                    int bytesRead;
                     while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
                         rs.Write(buffer, 0, bytesRead);
@@ -210,7 +212,7 @@ namespace FileStore.Tests
                 rs.Write(trailer, 0, trailer.Length);
             }
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -224,14 +226,13 @@ namespace FileStore.Tests
                 objResponse = (HttpWebResponse)e.Response;
             }
 
+            Assert.IsNotNull(objResponse, "objResponse should not be null");
             Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
-            string fileGuid = null;
-            using (var stream = objResponse.GetResponseStream())
+            string fileGuid;
+            var stream = objResponse.GetResponseStream();
+            using (var reader = new StreamReader(stream))
             {
-                using (var reader = new StreamReader(stream))
-                {
-                    fileGuid = reader.ReadToEnd();
-                }
+                fileGuid = reader.ReadToEnd();
             }
 
             return fileGuid;
@@ -290,12 +291,10 @@ namespace FileStore.Tests
             }
             Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
             string fileGuid = null;
-            using (var stream = objResponse.GetResponseStream())
+            var stream = objResponse.GetResponseStream();
+            using (var reader = new StreamReader(stream))
             {
-                using (var reader = new StreamReader(stream))
-                {
-                    fileGuid = reader.ReadToEnd();
-                }
+                fileGuid = reader.ReadToEnd();
             }
 
             return fileGuid;
@@ -441,12 +440,10 @@ namespace FileStore.Tests
 
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Existent file was deleted by server");
             string actualDeletedFileGuid = null;
-            using (var stream = objResponse.GetResponseStream())
+            var stream = objResponse.GetResponseStream();
+            using (var reader = new StreamReader(stream))
             {
-                using (var reader = new StreamReader(stream))
-                {
-                    actualDeletedFileGuid = reader.ReadToEnd();
-                }
+                actualDeletedFileGuid = reader.ReadToEnd();
             }
 
             Assert.AreEqual(fileGuid, actualDeletedFileGuid.Replace("\"",string.Empty), "Incorrect file was deleted by FileStoreService");

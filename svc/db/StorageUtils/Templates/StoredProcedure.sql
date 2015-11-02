@@ -16,7 +16,7 @@ Date			Name					Change
 
 ******************************************************************************************************************************/
 
-CREATE PROCEDURE dbo.[<Procedure_Name>]
+CREATE PROCEDURE [dbo].[<Procedure_Name>]
 (
 	-- Add the parameters for the stored procedure here
 	<@param1 int>

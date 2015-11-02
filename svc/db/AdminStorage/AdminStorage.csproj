@@ -46,9 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Functions\" />
-    <Folder Include="Procedures\" />
     <Folder Include="Tables\" />
     <Folder Include="Views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Procedures\BeginSession.sql" />
+    <Content Include="Procedures\EndSession.sql" />
+    <Content Include="Procedures\GetApplicationLabels.sql" />
+    <Content Include="Procedures\GetConfigSettings.sql" />
+    <Content Include="Procedures\GetSession.sql" />
+    <Content Include="Procedures\SelectSessions.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,16 +1,20 @@
-USE [AdminStorage]
+SET QUOTED_IDENTIFIER ON 
 GO
-
-/****** Object:  StoredProcedure [dbo].[BeginSession]    Script Date: 11/2/2015 1:36:26 PM ******/
+SET ANSI_NULLS ON 
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[BeginSession]
 GO
 
-/****** Object:  StoredProcedure [dbo].[BeginSession]    Script Date: 11/2/2015 1:36:26 PM ******/
-SET ANSI_NULLS ON
-GO
+/******************************************************************************************************************************
+Name:			BeginSession
 
-SET QUOTED_IDENTIFIER ON
-GO
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/03		Chris Dufour			Initial Version
+******************************************************************************************************************************/
 
 CREATE PROCEDURE [dbo].[BeginSession] 
 (
@@ -37,5 +41,10 @@ BEGIN
 END
 
 GO
+SET QUOTED_IDENTIFIER ON 
+GO
+--SET ANSI_NULLS ON 
+--GO
+--GRANT  EXECUTE  ON [dbo].[BeginSession]  TO [Blueprint]
 
-
+--GO

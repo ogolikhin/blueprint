@@ -7,7 +7,7 @@
     <ProjectGuid>{957F3DCC-DA08-48A0-B057-3F142A9A80D4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FileStore.Tests</RootNamespace>
+    <RootNamespace>FileStore</RootNamespace>
     <AssemblyName>FileStore.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -19,6 +19,8 @@ namespace AccessControl.Controllers
 		private static readonly ObjectCache Cache = new MemoryCache("SessionsCache");
 		private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStoreDatabase);
 
+		public static object Trigger = null;
+
 		static SessionsController()
 		{
 			if (!EventLog.SourceExists(WebApiConfig.ServiceLogSource))

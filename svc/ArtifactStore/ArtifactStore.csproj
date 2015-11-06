@@ -89,6 +89,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Element.cs" />
+    <Compile Include="Models\Artifact.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +105,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -142,7 +143,7 @@
   <Target Name="BeforeBuild">
   </Target>
   -->
-	<Target Name="AfterBuild" Condition="'$(PublishProfileName)' == '' And '$(WebPublishProfileFile)' == ''">
-		<TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="$(TargetPath).config" />
-	</Target>
+  <Target Name="AfterBuild" Condition="'$(PublishProfileName)' == '' And '$(WebPublishProfileFile)' == ''">
+    <TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="$(TargetPath).config" />
+  </Target>
 </Project>

@@ -10,8 +10,6 @@
 
         public string LdapAuthenticationUrl { get; set; }
 
-        public bool UseDefaultConnection { get; set; }
-
         public int AuthenticationType { get; set; }
 
         public string SettingName { get; set; }

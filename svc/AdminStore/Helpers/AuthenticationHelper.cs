@@ -12,7 +12,7 @@ namespace AdminStore.Helpers
         /// <param name="password"></param>
         /// <param name="passwordExpirationInDays"></param>
         /// <returns></returns>
-        public AuthenticationStatus AuthenticateDatabaseUser(User user, string password, int? passwordExpirationInDays)
+        public AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int? passwordExpirationInDays)
         {
             if (user == null)
             {
@@ -39,7 +39,7 @@ namespace AdminStore.Helpers
             return AuthenticationStatus.Success;
         }
 
-        private bool HasExpiredPassword(User user, int passwordExpirationInDays)
+        private bool HasExpiredPassword(LoginUser user, int passwordExpirationInDays)
         {
             if (!user.ExpirePassword.GetValueOrDefault())
             {

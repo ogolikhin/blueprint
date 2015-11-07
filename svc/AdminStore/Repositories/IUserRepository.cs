@@ -5,6 +5,6 @@ namespace AdminStore.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> GetUserByLogin(string login);
+        Task<LoginUser> GetUserByLogin(string login);
     }
 }

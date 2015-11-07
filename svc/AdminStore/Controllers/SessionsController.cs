@@ -18,15 +18,17 @@ namespace AdminStore.Controllers
 	public class SessionsController : ApiController
 	{
 	    private readonly IUserRepository _userRepository;
+	    private readonly ILdapRepository _ldapRepository;
 
-		public SessionsController() : this(new UserRepository())
+	    public SessionsController() : this(new UserRepository(), new LdapRepository())
 		{
 		}
 
-        internal SessionsController(IUserRepository userRepository)
-		{
+        internal SessionsController(IUserRepository userRepository, ILdapRepository ldapRepository)
+        {
             _userRepository = userRepository;
-		}
+            _ldapRepository = ldapRepository;
+        }
 
 		[HttpGet]
 		[Route("select")]
@@ -71,10 +73,23 @@ namespace AdminStore.Controllers
 			try
 			{
 			    var user = await _userRepository.GetUserByLogin(login);
-			    if (user.Source == UserGroupSource.Database)
+			    var authenticationStatus = AuthenticationStatus.Error;
+			    switch (user.Source)
 			    {
-			        var autenticationHelper = new AuthenticationHelper();
-			        var authenticationStatus = autenticationHelper.AuthenticateDatabaseUser(user, password, 0);
+			        case UserGroupSource.Database:
+                        var autenticationHelper = new AuthenticationHelper();
+			            authenticationStatus = autenticationHelper.AuthenticateDatabaseUser(user, password, 0);
+			            break;
+			        case UserGroupSource.Windows:
+                        var autenticationHelper2 = new AuthenticationHelper();
+			            authenticationStatus = autenticationHelper2.AuthenticateDatabaseUser(user, password, 0);
+			            break;
+			        default:
+			            throw new ArgumentOutOfRangeException();
+			    }
+                if (authenticationStatus == AuthenticationStatus.Error)
+			    {
+			        throw new KeyNotFoundException();
 			    }
 				if (!force)
 				{

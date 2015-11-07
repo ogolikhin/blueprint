@@ -105,8 +105,9 @@
     <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\ApplicationLabel.cs" />
     <Compile Include="Models\ConfigSetting.cs" />
+    <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\LdapSettings.cs" />
-    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />

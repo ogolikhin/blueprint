@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -120,6 +121,15 @@ namespace AdminStore.Repositories
             {
                 cxn.Open();
                 return await cxn.QueryAsync<LdapSettings>("GetLdapSettings", commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public virtual async Task<InstanceSettings> GetInstanceSettings()
+        {
+            using (var cxn = new SqlConnection(WebApiConfig.RaptorMain))
+            {
+                cxn.Open();
+                return (await cxn.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
             }
         }
     }

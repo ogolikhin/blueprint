@@ -22,8 +22,9 @@ namespace AdminStore
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
-        public static string ServiceLogSource =
-            typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
+        public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
+
+        public static string MaximumInvalidLogonAttempts = ConfigurationManager.AppSettings["MaximumInvalidLogonAttempts"];
 
         public static string ServiceLogName = ServiceLogSource + " Log";
     }

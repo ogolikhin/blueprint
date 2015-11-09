@@ -1,4 +1,6 @@
-﻿namespace AdminStore.Models
+﻿using System.DirectoryServices;
+
+namespace AdminStore.Models
 {
     public class LdapSettings
     {
@@ -10,7 +12,7 @@
 
         public string LdapAuthenticationUrl { get; set; }
 
-        public int AuthenticationType { get; set; }
+        public AuthenticationTypes AuthenticationType { get; set; }
 
         public string SettingName { get; set; }
 

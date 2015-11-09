@@ -102,6 +102,8 @@
     <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\AuthenticationStatus.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
+    <Compile Include="Helpers\LdapHelper.cs" />
+    <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\ApplicationLabel.cs" />
     <Compile Include="Models\ConfigSetting.cs" />
@@ -110,10 +112,12 @@
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AuthenticationRepository.cs" />
+    <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />
-    <Compile Include="Repositories\ILdapRepository.cs" />
+    <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Repositories\IUserRepository.cs" />
-    <Compile Include="Repositories\LdapRepository.cs" />
+    <Compile Include="Repositories\SettingsRepository.cs" />
     <Compile Include="Repositories\SqlConfigRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
   </ItemGroup>

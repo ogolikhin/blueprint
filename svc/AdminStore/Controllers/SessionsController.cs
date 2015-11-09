@@ -1,33 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Helpers;
-using AdminStore.Models;
-using AdminStore.Repositories;
 using System.Net.Http.Headers;
 using System.Runtime.Remoting;
+using System.Security.Authentication;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using AdminStore.Repositories;
 
 namespace AdminStore.Controllers
 {
 	[RoutePrefix("sessions")]
 	public class SessionsController : ApiController
 	{
+<<<<<<< HEAD
 	    private readonly IUserRepository _userRepository;
 	    private readonly ILdapRepository _ldapRepository;
 
 	    public SessionsController() : this(new UserRepository(), new LdapRepository())
+=======
+        private readonly IAuthenticationRepository _authenticationRepository;
+
+        public SessionsController()
+            : this(new AuthenticationRepository())
+>>>>>>> implements authentification (step 3)
 		{
 		}
 
-        internal SessionsController(IUserRepository userRepository, ILdapRepository ldapRepository)
+        internal SessionsController(IAuthenticationRepository authenticationRepository)
         {
-            _userRepository = userRepository;
-            _ldapRepository = ldapRepository;
+            _authenticationRepository = authenticationRepository;
         }
 
 		[HttpGet]
@@ -70,57 +75,43 @@ namespace AdminStore.Controllers
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> PostSession(string login, string password, bool force = false)
 		{
-			try
-			{
-			    var user = await _userRepository.GetUserByLogin(login);
-			    var authenticationStatus = AuthenticationStatus.Error;
-			    switch (user.Source)
-			    {
-			        case UserGroupSource.Database:
-                        var autenticationHelper = new AuthenticationHelper();
-			            authenticationStatus = autenticationHelper.AuthenticateDatabaseUser(user, password, 0);
-			            break;
-			        case UserGroupSource.Windows:
-                        var autenticationHelper2 = new AuthenticationHelper();
-			            authenticationStatus = autenticationHelper2.AuthenticateDatabaseUser(user, password, 0);
-			            break;
-			        default:
-			            throw new ArgumentOutOfRangeException();
-			    }
-                if (authenticationStatus == AuthenticationStatus.Error)
-			    {
-			        throw new KeyNotFoundException();
-			    }
-				if (!force)
-				{
-					using (var http = new HttpClient())
-					{
-						http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-						http.DefaultRequestHeaders.Accept.Clear();
-						http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        var result = await http.GetAsync("sessions/" + user.Id.ToString());
-						if (result.IsSuccessStatusCode) // session exists
-						{
-							throw new ApplicationException("Conflict");
-						}
-					}
-				}
-				using (var http = new HttpClient())
-				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-					http.DefaultRequestHeaders.Accept.Clear();
-					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var result = await http.PostAsJsonAsync("sessions/" + user.Id.ToString(), user.Id);
-					if (!result.IsSuccessStatusCode)
-					{
-						throw new ServerException();
-					}
-					var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
-                    var response = Request.CreateResponse(HttpStatusCode.OK, token);
-					response.Headers.Add("Session-Token", token);
-					return ResponseMessage(response);
-				}
-			}
+		    try
+		    {
+		        var user = await _authenticationRepository.AuthenticateUser(login, password);
+		        if (!force)
+		        {
+		            using (var http = new HttpClient())
+		            {
+		                http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+		                http.DefaultRequestHeaders.Accept.Clear();
+		                http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		                var result = await http.GetAsync("sessions/" + user.Id.ToString());
+		                if (result.IsSuccessStatusCode) // session exists
+		                {
+		                    throw new ApplicationException("Conflict");
+		                }
+		            }
+		        }
+		        using (var http = new HttpClient())
+		        {
+		            http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+		            http.DefaultRequestHeaders.Accept.Clear();
+		            http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		            var result = await http.PostAsJsonAsync("sessions/" + user.Id.ToString(), user.Id);
+		            if (!result.IsSuccessStatusCode)
+		            {
+		                throw new ServerException();
+		            }
+		            var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
+		            var response = Request.CreateResponse(HttpStatusCode.OK, token);
+		            response.Headers.Add("Session-Token", token);
+		            return ResponseMessage(response);
+		        }
+		    }
+		    catch (AuthenticationException)
+		    {
+                return NotFound();
+		    }
 			catch (ApplicationException)
 			{
 				return Conflict();

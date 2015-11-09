@@ -1,12 +1,4 @@
-﻿SET QUOTED_IDENTIFIER ON 
-GO
-SET ANSI_NULLS ON 
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[PostFile]
-GO
-
-/******************************************************************************************************************************
+﻿/******************************************************************************************************************************
 Name:			PostFile
 
 Description: 
@@ -15,6 +7,10 @@ Change History:
 Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[PostFile]
+GO
 
 CREATE PROCEDURE [dbo].[PostFile]
 ( 
@@ -46,10 +42,6 @@ BEGIN
 END
 
 GO
-SET QUOTED_IDENTIFIER ON 
-GO
---SET ANSI_NULLS ON 
---GO
---GRANT  EXECUTE  ON [dbo].[PostFile]  TO [Blueprint]
 
+--GRANT  EXECUTE  ON [dbo].[PostFile]  TO [Blueprint]
 --GO

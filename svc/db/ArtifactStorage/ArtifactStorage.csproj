@@ -40,14 +40,47 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Functions\" />
-    <Folder Include="Procedures\" />
-    <Folder Include="Tables\" />
     <Folder Include="Views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
+    <Content Include="Instance.sql">
+      <DependentUpon>Instance.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Instance.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Instance.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration.sql">
+      <DependentUpon>Migration.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Migration.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Migration.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\6.5.1.0\6.5.1.0.sql">
+      <DependentUpon>6.5.1.0.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Migration\6.5.1.0\6.5.1.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>6.5.1.0.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\6.5.1.0\Sample.sql" />
+    <Content Include="Procedures\SetSchemaVersion.sql" />
+    <Content Include="RecreateArtifactStorage.sql" />
+    <Content Include="Tables\DbVersionInfo.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

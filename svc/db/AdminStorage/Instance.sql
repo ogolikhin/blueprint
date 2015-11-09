@@ -4,7 +4,7 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [FileStorage];
+USE [AdminStorage];
 GO
 SET NOCOUNT ON;
 GO
@@ -29,43 +29,81 @@ CREATE TABLE [dbo].[DbVersionInfo](
  CONSTRAINT [PK_DbVersionInfo] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
+)) ON [PRIMARY]
 GO
 /******************************************************************************************************************************
-Name:			Files
+Name:			ApplicationLabels
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[DF__Files__FileId__117F9D94]') AND type = 'D')
-BEGIN
-ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
-END
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ApplicationLabels]') AND type in (N'U'))
+DROP TABLE [dbo].[ApplicationLabels]
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
-DROP TABLE [dbo].[Files]
-GO
-
-CREATE TABLE [dbo].[Files](
-	[FileId] [uniqueidentifier] NOT NULL,
-	[StoredTime] [datetime] NOT NULL,
-	[FileName] [nvarchar](256) NOT NULL,
-	[FileType] [nvarchar](128) NOT NULL,
-	[FileContent] [varbinary](max) NULL,
-	[FileSize] [bigint] NOT NULL,
- CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
+CREATE TABLE [dbo].[ApplicationLabels](
+	[Key] [nvarchar](64) NOT NULL,
+	[Locale] [nvarchar](32) NOT NULL,
+	[Text] [nvarchar](128) NOT NULL,
+ CONSTRAINT [PK_ApplicationLabels_Key_Locale] PRIMARY KEY CLUSTERED 
 (
-	[FileId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+	[Key] ASC,
+	[Locale] ASC
+)) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
+/******************************************************************************************************************************
+Name:			ConfigSettings
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/03		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ConfigSettings]') AND type in (N'U'))
+DROP TABLE [dbo].[ConfigSettings]
+GO
+
+CREATE TABLE [dbo].[ConfigSettings](
+	[Key] [nvarchar](64) NOT NULL,
+	[Value] [nvarchar](128) NOT NULL,
+	[Group] [nvarchar](128) NOT NULL,
+	[IsRestricted] [bit] NOT NULL,
+ CONSTRAINT [PK_ConfigSettings] PRIMARY KEY CLUSTERED 
+(
+	[Key] ASC
+)) ON [PRIMARY]
+GO
+
+/******************************************************************************************************************************
+Name:			Sessions
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/03		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Sessions]') AND type in (N'U'))
+DROP TABLE [dbo].[Sessions]
+GO
+
+CREATE TABLE [dbo].[Sessions](
+	[UserId] [int] NOT NULL,
+	[SessionId] [uniqueidentifier] NOT NULL,
+	[BeginTime] [datetime] NOT NULL,
+	[EndTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)) ON [PRIMARY]
 GO
 
 
@@ -170,187 +208,187 @@ GO
 --GO
 
 /******************************************************************************************************************************
-Name:			DeleteFile
+Name:			BeginSession
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[DeleteFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[BeginSession]
 GO
 
-CREATE PROCEDURE [dbo].[DeleteFile]
+CREATE PROCEDURE [dbo].[BeginSession] 
 (
-	@FileId uniqueidentifier,
-	@DeletedFileId AS uniqueidentifier OUTPUT
+	@UserId int,
+	@BeginTime datetime,
+	@NewSessionId uniqueidentifier OUTPUT,
+	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
-	SET NOCOUNT ON
-
-	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    DELETE FROM [dbo].[Files]
-	OUTPUT DELETED.FileId INTO @op
-    WHERE [FileId] = @FileId
-	SELECT  @DeletedFileId = t.ColGuid FROM @op t
+	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+	BEGIN TRANSACTION;
+	SELECT @OldSessionId = SessionId from [dbo].[Sessions] where UserId = @UserId;
+	SELECT @NewSessionId = NEWID();
+	IF @OldSessionId IS NULL
+	BEGIN
+		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime) VALUES(@UserId, @NewSessionId, @BeginTime);
+	END
+	ELSE
+	BEGIN
+		UPDATE [dbo].[Sessions] SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL where UserId = @UserId;
+	END
+	COMMIT TRANSACTION;
 END
-
 GO
 
---GRANT  EXECUTE  ON [dbo].[DeleteFile]  TO [Blueprint]
+--GRANT  EXECUTE  ON [dbo].[BeginSession]  TO [Blueprint]
 --GO
 
 /******************************************************************************************************************************
-Name:			GetFile
+Name:			EndSession
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[EndSession]
 GO
 
-CREATE PROCEDURE [dbo].[GetFile]
+CREATE PROCEDURE [dbo].[EndSession] 
 (
-	@FileId uniqueidentifier
+	@SessionId uniqueidentifier,
+	@EndTime datetime
 )
 AS
 BEGIN
- 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
-	SET NOCOUNT ON
-
-	SELECT [FileId]
-	,[StoredTime]
-	,[FileName]
-	,[FileType]
-	,[FileContent]
-	,[FileSize]
-	FROM [dbo].[Files]
-	WHERE [FileId] = @FileId
+	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+	BEGIN TRANSACTION;
+	UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime where SessionId = @SessionId;
+	COMMIT TRANSACTION;
 END
-
 GO
 
---GRANT  EXECUTE  ON [dbo].[GetFile]  TO [Blueprint]
+--GRANT  EXECUTE  ON [dbo].[EndSession]  TO [Blueprint]
 --GO
 
 /******************************************************************************************************************************
-Name:			GetStatus
+Name:			GetApplicationLables
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetStatus]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetApplicationLables]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetApplicationLables]
 GO
 
-CREATE PROCEDURE [dbo].[GetStatus]
+CREATE PROCEDURE [dbo].[GetApplicationLables] 
+	@Locale nvarchar(32)
 AS
 BEGIN
-       SELECT TOP 1 COUNT(*) FROM [dbo].[Files];       
+	SELECT [Key], [Text] FROM [dbo].ApplicationLabels WHERE Locale = @Locale;
 END
-
 GO
 
---GRANT  EXECUTE  ON [dbo].[GetStatus]  TO [Blueprint]
+--GRANT  EXECUTE  ON [dbo].[GetApplicationLables]  TO [Blueprint]
 --GO
 
 /******************************************************************************************************************************
-Name:			HeadFile
+Name:			GetConfigSettings
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[HeadFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetConfigSettings]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetConfigSettings]
 GO
 
-CREATE PROCEDURE [dbo].[HeadFile]
+CREATE PROCEDURE [dbo].[GetConfigSettings] 
+	@AllowRestricted bit
+AS
+BEGIN
+	SELECT [Key], [Value], [Group], IsRestricted FROM [dbo].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
+END
+GO
+
+--GRANT  EXECUTE  ON [dbo].[GetConfigSettings]  TO [Blueprint]
+--GO
+
+/******************************************************************************************************************************
+Name:			GetSession
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/03		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetSession]
+GO
+
+CREATE PROCEDURE [dbo].[GetSession] 
 (
-	@FileId uniqueidentifier
+	@SessionId uniqueidentifier
 )
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
-	SET NOCOUNT ON
-
-	SELECT [FileId]
-	,[StoredTime]
-	,[FileName]
-	,[FileType]
-	,[FileSize]
-	FROM [dbo].[Files]
-	WHERE [FileId] = @FileId
+	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where SessionId = @SessionId;
 END
+GO 
 
-GO
-
---GRANT  EXECUTE  ON [dbo].[HeadFile]  TO [Blueprint]
+--GRANT  EXECUTE  ON [dbo].[GetSession]  TO [Blueprint]
 --GO
 
 /******************************************************************************************************************************
-Name:			PostFile
+Name:			SelectSessions
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/03		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[PostFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SelectSessions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[SelectSessions]
 GO
 
-CREATE PROCEDURE [dbo].[PostFile]
-( 
-    @FileName nvarchar(256),
-    @FileType nvarchar(64),
-    @FileContent varbinary(max),
-	@FileId AS uniqueidentifier OUTPUT
+CREATE PROCEDURE [dbo].[SelectSessions] 
+(
+	@ps int,
+	@pn int
 )
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
-	SET NOCOUNT ON
-
-	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    INSERT INTO [dbo].[Files]  
-           ([StoredTime]
-           ,[FileName]
-           ,[FileType]
-           ,[FileContent]
-           ,[FileSize])
-	OUTPUT INSERTED.FileId INTO @op
-    VALUES
-           (GETDATE()
-           ,@FileName
-           ,@FileType
-           ,@FileContent
-		   ,DATALENGTH(@FileContent))
-	SELECT  @FileId = t.ColGuid FROM @op t
+	WITH SessionsRN AS
+	(
+		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions]
+	)
+	SELECT * FROM SessionsRN
+	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps
+	ORDER BY BeginTime DESC;
 END
-
 GO
 
---GRANT  EXECUTE  ON [dbo].[PostFile]  TO [Blueprint]
+--GRANT  EXECUTE  ON [dbo].[SelectSessions]  TO [Blueprint]
 --GO
 
 

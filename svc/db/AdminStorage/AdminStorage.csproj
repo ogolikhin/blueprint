@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentMigrator, Version=1.6.0.0, Culture=neutral, PublicKeyToken=aacfc7de5acabf05, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FluentMigrator.1.6.0\lib\40\FluentMigrator.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,32 +41,57 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migrations\Dylan\M00001.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Functions\" />
     <Folder Include="Scripts\" />
     <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CreateAdminStorage.sql" />
-    <EmbeddedResource Include="Procedures\BeginSession_M00001.sql" />
-    <EmbeddedResource Include="Procedures\EndSession_M00001.sql" />
-    <EmbeddedResource Include="Procedures\GetApplicationLabels_M00001.sql" />
-    <EmbeddedResource Include="Procedures\GetConfigSettings_M00001.sql" />
-    <EmbeddedResource Include="Procedures\GetSession_M00001.sql" />
-    <EmbeddedResource Include="Procedures\SelectSessions_M00001.sql" />
+    <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
+    <Content Include="Instance.sql">
+      <DependentUpon>Instance.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Instance.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Instance.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration.sql">
+      <DependentUpon>Migration.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Migration.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Migration.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\6.5.1.0\6.5.1.0.sql">
+      <DependentUpon>6.5.1.0.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Migration\6.5.1.0\6.5.1.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>6.5.1.0.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\6.5.1.0\Sample.sql" />
+    <Content Include="Procedures\SetSchemaVersion.sql" />
+    <Content Include="RecreateAdminStorage.sql" />
+    <Content Include="Procedures\BeginSession.sql" />
+    <Content Include="Procedures\EndSession.sql" />
+    <Content Include="Procedures\GetApplicationLabels.sql" />
+    <Content Include="Procedures\GetConfigSettings.sql" />
+    <Content Include="Procedures\GetSession.sql" />
+    <Content Include="Procedures\SelectSessions.sql" />
+    <Content Include="Tables\Sessions.sql" />
+    <Content Include="Tables\ConfigSettings.sql" />
+    <Content Include="Tables\DbVersionInfo.sql" />
+    <Content Include="Tables\ApplicationLabels.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MigrateDB.bat" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\StorageUtils\StorageUtils.csproj">
-      <Project>{f21993c2-fe84-416b-b046-c0da85a2ea3a}</Project>
-      <Name>StorageUtils</Name>
-    </ProjectReference>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

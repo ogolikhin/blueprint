@@ -16,16 +16,16 @@ namespace ServiceLibrary.Repositories
 
     public class SqlConnectionWrapper : ISqlConnectionWrapper
     {
-        private readonly Lazy<DbConnection> _connection;
+        private readonly Func<DbConnection> _connectionFactory;
 
         public SqlConnectionWrapper(string connectionString)
         {
-            _connection = new Lazy<DbConnection>(() => new SqlConnection(connectionString));
+            _connectionFactory = () => new SqlConnection(connectionString);
         }
 
         public async Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            using (var connection = _connection.Value)
+            using (var connection = _connectionFactory())
             {
                 connection.Open();
                 return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
@@ -34,7 +34,7 @@ namespace ServiceLibrary.Repositories
 
         public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            using (var connection = _connection.Value)
+            using (var connection = _connectionFactory())
             {
                 connection.Open();
                 return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);

@@ -4,13 +4,12 @@ using System.Net.Http;
 using System.Web.Http;
 using Moq;
 using System.Threading.Tasks;
-using FileStore.Controllers;
 using ServiceLibrary.Repositories;
 
-namespace StatusControl.Tests
+namespace FileStore.Controllers
 {
 	[TestClass]
-	public class StatusControlUnitTest
+	public class StatusControllerTests
 	{
 		[TestCategory("StatusControlLib-UnitTests")]
 		[TestMethod]

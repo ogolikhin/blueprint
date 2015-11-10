@@ -1,46 +1,50 @@
-﻿//using System.Collections.Generic;
-//using System.Data;
-//using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Moq;
 
 namespace ServiceLibrary.Repositories
 {
     [TestClass]
     public class SqlStatusRepositoryTests
     {
-        //[TestMethod]
-        //public async Task GetStatus_QueryReturnsNonNegative_ReturnsTrue()
-        //{
-        //    // Arrange
-        //    var cmd = "Test";
-        //    IEnumerable<int> result = new[] {0};
-        //    var cxn = new Mock<IDbConnectionWrapper>();
-        //    cxn.Setup(c => c.QueryAsync<int>(cmd, null, It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(result));
-        //    var repository = new SqlStatusRepository(cxn.Object, cmd);
+        #region GetStatus
 
-        //    // Act
-        //    bool status = await repository.GetStatus();
+        [TestMethod]
+        public async Task GetStatus_QueryReturnsNonNegative_ReturnsTrue()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var cmd = "Test";
+            var repository = new SqlStatusRepository(cxn.Object, cmd);
+            IEnumerable<int> result = new[] { 0 };
+            cxn.SetupQueryAsync(cmd, null, result);
 
-        //    // Assert
-        //    Assert.IsTrue(status);
-        //}
+            // Act
+            bool status = await repository.GetStatus();
 
-        //[TestMethod]
-        //public async Task GetStatus_QueryReturnsNegative_ReturnsFalse()
-        //{
-        //    // Arrange
-        //    var cmd = "Test";
-        //    IEnumerable<int> result = new[] {-1};
-        //    var cxn = new Mock<IDbConnectionWrapper>();
-        //    cxn.Setup(c => c.QueryAsync<int>(cmd, null, It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(result));
-        //    var repository = new SqlStatusRepository(cxn.Object, cmd);
+            // Assert
+            cxn.Verify();
+            Assert.IsTrue(status);
+        }
 
-        //    // Act
-        //    bool status = await repository.GetStatus();
+        [TestMethod]
+        public async Task GetStatus_QueryReturnsNegative_ReturnsFalse()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var cmd = "cmd";
+            var repository = new SqlStatusRepository(cxn.Object, cmd);
+            IEnumerable<int> result = new[] { -1 };
+            cxn.SetupQueryAsync(cmd, null, result);
 
-        //    // Assert
-        //    Assert.IsFalse(status);
-        //}
+            // Act
+            bool status = await repository.GetStatus();
+
+            // Assert
+            cxn.Verify();
+            Assert.IsFalse(status);
+        }
+
+        #endregion GetStatus
     }
 }

@@ -1,10 +1,9 @@
-﻿using FileStore.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FileStore.Tests
+namespace FileStore.Repositories
 {
     [TestClass]
-    public class FileMapperRepositoryTest
+    public class FileMapperRepositoryTests
     {
         private FileMapperRepository _fileMapperRepository;
 

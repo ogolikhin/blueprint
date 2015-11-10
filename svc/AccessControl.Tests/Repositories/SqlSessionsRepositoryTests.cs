@@ -1,92 +1,169 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Data;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using AccessControl.Models;
-//using Dapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AccessControl.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Moq;
-//using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories;
 
 namespace AccessControl.Repositories
 {
     [TestClass]
     public class SqlSessionsRepositoryTests
     {
-        //[TestMethod]
-        //public async Task GetSession_ReturnsFirstSession()
-        //{
-        //    // Arrange
-        //    var guid = new Guid("12345678901234567890123456789012");
-        //    IEnumerable<Session> result = new[] {new Session {SessionId = guid}};
-        //    var cxn = new Mock<IDbConnectionWrapper>();
-        //    cxn.Setup(c => c.QueryAsync<Session>("GetSession", It.Is<object>(p => guid.Equals(Get(new DynamicParameters(p), "SessionId"))), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(result));
-        //    var repository = new SqlSessionsRepository(cxn.Object);
+        #region GetSession
 
-        //    // Act
-        //    Session session = await repository.GetSession(guid);
+        [TestMethod]
+        public async Task GetSession_QueryReturnsSession_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("12345678901234567890123456789012");
+            Session[] result = { new Session { SessionId = guid } };
+            cxn.SetupQueryAsync("GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
-        //    // Assert
-        //    Assert.AreEqual(result.FirstOrDefault(), session);
-        //}
+            // Act
+            Session session = await repository.GetSession(guid);
 
-        //private object Get(object parameters, string key)
-        //{
-        //    return ((SqlMapper.IParameterLookup)new DynamicParameters(parameters))[key];
-        //}
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), session);
+        }
 
-        //[TestMethod]
-        //public async Task SelectSessions_ReturnsSession()
-        //{
-        //    // Arrange
-        //    int ps = 100;
-        //    int pn = 1;
-        //    var guid = new Guid("12345678901234567890123456789012");
-        //    IEnumerable<Session> result = new[] { new Session { SessionId = guid } };
-        //    var cxn = new Mock<IDbConnectionWrapper>();
-        //    cxn.Setup(c => c.QueryAsync<Session>("SelectSessions", It.Is<object>(p => ps.Equals(Get(p, "ps")) && pn.Equals(Get(p, "pn"))), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(result));
-        //    var repository = new SqlSessionsRepository(cxn.Object);
+        [TestMethod]
+        public async Task GetSession_QueryReturnsEmpty_ReturnsNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("12345678901234567890123456789012");
+            Session[] result = {};
+            cxn.SetupQueryAsync("GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
-        //    // Act
-        //    IEnumerable<Session> sessions = await repository.SelectSessions(ps, pn);
+            // Act
+            Session session = await repository.GetSession(guid);
 
-        //    // Assert
-        //    CollectionAssert.AreEquivalent(result.ToList(), sessions.ToList());
-        //}
+            // Assert
+            cxn.Verify();
+            Assert.IsNull(session);
+        }
 
-        //[TestMethod]
-        //public async Task BeginSession_ReturnsNewAndOldSessions()
-        //{
-        //    // Arrange
-        //    int id = 123;
-        //    var oldSession = new Guid("12345678901234567890123456789012");
-        //    var newSession = new Guid("12345678901234567890123456789013");
-        //    var cxn = new Mock<IDbConnectionWrapper>();
-        //    cxn.Setup(c => c.ExecuteAsync("BeginSession", It.Is<object>(p => id.Equals(Get(new DynamicParameters(p), "@UserId"))), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(1))
-        //        .Callback<string, object, IDbTransaction, int?, CommandType>((s, p, t, o, c) => { ((DynamicParameters)p).Add("NewSessionId", newSession);  ((DynamicParameters)p).Add("OldSessionId", oldSession); });
-        //    var repository = new SqlSessionsRepository(cxn.Object);
+        #endregion GetSession
 
-        //    // Act
-        //    Guid?[] sessions = await repository.BeginSession(id);
+        #region SelectSessions
 
-        //    // Assert
-        //    Assert.AreEqual(new [] { newSession, oldSession }, sessions);
-        //}
+        [TestMethod]
+        public async Task SelectSessions_QueryReturnsSessions_ReturnsAll()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int ps = 100;
+            int pn = 1;
+            Session[] result =
+            {
+                new Session {SessionId = new Guid("12345678901234567890123456789012")},
+                new Session {SessionId = new Guid("11111111111111111111111111111111")}
+            };
+            cxn.SetupQueryAsync("SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
 
-        //[TestMethod]
-        //public async Task EndSession_CallsEndSessionCorrectly()
-        //{
-        //    // Arrange
-        //    var guid = new Guid("12345678901234567890123456789012");
-        //    var cxn = new Mock<IDbConnectionWrapper>(MockBehavior.Strict);
-        //    cxn.Setup(c => c.ExecuteAsync("EndSession", It.Is<object>(p => guid.Equals(Get(new DynamicParameters(p), "SessionId"))), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure)).Returns(Task.FromResult(1));
-        //    var repository = new SqlSessionsRepository(cxn.Object);
+            // Act
+            IEnumerable<Session> sessions = await repository.SelectSessions(ps, pn);
 
-        //    // Act
-        //    await repository.EndSession(guid);
+            // Assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(result, sessions.ToList());
+        }
 
-        //    // Assert
-        //}
+        [TestMethod]
+        public async Task SelectSessions_QueryReturnsEmpty_ReturnsEmpty()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int ps = 100;
+            int pn = 1;
+            Session[] result = {};
+            cxn.SetupQueryAsync("SelectSessions", new Dictionary<string, object> { { "ps", ps }, { "pn", pn } }, result);
+
+            // Act
+            IEnumerable<Session> sessions = await repository.SelectSessions(ps, pn);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsFalse(sessions.Any());
+        }
+
+        #endregion SelectSessions
+
+        #region BeginSession
+
+        [TestMethod]
+        public async Task BeginSession_QueryReturnsNewAndOldSessions_ReturnsBoth()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int id = 123;
+            Guid? newSession = new Guid("12345678901234567890123456789012");
+            Guid? oldSession = new Guid("11111111111111111111111111111111");
+            cxn.SetupExecuteAsync(
+                "BeginSession",
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                1,
+                new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", oldSession } });
+
+            // Act
+            Guid?[] sessions = await repository.BeginSession(id);
+
+            // Assert
+            cxn.Verify();
+            CollectionAssert.AreEqual(new [] { newSession, oldSession }, sessions);
+        }
+
+        [TestMethod]
+        public async Task BeginSession_QueryReturnsNewSessionOnly_ReturnsNewSessionAndNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int id = 123;
+            Guid? newSession = new Guid("12345678901234567890123456789012");
+            cxn.SetupExecuteAsync(
+                "BeginSession",
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                1,
+                new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", null } });
+
+            // Act
+            Guid?[] sessions = await repository.BeginSession(id);
+
+            // Assert
+            cxn.Verify();
+            CollectionAssert.AreEqual(new[] { newSession, null }, sessions);
+        }
+
+        #endregion BeginSession
+
+        #region EndSession
+
+        [TestMethod]
+        public async Task EndSession_CallsQuery()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("12345678901234567890123456789012");
+            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid } }, 1);
+
+            // Act
+            await repository.EndSession(guid);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        #endregion EndSession
     }
 }

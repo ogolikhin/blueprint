@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Collections.Generic;
 using System.Web.Http;
-using AccessControl.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
-namespace AccessControl.Tests.Controllers
+namespace AccessControl.Controllers
 {
     [TestClass]
     public class SessionsControllerTest

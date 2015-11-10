@@ -51,7 +51,7 @@ namespace AccessControl.Repositories
             prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);
-            return new Guid?[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
+            return new[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
         }
 
         public virtual async Task EndSession(Guid guid)

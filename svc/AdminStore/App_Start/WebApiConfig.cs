@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
+﻿using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
 
@@ -17,17 +14,17 @@ namespace AdminStore
             config.MapHttpAttributeRoutes();
         }
 
-		public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
+        public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-		public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
+        public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
 
-		public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
+        public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
-		public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
+        public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
-		public static string ServiceLogSource =
-			typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
+        public static string ServiceLogSource =
+            typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 
-		public static string ServiceLogName = ServiceLogSource + " Log";
-	}
+        public static string ServiceLogName = ServiceLogSource + " Log";
+    }
 }

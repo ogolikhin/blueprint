@@ -1,12 +1,11 @@
 ﻿using System;
-using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace FileStore.Tests
+namespace FileStore.Repositories
 {
     [TestClass]
-    public class FileStreamRepositoryTest
+    public class FileStreamRepositoryTests
     {
         [TestCategory("FileStoreSvc-UnitTests")]
         [ExpectedException(typeof(ArgumentException))]

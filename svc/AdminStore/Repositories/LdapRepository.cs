@@ -14,9 +14,9 @@ namespace AdminStore.Repositories
     {
         private readonly ISettingsRepository _settingsRepository;
 
-        private const int AdServerNotOperationalErrorCode = -2147016646;
+        private const int LdapInvalidCredentialsErrorCode = 49;
 
-        private const int LdapInvalidCredentialsErrorCode = -2147023570;
+        private const int ActiveDirectoryInvalidCredentialsErrorCode = -2147023570;
 
         public LdapRepository()
             : this(new SettingsRepository())
@@ -31,35 +31,53 @@ namespace AdminStore.Repositories
 
         public async Task AuthenticateLdapUser(string login, string password, InstanceSettings instanceSettings)
         {
+            var authenticationStatus = AuthenticationStatus.Error;
             if (!instanceSettings.IsLdapIntegrationEnabled)
             {
                 throw new AuthenticationException(string.Format("To authenticate user with login: {0}, ldap integration should be enabled", login));
             }
             var loginInfo = LoginInfo.Parse(login);
-            if (!instanceSettings.UseDefaultConnection)
+            if (instanceSettings.UseDefaultConnection)
             {
-                TryAuthenticate(loginInfo, password);
+                authenticationStatus = TryAuthenticateViaDirectorySearcher(loginInfo.Login, password);
             }
-
-            var ldapSettings = await _settingsRepository.GetLdapSettings();
-            foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchsUser(loginInfo.Domain)))
+            else
             {
-                if (!UserExistsInLdapDirectory(ldapSetting, loginInfo))
-                    continue;
-                var authStatus = TryAuthenticate(loginInfo, password, ldapSetting.AuthenticationType);
-                if (authStatus == AuthenticationStatus.Error)
+                var ldapSettings = await _settingsRepository.GetLdapSettings();
+                if (ldapSettings.Any())
                 {
-                    continue;
+                    foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchsUser(loginInfo.Domain)))
+                    {
+                        if (!UserExistsInLdapDirectory(ldapSetting, loginInfo))
+                        {
+                            continue;
+                        }
+                        authenticationStatus = TryAuthenticate(loginInfo, password, ldapSetting.AuthenticationType);
+                        if (authenticationStatus == AuthenticationStatus.Success)
+                        {
+                            break;
+                        }
+                    }
                 }
-
-                return;
+                else
+                {
+                    authenticationStatus = TryAuthenticate(loginInfo, password);
+                }
+            }
+            if (authenticationStatus != AuthenticationStatus.Success)
+            {
+                if (authenticationStatus == AuthenticationStatus.InvalidCredentials)
+                {
+                    throw new InvalidCredentialException("Invalid username or password");
+                }
+                throw new AuthenticationException("The LDAP server is unavailable");
             }
         }
 
         private AuthenticationStatus TryAuthenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
             var authenticationStatus = TryAuthenticateViaLdap(loginInfo, password, authenticationType);
-            if (authenticationStatus == AuthenticationStatus.Error)
+            if (authenticationStatus != AuthenticationStatus.Success)
             {
                 return TryAuthenticateViaDirectorySearcher(loginInfo.Login, password);
             }
@@ -85,7 +103,7 @@ namespace AdminStore.Repositories
             }
             catch (COMException comException)
             {
-                if (comException.ErrorCode == LdapInvalidCredentialsErrorCode)
+                if (comException.ErrorCode == ActiveDirectoryInvalidCredentialsErrorCode)
                 {
                     return AuthenticationStatus.InvalidCredentials;
                 }

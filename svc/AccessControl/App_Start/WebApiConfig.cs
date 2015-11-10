@@ -17,7 +17,7 @@ namespace AccessControl
 			// Web API routes
 			config.MapHttpAttributeRoutes();
 
-			var x = Controllers.SessionsController.Trigger;
+			Controllers.SessionsController.Load();
 		}
 
 		public static string AdminStoreDatabase = ConfigurationManager.ConnectionStrings["AdminStoreDatabase"].ConnectionString;

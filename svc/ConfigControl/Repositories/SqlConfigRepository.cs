@@ -1,25 +1,31 @@
-﻿using System;
-using System.Linq;
-using System.Data;
-using System.Data.SqlClient;
+﻿using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using ConfigControl.Models;
 using System.Collections.Generic;
+using ServiceLibrary.Repositories;
 
 namespace ConfigControl.Repositories
 {
-	public class SqlConfigRepository : IConfigRepository
-	{
-		public virtual async Task<IEnumerable<ConfigSetting>> GetSettings(bool allowRestricted)
-		{
-			using (var cxn = new SqlConnection(WebApiConfig.AdminStorage))
-			{
-				cxn.Open();
-				var prm = new DynamicParameters();
-				prm.Add("@AllowRestricted", allowRestricted);
-				return await cxn.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
-			}
-		}
-	}
+    public class SqlConfigRepository : IConfigRepository
+    {
+        private readonly ISqlConnectionWrapper _cxn;
+
+        public SqlConfigRepository()
+            : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
+        {
+        }
+
+        internal SqlConfigRepository(ISqlConnectionWrapper cxn)
+        {
+            _cxn = cxn;
+        }
+
+        public virtual async Task<IEnumerable<ConfigSetting>> GetSettings(bool allowRestricted)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@AllowRestricted", allowRestricted);
+            return await _cxn.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
+        }
+    }
 }

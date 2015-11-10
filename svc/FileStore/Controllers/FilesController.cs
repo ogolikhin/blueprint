@@ -32,8 +32,6 @@ namespace FileStore.Controllers
         private const string NoStore = "no-store";
         private const string MustRevalidate = "must-revalidate";
 
-        static FilesController() { }
-
         public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository())
         {
         }
@@ -67,10 +65,8 @@ namespace FileStore.Controllers
                 else
                 {
                     //Temporarily allow only multipart uploads
-                    if (Request.Content.Headers.ContentDisposition == null ||
-                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition.FileName) ||
-                       Request.Content.Headers.ContentType == null ||
-                       string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType.MediaType))
+                    if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
+                        string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
                     {
                         return BadRequest();
                     }
@@ -181,7 +177,7 @@ namespace FileStore.Controllers
                 {
                     stream.CopyTo(memoryStream);
                     var fileArray = memoryStream.ToArray();
-                    return new Models.File()
+                    return new Models.File
                     {
                         StoredTime = DateTime.UtcNow, // use UTC time to store data
                         FileName = httpContent.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),

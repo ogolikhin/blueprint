@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using FileStore.Repositories;
 
-namespace FileStore.Tests
+namespace FileStore
 {
     [TestClass]
     public class FileStoreSvcIntegrationTest
@@ -263,7 +263,7 @@ namespace FileStore.Tests
                 using (var fileStream = new FileStream(attachmentFileName, FileMode.Open, FileAccess.Read))
                 {
                     var buffer = new byte[4096];
-                    int bytesRead = 0;
+                    int bytesRead;
                     while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
                         rs.Write(buffer, 0, bytesRead);
@@ -271,7 +271,7 @@ namespace FileStore.Tests
                 }
             }
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -290,7 +290,7 @@ namespace FileStore.Tests
                 return null;
             }
             Assert.IsTrue(objResponse.StatusCode == HttpStatusCode.OK, "Uploading of file to FileStore service failed");
-            string fileGuid = null;
+            string fileGuid;
             var stream = objResponse.GetResponseStream();
             using (var reader = new StreamReader(stream))
             {
@@ -307,9 +307,9 @@ namespace FileStore.Tests
             fetchRequest.Method = "Head";
             fetchRequest.Accept = "application/json";
             fetchRequest.KeepAlive = true;
-            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -342,7 +342,7 @@ namespace FileStore.Tests
             var fileSize = fileInfo.Length;
 
             var contentLength = objResponse.Headers["File-Size"];
-            var actualFileSize = 0;
+            int actualFileSize;
             int.TryParse(contentLength, out actualFileSize);
             Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
         }
@@ -354,9 +354,9 @@ namespace FileStore.Tests
             fetchRequest.Method = "Get";
             fetchRequest.Accept = "application/json";
             fetchRequest.KeepAlive = true;
-            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -389,12 +389,12 @@ namespace FileStore.Tests
             var fileSize = fileInfo.Length;
 
             var contentLength = objResponse.Headers["Content-Length"];
-            var actualFileSize = 0;
+            int actualFileSize;
             int.TryParse(contentLength, out actualFileSize);
             Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
 
-            string expectedMD5 = null;
-            string actualMD5 = null;
+            string expectedMD5;
+            string actualMD5;
 
             using (var expectedFileStream = fileInfo.OpenRead())
             {
@@ -416,9 +416,9 @@ namespace FileStore.Tests
             fetchRequest.Method = "Delete";
             fetchRequest.Accept = "application/json";
             fetchRequest.KeepAlive = true;
-            fetchRequest.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
 
-            HttpWebResponse objResponse = null;
+            HttpWebResponse objResponse;
             try
             {
                 objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
@@ -439,7 +439,7 @@ namespace FileStore.Tests
             }
 
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Existent file was deleted by server");
-            string actualDeletedFileGuid = null;
+            string actualDeletedFileGuid;
             var stream = objResponse.GetResponseStream();
             using (var reader = new StreamReader(stream))
             {

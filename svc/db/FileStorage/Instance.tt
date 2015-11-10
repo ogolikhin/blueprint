@@ -27,8 +27,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'6.5.0') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
 GO
 -- --------------------------------------------------
 

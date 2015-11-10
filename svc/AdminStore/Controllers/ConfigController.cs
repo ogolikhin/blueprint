@@ -92,7 +92,7 @@ namespace AdminStore.Controllers
 		{
 			var str = new StringBuilder();
 			foreach (var s in settings)
-				str.AppendFormat("'{0}':'{'{1}', '{2}'}',", s.Key, s.Value, s.Group);
+				str.AppendFormat("'{0}':'{{'{1}', '{2}'}}',", s.Key, s.Value, s.Group);
 			return str.ToString();
 		}
 

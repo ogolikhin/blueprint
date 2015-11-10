@@ -4,8 +4,10 @@
     {
         public bool UseDefaultConnection { get; set; }
 
-        public bool EnableLDAPIntegration { get; set; }
+        public bool IsLdapIntegrationEnabled { get; set; }
 
         public int PasswordExpirationInDays { get; set; }
+
+        public bool? IsSamlEnabled { get; set; }
     }
 }

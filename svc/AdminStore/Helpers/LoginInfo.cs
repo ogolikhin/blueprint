@@ -8,10 +8,7 @@ namespace AdminStore.Helpers
 
         public string UserName { get; set; }
 
-        public string DomainUserName
-        {
-            get { return string.Format("{0}{1}", Domain, UserName); }
-        }
+        public string Login  { get; internal set; }
 
         public static LoginInfo Parse(string login)
         {
@@ -20,7 +17,8 @@ namespace AdminStore.Helpers
             {
                 var result = login.Split('\\');
                 loginInfo.Domain = result.First();
-                loginInfo.UserName = result.Reverse().LastOrDefault();
+                loginInfo.UserName = result.Reverse().FirstOrDefault();
+                loginInfo.Login = login;
             }
             return loginInfo;
         }

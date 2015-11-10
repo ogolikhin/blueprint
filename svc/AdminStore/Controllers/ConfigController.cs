@@ -19,7 +19,8 @@ namespace AdminStore.Controllers
         private readonly IConfigRepository _configRepo;
 
         public ConfigController() : this(new SqlConfigRepository())
-      {
+        {
+
         }
 
         internal ConfigController(IConfigRepository configRepo)

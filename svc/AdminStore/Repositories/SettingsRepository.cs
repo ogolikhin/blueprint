@@ -27,5 +27,14 @@ namespace AdminStore.Repositories
                 return (await cxn.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
             }
         }
+
+        public virtual async Task<FederatedAuthentication> GetFederatedAuthentication()
+        {
+            using (var cxn = new SqlConnection(WebApiConfig.RaptorMain))
+            {
+                cxn.Open();
+                return (await cxn.QueryAsync<FederatedAuthentication>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            }
+        }
     }
 }

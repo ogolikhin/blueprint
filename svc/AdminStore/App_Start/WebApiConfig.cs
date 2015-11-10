@@ -24,6 +24,7 @@ namespace AdminStore
 
         public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 
+        //TODO move the setting to database
         public static string MaximumInvalidLogonAttempts = ConfigurationManager.AppSettings["MaximumInvalidLogonAttempts"];
 
         public static string ServiceLogName = ServiceLogSource + " Log";

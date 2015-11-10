@@ -58,7 +58,7 @@ namespace AccessControl.Controllers
 
         internal SessionsController(ObjectCache cache, ISessionsRepository repo)
         {
-				Cache = cache;
+            Cache = cache;
             Repo = repo;
         }
 
@@ -101,7 +101,7 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
+        public async Task<IHttpActionResult> SelectSessions(int ps = 100, int pn = 1)
         {
             try
             {
@@ -238,7 +238,12 @@ namespace AccessControl.Controllers
             Cache.Add(key, id, new CacheItemPolicy
             {
                 SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
-                UpdateCallback = a => Repo.EndSession(Session.Convert(a.Key))
+                RemovedCallback = args =>
+                {
+                    //TODO ? a.RemovedReason == CacheEntryRemovedReason.Evicted
+                    if (args.RemovedReason == CacheEntryRemovedReason.Expired)
+                        Repo.EndSession(Session.Convert(args.CacheItem.Key));
+                }
             });
         }
     }

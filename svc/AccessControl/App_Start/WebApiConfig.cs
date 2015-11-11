@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Web.Http;
 
 namespace AccessControl
@@ -14,7 +15,7 @@ namespace AccessControl
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            Controllers.SessionsController.Load();
+            Controllers.SessionsController.Load(new MemoryCache("SessionsCache"));
         }
 
         public static string AdminStoreDatabase = ConfigurationManager.ConnectionStrings["AdminStoreDatabase"].ConnectionString;

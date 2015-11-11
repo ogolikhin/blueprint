@@ -16,15 +16,17 @@ namespace AccessControl.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private static ObjectCache Cache = new MemoryCache("SessionsCache");
+        private static ObjectCache Cache;
         private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStoreDatabase);
 
-        internal static void Load()
+        internal static void Load(ObjectCache cache)
         {
             if (!EventLog.SourceExists(WebApiConfig.ServiceLogSource))
                 EventLog.CreateEventSource(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName);
+
             Task.Run(() =>
             {
+                Cache = cache;
                 try
                 {
                     EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", EventLogEntryType.Information);

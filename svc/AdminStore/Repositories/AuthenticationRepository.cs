@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using AdminStore.Saml;
 
 namespace AdminStore.Repositories
 {
@@ -14,8 +17,6 @@ namespace AdminStore.Repositories
 
         private readonly ILdapRepository _ldapRepository;
 
-        private readonly int? _maximumInvalidLogonAttempts;
-
         public AuthenticationRepository(): this(new UserRepository(), new SettingsRepository(), new LdapRepository())
         {
         }
@@ -25,25 +26,20 @@ namespace AdminStore.Repositories
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
             _ldapRepository = ldapRepository;
-            int value;
-            if (int.TryParse(WebApiConfig.MaximumInvalidLogonAttempts, out value))
-            {
-                _maximumInvalidLogonAttempts = value;
-            }
         }
 
-        public async Task<LoginUser> AuthenticateUser(string login, string password)
+        public async Task<LoginUser> AuthenticateUserAsync(string login, string password)
         {
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
                 throw new InvalidCredentialException("Login or password cannot be empty");
             }
-            var user = await _userRepository.GetUserByLogin(login);
+            var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
                 throw new InvalidCredentialException(string.Format("User does not exists with login: {0}", login));
             }
-            var instanceSettings = await _settingsRepository.GetInstanceSettings();
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault() && !user.IsFallbackAllowed.GetValueOrDefault())
             {
                 throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
@@ -54,12 +50,28 @@ namespace AdminStore.Repositories
                     await AuthenticateDatabaseUser(user, password, instanceSettings.PasswordExpirationInDays);
                     break;
                 case UserGroupSource.Windows:
-                    await _ldapRepository.AuthenticateLdapUser(login, password, instanceSettings);
+                    await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings);
                     break;
                 default:
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login),
                                                     new ArgumentOutOfRangeException(user.Source.ToString()));
             }
+            return user;
+        }
+
+        public async Task<LoginUser> AuthenticateSamlUserAsync(string samlResponse)
+        {
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+            if (!instanceSettings.IsSamlEnabled.GetValueOrDefault())
+            {
+                throw new AuthenticationException("Federated Authentication mechanism must be enabled");
+            }
+            var fedAuthSettings = await _settingsRepository.GetFederatedAuthenticationSettingsAsync();
+
+            var responseDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(HttpUtility.HtmlDecode(samlResponse)));
+
+            var principal = SamlUtil.ProcessResponse(responseDecoded, fedAuthSettings);
+            var user = await _userRepository.GetUserByLoginAsync(principal.Identity.Name);
             return user;
         }
 
@@ -110,7 +122,7 @@ namespace AdminStore.Repositories
 
         private async Task LockUserIfApplicable(LoginUser user)
         {
-            if (user == null || !user.IsEnabled || _maximumInvalidLogonAttempts == null)
+            if (user == null || !user.IsEnabled || WebApiConfig.MaximumInvalidLogonAttempts == 0)
             {
                 return;
             }
@@ -126,14 +138,14 @@ namespace AdminStore.Repositories
             {
                 user.InvalidLogonAttemptsNumber++;
 
-                if (user.InvalidLogonAttemptsNumber >= _maximumInvalidLogonAttempts.Value)
+                if (user.InvalidLogonAttemptsNumber >= WebApiConfig.MaximumInvalidLogonAttempts)
                 {
                     user.IsEnabled = false;
                 }
             }
 
             user.LastInvalidLogonTimeStamp = DateTime.UtcNow;
-            await _userRepository.UpdateUserOnInvalidLogin(user);
+            await _userRepository.UpdateUserOnInvalidLoginAsync(user);
         }
     }
 }

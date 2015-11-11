@@ -29,7 +29,7 @@ namespace AdminStore.Repositories
             _settingsRepository = settingsRepository;
         }
 
-        public async Task AuthenticateLdapUser(string login, string password, InstanceSettings instanceSettings)
+        public async Task AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings)
         {
             var authenticationStatus = AuthenticationStatus.Error;
             if (!instanceSettings.IsLdapIntegrationEnabled)
@@ -43,7 +43,7 @@ namespace AdminStore.Repositories
             }
             else
             {
-                var ldapSettings = await _settingsRepository.GetLdapSettings();
+                var ldapSettings = await _settingsRepository.GetLdapSettingsAsync();
                 if (ldapSettings.Any())
                 {
                     foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchsUser(loginInfo.Domain)))

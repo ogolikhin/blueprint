@@ -9,7 +9,7 @@ namespace AdminStore.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public async Task<LoginUser> GetUserByLogin(string login)
+        public async Task<LoginUser> GetUserByLoginAsync(string login)
         {
             using (var cxn = CreateDbConnection())
             {
@@ -20,7 +20,7 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task UpdateUserOnInvalidLogin(LoginUser user)
+        public async Task UpdateUserOnInvalidLoginAsync(LoginUser user)
         {
             using (var cxn = CreateDbConnection())
             {

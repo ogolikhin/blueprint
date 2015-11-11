@@ -6,8 +6,10 @@ namespace AdminStore.Repositories
 {
     public interface ISettingsRepository
     {
-        Task<IEnumerable<LdapSettings>> GetLdapSettings();
+        Task<IEnumerable<LdapSettings>> GetLdapSettingsAsync();
 
-        Task<InstanceSettings> GetInstanceSettings();
+        Task<InstanceSettings> GetInstanceSettingsAsync();
+
+        Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync();
     }
 }

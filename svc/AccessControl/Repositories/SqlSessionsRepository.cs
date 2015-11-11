@@ -23,7 +23,7 @@ namespace AccessControl.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public virtual async Task<Session> GetSession(Guid guid)
+        public async Task<Session> GetSession(Guid guid)
         {
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);
@@ -36,14 +36,14 @@ namespace AccessControl.Repositories
         /// <param name="ps">Page Size</param>
         /// <param name="pn">Page Number</param>
         /// <returns></returns>
-        public virtual async Task<IEnumerable<Session>> SelectSessions(int ps, int pn)
+        public async Task<IEnumerable<Session>> SelectSessions(int ps, int pn)
         {
             var prm = new DynamicParameters();
             prm.Add("@ps", ps);
             prm.Add("@pn", pn);
             return (await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure));
         }
-        public virtual async Task<Guid?[]> BeginSession(int id)
+        public async Task<Guid?[]> BeginSession(int id)
         {
             var prm = new DynamicParameters();
             prm.Add("@UserId", id);
@@ -54,7 +54,7 @@ namespace AccessControl.Repositories
             return new[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
         }
 
-        public virtual async Task EndSession(Guid guid)
+        public async Task EndSession(Guid guid)
         {
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);

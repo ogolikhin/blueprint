@@ -10,7 +10,7 @@ namespace AdminStore.Repositories
 {
     public class SettingsRepository : ISettingsRepository
     {
-        public virtual async Task<IEnumerable<LdapSettings>> GetLdapSettings()
+        public virtual async Task<IEnumerable<LdapSettings>> GetLdapSettingsAsync()
         {
             using (var cxn = new SqlConnection(WebApiConfig.RaptorMain))
             {
@@ -19,7 +19,7 @@ namespace AdminStore.Repositories
             }
         }
 
-        public virtual async Task<InstanceSettings> GetInstanceSettings()
+        public virtual async Task<InstanceSettings> GetInstanceSettingsAsync()
         {
             using (var cxn = new SqlConnection(WebApiConfig.RaptorMain))
             {
@@ -28,13 +28,18 @@ namespace AdminStore.Repositories
             }
         }
 
-        public virtual async Task<FederatedAuthentication> GetFederatedAuthentication()
+        public virtual async Task<FederatedAuthenticationSettings> GetFederatedAuthentication()
         {
             using (var cxn = new SqlConnection(WebApiConfig.RaptorMain))
             {
                 cxn.Open();
-                return (await cxn.QueryAsync<FederatedAuthentication>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+                return (await cxn.QueryAsync<FederatedAuthenticationSettings>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
             }
+        }
+
+        public Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

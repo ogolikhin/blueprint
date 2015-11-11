@@ -10,6 +10,7 @@ using System.Security.Authentication;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Repositories;
 using AdminStore.Saml;
 
@@ -19,24 +20,26 @@ namespace AdminStore.Controllers
     public class SessionsController : ApiController
     {
         private readonly IAuthenticationRepository _authenticationRepository;
+        private readonly IHttpClientProvider _httpClientProvider;
 
-        public SessionsController(): this(new AuthenticationRepository())
+        public SessionsController(): this(new AuthenticationRepository(), new HttpClientProvider())
         {
         }
 
-        internal SessionsController(IAuthenticationRepository authenticationRepository)
+        internal SessionsController(IAuthenticationRepository authenticationRepository, IHttpClientProvider httpClientProvider)
         {
             _authenticationRepository = authenticationRepository;
+            _httpClientProvider = httpClientProvider;
         }
 
-		[HttpGet]
+        [HttpGet]
 		[Route("select")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
 		{
 			try
 			{
-                using (var http = CreateHttpClient())
+                using (var http = _httpClientProvider.CreateHttpClient())
 				{
 					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 					http.DefaultRequestHeaders.Accept.Clear();
@@ -74,7 +77,7 @@ namespace AdminStore.Controllers
                 var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
                 if (!force)
                 {
-                    using (var http = CreateHttpClient())
+                    using (var http = _httpClientProvider.CreateHttpClient())
                     {
                         http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                         http.DefaultRequestHeaders.Accept.Clear();
@@ -117,7 +120,7 @@ namespace AdminStore.Controllers
 
         private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId)
         {
-            using (var http = CreateHttpClient())
+            using (var http = _httpClientProvider.CreateHttpClient())
             {
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
@@ -161,7 +164,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = CreateHttpClient())
+                using (var http = _httpClientProvider.CreateHttpClient())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
@@ -176,28 +179,6 @@ namespace AdminStore.Controllers
             {
                 return InternalServerError();
             }
-        }
-
-        /// <summary>
-        /// Creates HttpClient. Hook for unit tests.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual HttpClient CreateHttpClient()
-        {
-            return new HttpClient(new FakeResponseHandler());
-        }
-    }
-
-    public class FakeResponseHandler : DelegatingHandler
-    {
-        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
-        {
-            return await Task.Run(() =>
-            {
-                var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-                httpResponseMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
-                return httpResponseMessage;
-            }, cancellationToken);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace FileStore.Repositories
             _fileMapperRepository = new FileMapperRepository();
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_NullValue()
         {
@@ -25,7 +24,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.DefaultMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_EmptyValue()
         {
@@ -39,7 +37,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.DefaultMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_StringSpace()
         {
@@ -53,7 +50,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.DefaultMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_JunkValue()
         {
@@ -67,7 +63,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.DefaultMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_TxtValue()
         {
@@ -81,7 +76,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.TextMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_rtfValue()
         {
@@ -95,7 +89,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.RichTextFormatMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_RTXValue()
         {
@@ -109,7 +102,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.RichTextMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_pngValue()
         {
@@ -123,7 +115,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.PngMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_jpeValue()
         {
@@ -137,7 +128,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_jpgValue()
         {
@@ -151,7 +141,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_jpegValue()
         {
@@ -165,7 +154,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_bmpValue()
         {
@@ -179,7 +167,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.BmpMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_iefValue()
         {
@@ -193,7 +180,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.IefMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_svgValue()
         {
@@ -207,7 +193,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.SvgMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_tifValue()
         {
@@ -221,7 +206,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.TiffMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_tiffValue()
         {
@@ -235,7 +219,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.TiffMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_stmValue()
         {
@@ -249,7 +232,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.HtmlMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_HtmValue()
         {
@@ -263,7 +245,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.HtmlMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_HtmlValue()
         {
@@ -277,7 +258,6 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.HtmlMediaType, result);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetMappedOutputContentType_CssValue()
         {

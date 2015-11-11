@@ -6,7 +6,6 @@ namespace FileStore.Models
     [TestClass]
     public class FileTests
     {
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
         public void ConvertToStoreId_ImproperGuid_FormatException()
         {
@@ -25,7 +24,6 @@ namespace FileStore.Models
             Assert.Fail("No exception was thrown.");
         }
 
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
         public void ConvertToStoreId_ProperGuid_NFormat()
         {
@@ -38,7 +36,6 @@ namespace FileStore.Models
             Assert.IsTrue(actualGuid != Guid.Empty);
         }
 
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
         public void ConvertToStoreId_ProperGuid_DFormat()
         {

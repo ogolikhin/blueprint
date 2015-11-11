@@ -7,6 +7,24 @@ namespace ServiceLibrary.Repositories
     [TestClass]
     public class SqlStatusRepositoryTests
     {
+        #region Constuctor
+
+        [TestMethod]
+        public void Constructor_ConnectionString_CreatesConnectionWithString()
+        {
+            // Arrange
+            string cxn = "data source=(local)";
+            string cmd = "command";
+
+            // Act
+            var repository = new SqlStatusRepository(cxn, cmd);
+
+            // Assert
+            Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
+        }
+
+        #endregion Constructor
+
         #region GetStatus
 
         [TestMethod]

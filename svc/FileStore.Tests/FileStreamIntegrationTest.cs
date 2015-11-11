@@ -28,7 +28,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileInfoWhenFileExists()
         {
             TestSetup thisTest = SetupTest();
@@ -41,7 +41,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileContentWhenFileExists()
         {
             // Request file content from FileStream database 
@@ -62,7 +62,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileContentWhenFileNotFound()
         {
             // Request file content from FileStream database 

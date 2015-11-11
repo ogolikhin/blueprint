@@ -16,7 +16,6 @@ namespace FileStore.Controllers
     [TestClass]
     public class FilesControllerTests
     {
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartSingleFile_Success()
         {
@@ -66,7 +65,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.IsSuccessStatusCode);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartMultipleFiles_BadRequestFailure()
         {
@@ -115,7 +113,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_NonMultipart_BadRequestFailure()
         {
@@ -153,7 +150,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
         {
@@ -197,7 +193,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForExistentFile_Success()
         {
@@ -246,7 +241,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForNonExistentFile_Failure()
         {
@@ -279,7 +273,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_ImproperGuid_FormatException()
         {
@@ -312,7 +305,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_UnknownException_InternalServerErrorFailure()
         {
@@ -346,7 +338,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ImproperGuid_FormatException()
         {
@@ -378,7 +369,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_UnknownException_InternalServerErrorFailure()
         {
@@ -411,7 +401,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NonExistentFile_NotFoundFailure()
         {
@@ -444,7 +433,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ProperRequest_Success()
         {
@@ -493,7 +481,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NoFileRetrieved_Failure()
         {
@@ -528,7 +515,6 @@ namespace FileStore.Controllers
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NoFileRetrievedEmptyName_Failure()
         {

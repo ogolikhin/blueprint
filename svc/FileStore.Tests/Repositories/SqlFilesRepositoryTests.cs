@@ -11,6 +11,22 @@ namespace FileStore.Repositories
     [TestClass]
     public class SqlFilesRepositoryTests
     {
+        #region Constuctor
+
+        [TestMethod]
+        public void Constructor_CreatesConnectionToFileStorage()
+        {
+            // Arrange
+
+            // Act
+            var repository = new SqlFilesRepository();
+
+            // Assert
+            Assert.AreEqual(new ConfigRepository().FileStoreDatabase, repository._connectionWrapper.CreateConnection().ConnectionString);
+        }
+
+        #endregion Constructor
+
         #region PostFile
 
         [TestMethod]

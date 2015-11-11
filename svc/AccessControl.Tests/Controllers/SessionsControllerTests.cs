@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Runtime.Caching;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
@@ -14,7 +13,7 @@ using Moq;
 namespace AccessControl.Controllers
 {
     [TestClass]
-    public class SessionsControllerTest
+    public class SessionsControllerTests
     {
         private Mock<ISessionsRepository> _sessionsRepoMock;
         private Mock<ObjectCache> _cacheMock;
@@ -61,7 +60,6 @@ namespace AccessControl.Controllers
             //var session = sessionController.GetSession(-1);
 
             Assert.IsTrue(true);
-
         }
     }
 }

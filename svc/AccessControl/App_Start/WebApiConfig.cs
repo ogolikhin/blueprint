@@ -18,12 +18,11 @@ namespace AccessControl
             Controllers.SessionsController.Load(new MemoryCache("SessionsCache"));
         }
 
-        public static string AdminStoreDatabase = ConfigurationManager.ConnectionStrings["AdminStoreDatabase"].ConnectionString;
+        public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-        public static int SessionTimeoutInterval = Int32.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+        public static int SessionTimeoutInterval = int.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
 
-        public static string ServiceLogSource =
-            typeof (WebApiConfig).Assembly.GetCustomAttributes(typeof (AssemblyTitleAttribute), false)[0].ToString();
+        public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 
         public static string ServiceLogName = ServiceLogSource + " Log";
     }

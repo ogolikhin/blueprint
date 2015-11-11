@@ -16,7 +16,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStoreSvc-Integration")]
+        [TestCategory("Integration")]
         public async Task TestUploadAndDeleteFilesUsingMultipart()
         {
             var filesUriCall = "";
@@ -67,7 +67,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStoreSvc-Integration")]
+        [TestCategory("Integration")]
         public async Task TestUploadAndDeleteFilesUsingNonMultipart()
         {
             var filesUriCall = "";
@@ -118,7 +118,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStoreSvc-Integration")]
+        [TestCategory("Integration")]
         public void TestUploadAndDeleteFilesUsingNonMultipartNoHeadersFailure()
         {
             var filesUriCall = "";

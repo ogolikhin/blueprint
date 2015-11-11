@@ -11,7 +11,7 @@ namespace AccessControl.Repositories
 {
     public class SqlSessionsRepository : ISessionsRepository
     {
-        private readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlSessionsRepository(string cxn)
             : this(new SqlConnectionWrapper(cxn))

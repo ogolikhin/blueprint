@@ -9,23 +9,23 @@ namespace ConfigControl.Repositories
 {
     public class SqlConfigRepository : IConfigRepository
     {
-        private readonly ISqlConnectionWrapper _cxn;
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlConfigRepository()
             : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
         }
 
-        internal SqlConfigRepository(ISqlConnectionWrapper cxn)
+        internal SqlConfigRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            _cxn = cxn;
+            _connectionWrapper = connectionWrapper;
         }
 
         public virtual async Task<IEnumerable<ConfigSetting>> GetSettings(bool allowRestricted)
         {
             var prm = new DynamicParameters();
             prm.Add("@AllowRestricted", allowRestricted);
-            return await _cxn.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
         }
     }
 }

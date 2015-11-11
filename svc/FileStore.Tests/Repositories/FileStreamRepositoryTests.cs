@@ -7,7 +7,6 @@ namespace FileStore.Repositories
     [TestClass]
     public class FileStreamRepositoryTests
     {
-        [TestCategory("FileStoreSvc-UnitTests")]
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
         public void GetFile_EmptyGuid()
@@ -21,7 +20,6 @@ namespace FileStore.Repositories
             fileStreamRepository.GetFile(Guid.Empty);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_BadFileGuid()
         {
@@ -37,7 +35,6 @@ namespace FileStore.Repositories
             Assert.IsNull(file, "Invalid Guid returned a valid file");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_GoodFileGuid()
         {
@@ -59,7 +56,6 @@ namespace FileStore.Repositories
             CollectionAssert.AreEquivalent(expectedObjects, actualObjects);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
         public void HeadFile_EmptyGuid()
@@ -73,7 +69,6 @@ namespace FileStore.Repositories
             fileStreamRepository.HeadFile(Guid.Empty);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GoodFileGuid()
         {

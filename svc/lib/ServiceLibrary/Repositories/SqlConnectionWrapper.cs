@@ -10,22 +10,28 @@ namespace ServiceLibrary.Repositories
 {
     public interface ISqlConnectionWrapper
     {
+        DbConnection CreateConnection();
         Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
     }
 
     public class SqlConnectionWrapper : ISqlConnectionWrapper
     {
-        private readonly Func<DbConnection> _connectionFactory;
+        private readonly string _connectionString;
 
         public SqlConnectionWrapper(string connectionString)
         {
-            _connectionFactory = () => new SqlConnection(connectionString);
+            _connectionString = connectionString;
+        }
+
+        public DbConnection CreateConnection()
+        {
+            return new SqlConnection(_connectionString);
         }
 
         public async Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            using (var connection = _connectionFactory())
+            using (var connection = CreateConnection())
             {
                 connection.Open();
                 return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
@@ -34,7 +40,7 @@ namespace ServiceLibrary.Repositories
 
         public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
-            using (var connection = _connectionFactory())
+            using (var connection = CreateConnection())
             {
                 connection.Open();
                 return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);

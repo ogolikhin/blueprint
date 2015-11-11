@@ -11,6 +11,23 @@ namespace AccessControl.Repositories
     [TestClass]
     public class SqlSessionsRepositoryTests
     {
+        #region Constuctor
+
+        [TestMethod]
+        public void Constructor_ConnectionString_CreatesConnectionWithString()
+        {
+            // Arrange
+            string cxn = "data source=(local)";
+
+            // Act
+            var repository = new SqlSessionsRepository(cxn);
+
+            // Assert
+            Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
+        }
+
+        #endregion Constructor
+
         #region GetSession
 
         [TestMethod]
@@ -20,7 +37,7 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            Session[] result = { new Session { SessionId = guid } };
+            Session[] result = { new Session {SessionId = guid } };
             cxn.SetupQueryAsync("GetSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act

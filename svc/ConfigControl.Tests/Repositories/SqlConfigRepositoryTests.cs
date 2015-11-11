@@ -10,6 +10,22 @@ namespace ConfigControl.Repositories
     [TestClass]
     public class SqlConfigRepositoryTests
     {
+        #region Constuctor
+
+        [TestMethod]
+        public void Constructor_CreatesConnectionToAdminStorage()
+        {
+            // Arrange
+
+            // Act
+            var repository = new SqlConfigRepository();
+
+            // Assert
+            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
+        }
+
+        #endregion Constructor
+
         #region GetSettings
 
         [TestMethod]

@@ -9,12 +9,11 @@ namespace AdminStore.Repositories
 {
     public class SqlConfigRepository : IConfigRepository
     {
-        private readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlConfigRepository()
             : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
-            
         }
 
         internal SqlConfigRepository(ISqlConnectionWrapper connectionWrapper)

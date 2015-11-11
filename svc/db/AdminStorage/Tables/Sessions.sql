@@ -15,7 +15,7 @@ GO
 CREATE TABLE [dbo].[Sessions](
 	[UserId] [int] NOT NULL,
 	[SessionId] [uniqueidentifier] NOT NULL,
-	[BeginTime] [datetime] NOT NULL,
+	[BeginTime] [datetime] NULL,
 	[EndTime] [datetime] NULL,
  CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
 (

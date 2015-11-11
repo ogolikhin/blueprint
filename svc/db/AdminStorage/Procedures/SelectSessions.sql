@@ -21,7 +21,7 @@ AS
 BEGIN
 	WITH SessionsRN AS
 	(
-		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions]
+		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions] WHERE EndTime IS NULL
 	)
 	SELECT * FROM SessionsRN
 	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps

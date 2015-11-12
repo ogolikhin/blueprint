@@ -11,17 +11,17 @@ namespace AdminStore.Repositories
 {
     public class AuthenticationRepository : IAuthenticationRepository
     {
-        private readonly IUserRepository _userRepository;
+        private readonly ISqlUserRepository _userRepository;
 
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly ISqlSettingsRepository _settingsRepository;
 
         private readonly ILdapRepository _ldapRepository;
 
-        public AuthenticationRepository(): this(new UserRepository(), new SettingsRepository(), new LdapRepository())
+        public AuthenticationRepository(): this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository())
         {
         }
 
-        public AuthenticationRepository(IUserRepository userRepository, ISettingsRepository settingsRepository, ILdapRepository ldapRepository)
+        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository)
         {
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;

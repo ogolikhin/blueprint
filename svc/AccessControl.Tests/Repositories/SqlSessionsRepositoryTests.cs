@@ -166,7 +166,7 @@ namespace AccessControl.Repositories
         #region EndSession
 
         [TestMethod]
-        public async Task EndSession_CallsQuery()
+        public async Task EndSession_CallsProcedureWithCorrectParameters()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();

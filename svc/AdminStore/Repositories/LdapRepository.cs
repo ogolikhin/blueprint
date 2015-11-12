@@ -12,19 +12,19 @@ namespace AdminStore.Repositories
 {
     public class LdapRepository : ILdapRepository
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly ISqlSettingsRepository _settingsRepository;
 
         private const int LdapInvalidCredentialsErrorCode = 49;
 
         private const int ActiveDirectoryInvalidCredentialsErrorCode = -2147023570;
 
         public LdapRepository()
-            : this(new SettingsRepository())
+            : this(new SqlSettingsRepository())
         {
 
         }
 
-        internal LdapRepository(ISettingsRepository settingsRepository)
+        internal LdapRepository(ISqlSettingsRepository settingsRepository)
         {
             _settingsRepository = settingsRepository;
         }

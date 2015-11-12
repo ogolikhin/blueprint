@@ -121,12 +121,12 @@
     <Compile Include="Repositories\IAuthenticationRepository.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />
     <Compile Include="Repositories\ILdapRepository.cs" />
-    <Compile Include="Repositories\ISettingsRepository.cs" />
-    <Compile Include="Repositories\IUserRepository.cs" />
+    <Compile Include="Repositories\ISqlSettingsRepository.cs" />
+    <Compile Include="Repositories\ISqlUserRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
-    <Compile Include="Repositories\SettingsRepository.cs" />
+    <Compile Include="Repositories\SqlSettingsRepository.cs" />
     <Compile Include="Repositories\SqlConfigRepository.cs" />
-    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Repositories\SqlUserRepository.cs" />
     <Compile Include="Saml\BpSaml2SecurityTokenHandler.cs" />
     <Compile Include="Saml\FederatedAuthenticationErrorCode.cs" />
     <Compile Include="Saml\FederatedAuthenticationException.cs" />

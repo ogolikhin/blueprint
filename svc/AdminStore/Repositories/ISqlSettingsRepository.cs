@@ -4,7 +4,7 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public interface ISettingsRepository
+    public interface ISqlSettingsRepository
     {
         Task<IEnumerable<LdapSettings>> GetLdapSettingsAsync();
 

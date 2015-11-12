@@ -9,7 +9,19 @@ namespace AdminStore.Helpers
         #region Encrypt
 
         [TestMethod]
-        public void Encrypt_Input_CorrectResult()
+        public void Encrypt_Null_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            string result = SystemEncryptions.Encrypt(null);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void Encrypt_NonEmpty_ReturnsResult()
         {
             // Arrange
             string input = "Encrypt this!";
@@ -26,7 +38,19 @@ namespace AdminStore.Helpers
         #region Decrypt
 
         [TestMethod]
-        public void Decrypt_Input_CorrectResult()
+        public void Decrypt_Null_ReturnsNull()
+        {
+            // Arrange
+
+            // Act
+            string result = SystemEncryptions.Decrypt(null);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void Decrypt_NonEmpty_ReturnsResult()
         {
             // Arrange
             string input = "fb0caYSrKYtfjm/+Hy4D2w==";

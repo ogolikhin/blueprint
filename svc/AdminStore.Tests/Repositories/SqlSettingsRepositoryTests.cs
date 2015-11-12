@@ -88,22 +88,22 @@ namespace AdminStore.Repositories
 
         #region GetFederatedAuthentication
 
-        [TestMethod]
-        public async Task GetFederatedAuthentication_QueryReturnsSettings_ReturnsFirst()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlSettingsRepository(cxn.Object);
-            FederatedAuthenticationSettings[] result = { new FederatedAuthenticationSettings { IsEnabled = true } };
-            cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
+        //[TestMethod]
+        //public async Task GetFederatedAuthentication_QueryReturnsSettings_ReturnsFirst()
+        //{
+        //    // Arrange
+        //    var cxn = new SqlConnectionWrapperMock();
+        //    var repository = new SqlSettingsRepository(cxn.Object);
+        //    FederatedAuthenticationSettings[] result = { new FederatedAuthenticationSettings { IsEnabled = true } };
+        //    cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
 
-            // Act
-            FederatedAuthenticationSettings settings = await repository.GetFederatedAuthentication();
+        //    // Act
+        //    FederatedAuthenticationSettings settings = await repository.GetFederatedAuthentication();
 
-            // Assert
-            cxn.Verify();
-            Assert.AreEqual(result.First(), settings);
-        }
+        //    // Assert
+        //    cxn.Verify();
+        //    Assert.AreEqual(result.First(), settings);
+        //}
 
         [TestMethod]
         public async Task GetFederatedAuthentication_QueryReturnsEmpty_ReturnsNull()

@@ -2,33 +2,44 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Description;
-using AdminStore.Repositories;
-using AdminStore.Models;
 using System.Net.Http.Headers;
 using System.Runtime.Remoting;
+using System.Security.Authentication;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using AdminStore.Helpers;
+using AdminStore.Repositories;
+using AdminStore.Saml;
 
 namespace AdminStore.Controllers
 {
-	[RoutePrefix("sessions")]
-	public class SessionsController : ApiController
-	{
-		public SessionsController()
-		{
-		}
+    [RoutePrefix("sessions")]
+    public class SessionsController : ApiController
+    {
+        private readonly IAuthenticationRepository _authenticationRepository;
+        private readonly IHttpClientProvider _httpClientProvider;
 
-		[HttpGet]
-		[Route("select?ps={ps}&pn={pn}")]
+        public SessionsController(): this(new AuthenticationRepository(), new HttpClientProvider())
+        {
+        }
+
+        internal SessionsController(IAuthenticationRepository authenticationRepository, IHttpClientProvider httpClientProvider)
+        {
+            _authenticationRepository = authenticationRepository;
+            _httpClientProvider = httpClientProvider;
+        }
+
+        [HttpGet]
+		[Route("select")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
 		{
 			try
 			{
-				using (var http = new HttpClient())
+                using (var http = _httpClientProvider.CreateHttpClient())
 				{
 					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
 					http.DefaultRequestHeaders.Accept.Clear();
@@ -56,121 +67,118 @@ namespace AdminStore.Controllers
 			}
 		}
 
-		[HttpPost]
-		[Route("")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> PostSession(string un, string pw, bool force = false)
-		{
-			try
-			{
-				// TODO: AUTHENTICATE, find user id (uid) for username (un) provided, throw KeyNotFoundException if un/pw combination is wrong
-				var uid = 0;
-				if (!force)
-				{
-					using (var http = new HttpClient())
-					{
-						http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-						http.DefaultRequestHeaders.Accept.Clear();
-						http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-						var result = await http.GetAsync("sessions/" + uid.ToString());
-						if (result.IsSuccessStatusCode) // session exists
-						{
-							throw new ApplicationException("Conflict");
-						}
-					}
-				}
-				using (var http = new HttpClient())
-				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-					http.DefaultRequestHeaders.Accept.Clear();
-					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-					var result = await http.PostAsJsonAsync("sessions/" + uid.ToString(), uid);
-					if (!result.IsSuccessStatusCode)
-					{
-						throw new ServerException();
-					}
-					var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
-               var response = Request.CreateResponse(HttpStatusCode.OK, token);
-					response.Headers.Add("Session-Token", token);
-					return ResponseMessage(response);
-				}
-			}
-			catch (ApplicationException)
-			{
-				return Conflict();
-			}
-			catch (ArgumentNullException)
-			{
-				return BadRequest();
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
+        [HttpPost]
+        [Route("")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> PostSession(string login, string password, bool force = false)
+        {
+            try
+            {
+                var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
+                if (!force)
+                {
+                    using (var http = _httpClientProvider.CreateHttpClient())
+                    {
+                        http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+                        http.DefaultRequestHeaders.Accept.Clear();
+                        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        var result = await http.GetAsync("sessions/" + user.Id.ToString());
+                        if (result.IsSuccessStatusCode) // session exists
+                        {
+                            throw new ApplicationException("Conflict");
+                        }
+                    }
+                }
+                return await RequestSessionTokenAsync(user.Id);
+            }
+            catch (AuthenticationException)
+            {
+                return NotFound();
+            }
+            catch (ApplicationException ex)
+            {
+                Debug.Write(ex.Message);
+                return Conflict();
+            }
+            catch (ArgumentNullException)
+            {
+                return BadRequest();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
 
-		[HttpPost]
-		[Route("sso")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> PostSessionSingleSignOn()
-		{
-			try
-			{
-				// TODO: Migrate code from blueprint-current to handle SAML response and get user id (uid) from database
-				var uid = 0;
-				using (var http = new HttpClient())
-				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-					http.DefaultRequestHeaders.Accept.Clear();
-					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-					var result = await http.PostAsJsonAsync("sessions/" + uid.ToString(), uid);
-					result.EnsureSuccessStatusCode();
-					var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
-					var response = Request.CreateResponse(HttpStatusCode.OK, token);
-					response.Headers.Add("Session-Token", token);
-					return ResponseMessage(response);
-				}
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId)
+        {
+            using (var http = _httpClientProvider.CreateHttpClient())
+            {
+                http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+                http.DefaultRequestHeaders.Accept.Clear();
+                http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var result = await http.PostAsJsonAsync("sessions/" + userId.ToString(), userId);
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new ServerException();
+                }
+                var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
+                var response = Request.CreateResponse(HttpStatusCode.OK, token);
+                response.Headers.Add("Session-Token", token);
+                return ResponseMessage(response);
+            }
+        }
 
-		[HttpDelete]
-		[Route("")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> DeleteSession()
-		{
-			try
-			{
-				using (var http = new HttpClient())
-				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-					http.DefaultRequestHeaders.Accept.Clear();
-					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-					var result = await http.DeleteAsync("sessions");
-					result.EnsureSuccessStatusCode();
-					return Ok();
-				}
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
-	}
+        [HttpPost]
+        [Route("sso")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse)
+        {
+            try
+            {
+                var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
+                return await RequestSessionTokenAsync(user.Id);
+            }
+            catch (FederatedAuthenticationException)
+            {
+                return NotFound();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+
+        [HttpDelete]
+        [Route("")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> DeleteSession()
+        {
+            try
+            {
+                using (var http = _httpClientProvider.CreateHttpClient())
+                {
+                    http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+                    http.DefaultRequestHeaders.Accept.Clear();
+                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                    var result = await http.DeleteAsync("sessions");
+                    result.EnsureSuccessStatusCode();
+                    return Ok();
+                }
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+    }
 }

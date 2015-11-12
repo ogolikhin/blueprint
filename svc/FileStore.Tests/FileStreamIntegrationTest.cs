@@ -5,7 +5,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Net.Mime;
 
-namespace FileStore.Tests
+namespace FileStore
 {
     [TestClass]
     public class FileStreamIntegrationTest
@@ -28,7 +28,7 @@ namespace FileStore.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileInfoWhenFileExists()
         {
             TestSetup thisTest = SetupTest();
@@ -41,7 +41,7 @@ namespace FileStore.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileContentWhenFileExists()
         {
             // Request file content from FileStream database 
@@ -62,7 +62,7 @@ namespace FileStore.Tests
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("FileStream-Integration")]
+        [TestCategory("Integration")]
         public void TestGetFileContentWhenFileNotFound()
         {
             // Request file content from FileStream database 
@@ -88,7 +88,7 @@ namespace FileStore.Tests
 
         private TestSetup SetupTest()
         {
-            var testSetup = new TestSetup()
+            var testSetup = new TestSetup
             {
                 ContentType = Convert.ToString(TestContext.DataRow["ContentType"]),             
                 FileGuid = Convert.ToString(TestContext.DataRow["FileGuid"]),
@@ -147,7 +147,7 @@ namespace FileStore.Tests
                 response.ContentType));
 
             var contentLength = response.Headers["File-Size"];
-            var actualFileSize = 0;
+            int actualFileSize;
             int.TryParse(contentLength, out actualFileSize);
             Assert.AreEqual(thisTest.FileSize, actualFileSize, "ContentLength does not match. Expected {0} but got {1}", thisTest.FileSize,
                actualFileSize);

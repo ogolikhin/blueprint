@@ -19,7 +19,7 @@ namespace AccessControl.Controllers
             Ready = new ManualResetEventSlim(false);
         }
 
-        public StatusController() : this(new SqlStatusRepository(WebApiConfig.AdminStoreDatabase, "GetStatus"))
+        public StatusController() : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"))
         {
         }
 

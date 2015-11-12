@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace FileStore.Repositories
 {
@@ -8,10 +7,14 @@ namespace FileStore.Repositories
         string _fileStoreDatabase;
         public string FileStoreDatabase
         {
-            get {
-                return _fileStoreDatabase ??
-                       (_fileStoreDatabase =
-                           ConfigurationManager.ConnectionStrings["FileStoreDatabase"].ConnectionString);
+            get
+            {
+                if (_fileStoreDatabase == null)
+                {
+                    _fileStoreDatabase =
+                        ConfigurationManager.ConnectionStrings["FileStoreDatabase"].ConnectionString;
+                }
+                return _fileStoreDatabase;
             }
         }
 
@@ -19,9 +22,12 @@ namespace FileStore.Repositories
         public string FileStreamDatabase
         {
             get {
-                return _fileStreamDatabase ??
-                       (_fileStreamDatabase =
-                           ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString);
+                if (_fileStreamDatabase == null)
+                {
+                    _fileStreamDatabase =
+                        ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
+                }
+                return _fileStreamDatabase;
             }
         }
     }

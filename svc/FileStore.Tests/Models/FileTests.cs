@@ -1,24 +1,20 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FileStore.Repositories;
-using FileStore.Models;
 
-namespace FileStore.Tests
+namespace FileStore.Models
 {
     [TestClass]
-    public class FileStreamTest
+    public class FileTests
     {
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
-        public void GetFileFromFileStream_ImproperGuid_FormatException()
+        public void ConvertToStoreId_ImproperGuid_FormatException()
         {
             // Arrange
 
-            FileStreamRepository fsapi = new FileStreamRepository();
             try
             {
                 // Act 
-                File file = fsapi.GetFile(File.ConvertToStoreId("333333333!@#@!@!@!33333333333333333333333"));
+                File.ConvertToStoreId("333333333!@#@!@!@!33333333333333333333333");
             }
             catch (FormatException)
             {
@@ -28,9 +24,8 @@ namespace FileStore.Tests
             Assert.Fail("No exception was thrown.");
         }
 
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
-        public void GetFileFromFileStream_ProperGuid_NFormat()
+        public void ConvertToStoreId_ProperGuid_NFormat()
         {
             // Arrange
             var guid = Guid.NewGuid().ToString("N");
@@ -41,9 +36,8 @@ namespace FileStore.Tests
             Assert.IsTrue(actualGuid != Guid.Empty);
         }
 
-        [TestCategory("FileStreamSvc-UnitTests")]
         [TestMethod]
-        public void GetFileFromFileStream_ProperGuid_DFormat()
+        public void ConvertToStoreId_ProperGuid_DFormat()
         {
             // Arrange
             var guid = Guid.NewGuid().ToString("D");

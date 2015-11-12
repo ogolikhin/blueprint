@@ -1,14 +1,12 @@
 ﻿using System;
-using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace FileStore.Tests
+namespace FileStore.Repositories
 {
     [TestClass]
-    public class FileStreamRepositoryTest
+    public class FileStreamRepositoryTests
     {
-        [TestCategory("FileStoreSvc-UnitTests")]
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
         public void GetFile_EmptyGuid()
@@ -22,7 +20,6 @@ namespace FileStore.Tests
             fileStreamRepository.GetFile(Guid.Empty);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_BadFileGuid()
         {
@@ -38,7 +35,6 @@ namespace FileStore.Tests
             Assert.IsNull(file, "Invalid Guid returned a valid file");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_GoodFileGuid()
         {
@@ -60,7 +56,6 @@ namespace FileStore.Tests
             CollectionAssert.AreEquivalent(expectedObjects, actualObjects);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [ExpectedException(typeof(ArgumentException))]
         [TestMethod]
         public void HeadFile_EmptyGuid()
@@ -74,7 +69,6 @@ namespace FileStore.Tests
             fileStreamRepository.HeadFile(Guid.Empty);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GoodFileGuid()
         {

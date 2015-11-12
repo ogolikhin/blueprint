@@ -2,23 +2,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.Results;
 using System.Text;
 using System.Linq;
 using Moq;
 using FileStore.Repositories;
-using FileStore.Controllers;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Net;
 using FileStore.Models;
 
-namespace FileStore.Tests
+namespace FileStore.Controllers
 {
     [TestClass]
-    public class FileStoreSvcTest
+    public class FilesControllerTests
     {
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartSingleFile_Success()
         {
@@ -28,7 +25,7 @@ namespace FileStore.Tests
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+            moq.Setup(t => t.PostFile(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
 
             string fileName4Upload = "UploadTest.txt";
             string fileContent4Upload = "This is the content of the uploaded test file";
@@ -68,14 +65,13 @@ namespace FileStore.Tests
             Assert.IsTrue(response.IsSuccessStatusCode);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartMultipleFiles_BadRequestFailure()
         {
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+            moq.Setup(t => t.PostFile(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
@@ -114,17 +110,16 @@ namespace FileStore.Tests
             var content = response.Content;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_NonMultipart_BadRequestFailure()
         {
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFile(It.IsAny<Models.File>())).Returns(Task.FromResult<Guid?>(guid));
+            moq.Setup(t => t.PostFile(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
@@ -152,10 +147,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
         {
@@ -196,10 +190,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForExistentFile_Success()
         {
@@ -248,7 +241,6 @@ namespace FileStore.Tests
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_GetHeadForNonExistentFile_Failure()
         {
@@ -278,10 +270,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_ImproperGuid_FormatException()
         {
@@ -311,10 +302,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void HeadFile_UnknownException_InternalServerErrorFailure()
         {
@@ -345,10 +335,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ImproperGuid_FormatException()
         {
@@ -377,10 +366,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.BadRequest);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_UnknownException_InternalServerErrorFailure()
         {
@@ -410,10 +398,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.InternalServerError);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NonExistentFile_NotFoundFailure()
         {
@@ -443,10 +430,9 @@ namespace FileStore.Tests
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
 
             // Assert
-            Assert.IsTrue(response.StatusCode == System.Net.HttpStatusCode.NotFound);
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_ProperRequest_Success()
         {
@@ -455,7 +441,7 @@ namespace FileStore.Tests
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var file = new Models.File();
+            var file = new File();
             file.FileId = new Guid("22222222-2222-2222-2222-222222222222");
             file.FileName = "Test2.txt";
             file.FileContent = Encoding.UTF8.GetBytes("Test2 content");
@@ -495,7 +481,6 @@ namespace FileStore.Tests
             Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NoFileRetrieved_Failure()
         {
@@ -504,7 +489,7 @@ namespace FileStore.Tests
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            Models.File file = null;
+            File file = null;
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
             moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
 
@@ -530,7 +515,6 @@ namespace FileStore.Tests
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
 
-        [TestCategory("FileStoreSvc-UnitTests")]
         [TestMethod]
         public void GetFile_NoFileRetrievedEmptyName_Failure()
         {
@@ -539,8 +523,8 @@ namespace FileStore.Tests
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            Models.File file = new File();
-            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult((Models.File)null));
+            File file = new File();
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
             moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
@@ -564,10 +548,5 @@ namespace FileStore.Tests
             // Assert
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
-        
-
-        
-
-       
     }
 }

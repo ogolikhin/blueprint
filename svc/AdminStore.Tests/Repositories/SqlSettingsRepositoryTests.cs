@@ -115,7 +115,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
 
             // Act
-            FederatedAuthenticationSettings settings = await repository.GetFederatedAuthentication();
+            var settings = await repository.GetFederatedAuthenticationSettingsAsync();
 
             // Assert
             cxn.Verify();

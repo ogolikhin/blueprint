@@ -31,14 +31,10 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
         }
 
-        public async Task<FederatedAuthenticationSettings> GetFederatedAuthentication()
+        public async Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()
         {
-            return (await _connectionWrapper.QueryAsync<FederatedAuthenticationSettings>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
-        }
-
-        public Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()
-        {
-            throw new System.NotImplementedException();
+            var result = (await _connectionWrapper.QueryAsync<dynamic>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return result == null ? null : new FederatedAuthenticationSettings(result.Settings, result.Certificate);
         }
     }
 }

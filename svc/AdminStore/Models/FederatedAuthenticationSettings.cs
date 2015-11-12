@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using AdminStore.Helpers;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AdminStore.Models
 {
@@ -7,17 +8,31 @@ namespace AdminStore.Models
         string LoginUrl { get; }
         string LogoutUrl { get; }
         string ErrorUrl { get; }
-        string NameClaimType { get; set; }
+        string NameClaimType { get; }
 
         X509Certificate2 Certificate { get; }
     }
 
-    public class FederatedAuthenticationSettings
+    public class FederatedAuthenticationSettings : IFederatedAuthenticationSettings
     {
-        public bool IsEnabled { get; set; }
+        public FederatedAuthenticationSettings(string settings, byte[] certificate)
+        {
+            Certificate = new X509Certificate2(certificate);
+            var fedAuthSettings = SerializationHelper.Deserialize<SerializationHelper.FASettings>(settings);
+            LoginUrl = fedAuthSettings.LoginUrl;
+            LogoutUrl = fedAuthSettings.LogoutUrl;
+            ErrorUrl = fedAuthSettings.ErrorUrl;
+            NameClaimType = fedAuthSettings.NameClaimType;
+        }
 
-        public byte[] Certificate { get; set; }
+        public string LoginUrl { get; private set; }
 
-        public string Settings { get; set; }
+        public string LogoutUrl { get; private set; }
+
+        public string ErrorUrl { get; private set; }
+
+        public string NameClaimType { get; private set; }
+
+        public X509Certificate2 Certificate { get; private set; }
     }
 }

@@ -67,6 +67,10 @@ namespace AdminStore.Repositories
                 throw new AuthenticationException("Federated Authentication mechanism must be enabled");
             }
             var fedAuthSettings = await _settingsRepository.GetFederatedAuthenticationSettingsAsync();
+            if (fedAuthSettings == null)
+            {
+                throw new AuthenticationException("Federated Authentication settings must be provided");
+            }
 
             var responseDecoded = Encoding.UTF8.GetString(Convert.FromBase64String(HttpUtility.HtmlDecode(samlResponse)));
 

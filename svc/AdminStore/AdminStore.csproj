@@ -102,8 +102,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\AuthenticationStatus.cs" />
+    <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />

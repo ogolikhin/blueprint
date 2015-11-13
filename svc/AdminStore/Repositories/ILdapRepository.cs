@@ -1,5 +1,6 @@
 ﻿using AdminStore.Models;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -12,6 +13,6 @@ namespace AdminStore.Repositories
         /// <param name="password"></param>
         /// <param name="instanceSettings"></param>
         /// <returns></returns>
-        Task AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings = null);
+        Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings = null);
     }
 }

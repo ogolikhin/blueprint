@@ -3,7 +3,6 @@ using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
@@ -29,13 +28,9 @@ namespace AdminStore.Repositories
             _settingsRepository = settingsRepository;
         }
 
-        public async Task AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings)
+        public async Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings)
         {
             var authenticationStatus = AuthenticationStatus.Error;
-            if (!instanceSettings.IsLdapIntegrationEnabled)
-            {
-                throw new AuthenticationException(string.Format("To authenticate user with login: {0}, ldap integration should be enabled", login));
-            }
             var loginInfo = LoginInfo.Parse(login);
             if (instanceSettings.UseDefaultConnection)
             {
@@ -64,14 +59,7 @@ namespace AdminStore.Repositories
                     authenticationStatus = TryAuthenticate(loginInfo, password);
                 }
             }
-            if (authenticationStatus != AuthenticationStatus.Success)
-            {
-                if (authenticationStatus == AuthenticationStatus.InvalidCredentials)
-                {
-                    throw new InvalidCredentialException("Invalid username or password");
-                }
-                throw new AuthenticationException("The LDAP server is unavailable");
-            }
+            return authenticationStatus;
         }
 
         private AuthenticationStatus TryAuthenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)

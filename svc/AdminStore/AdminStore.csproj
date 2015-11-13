@@ -132,8 +132,9 @@
     <Compile Include="Saml\BpSaml2SecurityTokenHandler.cs" />
     <Compile Include="Saml\FederatedAuthenticationErrorCode.cs" />
     <Compile Include="Saml\FederatedAuthenticationException.cs" />
+    <Compile Include="Saml\ISamlRepository.cs" />
     <Compile Include="Saml\SamlCertificateValidator.cs" />
-    <Compile Include="Saml\SamlUtil.cs" />
+    <Compile Include="Saml\SamlRepository.cs" />
     <Compile Include="Saml\SampleIssuerNameRegistry.cs" />
   </ItemGroup>
   <ItemGroup>

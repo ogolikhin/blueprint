@@ -5,6 +5,7 @@
         Success,
         InvalidCredentials,
         Error,
-        PasswordExpired
+        PasswordExpired,
+        Locked
     }
 }

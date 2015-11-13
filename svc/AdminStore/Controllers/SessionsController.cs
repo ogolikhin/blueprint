@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -32,41 +30,6 @@ namespace AdminStore.Controllers
             _httpClientProvider = httpClientProvider;
         }
 
-        [HttpGet]
-		[Route("select")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> SelectSessions(int ps, int pn)
-		{
-			try
-			{
-                using (var http = _httpClientProvider.CreateHttpClient())
-				{
-					http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-					http.DefaultRequestHeaders.Accept.Clear();
-					http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-					http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-					var result = await http.GetAsync(String.Format("sessions/select?ps={0}&pn={1}", ps, pn));
-					result.EnsureSuccessStatusCode();
-					var response = Request.CreateResponse(HttpStatusCode.OK, result.Content);
-					response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-					response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-					return ResponseMessage(response);
-				}
-			}
-			catch (ArgumentNullException)
-			{
-				return BadRequest();
-			}
-			catch (FormatException)
-			{
-				return BadRequest();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
-
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -75,29 +38,14 @@ namespace AdminStore.Controllers
             try
             {
                 var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
-                if (!force)
-                {
-                    using (var http = _httpClientProvider.CreateHttpClient())
-                    {
-                        http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-                        http.DefaultRequestHeaders.Accept.Clear();
-                        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        var result = await http.GetAsync("sessions/" + user.Id.ToString());
-                        if (result.IsSuccessStatusCode) // session exists
-                        {
-                            throw new ApplicationException("Conflict");
-                        }
-                    }
-                }
                 return await RequestSessionTokenAsync(user.Id);
             }
             catch (AuthenticationException)
             {
                 return NotFound();
             }
-            catch (ApplicationException ex)
+            catch (ApplicationException)
             {
-                Debug.Write(ex.Message);
                 return Conflict();
             }
             catch (ArgumentNullException)
@@ -108,18 +56,28 @@ namespace AdminStore.Controllers
             {
                 return BadRequest();
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
             catch
             {
                 return InternalServerError();
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId, bool force = false)
         {
+            if (!force)
+            {
+                using (var http = _httpClientProvider.CreateHttpClient())
+                {
+                    http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+                    http.DefaultRequestHeaders.Accept.Clear();
+                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    var result = await http.GetAsync("sessions/" + userId.ToString());
+                    if (result.IsSuccessStatusCode) // session exists
+                    {
+                        throw new ApplicationException("Conflict");
+                    }
+                }
+            }
             using (var http = _httpClientProvider.CreateHttpClient())
             {
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
@@ -131,7 +89,11 @@ namespace AdminStore.Controllers
                     throw new ServerException();
                 }
                 var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
-                var response = Request.CreateResponse(HttpStatusCode.OK, token);
+                var response = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(token),
+                    StatusCode = HttpStatusCode.OK
+                };
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
             }
@@ -140,12 +102,12 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse)
+        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse, bool force = false)
         {
             try
             {
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
-                return await RequestSessionTokenAsync(user.Id);
+                return await RequestSessionTokenAsync(user.Id, force);
             }
             catch (FederatedAuthenticationException)
             {
@@ -169,7 +131,7 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
                     result.EnsureSuccessStatusCode();
                     return Ok();

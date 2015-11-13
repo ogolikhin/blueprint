@@ -110,7 +110,7 @@ namespace AdminStore.Repositories
 
             // Assert
             cxn.Verify();
-            Assert.IsTrue(new FederatedAuthenticationSettingsEqualityComparer().Equals(expectedFedAuthSettings, settings));
+            Assert.IsTrue(new UnitTestHelper.FederatedAuthenticationSettingsEqualityComparer().Equals(expectedFedAuthSettings, settings));
         }
 
         [TestMethod]
@@ -131,38 +131,5 @@ namespace AdminStore.Repositories
         }
 
         #endregion GetFederatedAuthenticationSettingsAsync
-    }
-
-    class FederatedAuthenticationSettingsEqualityComparer : EqualityComparer<IFederatedAuthenticationSettings>
-    {
-        public override bool Equals(IFederatedAuthenticationSettings x, IFederatedAuthenticationSettings y)
-        {
-            if (!Equals(x.Certificate, y.Certificate))
-            {
-                return false;
-            }
-            if (!Equals(x.ErrorUrl, y.ErrorUrl))
-            {
-                return false;
-            }
-            if (!Equals(x.LoginUrl, y.LoginUrl))
-            {
-                return false;
-            }
-            if (!Equals(x.LogoutUrl, y.LogoutUrl))
-            {
-                return false;
-            }
-            if (!Equals(x.NameClaimType, y.NameClaimType))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public override int GetHashCode(IFederatedAuthenticationSettings obj)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

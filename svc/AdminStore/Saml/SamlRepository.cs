@@ -5,14 +5,22 @@ using System.IdentityModel.Selectors;
 using System.IdentityModel.Tokens;
 using System.IO;
 using System.Security.Claims;
+using System.Text;
+using System.Web;
 using System.Xml;
 using AdminStore.Models;
 
 namespace AdminStore.Saml
 {
-    public class SamlUtil
+    public class SamlRepository : ISamlRepository
     {
-        public static ClaimsPrincipal ProcessResponse(string samlXml, IFederatedAuthenticationSettings settings)
+        public ClaimsPrincipal ProcessEncodedResponse(string encodedSamlXml, IFederatedAuthenticationSettings settings)
+        {
+            var samlXml = Encoding.UTF8.GetString(Convert.FromBase64String(HttpUtility.HtmlDecode(encodedSamlXml)));
+            return ProcessResponse(samlXml, settings);
+        }
+
+        public ClaimsPrincipal ProcessResponse(string samlXml, IFederatedAuthenticationSettings settings)
         {
             if (samlXml == null)
             {

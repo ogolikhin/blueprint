@@ -15,7 +15,7 @@ namespace AdminStore.Repositories
 
         private readonly ILdapRepository _ldapRepository;
 
-        private readonly SamlRepository _samlRepository;
+        private readonly ISamlRepository _samlRepository;
 
         public AuthenticationRepository()
             : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository())

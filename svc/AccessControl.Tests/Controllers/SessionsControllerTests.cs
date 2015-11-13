@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
@@ -57,14 +58,7 @@ namespace AccessControl.Controllers
             var session = new Session();
             _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
             _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
-            //repositoryMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
-            //repositoryMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
             
-            //var sessionController = new SessionsController(repositoryMock.Object);
-           
-            // HttpPropertyKeys.HttpConfigurationKey
-            //_controller.Request.Properties.Add("Config", new HttpConfiguration());            
-
             // Act
             var resultSession = await _controller.GetSession(uid);
 
@@ -113,40 +107,112 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_NoSessionToken()
+        public async Task PostSession_PostCorrectSession()
         {
             // Arrange
+            int uid = 999;
             var newGuid = Guid.NewGuid();
+            Guid?[] guids = { newGuid, Guid.NewGuid() };
             var session = new Session();
-            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));            
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));                   
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var resultSession = await _controller.PostSession(uid);
 
-            // Assert  
-            Assert.IsNotNull(result);
-            var responseResult = result as InternalServerErrorResult;
+            // Assert
+            Assert.IsNotNull(resultSession);
+            var responseResult = resultSession as ResponseMessageResult;
+            Assert.IsNotNull(responseResult);
+            var response = responseResult.Response;
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(response.Headers.Contains("Cache-Control"));
+            Assert.IsTrue(response.Headers.Contains("Pragma"));
+            Assert.IsTrue(response.Headers.Contains("Session-Token"));
+
+            var sessionTokenValues = response.Headers.GetValues("Session-Token");
+            Assert.IsTrue(sessionTokenValues.Count() == 1);
+            Assert.IsTrue(sessionTokenValues.First() == newGuid.ToString("N"));
+        }
+
+        [TestMethod]
+        public async Task PostSession_BeginSessionError()
+        {
+            // Arrange
+            int uid = 999;            
+            Guid?[] guids = {  };            
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));            
+
+            // Act
+            var resultSession = await _controller.PostSession(uid);
+
+            // Assert
+            Assert.IsNotNull(resultSession);
+            var responseResult = resultSession as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);            
+        }
+
+        [TestMethod]
+        public async Task PostSession_FirstGuidNotFound()
+        {
+            // Arrange
+            int uid = 999;
+            Guid?[] guids = { null };
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
+
+            // Act
+            var resultSession = await _controller.PostSession(uid);
+
+            // Assert
+            Assert.IsNotNull(resultSession);
+            var responseResult = resultSession as NotFoundResult;
             Assert.IsNotNull(responseResult);
         }
 
         [TestMethod]
-        public async Task SelectSession_FormatError()
+        public async Task PostSession_PostCorrectSessionCacheTest()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
+            int uid = 999;
+            var firstGuid = Guid.NewGuid();
+            var secondGuid = Guid.NewGuid();
+            Guid?[] guids = { firstGuid, secondGuid };            
             var session = new Session();
-            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
-            _controller.Request.Headers.Add("Session-Token", "null");
-
+            _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));            
+       
             // Act
-            var resultSessions = await _controller.SelectSessions();
+            await _controller.PostSession(uid);
 
             // Assert
-            Assert.IsNotNull(resultSessions);
-            var responseResult = resultSessions as BadRequestResult;
-            Assert.IsNotNull(responseResult);
+            _cacheMock.Verify(m => m.Remove(Session.Convert(secondGuid), null));
         }
 
+        [TestMethod]
+        public async Task PostSession_NoProperKeyInCache()
+        {
+            // Arrange
+            int uid = 999;
+            var firstGuid = Guid.NewGuid();
+            var secondGuid = Guid.NewGuid();
+            Guid?[] guids = { firstGuid, secondGuid };
+            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
+            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new KeyNotFoundException());
+
+
+            // Act
+            var resultSession = await _controller.PostSession(uid);
+
+            // Assert
+            Assert.IsNotNull(resultSession);
+            var responseResult = resultSession as NotFoundResult;
+            Assert.IsNotNull(responseResult);
+        }    
         [TestMethod]
         public void SelectSession_KeyNotFound()
         {
@@ -199,6 +265,41 @@ namespace AccessControl.Controllers
             // Assert  
             Assert.IsNotNull(result);
             var responseResult = result as OkNegotiatedContentResult<IEnumerable<Session>>;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public void SelectSession_NoSessionToken()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
+
+            // Act
+            var result = _controller.SelectSessions().Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public async Task SelectSession_FormatError()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
+            _controller.Request.Headers.Add("Session-Token", "null");
+
+            // Act
+            var resultSessions = await _controller.SelectSessions();
+
+            // Assert
+            Assert.IsNotNull(resultSessions);
+            var responseResult = resultSessions as BadRequestResult;
             Assert.IsNotNull(responseResult);
         }
     }

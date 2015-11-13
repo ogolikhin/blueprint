@@ -73,6 +73,7 @@
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConfigRepositoryTests.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />

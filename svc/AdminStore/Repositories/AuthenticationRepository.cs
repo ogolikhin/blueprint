@@ -22,7 +22,7 @@ namespace AdminStore.Repositories
         {
         }
 
-        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, SamlRepository samlRepository)
+        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository)
         {
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
@@ -39,7 +39,7 @@ namespace AdminStore.Repositories
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
-                throw new InvalidCredentialException(string.Format("User does not exists with login: {0}", login));
+                throw new InvalidCredentialException(string.Format("User does not exist with login: {0}", login));
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault() && !user.IsFallbackAllowed.GetValueOrDefault())
@@ -71,6 +71,8 @@ namespace AdminStore.Repositories
         {
             switch (authenticationStatus)
             {
+                case AuthenticationStatus.Success:
+                    break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user);
                     throw new InvalidCredentialException("Invalid username or password");
@@ -148,7 +150,7 @@ namespace AdminStore.Repositories
 
         private async Task LockUserIfApplicable(LoginUser user)
         {
-            if (user == null || !user.IsEnabled || WebApiConfig.MaximumInvalidLogonAttempts == 0)
+            if (!user.IsEnabled || WebApiConfig.MaximumInvalidLogonAttempts == 0)
             {
                 return;
             }

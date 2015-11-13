@@ -29,7 +29,7 @@ namespace AdminStore.Repositories
         [TestInitialize]
         public void Init()
         {
-            _instanceSettings = new InstanceSettings();
+            _instanceSettings = new InstanceSettings { MaximumInvalidLogonAttempts = 5 };
             _loginUser = new LoginUser { Id = 1, Login = Login, UserSalt = UserSalt, Password = HashedPassword, IsEnabled = true };
 
             _sqlUserRepositoryMock = new Mock<ISqlUserRepository>();
@@ -330,7 +330,7 @@ namespace AdminStore.Repositories
         {
             //Arrange
             _loginUser.Source = UserGroupSource.Database;
-            _loginUser.InvalidLogonAttemptsNumber = WebApiConfig.MaximumInvalidLogonAttempts;
+            _loginUser.InvalidLogonAttemptsNumber = _instanceSettings.MaximumInvalidLogonAttempts;
             const string dummyPassword = "dummyPassword";
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
@@ -349,12 +349,12 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AuthenticateUserAsync_UserCanNotBeLockedTwice()
+        public async Task AuthenticateUserAsync_UserNotBeLockedOutDueInvalidCredentials()
         {
             //Arrange
             _loginUser.Source = UserGroupSource.Database;
-            _loginUser.InvalidLogonAttemptsNumber = WebApiConfig.MaximumInvalidLogonAttempts;
-            _loginUser.IsEnabled = false;
+            _instanceSettings.MaximumInvalidLogonAttempts = 0;
+            const string dummyPassword = "dummyPassword";
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
@@ -363,11 +363,11 @@ namespace AdminStore.Repositories
             //Act & Assert
             try
             {
-                await authenticationRepository.AuthenticateUserAsync(Login, Password);
+                await authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
             }
             catch
             {
-                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.IsEnabled == false)));
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(_loginUser), Times.Never);
             }
         }
 

@@ -63,18 +63,18 @@ namespace AdminStore.Repositories
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login),
                                                     new ArgumentOutOfRangeException(user.Source.ToString()));
             }
-            await ProcessAuthenticationStatus(authenticationStatus, user);
+            await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
             return user;
         }
 
-        private async Task ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, LoginUser user)
+        private async Task ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, LoginUser user, InstanceSettings instanceSettings)
         {
             switch (authenticationStatus)
             {
                 case AuthenticationStatus.Success:
                     break;
                 case AuthenticationStatus.InvalidCredentials:
-                    await LockUserIfApplicable(user);
+                    await LockUserIfApplicable(user, instanceSettings);
                     throw new InvalidCredentialException("Invalid username or password");
                 case AuthenticationStatus.PasswordExpired:
                     throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login));
@@ -145,9 +145,9 @@ namespace AdminStore.Repositories
             return hasExpiredPassword;
         }
 
-        private async Task LockUserIfApplicable(LoginUser user)
+        private async Task LockUserIfApplicable(LoginUser user, InstanceSettings instanceSettings)
         {
-            if (!user.IsEnabled || WebApiConfig.MaximumInvalidLogonAttempts == 0)
+            if (instanceSettings.MaximumInvalidLogonAttempts <= 0)
             {
                 return;
             }

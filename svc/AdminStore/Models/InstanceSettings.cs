@@ -9,5 +9,7 @@
         public int PasswordExpirationInDays { get; set; }
 
         public bool? IsSamlEnabled { get; set; }
+
+        public int MaximumInvalidLogonAttempts { get; set; }
     }
 }

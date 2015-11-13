@@ -28,7 +28,10 @@ namespace AdminStore.Repositories
 
         public async Task<InstanceSettings> GetInstanceSettingsAsync()
         {
-            return (await _connectionWrapper.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
+            var settings = (await _connectionWrapper.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
+            //TODO temporary solution, MaximumInvalidLogonAttempts property should be moved to database
+            settings.MaximumInvalidLogonAttempts = WebApiConfig.MaximumInvalidLogonAttempts;
+            return settings;
         }
 
         public async Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()

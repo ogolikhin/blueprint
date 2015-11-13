@@ -3,8 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -86,24 +88,30 @@ namespace AdminStore.Repositories
 
         #endregion GetInstanceSettingsAsync
 
-        #region GetFederatedAuthentication
+        #region GetFederatedAuthenticationSettingsAsync
 
-        //[TestMethod]
-        //public async Task GetFederatedAuthentication_QueryReturnsSettings_ReturnsFirst()
-        //{
-        //    // Arrange
-        //    var cxn = new SqlConnectionWrapperMock();
-        //    var repository = new SqlSettingsRepository(cxn.Object);
-        //    FederatedAuthenticationSettings[] result = { new FederatedAuthenticationSettings { IsEnabled = true } };
-        //    cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
+        [TestMethod]
+        public async Task GetFederatedAuthentication_QueryReturnsSettings_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSettingsRepository(cxn.Object);
+            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            //new { Settings = xml, Certificate = (byte[])null }
+            dynamic dbObject = new ExpandoObject();
+            dbObject.Settings = xml;
+            dbObject.Certificate = null;
+            var expectedFedAuthSettings = new FederatedAuthenticationSettings(xml, null);
+            var result = new [] { dbObject };
+            cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
 
-        //    // Act
-        //    FederatedAuthenticationSettings settings = await repository.GetFederatedAuthentication();
+            // Act
+            var settings = await repository.GetFederatedAuthenticationSettingsAsync();
 
-        //    // Assert
-        //    cxn.Verify();
-        //    Assert.AreEqual(result.First(), settings);
-        //}
+            // Assert
+            cxn.Verify();
+            Assert.IsTrue(new UnitTestHelper.FederatedAuthenticationSettingsEqualityComparer().Equals(expectedFedAuthSettings, settings));
+        }
 
         [TestMethod]
         public async Task GetFederatedAuthentication_QueryReturnsEmpty_ReturnsNull()
@@ -111,7 +119,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSettingsRepository(cxn.Object);
-            FederatedAuthenticationSettings[] result = { };
+            dynamic result = new dynamic[] { };
             cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
 
             // Act
@@ -120,24 +128,6 @@ namespace AdminStore.Repositories
             // Assert
             cxn.Verify();
             Assert.AreEqual(null, settings);
-        }
-
-        #endregion GetFederatedAuthentication
-
-        #region GetFederatedAuthenticationSettingsAsync
-
-        [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public async Task GetFederatedAuthenticationSettingsAsync_ThrowsException()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlSettingsRepository(cxn.Object);
-
-            // Act
-            IFederatedAuthenticationSettings settings = await repository.GetFederatedAuthenticationSettingsAsync();
-
-            // Assert
         }
 
         #endregion GetFederatedAuthenticationSettingsAsync

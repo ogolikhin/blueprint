@@ -30,7 +30,7 @@ namespace AdminStore.Helpers
     /// }
     /// </code>
     /// </example>
-    internal interface IHttpClientProvider
+    public interface IHttpClientProvider
     {
         /// <summary>
         /// Creates HttpClient object

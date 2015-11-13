@@ -2,7 +2,6 @@
 using System.Security.Authentication;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Saml;
@@ -34,10 +33,10 @@ namespace AdminStore.Repositories
             _loginUser = new LoginUser { Id = 1, Login = Login, UserSalt = UserSalt, Password = HashedPassword, IsEnabled = true };
 
             _sqlUserRepositoryMock = new Mock<ISqlUserRepository>();
-            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).Returns(Task.FromResult(_loginUser));
+            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).ReturnsAsync(_loginUser);
             _sqlSettingsRepositoryMock = new Mock<ISqlSettingsRepository>();
 
-            _sqlSettingsRepositoryMock.Setup(m => m.GetInstanceSettingsAsync()).Returns(Task.FromResult(_instanceSettings));
+            _sqlSettingsRepositoryMock.Setup(m => m.GetInstanceSettingsAsync()).ReturnsAsync(_instanceSettings);
 
             _ldapRepositoryMock = new Mock<ILdapRepository>();
             _samlRepositoryMock = new Mock<ISamlRepository>();
@@ -158,7 +157,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsLdapIntegrationEnabled = true;
 
             _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, _instanceSettings))
-                .Returns(Task.FromResult(AuthenticationStatus.Success));
+                .ReturnsAsync(AuthenticationStatus.Success);
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
@@ -264,13 +263,13 @@ namespace AdminStore.Repositories
             //Assert
             Assert.AreEqual(_loginUser, result);
         }
+
         [TestMethod]
-        public async Task AuthenticateUserAsync_PasswordNotExpired_Case2_Success()
+        public async Task AuthenticateUserAsync_PasswordNotExpired_ExpirePasswordDisabled_Success()
         {
             //Arrange
             _loginUser.Source = UserGroupSource.Database;
-            _loginUser.ExpirePassword = true;
-            _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow;
+            _loginUser.ExpirePassword = false;
             _instanceSettings.PasswordExpirationInDays = 1;
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
@@ -282,6 +281,118 @@ namespace AdminStore.Repositories
 
             //Assert
             Assert.AreEqual(_loginUser, result);
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_PasswordNotExpired_LastPasswordChangeTimestampNull_Success()
+        {
+            //Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.ExpirePassword = true;
+            _loginUser.LastPasswordChangeTimestamp = null;
+            _instanceSettings.PasswordExpirationInDays = 1;
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            //Act
+            var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
+
+            //Assert
+            Assert.AreEqual(_loginUser, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthenticationException))]
+        public async Task AuthenticateUserAsync_WindowsUser_UnknownError_AuthenticationException()
+        {
+            //Arrange
+            _loginUser.Source = UserGroupSource.Windows;
+            _instanceSettings.IsLdapIntegrationEnabled = true;
+
+            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, _instanceSettings)).ReturnsAsync(AuthenticationStatus.Error);
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            //Act
+            await authenticationRepository.AuthenticateUserAsync(Login, Password);
+
+            //Assert
+            //Exception
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_LockUser()
+        {
+            //Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.InvalidLogonAttemptsNumber = WebApiConfig.MaximumInvalidLogonAttempts;
+            const string dummyPassword = "dummyPassword";
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            //Act & Assert
+            try
+            {
+                await authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+            }
+            catch
+            {
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.IsEnabled == false)));
+            }
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_UserCanNotBeLockedTwice()
+        {
+            //Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.InvalidLogonAttemptsNumber = WebApiConfig.MaximumInvalidLogonAttempts;
+            _loginUser.IsEnabled = false;
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            //Act & Assert
+            try
+            {
+                await authenticationRepository.AuthenticateUserAsync(Login, Password);
+            }
+            catch
+            {
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.IsEnabled == false)));
+            }
+        }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_ResetInvalidLogonAttempts()
+        {
+            //Arrange
+            _loginUser.Source = UserGroupSource.Database;
+            _loginUser.InvalidLogonAttemptsNumber = 999;
+            _loginUser.LastInvalidLogonTimeStamp = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2));
+
+            const string dummyPassword = "dummyPassword";
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            //Act & Assert
+            try
+            {
+                await authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
+            }
+            catch
+            {
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.InvalidLogonAttemptsNumber == 1)));
+            }
         }
 
         #endregion

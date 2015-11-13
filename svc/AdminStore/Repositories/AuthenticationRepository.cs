@@ -114,30 +114,27 @@ namespace AdminStore.Repositories
             {
                 return AuthenticationStatus.Locked;
             }
-            if (passwordExpirationInDays > 0)
+            if (HasExpiredPassword(user, passwordExpirationInDays))
             {
-                if (HasExpiredPassword(user, passwordExpirationInDays))
-                {
-                    return AuthenticationStatus.PasswordExpired;
-                }
+                return AuthenticationStatus.PasswordExpired;
             }
             return AuthenticationStatus.Success;
         }
 
         private bool HasExpiredPassword(LoginUser user, int passwordExpirationInDays)
         {
+            // If the value is 0 then password never expires
+            if (passwordExpirationInDays <= 0)
+            {
+                return false;
+            }
+
             if (!user.ExpirePassword.GetValueOrDefault())
             {
                 return false;
             }
 
             if (!user.LastPasswordChangeTimestamp.HasValue)
-            {
-                return false;
-            }
-
-            // If the value is 0 then password never expires
-            if (passwordExpirationInDays == 0)
             {
                 return false;
             }

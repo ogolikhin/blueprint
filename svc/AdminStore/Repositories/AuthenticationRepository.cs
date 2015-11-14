@@ -163,7 +163,7 @@ namespace AdminStore.Repositories
             {
                 user.InvalidLogonAttemptsNumber++;
 
-                if (user.InvalidLogonAttemptsNumber >= WebApiConfig.MaximumInvalidLogonAttempts)
+                if (user.InvalidLogonAttemptsNumber >= instanceSettings.MaximumInvalidLogonAttempts)
                 {
                     user.IsEnabled = false;
                 }

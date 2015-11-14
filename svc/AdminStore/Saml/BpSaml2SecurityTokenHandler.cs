@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens;
 using System.IO;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
 using System.Xml;
 
 namespace AdminStore.Saml
@@ -207,23 +206,6 @@ namespace AdminStore.Saml
             protected override void WriteTokenCore(XmlWriter writer, SecurityToken token)
             {
                 throw new NotSupportedException();
-            }
-        }
-
-        public class SamlSignedXml : SignedXml
-        {
-            private readonly string _referenceAttributeId;
-
-            public SamlSignedXml(XmlElement element, string referenceAttributeId)
-                : base(element)
-            {
-                _referenceAttributeId = referenceAttributeId;
-            }
-
-            public override XmlElement GetIdElement(XmlDocument document, string idValue)
-            {
-                var xmlElement = (XmlElement)document.SelectSingleNode(string.Format("//*[@{0}='{1}']", _referenceAttributeId, idValue));
-                return xmlElement;
             }
         }
     }

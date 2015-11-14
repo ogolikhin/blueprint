@@ -90,7 +90,7 @@ namespace AdminStore.Controllers
             ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group" } };
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "Key", Locale = "en-US", Text = "Text" } };
             var configRepo = new Mock<IConfigRepository>();
-            configRepo.Setup(r => r.GetLabels("en-US")).Returns(Task.FromResult(labels));
+            configRepo.Setup(r => r.GetLabels("en-US")).Returns(Task.FromResult(labels)).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
@@ -103,6 +103,7 @@ namespace AdminStore.Controllers
             var result = await controller.GetConfig() as ResponseMessageResult;
 
             // Assert
+            configRepo.Verify();
             Assert.IsNotNull(result);
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
@@ -118,8 +119,8 @@ namespace AdminStore.Controllers
             ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group" } };
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "KeyCA", Locale = locale, Text = "TextCA" } };
             var configRepo = new Mock<IConfigRepository>();
+            configRepo.Setup(r => r.GetLabels(locale)).Returns(Task.FromResult(labels)).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
-            configRepo.Setup(r => r.GetLabels(locale)).Returns(Task.FromResult(labels));
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
             var controller = new ConfigController(configRepo.Object, httpClientProvider);
@@ -132,6 +133,7 @@ namespace AdminStore.Controllers
             var result = await controller.GetConfig() as ResponseMessageResult;
 
             // Assert
+            configRepo.Verify();
             Assert.IsNotNull(result);
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());

@@ -36,13 +36,14 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(true));
+            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(true)).Verifiable();
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
 
             // Assert
+            statusRepo.Verify();
             Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
@@ -51,13 +52,14 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(false));
+            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(false)).Verifiable();
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
 
             // Act
             var result = await controller.GetStatus() as StatusCodeResult;
 
             // Assert
+            statusRepo.Verify();
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
             Assert.AreEqual(controller.Request, result.Request);
@@ -68,13 +70,14 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Throws(new Exception());
+            statusRepo.Setup(r => r.GetStatus()).Throws(new Exception()).Verifiable();
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
 
             // Assert
+            statusRepo.Verify();
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 

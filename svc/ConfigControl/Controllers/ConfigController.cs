@@ -10,10 +10,10 @@ namespace ConfigControl.Controllers
     [RoutePrefix("settings")]
     public class ConfigController : ApiController
     {
-        private readonly IConfigRepository _configRepo;
+        internal readonly IConfigRepository _configRepo;
 
         public ConfigController() : this(new SqlConfigRepository())
-      {
+        {
         }
 
         internal ConfigController(IConfigRepository configRepo)

@@ -107,7 +107,6 @@
     <Compile Include="Helpers\AuthenticationStatus.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
-    <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />

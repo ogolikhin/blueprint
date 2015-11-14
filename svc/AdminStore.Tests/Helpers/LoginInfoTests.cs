@@ -21,19 +21,6 @@ namespace AdminStore.Helpers
         }
 
         [TestMethod]
-        public void Parse_WhiteSpaceString_ReturnsEmpty()
-        {
-            // Arrange
-            string login = " \t\r\n";
-
-            // Act
-            LoginInfo result = LoginInfo.Parse(login);
-
-            // Assert
-            Assert.AreEqual(new LoginInfo(), result);
-        }
-
-        [TestMethod]
         public void Parse_WithDomain_ReturnsInfo()
         {
             // Arrange
@@ -56,7 +43,7 @@ namespace AdminStore.Helpers
             LoginInfo result = LoginInfo.Parse(login);
 
             // Assert
-            Assert.AreEqual(new LoginInfo { Domain = login, UserName = login, Login = login }, result);
+            Assert.AreEqual(new LoginInfo { Domain = null, UserName = login, Login = login }, result);
         }
 
         #endregion Parse

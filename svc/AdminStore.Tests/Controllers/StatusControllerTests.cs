@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
 
-namespace FileStore.Controllers
+namespace AdminStore.Controllers
 {
     [TestClass]
     public class StatusControllerTests

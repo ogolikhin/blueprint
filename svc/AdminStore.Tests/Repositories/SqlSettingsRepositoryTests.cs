@@ -97,7 +97,6 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSettingsRepository(cxn.Object);
             var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
-            //new { Settings = xml, Certificate = (byte[])null }
             dynamic dbObject = new ExpandoObject();
             dbObject.Settings = xml;
             dbObject.Certificate = null;
@@ -110,7 +109,7 @@ namespace AdminStore.Repositories
 
             // Assert
             cxn.Verify();
-            Assert.IsTrue(new UnitTestHelper.FederatedAuthenticationSettingsEqualityComparer().Equals(expectedFedAuthSettings, settings));
+            Assert.IsTrue(Equals(expectedFedAuthSettings, settings));
         }
 
         [TestMethod]
@@ -131,5 +130,14 @@ namespace AdminStore.Repositories
         }
 
         #endregion GetFederatedAuthenticationSettingsAsync
+
+        private bool Equals(IFederatedAuthenticationSettings x, IFederatedAuthenticationSettings y)
+        {
+            return Equals(x.Certificate, y.Certificate) &&
+                Equals(x.ErrorUrl, y.ErrorUrl) &&
+                Equals(x.LoginUrl, y.LoginUrl) &&
+                Equals(x.LogoutUrl, y.LogoutUrl) &&
+                Equals(x.NameClaimType, y.NameClaimType);
+        }
     }
 }

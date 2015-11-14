@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
 
-namespace FileStore.Controllers
+namespace AccessControl.Controllers
 {
     [TestClass]
     public class StatusControllerTests
@@ -32,9 +32,10 @@ namespace FileStore.Controllers
         #region GetStatus
 
         [TestMethod]
-        public async Task GetStatus_RepositoryReturnsTrue_ReturnsOk()
+        public async Task GetStatus_ReadyAndRepositoryReturnsTrue_ReturnsOk()
         {
             // Arrange
+            StatusController.Ready.Set();
             var statusRepo = new Mock<IStatusRepository>();
             statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(true));
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
@@ -47,9 +48,28 @@ namespace FileStore.Controllers
         }
 
         [TestMethod]
+        public async Task GetStatus_NotReady_ReturnsServiceUnavailable()
+        {
+            // Arrange
+            StatusController.Ready.Reset();
+            var statusRepo = new Mock<IStatusRepository>();
+            statusRepo.Setup(r => r.GetStatus()).Throws(new Exception());
+            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+
+            // Act
+            var result = await controller.GetStatus() as StatusCodeResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
+            Assert.AreEqual(controller.Request, result.Request);
+        }
+
+        [TestMethod]
         public async Task GetStatus_RepositoryReturnsFalse_ReturnsServiceUnavailable()
         {
             // Arrange
+            StatusController.Ready.Set();
             var statusRepo = new Mock<IStatusRepository>();
             statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(false));
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
@@ -67,6 +87,7 @@ namespace FileStore.Controllers
         public async Task GetStatus_RepositoryThrowsException_ReturnsInternalServerError()
         {
             // Arrange
+            StatusController.Ready.Set();
             var statusRepo = new Mock<IStatusRepository>();
             statusRepo.Setup(r => r.GetStatus()).Throws(new Exception());
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };

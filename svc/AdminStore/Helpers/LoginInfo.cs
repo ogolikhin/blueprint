@@ -12,13 +12,19 @@ namespace AdminStore.Helpers
 
         public static LoginInfo Parse(string login)
         {
-            var loginInfo = new LoginInfo();
-            if (!string.IsNullOrWhiteSpace(login))
+            var loginInfo = new LoginInfo { Login = login };
+            if (login != null)
             {
-                var result = login.Split('\\');
-                loginInfo.Domain = result.First();
-                loginInfo.UserName = result.Reverse().FirstOrDefault();
-                loginInfo.Login = login;
+                var index = login.IndexOf('\\');
+                if (index == -1)
+                {
+                    loginInfo.UserName = login;
+                }
+                else
+                {
+                    loginInfo.Domain = login.Substring(0, index);
+                    loginInfo.UserName = login.Substring(index + 1);
+                }
             }
             return loginInfo;
         }

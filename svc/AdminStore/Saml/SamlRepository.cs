@@ -75,23 +75,21 @@ namespace AdminStore.Saml
 
         private static Saml2SecurityToken ReadSecurityToken(string samlXml, IFederatedAuthenticationSettings settings)
         {
-            using (var sr = new StringReader(samlXml))
+            var sr = new StringReader(samlXml);
+            using (var reader = XmlReader.Create(sr))
             {
-                using (var reader = XmlReader.Create(sr))
+                if (!reader.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
                 {
-                    if (!reader.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
-                    {
-                        throw new FederatedAuthenticationException("Cannot find token Assertion",
-                            FederatedAuthenticationErrorCode.WrongFormat);
-                    }
-
-                    // Deserialize the token so that data can be taken from it and plugged into the RSTR
-                    var collection = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection();
-                    ConfigureHandler(collection.Configuration, settings);
-                    var tokenString = reader.ReadSubtree();
-                    return collection.ReadToken(tokenString) as Saml2SecurityToken;
-
+                    throw new FederatedAuthenticationException("Cannot find token Assertion",
+                        FederatedAuthenticationErrorCode.WrongFormat);
                 }
+
+                // Deserialize the token so that data can be taken from it and plugged into the RSTR
+                var collection = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection();
+                ConfigureHandler(collection.Configuration, settings);
+                var tokenString = reader.ReadSubtree();
+                return collection.ReadToken(tokenString) as Saml2SecurityToken;
+
             }
         }
 

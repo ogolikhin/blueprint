@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

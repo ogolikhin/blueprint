@@ -1,31 +1,34 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Net;
-using System.Linq;
-using System.Net.Http.Headers;
-using AdminStore.Repositories;
-using System;
 using AdminStore.Models;
-using System.Text;
-using System.Collections.Generic;
+using AdminStore.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Controllers
 {
     [RoutePrefix("config")]
     public class ConfigController : ApiController
     {
-        private readonly IConfigRepository _configRepo;
+        internal readonly IConfigRepository _configRepo;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
-        public ConfigController() : this(new SqlConfigRepository())
+        public ConfigController() : this(new SqlConfigRepository(), new HttpClientProvider())
         {
 
         }
 
-        internal ConfigController(IConfigRepository configRepo)
+        internal ConfigController(IConfigRepository configRepo, IHttpClientProvider httpClientProvider)
         {
             _configRepo = configRepo;
+            _httpClientProvider = httpClientProvider;
         }
 
         [HttpGet]
@@ -35,7 +38,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = new HttpClient())
+                using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.ConfigControl);
                     http.DefaultRequestHeaders.Accept.Clear();
@@ -43,7 +46,8 @@ namespace AdminStore.Controllers
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
                     var result = await http.GetAsync("settings/false");
                     result.EnsureSuccessStatusCode();
-                    var response = Request.CreateResponse(HttpStatusCode.OK, result.Content);
+                    var response = Request.CreateResponse(HttpStatusCode.OK);
+                    response.Content = result.Content;
                     response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                     response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                     return ResponseMessage(response);
@@ -63,7 +67,7 @@ namespace AdminStore.Controllers
             try
             {
                 IEnumerable<ConfigSetting> settings;
-                using (var http = new HttpClient())
+                using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.ConfigControl);
                     http.DefaultRequestHeaders.Accept.Clear();
@@ -89,20 +93,24 @@ namespace AdminStore.Controllers
             }
         }
 
-		string SerializeSettings(IEnumerable<ConfigSetting> settings)
-		{
-			var str = new StringBuilder();
-			foreach (var s in settings)
-				str.AppendFormat("'{0}':'{{'{1}', '{2}'}}',", s.Key, s.Value, s.Group);
-			return str.ToString();
-		}
+        private string SerializeSettings(IEnumerable<ConfigSetting> settings)
+        {
+            var str = new StringBuilder();
+            foreach (var s in settings)
+            {
+                str.AppendFormat("'{0}':{{'{1}', '{2}'}},", s.Key, s.Value, s.Group);
+            }
+            return str.ToString(0, str.Length - 1);
+        }
 
-        string SerializeLabels(IEnumerable<ApplicationLabel> labels)
+        private string SerializeLabels(IEnumerable<ApplicationLabel> labels)
         {
             var str = new StringBuilder();
             foreach (var l in labels)
+            {
                 str.AppendFormat("'{0}':'{1}',", l.Key, l.Text);
-            return str.ToString();
+            }
+            return str.ToString(0, str.Length - 1);
         }
     }
 }

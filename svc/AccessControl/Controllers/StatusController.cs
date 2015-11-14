@@ -1,8 +1,10 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using ServiceLibrary.Repositories;
 
 namespace AccessControl.Controllers
@@ -10,7 +12,7 @@ namespace AccessControl.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        private readonly IStatusRepository _statusRepo;
+        internal readonly IStatusRepository _statusRepo;
 
         public static ManualResetEventSlim Ready { get; }
 
@@ -35,10 +37,12 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var result = await _statusRepo.GetStatus();
-                return result && Ready.IsSet ?
-                    (IHttpActionResult)Ok() :
-                    new System.Web.Http.Results.StatusCodeResult(System.Net.HttpStatusCode.ServiceUnavailable, Request);
+                var result = Ready.IsSet && await _statusRepo.GetStatus();
+                if (result)
+                {
+                    return Ok();
+                }
+                return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
             catch
             {

@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers
 {
     /// <summary>
     /// Provides HttpClient. Hook for unit testing.
@@ -10,7 +10,7 @@ namespace AdminStore.Helpers
     /// <code>
     /// class FakeHttpClientProvider : IHttpClientProvider
     /// {
-    ///     public HttpClient CreateHttpClient()
+    ///     public HttpClient Create()
     ///     {
     ///         return new HttpClient(new FakeResponseHandler());
     ///     }
@@ -36,12 +36,16 @@ namespace AdminStore.Helpers
         /// Creates HttpClient object
         /// </summary>
 
-        HttpClient CreateHttpClient();
+        HttpClient Create();
     }
 
     public class HttpClientProvider : IHttpClientProvider
     {
-        public HttpClient CreateHttpClient()
+        public HttpClientProvider()
+        {
+        }
+
+        public HttpClient Create()
         {
             return new HttpClient();
         }

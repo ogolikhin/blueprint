@@ -1,7 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using ServiceLibrary.Repositories;
 
 namespace AdminStore.Controllers
@@ -9,7 +11,7 @@ namespace AdminStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        private readonly IStatusRepository _statusRepo;
+        internal readonly IStatusRepository _statusRepo;
 
         public StatusController() : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"))
         {
@@ -28,9 +30,11 @@ namespace AdminStore.Controllers
             try
             {
                 var result = await _statusRepo.GetStatus();
-                return result ?
-                     (IHttpActionResult)Ok() :
-                     new System.Web.Http.Results.StatusCodeResult(System.Net.HttpStatusCode.ServiceUnavailable, Request);
+                if (result)
+                {
+                    return Ok();
+                }
+                return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
             catch
             {

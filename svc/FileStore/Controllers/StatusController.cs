@@ -1,7 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using FileStore.Repositories;
 using ServiceLibrary.Repositories;
 
@@ -10,15 +12,11 @@ namespace FileStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        private readonly IStatusRepository _statusRepo;
+        internal readonly IStatusRepository _statusRepo;
 
-        public StatusController() : this(new ConfigRepository())
+        public StatusController() : this(new SqlStatusRepository(new ConfigRepository().FileStoreDatabase, "GetStatus"))
         {
         }
-
-        internal StatusController(IConfigRepository configRepository) : this(configRepository.FileStoreDatabase, "GetStatus") { }
-
-        internal StatusController(string cxn, string cmd) : this(new SqlStatusRepository(cxn, cmd)) { }
 
         internal StatusController(IStatusRepository statusRepo)
         {
@@ -33,9 +31,11 @@ namespace FileStore.Controllers
             try
             {
                 var result = await _statusRepo.GetStatus();
-                return result ? 
-                    (IHttpActionResult)Ok() :
-                    new System.Web.Http.Results.StatusCodeResult(System.Net.HttpStatusCode.ServiceUnavailable, Request);
+                if (result)
+                {
+                    return Ok();
+                }
+                return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
             catch
             {

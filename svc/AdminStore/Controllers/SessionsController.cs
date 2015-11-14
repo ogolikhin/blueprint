@@ -8,17 +8,17 @@ using System.Security.Authentication;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AdminStore.Helpers;
 using AdminStore.Repositories;
 using AdminStore.Saml;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Controllers
 {
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private readonly IAuthenticationRepository _authenticationRepository;
-        private readonly IHttpClientProvider _httpClientProvider;
+        internal readonly IAuthenticationRepository _authenticationRepository;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
         public SessionsController(): this(new AuthenticationRepository(), new HttpClientProvider())
         {
@@ -66,7 +66,7 @@ namespace AdminStore.Controllers
         {
             if (!force)
             {
-                using (var http = _httpClientProvider.CreateHttpClient())
+                using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
@@ -78,7 +78,7 @@ namespace AdminStore.Controllers
                     }
                 }
             }
-            using (var http = _httpClientProvider.CreateHttpClient())
+            using (var http = _httpClientProvider.Create())
             {
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
@@ -126,7 +126,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.CreateHttpClient())
+                using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();

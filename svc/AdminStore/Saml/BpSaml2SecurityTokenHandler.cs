@@ -44,51 +44,49 @@ namespace AdminStore.Saml
 
             var wrappedSerializer = new WrappedSerializer(this, assertion);
 
-            using (var sr = new StringReader(_samlXml))
+            var sr = new StringReader(_samlXml);
+            using (var reader1 = XmlReader.Create(sr))
             {
-                using (var reader1 = XmlReader.Create(sr))
+                var reader2 = new EnvelopedSignatureReader(reader1,
+                                                            wrappedSerializer,
+                                                            Configuration.IssuerTokenResolver,
+                                                            false,
+                                                            false, false);
+
+                if (!reader2.ReadToFollowing("Signature", "http://www.w3.org/2000/09/xmldsig#") || !reader2.TryReadSignature())
                 {
-                    var reader2 = new EnvelopedSignatureReader(reader1,
-                                                               wrappedSerializer,
-                                                               Configuration.IssuerTokenResolver,
-                                                               false,
-                                                               false, false);
-
-                    if (!reader2.ReadToFollowing("Signature", "http://www.w3.org/2000/09/xmldsig#") || !reader2.TryReadSignature())
-                    {
-                        throw new FederatedAuthenticationException("Cannot find token signature",
-                                                                   FederatedAuthenticationErrorCode.WrongFormat);
-                    }
-
-                    if (!reader2.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
-                    {
-                        throw new FederatedAuthenticationException("Cannot find token assertion",
-                                                                   FederatedAuthenticationErrorCode.WrongFormat);
-                    }
-
-                    assertion = ReadAssertion(reader2);
-
-                    try
-                    {
-                        while (reader2.Read())
-                        {
-                            //
-                        }
-                    }
-                    catch (CryptographicException cryptographicExceptione)
-                    {
-                        throw new FederatedAuthenticationException(cryptographicExceptione.Message,
-                                                                   FederatedAuthenticationErrorCode.NotTrustedIssuer,
-                                                                   cryptographicExceptione);
-                    }
-
-                    assertion.SigningCredentials = reader2.SigningCredentials;
-
-                    var keys = ResolveSecurityKeys(assertion, Configuration.ServiceTokenResolver);
-                    SecurityToken token;
-                    TryResolveIssuerToken(assertion, Configuration.IssuerTokenResolver, out token);
-                    return new Saml2SecurityToken(assertion, keys, token);
+                    throw new FederatedAuthenticationException("Cannot find token signature",
+                                                                FederatedAuthenticationErrorCode.WrongFormat);
                 }
+
+                if (!reader2.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
+                {
+                    throw new FederatedAuthenticationException("Cannot find token assertion",
+                                                                FederatedAuthenticationErrorCode.WrongFormat);
+                }
+
+                assertion = ReadAssertion(reader2);
+
+                try
+                {
+                    while (reader2.Read())
+                    {
+                        //
+                    }
+                }
+                catch (CryptographicException cryptographicExceptione)
+                {
+                    throw new FederatedAuthenticationException(cryptographicExceptione.Message,
+                                                                FederatedAuthenticationErrorCode.NotTrustedIssuer,
+                                                                cryptographicExceptione);
+                }
+
+                assertion.SigningCredentials = reader2.SigningCredentials;
+
+                var keys = ResolveSecurityKeys(assertion, Configuration.ServiceTokenResolver);
+                SecurityToken token;
+                TryResolveIssuerToken(assertion, Configuration.IssuerTokenResolver, out token);
+                return new Saml2SecurityToken(assertion, keys, token);
             }
         }
 

@@ -8,26 +8,12 @@ namespace ServiceLibrary.Helpers
     /// <example> 
     /// This sample shows how to create HttpClient for unit tests
     /// <code>
-    /// class FakeHttpClientProvider : IHttpClientProvider
+    /// var httpClientProvider = new TestHttpClientProvider(request =>
     /// {
-    ///     public HttpClient Create()
-    ///     {
-    ///         return new HttpClient(new FakeResponseHandler());
-    ///     }
-    /// }
-    /// 
-    ///public class FakeResponseHandler : DelegatingHandler
-    ///{
-    ///     protected async override Task SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
-    ///     {
-    ///         return await Task.Run(() =>
-    ///              {
-    ///                  var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-    ///                  httpResponseMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
-    ///                  return httpResponseMessage;
-    ///              },  cancellationToken);
-    ///     }
-    /// }
+    ///     var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+    ///     httpResponseMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
+    ///     return httpResponseMessage;
+    /// });
     /// </code>
     /// </example>
     public interface IHttpClientProvider
@@ -41,10 +27,6 @@ namespace ServiceLibrary.Helpers
 
     public class HttpClientProvider : IHttpClientProvider
     {
-        public HttpClientProvider()
-        {
-        }
-
         public HttpClient Create()
         {
             return new HttpClient();

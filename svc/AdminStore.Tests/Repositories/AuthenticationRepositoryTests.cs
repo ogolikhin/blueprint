@@ -156,7 +156,7 @@ namespace AdminStore.Repositories
             _loginUser.Source = UserGroupSource.Windows;
             _instanceSettings.IsLdapIntegrationEnabled = true;
 
-            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, _instanceSettings))
+            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, false))
                 .ReturnsAsync(AuthenticationStatus.Success);
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
@@ -311,7 +311,8 @@ namespace AdminStore.Repositories
             _loginUser.Source = UserGroupSource.Windows;
             _instanceSettings.IsLdapIntegrationEnabled = true;
 
-            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, _instanceSettings)).ReturnsAsync(AuthenticationStatus.Error);
+            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, false))
+                .ReturnsAsync(AuthenticationStatus.Error);
 
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,

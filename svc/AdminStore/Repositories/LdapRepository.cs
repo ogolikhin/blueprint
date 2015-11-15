@@ -9,9 +9,17 @@ using AdminStore.Models;
 
 namespace AdminStore.Repositories
 {
-    public class LdapRepository : ILdapRepository
+    public interface IAuthenticator
     {
-        private readonly ISqlSettingsRepository _settingsRepository;
+        AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure);
+        AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password);
+        bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo);
+    }
+
+    public class LdapRepository : ILdapRepository, IAuthenticator
+    {
+        internal readonly ISqlSettingsRepository _settingsRepository;
+        internal readonly IAuthenticator _authenticator;
 
         private const int LdapInvalidCredentialsErrorCode = 49;
 
@@ -20,21 +28,21 @@ namespace AdminStore.Repositories
         public LdapRepository()
             : this(new SqlSettingsRepository())
         {
-
         }
 
-        internal LdapRepository(ISqlSettingsRepository settingsRepository)
+        internal LdapRepository(ISqlSettingsRepository settingsRepository, IAuthenticator authenticator = null)
         {
             _settingsRepository = settingsRepository;
+            _authenticator = authenticator ?? this;
         }
 
-        public async Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings)
+        public async Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, bool useDefaultConnection)
         {
             var authenticationStatus = AuthenticationStatus.Error;
             var loginInfo = LoginInfo.Parse(login);
-            if (instanceSettings.UseDefaultConnection)
+            if (useDefaultConnection)
             {
-                authenticationStatus = TryAuthenticateViaDirectorySearcher(loginInfo.Login, password);
+                authenticationStatus = _authenticator.AuthenticateViaDirectory(loginInfo, password);
             }
             else
             {
@@ -43,11 +51,11 @@ namespace AdminStore.Repositories
                 {
                     foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchsUser(loginInfo.Domain)))
                     {
-                        if (!UserExistsInLdapDirectory(ldapSetting, loginInfo))
+                        if (!_authenticator.UserExistsInLdapDirectory(ldapSetting, loginInfo))
                         {
                             continue;
                         }
-                        authenticationStatus = TryAuthenticate(loginInfo, password, ldapSetting.AuthenticationType);
+                        authenticationStatus = _authenticator.Authenticate(loginInfo, password, ldapSetting.AuthenticationType);
                         if (authenticationStatus == AuthenticationStatus.Success)
                         {
                             break;
@@ -56,27 +64,27 @@ namespace AdminStore.Repositories
                 }
                 else
                 {
-                    authenticationStatus = TryAuthenticate(loginInfo, password);
+                    authenticationStatus = _authenticator.Authenticate(loginInfo, password);
                 }
             }
             return authenticationStatus;
         }
 
-        private AuthenticationStatus TryAuthenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
+        public AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
-            var authenticationStatus = TryAuthenticateViaLdap(loginInfo, password, authenticationType);
+            var authenticationStatus = AuthenticateViaLdap(loginInfo, password, authenticationType);
             if (authenticationStatus != AuthenticationStatus.Success)
             {
-                return TryAuthenticateViaDirectorySearcher(loginInfo.Login, password);
+                return AuthenticateViaDirectory(loginInfo, password);
             }
             return AuthenticationStatus.Success;
         }
 
-        private AuthenticationStatus TryAuthenticateViaDirectorySearcher(string userName, string password, string path = null, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
+        public AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password)
         {
             try
             {
-                using (var searchRoot = new DirectoryEntry(path, userName, password, authenticationType))
+                using (var searchRoot = new DirectoryEntry(null, loginInfo.UserName, password, AuthenticationTypes.Secure))
                 {
                     using (var searcher = new DirectorySearcher(searchRoot))
                     {
@@ -105,7 +113,7 @@ namespace AdminStore.Repositories
             return AuthenticationStatus.Success;
         }
 
-        private AuthenticationStatus TryAuthenticateViaLdap(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
+        private AuthenticationStatus AuthenticateViaLdap(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
             try
             {
@@ -129,10 +137,11 @@ namespace AdminStore.Repositories
             {
                 return AuthenticationStatus.Error;
             }
+
             return AuthenticationStatus.Success;
         }
 
-        private bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
+        public bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
         {
             var userName = loginInfo.UserName != null ? loginInfo.UserName.Trim() : loginInfo.Login;
             var filter = string.Format("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));

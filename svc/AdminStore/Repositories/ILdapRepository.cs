@@ -11,8 +11,8 @@ namespace AdminStore.Repositories
         /// </summary>
         /// <param name="login"></param>
         /// <param name="password"></param>
-        /// <param name="instanceSettings"></param>
+        /// <param name="useDefaultConnection"></param>
         /// <returns></returns>
-        Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, InstanceSettings instanceSettings = null);
+        Task<AuthenticationStatus> AuthenticateLdapUserAsync(string login, string password, bool useDefaultConnection);
     }
 }

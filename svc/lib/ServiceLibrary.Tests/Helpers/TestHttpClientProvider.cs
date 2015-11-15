@@ -12,10 +12,12 @@ namespace ServiceLibrary.Helpers
         {
             _handler = handler;
         }
+
         public HttpClient Create()
         {
             return new HttpClient(this);
         }
+
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
             return await Task.Run(() => _handler(request), cancellationToken);

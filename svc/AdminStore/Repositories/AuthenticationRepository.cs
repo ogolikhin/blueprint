@@ -57,7 +57,7 @@ namespace AdminStore.Repositories
                     {
                         throw new AuthenticationException(string.Format("To authenticate user with login: {0}, ldap integration must be enabled", login));
                     }
-                    authenticationStatus = await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings);
+                    authenticationStatus = await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings.UseDefaultConnection);
                     break;
                 default:
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login),

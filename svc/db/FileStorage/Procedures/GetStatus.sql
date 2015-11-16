@@ -19,6 +19,3 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetStatus]  TO [Blueprint]
---GO

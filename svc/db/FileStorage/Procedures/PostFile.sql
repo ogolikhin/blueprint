@@ -42,6 +42,3 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[PostFile]  TO [Blueprint]
---GO

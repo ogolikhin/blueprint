@@ -21,6 +21,3 @@ BEGIN
 	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where SessionId = @SessionId;
 END
 GO 
-
---GRANT  EXECUTE  ON [dbo].[GetSession]  TO [Blueprint]
---GO

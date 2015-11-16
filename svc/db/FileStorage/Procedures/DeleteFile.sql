@@ -30,6 +30,3 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[DeleteFile]  TO [Blueprint]
---GO

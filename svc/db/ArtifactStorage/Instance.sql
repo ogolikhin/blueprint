@@ -7,8 +7,29 @@ GO
 USE [ArtifactStorage];
 GO
 SET NOCOUNT ON;
+Print 'Creating ArtifactStorage Database...'
 GO
 -- --------------------------------------------------
+
+-- Create Blueprint Roles
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_reader]
+	GRANT SELECT TO db_blueprint_reader
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_writer' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_writer]
+	GRANT DELETE, INSERT, UPDATE TO db_blueprint_writer
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_executor' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_executor]
+	GRANT EXECUTE TO db_blueprint_executor
+End
+GO
+
+
 
 /******************************************************************************************************************************
 Name:			DbVersionInfo
@@ -29,8 +50,7 @@ CREATE TABLE [dbo].[DbVersionInfo](
  CONSTRAINT [PK_DbVersionInfo] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
+)) ON [PRIMARY]
 GO
 
 /******************************************************************************************************************************
@@ -89,10 +109,6 @@ END
 
 GO
 
---GRANT  EXECUTE  ON [dbo].[IsSchemaVersionLessOrEqual]  TO [Blueprint]
---GO
-
-
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -129,10 +145,6 @@ ELSE
 	END 
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[SetSchemaVersion]  TO [Blueprint]
---GO
-
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

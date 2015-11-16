@@ -7,8 +7,29 @@ GO
 USE [AdminStorage];
 GO
 SET NOCOUNT ON;
+Print 'Creating AdminStorage Database...'
 GO
 -- --------------------------------------------------
+
+-- Create Blueprint Roles
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_reader]
+	GRANT SELECT TO db_blueprint_reader
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_writer' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_writer]
+	GRANT DELETE, INSERT, UPDATE TO db_blueprint_writer
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_executor' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_executor]
+	GRANT EXECUTE TO db_blueprint_executor
+End
+GO
+
+
 
 /******************************************************************************************************************************
 Name:			DbVersionInfo
@@ -98,7 +119,7 @@ GO
 CREATE TABLE [dbo].[Sessions](
 	[UserId] [int] NOT NULL,
 	[SessionId] [uniqueidentifier] NOT NULL,
-	[BeginTime] [datetime] NOT NULL,
+	[BeginTime] [datetime] NULL,
 	[EndTime] [datetime] NULL,
  CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
 (
@@ -163,9 +184,6 @@ END
 
 GO
 
---GRANT  EXECUTE  ON [dbo].[IsSchemaVersionLessOrEqual]  TO [Blueprint]
---GO
-
 
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
@@ -203,10 +221,6 @@ ELSE
 	END 
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[SetSchemaVersion]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetStatus
 
@@ -268,9 +282,6 @@ BEGIN
 END
 GO
 
---GRANT  EXECUTE  ON [dbo].[BeginSession]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			EndSession
 
@@ -299,9 +310,6 @@ BEGIN
 END
 GO
 
---GRANT  EXECUTE  ON [dbo].[EndSession]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetApplicationLables
 
@@ -323,10 +331,6 @@ BEGIN
 	SELECT [Key], [Text] FROM [dbo].ApplicationLabels WHERE Locale = @Locale;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetApplicationLables]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetConfigSettings
 
@@ -348,10 +352,6 @@ BEGIN
 	SELECT [Key], [Value], [Group], IsRestricted FROM [dbo].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetConfigSettings]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetSession
 
@@ -375,10 +375,6 @@ BEGIN
 	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where SessionId = @SessionId;
 END
 GO 
-
---GRANT  EXECUTE  ON [dbo].[GetSession]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			SelectSessions
 
@@ -402,17 +398,13 @@ AS
 BEGIN
 	WITH SessionsRN AS
 	(
-		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions]
+		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions] WHERE EndTime IS NULL
 	)
 	SELECT * FROM SessionsRN
 	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps
 	ORDER BY BeginTime DESC;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[SelectSessions]  TO [Blueprint]
---GO
-
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

@@ -19,6 +19,3 @@ BEGIN
 	SELECT [Key], [Value], [Group], IsRestricted FROM [dbo].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetConfigSettings]  TO [Blueprint]
---GO

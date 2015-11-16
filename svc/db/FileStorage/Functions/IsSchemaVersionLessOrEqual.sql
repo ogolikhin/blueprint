@@ -53,6 +53,3 @@ THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END;
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[IsSchemaVersionLessOrEqual]  TO [Blueprint]
---GO

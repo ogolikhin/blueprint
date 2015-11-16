@@ -9,8 +9,11 @@ GO
 USE [AdminStorage];
 GO
 SET NOCOUNT ON;
+Print 'Creating AdminStorage Database...'
 GO
 -- --------------------------------------------------
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ApplicationLabels.sql" ) ) #>

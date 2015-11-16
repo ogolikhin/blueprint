@@ -77,6 +77,7 @@
     <Content Include="Migration\6.5.1.0\Sample.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="RecreateArtifactStorage.sql" />
+    <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
   </ItemGroup>
   <ItemGroup>

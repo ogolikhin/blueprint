@@ -25,6 +25,3 @@ BEGIN
 	COMMIT TRANSACTION;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[EndSession]  TO [Blueprint]
---GO

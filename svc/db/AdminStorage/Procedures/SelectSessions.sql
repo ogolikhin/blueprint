@@ -28,6 +28,3 @@ BEGIN
 	ORDER BY BeginTime DESC;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[SelectSessions]  TO [Blueprint]
---GO

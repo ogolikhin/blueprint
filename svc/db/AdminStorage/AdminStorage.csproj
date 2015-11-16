@@ -44,7 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Scripts\" />
     <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +85,7 @@
     <Content Include="Procedures\GetConfigSettings.sql" />
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
+    <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Tables\Sessions.sql" />
     <Content Include="Tables\ConfigSettings.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />

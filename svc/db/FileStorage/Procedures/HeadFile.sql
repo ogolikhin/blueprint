@@ -31,6 +31,3 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[HeadFile]  TO [Blueprint]
---GO

@@ -7,8 +7,29 @@ GO
 USE [FileStorage];
 GO
 SET NOCOUNT ON;
+Print 'Creating FileStorage Database...'
 GO
 -- --------------------------------------------------
+
+-- Create Blueprint Roles
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_reader]
+	GRANT SELECT TO db_blueprint_reader
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_writer' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_writer]
+	GRANT DELETE, INSERT, UPDATE TO db_blueprint_writer
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_executor' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_executor]
+	GRANT EXECUTE TO db_blueprint_executor
+End
+GO
+
+
 
 /******************************************************************************************************************************
 Name:			DbVersionInfo
@@ -29,8 +50,7 @@ CREATE TABLE [dbo].[DbVersionInfo](
  CONSTRAINT [PK_DbVersionInfo] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
+)) ON [PRIMARY]
 GO
 /******************************************************************************************************************************
 Name:			Files
@@ -61,8 +81,7 @@ CREATE TABLE [dbo].[Files](
  CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+)) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
 ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
@@ -125,10 +144,6 @@ END
 
 GO
 
---GRANT  EXECUTE  ON [dbo].[IsSchemaVersionLessOrEqual]  TO [Blueprint]
---GO
-
-
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -165,10 +180,6 @@ ELSE
 	END 
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[SetSchemaVersion]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			DeleteFile
 
@@ -201,10 +212,6 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[DeleteFile]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetFile
 
@@ -239,10 +246,6 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetFile]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			GetStatus
 
@@ -264,10 +267,6 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetStatus]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			HeadFile
 
@@ -301,10 +300,6 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[HeadFile]  TO [Blueprint]
---GO
-
 /******************************************************************************************************************************
 Name:			PostFile
 
@@ -349,9 +344,6 @@ BEGIN
 END
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[PostFile]  TO [Blueprint]
---GO
 
 
 -- --------------------------------------------------

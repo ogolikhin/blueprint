@@ -389,5 +389,44 @@ namespace AccessControl.Controllers
             var responseResult = resultSessions as BadRequestResult;
             Assert.IsNotNull(responseResult);
         }
+
+        [TestMethod]
+        public void Load_CorrectResult()
+        {
+            // Arrange
+            HttpConfiguration config = new HttpConfiguration();
+            var sessions = new List<Session>() { new Session() };
+            _sessionsRepoMock
+                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(Task.FromResult((IEnumerable<Session>)sessions));
+
+            // Act
+            AccessControl.WebApiConfig.Register(config);
+
+            // Assert
+            //System.Threading.Thread.Sleep(500);
+            StatusController.Ready.Wait(100);
+            Assert.IsTrue(StatusController.Ready.IsSet);
+        }
+
+        [TestMethod]
+        public void Load_Fails()
+        {
+            // Arrange
+            StatusController.Ready.Reset();
+            HttpConfiguration config = new HttpConfiguration();
+            var sessions = new List<Session>() { new Session() };
+            _sessionsRepoMock
+                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            // Act
+            AccessControl.WebApiConfig.Register(config);
+
+            // Assert
+            //System.Threading.Thread.Sleep(500);
+            StatusController.Ready.Wait(100);
+            Assert.IsFalse(StatusController.Ready.IsSet);
+        }
     }
 }

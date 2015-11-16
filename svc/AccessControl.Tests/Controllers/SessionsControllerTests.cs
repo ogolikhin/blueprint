@@ -404,8 +404,7 @@ namespace AccessControl.Controllers
             AccessControl.WebApiConfig.Register(config);
 
             // Assert
-            //System.Threading.Thread.Sleep(500);
-            StatusController.Ready.Wait(100);
+            Assert.IsTrue(StatusController.Ready.Wait(200));
             Assert.IsTrue(StatusController.Ready.IsSet);
         }
 
@@ -424,8 +423,7 @@ namespace AccessControl.Controllers
             AccessControl.WebApiConfig.Register(config);
 
             // Assert
-            //System.Threading.Thread.Sleep(500);
-            StatusController.Ready.Wait(100);
+            Assert.IsFalse(StatusController.Ready.Wait(200));
             Assert.IsFalse(StatusController.Ready.IsSet);
         }
     }

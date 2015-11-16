@@ -9,8 +9,11 @@ GO
 USE [ArtifactStorage];
 GO
 SET NOCOUNT ON;
+Print 'Creating ArtifactStorage Database...'
 GO
 -- --------------------------------------------------
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 

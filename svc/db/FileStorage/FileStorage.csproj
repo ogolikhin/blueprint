@@ -44,7 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Scripts\" />
     <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +73,7 @@
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\HeadFile.sql" />
     <Content Include="Procedures\PostFile.sql" />
+    <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
     <Content Include="Tables\Files.sql" />
   </ItemGroup>

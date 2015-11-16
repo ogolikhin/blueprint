@@ -19,6 +19,3 @@ BEGIN
 	SELECT [Key], [Text] FROM [dbo].ApplicationLabels WHERE Locale = @Locale;
 END
 GO
-
---GRANT  EXECUTE  ON [dbo].[GetApplicationLables]  TO [Blueprint]
---GO

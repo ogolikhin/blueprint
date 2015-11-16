@@ -34,6 +34,3 @@ ELSE
 	END 
 
 GO
-
---GRANT  EXECUTE  ON [dbo].[SetSchemaVersion]  TO [Blueprint]
---GO

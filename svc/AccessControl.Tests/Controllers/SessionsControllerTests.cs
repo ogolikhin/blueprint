@@ -212,7 +212,8 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(resultSession);
             var responseResult = resultSession as NotFoundResult;
             Assert.IsNotNull(responseResult);
-        }    
+        } 
+   
         [TestMethod]
         public void SelectSession_KeyNotFound()
         {
@@ -296,6 +297,92 @@ namespace AccessControl.Controllers
 
             // Act
             var resultSessions = await _controller.SelectSessions();
+
+            // Assert
+            Assert.IsNotNull(resultSessions);
+            var responseResult = resultSessions as BadRequestResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public void DeleteSession_KeyNotFound()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+
+            // Act
+            var result = _controller.DeleteSession().Result;
+
+            // Assert  
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void DeleteSession_ArgumentNull()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
+            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
+            _sessionsRepoMock
+                .Setup(repo => repo.EndSession(newGuid))
+                .Throws(new ArgumentNullException());
+
+            // Act
+            var result = _controller.DeleteSession().Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as BadRequestResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public void DeleteSession_NoSessionToken()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
+
+            // Act
+            var result = _controller.DeleteSession().Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_CorrectResult()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
+            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
+            _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
+
+            // Act
+            var result = await _controller.DeleteSession();
+
+            // Assert
+            Assert.IsNotNull(result);
+            var responseResult = result as OkResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_FormatError()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
+            _controller.Request.Headers.Add("Session-Token", "null");
+
+            // Act
+            var resultSessions = await _controller.DeleteSession();
 
             // Assert
             Assert.IsNotNull(resultSessions);

@@ -118,7 +118,9 @@ namespace AccessControl.Controllers
                     psIntValue <= 0 ||
                     pnIntValue <= 0)
                     throw new FormatException("Specified parameter is not valid.");
+
                 var token = GetHeaderSessionToken();
+                //Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
                 var guid = Session.Convert(token);
                 return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }

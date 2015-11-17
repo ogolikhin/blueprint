@@ -59,6 +59,25 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
+        public void GetSession_RepositoryThrowsException_InternalServerError()
+        {
+            // Arrange
+            int uid = 999;
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+            _sessionsRepoMock
+                .Setup(repo => repo.GetSession(It.IsAny<Guid>()))
+                .Throws(new Exception());
+
+            // Act
+            var result = _controller.GetSession(uid).Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
         public async Task GetSession_ReturnsCorrectSession()
         {
             // Arrange
@@ -221,7 +240,30 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(resultSession);
             var responseResult = resultSession as NotFoundResult;
             Assert.IsNotNull(responseResult);
-        } 
+        }
+
+        [TestMethod]
+        public void PostSession_RepositoryThrowsException_InternalServerError()
+        {
+            // Arrange
+            int uid = 999;
+            var firstGuid = Guid.NewGuid();
+            var secondGuid = Guid.NewGuid();
+            Guid?[] guids = { firstGuid, secondGuid };
+            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
+            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new Exception());
+
+            // Act
+            var result = _controller.PostSession(uid).Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);
+        }
    
         [TestMethod]
         public void SelectSession_RepositoryThrowsException_KeyNotFound()
@@ -254,7 +296,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_RepositoryThrowsException_ArgumentNull()
+        public void SelectSession_RepositoryThrowsException_BadRequest()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -269,6 +311,24 @@ namespace AccessControl.Controllers
             // Assert  
             Assert.IsNotNull(result);
             var responseResult = result as BadRequestResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public void SelectSession_RepositoryThrowsException_InternalServerError()
+        {
+            // Arrange
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+            _sessionsRepoMock
+                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            // Act
+            var result = _controller.SelectSessions().Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
             Assert.IsNotNull(responseResult);
         }
 
@@ -337,6 +397,26 @@ namespace AccessControl.Controllers
 
             // Assert  
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void DeleteSession_RepositoryThrowsException_InternalServerError()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
+            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
+            _sessionsRepoMock
+                .Setup(repo => repo.EndSession(newGuid))
+                .Throws(new Exception());
+
+            // Act
+            var result = _controller.DeleteSession().Result;
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
+            Assert.IsNotNull(responseResult);
         }
 
         [TestMethod]
@@ -534,6 +614,27 @@ namespace AccessControl.Controllers
             // Assert  
             Assert.IsNotNull(result);
             var responseResult = result as BadRequestResult;
+            Assert.IsNotNull(responseResult);
+        }
+
+        [TestMethod]
+        public async Task PutSession_RepositoryThrowsException_InternalServerError()
+        {
+            // Arrange
+            var newGuid = Guid.NewGuid();
+            var token = Session.Convert(newGuid);
+            _controller.Request.Headers.Add("Session-Token", token);
+
+            _sessionsRepoMock
+                .Setup(r => r.GetSession(newGuid))
+                .Throws(new Exception());
+
+            // Act
+            var result = await _controller.PutSession("", 1);
+
+            // Assert  
+            Assert.IsNotNull(result);
+            var responseResult = result as InternalServerErrorResult;
             Assert.IsNotNull(responseResult);
         }
 

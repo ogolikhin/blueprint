@@ -232,6 +232,19 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
+        public void SelectSession_CallingWithInvalidArgument_BadRequest()
+        {
+            // Arrange
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+
+            // Act
+            var result = _controller.SelectSessions("0", "-1").Result;
+
+            // Assert  
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        [TestMethod]
         public void SelectSession_RepositoryThrowsException_ArgumentNull()
         {
             // Arrange

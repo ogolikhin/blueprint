@@ -242,7 +242,7 @@ namespace AccessControl.Controllers
                 //.Returns(Task.FromResult((IEnumerable<Session>)null));
 
             // Act
-            var result = _controller.SelectSessions(0, 0).Result;
+            var result = _controller.SelectSessions().Result;
 
             // Assert  
             Assert.IsNotNull(result);
@@ -261,7 +261,7 @@ namespace AccessControl.Controllers
                 .Returns(Task.FromResult((IEnumerable<Session>)sessions));
 
             // Act
-            var result = await _controller.SelectSessions(0, 0);
+            var result = await _controller.SelectSessions();
 
             // Assert  
             Assert.IsNotNull(result);
@@ -391,7 +391,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void Load_CorrectResult()
+        public void Load_RepositoryReturnsSessions_ReadyIsSet()
         {
             // Arrange
             HttpConfiguration config = new HttpConfiguration();
@@ -405,11 +405,10 @@ namespace AccessControl.Controllers
 
             // Assert
             Assert.IsTrue(StatusController.Ready.Wait(200));
-            Assert.IsTrue(StatusController.Ready.IsSet);
         }
 
         [TestMethod]
-        public void Load_Fails()
+        public void Load_RepositoryThrowsException_ReadyIsNotSet()
         {
             // Arrange
             StatusController.Ready.Reset();
@@ -424,7 +423,6 @@ namespace AccessControl.Controllers
 
             // Assert
             Assert.IsFalse(StatusController.Ready.Wait(200));
-            Assert.IsFalse(StatusController.Ready.IsSet);
         }
     }
 }

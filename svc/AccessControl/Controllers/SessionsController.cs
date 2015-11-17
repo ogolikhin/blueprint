@@ -103,13 +103,16 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> SelectSessions(int ps = 100, int pn = 1)
+        public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
             try
             {
+                int psIntValue, pnIntValue;
+                if (int.TryParse(ps, out psIntValue) == false || int.TryParse(pn, out pnIntValue) == false)
+                    throw new FormatException("Specified parameter is not valid.");
                 var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
                 var guid = Session.Convert(token);
-                return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
+                return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
             catch (ArgumentNullException)
             {

@@ -10,6 +10,7 @@ using AccessControl.Models;
 using AccessControl.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Log;
 
 namespace AccessControl.Controllers
 {
@@ -399,6 +400,9 @@ namespace AccessControl.Controllers
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult((IEnumerable<Session>)sessions));
+            var logProviderMock = new Mock<ILogProvider>();
+            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
+            LogProvider.Init(logProviderMock.Object);
 
             // Act
             AccessControl.WebApiConfig.Register(config);

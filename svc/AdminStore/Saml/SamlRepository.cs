@@ -21,11 +21,11 @@ namespace AdminStore.Saml
             return ProcessResponse(samlXml, settings);
         }
 
-        public IPrincipal ProcessResponse(string samlXml, IFederatedAuthenticationSettings settings)
+        public IPrincipal ProcessResponse(string samlResponse, IFederatedAuthenticationSettings settings)
         {
-            if (samlXml == null)
+            if (samlResponse == null)
             {
-                throw new ArgumentNullException("samlXml");
+                throw new ArgumentNullException("samlResponse");
             }
 
             if (settings == null)
@@ -33,7 +33,7 @@ namespace AdminStore.Saml
                 throw new ArgumentNullException("settings");
             }
 
-            var token = ReadSecurityToken(samlXml, settings);
+            var token = ReadSecurityToken(samlResponse, settings);
 
             if (token == null)
             {
@@ -48,7 +48,7 @@ namespace AdminStore.Saml
                 NameClaimType = settings.NameClaimType, //"Username",
                 MapToWindows = false
             };
-            var handler = new BpSaml2SecurityTokenHandler(samlXml, samlSecurityTokenRequirement)
+            var handler = new BpSaml2SecurityTokenHandler(samlResponse, samlSecurityTokenRequirement)
             {
                 Configuration = new SecurityTokenHandlerConfiguration()
             };
@@ -66,7 +66,7 @@ namespace AdminStore.Saml
                 {
                     throw;
                 }
-                token = (Saml2SecurityToken)handler.ReadToken(samlXml);
+                token = (Saml2SecurityToken)handler.ReadToken(samlResponse);
                 validateToken = handler.ValidateToken(token);
             }
 
@@ -89,7 +89,6 @@ namespace AdminStore.Saml
                 ConfigureHandler(collection.Configuration, settings);
                 var tokenString = reader.ReadSubtree();
                 return collection.ReadToken(tokenString) as Saml2SecurityToken;
-
             }
         }
 

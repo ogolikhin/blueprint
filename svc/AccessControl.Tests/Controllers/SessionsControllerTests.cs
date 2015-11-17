@@ -34,6 +34,14 @@ namespace AccessControl.Controllers
             };
         }
 
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            var logProviderMock = new Mock<ILogProvider>();
+            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
+            LogProvider.Init(logProviderMock.Object);
+        }
+
         [TestMethod]
         public void GetSession_SessionNotFound()
         {
@@ -322,7 +330,6 @@ namespace AccessControl.Controllers
         public void DeleteSession_TokenIsNotInRepository_KeyNotFound()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
             // Act
@@ -357,7 +364,7 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var newGuid = Guid.NewGuid();
-            var session = new Session();
+            _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
 
             // Act
             var result = _controller.DeleteSession().Result;
@@ -373,7 +380,6 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var newGuid = Guid.NewGuid();
-            var session = new Session();
             _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
             _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
@@ -391,8 +397,6 @@ namespace AccessControl.Controllers
         public async Task DeleteSession_TokenIsNull_BadRequest()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
-            var session = new Session();
             _controller.Request.Headers.Add("Session-Token", "null");
 
             // Act
@@ -408,21 +412,16 @@ namespace AccessControl.Controllers
         public void Load_RepositoryReturnsSessions_ReadyIsSet()
         {
             // Arrange
-            HttpConfiguration config = new HttpConfiguration();
             var sessions = new List<Session>() { new Session() };
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(Task.FromResult((IEnumerable<Session>)sessions));
-            var logProviderMock = new Mock<ILogProvider>();
-            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
-            LogProvider.Init(logProviderMock.Object);
 
             // Act
-            AccessControl.WebApiConfig.Register(config);
+            SessionsController.Load(_cacheMock.Object);
 
             // Assert
-            StatusController.Ready.Wait(200);
-            Assert.IsTrue(StatusController.Ready.IsSet);
+            Assert.IsTrue(StatusController.Ready.Wait(200));
         }
 
         [TestMethod]
@@ -430,21 +429,15 @@ namespace AccessControl.Controllers
         {
             // Arrange
             StatusController.Ready.Reset();
-            HttpConfiguration config = new HttpConfiguration();
-            var sessions = new List<Session>() { new Session() };
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new Exception());
-            var logProviderMock = new Mock<ILogProvider>();
-            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
-            LogProvider.Init(logProviderMock.Object);
 
             // Act
             SessionsController.Load(_cacheMock.Object);
 
             // Assert
-            StatusController.Ready.Wait(200);
-            Assert.IsFalse(StatusController.Ready.IsSet);
+            Assert.IsFalse(StatusController.Ready.Wait(200));
         }
     }
 }

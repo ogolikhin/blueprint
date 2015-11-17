@@ -76,25 +76,25 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = GetHeaderSessionToken();
-                var session = await Repo.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
+                var session = await Repo.GetUserSession(uid); // reading from database to avoid extending existing session
                 if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }
+
+                if (session.EndTime != null)
+                {
+                    return Unauthorized();
+                }
+
+                var token = Session.Convert(session.SessionId);
+
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+                response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
-            }
-            catch (ArgumentNullException)
-            {
-                return BadRequest();
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
-            }
+            }                   
             catch (KeyNotFoundException)
             {
                 return NotFound();

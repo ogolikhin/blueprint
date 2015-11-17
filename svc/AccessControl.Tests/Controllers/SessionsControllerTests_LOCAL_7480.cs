@@ -10,7 +10,6 @@ using AccessControl.Models;
 using AccessControl.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Log;
 
 namespace AccessControl.Controllers
 {
@@ -32,14 +31,6 @@ namespace AccessControl.Controllers
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
-        }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            var logProviderMock = new Mock<ILogProvider>();
-            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
-            LogProvider.Init(logProviderMock.Object);
         }
 
         [TestMethod]
@@ -224,7 +215,7 @@ namespace AccessControl.Controllers
         } 
    
         [TestMethod]
-        public void SelectSession_RepositoryThrowsException_KeyNotFound()
+        public void SelectSession_KeyNotFound()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -241,20 +232,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_CallingWithInvalidArgument_BadRequest()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
-
-            // Act
-            var result = _controller.SelectSessions("0", "-1").Result;
-
-            // Assert  
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
-        }
-
-        [TestMethod]
-        public void SelectSession_RepositoryThrowsException_ArgumentNull()
+        public void SelectSession_ArgumentNull()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -264,7 +242,7 @@ namespace AccessControl.Controllers
                 //.Returns(Task.FromResult((IEnumerable<Session>)null));
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var result = _controller.SelectSessions(0, 0).Result;
 
             // Assert  
             Assert.IsNotNull(result);
@@ -273,7 +251,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task SelectSession_RepositoryReturnsResult_Result()
+        public async Task SelectSession_ReturnsResult()
         {
             // Arrange
             var sessions = new List<Session>() { new Session() };
@@ -283,7 +261,7 @@ namespace AccessControl.Controllers
                 .Returns(Task.FromResult((IEnumerable<Session>)sessions));
 
             // Act
-            var result = await _controller.SelectSessions();
+            var result = await _controller.SelectSessions(0, 0);
 
             // Assert  
             Assert.IsNotNull(result);
@@ -292,7 +270,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_TokenNotSet_InternalServerError()
+        public void SelectSession_NoSessionToken()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -309,7 +287,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task SelectSession_TokenIsNull_BadRequest()
+        public async Task SelectSession_FormatError()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -327,9 +305,10 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_TokenIsNotInRepository_KeyNotFound()
+        public void DeleteSession_KeyNotFound()
         {
             // Arrange
+            var newGuid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
             // Act
@@ -340,7 +319,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_RepositoryThrowsException_ArgumentNull()
+        public void DeleteSession_ArgumentNull()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -360,11 +339,11 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_TokenHasNotBeenSet_InternalServerError()
+        public void DeleteSession_NoSessionToken()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
+            var session = new Session();
 
             // Act
             var result = _controller.DeleteSession().Result;
@@ -376,10 +355,11 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteSession_RepositoryReturnsResult_OkResult()
+        public async Task DeleteSession_CorrectResult()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
+            var session = new Session();
             _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
             _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
@@ -394,9 +374,11 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteSession_TokenIsNull_BadRequest()
+        public async Task DeleteSession_FormatError()
         {
             // Arrange
+            var newGuid = Guid.NewGuid();
+            var session = new Session();
             _controller.Request.Headers.Add("Session-Token", "null");
 
             // Act
@@ -535,38 +517,6 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(result);
             var responseResult = result as BadRequestResult;
             Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public void Load_RepositoryReturnsSessions_ReadyIsSet()
-        {
-            // Arrange
-            var sessions = new List<Session>() { new Session() };
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(Task.FromResult((IEnumerable<Session>)sessions));
-
-            // Act
-            SessionsController.Load(_cacheMock.Object);
-
-            // Assert
-            Assert.IsTrue(StatusController.Ready.Wait(200));
-        }
-
-        [TestMethod]
-        public void Load_RepositoryThrowsException_ReadyIsNotSet()
-        {
-            // Arrange
-            StatusController.Ready.Reset();
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Throws(new Exception());
-
-            // Act
-            SessionsController.Load(_cacheMock.Object);
-
-            // Assert
-            Assert.IsFalse(StatusController.Ready.Wait(200));
         }
     }
 }

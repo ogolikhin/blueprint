@@ -11,9 +11,9 @@ namespace AdminStore.Repositories
 {
     public interface IAuthenticator
     {
-        AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure);
-        AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password);
-        bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo);
+        bool SearchLdap(LdapSettings settings, string filter);
+        bool SearchDirectory(LoginInfo loginInfo, string password);
+        void Bind(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType);
     }
 
     public class LdapRepository : ILdapRepository, IAuthenticator
@@ -21,9 +21,8 @@ namespace AdminStore.Repositories
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IAuthenticator _authenticator;
 
-        private const int LdapInvalidCredentialsErrorCode = 49;
-
-        private const int ActiveDirectoryInvalidCredentialsErrorCode = -2147023570;
+        internal const int LdapInvalidCredentialsErrorCode = 49;
+        internal const int ActiveDirectoryInvalidCredentialsErrorCode = -2147023570;
 
         public LdapRepository()
             : this(new SqlSettingsRepository())
@@ -42,20 +41,20 @@ namespace AdminStore.Repositories
             var loginInfo = LoginInfo.Parse(login);
             if (useDefaultConnection)
             {
-                authenticationStatus = _authenticator.AuthenticateViaDirectory(loginInfo, password);
+                authenticationStatus = AuthenticateViaDirectory(loginInfo, password);
             }
             else
             {
                 var ldapSettings = await _settingsRepository.GetLdapSettingsAsync();
                 if (ldapSettings.Any())
                 {
-                    foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchsUser(loginInfo.Domain)))
+                    foreach (var ldapSetting in ldapSettings.OrderByDescending(s => s.MatchesDomain(loginInfo.Domain)))
                     {
-                        if (!_authenticator.UserExistsInLdapDirectory(ldapSetting, loginInfo))
+                        if (!UserExistsInLdapDirectory(ldapSetting, loginInfo))
                         {
                             continue;
                         }
-                        authenticationStatus = _authenticator.Authenticate(loginInfo, password, ldapSetting.AuthenticationType);
+                        authenticationStatus = Authenticate(loginInfo, password, ldapSetting.AuthenticationType);
                         if (authenticationStatus == AuthenticationStatus.Success)
                         {
                             break;
@@ -64,13 +63,13 @@ namespace AdminStore.Repositories
                 }
                 else
                 {
-                    authenticationStatus = _authenticator.Authenticate(loginInfo, password);
+                    authenticationStatus = Authenticate(loginInfo, password);
                 }
             }
             return authenticationStatus;
         }
 
-        public AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
+        private AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
             var authenticationStatus = AuthenticateViaLdap(loginInfo, password, authenticationType);
             if (authenticationStatus != AuthenticationStatus.Success)
@@ -80,21 +79,13 @@ namespace AdminStore.Repositories
             return AuthenticationStatus.Success;
         }
 
-        public AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password)
+        private AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password)
         {
             try
             {
-                using (var searchRoot = new DirectoryEntry(null, loginInfo.UserName, password, AuthenticationTypes.Secure))
+                if (!_authenticator.SearchDirectory(loginInfo, password))
                 {
-                    using (var searcher = new DirectorySearcher(searchRoot))
-                    {
-                        searcher.CacheResults = false;
-                        var result = searcher.FindOne();
-                        if (result == null)
-                        {
-                            return AuthenticationStatus.Error;
-                        }
-                    }
+                    return AuthenticationStatus.Error;
                 }
             }
             catch (COMException comException)
@@ -117,13 +108,8 @@ namespace AdminStore.Repositories
         {
             try
             {
-                using (var ldapConnection = new LdapConnection(loginInfo.Domain))
-                {
-                    var networkCredential = new NetworkCredential(loginInfo.UserName, password, loginInfo.Domain);
-                    ldapConnection.SessionOptions.SecureSocketLayer = authenticationType.HasFlag(AuthenticationTypes.SecureSocketsLayer);
-                    ldapConnection.AuthType = AuthType.Negotiate;
-                    ldapConnection.Bind(networkCredential);
-                }
+                _authenticator.Bind(loginInfo, password, authenticationType);
+                return AuthenticationStatus.Success;
             }
             catch (LdapException ldapException)
             {
@@ -137,34 +123,24 @@ namespace AdminStore.Repositories
             {
                 return AuthenticationStatus.Error;
             }
-
-            return AuthenticationStatus.Success;
         }
 
-        public bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
+        private bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
         {
             var userName = loginInfo.UserName != null ? loginInfo.UserName.Trim() : loginInfo.Login;
             var filter = string.Format("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
             try
             {
-                using (var directoryEntry = ldapSettings.CreateDirectoryEntry())
+                bool found = _authenticator.SearchLdap(ldapSettings, filter);
+
+                if (!found)
                 {
-                    using (var dirSearch = new DirectorySearcher(directoryEntry))
-                    {
-                        dirSearch.Filter = filter;
-                        dirSearch.PropertyNamesOnly = false;
-                        dirSearch.ReferralChasing = ReferralChasingOption.None;
-
-                        if (dirSearch.FindOne() == null)
-                        {
-                            //TODO logging
-                            //Log.Debug(string.Format("User '{0}' is not found in LDAP directory {1}", domainUserName, ldapSettings.LdapAuthenticationUrl));
-                            return false;
-                        }
-
-                        return true;
-                    }
+                    //TODO logging
+                    //Log.Debug(string.Format("User '{0}' is not found in LDAP directory {1}", domainUserName, ldapSettings.LdapAuthenticationUrl));
+                    return false;
                 }
+
+                return true;
             }
             catch
             {
@@ -174,5 +150,40 @@ namespace AdminStore.Repositories
                 return false;
             }
         }
+
+        #region IAuthenticator
+
+        public bool SearchLdap(LdapSettings settings, string filter)
+        {
+            using (var searchRoot = new DirectoryEntry(settings.LdapAuthenticationUrl, settings.BindUser, settings.BindPassword, settings.AuthenticationType))
+            {
+                using (var searcher = new DirectorySearcher(searchRoot, filter) { PropertyNamesOnly = false, ReferralChasing = ReferralChasingOption.None })
+                {
+                    return searcher.FindOne() != null;
+                }
+            }
+        }
+
+        public bool SearchDirectory(LoginInfo loginInfo, string password)
+        {
+            using (var searchRoot = new DirectoryEntry(null, loginInfo.UserName, password, AuthenticationTypes.Secure))
+            {
+                using (var searcher = new DirectorySearcher(searchRoot) { CacheResults = false })
+                {
+                    return searcher.FindOne() != null;
+                }
+            }
+        }
+
+        public void Bind(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType)
+        {
+            using (var ldapConnection = new LdapConnection(loginInfo.Domain) { AuthType = AuthType.Negotiate })
+            {
+                ldapConnection.SessionOptions.SecureSocketLayer = authenticationType.HasFlag(AuthenticationTypes.SecureSocketsLayer);
+                ldapConnection.Bind(new NetworkCredential(loginInfo.UserName, password, loginInfo.Domain));
+            }
+        }
+
+        #endregion IAuthenticator
     }
 }

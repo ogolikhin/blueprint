@@ -409,6 +409,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
+<<<<<<< HEAD
         public async Task PutSession_KeyNotFound()
         {
             // Arrange         
@@ -535,9 +536,7 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(result);
             var responseResult = result as BadRequestResult;
             Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
+=======
         public void Load_RepositoryReturnsSessions_ReadyIsSet()
         {
             // Arrange
@@ -567,6 +566,7 @@ namespace AccessControl.Controllers
 
             // Assert
             Assert.IsFalse(StatusController.Ready.Wait(200));
+>>>>>>> 9211825986d9343f3448263ebed15c414a6d78d8
         }
     }
 }

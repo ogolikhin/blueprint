@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Models;
 using AccessControl.Repositories;
+using ServiceLibrary.Log;
 
 namespace AccessControl.Controllers
 {
@@ -17,19 +18,16 @@ namespace AccessControl.Controllers
     public class SessionsController : ApiController
     {
         private static ObjectCache Cache;
-        private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
+        private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);        
 
         internal static void Load(ObjectCache cache)
-        {
-            if (!EventLog.SourceExists(WebApiConfig.ServiceLogSource))
-                EventLog.CreateEventSource(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName);
-
+        {           
             Task.Run(() =>
             {
                 Cache = cache;
                 try
                 {
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", EventLogEntryType.Information);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", LogEntryType.Information);
                     var ps = 100;
                     var pn = 1;
                     int count;
@@ -45,11 +43,11 @@ namespace AccessControl.Controllers
                         ++pn;
                     } while (count == ps);
                     StatusController.Ready.Set();
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", EventLogEntryType.Information);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", LogEntryType.Information);
                 }
                 catch (Exception)
                 {
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", EventLogEntryType.Error);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", LogEntryType.Error);
                 }
             });
         }
@@ -103,13 +101,19 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> SelectSessions(int ps = 100, int pn = 1)
+        public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
             try
             {
+                int psIntValue, pnIntValue;
+                if (int.TryParse(ps, out psIntValue) == false || 
+                    int.TryParse(pn, out pnIntValue) == false ||
+                    psIntValue <= 0 ||
+                    pnIntValue <= 0)
+                    throw new FormatException("Specified parameter is not valid.");
                 var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
                 var guid = Session.Convert(token);
-                return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
+                return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
             catch (ArgumentNullException)
             {
@@ -250,7 +254,7 @@ namespace AccessControl.Controllers
                     switch (args.RemovedReason)
                     {
                         case CacheEntryRemovedReason.Evicted:
-                            EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", EventLogEntryType.Error);
+                            LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error);
                             break;
                         case CacheEntryRemovedReason.Expired:
                             Repo.EndSession(Session.Convert(args.CacheItem.Key));

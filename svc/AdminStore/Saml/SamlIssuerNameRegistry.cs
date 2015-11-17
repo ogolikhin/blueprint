@@ -3,11 +3,11 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace AdminStore.Saml
 {
-    public class SampleIssuerNameRegistry : IssuerNameRegistry
+    public class SamlIssuerNameRegistry : IssuerNameRegistry
     {
         private readonly X509Certificate2 _certificate;
 
-        public SampleIssuerNameRegistry(X509Certificate2 certificate)
+        public SamlIssuerNameRegistry(X509Certificate2 certificate)
         {
             _certificate = certificate;
         }

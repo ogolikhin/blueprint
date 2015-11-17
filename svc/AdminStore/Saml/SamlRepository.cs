@@ -80,10 +80,8 @@ namespace AdminStore.Saml
             {
                 if (!reader.ReadToFollowing("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion"))
                 {
-                    throw new FederatedAuthenticationException("Cannot find token Assertion",
-                        FederatedAuthenticationErrorCode.WrongFormat);
+                    return null;
                 }
-
                 // Deserialize the token so that data can be taken from it and plugged into the RSTR
                 var collection = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection();
                 ConfigureHandler(collection.Configuration, settings);
@@ -96,7 +94,7 @@ namespace AdminStore.Saml
         {
             hc.AudienceRestriction = new AudienceRestriction(AudienceUriMode.Never);
             hc.CertificateValidator = new SamlCertificateValidator(settings.Certificate, WebApiConfig.VerifyCertificateChain);
-            hc.IssuerNameRegistry = new SampleIssuerNameRegistry(settings.Certificate);
+            hc.IssuerNameRegistry = new SamlIssuerNameRegistry(settings.Certificate);
             hc.IssuerTokenResolver = new IssuerTokenResolver();
 
             //need this if certificate not included into sign info

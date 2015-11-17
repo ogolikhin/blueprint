@@ -108,7 +108,10 @@ namespace AccessControl.Controllers
             try
             {
                 int psIntValue, pnIntValue;
-                if (int.TryParse(ps, out psIntValue) == false || int.TryParse(pn, out pnIntValue) == false)
+                if (int.TryParse(ps, out psIntValue) == false || 
+                    int.TryParse(pn, out pnIntValue) == false ||
+                    psIntValue < 0 ||
+                    pnIntValue < 0)
                     throw new FormatException("Specified parameter is not valid.");
                 var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
                 var guid = Session.Convert(token);

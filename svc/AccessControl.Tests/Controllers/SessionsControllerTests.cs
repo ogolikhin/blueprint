@@ -215,7 +215,7 @@ namespace AccessControl.Controllers
         } 
    
         [TestMethod]
-        public void SelectSession_KeyNotFound()
+        public void SelectSession_RepositoryThrowsException_KeyNotFound()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -232,7 +232,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_ArgumentNull()
+        public void SelectSession_RepositoryThrowsException_ArgumentNull()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -251,7 +251,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task SelectSession_ReturnsResult()
+        public async Task SelectSession_RepositoryReturnsResult_Result()
         {
             // Arrange
             var sessions = new List<Session>() { new Session() };
@@ -270,7 +270,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_NoSessionToken()
+        public void SelectSession_TokenNotSet_InternalServerError()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -287,7 +287,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task SelectSession_FormatError()
+        public async Task SelectSession_TokenIsNull_BadRequest()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -305,7 +305,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_KeyNotFound()
+        public void DeleteSession_TokenIsNotInRepository_KeyNotFound()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -319,7 +319,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_ArgumentNull()
+        public void DeleteSession_RepositoryThrowsException_ArgumentNull()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -339,7 +339,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_NoSessionToken()
+        public void DeleteSession_TokenHasNotBeenSet_InternalServerError()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -355,7 +355,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteSession_CorrectResult()
+        public async Task DeleteSession_RepositoryReturnsResult_OkResult()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -374,7 +374,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task DeleteSession_FormatError()
+        public async Task DeleteSession_TokenIsNull_BadRequest()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -404,7 +404,8 @@ namespace AccessControl.Controllers
             AccessControl.WebApiConfig.Register(config);
 
             // Assert
-            Assert.IsTrue(StatusController.Ready.Wait(200));
+            StatusController.Ready.Wait(200);
+            Assert.IsTrue(StatusController.Ready.IsSet);
         }
 
         [TestMethod]
@@ -419,10 +420,11 @@ namespace AccessControl.Controllers
                 .Throws(new Exception());
 
             // Act
-            AccessControl.WebApiConfig.Register(config);
+            SessionsController.Load(_cacheMock.Object);
 
             // Assert
-            Assert.IsFalse(StatusController.Ready.Wait(200));
+            StatusController.Ready.Wait(200);
+            Assert.IsFalse(StatusController.Ready.IsSet);
         }
     }
 }

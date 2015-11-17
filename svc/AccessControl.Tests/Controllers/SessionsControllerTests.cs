@@ -422,6 +422,9 @@ namespace AccessControl.Controllers
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new Exception());
+            var logProviderMock = new Mock<ILogProvider>();
+            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
+            LogProvider.Init(logProviderMock.Object);
 
             // Act
             SessionsController.Load(_cacheMock.Object);

@@ -111,7 +111,7 @@ namespace AccessControl.Controllers
 
             // Assert
             Assert.IsNotNull(resultSession);
-            var responseResult = resultSession as InternalServerErrorResult;
+            var responseResult = resultSession as BadRequestResult;
             Assert.IsNotNull(responseResult);
         }
 
@@ -292,7 +292,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_TokenNotSet_InternalServerError()
+        public void SelectSession_TokenNotSet_BadRequest()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -304,7 +304,7 @@ namespace AccessControl.Controllers
 
             // Assert  
             Assert.IsNotNull(result);
-            var responseResult = result as InternalServerErrorResult;
+            var responseResult = result as BadRequestResult;
             Assert.IsNotNull(responseResult);
         }
 
@@ -360,7 +360,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_TokenHasNotBeenSet_InternalServerError()
+        public void DeleteSession_TokenHasNotBeenSet_BadRequest()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -371,7 +371,7 @@ namespace AccessControl.Controllers
 
             // Assert  
             Assert.IsNotNull(result);
-            var responseResult = result as InternalServerErrorResult;
+            var responseResult = result as BadRequestResult;
             Assert.IsNotNull(responseResult);
         }
 
@@ -491,7 +491,7 @@ namespace AccessControl.Controllers
             var resultSession = await _controller.PutSession("", 1);
 
             // Assert
-            var responseResult = resultSession as InternalServerErrorResult;
+            var responseResult = resultSession as BadRequestResult;
             Assert.IsNotNull(responseResult); 
         }
 

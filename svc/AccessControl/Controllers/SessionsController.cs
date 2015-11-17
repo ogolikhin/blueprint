@@ -62,6 +62,13 @@ namespace AccessControl.Controllers
             Repo = repo;
         }
 
+        private string GetHeaderSessionToken()
+        {
+            if(Request.Headers.Contains("Session-Token") == false)
+                throw new ArgumentNullException();
+            return Request.Headers.GetValues("Session-Token").FirstOrDefault();
+        }
+
         [HttpGet]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -69,7 +76,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var session = await Repo.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
                 if (session == null)
                 {
@@ -111,7 +118,7 @@ namespace AccessControl.Controllers
                     psIntValue <= 0 ||
                     pnIntValue <= 0)
                     throw new FormatException("Specified parameter is not valid.");
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
                 return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
@@ -174,7 +181,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
                 var userId = Cache.Get(token);
                 if (userId == null)
@@ -217,7 +224,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
                 if (Cache.Remove(token) == null)
                 {

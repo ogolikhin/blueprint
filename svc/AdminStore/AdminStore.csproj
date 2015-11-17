@@ -134,7 +134,7 @@
     <Compile Include="Saml\ISamlRepository.cs" />
     <Compile Include="Saml\SamlCertificateValidator.cs" />
     <Compile Include="Saml\SamlRepository.cs" />
-    <Compile Include="Saml\SampleIssuerNameRegistry.cs" />
+    <Compile Include="Saml\SamlIssuerNameRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

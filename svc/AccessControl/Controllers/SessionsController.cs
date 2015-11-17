@@ -84,15 +84,12 @@ namespace AccessControl.Controllers
 
                 if (session.EndTime != null)
                 {
-                    return Unauthorized();
-                }
-
-                var token = Session.Convert(session.SessionId);
+                    throw new KeyNotFoundException();
+                }                
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-                response.Headers.Add("Session-Token", token);
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.                
                 return ResponseMessage(response);
             }                   
             catch (KeyNotFoundException)

@@ -1,9 +1,11 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Web;
+using System.Web.Http;
 using ServiceLibrary.Log;
 
 namespace AccessControl
 {
-    public class WebApiApplication : System.Web.HttpApplication
+    public class WebApiApplication : HttpApplication
     {        
         protected void Application_Start()
         {
@@ -11,10 +13,19 @@ namespace AccessControl
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
 
-        public override void Dispose()
+        public sealed override void Dispose()
         {
-            LogProvider.DisposeCurrent();
-            base.Dispose();            
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                base.Dispose();
+                LogProvider.DisposeCurrent();
+            }
         }
     }
 }

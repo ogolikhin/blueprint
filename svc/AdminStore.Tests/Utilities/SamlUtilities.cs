@@ -93,13 +93,11 @@ namespace AdminStore.Utilities
         public static string Serialize(Saml2SecurityToken token)
         {
             var handler = new Saml2SecurityTokenHandler();
-            using (var sw = new StringWriter())
+            var sw = new StringWriter();
+            using (var textWriter = new XmlTextWriter(sw))
             {
-                using (var textWriter = new XmlTextWriter(sw))
-                {
-                    handler.WriteToken(textWriter, token);
-                    return sw.ToString();
-                }
+                handler.WriteToken(textWriter, token);
+                return sw.ToString();
             }
         }
 

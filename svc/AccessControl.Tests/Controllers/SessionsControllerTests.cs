@@ -399,7 +399,6 @@ namespace AccessControl.Controllers
             // Arrange
             var newGuid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
-            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
             _sessionsRepoMock
                 .Setup(repo => repo.EndSession(newGuid))
                 .Throws(new Exception());

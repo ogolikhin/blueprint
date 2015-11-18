@@ -225,11 +225,12 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
+
+                await Repo.EndSession(guid);
                 if (Cache.Remove(token) == null)
                 {
                     throw new KeyNotFoundException();
                 }
-                await Repo.EndSession(guid);
                 return Ok();
             }
             catch (ArgumentNullException)

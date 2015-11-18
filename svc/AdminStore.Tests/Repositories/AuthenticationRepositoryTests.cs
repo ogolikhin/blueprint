@@ -45,7 +45,7 @@ namespace AdminStore.Repositories
         #region AuthenticateUserAsync
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidCredentialException))]
+        [ExpectedException(typeof(FormatException))]
         public async Task AuthenticateUserAsync_DatabaseUser_EmptyLogin_InvalidCredentialException()
         {
             //Arrange
@@ -61,7 +61,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidCredentialException))]
+        [ExpectedException(typeof(FormatException))]
         public async Task AuthenticateUserAsync_EmptyPassword_InvalidCredentialException()
         {
             //Arrange

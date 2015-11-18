@@ -42,7 +42,7 @@ namespace AdminStore.Controllers
             }
             catch (AuthenticationException)
             {
-                return NotFound();
+                return Unauthorized();
             }
             catch (ApplicationException)
             {

@@ -153,7 +153,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSession_AuthenticationException_NotFoundResult()
+        public async Task PostSession_AuthenticationException_UnauthorizedResult()
         {
             // Arrange
             const string login = "admin";
@@ -166,10 +166,10 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var notFoundResult = await controller.PostSession(login, password, true) as NotFoundResult;
+            var unauthorizedResult = await controller.PostSession(login, password, true) as UnauthorizedResult;
 
             // Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.IsNotNull(unauthorizedResult);
         }
 
         [TestMethod]

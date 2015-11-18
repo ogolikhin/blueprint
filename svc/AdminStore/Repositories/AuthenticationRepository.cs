@@ -34,7 +34,7 @@ namespace AdminStore.Repositories
         {
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
-                throw new InvalidCredentialException("Login or password cannot be empty");
+                throw new FormatException("Login or password cannot be empty");
             }
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)

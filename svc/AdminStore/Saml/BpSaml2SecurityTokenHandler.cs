@@ -139,8 +139,8 @@ namespace AdminStore.Saml
 
         internal class WrappedSerializer : SecurityTokenSerializer
         {
-            private BpSaml2SecurityTokenHandler _parent;
-            private Saml2Assertion _assertion;
+            private readonly BpSaml2SecurityTokenHandler _parent;
+            private readonly Saml2Assertion _assertion;
 
             public WrappedSerializer(BpSaml2SecurityTokenHandler parent, Saml2Assertion assertion)
             {

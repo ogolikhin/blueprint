@@ -29,7 +29,7 @@ namespace AccessControl.Repositories
             prm.Add("@SessionId", guid);
             return (await _connectionWrapper.QueryAsync<Session>("GetSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
-        
+
         public async Task<Session> GetUserSession(int uid)
         {
             var prm = new DynamicParameters();
@@ -38,7 +38,7 @@ namespace AccessControl.Repositories
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ps">Page Size</param>
         /// <param name="pn">Page Number</param>

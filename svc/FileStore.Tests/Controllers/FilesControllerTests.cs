@@ -35,15 +35,16 @@ namespace FileStore.Controllers
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Content = multiPartContent
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -82,18 +83,19 @@ namespace FileStore.Controllers
             ByteArrayContent byteArrayContent1 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
             ByteArrayContent byteArrayContent2 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
             byteArrayContent1.Headers.Add("Content-Type", "multipart/form-data");
-            multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);            
+            multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);
             multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Content = multiPartContent1
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent1
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -124,15 +126,16 @@ namespace FileStore.Controllers
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
             var httpContent = new StringContent("my file");
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Content = httpContent
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = httpContent
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -167,15 +170,16 @@ namespace FileStore.Controllers
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Content = multiPartContent
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -201,24 +205,27 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var file = new File();
-            file.FileId = new Guid("33333333-3333-3333-3333-333333333333");
-            file.FileName = "Test3.txt";
-            file.FileContent = Encoding.UTF8.GetBytes("Test3 content");
-            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
-            file.FileType = "text/html";
+            var file = new File
+            {
+                FileId = new Guid("33333333-3333-3333-3333-333333333333"),
+                FileName = "Test3.txt",
+                FileContent = Encoding.UTF8.GetBytes("Test3 content"),
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = "text/html"
+            };
 
             moq.Setup(t => t.HeadFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Method = HttpMethod.Head
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -249,15 +256,16 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Method = HttpMethod.Head
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -281,15 +289,16 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Method = HttpMethod.Head
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -314,15 +323,16 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files"),
-                Method = HttpMethod.Head
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -346,14 +356,15 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -378,14 +389,15 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -410,14 +422,15 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -441,23 +454,27 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            var file = new File();
-            file.FileId = new Guid("22222222-2222-2222-2222-222222222222");
-            file.FileName = "Test2.txt";
-            file.FileContent = Encoding.UTF8.GetBytes("Test2 content");
-            file.StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture);
-            file.FileType = FileMapperRepository.DefaultMediaType;
+            var file = new File
+            {
+                FileId = new Guid("22222222-2222-2222-2222-222222222222"),
+                FileName = "Test2.txt",
+                FileContent = Encoding.UTF8.GetBytes("Test2 content"),
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = FileMapperRepository.DefaultMediaType
+            };
 
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
             moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
                 .Returns(FileMapperRepository.DefaultMediaType);
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -489,17 +506,18 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqFileMapper = new Mock<IFileMapperRepository>();
 
-            File file = null;
-            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult(file));
-            moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
+            moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
+            moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns((File)null);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",
@@ -510,7 +528,7 @@ namespace FileStore.Controllers
 
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
-            
+
             // Assert
             Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
         }
@@ -527,13 +545,15 @@ namespace FileStore.Controllers
             moq.Setup(t => t.GetFile(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
             moqFileStreamRepo.Setup(m => m.GetFile(It.IsAny<Guid>())).Returns(file);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object);
-            controller.Request = new HttpRequestMessage
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
             {
-                RequestUri = new Uri("http://localhost/files")
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
             };
 
-            controller.Configuration = new HttpConfiguration();
             controller.Configuration.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "files/{id}",

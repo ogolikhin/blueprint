@@ -9,12 +9,12 @@ namespace ServiceLibrary.Log
         {
             if (!EventLog.SourceExists(source))
             {
-                EventLog.CreateEventSource(source, logName);                
+                EventLog.CreateEventSource(source, logName);
             }
         }
 
         public void WriteEntry(string source, string message, LogEntryType logType)
-        {            
+        {
             try
             {
                 EventLogEntryType eventLogEntryType;
@@ -23,8 +23,8 @@ namespace ServiceLibrary.Log
             }
             catch (ArgumentException)
             {
-                
-            }            
-        }       
-    }    
+
+            }
+        }
+    }
 }

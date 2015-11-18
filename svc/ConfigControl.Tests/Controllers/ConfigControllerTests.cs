@@ -40,8 +40,7 @@ namespace ConfigControl.Controllers
             ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group", IsRestricted = true } };
             var configRepo = new Mock<IConfigRepository>();
             configRepo.Setup(r => r.GetSettings(It.IsAny<bool>())).Returns(Task.FromResult((IEnumerable<ConfigSetting>)settings)).Verifiable();
-            var controller = new ConfigController(configRepo.Object);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object) { Request = new HttpRequestMessage() };
             controller.Request.SetConfiguration(new HttpConfiguration());
 
             // Act
@@ -61,8 +60,7 @@ namespace ConfigControl.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             configRepo.Setup(r => r.GetSettings(It.IsAny<bool>())).Throws<Exception>().Verifiable();
-            var controller = new ConfigController(configRepo.Object);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object) { Request = new HttpRequestMessage() };
             controller.Request.SetConfiguration(new HttpConfiguration());
 
             // Act

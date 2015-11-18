@@ -20,7 +20,7 @@ namespace FileStore.Repositories
         string FileName { get; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="connectionString"></param>
         /// <param name="fileGuid"></param>

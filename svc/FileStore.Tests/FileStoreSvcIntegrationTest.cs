@@ -332,7 +332,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Head for file which is expected to exist");
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader, 
+            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];

@@ -20,7 +20,7 @@ namespace AdminStore.Saml
                 throw new SecurityTokenValidationException("Invalid token.");
             }
 
-            var x509Token = securityToken as X509SecurityToken;
+            var x509Token = (X509SecurityToken)securityToken;
 
             // in the X509 case, the X509 token has no notion of issuer name
             var issuerTokenValid = IsIssuerTokenValid(x509Token);

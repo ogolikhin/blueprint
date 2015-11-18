@@ -93,19 +93,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="TestFileStreamIntegration.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestUploadAndDeleteFiles.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Content Include="app.config" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>app.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>app.config</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

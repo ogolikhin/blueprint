@@ -54,7 +54,7 @@
                 case "stm":
                     return HtmlMediaType;
             }
-                    
+
             return DefaultMediaType;
         }
     }

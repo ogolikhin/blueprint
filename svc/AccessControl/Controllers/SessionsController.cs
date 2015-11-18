@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
@@ -18,10 +17,10 @@ namespace AccessControl.Controllers
     public class SessionsController : ApiController
     {
         private static ObjectCache Cache;
-        private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);        
+        private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
 
         internal static void Load(ObjectCache cache)
-        {           
+        {
             Task.Run(() =>
             {
                 Cache = cache;
@@ -85,13 +84,13 @@ namespace AccessControl.Controllers
                 if (session.EndTime != null)
                 {
                     throw new KeyNotFoundException();
-                }                
+                }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.                
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
-            }                   
+            }
             catch (KeyNotFoundException)
             {
                 return NotFound();
@@ -110,7 +109,7 @@ namespace AccessControl.Controllers
             try
             {
                 int psIntValue, pnIntValue;
-                if (int.TryParse(ps, out psIntValue) == false || 
+                if (int.TryParse(ps, out psIntValue) == false ||
                     int.TryParse(pn, out pnIntValue) == false ||
                     psIntValue <= 0 ||
                     pnIntValue <= 0)

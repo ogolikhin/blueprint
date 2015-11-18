@@ -38,14 +38,13 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = true;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(true).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
 
             // Assert
             authenticator.Verify();
@@ -58,14 +57,13 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = true;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(false).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
 
             // Assert
             authenticator.Verify();
@@ -78,14 +76,13 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string incorrectPassword = "incorrect";
-            bool useDefaultConnection = true;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, incorrectPassword)).Throws(new COMException(null, LdapRepository.ActiveDirectoryInvalidCredentialsErrorCode)).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, incorrectPassword, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, incorrectPassword, true);
 
             // Assert
             settingsRepository.Verify();
@@ -99,14 +96,13 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = true;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Throws(new COMException()).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
 
             // Assert
             settingsRepository.Verify();
@@ -120,14 +116,13 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = true;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Throws(new Exception()).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
 
             // Assert
             settingsRepository.Verify();
@@ -141,7 +136,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             LdapSettings[] settings = { };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -151,7 +145,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -166,7 +160,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             LdapSettings[] settings = { };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -176,7 +169,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -190,7 +183,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = new LoginInfo();
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var settings = new[]
             {
@@ -202,7 +194,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -215,7 +207,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -225,7 +216,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -239,7 +230,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -250,7 +240,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -264,7 +254,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login\\*()\u0000/"); // Covers LdapHelper.EscapeLdapSearchFilter()
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC= domain ", EnableCustomSettings = true, AccountNameAttribute = "account" } }; // Covers LdapHelper.GetEffectiveAccountNameAttribute()
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -273,7 +262,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();
@@ -287,7 +276,6 @@ namespace AdminStore.Repositories
             // Arrange
             var loginInfo = new LoginInfo(); // Covers LdapHelper.EscapeLdapSearchFilter()
             string password = "password";
-            bool useDefaultConnection = false;
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=", EnableCustomSettings = true } }; // Covers LdapHelper.GetEffectiveAccountNameAttribute()
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).Returns(Task.FromResult((IEnumerable<LdapSettings>)settings)).Verifiable();
@@ -296,7 +284,7 @@ namespace AdminStore.Repositories
             var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
 
             // Act
-            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, useDefaultConnection);
+            AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
 
             // Assert
             settingsRepository.Verify();

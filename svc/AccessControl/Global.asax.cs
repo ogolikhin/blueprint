@@ -6,7 +6,7 @@ using ServiceLibrary.Log;
 namespace AccessControl
 {
     public class WebApiApplication : HttpApplication
-    {        
+    {
         protected void Application_Start()
         {
             LogProvider.Init(new EventLogProviderImpl(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName));

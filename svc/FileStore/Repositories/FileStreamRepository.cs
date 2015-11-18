@@ -11,7 +11,7 @@ namespace FileStore.Repositories
 
         public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
         {
-            
+
         }
 
         internal FileStreamRepository(IConfigRepository configRepository, IContentReadStream contentReadStream)
@@ -27,7 +27,7 @@ namespace FileStore.Repositories
                 throw new ArgumentException("fileGuid param is empty.");
             }
 
-            // return a FILE object with the FILESTREAM content 
+            // return a FILE object with the FILESTREAM content
             // if FILESTREAM data file is not found return null
 
             File file = null;

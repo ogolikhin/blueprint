@@ -80,7 +80,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetInstanceSettings", null, result);
 
             // Act
-            InstanceSettings settings = await repository.GetInstanceSettingsAsync();
+            await repository.GetInstanceSettingsAsync();
 
             // Assert
             cxn.Verify();

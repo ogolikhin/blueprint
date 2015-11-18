@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers
 {
@@ -20,7 +16,7 @@ namespace ServiceLibrary.Helpers
         public static TService Current { get; private set; }
 
         public static void Init(TService controller)
-        {            
+        {
             Debug.Assert(controller != null, "IService controller cannot be null");
             Debug.Assert(Current == null, string.Format("{0} can be initialized only once during the current user session", typeof(TService).FullName));
 

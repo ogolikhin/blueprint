@@ -18,9 +18,8 @@ namespace AdminStore.Helpers
 
             //http://stackoverflow.com/questions/649149/how-to-escape-a-string-in-c-for-use-in-an-ldap-query/694915#694915
             StringBuilder escape = new StringBuilder();
-            for (int i = 0; i < searchFilter.Length; ++i)
+            foreach (char current in searchFilter)
             {
-                char current = searchFilter[i];
                 switch (current)
                 {
                     case '\\':

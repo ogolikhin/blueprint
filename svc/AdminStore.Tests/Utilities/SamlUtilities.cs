@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
 using System.IO;
@@ -131,4 +130,3 @@ namespace AdminStore.Utilities
         }
     }
 }
-

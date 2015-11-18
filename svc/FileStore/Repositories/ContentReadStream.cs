@@ -62,12 +62,12 @@ namespace FileStore.Repositories
         private long _position;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private string _fileType;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private string _fileName;
 
@@ -76,7 +76,7 @@ namespace FileStore.Repositories
         /// </summary>
         internal ContentReadStream()
         {
-            
+
         }
 
         public void Setup(string connectionString, Guid fileGuid)

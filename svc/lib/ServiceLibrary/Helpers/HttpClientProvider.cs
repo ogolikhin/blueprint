@@ -5,7 +5,7 @@ namespace ServiceLibrary.Helpers
     /// <summary>
     /// Provides HttpClient. Hook for unit testing.
     /// </summary>
-    /// <example> 
+    /// <example>
     /// This sample shows how to create HttpClient for unit tests
     /// <code>
     /// var httpClientProvider = new TestHttpClientProvider(request =>

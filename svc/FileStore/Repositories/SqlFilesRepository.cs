@@ -39,7 +39,7 @@ namespace FileStore.Repositories
             prm.Add("@FileId", guid);
             return (await _connectionWrapper.QueryAsync<File>("HeadFile", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
-         
+
         public async Task<File> GetFile(Guid guid)
         {
             var prm = new DynamicParameters();

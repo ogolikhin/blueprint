@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace AdminStore.Helpers
+﻿namespace AdminStore.Helpers
 {
     public struct LoginInfo
     {

@@ -47,8 +47,7 @@ namespace AdminStore.Controllers
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -68,8 +67,7 @@ namespace AdminStore.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act
@@ -94,8 +92,7 @@ namespace AdminStore.Controllers
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -123,8 +120,7 @@ namespace AdminStore.Controllers
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             controller.Request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(locale));
@@ -147,8 +143,7 @@ namespace AdminStore.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act

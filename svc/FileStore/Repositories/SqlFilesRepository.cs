@@ -29,7 +29,7 @@ namespace FileStore.Repositories
 			prm.Add("@FileType", file.FileType);
 			prm.Add("@ChunkCount", file.ChunkCount);
 			prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-			await _connectionWrapper.ExecuteAsync("PostFileHead", prm, commandType: CommandType.StoredProcedure);
+			await _connectionWrapper.ExecuteAsync("InsertFileHead", prm, commandType: CommandType.StoredProcedure);
 			return file.FileId = prm.Get<Guid>("FileId");
 		}
 
@@ -40,7 +40,7 @@ namespace FileStore.Repositories
 			prm.Add("@ChunkNum", chunk.ChunkNum);
 			prm.Add("@ChunkSize", chunk.ChunkSize);
 			prm.Add("@ChunkContent", chunk.ChunkContent);
-			await _connectionWrapper.ExecuteAsync("PostFileChunk", prm, commandType: CommandType.StoredProcedure);
+			await _connectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandType: CommandType.StoredProcedure);
 			return chunk.ChunkNum + 1;
 		}
 

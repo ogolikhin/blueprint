@@ -87,6 +87,10 @@ namespace AdminStore.Repositories
 
         public async Task<LoginUser> AuthenticateSamlUserAsync(string samlResponse)
         {
+            if (string.IsNullOrEmpty(samlResponse))
+            {
+                throw new FormatException("Saml response cannot be empty");
+            }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (!instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {

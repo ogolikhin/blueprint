@@ -1,10 +1,32 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace FileStore.Repositories
 {
     public class ConfigRepository : IConfigRepository
     {
+        private readonly static object Locker = new object();
+
+        private ConfigRepository() { }
+
+        private static ConfigRepository _instance;
+        public static ConfigRepository Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (Locker)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ConfigRepository();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
         string _fileStoreDatabase;
         public string FileStoreDatabase
         {
@@ -20,31 +42,35 @@ namespace FileStore.Repositories
         }
 
         string _fileStreamDatabase;
-		public string FileStreamDatabase
-		{
-			get
-			{
-				if (_fileStreamDatabase == null)
-				{
-					_fileStreamDatabase =
-						 ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
-				}
-				return _fileStreamDatabase;
-			}
-		}
+        public string FileStreamDatabase
+        {
+            get
+            {
+                if (_fileStreamDatabase == null)
+                {
+                    _fileStreamDatabase =
+                         ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
+                }
+                return _fileStreamDatabase;
+            }
+        }
 
-		int _fileChunkSize = 0;
-		public int FileChunkSize
-		{
-			get
-			{
-				if (_fileChunkSize == 0)
-				{
-					_fileChunkSize = 1024 * 1024 *
-						 Int32.Parse(ConfigurationManager.AppSettings["FileChunkSize"]);
-				}
-				return _fileChunkSize;
-			}
-		}
-	}
+        int _fileChunkSize;
+        public int FileChunkSize
+        {
+            get
+            {
+                if (_fileChunkSize == 0)
+                {
+                    _fileChunkSize = 1024 * 1024 * ConfigValue("FileChunkSize", 1);
+                }
+                return _fileChunkSize;
+            }
+        }
+
+        public static int ConfigValue(string configValue, int defaultValue)
+        {
+            return (ConfigurationManager.AppSettings[configValue] != null ? int.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+        }
+    }
 }

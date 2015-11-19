@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
@@ -9,7 +8,7 @@ namespace FileStore.Repositories
         private readonly IConfigRepository _configRepository;
         private readonly IContentReadStream _contentReadStream;
 
-        public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
+        public FileStreamRepository() : this(ConfigRepository.Instance, new ContentReadStream())
         {
 
         }

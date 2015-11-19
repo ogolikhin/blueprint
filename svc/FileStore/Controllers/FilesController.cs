@@ -33,7 +33,7 @@ namespace FileStore.Controllers
 		private const string NoStore = "no-store";
 		private const string MustRevalidate = "must-revalidate";
 
-		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), new ConfigRepository())
+		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), ConfigRepository.Instance)
 		{
 		}
 
@@ -53,7 +53,7 @@ namespace FileStore.Controllers
 			try
 			{
 				var isMultipart = Request.Content.IsMimeMultipartContent();
-				HttpContent content = null;
+				HttpContent content;
 				if (isMultipart)
 				{
 					var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
@@ -102,7 +102,7 @@ namespace FileStore.Controllers
 			}
 			catch
 			{
-				return InternalServerError();
+			    return InternalServerError();
 			}
 		}
 
@@ -173,10 +173,16 @@ namespace FileStore.Controllers
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
-				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-				response.Content.Headers.ContentLength = file.FileSize;
-				response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+			    if (response.Content != null)
+			    {
+			        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment)
+			        {
+			            FileName = file.FileName
+			        };
+			        response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+			        response.Content.Headers.ContentLength = file.FileSize;
+			    }
+			    response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
 
 				return ResponseMessage(response);
@@ -190,5 +196,29 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 		}
-	}
+
+        [HttpDelete]
+        [Route("{id}")]
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> DeleteFile(string id)
+        {
+            try
+            {
+                var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id));
+                if (guid.HasValue)
+                {
+                    return Ok(Models.File.ConvertFileId(guid.Value));
+                }
+                return NotFound();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace FileStore.Repositories
 {
@@ -19,16 +20,31 @@ namespace FileStore.Repositories
         }
 
         string _fileStreamDatabase;
-        public string FileStreamDatabase
-        {
-            get {
-                if (_fileStreamDatabase == null)
-                {
-                    _fileStreamDatabase =
-                        ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
-                }
-                return _fileStreamDatabase;
-            }
-        }
-    }
+		public string FileStreamDatabase
+		{
+			get
+			{
+				if (_fileStreamDatabase == null)
+				{
+					_fileStreamDatabase =
+						 ConfigurationManager.ConnectionStrings["FileStreamDatabase"].ConnectionString;
+				}
+				return _fileStreamDatabase;
+			}
+		}
+
+		int _fileChunkSize = 0;
+		public int FileChunkSize
+		{
+			get
+			{
+				if (_fileChunkSize == 0)
+				{
+					_fileChunkSize = 1024 * 1024 *
+						 Int32.Parse(ConfigurationManager.AppSettings["FileChunkSize"]);
+				}
+				return _fileChunkSize;
+			}
+		}
+	}
 }

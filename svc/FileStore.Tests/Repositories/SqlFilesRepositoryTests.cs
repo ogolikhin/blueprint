@@ -35,16 +35,16 @@ namespace FileStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object);
-            File file = new File {FileName = "name", FileType = "type", FileContent = new [] { (byte)32 }};
+            File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
-                "PostFile",
-                new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileContent", file.FileContent }, { "FileId", null } },
+                "PostFileHead",
+                new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileId", null } },
                 1,
                 new Dictionary<string, object> { { "FileId", result } });
 
             // Act
-            Guid? id = await repository.PostFile(file);
+            Guid? id = await repository.PostFileHead(file);
 
             // Assert
             cxn.Verify();
@@ -62,14 +62,14 @@ namespace FileStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object);
             var guid = new Guid("99999999999999999999999999999999");
-            File[] result = { new File { FileName = "name", FileType = "type", FileContent = new[] { (byte)32 } } };
+            File[] result = { new File { FileName = "name", FileType = "type" } };
             cxn.SetupQueryAsync(
-                "HeadFile",
+                "GetFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
             // Act
-            File file = await repository.HeadFile(guid);
+            File file = await repository.GetFileHead(guid);
 
             // Assert
             cxn.Verify();
@@ -90,7 +90,7 @@ namespace FileStore.Repositories
                 result);
 
             // Act
-            File file = await repository.HeadFile(guid);
+            File file = await repository.GetFileHead(guid);
 
             // Assert
             cxn.Verify();
@@ -108,14 +108,14 @@ namespace FileStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object);
             var guid = new Guid("33333333333333333333333333333333");
-            File[] result = { new File { FileName = "nnnn", FileType = "tttt", FileContent = new[] { (byte)0 } } };
+            File[] result = { new File { FileName = "nnnn", FileType = "tttt" } };
             cxn.SetupQueryAsync(
-                "GetFile",
+                "GetFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
             // Act
-            File file = await repository.GetFile(guid);
+            File file = await repository.GetFileHead(guid);
 
             // Assert
             cxn.Verify();
@@ -131,12 +131,12 @@ namespace FileStore.Repositories
             var guid = new Guid("22222222222222222222222222222222");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "GetFile",
+                "GetFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
             // Act
-            File file = await repository.GetFile(guid);
+            File file = await repository.GetFileHead(guid);
 
             // Assert
             cxn.Verify();

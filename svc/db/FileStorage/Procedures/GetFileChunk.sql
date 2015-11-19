@@ -5,7 +5,7 @@ Description:
 			
 Change History:
 Date			Name					Change
-2015/11/19		Albert WOng				Initial Version
+2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileChunk]') AND type in (N'P', N'PC'))
@@ -14,10 +14,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetFileChunk]
 ( 
-    @FileId uniqueidentifier,
-    @ChunkNumber int,
-	@ChunkSize int,
-	@ChunkContent varbinary(max)
+    @FileId uniqueidentifier
 )
 AS
 BEGIN
@@ -25,7 +22,7 @@ BEGIN
 	SET NOCOUNT ON
 
 	SELECT [FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent]
 	FROM [dbo].[FileChunks]

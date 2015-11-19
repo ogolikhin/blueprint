@@ -46,7 +46,7 @@ namespace FileStore.Controllers
 		}
 
 		[HttpPost]
-		[Route("")]
+		[Route("post")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{

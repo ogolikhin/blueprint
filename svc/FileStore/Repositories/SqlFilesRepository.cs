@@ -28,7 +28,8 @@ namespace FileStore.Repositories
 			prm.Add("@FileName", file.FileName);
 			prm.Add("@FileType", file.FileType);
 			prm.Add("@ChunkCount", file.ChunkCount);
-			prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+            prm.Add("@FileSize", file.FileSize);
+            prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
 			await _connectionWrapper.ExecuteAsync("InsertFileHead", prm, commandType: CommandType.StoredProcedure);
 			return file.FileId = prm.Get<Guid>("FileId");
 		}

@@ -153,7 +153,7 @@ namespace FileStore.Controllers
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-                HttpContent responseContent = null;
+				HttpContent responseContent;
 				if (isHead)
 				{
 					responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
@@ -162,12 +162,11 @@ namespace FileStore.Controllers
 				{
 					if (isFileStoreGuid)
 					{
-						// TODO
-                        //responseContent = new ByteArrayContent(file.FileContent);
+						responseContent = new ByteArrayContent(file.FileContent);
 					}
 					else
 					{
-						//responseContent = new StreamContent(file.FileStream, 1048576);
+						responseContent = new StreamContent(file.FileStream, 1048576);
 					}
 				}
 

@@ -89,14 +89,12 @@ namespace FileStore.Controllers
 				};
 				using (var stream = await content.ReadAsStreamAsync())
 				{
+					var buffer = new byte[_configRepo.FileChunkSize];
 					for (var remaining = file.FileSize; remaining > 0; remaining -= chunk.ChunkSize)
 					{
-						using (var memoryStream = new MemoryStream())
-						{
-							chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
-							stream.CopyTo(memoryStream, chunk.ChunkSize);
-							chunk.ChunkContent = memoryStream.ToArray();
-						}
+						chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
+						await stream.ReadAsync(buffer, 0, chunk.ChunkSize);
+						chunk.ChunkContent = buffer.Take(chunk.ChunkSize).ToArray();
 						chunk.ChunkNum = await _filesRepo.PostFileChunk(chunk);
 					}
 				}
@@ -153,7 +151,7 @@ namespace FileStore.Controllers
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-                HttpContent responseContent = null;
+				HttpContent responseContent = null;
 				if (isHead)
 				{
 					responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
@@ -163,7 +161,7 @@ namespace FileStore.Controllers
 					if (isFileStoreGuid)
 					{
 						// TODO: fix
-                        //responseContent = new ByteArrayContent(file.FileContent);
+						//responseContent = new ByteArrayContent(file.FileContent);
 					}
 					else
 					{

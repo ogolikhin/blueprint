@@ -6,9 +6,10 @@ namespace FileStore.Repositories
 {
 	public interface IFilesRepository
 	{
-		Task<Guid?> PostFile(File file);
-		Task<File> HeadFile(Guid guid);
-		Task<File> GetFile(Guid guid);
+		Task<Guid?> PostFileHead(File file);
+		Task<int?> PostFileChunk(FileChunk chunk);
+		Task<File> GetFileHead(Guid guid);
+		Task<FileChunk> GetFileChunk(Guid guid, int num);
 		Task<Guid?> DeleteFile(Guid guid);
 	}
 }

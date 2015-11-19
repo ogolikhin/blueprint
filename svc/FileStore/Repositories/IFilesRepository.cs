@@ -10,6 +10,6 @@ namespace FileStore.Repositories
 		Task<int> PostFileChunk(FileChunk chunk);
 		Task<File> GetFileHead(Guid guid);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
-		Task<Guid> DeleteFile(Guid guid);
+		Task<Guid?> DeleteFile(Guid guid);
 	}
 }

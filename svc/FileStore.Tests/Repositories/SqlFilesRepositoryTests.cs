@@ -166,8 +166,7 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result, id);
         }
-
-        [Ignore] //Ask glen why the null parameter is causing this case to fail now.
+        
         [TestMethod]
         public async Task DeleteFile_QueryReturnsNull_ReturnsNull()
         {

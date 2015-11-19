@@ -59,13 +59,13 @@ namespace FileStore.Repositories
 			return (await _connectionWrapper.QueryAsync<FileChunk>("GetFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
 
-		public async Task<Guid> DeleteFile(Guid guid)
+		public async Task<Guid?> DeleteFile(Guid guid)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
 			prm.Add("@DeletedFileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
 			await _connectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
-			return prm.Get<Guid>("DeletedFileId");
+			return prm.Get<Guid?>("DeletedFileId");
 		}
 	}
 }

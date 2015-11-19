@@ -38,7 +38,7 @@ namespace FileStore.Repositories
             File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
-                "PostFileHead",
+                "InsertFileHead",
                 new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileId", null } },
                 1,
                 new Dictionary<string, object> { { "FileId", result } });

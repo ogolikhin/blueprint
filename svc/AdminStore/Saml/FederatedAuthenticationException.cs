@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Security.Authentication;
 
 namespace AdminStore.Saml
 {
     [Serializable]
-    public class FederatedAuthenticationException : Exception
+    public class FederatedAuthenticationException : AuthenticationException
     {
         private readonly FederatedAuthenticationErrorCode _errorCode;
         //

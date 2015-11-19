@@ -33,7 +33,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(string login, string password, bool force = false)
+        public async Task<IHttpActionResult> PostSession(string login, [FromBody]string password, bool force = false)
         {
             try
             {
@@ -109,9 +109,17 @@ namespace AdminStore.Controllers
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
                 return await RequestSessionTokenAsync(user.Id, force);
             }
-            catch (FederatedAuthenticationException)
+            catch (FederatedAuthenticationException e)
             {
-                return NotFound();
+                if (e.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
+                {
+                    return BadRequest();
+                }
+                return Unauthorized();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
             }
             catch
             {

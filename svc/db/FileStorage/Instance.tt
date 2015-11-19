@@ -17,15 +17,16 @@ GO
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Files.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\FileChunks.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetSchemaVersion.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\DeleteFile.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetFile.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetFileHead.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetStatus.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\HeadFile.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\PostFile.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\PostFileHead.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

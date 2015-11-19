@@ -66,6 +66,15 @@ BEGIN
 ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
 END
 GO
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[FK_FileId]') AND type = 'F')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+BEGIN
+ALTER TABLE [dbo].[FileChunks] DROP CONSTRAINT [FK_FileId]
+END
+GO
+
+
+
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
 DROP TABLE [dbo].[Files]
@@ -76,17 +85,50 @@ CREATE TABLE [dbo].[Files](
 	[StoredTime] [datetime] NOT NULL,
 	[FileName] [nvarchar](256) NOT NULL,
 	[FileType] [nvarchar](128) NOT NULL,
-	[FileContent] [varbinary](max) NULL,
+	[ChunkCount] [int] NOT NULL,
 	[FileSize] [bigint] NOT NULL,
  CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC
-)) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+))
 GO
 
 ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
 GO
 
+/******************************************************************************************************************************
+Name:			Files
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/19		Albert Wong				Added FileChunks table
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+DROP TABLE [dbo].[FileChunks]
+GO
+
+CREATE TABLE [dbo].[FileChunks](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[ChunkNumber] [int] NOT NULL,
+	[ChunkSize] [int] NOT NULL,
+	[ChunkContent ] [varbinary](max) NULL,
+ CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
+(
+	[FileId] ASC,
+	[ChunkNumber] ASC
+),
+ CONSTRAINT [FK_FileId]
+ FOREIGN KEY ([FileId])
+    REFERENCES [dbo].[Files]
+        ([FileId])
+    ON DELETE CASCADE ON UPDATE CASCADE
+
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
 
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
@@ -213,7 +255,7 @@ END
 
 GO
 /******************************************************************************************************************************
-Name:			GetFile
+Name:			GetFileHead
 
 Description: 
 			
@@ -222,11 +264,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[GetFile]
+CREATE PROCEDURE [dbo].[GetFileHead]
 (
 	@FileId uniqueidentifier
 )
@@ -239,7 +281,7 @@ BEGIN
 	,[StoredTime]
 	,[FileName]
 	,[FileType]
-	,[FileContent]
+	,[ChunkCount]
 	,[FileSize]
 	FROM [dbo].[Files]
 	WHERE [FileId] = @FileId
@@ -301,7 +343,7 @@ END
 
 GO
 /******************************************************************************************************************************
-Name:			PostFile
+Name:			PostFileHead
 
 Description: 
 			
@@ -310,15 +352,16 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[PostFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[PostFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[PostFile]
+CREATE PROCEDURE [dbo].[PostFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
-    @FileContent varbinary(max),
+	@ChunkCount int,
+	@FileSize bigint,
 	@FileId AS uniqueidentifier OUTPUT
 )
 AS
@@ -331,15 +374,15 @@ BEGIN
            ([StoredTime]
            ,[FileName]
            ,[FileType]
-           ,[FileContent]
+           ,[ChunkCount]
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
            (GETDATE()
            ,@FileName
            ,@FileType
-           ,@FileContent
-		   ,DATALENGTH(@FileContent))
+           ,@ChunkCount
+		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t
 END
 

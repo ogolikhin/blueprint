@@ -69,12 +69,13 @@
     <Content Include="Migration\6.5.1.0\Sample.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="Procedures\DeleteFile.sql" />
-    <Content Include="Procedures\GetFile.sql" />
+    <Content Include="Procedures\GetFileHead.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\HeadFile.sql" />
-    <Content Include="Procedures\PostFile.sql" />
+    <Content Include="Procedures\PostFileHead.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
+    <Content Include="Tables\FileChunks.sql" />
     <Content Include="Tables\Files.sql" />
   </ItemGroup>
   <ItemGroup>

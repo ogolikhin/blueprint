@@ -1,5 +1,5 @@
 ﻿/******************************************************************************************************************************
-Name:			GetFile
+Name:			GetFileHead
 
 Description: 
 			
@@ -8,11 +8,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[GetFile]
+CREATE PROCEDURE [dbo].[GetFileHead]
 (
 	@FileId uniqueidentifier
 )
@@ -25,7 +25,7 @@ BEGIN
 	,[StoredTime]
 	,[FileName]
 	,[FileType]
-	,[FileContent]
+	,[ChunkCount]
 	,[FileSize]
 	FROM [dbo].[Files]
 	WHERE [FileId] = @FileId

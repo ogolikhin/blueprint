@@ -1,5 +1,5 @@
 ﻿/******************************************************************************************************************************
-Name:			PostFile
+Name:			PostFileHead
 
 Description: 
 			
@@ -8,15 +8,16 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFile]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[PostFile]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[PostFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[PostFile]
+CREATE PROCEDURE [dbo].[PostFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
-    @FileContent varbinary(max),
+	@ChunkCount int,
+	@FileSize bigint,
 	@FileId AS uniqueidentifier OUTPUT
 )
 AS
@@ -29,15 +30,15 @@ BEGIN
            ([StoredTime]
            ,[FileName]
            ,[FileType]
-           ,[FileContent]
+           ,[ChunkCount]
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
            (GETDATE()
            ,@FileName
            ,@FileType
-           ,@FileContent
-		   ,DATALENGTH(@FileContent))
+           ,@ChunkCount
+		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t
 END
 

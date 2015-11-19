@@ -44,7 +44,8 @@ namespace FileStore.Repositories
                 file = new File
                 {
                     FileId = fileGuid,
-                    FileStream = _contentReadStream as Stream,
+                    // TODO: fix
+                    //FileStream = _contentReadStream as Stream,
                     FileSize = len,
                     FileName = _contentReadStream.FileName,
                     FileType = _contentReadStream.FileType ?? "application/octet-stream"

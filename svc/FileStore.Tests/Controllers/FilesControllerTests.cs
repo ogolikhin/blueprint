@@ -26,7 +26,7 @@ namespace FileStore.Controllers
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
+			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
 
 			string fileName4Upload = "UploadTest.txt";
 			string fileContent4Upload = "This is the content of the uploaded test file";
@@ -73,7 +73,7 @@ namespace FileStore.Controllers
 			//Arrange
 			var guid = Guid.NewGuid();
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
+			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -123,7 +123,7 @@ namespace FileStore.Controllers
 			//Arrange
 			var guid = Guid.NewGuid();
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid?>(guid));
+			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -161,7 +161,7 @@ namespace FileStore.Controllers
 		{
 			//Arrange
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFile(It.IsAny<File>())).Throws(new Exception());
+			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Throws(new Exception());
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -174,7 +174,7 @@ namespace FileStore.Controllers
 			byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
 			multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object)
+			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{
 				Request = new HttpRequestMessage
 				{

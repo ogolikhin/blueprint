@@ -1,0 +1,531 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Loading &amp; Saving Data</h2>
+
+<p><a name="top"></a></p>
+
+<p>Getting data into and out of the Toolkit is easy. </p>
+
+<ul>
+<li><a href="#nodeedgeportdata">Node, Edge and Port Data</a></li>
+<li><a href="#loading">Loading</a>
+
+<ul>
+<li><a href="#loading-ajax">Via ajax</a></li>
+<li><a href="#http-headers">Specifying HTTP Headers</a></li>
+<li><a href="#loading-direct">From memory</a></li>
+</ul></li>
+<li><a href="#appending">Appending Data</a></li>
+<li>Data Formats
+
+<ul>
+<li><a href="#graph-json-syntax">Graph JSON Syntax</a></li>
+<li><a href="#hierarchical-json-syntax">Hierarchical JSON Syntax</a></li>
+<li><a href="#loading-custom-formats">Custom Formats</a></li>
+</ul></li>
+<li><a href="#saving">Saving</a>
+
+<ul>
+<li><a href="#saving-direct">Saving on Demand</a></li>
+<li><a href="#saving-auto">Saving Automatically</a><br></li>
+<li><a href="#saving-custom-formats">Saving Custom Formats</a></li>
+</ul></li>
+<li><a href="#exporting">Exporting</a></li>
+</ul>
+
+<p><a name="nodeedgeportdata"></a></p>
+
+<h3>Node, Edge and Port Data</h3>
+
+<p>Before we start, a quick note about what happens to the data you load.</p>
+
+<h4>Nodes</h4>
+
+<p>When you load a Node such as this:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Foo&quot;</span><span class="p">,</span> <span class="nt">&quot;aValue&quot;</span><span class="p">:</span><span class="mi">567</span> <span class="p">}</span>
+</code></pre></div>
+<p>This JSON object is available on the resulting <code>Node</code> instance as the <code>data</code> variable. This object is also what is passed to the templating code. So this snippet of code would get you the Node that was loaded and then access <code>aValue</code> on the Node&#39;s data:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">node</span> <span class="o">=</span> <span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">getNode</span><span class="p">(</span><span class="s2">&quot;123&quot;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">aValue</span><span class="p">);</span>
+<span class="o">--&gt;</span> <span class="mi">567</span>
+</code></pre></div>
+<h4>Ports</h4>
+
+<p>Ports are also backed with data. Consider a table in a <a href="demo-database-visualizer.html">database</a>: in the Toolkit&#39;s example, 
+we model a table as a Node, and each of the table&#39;s columns are Ports. Each column - each Port - has its own specific 
+data such as ID, datatype, etc.</p>
+
+<p>The loaders for the default JSON schemes add Nodes and Edges to the Toolkit.  An example Node from the Database 
+Visualizer is this:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;table&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;columns&quot;</span><span class="p">:[</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="nt">&quot;primaryKey&quot;</span><span class="p">:</span><span class="kc">true</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;isbn&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The Database Visualizer&#39;s <a href="data-model.html#port-extractor">port extractor function</a> returns three Ports - the entries in 
+the <code>columns</code> array. So the backing data for this first Port is:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="nt">&quot;primaryKey&quot;</span><span class="p">:</span><span class="kc">true</span> <span class="p">}</span>
+</code></pre></div>
+<h4>Edges</h4>
+
+<p>Edges also support the concept of being backed with data, but for Edges the Toolkit <strong>does not take the top-level JSON object</strong> - instead, it looks for a <code>data</code> member, eg:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">edges</span><span class="o">:</span><span class="p">[</span>
+  <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span><span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;edgeFu&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;An Edge&quot;</span><span class="p">,</span> <span class="nx">aValue</span><span class="o">:</span><span class="s2">&quot;I am an edge&quot;</span> <span class="p">}</span> <span class="p">}</span>
+  <span class="p">...</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>The <code>data</code> object is what is passed to the jsPlumb code that binds edge definitions from the model to actual jsPlumb Connections. Here is the equivalent code to the snippet given for Nodes above:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">edge</span> <span class="o">=</span> <span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">getEdge</span><span class="p">(</span><span class="s2">&quot;edgeFu&quot;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">edge</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">aValue</span><span class="p">);</span>
+<span class="o">--&gt;</span> <span class="s2">&quot;I am an edge&quot;</span>
+</code></pre></div>
+<p><a name="loading"></a></p>
+
+<h3>Loading</h3>
+
+<p>To load data into an instance of the Toolkit, use the <code>load</code> method. You can load data from a remote source - using 
+ajax - or directly from an object in memory.</p>
+
+<p><a name="loading-ajax"></a></p>
+
+<h4>Loading data via ajax</h4>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="nx">t</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;someUrl.json&quot;</span><span class="p">,</span>
+  <span class="nx">onload</span><span class="o">:</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>                
+    <span class="c1">// called after the data has loaded.    </span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="http-headers"></a></p>
+
+<h5>Specifying HTTP Headers</h5>
+
+<p>By default, the Toolkit will set the HTTP header <code>Accept</code> to the value <code>application/json</code>. You can override this by 
+providing your own HTTP headers in the <code>load</code> call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="nx">t</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;xml&quot;</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;someUrl.xml&quot;</span><span class="p">,</span>
+  <span class="nx">headers</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">Accept</span><span class="o">:</span><span class="s2">&quot;text/xml&quot;</span><span class="p">,</span>
+    <span class="nx">X</span><span class="o">-</span><span class="nx">My</span><span class="o">-</span><span class="nx">Header</span><span class="o">:</span><span class="s2">&quot;FOO&quot;</span>
+  <span class="p">},</span>
+  <span class="nx">onload</span><span class="o">:</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>                
+    <span class="c1">// called after the data has loaded.    </span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><em>Note</em>: if you provide <code>headers</code> you must set an <code>Accept</code> header (if you want it to be set), because the Toolkit will
+not write a value for <code>Accept</code> into an HTTP headers object that does not have it.</p>
+
+<p><a name="loading-direct"></a></p>
+
+<h4>Loading data from memory</h4>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="nx">t</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+  <span class="nx">data</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">nodes</span><span class="o">:</span><span class="p">[</span>
+      <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">value1</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">value2</span><span class="o">:</span><span class="mi">34</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="nx">value1</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="nx">value2</span><span class="o">:</span><span class="mi">24</span> <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nx">edges</span><span class="o">:</span><span class="p">[</span>
+      <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">value1</span><span class="o">:</span><span class="mi">89</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Note that <code>load</code> returns the Toolkit instance, so in the case of loading data from memory you can chain methods that 
+operate on the Toolkit:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">t</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+  <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">some</span> <span class="nx">data</span> <span class="p">}</span>
+<span class="p">}).</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hierarchical&quot;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="appending"></a></p>
+
+<h3>Appending Data</h3>
+
+<p>One thing to keep in mind is that the <code>load</code> method causes the underlying Graph to be cleared: it cannot be used for 
+an incremental load.  To perform an incremental load you need to use the <code>append</code> method. The arguments to this method 
+are identical to the arguments to <code>load</code>; the difference is that the Graph is not cleared.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">t</span><span class="p">.</span><span class="nx">append</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+  <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">some</span> <span class="nx">data</span> <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="data-formats"></a></p>
+
+<h3>Data Formats</h3>
+
+<p>The Toolkit ships with support for two JSON formats for loading and saving data. Should you need to, you can create 
+custom load/save handlers for your own syntax.</p>
+
+<p><a name="graph-json-syntax"></a></p>
+
+<h4>Graph JSON Syntax</h4>
+
+<p>This JSON syntax - the default - consists of a JSON object with an array for <code>nodes</code>, <code>edges</code> and <code>ports</code>.  All of 
+these are optional, but of course if you declare an Edge then the Nodes for that Edge are expected to be present!</p>
+
+<p>Here&#39;s an example with Nodes and Edges:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
+  <span class="s2">&quot;nodes&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span>  <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;baz&quot;</span>  <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span>  <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;ding&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;dong&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;6&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;ping&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;pong&quot;</span> <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;edges&quot;</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;2&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;3&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;4&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;5&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;6&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;7&quot;</span> <span class="p">}</span>                
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h5>Loading Graph JSON</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://mydata.com?xyz&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Since Graph JSON is the default syntax, you can in fact omit the <code>type</code> parameter in the above example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://mydata.com?xyz&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="hierarchical-json-syntax"></a></p>
+
+<h4>Hierarchical JSON Syntax</h4>
+
+<p>This JSON syntax represents hierarchical data, in which every Node may have zero or more child Nodes. It is assumed that there is an Edge between a Node and each of its child Nodes. Note that the <code>children</code> member on each Node&#39;s data is optional.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;FOO!&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;children&quot;</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;BAR!&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;children&quot;</span><span class="o">:</span><span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;baz&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;BAZ!&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;qux&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;QUX!&quot;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h5>Loading Hierarchical JSON</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hierarchical-json&quot;</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://myhierarchicaldata.com?xyz&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="loading-custom-formats"></a></p>
+
+<h4>Loading Custom Formats</h4>
+
+<p>To register your own data loader, do the following:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbToolkitIO</span><span class="p">.</span><span class="nx">parsers</span><span class="p">[</span><span class="s2">&quot;myFormat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// process data here.</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Your loader function is responsible for populating the Toolkit instance with Nodes, Edges and Ports, using the <code>addNode</code>, <code>addEdge</code> and <code>addPort</code> functions. These functions are discussed in the API documentation.</p>
+
+<p>Note the <code>parameters</code> argument: you can pass parameters to the <code>load</code> function:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">t</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;myFormat&quot;</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://myFormat.com&quot;</span><span class="p">,</span>
+  <span class="nx">parameters</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">doThis</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+    <span class="nx">doThat</span><span class="o">:</span><span class="kc">false</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="saving"></a></p>
+
+<h3>Saving</h3>
+
+<p>You can either tell the Toolkit to save data on demand, using the <code>save</code> function, or configure it to save automatically, whenever it detects that the data model has changed.</p>
+
+<p>The Toolkit uses an HTTP POST to save data. You cannot configure it to use anything other than a POST. If you absolutely do not want to use POST, then you can use the method described at the bottom of this page to export the data, then save it yourself.</p>
+
+<p><a name="saving-direct"></a></p>
+
+<h4>Save on demand</h4>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="p">...</span>
+<span class="nx">t</span><span class="p">.</span><span class="nx">save</span><span class="p">({</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://foo.com&quot;</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>Here, as with the <code>load</code> function, the type of the dataset is assumed to be the Toolkit&#39;s default JSON syntax (see 
+below for an example of how to write a custom exporter).</p>
+
+<p><a name="saving-auto"></a></p>
+
+<h4>Save Automatically</h4>
+
+<p>To configure the Toolkit to save automatically, you set the <code>autoSave</code> flag, and supply a <code>saveUrl</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">autoSave</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">saveUrl</span><span class="o">:</span><span class="s2">&quot;http://foo.com&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The Toolkit will save the dataset whenever one of these methods is called:</p>
+
+<ul>
+<li>addNode</li>
+<li>removeNode</li>
+<li>addNodes</li>
+<li>addEdge</li>
+<li>removeEdge</li>
+<li>addPort</li>
+<li>addNewPort</li>
+<li>removePort</li>
+<li>refresh</li>
+<li>refreshNode</li>
+<li>refreshEdge</li>
+<li>refreshPort</li>
+</ul>
+
+<p><strong>Note</strong> the dataset will <em>not</em> be saved automatically when you call the <code>clear</code> method.  </p>
+
+<h5>Autosave Callbacks</h5>
+
+<p>You can also supply a callback for both auto save success and error:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">autoSave</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">saveUrl</span><span class="o">:</span><span class="s2">&quot;http://foo.com&quot;</span><span class="p">,</span>
+  <span class="nx">onAutoSaveError</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+  <span class="nx">onAutoSaveSuccess</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="exporting"></a></p>
+
+<h3>Exporting</h3>
+
+<p>If you want to just export the data, you can do the following:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="p">...</span>
+<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="kr">export</span><span class="p">();</span>
+</code></pre></div>
+<p>This will assume you want the data in the Toolkit&#39;s default JSON syntax. If you have a custom exporter you wish to use, you can specify that using the <code>type</code> parameter. You can also pass in parameters for the export:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="p">...</span>
+<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="kr">export</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;myFormat&quot;</span><span class="p">,</span>
+  <span class="nx">parameters</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">importantNumber</span><span class="o">:</span><span class="mi">34</span><span class="p">,</span>
+    <span class="nx">somePrefix</span><span class="o">:</span><span class="s2">&quot;foo-&quot;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="saving-custom-formats"></a></p>
+
+<h4>Saving Custom Formats</h4>
+
+<p>To save/export in your own format, do the following:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbToolkitIO</span><span class="p">.</span><span class="nx">exporters</span><span class="p">[</span><span class="s2">&quot;myFormat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// process data here.</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Your exporter function is responsible for retrieving the data from the Toolkit instance. There are a number of different ways this can be done - see the API documentation.</p>
+
+<p><a href="#top">TOP</a></p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

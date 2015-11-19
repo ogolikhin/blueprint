@@ -1,0 +1,633 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Data Model</h2>
+
+<p><a id="top"></a></p>
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#format">Data Format</a></li>
+<li><a href="#node-edge-port-id">Node, Edge and Port IDs</a>
+
+<ul>
+<li><a href="#port-edge-id">Port and Edge ID Functions</a></li>
+<li><a href="#edge-id-optional">Edge ID Optional</a></li>
+<li><a href="#port-uniqueness">Port ID Uniqueness</a></li>
+<li><a href="#port-reference">Referencing Ports by ID</a></li>
+<li><a href="#custom-port-separator">Custom Port ID Separator</a></li>
+</ul></li>
+<li><a href="#port-extractor">Extracting Port Data from Nodes</a></li>
+<li><a href="#node-edge-port-type">Node, Edge and Port Type</a></li>
+<li><a href="#datafactories">Data Factories</a>
+
+<ul>
+<li><a href="#nodefactory">Node Factory</a></li>
+<li><a href="#portfactory">Port Factory</a></li>
+<li><a href="#edgefactory">Edge Factory</a></li>
+</ul></li>
+<li><a href="#constraining-connectivity">Constraining Connectivity</a></li>
+</ul>
+
+<p>The core model abstraction in the jsPlumb Toolkit is that of a Graph, or more properly, a Directed Graph, as discussed here:</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Directed_graph">http://en.wikipedia.org/wiki/Directed_graph</a></p>
+
+<p>A Graph is a collection of Nodes, Edges and ports. </p>
+
+<p><a name="node"></a>
+- <strong>Nodes</strong> map to entities in your data model. 
+<a name="port"></a>
+- <strong>Ports</strong> are points on your Nodes that are the endpoint of some relationship with another Node, or with a Port on another Node. 
+<a name="edge"></a>
+- <strong>Edges</strong> are relationships between Nodes or Ports. </p>
+
+<p>As an example of how these datatypes map to an application, in the Database Visualizer application that ships with the Toolkit, Nodes, Edges and Ports are mapped as follows:</p>
+
+<ul>
+<li><strong>Nodes</strong> are tables in a database schema</li>
+<li><strong>Ports</strong> are columns on a table</li>
+<li><strong>Edges</strong> are relationships between columns on two tables</li>
+</ul>
+
+<p>In the Flowchart Builder application, Nodes, Edges and Ports are mapped as follows:</p>
+
+<ul>
+<li><strong>Nodes</strong> are objects in the flowchart such as questions or actions.</li>
+<li><strong>Ports</strong> are used to model the yes/no connection points from a Question. Action Nodes do not have Ports as they have only one output and this is assigned to the Node itself.</li>
+<li><strong>Edges</strong> are the control flow of the chart.<br></li>
+</ul>
+
+<p>Every application using the Toolkit will have its own mapping of concepts to Nodes, Edges and Ports.  Some 
+applications may not even use Ports at all, since every Node can be an Edge target and/or source. Ports just give 
+you the ability to model more complex data structures.</p>
+
+<h6>Paths</h6>
+
+<p>In addition to Nodes, Ports and Edges, the Toolkit has the concept of a <strong>Path</strong>: an in-order list of Nodes/Ports 
+and Edges that represent the path from one Node or Port to some other Node or Port. These are a very useful way of 
+querying, and operating on, your model. Paths are discussed in a <a href="paths.html">separate page</a>.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="format"></a></p>
+
+<h3>Data Format</h3>
+
+<p>The various parts of your data model can be represented as any valid Javascript type. As an example, here is the backing data for the <code>Book</code> table in the Database Visualizer application:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;table&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;columns&quot;</span><span class="p">:[</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="nt">&quot;primaryKey&quot;</span><span class="p">:</span><span class="kc">true</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;isbn&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The Toolkit has its own internal representation of Nodes, Edges and Ports, but your original data is always stored under the <code>data</code> member - this is the Node from above:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;456&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;book&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;table&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;columns&quot;</span><span class="p">:[</span>
+      <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="nt">&quot;primaryKey&quot;</span><span class="p">:</span><span class="kc">true</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;isbn&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nt">&quot;datatype&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h6>Port Data</h6>
+
+<p>In the Node data given above there is a <code>columns</code> array - each entry in this array maps to a Port on the Node 
+representing that table. The IDs of the Ports here are the <code>id</code> members from each column in the array. </p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="node-edge-port-id"></a></p>
+
+<h3>Node, Edge and Port IDs</h3>
+
+<p>Every Node is required to have a unique ID.  The Toolkit attempts to derive this automatically from your data, by looking for an <code>id</code> member - this is why in the above example the Toolkit&#39;s ID is the same as the ID from the original data. Well, it&#39;s not exactly the same - the Toolkit converts all IDs into Strings internally. </p>
+
+<p>Should you wish to implement a different strategy, though, you can just supply your own <code>idFunction</code> to the method you use to get an instance of the Toolkit:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">idFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">SomeCustomComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Again note this is optional - you do not need to supply this function, but if you do not then the Toolkit will expect 
+an <code>id</code> member in your data.  <em>Remember</em>, though, the Toolkit converts the ID you supply into a String for internal 
+use.</p>
+
+<p><a name="edge-id-optional"></a></p>
+
+<h6>Edge ID Optional</h6>
+
+<p>Edges are not required to have an ID, but you might find it useful to supply one. If you do not supply an ID, the 
+Toolkit will assign one automatically.</p>
+
+<p><a name="port-edge-id"></a></p>
+
+<h6>Port and Edge ID functions</h6>
+
+<p>You can also supply separate functions to use for extracting the ID for a Port or Edge from some backing data:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">idFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">SomeCustomComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">portIdFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">PortComputations</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">edgeIdFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">EdgeComputations</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>If you omit either of these, the Toolkit uses whatever it is using to derive Node IDs (either the <code>idFunction</code>, if 
+provided, or the default mechanism of looking for an <code>id</code> member).</p>
+
+<p><a name="port-edge-id"></a></p>
+
+<h6>Port ID Uniqueness</h6>
+
+<p>Port IDs are required to be unique on the Node on which the Port exists, but may be the same as the ID of a Port on 
+some other Node.  </p>
+
+<p><a name="port-reference"></a></p>
+
+<h6>Referencing Ports by ID</h6>
+
+<p>When adding an Edge to a Toolkit instance, you can reference a Port on some Node using, by default, dotted notation. 
+In the data given above there were three Ports. We could connect one of them to a column on another table like this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;book.id&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;book_author.book_id&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><code>book_author</code> is another table in the schema from the <a href="demo-database-visualizer.html">Database Visualizer</a> application.</p>
+
+<p><a name="custom-port-separator"></a></p>
+
+<h6>Custom Port ID Separator</h6>
+
+<p>If you find that using a period as the separator in a Port ID does not work for your data model, you can override 
+what the Toolkit will use by doing this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">tk</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">portSeparator</span><span class="o">:</span><span class="s2">&quot;#&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="port-extractor"></a></p>
+
+<h3>Extracting Port Data from Nodes</h3>
+
+<p>When you load data into an instance of the Toolkit and you have Nodes that themselves have Ports (consider the 
+<a href="/demos/toolkit/database-visualizer/index.html">Database Visualizer demo app</a> - a table is a Node, and the columns 
+on that table are Ports), the data describing your Ports will typically be held within the Node data. For instance, 
+in the Database Visualizer, a Node looks like this:</p>
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Book&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;table&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;columns&quot;</span><span class="p">:[</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;integer&quot;</span> <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The entries in the <code>columns</code> array are the Ports for this Node. In order to get the Toolkit to recognise these 
+Ports when using the <code>load</code> function, you should define a <code>portExtractor</code> in the <code>jsPlumbToolkit.getInstance</code> 
+function:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">portExtractor</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">node</span><span class="p">.</span><span class="nx">columns</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Every Node that is loaded is passed through this function, whose return value must be an array of Port objects. These 
+Port objects are then registered against the given Node.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="node-edge-port-type"></a></p>
+
+<h3>Node, Edge and Port Type</h3>
+
+<p>You can associate a <code>type</code> with each of your Nodes, Edges and Ports. This is an important concept in the Toolkit, as 
+it is the basic means by which the data model is bound to any renderers, via <a href="models-and-views.html#views">Views</a>.</p>
+
+<p>As with Node/Edge/Port ID, the type of a Node, Edge or Port can be derived using a default function - which looks 
+for a <code>type</code> member in the backing data, or you can supply a <code>typeFunction</code> to the <code>newInstance</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">idFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">SomeCustomComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">typeFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">SomeOtherComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">edgeTypeFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">EdgeTypeComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">portTypeFunction</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">PortTypeComputing</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>As with ID, omitting either the Port or Edge type functions will cause the Toolkit to use whatever function it has determined it should use for deriving Node types.</p>
+
+<p>The <code>type</code> of some Node, Port or Edge is used by the render model in a Surface, to determine the appearance and behaviour of the object. For a discussion of render models, see <a href="models.html">here</a>.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="datafactories"></a></p>
+
+<h3>Data Factories</h3>
+
+<p><a name="nodefactory"></a></p>
+
+<h4>Node Factory</h4>
+
+<p>When you need to add a new Node programmatically, you do so on the Toolkit instance using the <code>addNode</code> function:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">addNode</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>It is expected that the current <code>idFunction</code> and <code>typeFunction</code> will be able to determine appropriate values from the data you provide. An example might be something like the following:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">addNode</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;place&quot;</span><span class="p">,</span>
+  <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;Place&quot;</span><span class="p">,</span>
+  <span class="nx">columns</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;Id&quot;</span><span class="p">,</span> <span class="nx">primaryKey</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> <span class="nx">datatype</span><span class="o">:</span><span class="s2">&quot;integer&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="nx">datatype</span><span class="o">:</span><span class="s2">&quot;varchar&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;Latitude&quot;</span><span class="p">,</span> <span class="nx">datatype</span><span class="o">:</span><span class="s2">&quot;float&quot;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;lng&quot;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span><span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="nx">datatype</span><span class="o">:</span><span class="s2">&quot;float&quot;</span> <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>If, however, you are using a drag and drop mechanism to add new Nodes to the UI (see the page on <a href="Rendering.html">Rendering</a>), the Toolkit needs some way of getting the data for a new Node. By default, the Toolkit will create a JS object with an <code>id</code> member set to a new UUID, but you can provide a <code>NodeFactory</code> in order to gain control over the creation of the data.</p>
+
+<p>A NodeFactory is a function with this signature:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">myNodeFactory</span> <span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">,</span> <span class="nx">isNative</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>type</code> is the type of Node to create. </li>
+<li><code>data</code> is the data appropriate to the given Node type; in the case of drag and drop it has been generated elsewhere (again see the page on <a href="Rendering.html">Rendering</a>). </li>
+<li><code>callback</code> is a function that your code <strong>must</strong> call once it has the data for the new Node prepared - having a callback rather than returning a value enables you to optionally prepare the data asynchronously, perhaps via a round trip to the server. If you do not call this function, addition of the new Node is aborted (which you might want to do, sometimes, of course).</li>
+<li><code>originalEvent</code> This is the browser event related to the drop.  If <code>isNative</code> is set, you might wish to access the <code>dataTransfer</code> member of this event when deciding how to populate the data object.</li>
+<li><code>isNative</code> Set to true if the drop event was &quot;native&quot;, for example a file dragged into the browser from the user&#39;s desktop or file system.</li>
+</ul>
+
+<h6>Direct Callback</h6>
+
+<p>Here&#39;s an example of a direct callback:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
+    <span class="nx">nodeFactory</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">evt</span><span class="p">,</span> <span class="kr">native</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">callback</span><span class="p">({</span>
+            <span class="nx">someKey</span><span class="o">:</span><span class="s2">&quot;aValue&quot;</span><span class="p">,</span>
+            <span class="nx">someArray</span><span class="o">:</span><span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span> <span class="p">]</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<h6>Ajax Callback</h6>
+
+<p>You might do this instead if you have jQuery in your page and you want to get your new Node from the server:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
+    <span class="nx">nodeFactory</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">evt</span><span class="p">,</span> <span class="kr">native</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+            <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;/get/new/&quot;</span> <span class="o">+</span> <span class="nx">type</span><span class="p">,</span>
+            <span class="nx">success</span><span class="o">:</span><span class="nx">callback</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<h6>Native Drop</h6>
+
+<p>You might do this if it&#39;s a native drop:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">getInstance</span><span class="p">({</span>
+    <span class="nx">nodeFactory</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">evt</span><span class="p">,</span> <span class="nx">isNative</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">isNative</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">evt</span><span class="p">.</span><span class="nx">dataTransfer</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">name</span><span class="p">;</span>
+          <span class="nx">data</span><span class="p">.</span><span class="nx">size</span> <span class="o">=</span> <span class="nx">evt</span><span class="p">.</span><span class="nx">dataTransfer</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">size</span><span class="p">;</span>
+          <span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">evt</span><span class="p">.</span><span class="nx">dataTransfer</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">type</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><a name="portfactory"></a></p>
+
+<h4>Port Factory</h4>
+
+<p>If your data model is sufficiently complex, you will be making use of Ports. In the same way that the Toolkit needs 
+to be able to assemble a JS object for each new Node created through user interaction, it needs a way to assemble a 
+JS object for a new Port. </p>
+
+<p>The Toolkit offers two methods for adding new Ports:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">addPort</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+<p>and</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">addNewPort</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">portData</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+<p>The first of these - <code>addPort</code> - takes some existing data as argument, from which it will derive an ID and type (from 
+the current <code>idFunction</code> and <code>typeFunction</code>) and then add the Port to the given Node.  </p>
+
+<p>The second function takes only the <em>type</em> of the Port to add, which it hands off to the PortFactory in order to get a 
+data object for the new Port. As with Nodes, if no PortFactory is defined then a simple JS object containing an id 
+parameter is created.  </p>
+
+<p>Here&#39;s the PortFactory from the Database Visualizer example application - remember, in this application, each column 
+in a table is mapped to a port:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">column</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="nx">id</span><span class="o">:</span><span class="nx">data</span><span class="p">.</span><span class="nx">columnName</span><span class="p">,</span> 
+    <span class="nx">name</span><span class="o">:</span><span class="nx">data</span><span class="p">.</span><span class="nx">columnName</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">toUpperCase</span><span class="p">()</span> <span class="o">+</span> <span class="nx">data</span><span class="p">.</span><span class="nx">columnName</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>  
+    <span class="nx">datatype</span><span class="o">:</span><span class="s2">&quot;varchar&quot;</span><span class="p">,</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;column&quot;</span>
+  <span class="p">};</span>
+  <span class="c1">// add to node&#39;s data. we have to do this manually. the Toolkit does not know our internal</span>
+  <span class="c1">// data structure.</span>
+  <span class="nx">node</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">columns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">column</span><span class="p">);</span>
+  <span class="c1">// handoff the new column.</span>
+  <span class="nx">callback</span><span class="p">(</span><span class="nx">column</span><span class="p">);</span>   
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Note</strong> the signature is slightly different for a PortFactory: it is given the Node to which the Port should be added, 
+and it is not given a browser event or the <code>isNative</code> flag.</p>
+
+<p>Where does <code>data</code> come from in the code snippet above?  In the Database Visualizer app, we use event delegation to 
+listen to clicks on a certain button, then popup a dialog requesting input from the user. If the user enters data and 
+presses OK, we inform the Toolkit via the <code>addNewPort</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// add new column to table</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nb">document</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.new-column i&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span> <span class="c1">// getObjectInfo is a helper method that retrieves the node or port associated with some element in the DOM.</span>
+
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;dlgName&quot;</span><span class="p">,</span>
+    <span class="nx">title</span><span class="o">:</span><span class="s2">&quot;Enter new column name:&quot;</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// if the user supplied a column name, tell the toolkit to add a new port. This will result in a callback to the portFactory defined above.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>       
+        <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;Column names must be at least 3 characters!&quot;</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="nx">toolkit</span><span class="p">.</span><span class="nx">addNewPort</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">(),</span> <span class="nx">columnName</span><span class="o">:</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The dialog code shown in this snippet is discussed <a href="database-visualizer.html#dialogs">here</a>.</p>
+
+<p><code>addNewPort</code> takes four values:</p>
+
+<ul>
+<li>The Node to add the Port to (either an ID or a Node itself)</li>
+<li>The type of Port to add</li>
+<li>A JS object containing data for the new Port.</li>
+</ul>
+
+<p><a name="edgefactory"></a></p>
+
+<h4>Edge Factory</h4>
+
+<p>The Edge Factory is the function that the Toolkit will call whenever a new Connection is established between two 
+Nodes/Ports, via user mouse action. It follows the same pattern as Nodes and Ports - if there is no EdgeFactory 
+defined then a default JS object will be used. The EdgeFactory is only ever called when the user creates a new Edge 
+with the mouse. It is not called if you make a programmatic call to<code>jsPlumbToolkitInstance.addEdge</code>.</p>
+
+<p>None of the examples that ship with the Toolkit use the EdgeFactory, but the Database Visualizer contains this stub:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">edgeFactory</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// you must hit the callback if you provide the edgeFactory.</span>
+  <span class="nx">callback</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="c1">// unless you want to return false, to abandon the edge</span>
+  <span class="c1">//return false;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Here, we could manipulate the contents of <code>data</code> before we hit the callback if we wanted to.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="constraining-connectivity"></a></p>
+
+<h3>Constraining Connectivity</h3>
+
+<p>When you instantiate a Toolkit, there are various interceptor functions that you can provide, to constrain the 
+connectivity in your application. An example (from the Database Visualizer app):</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">beforeConnect</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">source</span><span class="p">,</span> <span class="nx">target</span><span class="p">,</span> <span class="nx">edgeData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">source</span> <span class="o">!==</span> <span class="nx">target</span> <span class="o">&amp;&amp;</span> <span class="nx">source</span><span class="p">.</span><span class="nx">getNode</span><span class="p">()</span> <span class="o">!==</span> <span class="nx">target</span><span class="p">.</span><span class="nx">getNode</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><code>beforeConnect</code> is called when the user drags and drops a new connection. The DatabaseVisualizer connects <code>Ports</code>; 
+this interceptor checks that the source and target Ports are not the same, and then that the source and target Ports
+are not on the same Node.</p>
+
+<p>The full set of interceptors you can provide is:</p>
+
+<h4>beforeConnect(source, target, edgeData)</h4>
+
+<p>This interceptor is called when the user drags and drops a new connection, as well as when <code>connect</code> is called on a
+Toolkit instance.</p>
+
+<p><code>beforeConnect</code> is given the source (a Node or Port) and target (a Node or Port) of a newly dragged Edge, as well as, 
+ optionally, data associated with the Edge. Data may be associated with an Edge via the <code>beforeStartConnect</code> interceptor. </p>
+
+<p>Returning anything other than true from this method discards the new Edge. </p>
+
+<h4>beforeStartConnect(source, edgeType)</h4>
+
+<p>This is called as the user begins to drag a new Edge, as well as programmatically when the user calls <code>connect</code> on a 
+ Toolkit instance. This interceptor behaves slightly differently from the others:
+returning false, as with the others, will abort the action (in this case, it will abort the new connection drag).
+Returning true will allow the connection to drag to continue. But you can also return some value other than true, 
+in which case dragging will continue and your return value will become the new Edge&#39;s backing data. If you do return
+some data from this method, it will be passed in to the <code>beforeConnect</code> interceptor as the <code>edgeData</code> parameter.</p>
+
+<h4>beforeMoveConnection(source, target, edge)</h4>
+
+<p>This interceptor is called prior to any existing edge being moved (either programmatically or via the mouse). It is 
+passed the source and target of the existing edge, as well as the edge itself, and if it returns anything other than 
+boolean true, the edge move is aborted. If not supplied, the default behaviour of this function is to honor the 
+<code>allowLoopback</code>, <code>allowNodeLoopback</code> and <code>maxConnections</code> parameters on any Node or Port definitions you supplied to 
+this Toolkit via the <code>model</code>.</p>
+
+<h4>beforeDetach(source, target, edge)</h4>
+
+<p>This interceptor can be used to override connection detachment from the mouse. The function is given <code>(source, target, 
+edge)</code> and is expected to return true to confirm that the detach should occur.</p>
+
+<h4>beforeStartDetach(source, target, edge)</h4>
+
+<p>This interceptor can also be used to override connection detachment from the mouse, but it is distinct from 
+<code>beforeDetach</code> in that this function is called as soon as the user begins to drag. The function is given <code>(source, 
+target, edge)</code> and is expected to return true to confirm the detach should occur. Any other return value will abort 
+the detach.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

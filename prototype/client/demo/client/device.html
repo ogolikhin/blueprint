@@ -1,0 +1,524 @@
+<!-- author: pegah -->
+<main role="main"> 
+<div style="overflow: hidden;" ng-controller="MyController"
+     ng-intro-options="IntroOptions" ng-intro-method="GuidedTour"
+     ng-intro-oncomplete="CompletedEvent" ng-intro-onexit="ExitEvent"
+     ng-intro-onchange="ChangeEvent" ng-intro-onbeforechange="BeforeChangeEvent"
+     ng-intro-autostart="showIntro">
+<p/>
+<div class="container-fluid" style="padding:0;margin:0">
+<header>
+<div id="blue" style="color: white; position: absolute; top: 0px; height: 45px; width: 100%; background-color: rgb(28, 41, 92);" class="ng-scope k-pane k-scrollable" role="group">
+              <span style="font-family: 'Hind', sans-serif; font-size: large; position: fixed;left: 5px; top:12px;">&nbsp;&nbsp;&nbsp;<b>blueprint ®</b></span>
+              <span style="position: fixed;right: 15px; top:12px;"><span class="glyphicon glyphicon-user"></span> Welcome Pegah Tabrizi | Home | <span class="
+glyphicon glyphicon-share-alt"></span> Logout</span>
+          </div>
+</header>
+
+<main role="main">
+<div>
+   <div class="container-fluid "  style="" ng-controller="DeviceController">
+      <div class="row">
+         <div class="col-sm-12" >
+            <table width="100%">
+			<tr><td width="10" >&nbsp;</td>
+            <td width="380" id="step1">		
+            </td>
+            <td width="20">&nbsp;</td>
+            <td width="280" id="step2">		
+			   <!--<strong>2 - Search  (optional)</strong></p>-->
+			   <div class="inner-addon right-addon">
+			   <input type="text" ng-model="search" id="searchinput"  type="search" class="form-control" placeholder="Search " ng-keyup="searchTree($event)" >
+			   <span id="searchglass" class="glyphicon glyphicon-search" ng-show="!search"></span>
+			   <span id="searchclear" class="glyphicon glyphicon-remove-circle" ng-click="clearFilter()" ng-show="search" ></span>
+			   <div style="height:6px" />
+			   </div>						   
+            </td>
+			<td>&nbsp;</td>
+            <td align="right" width="210" id="step3">		
+            </td>
+			<td width="10" >&nbsp;</td>
+			</tr>
+            </table>						
+		 </div>
+	  </div>
+	  <div class="row">
+
+    <div class="navbar navbar-default ">
+			<ul class="nav navbar-nav" >
+				<li>
+					<a class="dropdown-toggle" data-toggle="dropdown">Menu<span class="caret"></span></a>
+				</li>
+				<li>
+					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-home"></span> Home<span class="caret"></span></a>
+				</li>
+				<li class="dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown">View<span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a ui-sref="a">a</a></li>
+						<li><a ui-sref="b">b</a></li>
+						<li><a ui-sref="c">c</a></li>
+						<li><a ui-sref="d">d</a></li>
+						<li><a ui-sref="e">e</a></li>
+						<li><a ui-sref="f">f</a></li>
+						<li><a ui-sref="g">g</a></li>
+						<li><a ui-sref="h">h</a></li>
+						<li><a ui-sref="i">i</a></li>					
+						<li><a ui-sref="j">j</a></li>
+						<li><a ui-sref="k">k</a></li>
+					</ul>
+				</li>
+				<li>
+					<a class="dropdown-toggle" data-toggle="dropdown">Import/Export<span class="caret"></span></a>
+				</li>
+				<li>
+					<a class="dropdown-toggle" data-toggle="dropdown">Help<span class="caret"></span></a>
+				</li>
+			</ul>
+</div>  
+	  </div>
+
+   </div>
+</div>
+</main>
+
+<script type="text/ng-template" id="importVariantSelection">
+    <!--<div class="modal-header">-->
+    <div class="modal-body">
+        <p>Select the device to import the project for:</p>
+        <form name="myForm">
+            <div ng-repeat="Option in Options">
+                <input type="radio" ng-model="$parent.selectedOption"  ng-change="optionClicked(Option)" value="{{Option}}"> {{Option}} </br>
+            </div>
+        </form>
+        </br>
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-inverse" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="importEnergiaBoardSelection">
+    <div class="modal-body">
+        <p>Select the device to import the project for:</p>
+        <form name="myForm">
+            <div ng-repeat="Option in Options">
+                <input type="radio" ng-model="$parent.selectedOption"  ng-change="optionClicked(Option.id)" value="{{Option.id}}"> {{Option.description}} </br>
+            </div>
+        </form>
+        </br>
+        <button class="btn-info" ng-click="ok()">OK</button>
+        <button class="btn-danger" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+<script type="text/ng-template" id="downloadLicense">
+	<div class="modal-body">
+		<iframe ng-src="{{licenseUrl}}" height="90%" width="100%"></iframe>
+		<div class="modal-footer">
+        <button class="btn-info" ng-click="agree()">I Have Read And Agree</button>
+        <button class="btn-danger" ng-click="disagree()">Disagree</button>
+		</div>
+    </div>
+</script>
+
+
+<div ng-controller="OverviewController"  >
+	<ui-layout id="screen" >
+		
+
+		<div id="step4" class="ui-layout-west" ng-show="showTree || deviceId || devtoolId || search" >
+			<div jstree id="jstree" selected-node="selectedTreeNode" selected-path ="selectedPath" selected-node-changed="nodeChanged" style="overflow: auto;">
+			</div>
+		</div>
+
+		<ui-layout-center id="step5">
+		<div ng-show="selectedTreeNode.emptyTree && selectedPath.search != null"  >
+			</br></br></br>
+			<h4>
+				<strong>No search results found for <span class="text-primary">&ldquo;{{selectedPath.search}}&rdquo;</span> . We are continuously adding more content to Resource Explorer. </strong>
+			</h4>
+		</div>		
+
+		<div class="panel panel-default" style="background-color: #ebebeb;" ng-show="selectedTreeNode.parentContent && selectedTreeNode.showAce" >
+			<p/>
+			<table class="table" width="100%" >
+				<tbody>
+					<tr>
+						<th align="center">
+							<img src="icns/new_sketch.gif" ng-show="selectedTreeNode.parentContent.icon == null && selectedTreeNode.parentContent.resourceType == 'project.energia'"/>
+							<img src="icns/new_sketch.gif" ng-show="selectedTreeNode.parentContent.text=='Energia'" /> 
+							<h1 class="resource-header" style="margin: 0 25px">{{selectedTreeNode.parentContent.text}}</h1>
+						</th>
+						<th valign="center" ng-show="selectedTreeNode.parentContent.description">{{selectedTreeNode.parentContent.description}}</th>
+						<td width="18%" valign="center" align="right" style="padding-right: 24px;">
+							<a ng-click="goUp(selectedTreeNode.parentContent)" data-toggle="tooltip" tooltip="Up one level" tooltip-placement="bottom" class="btn btn-info btn-mini icon-size" id="{{selectedTreeNode.parentContent.text}}_back"><img src="icns/arrow_back_16.svg" height="12"/></a>
+							<a href="" ng-show="selectedTreeNode.parentContent.importProject" ng-click="importEnergia(selectedTreeNode.parentContent.importProject, selectedTreeNode.parentContent.createProject, selectedTreeNode.parentContent.energiaBoards)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_import" >
+								<img src="icns/cloudCube.svg" height="12" />
+							</a>
+							<a ng-href="" ng-show="selectedTreeNode.parentContent.downloadLink" ng-click="downloadFile(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download&nbsp;All" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_download">
+								<img src="icns/download7.svg" height="12">
+							</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div ui-ace="{useWrapMode : true, showGutter: true, theme:'eclipse', mode: 'c_cpp', maxLines: 'Infinity'}" readonly="true"  ng-model="selectedTreeNode.aceContent" style="background: #FFFFFF;height: 90% !important;" >
+			</div>
+		</div>
+
+		<div class="panel panel-default" style="background-color: #ebebeb;" ng-show="selectedTreeNode.parentContent && selectedTreeNode.showFrame">
+			<p/>
+				<div class="headerp col-sm-9" >
+				&nbsp;&nbsp;&nbsp;<h1 class="resource-header">{{selectedTreeNode.parentContent.text}}</h1>
+				<span ng-show="selectedTreeNode.parentContent.description">
+				&nbsp;&nbsp;|&nbsp;&nbsp;<strong>{{selectedTreeNode.parentContent.description}}</strong>
+				</span>
+				<!--&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{selectedTreeNode.weblink}}-->
+				<span>&nbsp;&nbsp;
+				<a href="{{selectedTreeNode.weblink}}" target="{{selectedTreeNode.parentContent.text}}" 
+				class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Open in a New tab" tooltip-placement="bottom"id="{{selectedTreeNode.parentContent.text}}_newtab"><img src="icns/newwindow.svg" height="12"></a>
+				</span>
+				</div>
+				<div class="headerp text-right col-sm-3">
+				<a ng-click="goUp(selectedTreeNode.parentContent)" data-toggle="tooltip" tooltip="Up one level" tooltip-placement="bottom" class="btn btn-info btn-mini icon-size" 	id="{{selectedTreeNode.parentContent.text}}_back"><img src="icns/arrow_back_16.svg" height="12"/></a>
+				<a ng-href="" ng-show="selectedTreeNode.parentContent.downloadLink" ng-click="downloadFile(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.text}}_download" ><img src="icns/download7.svg" height="12" /></a>
+				</div>
+			<br/><p/>
+			<iframe ng-src="{{selectedTreeNode.weblink}}" src="about:blank" style="background: #FFFFFF;" width="100%" height="93%" frameborder="0"></iframe>
+		</div>
+
+		<div ng-show="showIntro"  >
+			<!--<h4><img src="images/arrow-up-red.png" height="50" style="margin-left:50px;vertical-align:baseline">-->
+				<!--<strong><em>Start browsing by selecting your device or development board</em></strong>-->
+			<!--</h4>-->
+			</br></br></br>
+			<!--<center>-->
+			<h1>
+				<strong>Welcome</strong>
+			</h1>
+			<h3></h3>
+			<!--</center>-->
+			<center>
+				</br></br></br></br></br>
+			</center>
+		</div>
+			
+		<div id="content"  style="overflow: auto;" class="scrolling-content">
+			<div ng-show="!showIntro && selectedTreeNode.showWelcome && !selectedTreeNode.show" id="main">
+				<!--<h4><img src="images/arrow-up-red.png" height="50" style="margin-left:50px;vertical-align:baseline">-->
+					<!--<strong><em>Start browsing by selecting your device or development board</em></strong>-->
+				<!--</h4>-->
+				</br></br></br>
+				<!--<center>-->
+				<h1>
+					<strong>Editor Panel</strong>
+				</h1>
+				<h3></h3>
+				<!--</center>-->
+				<center>
+					</br></br></br></br></br>
+				</center>
+				<div class="panel panel-default panelp" ng-show="showContent" >
+					<div class="panel-heading"><strong>{{theContent.name}}</strong>
+					</div>
+					<div class="panel-body" style="overflow: auto;">
+						<table>
+							<tr>
+								<td valign="top">
+									<span ng-bind-html="theContent.description | to_trusted" />
+								</td>
+								<td valign="top">
+									<img src="content/{{theContent.image}}" width="150" title="{{theContent.name}}" />
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div ng-show="selectedNode.waiting && selectedNode.show_progress" id="waiting-overlay">
+				<br/><br/><br/><br/><br/><br/><br/><br/><br/>
+				<div>
+				<center style="color:#fff">{{waitingMessage}}</center>
+				<br/>
+				<img ng-show="!waitingMessage" id="waiting-image" src="fancybox/fancybox_loading.gif">
+				<br/>
+				<button ng-show="waitingMessage" class="btn-danger" ng-click="cancelDownload()">Cancel</button>	
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8"><progressbar class="progress-striped active" value="progress" >{{progress}}%</progressbar></div>
+				<div class="col-sm-2"></div>
+				<br/>
+			</div>
+						
+			</div>
+
+			<div class="panel panel-default panelp" ng-show="selectedTreeNode.parentContent && !selectedTreeNode.parentContent.overviewLink && (selectedTreeNode.parentContent.overviewDescription || selectedTreeNode.parentContent.overviewImage )" >
+				<div class="panel-heading"><h1 class="resource-header"><strong>{{selectedTreeNode.parentContent.text}}</strong></h1>
+				</div>
+				<div class="panel-body" style="overflow: auto;">
+					<table>
+					<tr>
+					<td valign="top">
+					<span ng-show="selectedTreeNode.parentContent.overviewDescription !== 'undefined'" ng-bind-html="selectedTreeNode.parentContent.overviewDescription | to_trusted" />
+					</td>
+					<td valign="top">
+					<img ng-if="selectedTreeNode.parentContent.overviewImage" src="content/{{selectedTreeNode.parentContent.overviewImage}}" width="150" title="{{selectedTreeNode.parentContent.text}}" />
+					</td>
+					</tr>
+					</table>
+				</div>
+			</div>
+			
+			
+			<div class="panel panel-default" style="background-color: #ebebeb;" ng-show="selectedTreeNode.parentContent.overviewLink">
+			<p/>
+				<div class="headerp col-sm-9" >
+				&nbsp;&nbsp;&nbsp;<h1 class="resource-header">{{selectedTreeNode.parentContent.text}}</h1>
+				<span ng-show="selectedTreeNode.parentContent.description">
+				&nbsp;&nbsp;|&nbsp;&nbsp;<strong>{{selectedTreeNode.parentContent.description}}</strong>
+				</span>
+				<!--&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{selectedTreeNode.weblink}}-->
+				<span>&nbsp;&nbsp;
+				<a href="{{selectedTreeNode.parentContent.overviewLink}}" target="{{selectedTreeNode.parentContent.text}}" 
+				class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Open in a New tab" tooltip-placement="bottom"id="{{selectedTreeNode.parentContent.text}}_newtab"><img src="icns/newwindow.svg" height="12"></a>
+				</span>
+				</div>
+				<div class="headerp text-right col-sm-3">
+				<a ng-click="goUp(selectedTreeNode.parentContent)" data-toggle="tooltip" tooltip="Up one level" tooltip-placement="bottom" class="btn btn-info btn-mini icon-size" 	id="{{selectedTreeNode.parentContent.text}}_back"><img src="icns/arrow_back_16.svg" height="12"/></a>
+				<a ng-href="" ng-click="downloadFile(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.text}}_download" ><img src="icns/download7.svg" height="12" /></a>	
+				</div>				
+			<br/><p/>
+			<iframe ng-src="{{selectedTreeNode.weblink}}" src="about:blank" style="background: #FFFFFF;" width="100%" height="93%" frameborder="0"></iframe>
+		</div>
+
+            <div>
+			<table class="table table-hover " ng-show="selectedTreeNode.show && selectedTreeNode.parentContent.overviewLink == null" width="100%" >
+				<tbody>
+				
+				<!-- Bruce: #12945 - let the color setting done by JS -->
+				<tr style="background-color:{{selectedTreeNode.headerBgColor}}" ng-if="!(selectedTreeNode.parentContent.resourceType=='projectSpec'
+                || selectedTreeNode.parentContent.resourceType=='project.ccs'
+                || selectedTreeNode.parentContent.resourceType=='folder.importable'
+                || selectedTreeNode.parentContent.resourceType=='file.executable'
+				|| selectedTreeNode.parentContent.resourceType=='file')">
+				<th align="center">
+				<img src="icns/new_sketch.gif" ng-show="selectedTreeNode.parentContent.icon == null && selectedTreeNode.parentContent.resourceType == 'project.energia'"/>
+				<img src="icns/new_sketch.gif" ng-show="selectedTreeNode.parentContent.text=='Energia'" /> 
+				<h1 class="resource-header">{{selectedTreeNode.parentContent.text}}</h1></th>
+				<th valign="center">{{selectedTreeNode.parentContent.description}}</th>
+				<td width="18%" valign="center" align="right" style="padding-right: 24px;">
+				<a ng-click="goUp(selectedTreeNode.parentContent)" data-toggle="tooltip" tooltip="Up one level" tooltip-placement="bottom" class="btn btn-info btn-mini icon-size" id="{{selectedTreeNode.parentContent.text}}_back"><img src="icns/arrow_back_16.svg" height="12"/></a>
+				<a href="" ng-show="selectedTreeNode.parentContent.importProject" ng-click="importEnergia(selectedTreeNode.parentContent.importProject, selectedTreeNode.parentContent.createProject, selectedTreeNode.parentContent.energiaBoards)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_import" ><img src="icns/cloudCube.svg" height="12" /></a>				
+				<a ng-href="" ng-show="selectedTreeNode.parentContent.downloadLink" ng-click="downloadFile(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download&nbsp;All" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_download"><img src="icns/download7.svg" height="12"></a>
+				</td>
+				</tr>
+
+				<!-- Bruce: #12945 - let the color setting done by JS -->
+				<tr style="background-color:{{selectedTreeNode.headerBgColor}}" ng-if="selectedTreeNode.parentContent.resourceType=='projectSpec'
+                || selectedTreeNode.parentContent.resourceType=='project.ccs'
+                || selectedTreeNode.parentContent.resourceType=='folder.importable'
+                || selectedTreeNode.parentContent.resourceType=='file.executable'
+				|| selectedTreeNode.parentContent.resourceType=='file'">
+					<th align="center" style="min-width: 20%">
+						<img src="icns/ccs_proj.gif" ng-show="selectedTreeNode.parentContent.resourceType=='projectSpec' || selectedTreeNode.parentContent.resourceType=='project.ccs'"/>
+						<img src="icns/exec.gif" ng-show="selectedTreeNode.parentContent.resourceType=='file.executable'" />
+						<img src="icns/file.gif" ng-show="selectedTreeNode.parentContent.resourceType=='file'" />
+						<h1 class="resource-header">{{selectedTreeNode.parentContent.text}}</h1>
+					</th>
+					<th valign="center">{{selectedTreeNode.parentContent.description}}</th>
+					<td width="18%" valign="center" align="right" style="padding-right: 24px;">
+						<a ng-click="goUp(selectedTreeNode.parentContent)" data-toggle="tooltip" tooltip="Up one level" tooltip-placement="bottom" class="btn btn-info btn-mini icon-size" id="{{selectedTreeNode.parentContent.text}}_back"><img src="icns/arrow_back_16.svg" height="12" /></a>
+						<span ng-show="selectedTreeNode.parentContent.importProject && (selectedTreeNode.parentContent.resourceType=='projectSpec' || selectedTreeNode.parentContent.resourceType=='project.ccs')">
+							<a href="" ng-click="import(selectedTreeNode.parentContent)"  target="ccscloud" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_import">
+								<img src="icns/cloudCube.svg" height="12">
+							</a>
+						</span>
+						<span ng-show="selectedTreeNode.parentContent.importProject && selectedTreeNode.parentContent.resourceType=='folder.importable'">
+							<a href="" ng-click="import(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_import">
+								<img src="icns/cloudCube.svg" height="12">
+							</a>
+						</span>
+						<a ng-href="" ng-show="selectedTreeNode.parentContent.downloadLink"  ng-click="downloadFile(selectedTreeNode.parentContent)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download&nbsp;All" tooltip-placement="bottom" id="{{selectedTreeNode.parentContent.name}}_download"><img src="icns/download7.svg" height="12"></a>
+					</td>
+				</tr>
+				
+                <tr ng-repeat="c in selectedTreeNode.content" ng-if="c.resourceType=='file.executable'" >
+                    <td>
+                        <img src="icns/exec.gif" /> {{c.name}}
+                    </td>
+                    <td valign="center">
+                        {{c.description}}
+                    </td>
+                    <td width="18%" valign="center" align="right" style="padding-right: 24px;" >
+                        <a ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download"><img src="icns/download7.svg" height="12"></a>
+                    </td>
+                </tr>
+
+                <tr ng-repeat="c in selectedTreeNode.content" ng-if="c.resourceType=='file'" >
+					<td><a href="" ng-click="openLink(selectedTreeNode, c, 'c/asm')">
+					<img src="icns/linker_command_file.gif" ng-show="c.link.lastIndexOf('.cmd')>0"/>
+					<img src="icns/c_file_obj.gif" ng-show="c.link.substr(-2) === '.c'"/>
+					<img src="icns/c_file_obj.gif" ng-show="c.link.substr(-4) === '.cpp'"/>					
+					<img src="icns/c_file_obj.gif" ng-show="c.link.substr(-4) === '.ino'"/>
+					<img src="icns/s_file_obj.gif" ng-show="c.link.lastIndexOf('.asm')>0"/>
+					<img src="icns/h_file_obj.gif" ng-show="c.link.substr(-2) === '.h' "/>
+					<img src="icns/link.png" ng-show="c.link.substr(-4) === '.htm' "/>
+					<img src="icns/link.png" ng-show="c.link.substr(-5) === '.html' "/>
+					<img src="icns/pdf.png" ng-show="c.link.lastIndexOf('.pdf')>0"/>
+					<img src="icns/file.gif" ng-show="!(c.link.substr(-2) === '.c' || c.link.substr(-4) === '.cpp'  || c.link.lastIndexOf('.ino')>0 || c.link.lastIndexOf('.asm')>0 || c.link.substr(-2) === '.h' || c.link.substr(-4) === '.htm' || c.link.substr(-5) === '.html' || c.link.lastIndexOf('.pdf')>0 || c.link.lastIndexOf('.cmd')>0)"/>
+					{{c.name}}</a>
+					</td>
+					<td valign="center">{{c.description}}</td>
+					<td width="18%" valign="center" align="right" style="padding-right: 24px;" >
+					<span ng-show="c.importProject">
+						<a href="" ng-click="import(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{c.name}}_import" >
+						<img src="icns/cloudCube.svg" height="12" /></a>
+					</span>
+					<a ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download"><img src="icns/download7.svg" height="12"/></a>
+					</td>
+				</tr>
+							
+
+				<tr ng-repeat="c in selectedTreeNode.content" ng-if="c.resourceType=='projectSpec' || c.resourceType=='project.ccs' || c.resourceType=='folder.importable'" >
+					<td>
+						<span ng-show="c.type=='folder'">
+							<a href="" ng-click="openLink(selectedTreeNode, c,'proj')"> <img src="icns/ccs_proj.gif"> {{c.name}} </a>
+						</span>
+						<span ng-show="c.type!='folder'">
+							<img src="icns/ccs_proj.gif"> {{c.name}}
+						</span>
+					</td>
+					<td valign="center">{{c.description}}</td>
+					<td width="18%" valign="center" align="right" style="padding-right: 24px;" >
+					<span ng-show="c.importProject && (c.resourceType=='projectSpec' || c.resourceType=='project.ccs')">
+						<a href="" ng-click="import(c)" target="ccscloud" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{c.name}}_import">
+						<img src="icns/cloudCube.svg" height="12"></a>
+					</span>
+					<span ng-show="c.importProject && c.resourceType=='folder.importable'">
+						<a href="" ng-click="import(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{c.name}}_import">
+							<img src="icns/cloudCube.svg" height="12" /></a>
+					</span>
+					<a ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download" ><img src="icns/download7.svg" height="12"/></a>
+					</td>
+				</tr>
+
+				<tr ng-repeat="c in selectedTreeNode.content" ng-if="c.resourceType=='overview'" >
+					<td class="jumbotron">
+					<strong>{{c.name}}</strong><hr/>
+					<div  ng-bind-html="c.content | to_trusted" /></td>
+					<td width="18%" valign="center">
+					<a ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download"><img src="icns/download7.svg" height="12"/></a>
+					</td>
+				</tr>
+
+				<tr ng-repeat="c in selectedTreeNode.content" ng-if="c.type=='weblink'" >
+					<td><a href="" ng-click="openLink(selectedTreeNode, c, 'pdf')">
+					<img src="icns/pdf.png" ng-show="c.link.lastIndexOf('.pdf')>0"/>
+					<img src="icns/link.png" ng-show="c.link.lastIndexOf('.pdf')<0"/>
+					{{c.name}}</a>
+					</td>
+					<td valign="center">{{c.description}}</td>
+					<!--td width="18%" valign="center"><a href="{{c.downloadLink}}" title="Download"><img src="icns/download16x19.png" height="13"></a OPS: can't download weblinks through the server -->
+					<td width="18%" valign="center" align="right" style="padding-right: 24px;" ><a  ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download"><img src="icns/download7.svg" height="12" /></a>
+					</td>
+				</tr>
+
+				<tr ng-repeat="c in selectedTreeNode.content" ng-if="(c.type=='folder' || c.resourceType=='folder')
+						&& !(c.resourceType=='projectSpec' || c.resourceType=='project.ccs' || c.resourceType=='folder.importable')" >
+					<td valign="center">
+					<a href="" ng-click="openLink(selectedTreeNode, c, 'folder')">
+					<img src="icns/folder_closed.gif" ng-if="c.icon == null && c.resourceType!=='project.energia'"/>
+					<img src="icns/new_sketch.gif" ng-if="c.icon == null && c.resourceType == 'project.energia'"/>
+					<img src="content/{{c.icon}}" ng-if="c.icon != null" />
+					{{c.text}}
+					</a>
+					</td>
+					<td>{{c.description}}</td>
+					<td width="18%" valign="center" align="right" style="padding-right: 24px;" >
+					<a href="" ng-show="c.importProject" ng-click="importEnergia(c.importProject, c.createProject, c.energiaBoards)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Import to CCS cloud" tooltip-placement="bottom" id="{{c.name}}_import" >
+					<img src="icns/cloudCube.svg" height="12" /></a>
+					<a ng-href="" ng-show="c.downloadLink" ng-click="downloadFile(c)" class="btn btn-info btn-mini icon-size" data-toggle="tooltip" tooltip="Download" tooltip-placement="bottom" id="{{c.name}}_download"><img src="icns/download7.svg" height="12"/></a>
+					</td>
+				</tr>
+				
+				<tr><td colspan="3"></td></tr>
+
+				</tbody>
+			</table>
+
+
+
+			<!-- [ Bruce: #12945 -->
+            <!--
+			<div ng-if="selectedTreeNode.content.length==0 && !selectedTreeNode.showFrame && !selectedTreeNode.showAce" style="background: #ebebeb; margin-top: -1.8em;" ><center>This file cannot be viewed in the browser. It can be downloaded using button above.</center></div>
+            -->
+			<!-- ] -->
+
+			</div>
+			<div ng-controller="ScrollController" />
+
+		</div>
+		
+		</ui-layout-center>
+		
+
+		<div class="ui-layout-east" >
+
+
+			<div>
+
+			  <!-- Nav tabs -->
+			  <ul class="nav nav-tabs" role="tablist">
+
+
+			  <li role="presentation"><a aria-controls="home" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_PropertiesTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="properties" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_CommentsTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="discussions" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_FilesTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="files" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_TraceabilityAndRelationshipsTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="relationships" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_OutlineTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="browse" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_SearchTab_TabIcon.png" /></a></li>
+			  <li role="presentation"><a aria-controls="history" role="tab" data-toggle="tab"><img src="/images/UtilityPanel/UtilityPanel_HistoryTab_TabIcon.png" /></a></li>
+
+			  </ul>
+
+			  <!-- Tab panes -->
+			  <div class="tab-content">
+			    <div role="tabpanel active" class="tab-pane fade in active" id="properties"> 
+
+
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="discussions">Discussions</div>
+			    <div role="tabpanel" class="tab-pane" id="files">Files</div>
+			    <div role="tabpanel" class="tab-pane" id="relationships">relationships</div>
+			    <div role="tabpanel" class="tab-pane" id="browse">Browse</div>
+			    <div role="tabpanel" class="tab-pane" id="history">History</div>
+
+			  </div>
+
+
+
+			</div>
+
+
+		</div>
+		<div class="ui-layout-south" >
+			&copy; Copyright
+				<span id="copyear">2015</span> -
+			 Blueprint Software Systems Inc. All rights reserved. 
+			 <a href="http://www.blueprintsys.com/privacy-policy/" name="&lid=EN_US_footer_websitefeedback"> Privacy Policy </a>
+				
+			<div style="float: right; text-align: right;">
+				TODO - ZOOM
+
+			</div>				
+		</div>	
+		
+	</ui-layout>		
+		
+	</div>
+</div>	
+</main>
+
+
+
+

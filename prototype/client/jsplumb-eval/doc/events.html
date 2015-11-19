@@ -1,0 +1,311 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Events</h2>
+
+<p>The jsPlumb Toolkit offers a comprehensive set of events to which you can subscribe. These are broadly broken up 
+into two categories - events fired by each Toolkit instance, which are events related to the underlying Graph, and 
+presentation-level events - those fired by the Surface component, either from a <code>bind</code> on the Surface or via 
+event registrations in its View.</p>
+
+<p>Several events - such as node addition/removal etc - are fired by both the Toolkit and any associated Surfaces, 
+but the arguments passed to your callback differ slightly: events fired by Surfaces contain DOM elements along with 
+Toolkit objects, whereas Toolkit events pass strictly Toolkit objects.</p>
+
+<ul>
+<li><a href="#toolkit">Toolkit Events</a></li>
+<li><a href="#rendering">Rendering Events</a></li>
+<li><a href="#view">View Events</a></li>
+</ul>
+
+<p><a name="toolkit"></a></p>
+
+<h4>Toolkit Events</h4>
+
+<p>You bind to events on an instance of the jsPlumb Toolkit with the <code>bind</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;dataLoaded&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;the data is&quot;</span><span class="p">,</span> <span class="nx">d</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<table>
+<tr><th>Event</th><th>Description</th><th>Parameters</th></tr>
+<tr><td>dataLoadStart</td><td>Notification that loading of a dataset by the Toolkit instance has begun. This event is fired at the beginning of the `load` method.<td>-</td></tr>
+<tr><td>dataLoadEnd</td><td>Notification that loading of a dataset by the Toolkit instance has been completed. Fired at the end of the `load` method.<td>-</td></tr>
+<tr><td>dataAppendStart</td><td>Notification that incremental loading of a dataset by the Toolkit instance has begun. This event is fired at the beginning of the `append` method.<td>-</td></tr>
+<tr><td>dataAppendEnd</td><td>Notification that incremental loading of a dataset by the Toolkit instance has been completed. Fired at the end of the `append` method.<td>-</td></tr>
+<tr><td>graphCleared</td><td>Notification that the underlying graph was cleared.<td>-</td></tr>
+<tr><td>graphChanged</td><td>Notification that the underlying graph was changed.<td>-</td></tr>
+<tr><td>nodeAdded</td><td>Notification that a new Node has been added to the data model. The callback is passed the Node as argument.</td>
+<td>
+<ul>
+<li> <strong>data</strong> Data for the new Node; will be empty. You can populate this, as it's a reference to the data held by the Node.</li>
+<li><strong>node</strong> The new Node.</li></ul></td></tr>
+<tr><td>nodeRemoved</td><td>Notification that a Node has been removed from the data model. </td><td>
+<ul>
+<li><strong>node</strong> The Node that was removed.</li>
+<li><strong>nodeId</strong> The id of the Node. You can just get this from `node.id` of course.</li>
+<li><strong>edges</strong> The list of Edges that were removed as a result of the removal of the given Node.</li>
+</ul></td></tr>
+<tr><td>edgeAdded</td><td>Notification that a new Edge has been added to the data model.</td><td>
+<ul>
+<li><strong>edge</strong> The new Edge.</li></td></tr>
+<tr><td>edgeRemoved</td><td>Notification that an Edge has been removed from the data model.</td>
+<td>
+<ul>
+<li><strong>edge</strong>The Edge that was removed.</li></ul></td></tr>
+
+<tr><td>edgeTarget</td><td>Notification that the target for some Edge has changed.</td>
+<td>
+<ul>
+<li><strong>edge</strong>The Edge whose target was changed.</li>
+<li><strong>old</strong>The original target (Node or Port).</li>
+<li><strong>new</strong>The current target (Node or Port).</li>
+</ul></td></tr>
+
+<tr><td>edgeTarget</td><td>Notification that the source for some Edge has changed.</td>
+<td>
+<ul>
+<li><strong>edge</strong>The Edge whose source was changed.</li>
+<li><strong>old</strong>The original source (Node or Port).</li>
+<li><strong>new</strong>The current source (Node or Port).</li>
+</ul></td></tr>
+
+<tr><td>portAdded</td><td>Notification that a Port has been added to some Node.</td><td>
+<ul>
+<li><strong>node</strong> The Node to which the Port was added.</li>
+<li><strong>port</strong> The new Port.</li>
+<li><strong>data</strong> Data for the new Port; will be empty, and as with the `nodeAdded` event, you can populate this.</li>
+</ul></td></tr>
+<tr><td>portRemoved</td><td>Notification that a Port has been removed from some Node.<td>
+<ul>
+<li><strong>node</strong> Node from which the Port was removed.</li>
+<li><strong>port</strong> Port that was removed.</li>
+<li><strong>edges</strong> List of Edges that were removed as a result of the removal of the given Port.</li>
+</ul></td></tr>
+<tr><td>nodeRefreshed</td><td>Notification that the data for some Node has changed. Generally fired as a result of calling `refreshNode` on an instance of the Toolkit. All Surfaces subscribe to this event and redraw the UI as needed in response.</td><td>
+<ul>
+<li><strong>node</strong> The Node that was refreshed.</li></ul></td></tr>
+<tr><td>edgeRefreshed</td><td>Notification that the data for some Edge has changed. Generally fired as a result of calling `refreshEdge` on an instance of the Toolkit.  All Surfaces subscribe to this event and redraw the UI as needed in response.</td><td><ul><li><strong>edge</strong> The Edge that was refreshed.</li></ul></td></tr>
+<tr><td>portRefreshed</td><td> Notification that the data for some Port has changed. Generally fired as a result of calling `refreshPort` on an instance of the Toolkit.  All Surfaces subscribe to this event and redraw the UI as needed in response.</td><td><ul><li><strong>node</strong> The Node to which the Port belongs.</li>
+<li><strong>port</strong> The Port that was refreshed.</li></ul></td></tr>
+<tr>
+    <td>nodeUpdated</td>
+    <td>Notification that the data for some Node has changed. Fired as a result of calling `updateNode` on an 
+    instance of the Toolkit.
+    </td>
+    <td>
+        <ul>
+            <li><strong>params</strong>Callback parameters</li>
+            <li><strong>params.node</strong>The Node that was updated.</li>
+            <li><strong>params.updates</strong>The original updates that were passed to `updateNode`; an empty object if none.</li>
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td>edgeUpdated</td>
+    <td>Notification that the data for some Edge has changed. Fired as a result of calling `updateEdge` on an 
+    instance of the Toolkit.
+    </td>
+    <td>
+        <ul>
+            <li><strong>params</strong>Callback parameters</li>
+            <li><strong>params.edge</strong>The Edge that was updated.</li>
+            <li><strong>params.updates</strong>The original updates that were passed to `updateEdge`; an empty object if none.</li>            
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td>portUpdated</td>
+    <td>Notification that the data for some Port has changed. Fired as a result of calling `updatePort` on 
+    an instance of the Toolkit.</td>
+    <td>
+        <ul>
+            <li><strong>params</strong>Callback parameters</li>
+            <li><strong>params.port</strong> The Port that was updated.</li>
+            <li><strong>params.node</strong> The Node that owns the Port that was updated.</li>
+            <li><strong>params.updates</strong>The original updates that were passed to `updatePort`; an empty object if none.</li>
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td>dataUpdated</td>
+    <td>Notification that the data for some object has changed. This event is fired after any - and all - other event that has 
+modified the data.</td>
+    <td>-</td>
+</tr>
+</table>
+
+<p><a name="rendering"></a></p>
+
+<h3>Rendering Events</h3>
+
+<p>An instance of the Toolkit instance may have zero or more Surfaces attached to it. The Surface widget fires a 
+number of events that you can listen to in order to hook into the rendering process.  For instance, you might 
+subscribe to the <code>nodeAdded</code> event in order to attach behaviour to each of your nodes as they are drawn on screen. 
+Or you might subscribe to <code>edgeAdded</code> in order to be able to take action when a user has established a new 
+connection using the mouse.</p>
+
+<p>Many of these events are re-posted Toolkit events, and for these you can choose to subscribe on either the 
+Toolkit instance or on each Surface. The difference is that when you subscribe to a Surface&#39;s version of these 
+events, you will often also get an associated DOM element, which can be useful.</p>
+
+<p><strong>Note</strong> the vast majority of events pass a single argument - <code>params</code> - to your listener, so the parameter 
+lists refer to the possible properties in that object.  Where an event differs you will see the difference in 
+the callback&#39;s method signature.</p>
+
+<p>Events on the Surface widget are discussed in detail in the <a href="widget-surface.html#events">Surface widget documentation</a>.</p>
+
+<p><a name="view"></a></p>
+
+<h3>View Events</h3>
+
+<p>In the <code>view</code> parameter you supply to a <code>render</code> call, you can register events in Node, Port and Edge 
+definitions.  This is discussed in detail in the <a href="widget-surface.html#eventmodel">Surface widget documentation</a>.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

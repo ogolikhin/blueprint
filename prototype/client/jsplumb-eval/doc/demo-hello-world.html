@@ -1,0 +1,418 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <p><a name="top"></a></p>
+
+<h2>Hello World</h2>
+
+<p>This is a game in which the user must drag links to create <code>Hello World</code> in several languages.  This demonstration shows a couple of interesting pieces of functionality: the Toolkit&#39;s ability to <a href="#constraining">constrain connections programmatically</a>, and the mechanism used to <a href="#edgedata">generate data for an Edge</a> when the user begins dragging.  Also, this <a href="#css">demonstration makes use of jsPlumb&#39;s <code>connected</code> CSS class</a> to automatically highlight connected words.</p>
+
+<p><img src="demo-hello-world-app.png" alt="Hello World Demonstration"></p>
+
+<p>This page gives you an in-depth look at how the application is put together.</p>
+
+<ul>
+<li><a href="#setup">Page Setup</a></li>
+<li><a href="#templates">Templates</a></li>
+<li><a href="#loading">Data Loading</a></li>
+<li><a href="#rendering">Rendering</a></li>
+<li><a href="#constraining">Constraining Connections</a></li>
+<li><a href="#edgedata">Generating Edge Data</a></li>
+<li><a href="#solving">Solving the Puzzle</a></li>
+</ul>
+
+<p><a id="setup"></a></p>
+
+<h3>Page Setup</h3>
+
+<h6>CSS</h6>
+
+<ul>
+<li><strong>Font Awesome 4.0.3</strong> Used for all the iconography. Not a Toolkit requirement.</li>
+<li><strong>jsPlumbToolkit-defaults.css</strong> Recommended for all apps using the Toolkit, at least when you first start to build your app. This stylesheet contains sane defaults for the various widgets in the Toolkit.</li>
+<li><strong>jsPlumbToolkit-demo.css</strong> Common styles for the demonstration pages. Not a Toolkit requirement.</li>
+<li><strong>app.css</strong> Styles specific to this demo. </li>
+</ul>
+
+<h6>JS</h6>
+
+<ul>
+<li><strong>jsPlumb-x.x.x.js</strong></li>
+<li><strong>jsPlumbToolkit-x.x.x.js</strong></li>
+<li><strong>app.js</strong> Application specific JS.</li>
+</ul>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="setup"></a></p>
+
+<h3>Toolkit Setup</h3>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">beforeConnect</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">source</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s2">&quot;hello&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">target</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s2">&quot;world&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">source</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="o">===</span> <span class="nx">target</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">beforeStartConnect</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">edgeType</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="nx">lang</span><span class="o">:</span><span class="nx">node</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="p">};</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>In the constructor parameters for the Toolkit, we provide a <code>beforeConnect</code> function, which filters connections so that the only edges we can create are from a &#39;hello&#39; type to a &#39;world&#39; type. We also provide a <code>beforeStartConnect</code> function, which creates some backing data for the edge that the user will drag. In this case we return an object with the language from the <code>hello</code> node; it appears as an overlay on the edge.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="templates"></a></p>
+
+<h3>Templates</h3>
+
+<p>There are two templates used by the app - one for <code>hello</code> Nodes, and one for <code>world</code> Nodes:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplHello&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">&quot;left:${x}px;top:${y}px;&quot;</span> <span class="na">class=</span><span class="s">&quot;hello&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>${h}<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;ep&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+    <span class="nt">&lt;jtk-source</span> <span class="na">port-type=</span><span class="s">&quot;source&quot;</span> <span class="na">filter=</span><span class="s">&quot;.ep&quot;</span><span class="nt">&gt;&lt;/jtk-source&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>The <code>hello</code> template is configured as a connection source using the <code>jtk-source</code> element, which is discussed <a href="templating.html#connectivity">on this page</a>.</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplWorld&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">&quot;left:${x}px;top:${y}px;&quot;</span> <span class="na">class=</span><span class="s">&quot;world&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>${h}<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;jtk-target</span> <span class="na">port-type=</span><span class="s">&quot;target&quot;</span><span class="nt">&gt;&lt;/jtk-target&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>The <code>world</code> template is configured as a <a href="templating.html#connectivity">connection target</a> using the <code>jtk-target</code> element.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<p><a id="loading"></a></p>
+
+<h3>Data Loading</h3>
+
+<p>Data for this application is a list of &quot;Hello&quot; and &quot;World&quot; pairs:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">phrases</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;World&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Bonjour&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;fr&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Le Monde&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;fr&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hola&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;es&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Mundo&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;es&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hallå&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;sv&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Världen&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;sv&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hallo&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;de&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Welt&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;de&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hej&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;dk&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Verden&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;dk&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Ciao&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;it&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Mondo&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;it&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Hei&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;fi&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Maailma&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;fi&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Zdravo&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;si&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Svet&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;si&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span>  <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;привет&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;ru&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;мир&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;ru&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;здравей&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;bg&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;свят&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;bg&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Sawubona&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;zu&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;hello&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">h</span><span class="o">:</span><span class="s2">&quot;Mhlaba&quot;</span><span class="p">,</span> <span class="nx">l</span><span class="o">:</span><span class="s2">&quot;zu&quot;</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;world&quot;</span> <span class="p">}</span>
+<span class="p">];</span>
+</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">nodes</span><span class="o">:</span><span class="nx">phrases</span><span class="p">,</span>
+    <span class="nx">edges</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">source</span><span class="o">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span><span class="p">{</span> <span class="nx">lang</span><span class="o">:</span><span class="s2">&quot;en&quot;</span> <span class="p">}</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">source</span><span class="o">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span><span class="p">{</span> <span class="nx">lang</span><span class="o">:</span><span class="s2">&quot;it&quot;</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The <code>load</code> command passes in the list of phrases as <code>nodes</code>, and then, in the <code>edges</code> section, adds a couple of word pairs so that the user gets the idea of what they are supposed to do.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="rendering"></a></p>
+
+<h3>Rendering</h3>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span> <span class="nx">canvasElement</span><span class="p">,</span>
+  <span class="nx">view</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">nodes</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">hello</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;tmplHello&quot;</span>
+      <span class="p">},</span>
+      <span class="nx">world</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;tmplWorld&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">ports</span><span class="o">:</span><span class="p">{</span>
+      <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">maxConnections</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nx">uniqueEndpoint</span><span class="o">:</span> <span class="kc">true</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">edges</span><span class="o">:</span><span class="p">{</span>
+      <span class="s2">&quot;default&quot;</span><span class="o">:</span><span class="p">{</span>
+        <span class="nx">events</span><span class="o">:</span><span class="p">{</span>
+          <span class="nx">click</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">toolkit</span><span class="p">.</span><span class="nx">removeEdge</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">edge</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span>
+            <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;${lang}&quot;</span><span class="p">}]</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">layout</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;Spring&quot;</span>
+    <span class="p">},</span>
+    <span class="nx">zoomToFit</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">jsPlumb</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">Endpoint</span><span class="o">:</span> <span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
+        <span class="nx">Connector</span><span class="o">:</span> <span class="s2">&quot;StateMachine&quot;</span><span class="p">,</span>
+        <span class="nx">PaintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">3</span> <span class="p">},</span>
+        <span class="nx">Anchor</span><span class="o">:</span> <span class="s2">&quot;Center&quot;</span>
+    <span class="p">},</span>
+    <span class="nx">miniview</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">container</span><span class="o">:</span> <span class="nx">miniviewElement</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The meaning of each parameter is as follows:</p>
+
+<ul>
+<li><strong>container</strong>  The element into which to render.</li>
+<li><p><strong>view</strong> Mappings from Node/Edge/Port types to their visual representation/behaviour.  We map <code>hello</code> and <code>world</code> Node types to their
+respective templates, configure the <code>&quot;default&quot;</code> Port type to have a maximum of one Connection and to share an Endpoint between
+all Connections (which may seem redundant given the connection maximum, but the <code>jtk-source</code> element maps to jsPlumb&#39;s
+<code>makeSource</code> method, which creates, by default, a new Endpoint for each Connection drag. <code>uniqueEndpoint:true</code> suppresses
+that default behaviour. We also add a click listener to the default Edge type, which deletes the Edge on click, and we
+have a label Overlay that extracts its value from the Edge&#39;s backing data.</p></li>
+<li><p><strong>layout</strong> We use a Spring layout in this demonstration.</p></li>
+<li><p><strong>zoomToFit</strong> Instructs the Surface to zoom out so that all Nodes are visible after loading.</p></li>
+<li><p><strong>jsPlumb</strong> Defaults for the Surface&#39;s backing instance of jsPlumb.</p></li>
+<li><p><strong>miniview</strong> Provides the ID of the element to turn into a Miniview.</p></li>
+</ul>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="constraining"></a></p>
+
+<h3>Constraining Connections</h3>
+
+<p>The <code>beforeConnect</code> function shown in the call to <code>newInstance</code> defines a Function that will be called before any Edge is established (either programmatically or with the mouse):</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">beforeConnect</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">source</span><span class="p">,</span> <span class="nx">target</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s2">&quot;hello&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">target</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s2">&quot;world&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">source</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="o">===</span> <span class="nx">target</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The arguments <code>source</code> and <code>target</code> are either <a href="data-model.html#node">Nodes</a> or <a href="data-model.html#port">Ports</a>. If this function returns anything other than <code>true</code>, the Edge will be aborted.</p>
+
+<p>In this example we test three things:</p>
+
+<ul>
+<li>is the source a Node of type <code>&quot;hello&quot;</code> ?</li>
+<li>is the target a Node of type <code>&quot;world&quot;</code> ?</li>
+<li>is the language the same for the two Nodes?</li>
+</ul>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="edgedata"></a></p>
+
+<h3>Generating Edge Data</h3>
+
+<p>As discussed in the <a href="#rendering">rendering</a> section above, this demonstration has a label overlay on each Edge whose value is extracted from the Edge&#39;s backing data. With the two Edges loaded at startup, this piece of information is provided in the <code>data</code> object. But for Edges dragged with the mouse, we use a different mechanism - <code>beforeStartConnect</code> parameter on the <code>newInstance</code> call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">beforeStartConnect</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">edgeType</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span> <span class="nx">lang</span><span class="o">:</span><span class="nx">node</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">l</span> <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The Toolkit passes in the Node/Port (here we declared the argument as <code>node</code>; we know it is a Node in this application), and the computed type of the Edge. This application uses only the <code>&quot;default&quot;</code> Edge type, so we ignore that argument.</p>
+
+<p>The <code>beforeStartConnect</code> function defined here extracts the language from the Node from which the Edge is being dragged, and returns it in an Object.  If this function has returned <code>false</code>, the Edge would have been aborted. Since it returns an Object, the Edge is allowed to be established, and the return value is set as the Edge&#39;s backing data.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="solving"></a></p>
+
+<h3>Solving the Puzzle</h3>
+
+<p>The puzzle is considered solved when there are no unattached Nodes.  We listen for <code>edgeAdded</code> and <code>edgeRemoved</code> events,
+and then check the Toolkit to see if there are any unattached Nodes:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">solved</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">_testSolved</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="c1">// filter the data for nodes that are unconnected. If there are no unconnected</span>
+        <span class="c1">// nodes, everything is connected and we have a winner.</span>
+
+        <span class="nx">solved</span> <span class="o">=</span> <span class="p">(</span><span class="nx">toolkit</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">objectType</span> <span class="o">==</span> <span class="s2">&quot;Node&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">getAllEdges</span><span class="p">().</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}).</span><span class="nx">getNodeCount</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nx">solved</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;You win!&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+
+<span class="c1">// listen for edgeAdded/edgeRemoved  events</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;edgeAdded&quot;</span><span class="p">,</span> <span class="nx">_testSolved</span><span class="p">);</span>
+<span class="nx">renderer</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;edgeRemoved&quot;</span><span class="p">,</span> <span class="nx">_testSolved</span><span class="p">);</span>
+</code></pre></div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

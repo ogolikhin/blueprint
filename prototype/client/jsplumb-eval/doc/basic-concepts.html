@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Basic Concepts</h2>
+
+<p>The jsPlumb Toolkit is a data binding and rendering wrapper around the open source <a href="http://jsplumb.org">jsPlumb</a> 
+library. At its core is the concept of a <a href="http://en.wikipedia.org/wiki/Directed_graph">graph</a>, representing the 
+entities and relationships in your data model. Each instance of the Toolkit manages a single data model 
+(a single graph), and can be rendered to zero or more UI elements.  Each of these renderers is assigned its own 
+instance of jsPlumb. </p>
+
+<ul>
+<li><a href="#instantiating">Instantiating the jsPlumb Toolkit</a></li>
+<li><a href="#basicloading">Loading Data</a></li>
+</ul>
+
+<p><a name="instantiating"></a></p>
+
+<h3>Instantiating the jsPlumb Toolkit</h3>
+
+<p>You create a new instance of the Toolkit by calling the <code>newInstance</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+</code></pre></div>
+<p>This gives you an instance of the Toolkit with no data loaded and with no renderers assigned.</p>
+
+<p><a name="basicloading"></a></p>
+
+<h3>Loading Data</h3>
+
+<p>You can get data into the Toolkit in a few different ways:</p>
+
+<ul>
+<li>Passing it in to the <code>newInstance</code> method:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({</span>
+  <span class="nx">data</span><span class="o">:</span><span class="p">[</span>
+    <span class="s2">&quot;nodes&quot;</span><span class="o">:</span><span class="p">[</span>
+      <span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span> <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;edges&quot;</span><span class="o">:</span><span class="p">[</span>
+      <span class="p">{</span> <span class="s2">&quot;source&quot;</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span> <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<ul>
+<li>Calling <code>load</code> on an existing Toolkit instance:</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">data</span><span class="o">:</span><span class="p">[</span> <span class="p">....</span> <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<ul>
+<li>Calling the <code>addNode</code> method on an existing Toolkit instance (discussed WHERE).</li>
+</ul>
+
+<p>Notice the format of the data in the first example here.  This is the Toolkit&#39;s default data format, which is a close analog of the structure of <a href="http://graphml.graphdrawing.org/">GraphML</a>, but in JSON of course.  In examples 1 and 2 here, there is an implicit <code>dataType</code> parameter whose value defaults to <code>json</code>, which indicates data in this format.  </p>
+
+<p>There are two default data formats supported by the Toolkit:</p>
+
+<ul>
+<li>Graph JSON</li>
+</ul>
+
+<p>The syntax shown above.  Discussed in detail on <a href="loading-and-saving-data.html#graph-json-syntax">this page</a></p>
+
+<ul>
+<li>Hierarchical JSON</li>
+</ul>
+
+<p>An alternative syntax in which every Node has an optional <code>children</code> list; there is an implicit Edge between each Node and the contents of its <code>children</code> list. the entire graph is nested in this way. Discussed in more detail <a href="loading-and-saving-data.html#hierarchical-json-syntax">on this page</a>.</p>
+
+<p>It is possible to write and supply your own data loader to an instance of the jsPlumb Toolkit. This is discussed in more detail <a href="loading-and-saving-data.html#loading-custom-formats">here</a>.</p>
+
+<p><a name="ajaxloading"></a></p>
+
+<h3>Loading via Ajax</h3>
+
+<p>Instead of passing in the data directly, you can use the <code>url</code> parameter to have the Toolkit load data via json.  </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">url</span><span class="o">:</span><span class="s2">&quot;http://foo.com/myGraph.json&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here we&#39;ve loaded <code>myGraph.json</code> from <code>foo.com</code>.  </p>
+
+<p><a name="rendering"></a></p>
+
+<h3>Rendering</h3>
+
+<p>Rendering your data is handled by what the Toolkit calls a <strong>Surface</strong>.</p>
+
+<p>You can register an arbitrary number of elements as renderers with any given Toolkit instance, using the <code>render</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">({...});</span>
+<span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">jsPlumb</span><span class="o">:</span><span class="p">{</span>  <span class="p">...</span> <span class="nx">jsPlumb</span> <span class="nx">defaults</span> <span class="p">...</span> <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Notice here the <code>jsPlumb</code> parameter: these are defaults for the underlying jsPlumb instance.  Every Surface is backed by its own instance of jsPlumb, which can be configured however you like, but which of course ultimately defers to <code>jsPlumb.Defaults</code>.</p>
+
+<p>Whenever a change occurs to the graph - addition/deletion of nodes, import of data etc - every renderer is notified to repaint itself.</p>
+
+<p>Rendering is discussed in detail on <a href="rendering.html">this page</a></p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

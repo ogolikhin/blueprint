@@ -33,7 +33,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(string login, string password, bool force = false)
+        public async Task<IHttpActionResult> PostSession(string login, [FromBody]string password, bool force = false)
         {
             try
             {

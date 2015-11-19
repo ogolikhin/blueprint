@@ -343,20 +343,20 @@ END
 
 GO
 /******************************************************************************************************************************
-Name:			PostFileHead
+Name:			[InsertFileHead]
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
+2015/11/19		Albert Wong				Renamed procedure
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PostFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[PostFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[PostFileHead]
+CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
@@ -384,6 +384,81 @@ BEGIN
            ,@ChunkCount
 		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[InsertFileChunk]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/19		Albert Wong				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileChunk]
+GO
+
+CREATE PROCEDURE [dbo].[InsertFileChunk]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNumber int,
+	@ChunkSize int,
+	@ChunkContent varbinary(max)
+)
+AS
+BEGIN
+
+    INSERT INTO [dbo].[FileChunks]  
+           ([FileId]
+           ,[ChunkNumber]
+           ,[ChunkSize]
+		   ,[ChunkContent])
+    VALUES
+           (@FileId
+           ,@ChunkNumber
+           ,@ChunkSize
+           ,@ChunkContent)
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[GetFileChunk]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/19		Albert WOng				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetFileChunk]
+GO
+
+CREATE PROCEDURE [dbo].[GetFileChunk]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNumber int,
+	@ChunkSize int,
+	@ChunkContent varbinary(max)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [FileId]
+           ,[ChunkNumber]
+           ,[ChunkSize]
+		   ,[ChunkContent]
+	FROM [dbo].[FileChunks]
+	WHERE [FileId] = @FileId
+
 END
 
 GO

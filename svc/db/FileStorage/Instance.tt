@@ -26,7 +26,9 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetFileHead.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetStatus.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\HeadFile.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\PostFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\InsertFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\InsertFileChunk.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetFileChunk.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

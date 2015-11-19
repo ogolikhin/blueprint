@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>JsPlumb-Angular Demo</title>
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <style>
+        .node-container {
+            border: solid 1px #ccc;
+            position: relative;
+            height: 400px;
+        }
+
+        .node {
+            position: absolute;
+            border: solid 1px #0094ff;
+            padding: 20px;
+            background: #fff;
+        }
+    </style>
+</head>
+<body ng-controller="Ctrl as ctrl">
+    <h1>JsPlumb-Angular Demo</h1>
+    <h2>Declaring endpoints:</h2>
+    <p>
+        Use the 'jsplumb-endpoint' directive to declare endpoints. <br />
+        You can pass the endpoint options as attribute value.
+        You can declare multiple endpoints by using an array of endpoint options.
+    </p>
+
+    <div class="node-container" jsplumb jsplumb-defaults="{ Connector: 'Flowchart' }">
+        <div class="node"
+             ng-repeat="node in ctrl.nodes"
+             jsplumb-draggable left="node.position[0]" top="node.position[1]"
+             jsplumb-endpoint="{ anchor: 'Bottom', isSource: true, isTarget: true }">
+
+            <span ng-bind="node.name"></span>
+        </div>
+    </div>
+    Set "node 1" left position: <input type="number" ng-model="ctrl.nodes[0].position[0]" />
+
+    <h3>Model:</h3>
+    <pre>{{ ctrl.nodes | json }}</pre>
+
+    <script src="Scripts/jquery-1.11.0.js"></script>
+    <script src="Scripts/jquery-ui-1.10.4.custom.js"></script>
+    <script src="Scripts/jquery.jsPlumb-1.5.5.js"></script>
+    <script src="Scripts/angular.js"></script>
+    <script src="jsplumb-angular.js"></script>
+    <script>
+        angular.module('app', ['jsplumb'])
+            .controller("Ctrl", function () {
+                this.nodes = [
+                    { name: 'Node 1', position: [10, 10] },
+                    { name: 'Node 2', position: [100, 100] }
+                ];
+            });
+
+        angular.bootstrap(document.body, ['app']);</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!-- begin register -->
+<div class="register" ng-controller="registerController">
+    <!-- begin register-brand -->
+    <div class="register-brand bg-inverse text-white">
+        <img src="assets/img/logo-white.png" height="36" class="pull-right" alt="" /> Registration Form
+    </div>
+    <!-- end register-brand -->
+    <!-- begin register-content -->
+    <div class="register-content">
+        <h4 class="m-t-0 m-b-5">Great to see you here!</h4>
+        <p class="m-b-20">Create your Source Admin Account. It’s free and always will be.</p>
+        
+        <form method="POST" name="registerForm" class="form-input-flat" novalidate ng-submit="submitForm(registerForm)">
+            <div class="row row-space-14">
+                <div class="col-md-6 m-b-15" ng-class="{ 'has-error':loginForm.first_name.$error && loginForm.first_name.$touched }">
+                    <input type="text" class="form-control input-lg" name="first_name" ng-model="register.first_name" placeholder="First Name" required />
+                </div>
+                <div class="col-md-6 m-b-15" ng-class="{ 'has-error':loginForm.last_name.$error && loginForm.last_name.$touched }">
+                    <input type="text" class="form-control input-lg" name="last_name" ng-model="register.last_name" placeholder="Last Name" required />
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error':loginForm.email.$error && loginForm.email.$touched }">
+                <input type="email" class="form-control input-lg" name="email" ng-model="register.email" placeholder="Email Address" required />
+            </div>
+            <div class="form-group" ng-class="{ 'has-error':loginForm.password.$error && loginForm.password.$touched }">
+                <input type="password" class="form-control input-lg" name="password" ng-model="register.password" placeholder="Password" required />
+            </div>
+            <div class="form-group" ng-class="{ 'has-error':loginForm.password2.$error && loginForm.password2.$touched }">
+                <input type="password" class="form-control input-lg" name="password2" ng-model="register.password2" placeholder="Re-enter Password" required />
+            </div>
+            <div class="checkbox m-b-15">
+                <label>
+                    <input type="checkbox"ng-model="register.terms_and_condition"  name="terms_and_condition" required /> By creating an account, you agree to our <a href="#" class="text-muted">Terms and condition</a> and <a href="#" class="text-muted">Privacy Policy</a>.
+                </label>
+            </div>
+            <div class="row m-b-15">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-lime btn-lg btn-block">Register</button>
+                </div>
+            </div>
+            <div class="text-center">
+                Already a member? <a ui-sref="login" class="text-muted">Login with your account</a>
+            </div>
+        </form>
+    </div>
+    <!-- end register-content -->
+</div>
+<!-- end register -->

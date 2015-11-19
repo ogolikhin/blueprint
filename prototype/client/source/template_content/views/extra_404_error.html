@@ -1,0 +1,25 @@
+<!-- begin error -->
+<div class="error" ng-controller="errorController">
+    <div class="error-code">404</div>
+    <div class="error-content">
+        <div class="error-message m-b-5">Oops... The page you're looking for doesn't exist.</div>
+        <div class="error-desc m-b-20">
+           The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+        </div>
+        <div class="error-search">
+            <form class="form-input-flat">
+                <div class="form-group">
+                    <input type="text" class="form-control input-lg" placeholder="Enter Keywords Here" />
+                    <button type="submit" class="btn-search"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+        <p>
+            or
+        </p>
+        <div>
+            <a href="javascript:window.history.back();" class="btn btn-danger btn-rounded">Go Back</a>
+        </div>
+    </div>
+</div>
+<!-- end error -->

@@ -1,0 +1,46 @@
+.jtk-node {
+    background-color: #3E7E9C;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    position: absolute;
+    z-index: 11;
+    overflow: hidden;
+    min-width:80px;
+    min-height:30px;
+    width: auto;
+}
+
+.jtk-node .name {
+    background-color: #3E7E9C;
+    color: #f7ebca;
+    cursor: move;
+    font-size: 13px;
+    line-height: 24px;
+    padding: 6px;
+    text-align: center;
+}
+
+.jtk-node .name span {
+    cursor:pointer;
+}
+
+.jtk-animate-source {
+    outline:4px solid yellow;
+}
+
+/** applied to a node that a path is traversing on its way to another node */
+.jtk-animate-node-traversing {
+    outline:4px solid orange;
+}
+
+.jtk-animate-edge-traversable path {
+
+}
+
+/** applied to an edge that an overlay is traversing */
+.jtk-animate-edge-traversing path {
+    stroke-dasharray:0 2 2;
+    stroke:orange;
+    stroke-width:2;
+}

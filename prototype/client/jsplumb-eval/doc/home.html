@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>jsPlumb Toolkit</h2>
+
+<p>The jsPlumb Toolkit is a wrapper around the open source jsPlumb library that provides several key pieces of functionality:</p>
+
+<ul>
+<li><a href="templating.html">Data binding via client side templates</a>, supporting declarative configuration of connectivity.</li>
+<li><a href="graph.html">An underlying directed graph</a>, allowing you to query the data in several ways.</li>
+<li><a href="widget-surface.html">A pan/zoom widget</a> with the ability to serialize its state (either manually or automatically) to local storage or cookies.</li>
+<li><a href="rendering.html#miniview">A minimap widget</a> to assist in the navigation of large datasets.</li>
+<li><a href="layouts.html">Automatic layouts</a> (Hierarchical, Spring, Circular, Absolute), plus the ability to write your own.</li>
+<li><a href="models.html">A powerful declarative mechanism</a> for defining the appearance and behaviour of the various parts of your UI.</li>
+<li><a href="loading-and-saving-data.html">Data load/save</a> Either automatically or on-demand.</li>
+</ul>
+
+<p>The Toolkit version of jsPlumb has the Community version as a dependency.  The current version of the Toolkit 
+is 1.0.11, for which the minimum required version of jsPlumb is 2.1.0.</p>
+
+<h3>Getting Started</h3>
+
+<p>The best place to get started familiarising yourself with the architecture of the Toolkit is to read through the 
+documentation on one of the example applications - either the <a href="demo-database-visualizer.html">Database Visualizer</a> or the <a href="demo-flowchart-builder.html">Flowchart Designer</a>.  Then, with your licensed copy of the Toolkit, you can <a href="getting-started.html#clone">use Grunt to create a clone</a> of one of these apps and start hacking away.</p>
+
+<p>You can also <a href="getting-started.html#create-clone">use Grunt to create an empty application</a> if you&#39;d prefer to start with a basic skeleton.</p>
+
+<p>Alternatively, you might like to start with the documentation.  The <a href="data-model.html">Data Model</a> and <a href="basic-concepts.html">Basic Concepts</a> pages are the best places to start looking around.  In a nutshell, the Toolkit uses a <a href="http://en.wikipedia.org/wiki/Directed_graph">directed graph</a> as its core data structure.  Every app that has a need for jsPlumb - which is to say a need for the ability to connect entities - can be thought of in terms of a directed (or undirected) graph.</p>
+
+<h3>jsPlumb Community Edition</h3>
+
+<p>The Toolkit edition is a wrapper around the Community edition, and while most direct interaction with the 
+Community edition of jsPlumb is abstracted for you, settings related to UI appearance are generally piped 
+straight through to the underlying Community edition used to render your content.  </p>
+
+<p>These pages are recommended reading:</p>
+
+<ul>
+<li><strong><a href="/community/doc/basic-concepts.html">Basic Concepts</a></strong> - Gives you a primer on the basic UI types used in the community edition. When rendering content in the Toolkit you will want to be aware of the different types available and how they can be configured.</li>
+<li><strong><a href="/community/doc/defaults.html">Configuring Defaults</a></strong> - Explains the default settings available to jsPlumb. These can be used when <a href="/docs/toolkit/rendering.html">rendering content</a> in the Toolkit.</li>
+<li><strong><a href="/community/doc/styling-via-css.html">Styling via CSS</a></strong> - You will almost certainly want to read this page. It shows you how you can use CSS to style the jsPlumb view.</li>
+</ul>
+
+<p>...in fact it is recommended to read all of the Community edition documentation, just to familiarise yourself, but these
+pages will cover the most important things.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

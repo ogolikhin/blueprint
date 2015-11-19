@@ -1,0 +1,137 @@
+<div ng-controller="chartJsController as chartJs">
+    <!-- begin breadcrumb -->
+    <ol class="breadcrumb pull-right">
+        <li><a href="javascript:;">Home</a></li>
+        <li><a href="javascript:;">Chart</a></li>
+        <li class="active">Chart JS</li>
+    </ol>
+    <!-- end breadcrumb -->
+    <!-- begin page-header -->
+    <h1 class="page-header">Chart JS <small>header small text goes here...</small></h1>
+    <!-- end page-header -->
+    
+    <!-- begin section-container -->
+    <div class="section-container section-with-top-border p-b-5">
+        <p class="m-b-15">
+            <a href="http://www.chartjs.org/" target="_blank">Chart JS</a> is a simple, clean and engaging charts for designers and developers.
+        </p>
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Line Chart</h5>
+                    <p class="m-b-15">
+                        A line chart is a way of plotting data points on a line.
+                        Often, it is used to show trend data, and the comparison of two data sets.
+                    </p>
+                    <div>
+                        <canvas chart="Line" options="chartJs.chartOptions" data="chartJs.lineChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Bar Chart</h5>
+                    <p class="m-b-15">
+                        A bar chart is a way of showing data as bars.
+                        It is sometimes used to show trend data, and the comparison of multiple data sets side by side.
+                    </p>
+                    <div>
+                        <canvas chart="Bar" options="chartJs.chartOptions" data="chartJs.barChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+        </div>
+        <!-- end row -->
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Radar Chart</h5>
+                    <p class="m-b-15">
+                        A radar chart is a way of showing multiple data points and the variation between them.
+                        They are often useful for comparing the points of two or more different data sets.
+                    </p>
+                    <div>
+                        <canvas chart="Radar" options="chartJs.chartOptions" data="chartJs.radarChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Polar Area Chart</h5>
+                    <p class="m-b-15">
+                        Polar area charts are similar to pie charts, but each segment has the same angle - the radius of the segment 
+                        differs depending on the value.
+                    </p>
+                    <div>
+                        <canvas chart="PolarArea" options="chartJs.chartOptions" data="chartJs.polarChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+        </div>
+        <!-- end row -->
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Pie Chart</h5>
+                    <p class="m-b-15">
+                        Pie and doughnut charts are probably the most commonly used chart there are. The arc of each segment shows the proportional value of each piece of data.
+                    </p>
+                    <div>
+                        <canvas chart="Pie" options="chartJs.chartOptions" data="chartJs.pieChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0">Doughnut Chart</h5>
+                    <p class="m-b-15">
+                        Pie and doughnut charts are registered under two aliases in the Chart core. Other than their different default value, and different alias, they are exactly the same.
+                    </p>
+                    <div>
+                        <canvas chart="Doughnut" options="chartJs.chartOptions" data="chartJs.doughnutChartData" class="width-full" style="height:228px;"></canvas>
+                    </div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-6 -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end section-container -->
+
+    <!-- begin #footer -->
+    <div id="footer" class="footer">
+        <span class="pull-right">
+            <a href="javascript:;" class="btn-scroll-to-top" data-click="scroll-top">
+                <i class="fa fa-arrow-up"></i> <span class="hidden-xs">Back to Top</span>
+            </a>
+        </span>
+        &copy; 2015 <b>Source Admin</b> All Right Reserved
+    </div>
+    <!-- end #footer -->
+</div>

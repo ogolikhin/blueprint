@@ -86,13 +86,11 @@ namespace AdminStore.Controllers
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-				var uriBuilder = new UriBuilder("sessions/" + user.Id);
-	            var queryParams = HttpUtility.ParseQueryString(uriBuilder.Query);
+	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
 				queryParams.Add("userName", user.Login);
 				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
-	            uriBuilder.Query = queryParams.ToString();
 
-	            var result = await http.PostAsJsonAsync(uriBuilder.ToString(), user.Id);
+	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
                     throw new ServerException();

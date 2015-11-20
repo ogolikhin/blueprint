@@ -8,7 +8,7 @@ namespace AccessControl.Models
     {
         [JsonProperty]
         public int UserId { get; set; }
-        //[JsonProperty] - do not send session id
+        [JsonIgnore] //do not send session id
         public Guid SessionId { get; set; }
         [JsonProperty]
         public DateTime? BeginTime { get; set; }

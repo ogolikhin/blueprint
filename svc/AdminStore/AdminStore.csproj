@@ -112,7 +112,6 @@
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\ApplicationLabel.cs" />
-    <Compile Include="Models\ConfigSetting.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
     <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\LdapSettings.cs" />

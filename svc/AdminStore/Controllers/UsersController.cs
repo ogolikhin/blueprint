@@ -7,7 +7,9 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using ServiceLibrary.Helpers;
 using System.Linq;
+using AccessControl.Models;
 using AdminStore.Repositories;
+using Newtonsoft.Json;
 
 namespace AdminStore.Controllers
 {
@@ -40,7 +42,7 @@ namespace AdminStore.Controllers
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(userId);
                 if (loginUser == null)
                 {
-                    throw new InvalidCredentialException(string.Format("User does not exist with UserId: {0}", userId));
+                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", userId));
                 }
                 return Ok(loginUser);
             }
@@ -74,11 +76,12 @@ namespace AdminStore.Controllers
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                var result = await http.PutAsync(String.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
+                var result = await http.PutAsync(string.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadAsStringAsync();
-                    return int.Parse(content);
+                    var session = JsonConvert.DeserializeObject<Session>(content);
+                    return session.UserId;
                 }
                 throw new AuthenticationException("Authentication failed.");
             }

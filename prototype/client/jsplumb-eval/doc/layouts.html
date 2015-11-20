@@ -1,0 +1,787 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Layouts</h2>
+
+<p><a name="top"></a></p>
+
+<p>The Surface component in the Toolkit has support for layouts for the nodes in your UI. The Toolkit ships with support 
+for four layout types, and exposes an API for you to write your own. </p>
+
+<p>You do not interact directly with a Layout when using the Toolkit: the methods you generally need to use are exposed 
+through the Surface class.</p>
+
+<p>Every Layout supports the concept of &quot;magnetization&quot; - adjusting the positions of elements such that no two elements 
+overlap. This is a useful mechanism for making small adjustments to the UI without running a layout all over again. You
+can also apply layouts in an &#39;adhoc&#39; fashion - just once, without changing the main layout.</p>
+
+<hr>
+
+<ul>
+<li><a href="#layout-apply">Applying a Layout</a></li>
+<li><a href="#refreshvsrelayout">Refresh vs Relayout</a></li>
+<li>Layout Types
+
+<ul>
+<li><a href="layout-absolute.html">Absolute</a></li>
+<li><a href="layout-hierarchical.html">Hierarchical</a></li>
+<li><a href="layout-circular.html">Circular</a></li>
+<li><a href="layout-spring.html">Spring</a></li>
+</ul></li>
+<li><a href="#adhoc">AdHoc Layout Calls</a></li>
+<li><a href="#magnetization">Magnetization</a>
+
+<ul>
+<li><a href="#magnetization-adhoc">AdHoc calls</a></li>
+<li><a href="#magnetization-permanent">Permanently Switching On Magnetization</a></li>
+</ul></li>
+<li><a href="#decorators">Layout Decorators</a></li>
+<li><a href="#custom">Custom Layouts</a></li>
+</ul>
+
+<hr>
+
+<p><a name="layout-apply"></a></p>
+
+<h3>Applying a Layout</h3>
+
+<p>Each instance of the Toolkit has zero or more associated Surface components; it is to these objects that a Layout is applied. You can either do this in the render call itself:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+
+<span class="p">...</span> <span class="nx">load</span> <span class="nx">data</span><span class="p">...</span>
+
+<span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+    <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span>
+      <span class="nx">parameters</span><span class="o">:</span><span class="p">{</span>
+        <span class="nx">padding</span><span class="o">:</span><span class="p">[</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span> <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>... or you can call <code>setLayout</code> on a Surface at any time to change the Layout in use: </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">surface</span><span class="p">.</span><span class="nx">setLayout</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Circular&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4>Parameters</h4>
+
+<p>Each layout supports its own set of parameters.  You set these inside a <code>parameters</code> member in the object that you pass to the <code>layout</code> member of a <code>render</code> call, or in the object you pass to a <code>setLayout</code> call. </p>
+
+<p>In the first example above, for instance, we can see that the Hierarchical layout supports a <code>padding</code> parameter, which is an array of <code>[ x, y ]</code> padding values.  For a discussion of the supported parameters for each layout, see the sections below.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="refreshvsrelayout"></a></p>
+
+<h4>Refresh vs Relayout</h4>
+
+<p>All Layouts offer two basic methods for user interaction (although, as mentioned above, you do not call these methods directly on a Layout, you call them on a Surface): <code>refresh</code> and <code>relayout</code>. </p>
+
+<h5>relayout</h5>
+
+<p>Calling <code>relayout</code> will cause a Layout to clear all positioning data and start over from scratch. This is what is automatically called at the end of a data load, and can also be called manually should you wish to. For deterministic Layouts such as Hierarchical, you can be sure that <code>relayout</code> will always produce the same result from some given input. For other layouts, such as Spring, this is not the case: the Spring layout initially positions Nodes according to some random scheme, and so each time you run the algorithm you get a unique result. </p>
+
+<p>Another distinction between <code>relayout</code> and <code>refresh</code> is that with <code>relayout</code> you can pass in a new set of parameters</p>
+
+<h5>refresh</h5>
+
+<p>Calling <code>refresh</code> will cause a Layout to be re-run without first resetting itself.  As mentioned above, for most Layouts this will not be any different from a <code>relayout</code>.</p>
+
+<p>For other types of layout - Hierarchical, for instance - there is no discernible difference between a refresh and a re-layout, except for the fact that the <code>relayout</code> method allows you to pass in a new set of parameters for the layout to use.</p>
+
+<p>Whenever a change is made to the data model, the default behaviour is to make an internal call to <code>refresh</code>.  This keeps the state of the UI as constant as possible for the user.  You can suppress this behaviour by setting <code>refreshAutomatically:false</code> to a <code>render</code> call on an instance of the jsPlumb Toolkit. Should you wish to force a refresh or re-layout yourself, the Surface component offers methods for you to do so:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span> <span class="p">{</span> 
+  <span class="nx">refreshAutomatically</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+  <span class="p">...</span><span class="nx">options</span><span class="p">...</span> 
+<span class="p">}</span> <span class="p">);</span>
+
+<span class="c1">//</span>
+<span class="c1">// things happen</span>
+<span class="c1">//</span>
+<span class="nx">surface</span><span class="p">.</span><span class="nx">refresh</span><span class="p">();</span>
+</code></pre></div>
+<p>and</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">surface</span><span class="p">.</span><span class="nx">relayout</span><span class="p">({</span> <span class="p">...</span><span class="nx">options</span><span class="p">...</span> <span class="p">});</span>
+</code></pre></div>
+<p>Note that when you call <code>relayout</code> you can pass a new set of options to the layout.</p>
+
+<p>Another important consideration is that <code>refresh</code> retains existing Nodes, and therefore any event listeners you have registered, whereas <code>relayout</code> empties the DOM and creates everything anew, requiring that you re-register any event listeners.  The Toolkit fires events whenever either of these methods are executed - see the <a href="events.html">documentation on Events</a>.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="adhoc"></a></p>
+
+<h3>AdHoc Layout Calls</h3>
+
+<p>The <code>Surface</code> widget offers a method to run a layout on your data without making the layout permanent. Say, for instance,
+you were using an <code>Absolute</code> layout:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Absolute&quot;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>And at some point you wanted to apply a Spring layout just to clean up the UI. You can call <code>adHocLayout</code> for this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">surface</span><span class="p">.</span><span class="nx">adHocLayout</span><span class="p">({</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The format of the argument to <code>adHocLayout</code> is the same as for any call to <code>setLayout</code> or for a layout specified in a view.
+If you have your own layouts registered with the Toolit they can of course be referenced by this method too.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="magnetization"></a></p>
+
+<h3>Magnetization</h3>
+
+<p>The <code>AbstractLayout</code> class (and therefore every other Layout) has the ability to apply &quot;magnetization&quot; to the 
+Nodes in the layout in order to push everything apart so that no two nodes overlap.  Magnetization can be switched on 
+permanently (executed after every <code>refresh</code> or <code>relayout</code>), or it can be run only on demand. </p>
+
+<p>This functionality is very useful for helping users maintain a legible UI.</p>
+
+<p><a name="magnetization-permanent"></a></p>
+
+<h4>Permanent Magnetization</h4>
+
+<p>To switch on permanent magnetization, set <code>magnetize:true</code> in the <code>layout</code> options to a <code>render</code> method call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span><span class="p">,</span>
+    <span class="nx">padding</span><span class="o">:</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">],</span>
+    <span class="nx">magnetize</span><span class="o">:</span><span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here we have instructed the Layout to run the magnetizer after every <code>refresh</code> or <code>relayout</code>, and to ensure there is 
+30 pixels padding in each axis between any two Nodes.</p>
+
+<p><a name="magnetization-default"></a></p>
+
+<h4>Layout Default</h4>
+
+<p>It is possible for a layout to declare that it wishes permanent magnetization to be switched on by default. 
+The <a href="layout-spring.html">Spring layout</a> does this, for example. </p>
+
+<p>If you&#39;ve written a custom layout for which you&#39;d like to switch on permanent magnetization, see 
+<a href="#custom-magnetize">below</a>.</p>
+
+<p><a name="magnetization-adhoc"></a></p>
+
+<h4>AdHoc Magnetization</h4>
+
+<p>To run the magnetizer manually, you call the <code>magnetize</code> method on a Surface object. There are three ways you can call 
+this method:</p>
+
+<h5>Magnetize using the center of all Nodes as the center of magnetization</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({...});</span>
+<span class="nx">surface</span><span class="p">.</span><span class="nx">magnetize</span><span class="p">();</span>
+</code></pre></div>
+<h5>Magnetize using some specific point as the center of magnetization</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({...});</span>
+<span class="nx">surface</span><span class="p">.</span><span class="nx">magnetize</span><span class="p">({</span>
+  <span class="nx">origin</span><span class="o">:</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5>Magnetize using the location of some Event as the center of magnetization</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({...});</span>
+<span class="nx">surface</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;canvasClick&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">surface</span><span class="p">.</span><span class="nx">magnetize</span><span class="p">({</span>
+    <span class="nx">event</span><span class="o">:</span><span class="nx">event</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="decorators"></a></p>
+
+<h3>Decorators</h3>
+
+<p>A Decorator is a class that can add arbitrary extra content to the UI after a layout has been run. Content can be added
+ in three different ways:</p>
+
+<ul>
+<li>Appended to the work area. In this case, the decoration will pan and zoom with the nodes and edges in your UI.</li>
+<li>Floated over the work area. Use this to add layout-specific control elements, for example.</li>
+<li>Appended to the work area but fixed in one or both axes so that it never leaves the viewport. </li>
+</ul>
+
+<h4>Creating a Decorator</h4>
+
+<p>The first step is to write the skeleton for your decorator and register it on the Toolkit:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">.</span><span class="nx">Decorators</span><span class="p">[</span><span class="s2">&quot;Example&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">reset</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// Contents of params:</span>
+
+        <span class="c1">// remove(el, doNotRepaint)</span>
+    <span class="p">};</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">decorate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// Contents of params:</span>
+
+        <span class="c1">// adapter (a Surface)</span>
+        <span class="c1">// append(el, id, pos)</span>
+        <span class="c1">// fixElement(el, axes, pos)</span>
+        <span class="c1">// bounds </span>
+        <span class="c1">// jsPlumb</span>
+        <span class="c1">// layout </span>
+        <span class="c1">// setAbsolutePosition(el, xy)</span>
+        <span class="c1">// toolkit</span>
+    <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+<h5>Lifecycle</h5>
+
+<ul>
+<li><strong>reset</strong> is called before every <code>relayout</code> or <code>refresh</code> that occurs on the layout.</li>
+<li><strong>decorate</strong> is called before every <code>relayout</code> or <code>refresh</code>, immediately after <code>reset</code>.</li>
+</ul>
+
+<h5>Lifecycle Method Parameters</h5>
+
+<p>Each method is passed a <code>params</code> object, the contents of which are as follows:</p>
+
+<h6>reset</h6>
+
+<ul>
+<li>remove(el, doNotRefresh)</li>
+</ul>
+
+<p>This is a function you can call to have the Toolkit remove some element from the canvas (or a floated element). 
+You should use this method in preference to some other way of removing content since it ensures everything is
+ cleaned up appropriately.</p>
+
+<h6>decorate</h6>
+
+<ul>
+<li>adapter</li>
+</ul>
+
+<p>This is the underlying <a href="widget-surface.html">Surface</a> that is rendering your content. In future releases of
+ the Toolkit that support server side rendering, this may be some other object, the interface it implements
+ will be the same.</p>
+
+<ul>
+<li>append(el, id, pos)</li>
+</ul>
+
+<p>A function you can call to append some element to the canvas. Elements appended in this way are panned and
+ zoomed with the rest of the content. Only DOM elements are supported as <code>el</code> (not jQuery selectors). <code>id</code> is
+ optional, and <code>pos</code> is an array of [left, top] location data.</p>
+
+<ul>
+<li>floatElement(el, pos)</li>
+</ul>
+
+<p>A function you can call to append some element to the viewport at a given position. Elements added to the viewport
+ float over the content and remain fixed at the given location. Note that we do not currently support specifying
+  <code>right</code> or <code>bottom</code> properties in this method - the values in <code>pos</code> are expected to be [<code>left</code>, <code>top</code>].</p>
+
+<ul>
+<li>fixElement(el, axes, pos)</li>
+</ul>
+
+<p>This behaves like <code>append</code> in that it adds the given element to the canvas so that it is panned and zoomed with
+ the rest of the content, but the <code>axes</code> argument allows you to specify that the element should not be allowed to
+ exit the viewport in one or more axes. An example will be best to explain this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="kd">var</span> <span class="nx">el</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+ <span class="nx">el</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s2">&quot;I&#39;m a label&quot;</span><span class="p">;</span>
+
+ <span class="nx">params</span><span class="p">.</span><span class="nx">fixElement</span><span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="p">{</span> <span class="nx">left</span><span class="o">:</span><span class="kc">true</span> <span class="p">},</span> <span class="p">[</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span> <span class="p">]);</span>
+</code></pre></div>
+<p>In this example we have requested that our label div be placed on the content at position [50, 50]. But when the
+ content is panned to the left to the extent that the label would be less than 50 pixels from the edge of the
+ viewport, its location is adjusted so that it remains fixed in place in the x axis. In case it is not obvious,
+ you could also specify <code>top:true</code> in the <code>axes</code> argument.</p>
+
+<ul>
+<li>bounds</li>
+</ul>
+
+<p>This is an array of [ xmin, ymin, xmax, ymax ] locations, giving the extents of the content. Remember that in
+ the Toolkit, the origin of the canvas does not necessarily correlate with the top left corner of your layout&#39;s
+   extents. It depends on what the layout chooses to do. All of the layouts that ship with the Toolkit, for instance,
+   routinely draw into the negative in both axes. So the point here is that it may be the case that if you want 
+   something to appear at the origin of your layout&#39;s extents, that point will not be [0,0]. It will, though, 
+   be the first two values in <code>bounds</code>, and you are safe to pass <code>bounds</code> to either <code>append</code> or <code>fixElement</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript">  <span class="kd">var</span> <span class="nx">el</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+  <span class="nx">el</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s2">&quot;I&#39;m a label&quot;</span><span class="p">;</span>
+
+  <span class="nx">params</span><span class="p">.</span><span class="nx">fixElement</span><span class="p">(</span><span class="nx">el</span><span class="p">,</span> <span class="p">{</span> <span class="nx">left</span><span class="o">:</span><span class="kc">true</span> <span class="p">},</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">);</span>
+</code></pre></div>
+<p>Here we have requested that our label appear at the origin of the layout&#39;s extents, and for it to stay there
+  in the X axis as the user pans to the left.</p>
+
+<ul>
+<li>jsPlumb</li>
+</ul>
+
+<p>The underlying jsPlumb renderer. The majority of use cases will not need to access this.</p>
+
+<ul>
+<li>layout</li>
+</ul>
+
+<p>The layout used to render this data.  Typically, a decorator and a layout work in tandem: the layout knows the 
+ key bits of information a decorator needs. Take a process flow diagram as an example: the layout has created the
+ lanes and placed nodes into these lanes; it is the layout that can tell the decorator where the lanes start and end.</p>
+
+<ul>
+<li>setAbsolutePosition(el, pos)</li>
+</ul>
+
+<p>A function you can use to set the position of some element on the canvas. </p>
+
+<ul>
+<li>toolkit</li>
+</ul>
+
+<p>The underlying jsPlumb Toolkit instance.</p>
+
+<h4>Invoking a decorator</h4>
+
+<p>You invoke decorators by specifying them in the <code>layout</code> section of a <code>render</code> method call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">myToolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="p">...,</span>
+    <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Hierarchy&quot;</span><span class="p">,</span>
+        <span class="nx">decorators</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Example&quot;</span> <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>You can attach an arbitrary number of decorators.</p>
+
+<h4>Simple Example</h4>
+
+<p>In our <code>Example</code> decorator we will float an element near the top left corner, and draw a blue background around the
+ entire contents:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">.</span><span class="nx">Decorators</span><span class="p">[</span><span class="s2">&quot;Example&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">label</span><span class="p">,</span> <span class="nx">background</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">reset</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">label</span> <span class="o">&amp;&amp;</span> <span class="nx">params</span><span class="p">.</span><span class="nx">removeElement</span><span class="p">(</span><span class="nx">label</span><span class="p">);</span>
+        <span class="nx">background</span> <span class="o">&amp;&amp;</span> <span class="nx">params</span><span class="p">.</span><span class="nx">removeElement</span><span class="p">(</span><span class="nx">background</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">decorate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="nx">label</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+        <span class="nx">label</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s2">&quot;aLabel&quot;</span><span class="p">;</span>
+        <span class="nx">label</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s2">&quot;My Decorator&quot;</span><span class="p">;</span>
+        <span class="nx">params</span><span class="p">.</span><span class="nx">floatElement</span><span class="p">(</span><span class="nx">label</span><span class="p">,</span> <span class="p">[</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span> <span class="p">]);</span>
+
+        <span class="nx">background</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s2">&quot;background&quot;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">w</span> <span class="o">=</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="nx">h</span> <span class="o">=</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="p">(</span><span class="nx">w</span> <span class="o">+</span> <span class="mi">40</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">;</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="p">(</span><span class="nx">h</span> <span class="o">+</span> <span class="mi">40</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">xy</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">20</span> <span class="p">];</span>
+
+        <span class="nx">params</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">background</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">xy</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Here we&#39;ve floated the label, and then created a background element that will overlap the content by 20 pixels
+on each side. 20 pixels, though...what if we wanted to set that?</p>
+
+<h4>Decorator Options</h4>
+
+<p>You can pass options to a decorator using the syntax with which you may be familiar from anchors etc in theCommunity 
+edition:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">myToolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="nx">someElement</span><span class="p">,</span>
+    <span class="p">...,</span>
+    <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Hierarchy&quot;</span><span class="p">,</span>
+        <span class="nx">decorators</span><span class="o">:</span><span class="p">[</span> 
+            <span class="p">[</span> <span class="s2">&quot;Example&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">padding</span><span class="o">:</span><span class="mi">20</span> <span class="p">}</span> <span class="p">]</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The options are passed in to the constructor of the decorator. So we can rewrite our decorator now:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">.</span><span class="nx">Decorators</span><span class="p">[</span><span class="s2">&quot;Example&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="kd">var</span> <span class="nx">label</span><span class="p">,</span> <span class="nx">background</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">padding</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">padding</span> <span class="o">||</span> <span class="mi">20</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">reset</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">label</span> <span class="o">&amp;&amp;</span> <span class="nx">params</span><span class="p">.</span><span class="nx">removeElement</span><span class="p">(</span><span class="nx">label</span><span class="p">);</span>
+        <span class="nx">background</span> <span class="o">&amp;&amp;</span> <span class="nx">params</span><span class="p">.</span><span class="nx">removeElement</span><span class="p">(</span><span class="nx">background</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">decorate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="nx">label</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+        <span class="nx">label</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s2">&quot;aLabel&quot;</span><span class="p">;</span>
+        <span class="nx">label</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s2">&quot;My Decorator&quot;</span><span class="p">;</span>
+        <span class="nx">params</span><span class="p">.</span><span class="nx">floatElement</span><span class="p">(</span><span class="nx">label</span><span class="p">,</span> <span class="p">[</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span> <span class="p">]);</span>
+
+        <span class="nx">background</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">);</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">className</span> <span class="o">=</span> <span class="s2">&quot;background&quot;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">w</span> <span class="o">=</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="nx">h</span> <span class="o">=</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="p">(</span><span class="nx">w</span> <span class="o">+</span> <span class="p">(</span><span class="nx">padding</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">;</span>
+        <span class="nx">background</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="p">(</span><span class="nx">h</span> <span class="o">+</span> <span class="p">(</span><span class="nx">padding</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">xy</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="nx">padding</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nx">padding</span> <span class="p">];</span>
+
+        <span class="nx">params</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">background</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">xy</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+<h4>Z Index</h4>
+
+<p>The Toolkit will not take care of z-index for you. Webapps come in a million different shapes and sizes; it would
+be too invasive for the Toolkit to infer anything. Keep this in mind when you write your decorators...</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="custom"></a></p>
+
+<h3>Custom Layouts</h3>
+
+<p>For many UIs, the layouts that ship with the Toolkit will provide sufficient functionality.  However you may find that you need to write a custom layout for your UI - the Toolkit allows you to do this.</p>
+
+<p>In this section we&#39;ll go through the steps involved in writing your own layout.</p>
+
+<h4>1. Create and declare your layout</h4>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">;(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">myLayout</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="p">};</span>
+<span class="p">})(</span><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">);</span>
+</code></pre></div>
+<h4>2. Subclass the abstract layout</h4>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">;(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">myLayout</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_super</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">.</span><span class="nx">AbstractLayout</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">})(</span><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">);</span>
+</code></pre></div>
+<p><code>_super</code> offers various operations that a layout needs: getting node data and element sizes, getting edge data, setting positions etc.</p>
+
+<h4>3. Implement lifecycle methods</h4>
+
+<p>The Renderer in the jsPlumb Toolkit will never directly call your layout (unless you accidentally override one of the methods in <code>AbstractLayout</code>, that is!); instead it interfaces with <code>AbstractLayout</code>, which works with your layout via a few lifecycle methods.  All of these methods, except <code>step</code>, are optional.  </p>
+
+<h5>The Layout Lifecycle</h5>
+
+<p>AbstractLayout has two methods that a Renderer will call:</p>
+
+<ul>
+<li><code>layout()</code>                            runs the layout, without resetting it.</li>
+<li><code>relayout([parameters])</code>      runs the layout, first resetting it.</li>
+</ul>
+
+<p><strong>You should not override these methods</strong>. Your layout will not work if you do so.</p>
+
+<h6>relayout([parameters])</h6>
+
+<p>When <code>relayout()</code> is called, AbstractLayout resets the current parameters, then calls its own private <code>_reset()</code> method, which calls </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">reset</span><span class="p">()</span>
+</code></pre></div>
+<p>...if the subclass has defined such a method. It then calls <code>this.layout()</code>.</p>
+
+<h6>layout()</h6>
+
+<p>When <code>layout()</code> is called, AbstractLayout calls </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">begin</span><span class="p">(</span><span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">);</span>
+</code></pre></div>
+<p>if the subclass has defined it. It then repeatedly calls </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">step</span><span class="p">(</span><span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">);</span>
+</code></pre></div>
+<p>which subclasses are expected to implement, until the subclass calls</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">_super</span><span class="p">.</span><span class="nx">setDone</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
+<p>At this point, AbstractLayout converts the node positions and actually places nodes on screen.</p>
+
+<p>Last, the AbstractLayout calls </p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">);</span>
+</code></pre></div>
+<p>...if the subclass has defined such a method.</p>
+
+<p>Note that in all these examples, <code>parameters</code> is an object containing the parameters you set on the Layout, merged on top of the default parameter values for the Layout in effect.  </p>
+
+<h6>Default Parameters</h6>
+
+<p>Each layout can expose a member containing default parameter values:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">defaultParameters</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">foo</span><span class="o">:</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+  <span class="nx">etc</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>When you make a <code>render</code> call and supply some parameters, they are merged on top of a copy of the default parameters before being supplied to the Layout&#39;s lifecycle methods:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">someToolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span>
+    <span class="nx">parameters</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">orientation</span><span class="o">:</span><span class="s2">&quot;vertical&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The default value of the <code>orientation</code> parameter on the Hierarchical layout is <code>horizontal</code>. So in this example the value is overridden by <code>vertical</code>, but the padding values used will be the defaults.    </p>
+
+<p>The same principle applies when you call <code>relayout</code> with some new parameters - say we want to reapply the layout above at some point, but switch it back to horizontal with more padding:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">renderer</span><span class="p">.</span><span class="nx">relayout</span><span class="p">({</span>
+  <span class="nx">orientation</span><span class="o">:</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+  <span class="nx">padding</span><span class="o">:</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5>Positioning Nodes</h5>
+
+<p>Obviously it is the subclass&#39;s responsibility to place all the nodes.   The return value from <code>AbstractLayout</code>&#39;s constructor has several methods you can use to find out information you need:</p>
+
+<ul>
+<li><p><code>getPosition(nodeId)</code>     gets a node&#39;s current position, creating and randomly assigning one if it has not yet been placed.</p></li>
+<li><p><code>setPosition(nodeId, x, y)</code>  sets a node&#39;s new position. </p></li>
+<li><p><code>getSize(nodeId)</code>         Returns the size of a node&#39;s element in the display.</p></li>
+</ul>
+
+<h5>Viewport Size</h5>
+
+<p>The size of the enclosing viewport is exposed on the <code>_super</code> object with two properties:</p>
+
+<ul>
+<li><code>width</code>                   the width of the viewport, in pixels.</li>
+<li><code>height</code>              the height of the viewport, in pixels.</li>
+</ul>
+
+<p>You may or may not need to care about the size of the viewport. Many Layouts do not, since the renderer provides a pannable surface whose extents may lay outside the bounds of the viewport.  But some Layouts may wish to paint themselves entirely inside their viewport.</p>
+
+<h6>Example</h6>
+
+<p>Taking the code from above, here is a layout that draws all the nodes in the Toolkit instance in a straight line across the middle of the viewport, with 50 pixels spacing (by default; you can pass this value in as a parameter) between them:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">;(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">myLayout</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_super</span> <span class="o">=</span> <span class="nx">jsPlumbLayout</span><span class="p">.</span><span class="nx">AbstractLayout</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">),</span>
+        <span class="nx">position</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nx">nodeCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nx">padding</span><span class="p">;</span>
+
+    <span class="c1">// called by superclass on relayout      </span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">reset</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">position</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="nx">nodeCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="c1">// called by superclass on relayout OR refresh  </span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">begin</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">graph</span><span class="p">,</span> <span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">nodeCount</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getNodeCount</span><span class="p">();</span>
+      <span class="nx">padding</span> <span class="o">=</span> <span class="nx">parameters</span><span class="p">.</span><span class="nx">padding</span> <span class="o">||</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">step</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">graph</span><span class="p">,</span> <span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nodeCount</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">node</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getNodeAt</span><span class="p">(</span><span class="nx">i</span><span class="p">),</span>
+            <span class="nx">size</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getNodeSize</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+
+        <span class="c1">// position around middle of the y axis</span>
+        <span class="kd">var</span> <span class="nx">y</span> <span class="o">=</span> <span class="p">(</span><span class="nx">_super</span><span class="p">.</span><span class="nx">height</span> <span class="o">-</span> <span class="nx">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+
+        <span class="c1">// step across in the x direction</span>
+        <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nx">counter</span><span class="p">;</span>
+
+        <span class="c1">// set the position for this node</span>
+        <span class="nx">_super</span><span class="p">.</span><span class="nx">setPosition</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">);</span>
+
+        <span class="c1">// increment counter</span>
+        <span class="nx">counter</span> <span class="o">+=</span> <span class="p">(</span><span class="nx">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nx">padding</span><span class="p">);</span>        
+      <span class="p">}</span>
+
+      <span class="c1">// inform the super that the layout is done.</span>
+      <span class="nx">_super</span><span class="p">.</span><span class="nx">setDone</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">end</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">graph</span><span class="p">,</span> <span class="nx">toolkit</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// unused.</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">})(</span><span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Layouts</span><span class="p">);</span>
+</code></pre></div>
+<p>Note in this example how we call <code>_super.setDone(true)</code> right at the end of the first <code>step</code> call.  This is because this layout is able to do everything in one pass.  Some types of layouts - Spring, for instance - work iteratively until some condition is met.</p>
+
+<p><a name="custom-magnetize"></a></p>
+
+<h5>Magnetization</h5>
+
+<p>As discussed <a href="#magnetization-default">above</a>, it is possible for a layout to switch on magnetization by default. If you 
+wish to do this for your custom layout, you must set <code>defaultMagnetized:true</code> in your constructor <em>before</em> calling 
+the <code>AbstractLayout</code> constructor:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="p">;(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">myLayout</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">defaultMagnetized</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">_super</span> <span class="o">=</span> <span class="nx">jsPlumbLayout</span><span class="p">.</span><span class="nx">AbstractLayout</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">),</span>
+    <span class="p">...</span>
+</code></pre></div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

@@ -1,0 +1,345 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Templating</h2>
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#limitations">Limitations</a></li>
+<li><a href="#inferring-template-ids">Inferring Template IDs</a></li>
+<li><a href="#connectivity">Configuring Connectivity</a></li>
+<li><a href="#external">External templates</a></li>
+</ul>
+
+<p><a name="introduction"></a>
+One great feature of the jsPlumb Toolkit is the way client side templating is baked right in - your Node and 
+Port definitions in the Palette declare the id of some template to use and the Toolkit takes care of the rest.</p>
+
+<p><a href="https://github.com/jsplumb/rotors">Rotors</a> is the default template adapter in the jsPlumb Toolkit. You can use 
+any templating mechanism you want to - you just need to write an appropriate adapter, and provide this function 
+as the value of the <code>templateRenderer</code> parameter - but it is recommended that you use Rotors, because Rotors&#39; 
+ability to update previously rendered content means that you can update your UI &quot;automatically&quot; from a change to 
+the data. </p>
+
+<p>Here&#39;s what a jQuery templates renderer might look like, as an example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="p">...,</span>
+  <span class="nx">palette</span><span class="o">:</span><span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+  <span class="nx">templateRenderer</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">templateId</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">toolkitInstance</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// do things</span>
+    <span class="c1">// return a DOM element</span>
+    <span class="k">return</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="nx">templateId</span><span class="p">).</span><span class="nx">tmpl</span><span class="p">(</span><span class="nx">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>But again let us suggest to you that using Rotors is your best choice.</p>
+
+<p>Here&#39;s what the <code>table</code> template looks like in the Database Visualizer application:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplTable&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table-name&quot;</span><span class="nt">&gt;</span>
+      ${name}
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;new-column&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to add a new column&quot;</span><span class="nt">&gt;</span>+<span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;table-columns&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;r-each</span> <span class="na">in=</span><span class="s">&quot;columns&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;r-tmpl</span> <span class="na">id=</span><span class="s">&quot;tmplColumn&quot;</span><span class="nt">&gt;&lt;/r-tmpl&gt;</span>
+      <span class="nt">&lt;/r-each&gt;</span>             
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>and here&#39;s <code>tmplColumn</code>:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplColumn&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;table-column table-column-type-${type} table-column-primary-key&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table-column-delete&quot;</span> <span class="na">data-port-id=</span><span class="s">&quot;${id}&quot;</span><span class="nt">&gt;</span>x<span class="nt">&lt;/div&gt;</span>
+    ${id}
+    <span class="nt">&lt;jtk-source</span> <span class="na">port-id=</span><span class="s">&quot;${id}&quot;</span> <span class="na">port-type=</span><span class="s">&quot;column&quot;</span> <span class="na">scope=</span><span class="s">&quot;${datatype}&quot;</span><span class="nt">&gt;&lt;/jtk-source&gt;</span>
+    <span class="nt">&lt;jtk-target</span> <span class="na">port-id=</span><span class="s">&quot;${id}&quot;</span> <span class="na">port-type=</span><span class="s">&quot;column&quot;</span> <span class="na">scope=</span><span class="s">&quot;${datatype}&quot;</span><span class="nt">&gt;&lt;/jtk-target&gt;</span>
+  <span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>Notice any non-standard HTML in there?  The jsPlumb Toolkit supports declarative source/target/endpoint 
+configuration, discussed in <a href="#connectivity">Connectivity</a> below.</p>
+
+<p>These templates are matched to Node/Port types in the Database Visualizer&#39;s <code>view</code>. Here&#39;s an edited snippet of 
+the view:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">nodes</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">&quot;table&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;tmplTable&quot;</span>
+  <span class="p">}</span>
+  <span class="p">...</span>
+<span class="p">},</span>
+<span class="p">...</span>
+<span class="nx">ports</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;tmplColumn&quot;</span><span class="p">,</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><a name="limitations"></a></p>
+
+<h3>Limitations</h3>
+
+<p>When using the default template engine, your templates must return a <em>single root node</em>. If you return multiple
+ nodes, the Toolkit will use the first node only.</p>
+
+<p><a name="inferring-template-ids"></a></p>
+
+<h3>Inferring Template IDs</h3>
+
+<p>As shown above, the Node and Port definitions passed as part of the <code>view</code> parameter on a <code>render</code> call allow you to 
+specify a <code>template</code> to be used to render an instance of the given type. Sometimes you will find that you have nothing 
+other than a <code>template</code> directive in a Node or Port definition. So to cut down on boilerplate, the Toolkit will make 
+a guess at a suitable template id if you do not provide.  </p>
+
+<p>The inferred template id consists of <code>&quot;jtk-template-&quot;</code> as a prefix, followed by the type of the object. So in the 
+previous example, a Node of type <code>table</code> would have an inferred template id of <code>jtk-template-table</code>.</p>
+
+<p><a name="connectivity"></a></p>
+
+<h3>Configuring Connectivity</h3>
+
+<h4>jtk Elements</h4>
+
+<p>To configure your UI to allow for the user to establish connections using the mouse, you use one or more custom tags in your HTML templates. In the previous section, we saw a template that had a <code>jtk-source</code> and a <code>jtk-target</code> element; these were used to declare that the given element should act as both a connection source and connection target. </p>
+
+<p>A third custom element available in the jsPlumb Toolkit is <code>jtk-port</code> - used to declare an Endpoint on some element.</p>
+
+<p>A full discussion of each element follows.</p>
+
+<h4>jtk-source</h4>
+
+<p>This element is used when you want to configure some element as a connection source. It is analogous (and maps directly to) the <code>makeSource</code> method in jsPlumb. The element that is configured as the connection source is that element which is the parent of the <code>jtk-source</code> element - here, it&#39;s the <code>.table-column</code> li.</p>
+
+<p>Five attributes are supported on the <code>jtk-source</code> element (two of which are not shown in this example):</p>
+
+<ul>
+<li><strong>port-id</strong></li>
+</ul>
+
+<p>This defines the id of the port on the node. It is not mandatory: if you use the <code>jtk-source</code> element to turn some Node into a connection source, then you don&#39;t need to set this attribute - you are configuring the Node&#39;s default Port. If you wish to assign this connection source to a Port, though, then you must set this attribute. This attribute&#39;s value must be unique on its Node, but may be the same as the id of some Port on another Node.  Here we are using the <code>id</code> member of the data backing the column.</p>
+
+<ul>
+<li><strong>port-type</strong></li>
+</ul>
+
+<p>Maps to a Port type in the palette, as discussed above. Note that you can set this even if you don&#39;t set <code>port-id</code>, as you will want to associate a Node&#39;s default Port with some type.</p>
+
+<ul>
+<li><strong>scope</strong></li>
+</ul>
+
+<p>The jsPlumb Toolkit makes use of jsPlumb&#39;s <code>scope</code> concept to control, albeit in a relatively crude way, what can be connected to what. In this template you see that both the <code>jtk-source</code> and <code>jtk-target</code> elements use the same value for scope, and in the Database Visualizer this is mapped to the column&#39;s underlying datatype.  There is a more sophisticated mechanism available to control connections should you need it, see <a href="palettes.html#interceptors">Interceptors</a>.</p>
+
+<ul>
+<li><strong>filter</strong></li>
+</ul>
+
+<p>Oftentimes you will want to configure an element as a connection source but not actually have the entire element respond to a connection drag start.  This is quite common in the sorts of UIs for which the jsPlumb Toolkit is used: you need to be able to drag your nodes around the screen, but you&#39;d also like to be able to drag connections from the nodes too. Using <code>filter</code> you provide a CSS selector that identifies elements from which connection drag <strong>should be</strong> supported.  </p>
+
+<ul>
+<li><strong>filter-exclude</strong></li>
+</ul>
+
+<p>If you run into a problem specifying a suitable selector for the <code>filter</code> (<code>:not</code> selectors, in particular, are a little restricting), you can set <code>filter-exclude:true</code>, which will mean that the elements identified by the <code>filter</code> selector will be excluded from starting a drag.</p>
+
+<h4>jtk-target</h4>
+
+<p>This element is the opposite of the <code>jtk-source</code> element: it allows you to identify its parent as an element that you wish to configure as a connection target. It also has an analogue in jsPlumb to which it is directly mapped: <code>makeTarget</code>.</p>
+
+<p>This element supports three of the five attributes supported by <code>jtk-source</code>. Their meaning and usage is the same:</p>
+
+<ul>
+<li><strong>port-id</strong></li>
+<li><strong>port-type</strong></li>
+<li><strong>scope</strong></li>
+</ul>
+
+<p>The fourth and fifth parameters - <code>filter</code> and <code>filter-negate</code> - are not supported, which means that it is always the entire element that is configured as a connection target.  It is possible that, in the future, jsPlumb will support the <code>filter</code> and <code>filter-negate</code> attributes on the <code>makeTarget</code> method. If/when that happens, the Toolkit&#39;s <code>jtk-target</code> element will be updated to also support them.</p>
+
+<h4>jtk-port</h4>
+
+<p>Use this element when you want to have an Endpoint added to your UI.  Its analogue in jsPlumb is the <code>addEndpoint</code> method. This element supports the same attributes as <code>makeTarget</code>, plus one extra:</p>
+
+<ul>
+<li><strong>port-id</strong></li>
+<li><strong>port-type</strong></li>
+<li><strong>scope</strong></li>
+</ul>
+
+<p><strong>Note</strong> using this declarative means of configuring ports <strong>does not mean that the UI artefacts associated with the Endpoints exist in the DOM as children of the port&#39;s parent element</strong>. Remember that the Toolkit always makes use of jsPlumb&#39;s <strong>Container</strong> concept, to ensure that all of the Endpoints and Connections contained inside a given Surface have the same parent.</p>
+
+<p>Note also that any jsPlumb Toolkit elements that are found during rendering are removed from the DOM after processing.</p>
+
+<p><a name="external"></a></p>
+
+<h3>External Templates</h3>
+
+<p>To help you organize your templates better, you can store them in external files and reference them via  a <code>script</code> import in your HTML:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/x-jtk-templates&quot;</span> <span class="na">src=</span><span class="s">&quot;../palettes/shapes-svg.html&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+<p>The key here is that the <code>type</code> is <strong>text/x-jtk-templates</strong>. There may be one or more templates declared in the specified file. This example is one from one of the Toolkit&#39;s unit tests; the file contains several templates.  Here&#39;s the first two:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplRectangle&quot;</span><span class="nt">&gt;</span>  
+  <span class="nt">&lt;svg:svg</span> <span class="na">style=</span><span class="s">&quot;position:absolute;left:0;top:0;&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;svg:rect</span> <span class="na">width=</span><span class="s">&quot;${width}&quot;</span> <span class="na">height=</span><span class="s">&quot;${height}&quot;</span> <span class="na">x=</span><span class="s">&quot;${strokeWidth}&quot;</span> <span class="na">y=</span><span class="s">&quot;${strokeWidth}&quot;</span> <span class="na">fill=</span><span class="s">&quot;${fill}&quot;</span> <span class="na">stroke=</span><span class="s">&quot;${stroke}&quot;</span> <span class="na">stroke-width=</span><span class="s">&quot;${strokeWidth}&quot;</span> <span class="na">transform=</span><span class="s">&quot;rotate(${rotate} ${(width / 2) + strokeWidth} ${(height/2) + strokeWidth})&quot;</span><span class="nt">&gt;&lt;/svg:rect&gt;</span>
+  <span class="nt">&lt;/svg:svg&gt;</span>    
+<span class="nt">&lt;/script&gt;</span>
+
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplCircle&quot;</span><span class="nt">&gt;</span> 
+  <span class="nt">&lt;svg:svg</span> <span class="na">style=</span><span class="s">&quot;position:absolute;left:0;top:0;&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;svg:circle</span> <span class="na">class=</span><span class="s">&quot;jtk-svg&quot;</span> <span class="na">cx=</span><span class="s">&quot;${cx}&quot;</span> <span class="na">cy=</span><span class="s">&quot;${cy}&quot;</span> <span class="na">r=</span><span class="s">&quot;${r}&quot;</span> <span class="na">fill=</span><span class="s">&quot;${fill}&quot;</span> <span class="na">stroke=</span><span class="s">&quot;${stroke}&quot;</span> <span class="na">stroke-width=</span><span class="s">&quot;${strokeWidth}&quot;</span><span class="nt">&gt;&lt;/svg:circle&gt;</span>
+    <span class="nt">&lt;jtk-port</span> <span class="na">port-id=</span><span class="s">&quot;port&quot;</span> <span class="na">type=</span><span class="s">&quot;basic&quot;</span><span class="nt">&gt;&lt;/jtk-port&gt;</span>
+  <span class="nt">&lt;/svg:svg&gt;</span>    
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>You can have multiple <code>x-jtk-templates</code> scripts declared in your html. <strong>Note</strong>, though, that the loading of these scripts postpones the firing of the <code>ready</code> event in the Toolkit, so you should ensure you&#39;re not getting any 404s and what you are loading is loading quickly.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

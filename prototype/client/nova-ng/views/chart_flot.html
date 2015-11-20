@@ -1,0 +1,105 @@
+<div ng-controller="flotChartController as flot">
+    <!-- begin breadcrumb -->
+    <ol class="breadcrumb pull-right">
+        <li><a href="javascript:;">Home</a></li>
+        <li><a href="javascript:;">Chart</a></li>
+        <li class="active">Flot Chart</li>
+    </ol>
+    <!-- end breadcrumb -->
+    <!-- begin page-header -->
+    <h1 class="page-header">Flot Chart <small>header small text goes here...</small></h1>
+    <!-- end page-header -->
+    
+    <!-- begin section-container -->
+    <div class="section-container section-with-top-border p-b-5">
+        <p class="m-b-15">
+            <a href="http://www.flotcharts.org/" target="_blank">Flot</a> is a pure JavaScript plotting library for jQuery, with a focus on simple usage, attractive looks and interactive features.
+        </p>
+        <!-- begin panel -->
+        <div class="panel p-20">
+            <h5 class="m-t-0 m-b-15">Flot Basic Chart</h5>
+            <div flot dataset="flot.basicChartData" options="flot.basicChartOptions" id="basic-chart" class="height-sm"></div>
+        </div>
+        <!-- end panel -->
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Interactive Chart</h5>
+                    <div flot dataset="flot.lineChartData" options="flot.lineChartOptions"  id="line-chart" class="height-xs"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Bar Chart</h5>
+                    <div flot dataset="flot.barChartData" options="flot.barChartOptions"  id="bar-chart" class="height-xs"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Pie Chart</h5>
+                    <div flot dataset="flot.pieChartData" options="flot.pieChartOptions" id="pie-chart" class="height-xs"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+        </div>
+        <!-- end row -->
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Stacked Chart</h5>
+                    <div flot dataset="flot.stackedChartData" options="flot.stackedChartOptions" class="height-xs" id="stacked-chart"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Tracking Chart</h5>
+                    <div flot dataset="flot.trackingChartData" options="flot.trackingChartOptions" id="tracking-chart" class="height-xs"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+            <!-- begin col-4 -->
+            <div class="col-md-4">
+                <!-- begin panel -->
+                <div class="panel p-20">
+                    <h5 class="m-t-0 m-b-15">Doughnut Chart</h5>
+                    <div flot dataset="flot.doughnutChartData" options="flot.doughnutChartOptions" id="doughnut-chart" class="height-xs"></div>
+                </div>
+                <!-- end panel -->
+            </div>
+            <!-- end col-4 -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end section-container -->
+
+    <!-- begin #footer -->
+    <div id="footer" class="footer">
+        <span class="pull-right">
+            <a href="javascript:;" class="btn-scroll-to-top" data-click="scroll-top">
+                <i class="fa fa-arrow-up"></i> <span class="hidden-xs">Back to Top</span>
+            </a>
+        </span>
+        &copy; 2015 <b>Source Admin</b> All Right Reserved
+    </div>
+    <!-- end #footer -->
+</div>

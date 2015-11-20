@@ -1,0 +1,283 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Path Tracing</h2>
+
+<p><a id="top"></a></p>
+
+<p>From version 1.0.3, the Toolkit supports tracing a path between a given source and target node using an Overlay.</p>
+
+<ul>
+<li><a href="#example">Basic Example</a></li>
+<li><a href="#options">Animation Options</a></li>
+<li><a href="#specific">Tracing a specific Path</a></li>
+<li><a href="#css">CSS Classes</a></li>
+<li><a href="#events">Events</a></li>
+</ul>
+
+<p><a name="example"></a></p>
+
+<h3>Basic Example</h3>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// setup two nodes and connect</span>
+<span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">newInstance</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">renderer</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;myElement&quot;</span>
+<span class="p">});</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">data</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">nodes</span><span class="o">:</span> <span class="p">[</span>    <span class="nx">a</span> <span class="nx">bunch</span> <span class="nx">of</span> <span class="nx">nodes</span><span class="p">.</span> <span class="kd">let</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">pretend</span> <span class="nx">they</span> <span class="nx">have</span> <span class="nx">IDs</span> <span class="nx">from</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">34</span> <span class="p">],</span>
+    <span class="nx">edges</span><span class="o">:</span><span class="p">[</span> <span class="nx">a</span> <span class="nx">bunch</span> <span class="nx">of</span> <span class="nx">edges</span> <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">traced</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">tracePath</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="mi">23</span><span class="p">,</span>
+    <span class="nx">overlay</span><span class="o">:</span><span class="s2">&quot;Arrow&quot;</span>
+<span class="p">});</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">traced</span><span class="p">)</span> <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;There was no such path&quot;</span><span class="p">);</span>
+</code></pre></div>
+<p>In this example we&#39;ve attempted to trace an arrow overlay along the <em>shortest path</em> from node 1 to node 23, using 
+ the default animation options, which are:</p>
+
+<ul>
+<li>travel at 100 pixels per second</li>
+<li>use a frame rate of 30 frames per second</li>
+<li>dwell on each intermediate element for 250 milliseconds</li>
+</ul>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="options"></a></p>
+
+<h3>Animation Options</h3>
+
+<p>You can change the default animation options if you need to:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">traced</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">tracePath</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="mi">23</span><span class="p">,</span>
+    <span class="nx">overlay</span><span class="o">:</span><span class="s2">&quot;Arrow&quot;</span><span class="p">,</span>
+    <span class="nx">options</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">speed</span><span class="o">:</span> <span class="mi">25</span><span class="p">,</span>   <span class="c1">// pixels per second</span>
+      <span class="nx">rate</span><span class="o">:</span> <span class="mi">60</span>     <span class="c1">// frames per second</span>
+      <span class="nx">dwell</span><span class="o">:</span> <span class="mi">50</span>    <span class="c1">// dwell on intermediate elements for 50 milliseconds</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="specific"></a></p>
+
+<h3>Tracing a specific Path</h3>
+
+<p>The two examples given so far do not mandate any specific Path to travel from the source to the target, so the
+Toolkit will pick the shortest path (which is controlled by both number of hops and edge <em>cost</em> if you have provided
+that for any of your edges). However, you can supply any Path to this method, should you want to.</p>
+
+<p>To get a Path that is not the shortest path you will need to make use of a <code>nodeFilter</code> and/or <code>edgeFilter</code> when you
+ call <code>getPath</code> on some Toolkit instance, as discussed <a href="#paths">on this page</a>.  An example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getPath</span><span class="p">({</span>
+    <span class="nx">source</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+    <span class="nx">target</span><span class="o">:</span><span class="mi">23</span><span class="p">,</span>
+    <span class="nx">edgeFilter</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">edge</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="o">!</span><span class="nx">edge</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s2">&quot;aTypeIWouldIgnore&quot;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This path can then be passed to <code>tracePath</code> instead of providing a <code>source</code> and <code>target</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">renderer</span><span class="p">.</span><span class="nx">tracePath</span><span class="p">({</span>
+    <span class="nx">path</span><span class="o">:</span><span class="nx">path</span><span class="p">,</span>
+    <span class="nx">overlay</span><span class="o">:</span><span class="s2">&quot;Arrow&quot;</span><span class="p">,</span>
+    <span class="nx">options</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">speed</span><span class="o">:</span> <span class="mi">25</span><span class="p">,</span>   <span class="c1">// pixels per second</span>
+      <span class="nx">rate</span><span class="o">:</span> <span class="mi">60</span>     <span class="c1">// frames per second</span>
+      <span class="nx">dwell</span><span class="o">:</span> <span class="mi">50</span>    <span class="c1">// dwell on intermediate elements for 50 milliseconds</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="css"></a></p>
+
+<h3>CSS Classes</h3>
+
+<p>During the lifetime of a path traversal, the following classes are used:</p>
+
+<table style="width:100%">
+<tr><th>Class</th><th>Assigned To</th><th>Purpose</th></tr>
+<tr><td>jtk-animate-node-traversing</td><td>Nodes</td><td>Indicates the path is currently dwelling on the given Node</td></tr>
+<tr><td>jtk-animate-edge-traversing</td>Edges<td></td><td>Indicates the Edge is currently being traversed</td></tr>
+</table>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a name="events"></a></p>
+
+<h3>Events</h3>
+
+<p>These events will be fired by the renderer during a path traversal:</p>
+
+<table>
+<tr><th>Event</th><th>Description</th><th>Parameters</th></tr>
+<tr><td>startOverlayAnimation</td><td>Fired at the beginning of the traversal.</td><td>connection:Connection</tr>
+<tr><td>endOverlayAnimation</td><td>Fired at the very end of the traversal.</td><td>connection:Connection</td></tr>
+<tr><td>startNodeTraversal</td><td>Fired when a node has been reached and is being traversed.</td><td>{connection:Connection, element:DOM Element}</td></tr>
+<tr><td>endNodeTraversal</td><td>Fired at the end of traversing a Node.</td><td>{connection:Connection, element:DOM Element}</td></tr>
+</table>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Angular Integration</h2>
+
+<p>The jsPlumb Toolkit offers several components to assist you in integrating with Angular (1.x).  The Toolkit uses
+&quot;strict&quot; format in all of its Angular components.</p>
+
+<h3>Imports</h3>
+
+<p>The Toolkit&#39;s Angular components are stored in a separate file - <code>jsPlumbToolkit-angular-x.x.x.js</code>. You need to import 
+this file, after you import the Toolkit.</p>
+
+<p>The Angular components are stored inside a module called <code>$jsPlumb</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$jsPlumb&#39;</span><span class="p">]);</span>
+</code></pre></div>
+<h3>Directives</h3>
+
+<h4>jsplumb-toolkit</h4>
+
+<p>This directive creates a Toolkit instance and renders it to the given element.</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;jsplumb-toolkit</span> <span class="na">surface-id=</span><span class="s">&quot;mySurface&quot;</span> <span class="na">jtk-id=</span><span class="s">&quot;myToolkit&quot;</span> <span class="na">params=</span><span class="s">&quot;ToolkitParams&quot;</span> <span class="na">renderParams=</span><span class="s">&quot;RenderParams&quot;</span><span class="nt">&gt;</span>
+
+    You can put content in here.
+
+<span class="nt">&lt;/jsplumb-toolkit&gt;</span>
+</code></pre></div>
+<h5>Attributes</h5>
+
+<ul>
+<li><p><strong>jtk-id</strong> Identifier for the Toolkit. Strictly speaking this is not required, but if you need to access the Toolkit
+via the <code>jsPlumbService</code> you will need to have set this.</p></li>
+<li><p><strong>[surface-id]</strong> Provides the identifier to associate with the created Surface widget. This is optional, but you will
+need to provide this if you wish to attach a <code>jsplumb-miniview</code> or <code>jsplumb-palette</code>.</p></li>
+<li><p><strong>[params]</strong> Optional reference to parameters for the <a href="basic-concepts.html#instantiating">Toolkit constructor</a>. By &quot;reference&quot; we
+mean the name of some variable that is in the scope in which the directive is executing.</p></li>
+<li><p><strong>[renderParams]</strong> Optional reference to parameters for the <a href="rendering.html#configuring">render call</a>. By &quot;reference&quot; we mean the name of 
+some variable that is in the scope in which the directive is executing.</p></li>
+<li><p><strong>[init]</strong> Optional reference to a function that will be called once the Toolkit and Surface have both been 
+instantiated.  The function&#39;s method signature is:</p></li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">init</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">controller</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><strong>[data]</strong> Optional reference to some Object in scope that contains the data for the Toolkit to load.</li>
+</ul>
+
+<h4>jsplumb-miniview</h4>
+
+<p>Creates a Miniview:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;jsplumb-miniview</span> <span class="na">surface-id=</span><span class="s">&quot;mySurface&quot;</span><span class="nt">&gt;&lt;/jsplumb-miniview&gt;</span>
+</code></pre></div>
+<h5>Attributes</h5>
+
+<ul>
+<li><strong>surface-id</strong> The ID of the Surface widget to which this Miniview should attach itself. Required.</li>
+</ul>
+
+<h4>jsplumb-palette</h4>
+
+<p>This directive is declared as both an Attribute and Element directive. Here it is used as an Attribute directive:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;someClass&quot;</span> <span class="err">jsplumb-palette</span> <span class="na">selector=</span><span class="s">&quot;li&quot;</span> <span class="na">type-extractor=</span><span class="s">&quot;typeExtractor&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;ul&gt;</span>
+        <span class="nt">&lt;li</span> <span class="na">data-type=</span><span class="s">&quot;foo&quot;</span><span class="nt">&gt;</span>FOO<span class="nt">&lt;/li&gt;</span>
+        <span class="nt">&lt;li</span> <span class="na">data-type=</span><span class="s">&quot;bar&quot;</span><span class="nt">&gt;</span>BAR<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>
+<h5>Attributes</h5>
+
+<ul>
+<li><strong>jsplumb-palette</strong> This is what turns the directive on for the element.</li>
+<li><strong>selector</strong> A CSS3 selector identifying which child elements should be configured as draggable/droppable.</li>
+<li><strong>[type-extractor]</strong> The name of an optional function that is in scope that can be used to extract the <code>type</code> of a dropped node.</li>
+</ul>
+
+<p>The <code>type-extractor</code> is used to determine what is the <code>type</code> of a dropped node. In the example markup above, a suitable
+<code>type-extractor</code> function would be:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">$scope</span><span class="p">.</span><span class="nx">typeExtractor</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;data-type&quot;</span><span class="p">);</span>    
+<span class="p">};</span>
+</code></pre></div>
+<ul>
+<li><strong>[generator]</strong> The name of an optional function that is in scope that can be used to prepare some initial data for a dropped node.</li>
+<li><strong>[location-setter]</strong> The name of an optional function that is in scope that can be used to set the location of a 
+dropped node.</li>
+</ul>
+
+<p>For a more detailed explanation of the last three parameters, see <a href="rendering.html#dragpalette">here</a>.</p>
+
+<h3>Rendering Nodes</h3>
+
+<p>When using the Angular integration you do not need to use Angular to render your nodes if you do not want to - you can
+ use the <a href="templating.html">standard Toolkit templating mechanism</a>. If you wish to use Angular, though, you will need to 
+ create a directive for each Node type, and you&#39;ll need to use the <code>jsPlumbFactory</code> to do this. Here&#39;s an example from 
+ <a href="/demos/toolkit/angular/index.html">the angular integration demo</a> (which is the Flowchart Builder application 
+ converted to use Angular):</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$jsPlumb&#39;</span><span class="p">]);</span>
+ <span class="p">...</span>
+ <span class="p">...</span>
+ <span class="nx">app</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;question&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">jsPlumbFactory</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="nx">jsPlumbFactory</span><span class="p">.</span><span class="nx">node</span><span class="p">({</span>
+         <span class="nx">inherit</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;removeNode&quot;</span><span class="p">,</span> <span class="s2">&quot;editNode&quot;</span><span class="p">],</span>
+         <span class="nx">templateUrl</span><span class="o">:</span> <span class="s2">&quot;question_template.tpl&quot;</span><span class="p">,</span>
+         <span class="nx">link</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+             <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s2">&quot;flowchart-object flowchart-question&quot;</span><span class="p">);</span>
+         <span class="p">}</span>
+     <span class="p">});</span>
+ <span class="p">});</span> 
+</code></pre></div>
+<p>The key here is the call to <code>jsPlumbFactory.node</code>. This method takes care of setting everything you need; you provide the
+ URL of the template to use and optionally a <code>link</code> function. You&#39;ll also notice a parameter called <code>inherit</code> in this
+ example - this is discussed below.</p>
+
+<h4>templateUrl</h4>
+
+<p>You cannot provide an inline template; your templates must be declared somewhere in your HTML. </p>
+
+<h4>link</h4>
+
+<p>A <code>link</code> function is not required, but can be provided if you wish. In the Toolkit&#39;s Angular demo, the link function is
+used to get around the fact that when the Toolkit renders Nodes via Angular, there is no declarative way of setting
+attributes (such as the class name) on that directive&#39;s root element. So in this link function you can see we 
+retroactively set a couple of classes on the Node&#39;s root element.</p>
+
+<h3>inherit</h3>
+
+<p>This concept is not a core Angular concept. It is a helper that enables you to declare items from your Controller&#39;s 
+scope that you wish to have in your Node&#39;s scope. The mechanism used by the Toolkit, out of necessity, creates an
+isolated scope for each Node. The <code>inherit</code> mechanism will pull named items out of the isolated scope&#39;s ancestors and
+copy them in to the isolate scope itself. In the Toolkit&#39;s Angular example, <code>removeNode</code> and <code>editNode</code> are functions
+declared in the controller&#39;s scope that all Nodes need to have access to.</p>
+
+<h3>jsPlumb Service</h3>
+
+<h4>Accessing Toolkit/Surface instances</h4>
+
+<p>To access instances of the Toolkit or of the Surface widget, you can use the <code>jsPlumbService</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;FooController&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;jsPlumbService&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">jsPlumbService</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">toolkit</span> <span class="o">=</span> <span class="nx">jsPlumbService</span><span class="p">.</span><span class="nx">getToolkit</span><span class="p">(</span><span class="s2">&quot;myToolkit&quot;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">jsPlumbService</span><span class="p">.</span><span class="nx">getSurface</span><span class="p">(</span><span class="s2">&quot;mySurface&quot;</span><span class="p">);</span>
+<span class="p">}]);</span>
+</code></pre></div>
+<h4>Resetting a Toolkit instance</h4>
+
+<p>Should you wish to clear a Toolkit instance (this is not the same as the Toolkit&#39;s own <code>clear</code> method: this is for
+ clearing a Toolkit reference out from the service, so that subsequent requests for the Toolkit with the given ID will
+ cause a new Toolkit to be created), you can make this call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">jsPlumbService</span><span class="p">.</span><span class="nx">resetToolkit</span><span class="p">(</span><span class="s2">&quot;myToolkit&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h4>Binding Events</h4>
+
+<p>To bind to an event on a Toolkit, which may or may not yet exist, you can use the service&#39;s <code>bind</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s2">&quot;FooController&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;jsPlumbService&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">jsPlumbService</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">jsPlumbService</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;ready&quot;</span><span class="p">,</span> <span class="s2">&quot;myToolkit&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">alert</span><span class="p">(</span><span class="s2">&quot;The toolkit is ready&quot;</span><span class="p">);</span>
+    <span class="p">});</span>    
+<span class="p">}]);</span>
+</code></pre></div>
+<p>In most cases when you try to bind to a Toolkit it will have been created. In the above example it may well not have been;
+in general you can use this method for safety if you haven&#39;t yet got a concrete handle on the Toolkit instance you want.</p>
+
+<h3>jsPlumb Factory</h3>
+
+<p>We saw above that you need to use the <code>jsPlumbFactory</code> when declaring directives for Nodes. </p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

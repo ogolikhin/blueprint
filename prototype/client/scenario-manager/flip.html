@@ -1,0 +1,88 @@
+<html>
+<head>
+    
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script> 
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <link rel="stylesheet" href="css/animation.css">
+</head>
+
+<style>
+    body{
+        margin: 20px;
+    }
+    /* entire container, keeps perspective */
+    .flip-container {
+        perspective: 1000;
+    }
+        /* flip the pane when hovered */
+        .flip-container:hover .flipper, .flip-container.hover .flipper {
+            transform: rotateY(180deg);
+        }
+    .flip-container {
+        width: 360px; /* width of front and back plus padding  */
+        height: 480px;
+    }
+    /* container, front and back has to be the same dimension with padding added in inner container */
+    
+    /* flip speed goes here */
+    .flipper {
+        transition: 0.6s;
+        transform-style: preserve-3d;
+
+        position: relative;
+    }
+
+    /* hide back of pane during swap */
+    .front, .back {
+        backface-visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 320px;
+        height: 440px;
+    }
+
+    /* front pane, placed above back */
+    .front {
+        z-index: 2;
+        /* for firefox 31 */
+        transform: rotateY(0deg);
+        background-color: antiquewhite;
+        padding: 20px;
+    }
+
+    /* back, initially hidden pane */
+    .back {
+        transform: rotateY(180deg);
+        background-color: #ccc;
+        padding: 20px;
+    }
+</style>
+
+<body>
+
+    <div class="flip-container" ontouchstart="this.classList.toggle('hover');">
+        <div class="flipper">
+            <div class="front">
+                <!-- front content -->
+               
+            </div>
+            <div class="back">
+                <!-- back content -->
+                 <a href="#" id="username" data-type="text" data-pk="1" data-url="/post" data-title="Enter username">superuser</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $.fn.editable.defaults.mode = 'inline';
+    $(document).ready(function() {
+    $('#username').editable();
+});
+    
+</script>
+</body>
+</html>

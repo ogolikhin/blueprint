@@ -1,0 +1,51 @@
+<div ng-controller="calendarController">
+    <!-- begin breadcrumb -->
+    <ol class="breadcrumb pull-right">
+        <li><a href="javascript:;">Home</a></li>
+        <li class="active">Calendar</li>
+    </ol>
+    <!-- end breadcrumb -->
+    <!-- begin page-header -->
+    <h1 class="page-header">Calendar <small>header small text goes here...</small></h1>
+    <!-- end page-header -->
+    
+    <!-- begin fullcalendar -->
+    <div class="fullcalendar vertical-box m-b-20">
+        <!-- begin fullcalendar-event -->
+        <div class="fullcalendar-event vertical-box-column hidden-sm hidden-xs">
+            <div id="external-events">
+                <h5 class="m-t-0 m-b-10">Draggable Events</h5>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-success-light"></i></div> Meeting with Client</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-lime-light"></i></div> IOS App Development</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-warning-light"></i></div> Group Discussion</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-danger-light"></i></div> New System Briefing</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Brainstorming</div>
+                <h5 class="m-t-20 m-b-10">Other Events</h5>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Other Event 1</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Other Event 2</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Other Event 3</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Other Event 4</div>
+                <div class="fc-event"><div class="fc-event-icon"><i class="fa fa-circle-o fa-fw text-inverse"></i></div> Other Event 5</div>
+            </div>
+        </div>
+        <!-- end fullcalendar-event -->
+        <!-- begin fullcalendar-container -->
+        <div class="fullcalendar-container vertical-box-column">
+            <div id='calendar'></div>
+        </div>
+        <!-- end fullcalendar-container -->
+    </div>
+    <!-- end fullcalendar -->
+
+    <!-- begin #footer -->
+    <div id="footer" class="footer">
+        <span class="pull-right">
+            <a href="javascript:;" class="btn-scroll-to-top" data-click="scroll-top">
+                <i class="fa fa-arrow-up"></i> <span class="hidden-xs">Back to Top</span>
+            </a>
+        </span>
+        &copy; 2015 <b>Source Admin</b> All Right Reserved
+    </div>
+    <!-- end #footer -->
+</div>
+

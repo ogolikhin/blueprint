@@ -1,0 +1,212 @@
+<!-- begin #top-menu -->
+<div id="top-menu" class="top-menu" ng-controller="topMenuController">
+    <div class="container-fluid">
+    <!-- begin top-menu nav -->
+    <ul class="nav">
+        <li class="has-sub" ng-class="{active:$state.includes('app.dashboard')}">
+            <a href="javascript:;">
+                <i class="fa fa-home"></i>
+                <span>Dashboard <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.dashboard.v1">Dashboard v1</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.dashboard.v2">Dashboard v2 <i class="fa fa-paper-plane text-theme m-l-3"></i></a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.email')}">
+            <a href="javascript:;">
+                <i class="fa fa-inbox"></i> 
+                <span>Email <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.email.inbox">Inbox</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.email.compose">Compose</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.email.detail">Detail</a></li>
+            </ul>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="app.widget">
+                <i class="fa fa-diamond"></i>
+                <span>Widgets</span>
+            </a>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.ui')}">
+            <a href="javascript:;">
+                <i class="fa fa-suitcase"></i>
+                <span>UI Elements <b class="caret"></b></span> 
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.ui.general">General</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.typography">Typography</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.tabsAccordions">Tabs & Accordions</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.modalNotification">Modal & Notification</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.widgetBoxes">Widget Boxes</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.mediaObject">Media Object</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.buttons">Buttons</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.fontAwesome">Font Awesome</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.simpleLineIcons">Simple Line Icons</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.ui.ionicons">Ionicons</a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.form')}">
+            <a href="javascript:;">
+                <i class="fa fa-file-o"></i>
+                <span>Form Stuff <b class="caret"></b></span> 
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.form.elements">Form Elements</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.form.plugins">Form Plugins</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.form.sliderSwitcher">Form Slider + Switcher</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.form.validation">Form Validation</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.form.wizards">Wizards</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.form.wysiwyg">WYSIWYG</a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.table')}">
+            <a href="javascript:;">
+                <i class="fa fa-th"></i>
+                <span>Tables <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.table.basic">Basic Tables</a></li>
+                <li class="has-sub" ng-class="{active:$state.includes('app.table.manage')}">
+                    <a href="javascript:;"><b class="caret"></b> Managed Tables</a>
+                    <ul class="sub-menu">
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.default">Default</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.autofill">Autofill</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.buttons">Buttons</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.colReorder">ColReorder</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.fixedColumn">Fixed Column</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.fixedHeader">Fixed Header</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.keyTable">KeyTable</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.responsive">Responsive</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.rowReorder">RowReorder</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.scroller">Scroller</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.select">Select</a></li>
+                        <li ui-sref-active="active"><a ui-sref="app.table.manage.combine">Extension Combination</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li class="has-sub">
+            <a href="javascript:;">
+                <i class="fa fa-envelope"></i>
+                <span>Email Template <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li><a href="email_newsletter.html" target="_blank">Newsletter Template <i class="fa fa-paper-plane text-theme m-l-3"></i></a></li>
+                <li><a href="email_system.html" target="_blank">System Template <i class="fa fa-paper-plane text-theme m-l-3"></i></a></li>
+                <li><a href="email_billing.html" target="_blank">Billing Template <i class="fa fa-paper-plane text-theme m-l-3"></i></a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.map')}">
+            <a href="javascript:;">
+                <i class="fa fa-map-marker"></i>
+                <span>Maps <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.map.vector">Vector Map</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.map.google">Google Map</a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.chart')}">
+            <a href="javascript:;">
+                <i class="fa fa-area-chart"></i>
+                <span>Chart <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.chart.flot">Flot Chart</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.chart.morris">Morris Chart</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.chart.chartjs">Chart JS</a></li>
+            </ul>
+        </li>
+        <li ui-sref-active="active">
+            <a href="calendar.html" ui-sref="app.calendar">
+                <i class="fa fa-calendar"></i>
+                <span>Calendar</span>
+            </a>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.page')}">
+            <a href="javascript:;">
+                <i class="fa fa-file"></i>
+                <span>Pages <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.page.gallery">Gallery</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.page.timeline">Timeline</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.page.searchResults">Search Results</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.page.invoice">Invoice</a></li>
+                <li ui-sref-active="active"><a ui-sref="comingSoon">Coming Soon Page</a></li>
+                <li ui-sref-active="active"><a ui-sref="error">404 Error Page</a></li>
+                <li ui-sref-active="active"><a ui-sref="login">Login Page</a></li>
+                <li ui-sref-active="active"><a ui-sref="register">Register Page</a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.layout')}">
+            <a href="javascript:;">
+                <i class="fa fa-cogs"></i>
+                <span>Layout Options <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageBlank">Blank Page</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageFixedFooter">Page with Fixed Footer</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageRightSidebar">Page with Right Sidebar</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageMinifiedSidebar">Page with Minified Sidebar</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageTwoSidebar">Page with Two Sidebar</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageTopMenu">Page with Top Menu</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageMixedMenu">Page with Mixed Menu</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageBoxedLayout">Page with Boxed Layout</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageBoxedMixedMenu">Boxed Layout with Mixed Menu</a></li>
+                <li ui-sref-active="active"><a ui-sref="app.layout.pageWithoutSidebar">Page without Sidebar</a></li>
+            </ul>
+        </li>
+        <li class="has-sub" ng-class="{active:$state.includes('app.helper')}">
+            <a href="javascript:;">
+                <i class="fa fa-medkit"></i>
+                <span>Helper <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li ui-sref-active="active"><a href="helper_css.html" ui-sref="app.helper.css">Predefined CSS Classes</a></li>
+            </ul>
+        </li>
+        <li class="has-sub">
+            <a href="javascript:;">
+                <i class="fa fa-align-left"></i> 
+                <span>Menu Level <b class="caret"></b></span>
+            </a>
+            <ul class="sub-menu">
+                <li class="has-sub">
+                    <a href="javascript:;">
+                        Menu 1.1
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="sub-menu">
+                        <li class="has-sub">
+                            <a href="javascript:;">
+                                Menu 2.1
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="sub-menu">
+                                <li><a href="javascript:;">Menu 3.1</a></li>
+                                <li><a href="javascript:;">Menu 3.2</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="javascript:;">Menu 2.2</a></li>
+                        <li><a href="javascript:;">Menu 2.3</a></li>
+                    </ul>
+                </li>
+                <li><a href="javascript:;">Menu 1.2</a></li>
+                <li><a href="javascript:;">Menu 1.3</a></li>
+            </ul>
+        </li>
+        <li class="menu-control menu-control-left">
+            <a href="#" data-click="prev-menu"><i class="fa fa-angle-left"></i></a>
+        </li>
+        <li class="menu-control menu-control-right">
+            <a href="#" data-click="next-menu"><i class="fa fa-angle-right"></i></a>
+        </li>
+    </ul>
+    <!-- end top-menu nav -->
+    </div>
+</div>
+<!-- end #top-menu -->

@@ -80,6 +80,7 @@ namespace AdminStore.Controllers
                     var content = await result.Content.ReadAsStringAsync();
                     return int.Parse(content);
                 }
+                throw new AuthenticationException("Authentication failed.");
             }
         }
     }

@@ -67,5 +67,20 @@ namespace FileStore.Repositories
 			await _connectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
 			return prm.Get<Guid>("DeletedFileId");
 		}
-	}
+
+        public System.IO.Stream GetFileContent(Guid fileId)
+        {
+            // return a custom stream reader that retrieves content from the
+            // FileChunks table in the Filestore database 
+
+            SqlReadStream sqlReadStream = null;
+ 
+            ConfigRepository configRepository = new ConfigRepository();
+           
+            sqlReadStream = new SqlReadStream();
+            sqlReadStream.Initialize(configRepository.FileStoreDatabase, fileId);
+             
+            return sqlReadStream;
+        }
+    }
 }

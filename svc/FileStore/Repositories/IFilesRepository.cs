@@ -11,5 +11,7 @@ namespace FileStore.Repositories
 		Task<File> GetFileHead(Guid guid);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
 		Task<Guid> DeleteFile(Guid guid);
-	}
+
+        System.IO.Stream GetFileContent(Guid fileId);
+    }
 }

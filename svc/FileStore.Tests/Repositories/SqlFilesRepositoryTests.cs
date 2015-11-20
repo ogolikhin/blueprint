@@ -22,7 +22,7 @@ namespace FileStore.Repositories
             var repository = new SqlFilesRepository();
 
             // Assert
-            Assert.AreEqual(new ConfigRepository().FileStoreDatabase, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ConfigRepository.Instance.FileStoreDatabase, repository.ConnectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor

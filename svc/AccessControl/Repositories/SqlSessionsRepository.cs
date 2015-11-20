@@ -50,11 +50,13 @@ namespace AccessControl.Repositories
             prm.Add("@pn", pn);
             return (await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure));
         }
-        public async Task<Guid?[]> BeginSession(int id)
+        public async Task<Guid?[]> BeginSession(int userId, string userName, int licenseLevel)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserId", id);
+            prm.Add("@UserId", userId);
             prm.Add("@BeginTime", DateTime.UtcNow);
+			prm.Add("@UserName", userName);
+			prm.Add("@LicenseLevel", licenseLevel);
             prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);

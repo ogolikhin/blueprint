@@ -7,6 +7,8 @@ namespace AdminStore.Repositories
     {
         Task<LoginUser> GetUserByLoginAsync(string login);
 
+        Task<LoginUser> GetLoginUserByIdAsync(int userId);
+
         Task UpdateUserOnInvalidLoginAsync(LoginUser login);
     }
 }

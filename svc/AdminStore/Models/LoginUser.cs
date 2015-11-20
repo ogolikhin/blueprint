@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace AdminStore.Models
 {
@@ -8,6 +9,7 @@ namespace AdminStore.Models
 
         public string Login { get; set; }
 
+        [IgnoreDataMember]
         public string Password { get; set; }
 
         public bool IsEnabled { get; set; }
@@ -25,5 +27,15 @@ namespace AdminStore.Models
         public DateTime? LastPasswordChangeTimestamp { get; set; }
 
         public bool? ExpirePassword { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public string DisplayName { get; set; }
+
+        public string Email { get; set; }
+
+        public bool EULAccepted { get; set; }
     }
 }

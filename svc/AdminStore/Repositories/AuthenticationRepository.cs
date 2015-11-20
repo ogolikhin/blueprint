@@ -42,9 +42,14 @@ namespace AdminStore.Repositories
                 throw new InvalidCredentialException(string.Format("User does not exist with login: {0}", login));
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
-            if (instanceSettings.IsSamlEnabled.GetValueOrDefault() && !user.IsFallbackAllowed.GetValueOrDefault())
+            if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
-                throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
+				// Fallback is allowed by default (value is null)
+	            var isFallbackAllowed = !user.IsFallbackAllowed.HasValue || user.IsFallbackAllowed.Value;
+				if(!isFallbackAllowed)
+				{
+					throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
+				}
             }
             AuthenticationStatus authenticationStatus;
             switch (user.Source)

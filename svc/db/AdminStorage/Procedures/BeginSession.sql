@@ -16,6 +16,8 @@ CREATE PROCEDURE [dbo].[BeginSession]
 (
 	@UserId int,
 	@BeginTime datetime,
+	@UserName nvarchar(max),
+	@LicenseLevel int,
 	@NewSessionId uniqueidentifier OUTPUT,
 	@OldSessionId uniqueidentifier OUTPUT
 )
@@ -27,7 +29,8 @@ BEGIN
 	SELECT @NewSessionId = NEWID();
 	IF @OldSessionId IS NULL
 	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime) VALUES(@UserId, @NewSessionId, @BeginTime);
+		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel) 
+		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel);
 	END
 	ELSE
 	BEGIN

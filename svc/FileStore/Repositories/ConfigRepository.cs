@@ -62,13 +62,13 @@ namespace FileStore.Repositories
             {
                 if (_fileChunkSize == 0)
                 {
-                    _fileChunkSize = 1024 * 1024 * ConfigValue("FileChunkSize", 1);
+                    _fileChunkSize = 1024 * 1024 * GetConfigValue("FileChunkSize", 1);
                 }
                 return _fileChunkSize;
             }
         }
 
-        public static int ConfigValue(string configValue, int defaultValue)
+        public static int GetConfigValue(string configValue, int defaultValue)
         {
             return (ConfigurationManager.AppSettings[configValue] != null ? int.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }

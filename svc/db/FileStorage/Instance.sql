@@ -112,13 +112,13 @@ GO
 
 CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
-	[ChunkNumber] [int] NOT NULL,
+	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
 	[ChunkContent ] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
-	[ChunkNumber] ASC
+	[ChunkNum] ASC
 ),
  CONSTRAINT [FK_FileId]
  FOREIGN KEY ([FileId])
@@ -405,7 +405,7 @@ GO
 CREATE PROCEDURE [dbo].[InsertFileChunk]
 ( 
     @FileId uniqueidentifier,
-    @ChunkNumber int,
+    @ChunkNum int,
 	@ChunkSize int,
 	@ChunkContent varbinary(max)
 )
@@ -414,12 +414,12 @@ BEGIN
 
     INSERT INTO [dbo].[FileChunks]  
            ([FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent])
     VALUES
            (@FileId
-           ,@ChunkNumber
+           ,@ChunkNum
            ,@ChunkSize
            ,@ChunkContent)
 END
@@ -433,7 +433,7 @@ Description:
 			
 Change History:
 Date			Name					Change
-2015/11/19		Albert WOng				Initial Version
+2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileChunk]') AND type in (N'P', N'PC'))
@@ -442,10 +442,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetFileChunk]
 ( 
-    @FileId uniqueidentifier,
-    @ChunkNumber int,
-	@ChunkSize int,
-	@ChunkContent varbinary(max)
+    @FileId uniqueidentifier
 )
 AS
 BEGIN
@@ -453,7 +450,7 @@ BEGIN
 	SET NOCOUNT ON
 
 	SELECT [FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent]
 	FROM [dbo].[FileChunks]

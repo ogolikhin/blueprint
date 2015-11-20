@@ -24,7 +24,7 @@ namespace FileStore.Controllers
             var controller = new StatusController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._statusRepo, typeof(SqlStatusRepository));
+            Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
         }
 
         #endregion Constructor

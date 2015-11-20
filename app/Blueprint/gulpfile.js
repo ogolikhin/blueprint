@@ -16,6 +16,25 @@ var src = {
 	ts: 'app/**/*.ts',
 	js: 'app/**/*.js',
 	css: 'app/**/*.css',
+
+    css_Bundle: [
+        'bower_components/bootstrap/dist/css/bootstrap.css',        // ~/Content/bootstrapBundle
+        'bower_components/ui-select/dist/select.css',               //
+        'Content/autocomplete.css',                                 //
+        'Content/kendo/2015.3.930/kendo.common-bootstrap.min.css',  // ~/Content/kendo/2015.3.930/commonBundle
+        'Content/kendo/2015.3.930/kendo.bootstrap.min.css',         // ~/Content/kendo/2015.3.930/bootstrapBundle
+        'Scripts/mxClient/css/common.css',                          // ~/Scripts/mxClient/cssbundle
+        'Areas/Web/Style/css/icons/css/font-awesome.min.css',       // ~/Areas/Web/Style/css/icons/css/fontBundle
+        'Areas/Web/Style/css/icons/css/icons.css',                  // ~/Areas/Web/Style/css/icons/css/iconBundle
+        'Areas/Web/Style/css/bp-kendo.css',                         // ~/Areas/Web/Style/css/web
+        'Areas/Web/Style/css/bp.css',                               //
+        'Areas/Web/Style/css/review.css',                           //
+        'Areas/Web/Style/css/impactanalysis.css',                   //
+        'Areas/Web/Style/css/jBox/jBox.css',                        // ~/Areas/Web/Style/css/jBox
+        'Content/Selectize/css/selectize.bootstrap3.css',           // ~/Content/Selectize/css/cssbundle
+        'Areas/Web/Style/css/jBox/jBox.css'                         // ~/Areas/Web/Style/css/jBox
+    ],
+
 	content: ['app/**/*.jpg', 'app/**/*.svg', 'app/**/*.png', 'app/**/*.ico', 'app/**/*.html']
 }
 
@@ -23,6 +42,10 @@ var dst = {
 	pub: 'pub/',
 	lib: 'pub/lib/'
 }
+
+var tsProject = tscompile.createProject({
+    target: 'ES5'
+});
 
 // pre-build
 
@@ -57,8 +80,18 @@ gulp.task('bower', ['start-build'], function () {
     .pipe(gulp.dest(dst.lib));
 })
 
-gulp.task('js', ['start-build'], function () {
-	return gulp.src([src.ts])
+
+gulp.task('ts', ['start-build'], function() {
+    gulp.src([src.ts])
+        .pipe(srcmaps.init()) 
+        .pipe(tscompile(tsProject))
+        .pipe(srcmaps.write()) // Now the sourcemaps are added to the .js file 
+        .pipe(gulp.dest('app'));
+});
+
+
+gulp.task('js', ['ts'], function () {
+	return gulp.src([src.js])
 		.pipe(srcmaps.init())
 		.pipe(concat('app.min.js'))
 		.pipe(jsminify())

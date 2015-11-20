@@ -22,7 +22,7 @@ namespace FileStore.Repositories
             var repository = new SqlFilesRepository();
 
             // Assert
-            Assert.AreEqual(new ConfigRepository().FileStoreDatabase, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ConfigRepository.Instance.FileStoreDatabase, repository.ConnectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor
@@ -38,7 +38,7 @@ namespace FileStore.Repositories
             File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
-                "PostFileHead",
+                "InsertFileHead",
                 new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileId", null } },
                 1,
                 new Dictionary<string, object> { { "FileId", result } });
@@ -56,7 +56,7 @@ namespace FileStore.Repositories
         #region HeadFile
 
         [TestMethod]
-        public async Task HeadFile_QueryReturnsFile_ReturnsFirst()
+        public async Task GetHeadFile_QueryReturnsFile_ReturnsFirst()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -75,7 +75,6 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result.First(), file);
         }
-
         [TestMethod]
         public async Task HeadFile_QueryReturnsEmpty_ReturnsNull()
         {
@@ -85,7 +84,7 @@ namespace FileStore.Repositories
             var guid = new Guid("88888888888888888888888888888888");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "HeadFile",
+                "GetFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -96,7 +95,6 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.IsNull(file);
         }
-
         #endregion HeadFile
 
         #region GetFile
@@ -168,7 +166,7 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result, id);
         }
-
+        
         [TestMethod]
         public async Task DeleteFile_QueryReturnsNull_ReturnsNull()
         {

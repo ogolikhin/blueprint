@@ -33,7 +33,7 @@ namespace FileStore.Controllers
 		private const string NoStore = "no-store";
 		private const string MustRevalidate = "must-revalidate";
 
-		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), new ConfigRepository())
+		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), ConfigRepository.Instance)
 		{
 		}
 
@@ -46,14 +46,14 @@ namespace FileStore.Controllers
 		}
 
 		[HttpPost]
-		[Route("")]
+		[Route("post")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
 			try
 			{
 				var isMultipart = Request.Content.IsMimeMultipartContent();
-				HttpContent content = null;
+				HttpContent content;
 				if (isMultipart)
 				{
 					var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
@@ -89,14 +89,12 @@ namespace FileStore.Controllers
 				};
 				using (var stream = await content.ReadAsStreamAsync())
 				{
+					var buffer = new byte[_configRepo.FileChunkSize];
 					for (var remaining = file.FileSize; remaining > 0; remaining -= chunk.ChunkSize)
 					{
-						using (var memoryStream = new MemoryStream())
-						{
-							chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
-							stream.CopyTo(memoryStream, chunk.ChunkSize);
-							chunk.ChunkContent = memoryStream.ToArray();
-						}
+						chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
+						await stream.ReadAsync(buffer, 0, chunk.ChunkSize);
+						chunk.ChunkContent = buffer.Take(chunk.ChunkSize).ToArray();
 						chunk.ChunkNum = await _filesRepo.PostFileChunk(chunk);
 					}
 				}
@@ -104,7 +102,7 @@ namespace FileStore.Controllers
 			}
 			catch
 			{
-				return InternalServerError();
+			    return InternalServerError();
 			}
 		}
 
@@ -153,7 +151,7 @@ namespace FileStore.Controllers
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				HttpContent responseContent;
+				HttpContent responseContent = null;
 				if (isHead)
 				{
 					responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
@@ -162,11 +160,12 @@ namespace FileStore.Controllers
 				{
 					if (isFileStoreGuid)
 					{
-						responseContent = new ByteArrayContent(file.FileContent);
+						// TODO: fix
+						//responseContent = new ByteArrayContent(file.FileContent);
 					}
 					else
 					{
-						responseContent = new StreamContent(file.FileStream, 1048576);
+						//responseContent = new StreamContent(file.FileStream, 1048576);
 					}
 				}
 
@@ -174,10 +173,16 @@ namespace FileStore.Controllers
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
-				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-				response.Content.Headers.ContentLength = file.FileSize;
-				response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+			    if (response.Content != null)
+			    {
+			        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment)
+			        {
+			            FileName = file.FileName
+			        };
+			        response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+			        response.Content.Headers.ContentLength = file.FileSize;
+			    }
+			    response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
 
 				return ResponseMessage(response);
@@ -191,5 +196,29 @@ namespace FileStore.Controllers
 				return InternalServerError();
 			}
 		}
-	}
+
+        [HttpDelete]
+        [Route("{id}")]
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> DeleteFile(string id)
+        {
+            try
+            {
+                var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id));
+                if (guid.HasValue)
+                {
+                    return Ok(Models.File.ConvertFileId(guid.Value));
+                }
+                return NotFound();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+    }
 }

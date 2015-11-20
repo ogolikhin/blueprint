@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
@@ -9,7 +8,7 @@ namespace FileStore.Repositories
         private readonly IConfigRepository _configRepository;
         private readonly IContentReadStream _contentReadStream;
 
-        public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
+        public FileStreamRepository() : this(ConfigRepository.Instance, new ContentReadStream())
         {
 
         }
@@ -44,7 +43,8 @@ namespace FileStore.Repositories
                 file = new File
                 {
                     FileId = fileGuid,
-                    FileStream = _contentReadStream as Stream,
+                    // TODO: fix
+                    //FileStream = _contentReadStream as Stream,
                     FileSize = len,
                     FileName = _contentReadStream.FileName,
                     FileType = _contentReadStream.FileType ?? "application/octet-stream"

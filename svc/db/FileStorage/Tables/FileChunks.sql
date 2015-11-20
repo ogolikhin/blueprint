@@ -14,13 +14,13 @@ GO
 
 CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
-	[ChunkNumber] [int] NOT NULL,
+	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
 	[ChunkContent ] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
-	[ChunkNumber] ASC
+	[ChunkNum] ASC
 ),
  CONSTRAINT [FK_FileId]
  FOREIGN KEY ([FileId])

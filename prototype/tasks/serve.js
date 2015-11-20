@@ -8,7 +8,7 @@ var gulp       = require('gulp');
 var ripe       = require('ripe');
 var nodemon    = require('gulp-nodemon');
 var open       = require('gulp-open');
-var bsync      = require('browser-sync');
+//var bsync      = require('browser-sync');
 
 var config = require('../server/config/environment');
 
@@ -31,14 +31,14 @@ module.exports = {
           ripe.wait(cb);
         } else {
           ripe.wait(function () {
-            bsync.reload({ stream: false });
+            //bsync.reload({ stream: false });
           });
         }
       });
   },
 
   bsync: function () {
-    bsync.init({
+/*    bsync.init({
       proxy: 'localhost:9000',
       browser: process.env.BROWSER || 'google chrome',
       online: false,
@@ -47,6 +47,7 @@ module.exports = {
         interval: 500
       }
     });
+*/
   }
 
 };

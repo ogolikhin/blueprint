@@ -15,7 +15,7 @@ GO
 CREATE PROCEDURE [dbo].[InsertFileChunk]
 ( 
     @FileId uniqueidentifier,
-    @ChunkNumber int,
+    @ChunkNum int,
 	@ChunkSize int,
 	@ChunkContent varbinary(max)
 )
@@ -24,12 +24,12 @@ BEGIN
 
     INSERT INTO [dbo].[FileChunks]  
            ([FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent])
     VALUES
            (@FileId
-           ,@ChunkNumber
+           ,@ChunkNum
            ,@ChunkSize
            ,@ChunkContent)
 END

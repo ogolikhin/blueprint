@@ -121,6 +121,8 @@ CREATE TABLE [dbo].[Sessions](
 	[SessionId] [uniqueidentifier] NOT NULL,
 	[BeginTime] [datetime] NULL,
 	[EndTime] [datetime] NULL,
+	[UserName] [nvarchar](max) NOT NULL,
+	[LicenseLevel] [int] NOT NULL
  CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
 (
 	[UserId] ASC
@@ -261,6 +263,8 @@ CREATE PROCEDURE [dbo].[BeginSession]
 (
 	@UserId int,
 	@BeginTime datetime,
+	@UserName nvarchar(max),
+	@LicenseLevel int,
 	@NewSessionId uniqueidentifier OUTPUT,
 	@OldSessionId uniqueidentifier OUTPUT
 )
@@ -272,7 +276,8 @@ BEGIN
 	SELECT @NewSessionId = NEWID();
 	IF @OldSessionId IS NULL
 	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime) VALUES(@UserId, @NewSessionId, @BeginTime);
+		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel) 
+		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel);
 	END
 	ELSE
 	BEGIN
@@ -372,7 +377,7 @@ CREATE PROCEDURE [dbo].[GetSession]
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where SessionId = @SessionId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel from [dbo].[Sessions] where SessionId = @SessionId;
 END
 GO 
 /******************************************************************************************************************************
@@ -395,7 +400,7 @@ CREATE PROCEDURE [dbo].[GetUserSession]
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where UserId = @UserId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel from [dbo].[Sessions] where UserId = @UserId;
 END
 GO 
 /******************************************************************************************************************************
@@ -421,7 +426,8 @@ AS
 BEGIN
 	WITH SessionsRN AS
 	(
-		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime FROM [dbo].[Sessions] WHERE EndTime IS NULL
+		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel 
+		FROM [dbo].[Sessions] WHERE EndTime IS NULL
 	)
 	SELECT * FROM SessionsRN
 	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps

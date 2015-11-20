@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace AdminStore.Models
 {
@@ -8,6 +9,7 @@ namespace AdminStore.Models
 
         public string Login { get; set; }
 
+        [IgnoreDataMember]
         public string Password { get; set; }
 
         public bool IsEnabled { get; set; }

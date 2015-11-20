@@ -123,16 +123,18 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             int id = 123;
+	        string userName = "user";
+	        int licenseLevel = 3;
             Guid? newSession = new Guid("12345678901234567890123456789012");
             Guid? oldSession = new Guid("11111111111111111111111111111111");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel} },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", oldSession } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel);
 
             // Assert
             cxn.Verify();
@@ -146,18 +148,20 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             int id = 123;
-            Guid? newSession = new Guid("12345678901234567890123456789012");
+			string userName = "user";
+			int licenseLevel = 3;
+			Guid? newSession = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel } },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", null } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel);
 
-            // Assert
-            cxn.Verify();
+			// Assert
+			cxn.Verify();
             CollectionAssert.AreEqual(new[] { newSession, null }, sessions);
         }
 

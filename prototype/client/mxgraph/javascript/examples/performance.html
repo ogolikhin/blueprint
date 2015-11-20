@@ -1,0 +1,181 @@
+<!--
+  Copyright (c) 2006-2013, JGraph Ltd
+  
+  Codec example for mxGraph. This example demonstrates dynamically
+  creating a graph from XML and encoding the model into XML, as well
+  as changing the default style for edges in-place.
+-->
+<html>
+<head>
+	<title>mxGraph rendering performance</title>
+
+	<!-- Sets the basepath for the library if not in same directory -->
+	<script type="text/javascript">
+		mxBasePath = '../src';
+	</script>
+
+	<!-- Loads and initializes the library -->
+	<script type="text/javascript" src="../src/js/mxClient.js"></script>
+
+	<!-- Example code -->
+	<script type="text/javascript">
+		// Program starts here. Creates a sample graph in the
+		// DOM node with the specified ID. This function is invoked
+		// from the onLoad event handler of the document (see below).
+		function main(container)
+		{
+			if (mxClient.isBrowserSupported())
+			{
+				var divs = document.getElementsByTagName('*');
+				
+				for (var i = 0; i < divs.length; i++)
+				{
+					if (divs[i].className.toString().indexOf('mxgraph') >= 0)
+					{
+						(function(container)
+						{
+							var xml = mxUtils.getTextContent(container);
+							var xmlDocument = mxUtils.parseXml(xml);
+							
+							if (xmlDocument.documentElement != null && xmlDocument.documentElement.nodeName == 'mxGraphModel')
+							{
+								var decoder = new mxCodec(xmlDocument);
+								var node = xmlDocument.documentElement;
+		
+								container.innerHTML = '';
+		
+								var graph = new mxGraph(container);
+								graph.centerZoom = false;
+								graph.setTooltips(false);
+								graph.setEnabled(false);
+								
+								// Changes the default style for edges "in-place"
+								var style = graph.getStylesheet().getDefaultEdgeStyle();
+								style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
+								
+								// Enables panning with left mouse button
+								graph.panningHandler.useLeftButtonForPanning = true;
+								graph.panningHandler.ignoreCell = true;
+								graph.container.style.cursor = 'move';
+								graph.setPanning(true);
+								
+								if (divs[i].style.width == '' && divs[i].style.height == '')
+								{
+									graph.resizeContainer = true;
+								}
+								else
+								{
+									// Adds border for fixed size boxes
+									graph.border = 20;
+								}
+								
+								decoder.decode(node, graph.getModel());
+								graph.resizeContainer = false;
+								
+								// Adds zoom buttons in top, left corner
+								var buttons = document.createElement('div');
+								buttons.style.position = 'absolute';
+								buttons.style.overflow = 'visible';
+
+								var bs = graph.getBorderSizes();
+								buttons.style.top = (container.offsetTop + bs.y) + 'px';
+								buttons.style.left = (container.offsetLeft + bs.x) + 'px';
+								
+								var left = 0;
+								var bw = 16;
+								var bh = 16;
+								
+								if (mxClient.IS_QUIRKS)
+								{
+									bw -= 1;
+									bh -= 1;
+								}
+								
+								function addButton(label, funct)
+								{
+									var btn = document.createElement('div');
+									mxUtils.write(btn, label);
+									btn.style.position = 'absolute';
+									btn.style.backgroundColor = 'transparent';
+									btn.style.border = '1px solid gray';
+									btn.style.textAlign = 'center';
+									btn.style.fontSize = '10px';
+									btn.style.cursor = 'hand';
+									btn.style.width = bw + 'px';
+									btn.style.height = bh + 'px';
+									btn.style.left = left + 'px';
+									btn.style.top = '0px';
+									
+									mxEvent.addListener(btn, 'click', function(evt)
+									{
+										funct();
+										mxEvent.consume(evt);
+									});
+									
+									left += bw;
+									
+									buttons.appendChild(btn);
+								};
+								
+								addButton('+', function()
+								{
+									graph.zoomIn();
+								});
+								
+								addButton('-', function()
+								{
+									graph.zoomOut();
+								});
+								
+								if (container.nextSibling != null)
+								{
+									container.parentNode.insertBefore(buttons, container.nextSibling);
+								}
+								else
+								{
+									container.appendChild(buttons);
+								}
+							}
+						})(divs[i]);
+					}
+				}
+			}
+		};
+
+	</script>
+</head>
+<body>
+	<!-- Contains a graph description which will be converted. -->
+mxgraph
+	<div class="mxgraph" style="position:relative;overflow:auto;">
+
+<script>
+	document.write('&lt;mxGraphModel&gt;&lt;root&gt;&lt;mxCell id="0"/&gt;&lt;mxCell id="1" parent="0"/&gt;');
+	var num = 2;
+
+	for (i=0; i<num; i++) {
+		document.write('&lt;mxCell id="'+(i+2000)+'" vertex="1" parent="1" value="Node '+ (i+1) +'"&gt;');
+		document.write('&lt;mxGeometry x="200" y="'+(i*100)+'" width="100" height="50" as="geometry"/&gt;');
+		document.write('&lt;/mxCell&gt;');
+	}
+
+	for (i=0; i<num-1; i++) {
+		document.write('&lt;mxCell id="'+(1000+i)+'" edge="1" source="'+(i+2000)+'" target="'+(i+2001)+'" parent="1" value="Link '+ (i+1) +'"&gt;');
+		document.write('&lt;mxGeometry as="geometry"&gt;');
+		document.write('&lt;Array as="points"&gt;&lt;Object x="250" y="'+(50 + (i*100))+'" /&gt;&lt;/Array&gt;')
+		document.write('&lt;/mxGeometry&gt;');
+		document.write('&lt;/mxCell&gt;');
+	}
+	document.write('&lt;/root&gt;&lt;/mxGraphModel&gt;');
+
+</script>
+
+
+	</div>
+
+	<script>
+	main();
+	</script>
+
+</body>
+</html>

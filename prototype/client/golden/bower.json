@@ -1,0 +1,14 @@
+{
+  "name": "golden layout",
+  "version": "0.1.0",
+  "dependencies": {
+    "jquery": "1.11.1",
+    "angular": "1.4.6",
+    "bootstrap": "~3.3.5",
+    "angular-route": "~1.4.6",
+    "angular-cookies": "~1.4.6",    
+    "golden-layout": "1.0.10",
+    "angular-bootstrap": "~0.13.4",
+    "bootstrap": "~3.3.5"
+  }
+}

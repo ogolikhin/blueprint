@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <title> Blueprint HTML5 SPA Prototype - Using Golden Layout</title>
+  <link rel="icon" type="image/ico" href="/blueprint.ico"/>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- bower components -->
+  <script type="text/javascript" src="client/bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="client/bower_components/golden-layout/dist/goldenlayout.min.js"></script>
+  <script type="text/javascript" src="client/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript" src="client/bower_components/angular/angular.min.js"></script>
+  <script src="client/bower_components/angular-route/angular-route.js"></script>
+  <script src="client/bower_components/angular-cookies/angular-cookies.js"></script>   
+
+  <script type="text/javascript" src="client/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+  <script type="text/javascript" src="client/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+
+  <link type="text/css" rel="stylesheet" href="client/bower_components/golden-layout/src/css/goldenlayout-base.css" />
+  <link type="text/css" rel="stylesheet" href="client/bower_components/golden-layout/src/css/goldenlayout-dark-theme.css" />
+  <link type="text/css" rel="stylesheet" src="client/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+  <!-- bower -->
+
+  <link rel="stylesheet" href="../tree/jstree/dist/themes/default/style.min.css" />
+
+  <script src="//static.jstree.com/3.2.1/assets/jquery.address-1.6.js"></script>
+  <script src="//static.jstree.com/3.2.1/assets/vakata.js"></script>
+  <script src="//static.jstree.com/3.2.1/assets/dist/jstree.min.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="styles/golden.css" />
+
+</head>
+
+<body>
+  <link href='http://fonts.googleapis.com/css?family=Hind:400,500' rel='stylesheet' type='text/css'>
+
+<div id="blue" style="display: block; color: white; position: absolute; top: 0px; height: 28px; width: 100%; background-color: rgb(28, 41, 92);">
+              <span style="font-family: 'Hind', sans-serif; font-size: large">&nbsp;&nbsp;&nbsp;<b>blueprint ®</b></span>
+              <span style="position: fixed;right: 15px; top:6px;">Welcome Pegah Tabrizi | Home | Logout</span>
+
+ </div>         
+ <br/><br/>
+
+<div id="wrapper">
+  <div id="menuContainer">
+    
+<!-- Single button -->
+
+
+  </div>
+
+
+  <div id="layoutContainer"></div>
+</div>
+
+
+<template type="text/html" id="userlistTemplate">
+  <ul ng-controller="userlistController" class="userlist">
+    <li ng-repeat="user in users" 
+        ng-click="select( user )"
+        ng-class="{selected:user.isSelected}">
+      {{user.name}}
+    </li>
+  </ul>
+  <div jstree id="jstree" selected-node="selectedTreeNode" selected-path ="selectedPath" selected-node-changed="nodeChanged" style="overflow: auto;">
+  </div>  
+</template>
+
+  <template type="text/html" id="userDetailTemplate">
+    <div ng-controller="userdetailsController" class="userdetails">
+      <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/152047/{{user.img}}" width="100" height="100" />
+      <h2>{{user.name}}</h2>
+      <p>{{user.street}}</p>
+    </div>
+</template>
+
+<script>
+var app = angular.module('userlist', ['ngCookies','ngRoute']);
+angular.module('userlist').controller('userlistController', function( $scope, $timeout, container, state ) {
+
+    var selectedUser = {};
+
+    $scope.users = [
+      { name: 'Jackson Turner', street: '217 Tawny End', img: 'men_1.jpg' },
+      { name: 'Megan Perry', street: '77 Burning Ramp', img: 'women_1.jpg' },
+      { name: 'Ryan Harris', street: '12 Hazy Apple Route', img: 'men_2.jpg' },
+      { name: 'Jennifer Edwards', street: '33 Maple Drive', img: 'women_2.jpg' },
+      { name: 'Noah Jenkins', street: '423 Indian Pond Cape', img: 'men_3.jpg' }
+    ];
+
+    $timeout(function(){
+      $scope.select( $scope.users[ state.selectedUserIndex ] );
+    });
+
+    $scope.select = function( user ) {
+      selectedUser.isSelected = false;
+      user.isSelected = true;
+      selectedUser = user;
+      container.extendState({ selectedUserIndex: $scope.users.indexOf( user ) });
+      container.layoutManager.eventHub.emit( 'userSelected', user );
+    };
+  });
+
+angular.module('userlist').controller('userdetailsController', function( $scope, container, state ) {
+    $scope.user = state.user || null;
+
+    container.layoutManager.eventHub.on( 'userSelected', function( user ){
+      $scope.user = user;
+      container.extendState({ user: user });
+      $scope.$apply();
+    });
+  });
+
+
+
+
+//////////////////////////////////////////////////////
+/**
+ * jstree controller/directive (in progress)
+ */
+angular.module('userlist').directive('jstree', function($sce, $http, $location, $cookieStore, $timeout, $parse) {   
+    return {
+        restrict: 'A',
+        require: '?ngModel',
+        scope: {
+          selectedNode: '=?',
+            selectedNodeChanged: '=',
+      selectedPath: '=?'
+        },
+        link: function(scope, element, attrs) {
+          scope.selectedNode = scope.selectedNode || {};
+            var treeElement = $(element);            
+            var rootNodes = [];
+            var selectedPath = scope.selectedPath;
+            var tree = treeElement.jstree({
+
+"core" : {
+                    "animation" : 0,
+                    "check_callback" : true,
+                    'force_text' : true,
+                    "themes" : {  "name": "default-dark", "icons": true, "stripes" : true },
+                    'data' : {
+                      'url' : function (node) {
+                        return node.id === '#' ? 'ajax_demo_roots.json' : 'ajax_demo_children.json';
+                      },
+                      'data' : function (node) {
+                        return { 'id' : node.id };
+                      }
+                    }
+                  },
+                      "search" : { 
+                    'fuzzy' : false ,
+                    'show_only_matches' : true
+                  },                  
+                  "types" : {
+                    "#" : { "max_children" : 1, "max_depth" : 4, "valid_children" : ["root"] },
+                    "root" : { "icon" : "/static/3.2.1/assets/images/tree_icon.png", "valid_children" : ["default"] },
+                    "default" : { "valid_children" : ["default","file"] },
+                    "file" : { "icon" : "glyphicon glyphicon-file", "valid_children" : [] }
+                  },
+                  "plugins" : [ "contextmenu", "dnd", "search", "state", "types", "wholerow" ]
+
+
+          });            
+            
+      
+        }
+    };
+});
+
+
+//////////////////////////////////////////////////////
+
+
+
+
+
+
+var AngularModuleComponent = function( container, state ) {
+  var html = $( '#' + state.templateId ).html(),
+    element = container.getElement();
+  
+  element.html( html );
+
+  angular
+    .module( state.module )
+    .value( 'container', container )
+    .value( 'state', state );
+
+  angular.bootstrap( element[ 0 ], [ state.module ] );
+};
+
+var myLayout = new GoldenLayout({
+  content:[{
+    type: 'row',
+    content: [{
+      width: 20,
+      title: 'Explorer',
+      type: 'component',
+      componentName: 'angularModule',
+      componentState: {
+        module: 'userlist',
+        templateId: 'userlistTemplate',
+        selectedUserIndex: 2
+      }
+      
+    
+    }]
+  }]
+} , $('#layoutContainer') );
+
+myLayout.registerComponent( 'angularModule', AngularModuleComponent );
+myLayout.init();
+
+
+
+
+
+
+</script>
+</body>
+</html>

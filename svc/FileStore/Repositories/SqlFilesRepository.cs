@@ -10,16 +10,16 @@ namespace FileStore.Repositories
 {
 	public class SqlFilesRepository : IFilesRepository
 	{
-		internal readonly ISqlConnectionWrapper _connectionWrapper;
+		internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
 		public SqlFilesRepository()
-			 : this(new SqlConnectionWrapper(new ConfigRepository().FileStoreDatabase))
+			 : this(new SqlConnectionWrapper(ConfigRepository.Instance.FileStoreDatabase))
 		{
 		}
 
 		internal SqlFilesRepository(ISqlConnectionWrapper connectionWrapper)
 		{
-			_connectionWrapper = connectionWrapper;
+			ConnectionWrapper = connectionWrapper;
 		}
 
 		public async Task<Guid> PostFileHead(File file)
@@ -29,8 +29,8 @@ namespace FileStore.Repositories
 			prm.Add("@FileType", file.FileType);
 			prm.Add("@ChunkCount", file.ChunkCount);
             prm.Add("@FileSize", file.FileSize);
-            prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-			await _connectionWrapper.ExecuteAsync("InsertFileHead", prm, commandType: CommandType.StoredProcedure);
+			prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+			await ConnectionWrapper.ExecuteAsync("InsertFileHead", prm, commandType: CommandType.StoredProcedure);
 			return file.FileId = prm.Get<Guid>("FileId");
 		}
 
@@ -38,10 +38,10 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", chunk.FileId);
-			prm.Add("@ChunkNum", chunk.ChunkNum);
+			prm.Add("@ChunkNumber", chunk.ChunkNum);
 			prm.Add("@ChunkSize", chunk.ChunkSize);
 			prm.Add("@ChunkContent", chunk.ChunkContent);
-			await _connectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandType: CommandType.StoredProcedure);
+			await ConnectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandType: CommandType.StoredProcedure);
 			return chunk.ChunkNum + 1;
 		}
 
@@ -49,7 +49,7 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			return (await _connectionWrapper.QueryAsync<File>("GetFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+			return (await ConnectionWrapper.QueryAsync<File>("GetFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
 
 		public async Task<FileChunk> GetFileChunk(Guid guid, int num)
@@ -57,7 +57,7 @@ namespace FileStore.Repositories
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
 			prm.Add("@Num", num);
-			return (await _connectionWrapper.QueryAsync<FileChunk>("GetFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+			return (await ConnectionWrapper.QueryAsync<FileChunk>("GetFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
 
 		public async Task<Guid?> DeleteFile(Guid guid)
@@ -65,7 +65,7 @@ namespace FileStore.Repositories
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
 			prm.Add("@DeletedFileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-			await _connectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
+			await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
 			return prm.Get<Guid?>("DeletedFileId");
 		}
 	}

@@ -66,7 +66,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<int> RequestPutSessionAsync()
+        private async Task<int> RequestPutSessionAsync(string op = "op", int aid = 1)
         {
             using (var http = _httpClientProvider.Create())
             {
@@ -74,7 +74,7 @@ namespace AdminStore.Controllers
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                var result = await http.PutAsync("sessions/?op=op/?aid=aid", new StringContent(null));
+                var result = await http.PutAsync(String.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadAsStringAsync();

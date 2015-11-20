@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>CSS</h2>
+
+<ul>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#defaultcss">Default CSS File</a></li>
+<li><a href="#ref">CSS Class Reference</a></li>
+</ul>
+
+<p><a name="intro"></a></p>
+
+<h3>Introduction</h3>
+
+<p>The jsPlumb Toolkit attaches a number of CSS classes to the elements with which it interacts, allowing you a high degree of control over the look and feel of your interface.</p>
+
+<p>It is also recommended that you read the <a href="http://jsplumbtoolkit.com/doc/styling-via-css">jsPlumb CSS documentation</a>, as everything discussed on that page applies when working with the jsPlumb Toolkit.  In particular you might like to read the &quot;Z Index&quot; and &quot;Preventing selection while dragging&quot; sections.</p>
+
+<h6>Nodes</h6>
+
+<p>When you build an application with the jsPlumb Toolkit you will generally supply client side templates to render your Nodes, so you are free to write the markup as you please, and CSS is completely under your control.  </p>
+
+<p><strong>Important</strong> It is expected, if the Nodes in your UI are draggable, that they will have a CSS <code>position</code> value of <code>absolute</code>. Relative positioning does not work well with the dragging mechanisms used by the libraries upon which the jsPlumb Toolkit runs.</p>
+
+<h6>Hover Effects etc</h6>
+
+<p>jsPlumb writes a number of different classes to the DOM elements involved in any given Connection. Upon hover, to take one example, the source element is assigned a class to indicate its Connection is being hovered upon, and also a class to indicate that it is the source in a Connection being hovered upon.</p>
+
+<p>These classes provide a powerful way of adding dynamic behaviour to your UI without having to resort to Javascript. </p>
+
+<p>A full discussion of these can be found in the <strong>Interactive CSS Classes</strong> section in <a href="http://jsplumbtoolkit.com/doc/styling-via-css">the jsPlumb CSS documentation</a>. </p>
+
+<p><strong>Note</strong>: Wherever you see &#39;Connection&#39; discussed in the jsPlumb documentation, remember that a jsPlumb Connection is the visual artefact representing an Edge in the Toolkit. Similarly, when you see a reference to an &quot;element&quot;, the analog in the Toolkit is either a Node or a Port.</p>
+
+<h6>Edges</h6>
+
+<p>Edges are of course drawn by jsPlumb, so the constraints on how you configure their appearance are the same as for jsPlumb: if you are targeting any IE browsers with version less than IE9, then your app will be using VML to draw edges, meaning you cannot rely on CSS alone.  If, however, you do not need to target IE&lt;9 then you can use CSS to style the SVG edges.  The aforelinked CSS jsPlumb page contains information about how to style an SVG Connection.</p>
+
+<h6>Widgets</h6>
+
+<p>You will also most likely wish to style the Toolkit widgets you are using in your app. Both the Miniview and the Surface expose an comprehensive set of classes that you can use - these are listed below.</p>
+
+<p><a name="defaultcss"></a></p>
+
+<h3>Default CSS File</h3>
+
+<p>Your licensed copy of the jsPlumb Toolkit shipped with a CSS file containing appropriate default values for all of the classes used by the Toolkit.  This file can be found at:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">/css/jsPlumbToolkit-defaults.css
+</code></pre></div>
+<p>To get a prototype up and running it is recommended you include this file in your HTML page.</p>
+
+<p><a name="ref"></a></p>
+
+<h4>CSS Class Reference</h4>
+
+<p>This is a complete list of classes the jsPlumb Toolkit uses throughout the rendering lifecycle. </p>
+
+<table>
+<tr><th colspan="2"><strong>Surface</strong></th></tr>
+<tr><th>Class</th><th>Explanation</th></tr>
+<tr><td>jtk-surface</td><td>Assigned to the container element of a Surface (the original element)</td></tr>
+<tr><td>jtk-surface-nopan</td><td>Assigned to the container element of a Surface when `enablePan` is set to false. This class sets overflow to scroll, rather than hidden, which will cause scrollbars to appear when the content overflows.</td></tr>
+<tr><td>jtk-surface-canvas</td><td>Assigned to the element in the Surface on which elements are drawn</td></tr>
+<tr><td>jtk-surface-pan</td><td>Assigned to the pan buttons which are positioned against the edges of a Surface</td></tr>
+<tr><td>jtk-surface-pan-top</td><td>Assigned to the pan button which is positioned against the top edge of a Surface</td></tr>
+<tr><td>jtk-surface-pan-bottom</td><td>Assigned to the pan button which is positioned against the bottom edge of a Surface</td></tr>
+<tr><td>jtk-surface-pan-left</td><td>Assigned to the pan button which is positioned against the left edge of a Surface</td></tr>
+<tr><td>jtk-surface-pan-right</td><td>Assigned to the pan button which is positioned against the right edge of a Surface</td></tr>
+<tr><td>jtk-surface-pan-active</td><td>Assigned to a pan button either when it is being clicked, or when the mouse is held on it and auto-pan is in effect.</td></tr>
+<tr><td>jtk-surface-panning</td><td>Assigned to the container element of a Surface whenever the Surface is being panned with the mouse or with a touch event</td></tr>
+<tr><td>jtk-surface-selected-element</td><td>Assigned to any elements in a Surface that are currently selected (by a lasso selection with the mouse)</td></tr>
+<tr><td>jtk-node</td><td>Assigned to all Nodes</td></tr>
+<tr><td>jtk-port</td><td>Assigned to all Ports</td></tr>
+<tr><td colspan="2"><strong>Miniview</strong></td></tr>
+<tr><td>jtk-miniview</td><td>Assigned to the container element of a Miniview</td></tr>
+<tr><td>jtk-miniview-canvas</td><td>Assigned to the element in the Miniview on which elements are drawn</td></tr>
+<tr><td>jtk-miniview-panner</td><td>Assigned to the element in the Miniview that you can drag to pan the associated Surface.</td></tr>
+<tr><td>jtk-miniview-panning</td><td>Assigned to the container of the Miniview when its panner element is being dragged by the mouse</td></tr>
+<tr><td>jtk-miniview-element</td><td>Assigned to all elements drawn inside the Miniview</td></tr>
+<tr><td>jtk-miniview-collapse</td><td>Assigned to the collapse button of a Miniview.</td></tr>
+<tr><td>jtk-miniview-collapsed</td><td>Assigned to the container of a Miniview when it is collapsed.</td></tr>
+<tr><td colspan="2">Lasso</td></tr>
+<tr><td>jtk-lasso</td><td>Assigned to the lasso mask that is drawn when selecting multiple items with the mouse.</td></tr>
+<tr><td>jtk-lasso-select-defeat</td><td>Assigned to the body when the lasso is in operation. You can use this to disable text selection (the default jsPlumb Toolkit css file does this)</td></tr>
+</table>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

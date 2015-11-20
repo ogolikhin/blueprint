@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>JsPlumb-Angular Demo</title>
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <style>
+        .node-container {
+            border: solid 1px #ccc;
+            position: relative;
+            height: 400px;
+        }
+
+        .node {
+            position: absolute;
+            border: solid 1px #0094ff;
+            padding: 20px;
+            background: #fff;
+        }
+    </style>
+</head>
+<body ng-controller="Ctrl as ctrl">
+    <h1>JsPlumb-Angular Demo</h1>
+    <h2>Using jsplumb draggable:</h2>
+    <p>
+        Apply directive 'jsplumb-draggable' to the elements you cant to be able to drag/drop. It will apply jsPlumbInstance.draggable() to the element. <br />
+        You can pass options to the directive it will be used as a second argument in the 'jsPlumb.draggable(element, options)' call .
+    </p>
+
+    <div class="node-container" jsplumb jsplumb-defaults="{ Connector: 'Flowchart' }">
+        <div class="node" style="left: 10px; top: 10px;" 
+             jsplumb-draggable="{ grid: [50,50] }">
+            NODE 1
+        </div>
+
+        <div class="node" jsplumb-draggable style="left: 100px; top: 100px;">
+            NODE 2
+        </div>
+    </div>
+
+    <script src="Scripts/jquery-1.11.0.js"></script>
+    <script src="Scripts/jquery-ui-1.10.4.custom.js"></script>
+    <script src="Scripts/jquery.jsPlumb-1.5.5.js"></script>
+    <script src="Scripts/angular.js"></script>
+    <script src="jsplumb-angular.js"></script>
+    <script>
+        angular.module('app', ['jsplumb'])
+            .controller("Ctrl", function () {
+
+            });
+
+        angular.bootstrap(document.body, ['app']);</script>
+</body>
+</html>

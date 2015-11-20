@@ -37,7 +37,7 @@ namespace AccessControl.Controllers
                         foreach (var session in sessions)
                         {
                             ++count;
-                            AddSession(Session.Convert(session.SessionId), session.UserId);
+                            AddSession(Session.Convert(session.SessionId), session);
                         }
                         ++pn;
                     } while (count == ps);
@@ -141,11 +141,11 @@ namespace AccessControl.Controllers
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(int uid)
+        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel)
         {
             try
             {
-                var guids = await Repo.BeginSession(uid);
+                var guids = await Repo.BeginSession(uid, userName, licenseLevel);
                 if (!guids[0].HasValue)
                 {
                     throw new KeyNotFoundException();
@@ -155,7 +155,8 @@ namespace AccessControl.Controllers
                 {
                     Cache.Remove(Session.Convert(guids[1].Value));
                 }
-                AddSession(token, uid);
+	            var session = await Repo.GetUserSession(uid);
+                AddSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
@@ -181,17 +182,17 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var userId = Cache.Get(token);
-                if (userId == null)
+                var session = Cache.Get(token) as Session;
+                if (session == null)
                 {
-                    var session = await Repo.GetSession(guid);
+                    session = await Repo.GetSession(guid);
                     if (session == null || session.EndTime.HasValue)
                     {
                         throw new KeyNotFoundException();
-                    }
-                    userId = session.UserId;
+                    }                    
+					AddSession(token, session);
                 }
-                var response = Request.CreateResponse(HttpStatusCode.OK, userId);
+                var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
@@ -215,7 +216,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpDelete]
+	    [HttpDelete]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> DeleteSession()
@@ -250,9 +251,9 @@ namespace AccessControl.Controllers
             }
         }
 
-        private static void AddSession(string key, int id)
+        private static void AddSession(string key, Session session)
         {
-            Cache.Add(key, id, new CacheItemPolicy
+            Cache.Add(key, session, new CacheItemPolicy
             {
                 SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
                 RemovedCallback = args =>

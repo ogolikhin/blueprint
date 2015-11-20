@@ -18,6 +18,6 @@ CREATE PROCEDURE [dbo].[GetSession]
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime from [dbo].[Sessions] where SessionId = @SessionId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel from [dbo].[Sessions] where SessionId = @SessionId;
 END
 GO 

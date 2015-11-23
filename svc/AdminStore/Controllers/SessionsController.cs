@@ -4,11 +4,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Remoting;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
@@ -40,11 +40,11 @@ namespace AdminStore.Controllers
             try
             {
                 var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
-                return await RequestSessionTokenAsync(user);
+                return await RequestSessionTokenAsync(user, force);
             }
-            catch (AuthenticationException)
+            catch (AuthenticationException ex)
             {
-                return Unauthorized();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
             {

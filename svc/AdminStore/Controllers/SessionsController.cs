@@ -4,10 +4,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Remoting;
-using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
 using ServiceLibrary.Helpers;
@@ -38,11 +40,11 @@ namespace AdminStore.Controllers
             try
             {
                 var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
-                return await RequestSessionTokenAsync(user.Id);
+                return await RequestSessionTokenAsync(user, force);
             }
-            catch (AuthenticationException)
+            catch (AuthenticationException ex)
             {
-                return Unauthorized();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
             {
@@ -62,7 +64,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId, bool force = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false)
         {
             if (!force)
             {
@@ -71,7 +73,7 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var result = await http.GetAsync("sessions/" + userId.ToString());
+                    var result = await http.GetAsync("sessions/" + user.Id);
                     if (result.IsSuccessStatusCode) // session exists
                     {
                         throw new ApplicationException("Conflict");
@@ -83,7 +85,12 @@ namespace AdminStore.Controllers
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var result = await http.PostAsJsonAsync("sessions/" + userId.ToString(), userId);
+
+	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
+				queryParams.Add("userName", user.Login);
+				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
+
+	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
                     throw new ServerException();
@@ -107,7 +114,7 @@ namespace AdminStore.Controllers
             try
             {
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
-                return await RequestSessionTokenAsync(user.Id, force);
+                return await RequestSessionTokenAsync(user, force);
             }
             catch (FederatedAuthenticationException e)
             {

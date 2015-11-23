@@ -9,7 +9,7 @@ namespace FileStore.Repositories
         private readonly IConfigRepository _configRepository;
         private readonly IContentReadStream _contentReadStream;
 
-        public FileStreamRepository() : this(new ConfigRepository(), new ContentReadStream())
+        public FileStreamRepository() : this(ConfigRepository.Instance, new ContentReadStream())
         {
 
         }

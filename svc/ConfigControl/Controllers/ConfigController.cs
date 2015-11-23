@@ -4,40 +4,50 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Net;
 using ConfigControl.Repositories;
+using System.Collections.Generic;
 
 namespace ConfigControl.Controllers
 {
-    [RoutePrefix("settings")]
-    public class ConfigController : ApiController
-    {
-        internal readonly IConfigRepository _configRepo;
+	[RoutePrefix("settings")]
+	public class ConfigController : ApiController
+	{
+		internal readonly IConfigRepository _configRepo;
 
-        public ConfigController() : this(new SqlConfigRepository())
-        {
-        }
+		public ConfigController() : this(new SqlConfigRepository())
+		{
+		}
 
-        internal ConfigController(IConfigRepository configRepo)
-        {
-            _configRepo = configRepo;
-        }
+		internal ConfigController(IConfigRepository configRepo)
+		{
+			_configRepo = configRepo;
+		}
 
-        [HttpGet]
-        [Route("{restricted}")]
-        [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetConfig(bool restricted)
-        {
-            try
-            {
-                var settings = await _configRepo.GetSettings(restricted);
-                var response = Request.CreateResponse(HttpStatusCode.OK, settings);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-                return ResponseMessage(response);
-            }
-            catch
-            {
-                return InternalServerError();
-            }
-        }
-    }
+		[HttpGet]
+		[Route("{allowRestricted}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> GetConfig(bool allowRestricted)
+		{
+			try
+			{
+				var settings = await _configRepo.GetSettings(allowRestricted);
+				var map = new Dictionary<string, Dictionary<string, string>>();
+				foreach(var s in settings)
+				{
+					if (!map.ContainsKey(s.Group))
+					{
+						map.Add(s.Group, new Dictionary<string, string>());
+					}
+					map[s.Group].Add(s.Key, s.Value);
+				}
+				var response = Request.CreateResponse(HttpStatusCode.OK, map);
+				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+				return ResponseMessage(response);
+			}
+			catch
+			{
+				return InternalServerError();
+			}
+		}
+	}
 }

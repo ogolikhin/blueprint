@@ -2,9 +2,10 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Http.Results;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
@@ -153,7 +154,8 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSession_AuthenticationException_UnauthorizedResult()
+        [ExpectedException(typeof(HttpResponseException))]
+        public async Task PostSession_AuthenticationException_HttpResponseException()
         {
             // Arrange
             const string login = "admin";
@@ -161,15 +163,15 @@ namespace AdminStore.Controllers
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password))
-                .Throws(new AuthenticationException());
+                .Throws(new AuthenticationException("Invalid username or password"));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider())
+            {
+                Request = new HttpRequestMessage()
+            };
 
             // Act
-            var unauthorizedResult = await controller.PostSession(login, password, true) as UnauthorizedResult;
-
-            // Assert
-            Assert.IsNotNull(unauthorizedResult);
+            await controller.PostSession(login, password, true);
         }
 
         [TestMethod]

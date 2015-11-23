@@ -97,21 +97,26 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AccessControl\Models\Session.cs">
+      <Link>Models\Session.cs</Link>
+    </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AuthenticationException.cs" />
     <Compile Include="Helpers\AuthenticationStatus.cs" />
+    <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\ApplicationLabel.cs" />
-    <Compile Include="Models\ConfigSetting.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
     <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\LdapSettings.cs" />

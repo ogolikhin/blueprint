@@ -5,7 +5,7 @@ Description:
 			
 Change History:
 Date			Name					Change
-2015/11/19		Albert WOng				Initial Version
+2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))

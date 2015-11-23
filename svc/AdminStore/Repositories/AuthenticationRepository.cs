@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
@@ -39,12 +38,17 @@ namespace AdminStore.Repositories
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
-                throw new InvalidCredentialException(string.Format("User does not exist with login: {0}", login));
+                throw new AuthenticationException(string.Format("User does not exist with login: {0}", login));
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
-            if (instanceSettings.IsSamlEnabled.GetValueOrDefault() && !user.IsFallbackAllowed.GetValueOrDefault())
+            if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
-                throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
+				// Fallback is allowed by default (value is null)
+	            var isFallbackAllowed = !user.IsFallbackAllowed.HasValue || user.IsFallbackAllowed.Value;
+				if(!isFallbackAllowed)
+				{
+					throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
+				}
             }
             AuthenticationStatus authenticationStatus;
             switch (user.Source)
@@ -60,8 +64,7 @@ namespace AdminStore.Repositories
                     authenticationStatus = await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings.UseDefaultConnection);
                     break;
                 default:
-                    throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login),
-                                                    new ArgumentOutOfRangeException(user.Source.ToString()));
+                    throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login));
             }
             await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
             return user;
@@ -75,13 +78,13 @@ namespace AdminStore.Repositories
                     break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
-                    throw new InvalidCredentialException("Invalid username or password");
+                    throw new AuthenticationException("Invalid username or password");
                 case AuthenticationStatus.PasswordExpired:
                     throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login));
                 case AuthenticationStatus.Locked:
                     throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
                 case AuthenticationStatus.Error:
-                    throw new AuthenticationException();
+                    throw new AuthenticationException("Authentication Error");
             }
         }
 

@@ -28,6 +28,13 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<LoginUser>("GetUserByLogin", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
+        public async Task<LoginUser> GetLoginUserByIdAsync(int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", userId);
+            return (await _connectionWrapper.QueryAsync<LoginUser>("GetLoginUserById", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+        }
+
         public async Task UpdateUserOnInvalidLoginAsync(LoginUser user)
         {
             var prm = new DynamicParameters();

@@ -22,7 +22,7 @@ namespace FileStore.Repositories
             var repository = new SqlFilesRepository();
 
             // Assert
-            Assert.AreEqual(new ConfigRepository().FileStoreDatabase, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ConfigRepository.Instance.FileStoreDatabase, repository.ConnectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor
@@ -38,7 +38,7 @@ namespace FileStore.Repositories
             File file = new File {FileName = "name", FileType = "type"};
             Guid? result = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
-                "PostFileHead",
+                "InsertFileHead",
                 new Dictionary<string, object> { { "FileName", file.FileName }, { "FileType", file.FileType }, { "FileId", null } },
                 1,
                 new Dictionary<string, object> { { "FileId", result } });
@@ -166,8 +166,7 @@ namespace FileStore.Repositories
             cxn.Verify();
             Assert.AreEqual(result, id);
         }
-
-        [Ignore] //Ask glen why the null parameter is causing this case to fail now.
+        
         [TestMethod]
         public async Task DeleteFile_QueryReturnsNull_ReturnsNull()
         {

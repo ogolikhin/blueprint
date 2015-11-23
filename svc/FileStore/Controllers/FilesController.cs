@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FileStore.Repositories;
 using System.Net;
 using System.Text;
 using System.IO;
@@ -9,6 +8,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Collections.Generic;
+using FileStore.Repositories;
 
 namespace FileStore.Controllers
 {
@@ -53,7 +54,7 @@ namespace FileStore.Controllers
             try
             {
                 var isMultipart = Request.Content.IsMimeMultipartContent();
-                HttpContent content = null;
+                HttpContent content;
                 if (isMultipart)
                 {
                     var multipartMemoryStreamProvider = await Request.Content.ReadAsMultipartAsync();
@@ -85,18 +86,16 @@ namespace FileStore.Controllers
                 var chunk = new Models.FileChunk
                 {
                     FileId = file.FileId,
-                    ChunkNum = 0
+                    ChunkNum = 1
                 };
                 using (var stream = await content.ReadAsStreamAsync())
                 {
+                    var buffer = new byte[_configRepo.FileChunkSize];
                     for (var remaining = file.FileSize; remaining > 0; remaining -= chunk.ChunkSize)
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
-                            stream.CopyTo(memoryStream, chunk.ChunkSize);
-                            chunk.ChunkContent = memoryStream.ToArray();
-                        }
+                        chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
+                        await stream.ReadAsync(buffer, 0, chunk.ChunkSize);
+                        chunk.ChunkContent = buffer.Take(chunk.ChunkSize).ToArray();
                         chunk.ChunkNum = await _filesRepo.PostFileChunk(chunk);
                     }
                 }
@@ -108,7 +107,8 @@ namespace FileStore.Controllers
             }
         }
 
-       
+
+
         [HttpHead]
         [Route("{id}")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -221,15 +221,28 @@ namespace FileStore.Controllers
 				{
                     // retrieve file content from legacy database 
 
-                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), 4096);
+                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
                 }
                 else
 				{
                     // retrieve file content from FileStore database 
+                    responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
 
-                    responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), 4096);
+                    // #DEBUG Test that the file chunks have been written to the database correctly
+
+                    //IEnumerable<Models.FileChunk> fileChunks = await _filesRepo.GetAllFileChunks(fileId);
+                    //var totalSize = fileChunks.Sum<Models.FileChunk>(f => f.ChunkSize);
+                    //byte[] returnBuffer = new byte[totalSize];
+
+                    //int offset = 0;
+                    //foreach (Models.FileChunk chunk in fileChunks)
+                    //{
+                    //    System.Buffer.BlockCopy(chunk.ChunkContent, 0, returnBuffer, offset, chunk.ChunkContent.Length);
+                    //    offset += chunk.ChunkContent.Length;
+                    //}
+                    //responseContent = new ByteArrayContent(returnBuffer);
                 }
-
+   
                 response.Content = responseContent;
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.

@@ -112,13 +112,13 @@ GO
 
 CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
-	[ChunkNumber] [int] NOT NULL,
+	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
 	[ChunkContent ] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
-	[ChunkNumber] ASC
+	[ChunkNum] ASC
 ),
  CONSTRAINT [FK_FileId]
  FOREIGN KEY ([FileId])
@@ -255,7 +255,7 @@ END
 
 GO
 /******************************************************************************************************************************
-Name:			GetFileHead
+Name:			ReadFileHead
 
 Description: 
 			
@@ -264,11 +264,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[GetFileHead]
+CREATE PROCEDURE [dbo].[ReadFileHead]
 (
 	@FileId uniqueidentifier
 )
@@ -405,7 +405,7 @@ GO
 CREATE PROCEDURE [dbo].[InsertFileChunk]
 ( 
     @FileId uniqueidentifier,
-    @ChunkNumber int,
+    @ChunkNum int,
 	@ChunkSize int,
 	@ChunkContent varbinary(max)
 )
@@ -414,12 +414,12 @@ BEGIN
 
     INSERT INTO [dbo].[FileChunks]  
            ([FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent])
     VALUES
            (@FileId
-           ,@ChunkNumber
+           ,@ChunkNum
            ,@ChunkSize
            ,@ChunkContent)
 END
@@ -427,7 +427,7 @@ END
 GO
 
 /******************************************************************************************************************************
-Name:			[GetFileChunk]
+Name:			[ReadFileChunk]
 
 Description: 
 			
@@ -436,16 +436,14 @@ Date			Name					Change
 2015/11/19		Albert WOng				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileChunk]
 GO
 
-CREATE PROCEDURE [dbo].[GetFileChunk]
+CREATE PROCEDURE [dbo].[ReadFileChunk]
 ( 
     @FileId uniqueidentifier,
-    @ChunkNumber int,
-	@ChunkSize int,
-	@ChunkContent varbinary(max)
+    @ChunkNum int
 )
 AS
 BEGIN
@@ -453,11 +451,45 @@ BEGIN
 	SET NOCOUNT ON
 
 	SELECT [FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
+           ,[ChunkSize]
+		   ,[ChunkContent]
+	FROM [dbo].[FileChunks]
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
+
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[ReadAllFileChunks]
+
+Description: Used for debugging. Retrieves all the file chunks in an ordered list 
+			
+Change History:
+Date			Name					Change
+2015/11/23		CRichards				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadAllFileChunks]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadAllFileChunks]
+GO
+CREATE PROCEDURE [dbo].[ReadAllFileChunks]
+( 
+    @FileId uniqueidentifier
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [FileId]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent]
 	FROM [dbo].[FileChunks]
 	WHERE [FileId] = @FileId
+	ORDER BY ChunkNum ASC
 
 END
 

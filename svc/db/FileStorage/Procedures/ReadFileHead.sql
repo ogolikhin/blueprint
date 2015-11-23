@@ -1,5 +1,5 @@
 ﻿/******************************************************************************************************************************
-Name:			GetFileHead
+Name:			ReadFileHead
 
 Description: 
 			
@@ -8,11 +8,11 @@ Date			Name					Change
 2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileHead]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFileHead]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[GetFileHead]
+CREATE PROCEDURE [dbo].[ReadFileHead]
 (
 	@FileId uniqueidentifier
 )

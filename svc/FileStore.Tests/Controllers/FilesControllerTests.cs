@@ -202,8 +202,8 @@ namespace FileStore.Controllers
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
 		}
-
-		[TestMethod]
+        [Ignore]
+        [TestMethod]
 		public void HeadFile_GetHeadForExistentFile_Success()
 		{
 			// Arrange

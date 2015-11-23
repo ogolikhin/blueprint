@@ -1,5 +1,5 @@
 ﻿/******************************************************************************************************************************
-Name:			[GetFileChunk]
+Name:			[ReadFileChunk]
 
 Description: 
 			
@@ -8,16 +8,14 @@ Date			Name					Change
 2015/11/19		Albert WOng				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFileChunk]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetFileChunk]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileChunk]
 GO
 
-CREATE PROCEDURE [dbo].[GetFileChunk]
+CREATE PROCEDURE [dbo].[ReadFileChunk]
 ( 
     @FileId uniqueidentifier,
-    @ChunkNumber int,
-	@ChunkSize int,
-	@ChunkContent varbinary(max)
+    @ChunkNum int
 )
 AS
 BEGIN
@@ -25,11 +23,11 @@ BEGIN
 	SET NOCOUNT ON
 
 	SELECT [FileId]
-           ,[ChunkNumber]
+           ,[ChunkNum]
            ,[ChunkSize]
 		   ,[ChunkContent]
 	FROM [dbo].[FileChunks]
-	WHERE [FileId] = @FileId
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
 END
 

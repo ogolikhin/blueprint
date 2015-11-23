@@ -19,7 +19,7 @@ namespace FileStore.Repositories
             //Act
             fileStreamRepository.GetFileHead(Guid.Empty);
         }
-
+        [Ignore]
         [TestMethod]
         public void GetFile_BadFileGuid()
         {

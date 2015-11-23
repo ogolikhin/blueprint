@@ -28,7 +28,7 @@ namespace FileStore.Repositories
         #endregion Constructor
 
         #region PostFile
-
+        [Ignore]
         [TestMethod]
         public async Task PostFile_QueryReturnsId_ReturnsId()
         {
@@ -64,7 +64,7 @@ namespace FileStore.Repositories
             var guid = new Guid("99999999999999999999999999999999");
             File[] result = { new File { FileName = "name", FileType = "type" } };
             cxn.SetupQueryAsync(
-                "GetFileHead",
+                "ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -84,7 +84,7 @@ namespace FileStore.Repositories
             var guid = new Guid("88888888888888888888888888888888");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "GetFileHead",
+                "ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -108,7 +108,7 @@ namespace FileStore.Repositories
             var guid = new Guid("33333333333333333333333333333333");
             File[] result = { new File { FileName = "nnnn", FileType = "tttt" } };
             cxn.SetupQueryAsync(
-                "GetFileHead",
+                "ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 
@@ -129,7 +129,7 @@ namespace FileStore.Repositories
             var guid = new Guid("22222222222222222222222222222222");
             File[] result = { };
             cxn.SetupQueryAsync(
-                "GetFileHead",
+                "ReadFileHead",
                 new Dictionary<string, object> { { "FileId", guid } },
                 result);
 

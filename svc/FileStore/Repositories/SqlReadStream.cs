@@ -26,7 +26,7 @@ namespace FileStore.Repositories
 
             OpenConnection(connectionString);
 
-            _file = GetFileHead(fileId);
+            _file = ReadFileHead(fileId);
 
             if (_file == null)
             {
@@ -72,7 +72,7 @@ namespace FileStore.Repositories
 
                 if (_chunkNumber <= _file.ChunkCount)
                 {
-                    FileChunk chunk = GetFileChunk(_file.FileId, _chunkNumber);
+                    FileChunk chunk = ReadFileChunk(_file.FileId, _chunkNumber);
 
                     if (chunk == null)
                     {
@@ -81,6 +81,10 @@ namespace FileStore.Repositories
 
                         throw new DataException(
                             String.Format("Attempt to read file '{0}' chunk {1} failed.", _file.FileId, _chunkNumber));
+                    }
+                    if (buffer.Length > chunk.ChunkSize)
+                    {
+                        count = chunk.ChunkSize;
                     }
                     Buffer.BlockCopy(chunk.ChunkContent, 0, buffer, offset, count);
                
@@ -193,29 +197,29 @@ namespace FileStore.Repositories
             }
         }
 
-        private Models.File GetFileHead(Guid fileId)
+        private Models.File ReadFileHead(Guid fileId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@FileId", fileId);
 
             Models.File file =
                 _connection.Query<Models.File>(
-                    "GetFileHead",
+                    "ReadFileHead",
                     parameters,
                     commandType: CommandType.StoredProcedure).FirstOrDefault<Models.File>();
 
             return file; 
         }
 
-        private FileChunk GetFileChunk(Guid guid, int num)
+        private FileChunk ReadFileChunk(Guid guid, int num)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@FileId", guid);
-            parameters.Add("@Num", num);
+            parameters.Add("@ChunkNum", num);
 
             Models.FileChunk fileChunk =
                   _connection.Query<Models.FileChunk>(
-                    "GetFileChunk",
+                    "ReadFileChunk",
                     parameters,
                     commandType: CommandType.StoredProcedure).FirstOrDefault<Models.FileChunk>();
 

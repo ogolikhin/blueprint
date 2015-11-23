@@ -38,7 +38,7 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", chunk.FileId);
-			prm.Add("@ChunkNumber", chunk.ChunkNum);
+			prm.Add("@ChunkNum", chunk.ChunkNum);
 			prm.Add("@ChunkSize", chunk.ChunkSize);
 			prm.Add("@ChunkContent", chunk.ChunkContent);
 			await ConnectionWrapper.ExecuteAsync("InsertFileChunk", prm, commandType: CommandType.StoredProcedure);

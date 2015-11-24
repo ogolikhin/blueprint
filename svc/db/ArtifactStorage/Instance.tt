@@ -1,17 +1,8 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".sql" encoding="utf-8" #>
 
--- --------------------------------------------------
--- Set the DB
--- --------------------------------------------------
-SET QUOTED_IDENTIFIER ON;
-GO
-USE [ArtifactStorage];
-GO
 SET NOCOUNT ON;
 Print 'Creating ArtifactStorage Database...'
-GO
--- --------------------------------------------------
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 

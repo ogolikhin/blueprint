@@ -48,15 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
-    <Content Include="FileStorage_Migration.sql">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FileStorage_Migration.tt</DependentUpon>
-    </Content>
-    <Content Include="FileStorage_Migration.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>FileStorage_Migration.sql</LastGenOutput>
-    </Content>
     <Content Include="Migration\6.5.1.0\6.5.1.0.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -71,6 +62,7 @@
     <Content Include="Procedures\ReadChunkContent.sql" />
     <Content Include="Procedures\ReadFileChunk.sql" />
     <Content Include="Procedures\InsertFileChunk.sql" />
+    <Content Include="Procedures\UpdateFileHead.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="Procedures\DeleteFile.sql" />
     <Content Include="Procedures\ReadFileHead.sql" />

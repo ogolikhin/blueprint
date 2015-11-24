@@ -1,15 +1,6 @@
 ﻿
--- --------------------------------------------------
--- Set the DB
--- --------------------------------------------------
-SET QUOTED_IDENTIFIER ON;
-GO
-USE [FileStorage];
-GO
 SET NOCOUNT ON;
 Print 'Creating FileStorage Database...'
-GO
--- --------------------------------------------------
 
 -- Create Blueprint Roles
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
@@ -114,7 +105,7 @@ CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
-	[ChunkContent ] [varbinary](max) NULL,
+	[ChunkContent] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
@@ -457,6 +448,40 @@ BEGIN
 	FROM [dbo].[FileChunks]
 	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[UpdateFileHead]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/23		Albert Wong				Initial
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFileHead]
+GO
+
+CREATE PROCEDURE [dbo].[UpdateFileHead]
+( 
+    @FileId uniqueidentifier,
+	@FileSize bigint,
+	@ChunkCount int
+)
+AS
+BEGIN
+
+	UPDATE 
+		[dbo].[Files]
+    SET
+		[FileSize] = @FileSize,
+		[ChunkCount] = @ChunkCount 
+	WHERE 
+		[FileId] = @FileId;
 END
 
 GO

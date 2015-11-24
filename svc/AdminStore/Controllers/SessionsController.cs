@@ -64,7 +64,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool samlUser = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool isSso = false)
         {
             if (!force)
             {
@@ -89,7 +89,7 @@ namespace AdminStore.Controllers
 	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
 				queryParams.Add("userName", user.Login);
 				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
-				queryParams.Add("samlUser", samlUser.ToString());
+				queryParams.Add("isSso", isSso.ToString());
 
 	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)

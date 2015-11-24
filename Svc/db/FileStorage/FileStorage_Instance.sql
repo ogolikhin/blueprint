@@ -462,39 +462,36 @@ END
 GO
 
 /******************************************************************************************************************************
-Name:			[ReadAllFileChunks]
+Name:			[ReadChunkContent]
 
-Description: Used for debugging. Retrieves all the file chunks in an ordered list 
+Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/23		CRichards				Initial Version
+2015/11/24		CRichards				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadAllFileChunks]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[ReadAllFileChunks]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadChunkContent]
 GO
-CREATE PROCEDURE [dbo].[ReadAllFileChunks]
+
+CREATE PROCEDURE [dbo].[ReadChunkContent]
 ( 
-    @FileId uniqueidentifier
+    @FileId uniqueidentifier,
+    @ChunkNum int
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	SELECT [FileId]
-           ,[ChunkNum]
-           ,[ChunkSize]
-		   ,[ChunkContent]
+	SELECT [ChunkContent]
 	FROM [dbo].[FileChunks]
-	WHERE [FileId] = @FileId
-	ORDER BY ChunkNum ASC
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
 END
 
 GO
-
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

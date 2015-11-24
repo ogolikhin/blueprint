@@ -72,9 +72,9 @@ namespace FileStore.Repositories
 
                 if (_chunkNumber <= _file.ChunkCount)
                 {
-                    FileChunk chunk = ReadFileChunk(_file.FileId, _chunkNumber);
+                    buffer = ReadChunkContent(_file.FileId, _chunkNumber);
 
-                    if (chunk == null)
+                    if (buffer == null)
                     {
                         // there has been a database error or a sequencing error
                         // if the chunk record is not found 
@@ -82,15 +82,17 @@ namespace FileStore.Repositories
                         throw new DataException(
                             String.Format("Attempt to read file '{0}' chunk {1} failed.", _file.FileId, _chunkNumber));
                     }
-                    if (buffer.Length > chunk.ChunkSize)
+                    var chunkSize = buffer.Length;
+
+                    if (count > chunkSize)
                     {
-                        count = chunk.ChunkSize;
+                        count = chunkSize;
                     }
-                    Buffer.BlockCopy(chunk.ChunkContent, 0, buffer, offset, count);
-               
+                   
                     _chunkNumber++;
 
-                    bytesRead = chunk.ChunkSize;
+                    bytesRead = chunkSize;
+ 
                 }
                 else
                 {
@@ -98,7 +100,6 @@ namespace FileStore.Repositories
 
                     bytesRead = 0;
                     CloseConnection();
-                  
                 }
              
                 return bytesRead;
@@ -224,6 +225,19 @@ namespace FileStore.Repositories
                     commandType: CommandType.StoredProcedure).FirstOrDefault<Models.FileChunk>();
 
             return fileChunk;
+        }
+
+        private byte[] ReadChunkContent(Guid guid, int num)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@FileId", guid);
+            parameters.Add("@ChunkNum", num);
+
+            return _connection.ExecuteScalar<byte[]>(
+                    "ReadChunkContent",
+                    parameters,
+                    commandType: CommandType.StoredProcedure);
+ 
         }
 
         private void CheckInitialized()

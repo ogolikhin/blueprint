@@ -12,6 +12,8 @@ namespace ServiceLibrary.Repositories
         DbConnection CreateConnection();
         Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+        Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+
     }
 
     public class SqlConnectionWrapper : ISqlConnectionWrapper
@@ -34,6 +36,7 @@ namespace ServiceLibrary.Repositories
             {
                 connection.Open();
                 return await connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType);
+              
             }
         }
 
@@ -43,6 +46,15 @@ namespace ServiceLibrary.Repositories
             {
                 connection.Open();
                 return await connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);
+            }
+        }
+
+        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var connection = CreateConnection())
+            {
+                connection.Open();
+                return await connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
             }
         }
 

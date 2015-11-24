@@ -67,7 +67,8 @@
       <LastGenOutput>6.5.1.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\6.5.1.0\Sample.sql" />
-    <Content Include="Procedures\ReadAllFileChunks.sql" />
+    <Content Include="Procedures\GetMaxChunkSize.sql" />
+    <Content Include="Procedures\ReadChunkContent.sql" />
     <Content Include="Procedures\ReadFileChunk.sql" />
     <Content Include="Procedures\InsertFileChunk.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />

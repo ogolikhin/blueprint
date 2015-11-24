@@ -220,16 +220,23 @@ namespace FileStore.Controllers
 				{
                     // retrieve file content from legacy database 
 
-                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
+                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.LegacyFileChunkSize);
 				}
 				else
 				{
                     // retrieve file content from FileStore database 
-                    responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
+                    
+                    // Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
+                    // and flush these bits to the output stream.
+                    
+                    SqlPushStream sqlPushStream = new SqlPushStream();
+                    sqlPushStream.Initialize(_configRepo.FileStoreDatabase, fileId);
+ 
+                    responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.FileType));
 
-       			}
+                }
 
-				response.Content = responseContent;
+                response.Content = responseContent;
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.

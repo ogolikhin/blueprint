@@ -60,15 +60,7 @@ namespace FileStore.Repositories
 			prm.Add("@ChunkNum", num);
 			return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
-
-
-        public async Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@FileId", guid);
-            return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadAllFileChunks", prm, commandType: CommandType.StoredProcedure));
-		}
-
+ 
 		public async Task<Guid?> DeleteFile(Guid guid)
 		{
 			var prm = new DynamicParameters();

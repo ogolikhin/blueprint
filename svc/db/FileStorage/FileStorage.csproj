@@ -48,14 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
-    <Content Include="Migration.sql">
+    <Content Include="FileStorage_Migration.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Migration.tt</DependentUpon>
+      <DependentUpon>FileStorage_Migration.tt</DependentUpon>
     </Content>
-    <Content Include="Migration.tt">
+    <Content Include="FileStorage_Migration.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Migration.sql</LastGenOutput>
+      <LastGenOutput>FileStorage_Migration.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\6.5.1.0\6.5.1.0.sql">
       <AutoGen>True</AutoGen>
@@ -67,12 +67,13 @@
       <LastGenOutput>6.5.1.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\6.5.1.0\Sample.sql" />
-    <Content Include="Procedures\GetFileChunk.sql" />
+    <Content Include="Procedures\ReadAllFileChunks.sql" />
+    <Content Include="Procedures\ReadFileChunk.sql" />
     <Content Include="Procedures\InsertFileChunk.sql" />
     <Content Include="Procedures\UpdateFileHead.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="Procedures\DeleteFile.sql" />
-    <Content Include="Procedures\GetFileHead.sql" />
+    <Content Include="Procedures\ReadFileHead.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\HeadFile.sql" />
     <Content Include="Procedures\InsertFileHead.sql" />
@@ -82,14 +83,14 @@
     <Content Include="Tables\Files.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Instance.sql">
+    <Content Include="FileStorage_Instance.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Instance.tt</DependentUpon>
+      <DependentUpon>FileStorage_Instance.tt</DependentUpon>
     </Content>
-    <Content Include="Instance.tt">
+    <Content Include="FileStorage_Instance.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Instance.sql</LastGenOutput>
+      <LastGenOutput>FileStorage_Instance.sql</LastGenOutput>
     </Content>
     <Content Include="RecreateFileStorage.sql" />
   </ItemGroup>

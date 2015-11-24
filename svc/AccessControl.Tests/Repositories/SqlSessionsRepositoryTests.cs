@@ -129,12 +129,12 @@ namespace AccessControl.Repositories
             Guid? oldSession = new Guid("11111111111111111111111111111111");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel} },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false } },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", oldSession } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, false);
 
             // Assert
             cxn.Verify();
@@ -153,12 +153,12 @@ namespace AccessControl.Repositories
 			Guid? newSession = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel } },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true } },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", null } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, true);
 
 			// Assert
 			cxn.Verify();

@@ -4,10 +4,10 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [AdminStorage];
+USE [FileStorage];
 GO
 SET NOCOUNT ON;
-Print 'Creating AdminStorage Database...'
+Print 'Creating FileStorage Database...'
 GO
 -- --------------------------------------------------
 
@@ -53,83 +53,82 @@ CREATE TABLE [dbo].[DbVersionInfo](
 )) ON [PRIMARY]
 GO
 /******************************************************************************************************************************
-Name:			ApplicationLabels
+Name:			Files
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ApplicationLabels]') AND type in (N'U'))
-DROP TABLE [dbo].[ApplicationLabels]
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[DF__Files__FileId__117F9D94]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
+END
+GO
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[FK_FileId]') AND type = 'F')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+BEGIN
+ALTER TABLE [dbo].[FileChunks] DROP CONSTRAINT [FK_FileId]
+END
 GO
 
-CREATE TABLE [dbo].[ApplicationLabels](
-	[Key] [nvarchar](64) NOT NULL,
-	[Locale] [nvarchar](32) NOT NULL,
-	[Text] [nvarchar](128) NOT NULL,
- CONSTRAINT [PK_ApplicationLabels_Key_Locale] PRIMARY KEY CLUSTERED 
+
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
+DROP TABLE [dbo].[Files]
+GO
+
+CREATE TABLE [dbo].[Files](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[StoredTime] [datetime] NOT NULL,
+	[FileName] [nvarchar](256) NOT NULL,
+	[FileType] [nvarchar](128) NOT NULL,
+	[ChunkCount] [int] NOT NULL,
+	[FileSize] [bigint] NOT NULL,
+ CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
 (
-	[Key] ASC,
-	[Locale] ASC
-)) ON [PRIMARY]
+	[FileId] ASC
+))
+GO
+
+ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
 GO
 
 /******************************************************************************************************************************
-Name:			ConfigSettings
+Name:			Files
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/11/19		Albert Wong				Added FileChunks table
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ConfigSettings]') AND type in (N'U'))
-DROP TABLE [dbo].[ConfigSettings]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+DROP TABLE [dbo].[FileChunks]
 GO
 
-CREATE TABLE [dbo].[ConfigSettings](
-	[Key] [nvarchar](64) NOT NULL,
-	[Value] [nvarchar](128) NOT NULL,
-	[Group] [nvarchar](128) NOT NULL,
-	[IsRestricted] [bit] NOT NULL,
- CONSTRAINT [PK_ConfigSettings] PRIMARY KEY CLUSTERED 
+CREATE TABLE [dbo].[FileChunks](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[ChunkNum] [int] NOT NULL,
+	[ChunkSize] [int] NOT NULL,
+	[ChunkContent] [varbinary](max) NULL,
+ CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
-	[Key] ASC
-)) ON [PRIMARY]
+	[FileId] ASC,
+	[ChunkNum] ASC
+),
+ CONSTRAINT [FK_FileId]
+ FOREIGN KEY ([FileId])
+    REFERENCES [dbo].[Files]
+        ([FileId])
+    ON DELETE CASCADE ON UPDATE CASCADE
+
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
 GO
-
-/******************************************************************************************************************************
-Name:			Sessions
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Sessions]') AND type in (N'U'))
-DROP TABLE [dbo].[Sessions]
-GO
-
-CREATE TABLE [dbo].[Sessions](
-	[UserId] [int] NOT NULL,
-	[SessionId] [uniqueidentifier] NOT NULL,
-	[BeginTime] [datetime] NULL,
-	[EndTime] [datetime] NULL,
-	[UserName] [nvarchar](max) NOT NULL,
-	[LicenseLevel] [int] NOT NULL,
-	[IsSso] [bit] NOT NULL
- CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
-(
-	[UserId] ASC
-)) ON [PRIMARY]
-GO
-
 
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
@@ -187,7 +186,6 @@ END
 
 GO
 
-
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -225,220 +223,312 @@ ELSE
 
 GO
 /******************************************************************************************************************************
-Name:			GetStatus
+Name:			DeleteFile
 
-Description: //TODO: 
+Description: 
 			
 Change History:
 Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
+******************************************************************************************************************************/
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DeleteFile]
+GO
+
+CREATE PROCEDURE [dbo].[DeleteFile]
+(
+	@FileId uniqueidentifier,
+	@DeletedFileId AS uniqueidentifier OUTPUT
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	DECLARE @op TABLE (ColGuid uniqueidentifier)
+    DELETE FROM [dbo].[Files]
+	OUTPUT DELETED.FileId INTO @op
+    WHERE [FileId] = @FileId
+	SELECT  @DeletedFileId = t.ColGuid FROM @op t
+END
+
+GO
+/******************************************************************************************************************************
+Name:			ReadFileHead
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileHead]
+GO
+
+CREATE PROCEDURE [dbo].[ReadFileHead]
+(
+	@FileId uniqueidentifier
+)
+AS
+BEGIN
+ 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [FileId]
+	,[StoredTime]
+	,[FileName]
+	,[FileType]
+	,[ChunkCount]
+	,[FileSize]
+	FROM [dbo].[Files]
+	WHERE [FileId] = @FileId
+END
+
+GO
+/******************************************************************************************************************************
+Name:			GetStatus
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetStatus]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetStatus]
 GO
 
-CREATE PROCEDURE [dbo].[GetStatus] 
+CREATE PROCEDURE [dbo].[GetStatus]
 AS
 BEGIN
-	SELECT COUNT(*) from [dbo].[Sessions];
+       SELECT TOP 1 COUNT(*) FROM [dbo].[Files];       
 END
-GO 
 
-
+GO
 /******************************************************************************************************************************
-Name:			BeginSession
+Name:			HeadFile
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/10/28		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[BeginSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[HeadFile]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[HeadFile]
 GO
 
-CREATE PROCEDURE [dbo].[BeginSession] 
+CREATE PROCEDURE [dbo].[HeadFile]
 (
-	@UserId int,
-	@BeginTime datetime,
-	@UserName nvarchar(max),
-	@LicenseLevel int,
-	@IsSso bit = 0,
-	@NewSessionId uniqueidentifier OUTPUT,
-	@OldSessionId uniqueidentifier OUTPUT
+	@FileId uniqueidentifier
 )
 AS
 BEGIN
-	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-	BEGIN TRANSACTION;
-	SELECT @OldSessionId = SessionId from [dbo].[Sessions] where UserId = @UserId;
-	SELECT @NewSessionId = NEWID();
-	IF @OldSessionId IS NULL
-	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel, IsSso) 
-		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel, @IsSso);
-	END
-	ELSE
-	BEGIN
-		UPDATE [dbo].[Sessions] 
-		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
-			UserName = @UserName, LicenseLevel = @LicenseLevel, IsSso = @IsSso 
-		WHERE UserId = @UserId;
-	END
-	COMMIT TRANSACTION;
-END
-GO
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
 
+	SELECT [FileId]
+	,[StoredTime]
+	,[FileName]
+	,[FileType]
+	,[FileSize]
+	FROM [dbo].[Files]
+	WHERE [FileId] = @FileId
+END
+
+GO
 /******************************************************************************************************************************
-Name:			EndSession
+Name:			[InsertFileHead]
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/11/19		Albert Wong				Renamed procedure
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[EndSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[EndSession] 
-(
-	@SessionId uniqueidentifier,
-	@EndTime datetime
+CREATE PROCEDURE [dbo].[InsertFileHead]
+( 
+    @FileName nvarchar(256),
+    @FileType nvarchar(64),
+	@ChunkCount int,
+	@FileSize bigint,
+	@FileId AS uniqueidentifier OUTPUT
 )
 AS
 BEGIN
-	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-	BEGIN TRANSACTION;
-	UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime where SessionId = @SessionId;
-	COMMIT TRANSACTION;
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	DECLARE @op TABLE (ColGuid uniqueidentifier)
+    INSERT INTO [dbo].[Files]  
+           ([StoredTime]
+           ,[FileName]
+           ,[FileType]
+           ,[ChunkCount]
+           ,[FileSize])
+	OUTPUT INSERTED.FileId INTO @op
+    VALUES
+           (GETDATE()
+           ,@FileName
+           ,@FileType
+           ,@ChunkCount
+		   ,@FileSize)
+	SELECT  @FileId = t.ColGuid FROM @op t
 END
+
 GO
 
 /******************************************************************************************************************************
-Name:			GetApplicationLables
+Name:			[InsertFileChunk]
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetApplicationLables]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetApplicationLables]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertFileChunk]
 GO
 
-CREATE PROCEDURE [dbo].[GetApplicationLables] 
-	@Locale nvarchar(32)
-AS
-BEGIN
-	SELECT [Key], [Text] FROM [dbo].ApplicationLabels WHERE Locale = @Locale;
-END
-GO
-/******************************************************************************************************************************
-Name:			GetConfigSettings
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetConfigSettings]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetConfigSettings]
-GO
-
-CREATE PROCEDURE [dbo].[GetConfigSettings] 
-	@AllowRestricted bit
-AS
-BEGIN
-	SELECT [Key], [Value], [Group], IsRestricted FROM [dbo].ConfigSettings WHERE IsRestricted = @AllowRestricted OR @AllowRestricted = 1;
-END
-GO
-/******************************************************************************************************************************
-Name:			GetSession
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetSession]
-GO
-
-CREATE PROCEDURE [dbo].[GetSession] 
-(
-	@SessionId uniqueidentifier
+CREATE PROCEDURE [dbo].[InsertFileChunk]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNum int,
+	@ChunkSize int,
+	@ChunkContent varbinary(max)
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [dbo].[Sessions] where SessionId = @SessionId;
+
+    INSERT INTO [dbo].[FileChunks]  
+           ([FileId]
+           ,[ChunkNum]
+           ,[ChunkSize]
+		   ,[ChunkContent])
+    VALUES
+           (@FileId
+           ,@ChunkNum
+           ,@ChunkSize
+           ,@ChunkContent)
 END
-GO 
+
+GO
+
 /******************************************************************************************************************************
-Name:			GetSession
+Name:			[ReadFileChunk]
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/17		Anton Trinkunas			Initial Version
+2015/11/19		Albert Wong				Initial Version
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetUserSession]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetUserSession]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadFileChunk]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadFileChunk]
 GO
 
-CREATE PROCEDURE [dbo].[GetUserSession] 
-(
-	@UserId int
+CREATE PROCEDURE [dbo].[ReadFileChunk]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNum int
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso from [dbo].[Sessions] where UserId = @UserId;
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [FileId]
+           ,[ChunkNum]
+           ,[ChunkSize]
+		   ,[ChunkContent]
+	FROM [dbo].[FileChunks]
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
+
 END
-GO 
+
+GO
+
 /******************************************************************************************************************************
-Name:			SelectSessions
+Name:			[ReadAllFileChunks]
+
+Description: Used for debugging. Retrieves all the file chunks in an ordered list 
+			
+Change History:
+Date			Name					Change
+2015/11/23		CRichards				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadAllFileChunks]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadAllFileChunks]
+GO
+CREATE PROCEDURE [dbo].[ReadAllFileChunks]
+( 
+    @FileId uniqueidentifier
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [FileId]
+           ,[ChunkNum]
+           ,[ChunkSize]
+		   ,[ChunkContent]
+	FROM [dbo].[FileChunks]
+	WHERE [FileId] = @FileId
+	ORDER BY ChunkNum ASC
+
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[UpdateFileHead]
 
 Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
+2015/11/23		Albert Wong				Initial
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SelectSessions]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[SelectSessions]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
 
-CREATE PROCEDURE [dbo].[SelectSessions] 
-(
-	@ps int,
-	@pn int
+CREATE PROCEDURE [dbo].[UpdateFileHead]
+( 
+    @FileId uniqueidentifier,
+	@FileSize bigint,
+	@ChunkCount int
 )
 AS
 BEGIN
-	WITH SessionsRN AS
-	(
-		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso 
-		FROM [dbo].[Sessions] WHERE EndTime IS NULL
-	)
-	SELECT * FROM SessionsRN
-	WHERE RN BETWEEN(@pn - 1)*@ps + 1 AND @pn * @ps
-	ORDER BY BeginTime DESC;
+
+	UPDATE 
+		[dbo].[Files]
+    SET
+		[FileSize] = @FileSize,
+		[ChunkCount] = @ChunkCount 
+	WHERE 
+		[FileId] = @FileId;
 END
+
 GO
+
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

@@ -18,7 +18,8 @@ CREATE TABLE [dbo].[Sessions](
 	[BeginTime] [datetime] NULL,
 	[EndTime] [datetime] NULL,
 	[UserName] [nvarchar](max) NOT NULL,
-	[LicenseLevel] [int] NOT NULL
+	[LicenseLevel] [int] NOT NULL,
+	[IsSso] [bit] NOT NULL
  CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
 (
 	[UserId] ASC

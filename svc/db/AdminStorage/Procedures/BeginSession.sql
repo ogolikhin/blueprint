@@ -18,6 +18,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@BeginTime datetime,
 	@UserName nvarchar(max),
 	@LicenseLevel int,
+	@IsSso bit = 0,
 	@NewSessionId uniqueidentifier OUTPUT,
 	@OldSessionId uniqueidentifier OUTPUT
 )
@@ -29,12 +30,15 @@ BEGIN
 	SELECT @NewSessionId = NEWID();
 	IF @OldSessionId IS NULL
 	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel) 
-		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel);
+		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel, IsSso) 
+		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel, @IsSso);
 	END
 	ELSE
 	BEGIN
-		UPDATE [dbo].[Sessions] SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL where UserId = @UserId;
+		UPDATE [dbo].[Sessions] 
+		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
+			UserName = @UserName, LicenseLevel = @LicenseLevel, IsSso = @IsSso 
+		WHERE UserId = @UserId;
 	END
 	COMMIT TRANSACTION;
 END

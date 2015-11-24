@@ -33,6 +33,7 @@ namespace FileStore.Controllers
 		private const string NoCache = "no-cache";
 		private const string NoStore = "no-store";
 		private const string MustRevalidate = "must-revalidate";
+	    private const string StoredDateFormat = "o";
 
 		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), ConfigRepository.Instance)
 		{
@@ -148,7 +149,7 @@ namespace FileStore.Controllers
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
-                response.Content = null;
+                response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes("")); ;
 
                 // return file info in headers
 
@@ -157,7 +158,7 @@ namespace FileStore.Controllers
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
                 response.Content.Headers.ContentLength = file.FileSize;
-                response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+                response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
                 response.Headers.Add(FileSize, file.FileSize.ToString());
 
                 return ResponseMessage(response);

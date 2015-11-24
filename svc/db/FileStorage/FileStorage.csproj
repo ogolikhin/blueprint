@@ -69,6 +69,7 @@
     <Content Include="Migration\6.5.1.0\Sample.sql" />
     <Content Include="Procedures\GetFileChunk.sql" />
     <Content Include="Procedures\InsertFileChunk.sql" />
+    <Content Include="Procedures\UpdateFileHead.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="Procedures\DeleteFile.sql" />
     <Content Include="Procedures\GetFileHead.sql" />

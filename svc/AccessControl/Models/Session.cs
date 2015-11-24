@@ -18,8 +18,10 @@ namespace AccessControl.Models
 	    public string UserName { get; set; }
 		[JsonProperty]
 	    public int LicenseLevel { get; set; }
+		[JsonProperty]
+		public bool SamlUser { get; set; }
 
-	    public static string Convert(Guid guid)
+		public static string Convert(Guid guid)
         {
             return guid.ToString(("N"));
         }

@@ -64,7 +64,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool samlUser = false)
         {
             if (!force)
             {
@@ -89,6 +89,7 @@ namespace AdminStore.Controllers
 	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
 				queryParams.Add("userName", user.Login);
 				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
+				queryParams.Add("samlUser", samlUser.ToString());
 
 	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
@@ -114,7 +115,7 @@ namespace AdminStore.Controllers
             try
             {
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
-                return await RequestSessionTokenAsync(user, force);
+                return await RequestSessionTokenAsync(user, force, true);
             }
             catch (FederatedAuthenticationException e)
             {

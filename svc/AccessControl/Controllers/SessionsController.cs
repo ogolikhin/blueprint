@@ -141,11 +141,11 @@ namespace AccessControl.Controllers
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel)
+        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool samlUser = false)
         {
             try
             {
-                var guids = await Repo.BeginSession(uid, userName, licenseLevel);
+                var guids = await Repo.BeginSession(uid, userName, licenseLevel, samlUser);
                 if (!guids[0].HasValue)
                 {
                     throw new KeyNotFoundException();

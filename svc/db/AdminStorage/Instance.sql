@@ -122,7 +122,8 @@ CREATE TABLE [dbo].[Sessions](
 	[BeginTime] [datetime] NULL,
 	[EndTime] [datetime] NULL,
 	[UserName] [nvarchar](max) NOT NULL,
-	[LicenseLevel] [int] NOT NULL
+	[LicenseLevel] [int] NOT NULL,
+	[SamlUser] [bit] NOT NULL
  CONSTRAINT [PK_Sessions] PRIMARY KEY CLUSTERED 
 (
 	[UserId] ASC
@@ -265,6 +266,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@BeginTime datetime,
 	@UserName nvarchar(max),
 	@LicenseLevel int,
+	@SamlUser bit = 0,
 	@NewSessionId uniqueidentifier OUTPUT,
 	@OldSessionId uniqueidentifier OUTPUT
 )
@@ -276,12 +278,15 @@ BEGIN
 	SELECT @NewSessionId = NEWID();
 	IF @OldSessionId IS NULL
 	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel) 
-		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel);
+		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel, SamlUser) 
+		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel, @SamlUser);
 	END
 	ELSE
 	BEGIN
-		UPDATE [dbo].[Sessions] SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL where UserId = @UserId;
+		UPDATE [dbo].[Sessions] 
+		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
+			UserName = @UserName, LicenseLevel = @LicenseLevel, SamlUser = @SamlUser 
+		WHERE UserId = @UserId;
 	END
 	COMMIT TRANSACTION;
 END
@@ -377,7 +382,7 @@ CREATE PROCEDURE [dbo].[GetSession]
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel from [dbo].[Sessions] where SessionId = @SessionId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, SamlUser from [dbo].[Sessions] where SessionId = @SessionId;
 END
 GO 
 /******************************************************************************************************************************
@@ -400,7 +405,7 @@ CREATE PROCEDURE [dbo].[GetUserSession]
 )
 AS
 BEGIN
-	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel from [dbo].[Sessions] where UserId = @UserId;
+	SELECT UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, SamlUser from [dbo].[Sessions] where UserId = @UserId;
 END
 GO 
 /******************************************************************************************************************************
@@ -426,7 +431,7 @@ AS
 BEGIN
 	WITH SessionsRN AS
 	(
-		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel 
+		SELECT ROW_NUMBER() OVER(ORDER BY BeginTime DESC) AS RN, UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, SamlUser 
 		FROM [dbo].[Sessions] WHERE EndTime IS NULL
 	)
 	SELECT * FROM SessionsRN

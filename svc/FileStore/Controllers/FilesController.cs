@@ -11,7 +11,6 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using FileStore.Helpers;
 using FileStore.Models;
-using System.Collections.Generic;
 using FileStore.Repositories;
 
 namespace FileStore.Controllers
@@ -67,10 +66,10 @@ namespace FileStore.Controllers
 			{
                 using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
                 {
-				var isMultipart = Request.Content.IsMimeMultipartContent();
-				if (isMultipart)
-				{
-                        return await PostMultipartRequest(stream);
+				    var isMultipart = Request.Content.IsMimeMultipartContent();
+				    if (isMultipart)
+				    {
+                            return await PostMultipartRequest(stream);
                     }
                     else
                     {
@@ -102,11 +101,11 @@ namespace FileStore.Controllers
                 //move the stream foward until we get to the next part
                 mpp = mpp.ReadUntilNextPart();
                 if (mpp != null)
-					{
+				{
                     // Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
                     await _filesRepo.DeleteFile(chunk.FileId);
 						return BadRequest();
-					}
+				}
                 return Ok(Models.File.ConvertFileId(chunk.FileId));
             }
             return BadRequest();
@@ -121,15 +120,15 @@ namespace FileStore.Controllers
             _filesRepo.UpdateFileHead(chunk.FileId, fileSize, chunk.ChunkNum - 1);
 
             return chunk;
-				}
+		}
 
         private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream)
-				{
-					if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
-						 string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
-					{
-						return BadRequest();
-					}
+		{
+			if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
+					string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
+			{
+				return BadRequest();
+			}
             // Grabs all available information from the header
             var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
@@ -157,7 +156,7 @@ namespace FileStore.Controllers
                 chunk.ChunkContent = buffer.Take(readCounter).ToArray();
                 chunk.ChunkNum = await _filesRepo.PostFileChunk(chunk);
                 fileSize += chunk.ChunkSize;
-				}
+			}
             return fileSize;
         }
         /// <summary>
@@ -169,18 +168,18 @@ namespace FileStore.Controllers
         private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType)
         {
             //we can access the filename from the part
-				var file = new Models.File
-				{
-					StoredTime = DateTime.UtcNow, // use UTC time to store data
+			var file = new Models.File
+			{
+				StoredTime = DateTime.UtcNow, // use UTC time to store data
                 FileName = fileName,
                 FileType = mediaType
-				};
+			};
             var fileId = await _filesRepo.PostFileHead(file);
-				var chunk = new Models.FileChunk
-				{
+			var chunk = new Models.FileChunk
+			{
                 FileId = fileId,
                 ChunkNum = 1
-				};
+			};
 
             return chunk;
 		}
@@ -209,11 +208,11 @@ namespace FileStore.Controllers
                     isLegacyFile = true;
                 }
                
-					if (file == null)
-					{
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-					}
+				if (file == null)
+				{
+                // the file was not found in either FileStore or legacy database 
+                return NotFound();
+				}
 
                 if (isLegacyFile)
                 {
@@ -245,10 +244,10 @@ namespace FileStore.Controllers
                 return BadRequest();
             }
             catch
-					{
+			{
                 return InternalServerError();
-					}
-				}
+			}
+		}
 
 
         [HttpGet]

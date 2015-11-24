@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FileStore.Repositories;
 using System.Net;
 using System.Text;
 using System.IO;
@@ -9,6 +8,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Collections.Generic;
+using FileStore.Repositories;
 
 namespace FileStore.Controllers
 {
@@ -85,14 +86,14 @@ namespace FileStore.Controllers
 				var chunk = new Models.FileChunk
 				{
 					FileId = file.FileId,
-					ChunkNum = 0
+                    ChunkNum = 1
 				};
 				using (var stream = await content.ReadAsStreamAsync())
 				{
 					var buffer = new byte[_configRepo.FileChunkSize];
 					for (var remaining = file.FileSize; remaining > 0; remaining -= chunk.ChunkSize)
 					{
-						chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
+							chunk.ChunkSize = (int)Math.Min(_configRepo.FileChunkSize, remaining);
 						await stream.ReadAsync(buffer, 0, chunk.ChunkSize);
 						chunk.ChunkContent = buffer.Take(chunk.ChunkSize).ToArray();
 						chunk.ChunkNum = await _filesRepo.PostFileChunk(chunk);
@@ -102,87 +103,147 @@ namespace FileStore.Controllers
 			}
 			catch
 			{
-			    return InternalServerError();
+				return InternalServerError();
 			}
 		}
 
-		[HttpGet]
 		[HttpHead]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetFile(string id)
+        public async Task<IHttpActionResult> GetFileHead(string id)
 		{
 			try
 			{
-				Models.File file;
-				bool isHead = Request.Method == HttpMethod.Head;
+                Models.File file = null;
+                bool isLegacyFile = false;
+                string mappedContentType = FileMapperRepository.DefaultMediaType;
 
-				var guid = Models.File.ConvertToStoreId(id);
+                var fileId = Models.File.ConvertToStoreId(id);
 
-				var isFileStoreGuid = true;
-				if (isHead)
+                file = await _filesRepo.GetFileHead(fileId);
+                 
+                if (file == null)
 				{
-					file = await _filesRepo.GetFileHead(guid);
-					if (file == null)
-					{
-						file = _fileStreamRepo.HeadFile(guid);
-						isFileStoreGuid = false;
-					}
+                    // if the file is not found in the FileStore check the
+                    // legacy database for the file 
+
+                    file = _fileStreamRepo.GetFileHead(fileId);
+                    isLegacyFile = true;
+                }
+               
+				if (file == null)
+				{
+                    // the file was not found in either FileStore or legacy database 
+                    return NotFound();
+				}
+
+                if (isLegacyFile)
+                {
+                    mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
 				}
 				else
 				{
-					file = await _filesRepo.GetFileHead(guid);
-					if (file == null)
-					{
-						file = _fileStreamRepo.GetFile(guid);
-						isFileStoreGuid = false;
-					}
+                    mappedContentType = file.FileType;
+                }
+
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+
+                response.Content = null;
+
+                // return file info in headers
+
+                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
+                response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+                response.Content.Headers.ContentLength = file.FileSize;
+                response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+                response.Headers.Add(FileSize, file.FileSize.ToString());
+
+                return ResponseMessage(response);
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch
+			{
+                return InternalServerError();
+			}
+		}
+
+
+        [HttpGet]
+		[Route("{id}")]
+		[ResponseType(typeof(HttpResponseMessage))]
+		public async Task<IHttpActionResult> GetFileContent(string id)
+		{
+			try
+			{
+                Models.File file = null;
+                bool isLegacyFile = false; 
+
+                string mappedContentType = FileMapperRepository.DefaultMediaType;
+
+                var fileId = Models.File.ConvertToStoreId(id);
+
+				file = await _filesRepo.GetFileHead(fileId);
+
+                if (file == null)
+                {
+                    // if the file is not found in the FileStore check the
+                    // legacy database for the file 
+
+                    file = _fileStreamRepo.GetFileHead(fileId);
+                    isLegacyFile = true;
 				}
 
-				if (file == null || (!isFileStoreGuid && string.IsNullOrEmpty(file.FileName)))
+                if (file == null)
 				{
-					return NotFound();
+                    // the file was not found in either FileStore or legacy database 
+                    return NotFound();
 				}
 
-				var mappedContentType = isFileStoreGuid ? file.FileType : _fileMapperRepo.GetMappedOutputContentType(file.FileType);
-				if (string.IsNullOrWhiteSpace(mappedContentType))
+                if (isLegacyFile)
 				{
-					mappedContentType = FileMapperRepository.DefaultMediaType;
+                    mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
 				}
+				else
+				{
+                    mappedContentType = file.FileType;
+                }
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				HttpContent responseContent = null;
-				if (isHead)
+                HttpContent responseContent = null;
+				 
+				if (isLegacyFile)
 				{
-					responseContent = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
+                    // retrieve file content from legacy database 
+
+                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
 				}
 				else
 				{
-					if (isFileStoreGuid)
-					{
-						// TODO: fix
-						//responseContent = new ByteArrayContent(file.FileContent);
-					}
-					else
-					{
-						//responseContent = new StreamContent(file.FileStream, 1048576);
-					}
-				}
+                    // retrieve file content from FileStore database 
+                    responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
+
+       			}
 
 				response.Content = responseContent;
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+
 			    if (response.Content != null)
 			    {
 			        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment)
 			        {
 			            FileName = file.FileName
 			        };
-			        response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-			        response.Content.Headers.ContentLength = file.FileSize;
+				    response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+				    response.Content.Headers.ContentLength = file.FileSize;
 			    }
-			    response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+				response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
 
 				return ResponseMessage(response);
@@ -220,5 +281,5 @@ namespace FileStore.Controllers
                 return InternalServerError();
             }
         }
-    }
+	}
 }

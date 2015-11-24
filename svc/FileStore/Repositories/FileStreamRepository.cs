@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
@@ -19,59 +20,43 @@ namespace FileStore.Repositories
             _contentReadStream = contentReadStream;
         }
 
-        public File GetFile(Guid fileGuid)
+        public File GetFileHead(Guid fileId)
         {
-            if (fileGuid == Guid.Empty)
+            if (fileId == Guid.Empty)
             {
                 throw new ArgumentException("fileGuid param is empty.");
             }
 
-            // return a FILE object with the FILESTREAM content
-            // if FILESTREAM data file is not found return null
-
-            File file = null;
-
-            _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileGuid);
-
-            // get the length of the FILESTREAM so we can allocate a buffer
-            long len = _contentReadStream.Length;
-
-            if (len > 0)
-            {
-                // retrieve the FILESTREAM content
-
-                file = new File
-                {
-                    FileId = fileGuid,
-                    // TODO: fix
-                    //FileStream = _contentReadStream as Stream,
-                    FileSize = len,
-                    FileName = _contentReadStream.FileName,
-                    FileType = _contentReadStream.FileType ?? "application/octet-stream"
-                };
-            }
-            return file;
-        }
-
-        public File HeadFile(Guid guid)
-        {
-            if (guid == Guid.Empty)
-            {
-                throw new ArgumentException("fileGuid param is empty.");
-            }
+            // return a File object with the file info (no content)
 
             using (_contentReadStream)
             {
-                _contentReadStream.Setup(_configRepository.FileStreamDatabase, guid);
+                _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileId);
 
                 return new File
                 {
-                    FileId = guid,
+                    FileId = fileId,
                     FileSize = _contentReadStream.Length,
                     FileName = _contentReadStream.FileName,
                     FileType = _contentReadStream.FileType ?? "application/octet-stream"
                 };
             }
+        }
+
+        public Stream GetFileContent(Guid fileId)
+        {
+            // return a custom stream that retrieves the FileStream content
+
+            Stream fileStream = null;
+              
+            _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileId);
+  
+            if (_contentReadStream.Length > 0)
+            {
+                fileStream = _contentReadStream as Stream;
+           
+            }
+            return fileStream;
         }
     }
 }

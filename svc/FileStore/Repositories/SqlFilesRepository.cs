@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapper;
 using FileStore.Models;
 using ServiceLibrary.Repositories;
+using System.Collections.Generic;
 
 namespace FileStore.Repositories
 {
@@ -49,15 +50,23 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			return (await ConnectionWrapper.QueryAsync<File>("GetFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+			return (await ConnectionWrapper.QueryAsync<File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
 
 		public async Task<FileChunk> GetFileChunk(Guid guid, int num)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			prm.Add("@Num", num);
-			return (await ConnectionWrapper.QueryAsync<FileChunk>("GetFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+			prm.Add("@ChunkNum", num);
+			return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+		}
+
+
+        public async Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@FileId", guid);
+            return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadAllFileChunks", prm, commandType: CommandType.StoredProcedure));
 		}
 
 		public async Task<Guid?> DeleteFile(Guid guid)
@@ -68,5 +77,18 @@ namespace FileStore.Repositories
 			await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
 			return prm.Get<Guid?>("DeletedFileId");
 		}
+
+        public System.IO.Stream GetFileContent(Guid fileId)
+        {
+            // return a custom stream reader that retrieves content from the
+            // FileChunks table in the Filestore database 
+
+            SqlReadStream sqlReadStream = null;
+    
+            sqlReadStream = new SqlReadStream();
+            sqlReadStream.Initialize(ConfigRepository.Instance.FileStoreDatabase, fileId);
+             
+            return sqlReadStream;
+        }
 	}
 }

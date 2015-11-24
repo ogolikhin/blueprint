@@ -114,7 +114,7 @@ CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
-	[ChunkContent ] [varbinary](max) NULL,
+	[ChunkContent] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,

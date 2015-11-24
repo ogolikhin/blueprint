@@ -107,8 +107,6 @@ namespace FileStore.Controllers
 			}
 		}
 
-
-
 		[HttpHead]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
@@ -130,13 +128,14 @@ namespace FileStore.Controllers
                     // legacy database for the file 
 
                     file = _fileStreamRepo.GetFileHead(fileId);
+                    isLegacyFile = true;
                 }
                
-					if (file == null)
-					{
+				if (file == null)
+				{
                     // the file was not found in either FileStore or legacy database 
                     return NotFound();
-					}
+				}
 
                 if (isLegacyFile)
                 {
@@ -168,17 +167,17 @@ namespace FileStore.Controllers
                 return BadRequest();
             }
             catch
-					{
+			{
                 return InternalServerError();
-					}
-				}
+			}
+		}
 
 
         [HttpGet]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileContent(string id)
-				{
+		{
 			try
 			{
                 Models.File file = null;
@@ -218,43 +217,31 @@ namespace FileStore.Controllers
                 HttpContent responseContent = null;
 				 
 				if (isLegacyFile)
-					{
+				{
                     // retrieve file content from legacy database 
 
                     responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
-					}
-					else
-					{
+				}
+				else
+				{
                     // retrieve file content from FileStore database 
                     responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
 
-                    // #DEBUG Test that the file chunks have been written to the database correctly
-
-                    //IEnumerable<Models.FileChunk> fileChunks = await _filesRepo.GetAllFileChunks(fileId);
-                    //var totalSize = fileChunks.Sum<Models.FileChunk>(f => f.ChunkSize);
-                    //byte[] returnBuffer = new byte[totalSize];
-
-                    //int offset = 0;
-                    //foreach (Models.FileChunk chunk in fileChunks)
-                    //{
-                    //    System.Buffer.BlockCopy(chunk.ChunkContent, 0, returnBuffer, offset, chunk.ChunkContent.Length);
-                    //    offset += chunk.ChunkContent.Length;
-                    //}
-                    //responseContent = new ByteArrayContent(returnBuffer);
-				}
+       			}
 
 				response.Content = responseContent;
 
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+
 			    if (response.Content != null)
 			    {
 			        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment)
 			        {
 			            FileName = file.FileName
 			        };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-				response.Content.Headers.ContentLength = file.FileSize;
+				    response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+				    response.Content.Headers.ContentLength = file.FileSize;
 			    }
 				response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
 				response.Headers.Add(FileSize, file.FileSize.ToString());

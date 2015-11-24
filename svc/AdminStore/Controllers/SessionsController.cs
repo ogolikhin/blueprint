@@ -110,7 +110,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse, bool force = false)
+        public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
         {
             try
             {

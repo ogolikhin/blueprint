@@ -36,7 +36,7 @@ namespace AdminStore.Repositories
 
         public async Task<IFederatedAuthenticationSettings> GetFederatedAuthenticationSettingsAsync()
         {
-            var result = (await _connectionWrapper.QueryAsync<dynamic>("GetFederatedAuthentication", commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var result = (await _connectionWrapper.QueryAsync<dynamic>("GetFederatedAuthentications", commandType: CommandType.StoredProcedure)).FirstOrDefault();
             return result == null ? null : new FederatedAuthenticationSettings(result.Settings, result.Certificate);
         }
     }

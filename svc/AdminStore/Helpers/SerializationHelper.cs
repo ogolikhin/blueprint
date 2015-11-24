@@ -7,7 +7,7 @@ namespace AdminStore.Helpers
 {
     internal static class SerializationHelper
     {
-        [DataContract]
+        [DataContract(Name = "FederationAuthenticationSettingsHelper.FASettings", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Data.AccessAPI.Impl")]
         internal class FASettings
         {
             public FASettings()

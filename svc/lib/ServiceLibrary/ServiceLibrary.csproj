@@ -70,7 +70,9 @@
     <Compile Include="Log\EventLogProviderImpl.cs" />
     <Compile Include="Log\ILogProvider.cs" />
     <Compile Include="Log\LogProvider.cs" />
+    <Compile Include="Repositories\ISessionRepository.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />
+    <Compile Include="Repositories\ServiceSessionRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />

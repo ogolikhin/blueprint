@@ -17,6 +17,8 @@ namespace AccessControl.Models
 		[JsonProperty]
 		public string UserName { get; set; }
 		[JsonProperty]
+		public bool SamlUser { get; set; }
+		[JsonProperty]
 		public int LicenseLevel { get; set; }
 
 		public static string Convert(Guid guid)

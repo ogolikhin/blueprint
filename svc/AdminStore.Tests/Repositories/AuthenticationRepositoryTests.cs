@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Authentication;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
@@ -77,7 +76,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidCredentialException))]
+        [ExpectedException(typeof(AuthenticationException))]
         public async Task AuthenticateUserAsync_UserDoesNotExist_InvalidCredentialException()
         {
             //Arrange
@@ -188,7 +187,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidCredentialException))]
+        [ExpectedException(typeof(AuthenticationException))]
         public async Task AuthenticateUserAsync_WrongPassword_InvalidCredentialException()
         {
             //Arrange

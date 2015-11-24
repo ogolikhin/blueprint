@@ -1,12 +1,13 @@
 ﻿using System;
+using System.IO;
 using FileStore.Models;
 
 namespace FileStore.Repositories
 {
 	public interface IFileStreamRepository
 	{
-        File GetFile(Guid guid);
+        Stream GetFileContent(Guid fileId);
 
-	    File HeadFile(Guid guid);
+	    Models.File GetFileHead(Guid fileId);
 	}
 }

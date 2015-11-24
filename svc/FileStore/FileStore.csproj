@@ -103,12 +103,14 @@
     <Compile Include="Repositories\ContentReadStream.cs" />
     <Compile Include="Repositories\FileMapperRepository.cs" />
     <Compile Include="Repositories\FileStreamRepository.cs" />
+    <Compile Include="Controllers\FileUploadBufferPolicySelector.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />
     <Compile Include="Repositories\IContentReadStream.cs" />
     <Compile Include="Repositories\IFileMapperRepository.cs" />
     <Compile Include="Repositories\IFilesRepository.cs" />
     <Compile Include="Repositories\IFileStreamRepository.cs" />
     <Compile Include="Repositories\SqlFilesRepository.cs" />
+    <Compile Include="Repositories\SqlReadStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

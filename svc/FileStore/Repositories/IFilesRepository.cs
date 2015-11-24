@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FileStore.Models;
 
@@ -10,6 +11,9 @@ namespace FileStore.Repositories
 		Task<int> PostFileChunk(FileChunk chunk);
 		Task<File> GetFileHead(Guid guid);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
-		Task<Guid?> DeleteFile(Guid guid);
+        Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid);
+        Task<Guid?> DeleteFile(Guid guid);
+
+        System.IO.Stream GetFileContent(Guid fileId);
 	}
 }

@@ -30,6 +30,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\InsertFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\ReadFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\ReadAllFileChunks.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\UpdateFileHead.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

@@ -114,7 +114,7 @@ CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
-	[ChunkContent ] [varbinary](max) NULL,
+	[ChunkContent] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
@@ -460,47 +460,4 @@ BEGIN
 END
 
 GO
-
-/******************************************************************************************************************************
-Name:			[ReadAllFileChunks]
-
-Description: Used for debugging. Retrieves all the file chunks in an ordered list 
-			
-Change History:
-Date			Name					Change
-2015/11/23		CRichards				Initial Version
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadAllFileChunks]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[ReadAllFileChunks]
-GO
-CREATE PROCEDURE [dbo].[ReadAllFileChunks]
-( 
-    @FileId uniqueidentifier
-)
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
-	SET NOCOUNT ON
-
-	SELECT [FileId]
-           ,[ChunkNum]
-           ,[ChunkSize]
-		   ,[ChunkContent]
-	FROM [dbo].[FileChunks]
-	WHERE [FileId] = @FileId
-	ORDER BY ChunkNum ASC
-
-END
-
-GO
-
-
--- --------------------------------------------------
--- Always add your code just above this comment block
--- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
-GO
--- --------------------------------------------------
-
 

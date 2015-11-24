@@ -17,7 +17,7 @@ namespace AccessControl.Models
 		[JsonProperty]
 		public string UserName { get; set; }
 		[JsonProperty]
-		public bool SamlUser { get; set; }
+		public bool SamlUser { get; set; } // should be called IsSSO
 		[JsonProperty]
 		public int LicenseLevel { get; set; }
 

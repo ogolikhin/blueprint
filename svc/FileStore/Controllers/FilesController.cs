@@ -320,7 +320,7 @@ namespace FileStore.Controllers
 			        response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
 			        response.Content.Headers.ContentLength = file.FileSize;
 			    }
-			    response.Headers.Add(StoredDate, file.StoredTime.ToString("o"));
+			    response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
 
 				return ResponseMessage(response);

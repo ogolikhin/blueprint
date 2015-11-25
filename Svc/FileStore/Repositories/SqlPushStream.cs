@@ -4,12 +4,12 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using FileStore.Models;
 using System.Net.Http;
 using System.Net;
 using System.Web;
-using Dapper;
 using System.Threading.Tasks;
+using System.Data.Common;
+using FileStore.Models;
 
 namespace FileStore.Repositories
 {
@@ -45,17 +45,20 @@ namespace FileStore.Repositories
         {
             int bytesRead = 0;
             byte[] buffer = null;
-
+            DbConnection dbConnection = null;
+    
             // In the WriteToStream method, we proceed to read the file chunks progressively from the db
             // and flush these bits to the output stream.
 
             try
             {
                 CheckInitialized();
+                dbConnection = _filesRepository.CreateConnection();
+                dbConnection.Open();
 
                 for (int chunkNum = 1; chunkNum <= _file.ChunkCount; chunkNum++)
                 {
-                    buffer = _filesRepository.ReadChunkContent(_file.FileId, chunkNum);
+                    buffer = _filesRepository.ReadChunkContent(dbConnection, _file.FileId, chunkNum);
                     bytesRead = buffer.Length; 
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                 }
@@ -68,6 +71,7 @@ namespace FileStore.Repositories
             finally
             {
                 outputStream.Close();
+                dbConnection.Close();
                 buffer = null;
             }
         }
@@ -80,5 +84,6 @@ namespace FileStore.Repositories
                     "File object is null. Call Initialize method.");
             }
         }
+
     }
 }

@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
-using Dapper;
-using FileStore.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
+using System.Data.Common;
+using Dapper;
+using FileStore.Models;
 
 namespace FileStore.Repositories
 {
@@ -23,7 +24,13 @@ namespace FileStore.Repositories
 			ConnectionWrapper = connectionWrapper;
 		}
 
-		public async Task<Guid> PostFileHead(File file)
+        public DbConnection CreateConnection()
+        {
+            // create a connection for operations that require holding an open connection to the db
+            return ConnectionWrapper.CreateConnection();
+        }
+
+        public async Task<Guid> PostFileHead(File file)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileName", file.FileName);
@@ -86,13 +93,26 @@ namespace FileStore.Repositories
             return ConnectionWrapper.Query<Models.File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure).FirstOrDefault();
         }
 
-        public byte[] ReadChunkContent(Guid guid, int num)
+        public byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num)
         {
+            // Note: this method may be called hundreds of times to retrieve chunk records if the 
+            // stored file is large. It will reuse the open database connection that is passed 
+            // in as a parameter.
+
+            // Note: After all the read operations are finsihed the dbConnection object must be closed
+            // and disposed by the calling procedure.
+
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
             prm.Add("@ChunkNum", num);
 
-            return ConnectionWrapper.ExecuteScalar<byte[]>("ReadChunkContent", prm, commandType: CommandType.StoredProcedure);
+            if (dbConnection == null || dbConnection.State == ConnectionState.Closed)
+            {
+                throw new ArgumentNullException("The database connection must be open prior to use.");
+            } 
+             
+            return dbConnection.ExecuteScalar<byte[]>("ReadChunkContent", prm, commandType: CommandType.StoredProcedure);
+ 
         }
 
     }

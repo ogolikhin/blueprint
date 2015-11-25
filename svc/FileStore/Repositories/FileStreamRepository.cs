@@ -44,14 +44,17 @@ namespace FileStore.Repositories
                     {
                         sqlConnection.Open();
 
+                        // get file size by checking the file content
                         sqlCommand.CommandTimeout = CommandTimeout;
                         sqlCommand.CommandType = CommandType.Text;
-                        sqlCommand.CommandText = "SELECT TOP 1  @pFileExists=\'true\' FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                        sqlCommand.CommandText = "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                         sqlCommand.Parameters.AddWithValue("@pFileGuid", fileId);
-                        SqlParameter pFileExists = sqlCommand.Parameters.AddWithValue("@pFileExists", false);
-                        pFileExists.Direction = ParameterDirection.Output;
+                        SqlParameter pLength = sqlCommand.Parameters.AddWithValue("@pLength", 0L);
+                        pLength.Direction = ParameterDirection.Output;
                         sqlCommand.ExecuteNonQuery();
-                        fileExists = (!(pFileExists.Value is DBNull)) && (bool)pFileExists.Value;
+
+                        var len = (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
+                        fileExists = len > 0;
                     }
                 }
 

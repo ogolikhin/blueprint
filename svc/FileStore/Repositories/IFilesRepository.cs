@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Data.Common;
 using FileStore.Models;
 
 namespace FileStore.Repositories
 {
 	public interface IFilesRepository
 	{
-		Task<Guid> PostFileHead(File file);
+        DbConnection CreateConnection();
+        Task<Guid> PostFileHead(File file);
         /// <summary>
         /// Returns the next chunk number
         /// </summary>
@@ -18,7 +20,8 @@ namespace FileStore.Repositories
 		Task<File> GetFileHead(Guid guid);
         File GetFileInfo(Guid fileId);
         Task<FileChunk> GetFileChunk(Guid guid, int num);
-        byte[] ReadChunkContent(Guid guid, int num);
+        byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num);
+
         Task<Guid?> DeleteFile(Guid guid);
       
 	}

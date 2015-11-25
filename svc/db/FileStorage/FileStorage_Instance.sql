@@ -1,6 +1,15 @@
 ﻿
+-- --------------------------------------------------
+-- Set the DB
+-- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Bueprint_FileStorage];
+GO
 SET NOCOUNT ON;
 Print 'Creating FileStorage Database...'
+GO
+-- --------------------------------------------------
 
 -- Create Blueprint Roles
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')

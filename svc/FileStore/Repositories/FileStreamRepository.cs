@@ -22,6 +22,49 @@ namespace FileStore.Repositories
             _contentReadStream = contentReadStream;
         }
 
+        public bool FileExists(Guid fileId)
+        {
+
+            const int CommandTimeout = 60;
+            bool fileExists = false;
+
+            // returns true if the file is found in the legacy database 
+            // returns false not found in the legacy database
+
+            if (fileId == Guid.Empty)
+            {
+                throw new ArgumentException("fileId param is empty.");
+            }
+
+            try
+            {
+                using (var sqlConnection = new SqlConnection(_configRepository.FileStreamDatabase))
+                {
+                    using (SqlCommand sqlCommand = sqlConnection.CreateCommand())
+                    {
+                        sqlConnection.Open();
+
+                        sqlCommand.CommandTimeout = CommandTimeout;
+                        sqlCommand.CommandType = CommandType.Text;
+                        sqlCommand.CommandText = "SELECT TOP 1  @pFileExists=\'true\' FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                        sqlCommand.Parameters.AddWithValue("@pFileGuid", fileId);
+                        SqlParameter pFileExists = sqlCommand.Parameters.AddWithValue("@pFileExists", false);
+                        pFileExists.Direction = ParameterDirection.Output;
+                        sqlCommand.ExecuteNonQuery();
+                        fileExists = (!(pFileExists.Value is DBNull)) && (bool)pFileExists.Value;
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(e.Message, e);
+            }
+
+            return fileExists;
+
+        }
+
         public File GetFileHead(Guid fileId)
         {
             const int CommandTimeout = 60;
@@ -83,7 +126,7 @@ namespace FileStore.Repositories
 
             }
             catch (Exception e)
-                {
+            {
                 throw new InvalidOperationException(e.Message, e);
             }
 

@@ -210,16 +210,18 @@ namespace FileStore.Controllers
                     // if the file is not found in the FileStore check the
                     // legacy database for the file 
 
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
+                    if (_fileStreamRepo.FileExists(fileId))
+                    {
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
+                    else
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
                 }
-               
-				if (file == null)
-				{
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-				}
-
+                
                 if (isLegacyFile)
                 {
                     mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
@@ -274,17 +276,19 @@ namespace FileStore.Controllers
                 if (file == null)
                 {
                     // if the file is not found in the FileStore check the
-                    // legacy database for the file 
-
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
-				}
-
-                if (file == null)
-				{
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-				}
+                    // legacy database for the file
+                     
+                    if (_fileStreamRepo.FileExists(fileId))
+                    {
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
+                    else
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
+                }
 
                 if (isLegacyFile)
 				{

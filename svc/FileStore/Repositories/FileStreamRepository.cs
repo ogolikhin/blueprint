@@ -33,6 +33,11 @@ namespace FileStore.Repositories
             {
                 _contentReadStream.Setup(_configRepository.FileStreamDatabase, fileId);
 
+                if (!_contentReadStream.FileExists)
+                {
+                    return null;
+                }
+
                 return new File
                 {
                     FileId = fileId,

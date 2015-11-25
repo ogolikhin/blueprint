@@ -19,13 +19,14 @@ namespace FileStore.Repositories
             //Act
             fileStreamRepository.GetFileHead(Guid.Empty);
         }
-        [Ignore]
+
         [TestMethod]
         public void GetFile_BadFileGuid()
         {
             //Arrange
             var mockConfigRepo = new Mock<IConfigRepository>();
             var mockContentReadStream = new Mock<IContentReadStream>();
+            mockContentReadStream.Setup(m => m.FileExists).Returns(false);
             var fileStreamRepository = new FileStreamRepository(mockConfigRepo.Object, mockContentReadStream.Object);
 
             //Act
@@ -44,6 +45,8 @@ namespace FileStore.Repositories
             mockContentReadStream.Setup(s => s.Length).Returns(100);
             mockContentReadStream.Setup(s => s.FileName).Returns("ABC.txt");
             mockContentReadStream.Setup(s => s.FileType).Returns("image/bmp");
+            mockContentReadStream.Setup(s => s.FileExists).Returns(true);
+
             var fileStreamRepository = new FileStreamRepository(mockConfigRepo.Object, mockContentReadStream.Object);
             var guid = Guid.NewGuid();
             object[] expectedObjects = {guid, 100, "ABC.txt", "image/bmp" };
@@ -78,6 +81,8 @@ namespace FileStore.Repositories
             mockContentReadStream.Setup(s => s.Length).Returns(100);
             mockContentReadStream.Setup(s => s.FileName).Returns("ABC.txt");
             mockContentReadStream.Setup(s => s.FileType).Returns("image/bmp");
+            mockContentReadStream.Setup(s => s.FileExists).Returns(true);
+
             var fileStreamRepository = new FileStreamRepository(mockConfigRepo.Object, mockContentReadStream.Object);
             var guid = Guid.NewGuid();
             object[] expectedObjects = { guid, 100, "ABC.txt", "image/bmp" };

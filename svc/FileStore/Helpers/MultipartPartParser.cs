@@ -314,7 +314,7 @@ namespace FileStore.Helpers
 
             matchStartIndex = Array.IndexOf<byte>(bytes, pattern[0]);
             int searchUpToIndex = bytes.Length - pattern.Length;
-            while (matchStartIndex > 0 && matchStartIndex < searchUpToIndex)
+            while (matchStartIndex >= 0 && matchStartIndex < searchUpToIndex)
             {
                 bool ismatch = true;
                 for (int j = 1; j < pattern.Length && ismatch == true; j++)

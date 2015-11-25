@@ -1,6 +1,5 @@
 ﻿using System;
-using System.IO;
-using FileStore.Models;
+using System.IO; 
 
 namespace FileStore.Repositories
 {
@@ -8,6 +7,8 @@ namespace FileStore.Repositories
 	{
         Stream GetFileContent(Guid fileId);
 
-	    Models.File GetFileHead(Guid fileId);
+        FileStore.Models.File GetFileHead(Guid fileId);
+
+        bool FileExists(Guid fileId);
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Web.Http.WebHost;
 
-namespace FileStore.Controllers
+namespace FileStore
 {
     public class FileUploadBufferPolicySelector : WebHostBufferPolicySelector
     {

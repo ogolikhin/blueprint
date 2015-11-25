@@ -54,8 +54,10 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile()
 		{
-            if(HttpContext.Current == null)
+            if (HttpContext.Current == null)
+            {
                 return InternalServerError();
+            }
             var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
             return await PostFileHttpContext(httpContextWrapper);
         }
@@ -69,7 +71,7 @@ namespace FileStore.Controllers
 				    var isMultipart = Request.Content.IsMimeMultipartContent();
 				    if (isMultipart)
 				    {
-                            return await PostMultipartRequest(stream);
+                        return await PostMultipartRequest(stream);
                     }
                     else
                     {
@@ -104,12 +106,13 @@ namespace FileStore.Controllers
 				{
                     // Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
                     await _filesRepo.DeleteFile(chunk.FileId);
-						return BadRequest();
+					return BadRequest();
 				}
                 return Ok(Models.File.ConvertFileId(chunk.FileId));
             }
+
             return BadRequest();
-        }
+		}
 
         private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream)
         {
@@ -136,7 +139,8 @@ namespace FileStore.Controllers
             var chunk = await PostCompleteFile(fileName, fileMediaType, stream);
 
             return Ok(Models.File.ConvertFileId(chunk.FileId));
-        }
+		}
+
         /// <summary>
         /// Posts the file from the stream in multiple chunks and returns the file size.
         /// </summary>
@@ -159,6 +163,7 @@ namespace FileStore.Controllers
 			}
             return fileSize;
         }
+
         /// <summary>
         /// Posts the initial file header info and returns the first chunk with the FileId (guid) created in the database.
         /// </summary>
@@ -174,6 +179,7 @@ namespace FileStore.Controllers
                 FileName = fileName,
                 FileType = mediaType
 			};
+
             var fileId = await _filesRepo.PostFileHead(file);
 			var chunk = new Models.FileChunk
 			{
@@ -189,12 +195,12 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)
 		{
-			try
-			{
-                Models.File file = null;
-                bool isLegacyFile = false;
-                string mappedContentType = FileMapperRepository.DefaultMediaType;
+            Models.File file = null;
+            bool isLegacyFile = false;
+            string mappedContentType = FileMapperRepository.DefaultMediaType;
 
+            try
+            {
                 var fileId = Models.File.ConvertToStoreId(id);
 
                 file = await _filesRepo.GetFileHead(fileId);
@@ -204,16 +210,18 @@ namespace FileStore.Controllers
                     // if the file is not found in the FileStore check the
                     // legacy database for the file 
 
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
+                    if (_fileStreamRepo.FileExists(fileId))
+                    {
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
+                    else
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
                 }
-               
-				if (file == null)
-				{
-                // the file was not found in either FileStore or legacy database 
-                return NotFound();
-				}
-
+                
                 if (isLegacyFile)
                 {
                     mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
@@ -225,7 +233,7 @@ namespace FileStore.Controllers
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
-                response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes("")); ;
+                response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
 
                 // return file info in headers
 
@@ -233,7 +241,7 @@ namespace FileStore.Controllers
                 response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-                response.Content.Headers.ContentLength = file.FileSize;
+                response.Content.Headers.ContentLength = 0; // there is no content
                 response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
                 response.Headers.Add(FileSize, file.FileSize.ToString());
 
@@ -255,31 +263,32 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileContent(string id)
 		{
-			try
+            Models.File file = null;
+            bool isLegacyFile = false;
+            string mappedContentType = FileMapperRepository.DefaultMediaType;
+
+            try
 			{
-                Models.File file = null;
-                bool isLegacyFile = false; 
-
-                string mappedContentType = FileMapperRepository.DefaultMediaType;
-
-                var fileId = Models.File.ConvertToStoreId(id);
+                 var fileId = Models.File.ConvertToStoreId(id);
 
 				file = await _filesRepo.GetFileHead(fileId);
 
                 if (file == null)
-				{
+                {
                     // if the file is not found in the FileStore check the
-                    // legacy database for the file 
-
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
-				}
-
-                if (file == null)
-				{
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-				}
+                    // legacy database for the file
+                     
+                    if (_fileStreamRepo.FileExists(fileId))
+                    {
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
+                    else
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
+                }
 
                 if (isLegacyFile)
 				{
@@ -294,17 +303,23 @@ namespace FileStore.Controllers
                 HttpContent responseContent = null;
 				 
 				if (isLegacyFile)
-					{
+				{
                     // retrieve file content from legacy database 
 
-                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
-					}
-					else
-					{
-                    // retrieve file content from FileStore database 
-                    responseContent = new StreamContent(_filesRepo.GetFileContent(fileId), _configRepo.FileChunkSize);
-
+                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.LegacyFileChunkSize);
 				}
+				else
+				{
+                    // retrieve file content from FileStore database 
+                    
+                    // Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
+                    // and flush these bits to the output stream.
+                    
+                    SqlPushStream sqlPushStream = new SqlPushStream();
+                    sqlPushStream.Initialize(_filesRepo, fileId);
+ 
+                    responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.FileType));
+       			}
 
 				response.Content = responseContent;
 
@@ -317,8 +332,8 @@ namespace FileStore.Controllers
 			        {
 			            FileName = file.FileName
 			        };
-			        response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
-			        response.Content.Headers.ContentLength = file.FileSize;
+				    response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+				    response.Content.Headers.ContentLength = file.FileSize;
 			    }
 			    response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
@@ -358,5 +373,5 @@ namespace FileStore.Controllers
                 return InternalServerError();
             }
         }
-    }
+	}
 }

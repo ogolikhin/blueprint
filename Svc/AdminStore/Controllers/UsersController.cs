@@ -38,12 +38,13 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var userId = await RequestPutSessionAsync();
-                var loginUser = await _userRepository.GetLoginUserByIdAsync(userId);
+                var session = await RequestPutSessionAsync();
+                var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", userId));
+                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
                 }
+                loginUser.IsSso = session.IsSso;
                 return Ok(loginUser);
             }
             catch (AuthenticationException)
@@ -68,7 +69,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<int> RequestPutSessionAsync(string op = "op", int aid = 1)
+        private async Task<Session> RequestPutSessionAsync(string op = "op", int aid = 1)
         {
             using (var http = _httpClientProvider.Create())
             {
@@ -81,7 +82,7 @@ namespace AdminStore.Controllers
                 {
                     var content = await result.Content.ReadAsStringAsync();
                     var session = JsonConvert.DeserializeObject<Session>(content);
-                    return session.UserId;
+                    return session;
                 }
                 throw new AuthenticationException("Authentication failed.");
             }

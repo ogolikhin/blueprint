@@ -46,7 +46,7 @@ namespace FileStore.Repositories
 			return chunk.ChunkNum + 1;
 		}
 
-	    public async void UpdateFileHead(Guid fileId, long fileSize, int chunkCount)
+	    public async Task UpdateFileHead(Guid fileId, long fileSize, int chunkCount)
 	    {
             var prm = new DynamicParameters();
             prm.Add("@FileId", fileId);

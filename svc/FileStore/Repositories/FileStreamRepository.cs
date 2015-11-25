@@ -83,7 +83,7 @@ namespace FileStore.Repositories
 
             }
             catch (Exception e)
-            {
+                {
                 throw new InvalidOperationException(e.Message, e);
             }
 

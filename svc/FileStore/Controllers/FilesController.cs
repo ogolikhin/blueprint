@@ -120,7 +120,7 @@ namespace FileStore.Controllers
 
             var fileSize = await PostFileInChunks(stream, chunk);
 
-            _filesRepo.UpdateFileHead(chunk.FileId, fileSize, chunk.ChunkNum - 1);
+            await _filesRepo.UpdateFileHead(chunk.FileId, fileSize, chunk.ChunkNum - 1);
 
             return chunk;
 		}

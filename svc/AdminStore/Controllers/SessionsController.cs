@@ -39,7 +39,8 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
+                var decodedLogin = HttpUtility.UrlDecode(login);
+                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, password);
                 return await RequestSessionTokenAsync(user, force);
             }
             catch (AuthenticationException ex)

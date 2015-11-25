@@ -245,6 +245,45 @@ namespace FileStore.Repositories
             }
         }
 
+        private bool? _fileExists;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FileExists
+        {
+            get
+            {
+                if (_sqlConnection == null)
+                {
+                    throw new ObjectDisposedException(string.Empty);
+                }
+                if (_fileExists != null)
+                {
+                    return _fileExists.Value;
+                }
+                try
+                {
+                    if (_sqlConnection.State != ConnectionState.Open)
+                    {
+                        _sqlConnection.Open();
+                    }
+                    SqlCommand sqlCommand = _sqlConnection.CreateCommand();
+                    sqlCommand.CommandTimeout = CommandTimeout;
+                    sqlCommand.CommandType = CommandType.Text;
+                    sqlCommand.CommandText = "SELECT TOP 1  @pFileExists=\'true\' FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                    sqlCommand.Parameters.AddWithValue("@pFileGuid", _fileGuid);
+                    SqlParameter pFileExists = sqlCommand.Parameters.AddWithValue("@pFileExists", false);
+                    pFileExists.Direction = ParameterDirection.Output;
+                    sqlCommand.ExecuteNonQuery();
+                    _fileExists = (!(pFileExists.Value is DBNull)) && (bool)pFileExists.Value;
+                    return _fileExists.Value;
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(e.Message, e);
+                }
+            }
+        }
         /// <summary>
         ///
         /// </summary>

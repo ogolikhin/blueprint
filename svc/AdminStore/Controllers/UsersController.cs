@@ -77,6 +77,8 @@ namespace AdminStore.Controllers
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                if (Request.Headers.Contains("Session-Token") == false)
+                    throw new ArgumentNullException();
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                 var result = await http.PutAsync(string.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
                 if (result.IsSuccessStatusCode)

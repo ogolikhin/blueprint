@@ -17,7 +17,7 @@ namespace FileStore
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [Ignore] // Integration test should be moved to blueprint-automationframework repository
-        public async Task TestUploadAndDeleteFilesUsingMultipart()
+        public void TestUploadAndDeleteFilesUsingMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -57,7 +57,7 @@ namespace FileStore
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            DeleteFile(filesUriCall, fileGuid);// await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -68,7 +68,7 @@ namespace FileStore
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [Ignore] // Integration test should be moved to blueprint-automationframework repository
-        public async Task TestUploadAndDeleteFilesUsingNonMultipart()
+        public void TestUploadAndDeleteFilesUsingNonMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -108,7 +108,7 @@ namespace FileStore
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            DeleteFile(filesUriCall, fileGuid);
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -186,14 +186,14 @@ namespace FileStore
             fetchRequest.KeepAlive = true;
             fetchRequest.Credentials = CredentialCache.DefaultCredentials;
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes(boundary);
 
             fetchRequest.ContentType = "multipart/form-data; boundary=" + boundary;
 
             using (Stream rs = fetchRequest.GetRequestStream())
             {
                 rs.Write(boundarybytes, 0, boundarybytes.Length);
-                string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+                string headerTemplate = "\r\nContent-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
                 string header = string.Format(headerTemplate, "attachment", attachmentFileName, "image/bmp");
                 byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
                 rs.Write(headerbytes, 0, headerbytes.Length);
@@ -208,7 +208,7 @@ namespace FileStore
                     }
                 }
 
-                byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+                byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n" + boundary + "\r\n");
                 rs.Write(trailer, 0, trailer.Length);
             }
 
@@ -434,7 +434,7 @@ namespace FileStore
 
             if (expectedToFail)
             {
-                Assert.AreEqual(HttpStatusCode.MethodNotAllowed, objResponse.StatusCode, "Non-existent file was deleted by server");
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Non-existent file was deleted by server");
                 return;
             }
 

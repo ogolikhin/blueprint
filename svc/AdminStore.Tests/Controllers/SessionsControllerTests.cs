@@ -64,7 +64,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(login, password, true);
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -100,7 +100,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(login, password);
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password));
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -125,7 +125,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var conflictResult = await controller.PostSession(login, password) as ConflictResult;
+            var conflictResult = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password)) as ConflictResult;
 
             // Assert
             Assert.IsNotNull(conflictResult);
@@ -147,7 +147,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var internalServerErrorResult = await controller.PostSession(login, password, true) as InternalServerErrorResult;
+            var internalServerErrorResult = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true) as InternalServerErrorResult;
 
             // Assert
             Assert.IsNotNull(internalServerErrorResult);
@@ -171,7 +171,7 @@ namespace AdminStore.Controllers
             };
 
             // Act
-            await controller.PostSession(login, password, true);
+            await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
         }
 
         [TestMethod]

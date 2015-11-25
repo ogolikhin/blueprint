@@ -20,6 +20,11 @@ namespace FileStore.Repositories
         string FileName { get; }
 
         /// <summary>
+        /// Determines if the file exists in the legacy filestream database
+        /// </summary>
+        bool FileExists { get; }
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="connectionString"></param>

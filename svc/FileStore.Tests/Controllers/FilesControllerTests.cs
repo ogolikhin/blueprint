@@ -236,7 +236,7 @@ namespace FileStore.Controllers
         }
 
         #endregion Post unit tests
-        [Ignore]
+
         [TestMethod]
 		public void HeadFile_GetHeadForExistentFile_Success()
 		{
@@ -492,9 +492,9 @@ namespace FileStore.Controllers
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
-
+        
         [Ignore] // TODO: Remove after chunk reading is complete
-		[TestMethod]
+        [TestMethod]
 		public void GetFile_ProperRequest_Success()
 		{
 			// Arrange
@@ -502,18 +502,34 @@ namespace FileStore.Controllers
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
-
-			var file = new File
+		    var contentString = "Test2 content";
+		    var fileChunk = new FileChunk()
+		    {
+		        ChunkNum = 1,
+		        ChunkContent = Encoding.UTF8.GetBytes(contentString),
+		        ChunkSize = Encoding.UTF8.GetBytes(contentString).Length
+            };
+            var file = new File
 			{
 				FileId = new Guid("22222222-2222-2222-2222-222222222222"),
 				FileName = "Test2.txt",
-				StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-				FileType = FileMapperRepository.DefaultMediaType
-			};
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+				FileType = FileMapperRepository.DefaultMediaType,
+                FileSize = fileChunk.ChunkSize,
+                ChunkCount = 1
+            };
             
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
-			moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
+
+            //TODO: Colin, please update this once your changes are in.
+            //moq.Setup(t => t.GetFileChunk(file.FileId, It.IsAny<int>())).Returns(Task.FromResult(fileChunk));
+
+            //var moqSqlReadStream = new SqlReadStream(moq.Object);
+            //moqSqlReadStream.Initialize("", file.FileId);
+            //moq.Setup(t => t.GetFileContent(It.IsAny<Guid>())).Returns(moqSqlReadStream);
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
 				 .Returns(FileMapperRepository.DefaultMediaType);
+		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1*1024*1024);
 
 			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{

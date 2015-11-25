@@ -16,8 +16,10 @@ namespace FileStore.Repositories
 		Task<int> PostFileChunk(FileChunk chunk);
 	    void UpdateFileHead(Guid fileId, long fileSize, int chunkCount);
 		Task<File> GetFileHead(Guid guid);
-		Task<FileChunk> GetFileChunk(Guid guid, int num);
+        File GetFileInfo(Guid fileId);
+        Task<FileChunk> GetFileChunk(Guid guid, int num);
+        byte[] ReadChunkContent(Guid guid, int num);
         Task<Guid?> DeleteFile(Guid guid);
-        System.IO.Stream GetFileContent(Guid fileId);
+      
 	}
 }

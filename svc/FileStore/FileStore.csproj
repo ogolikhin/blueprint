@@ -112,7 +112,6 @@
     <Compile Include="Repositories\IFileStreamRepository.cs" />
     <Compile Include="Repositories\SqlFilesRepository.cs" />
     <Compile Include="Repositories\SqlPushStream.cs" />
-    <Compile Include="Repositories\SqlReadStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

@@ -12,7 +12,9 @@ namespace ServiceLibrary.Repositories
         DbConnection CreateConnection();
         Task<int> ExecuteAsync(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
         Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+        IEnumerable<T> Query<T>(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null);
         Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
+        T ExecuteScalar<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null);
 
     }
 
@@ -49,12 +51,30 @@ namespace ServiceLibrary.Repositories
             }
         }
 
+        public IEnumerable<T> Query<T>(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var connection = CreateConnection())
+            {
+                connection.Open();
+                return connection.Query<T>(sql, param, transaction, buffered, commandTimeout, commandType);
+            }
+        }
+
         public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             using (var connection = CreateConnection())
             {
                 connection.Open();
                 return await connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
+            }
+        }
+
+        public T ExecuteScalar<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var connection = CreateConnection())
+            {
+                connection.Open();
+                return connection.ExecuteScalar<T>(sql, param, transaction, commandTimeout, commandType);
             }
         }
 

@@ -13,23 +13,26 @@ using System.Threading.Tasks;
 
 namespace FileStore.Repositories
 {
-    public class SqlPushStream : IDisposable 
+    public class SqlPushStream 
     {
-         
-        private SqlConnection _connection = null;
         private Models.File _file = null;
+        private IFilesRepository _filesRepository = null;
 
         public SqlPushStream()
         {
             // must call Initialize method to prepare reading routines
         }
 
-        public void Initialize(string connectionString, Guid fileId)
+        public void Initialize(IFilesRepository fr, Guid fileId)
         {
- 
-            OpenConnection(connectionString);
+            if (fr == null)
+            {
+                throw new ArgumentException("File repository param is null.");
+            }
 
-            _file = ReadFileHead(fileId);
+            _filesRepository = fr; 
+
+            _file = _filesRepository.GetFileInfo(fileId);
 
             if (_file == null)
             {
@@ -43,17 +46,19 @@ namespace FileStore.Repositories
             int bytesRead = 0;
             byte[] buffer = null;
 
+            // In the WriteToStream method, we proceed to read the file chunks progressively from the db
+            // and flush these bits to the output stream.
+
             try
             {
                 CheckInitialized();
 
                 for (int chunkNum = 1; chunkNum <= _file.ChunkCount; chunkNum++)
                 {
-                    buffer = ReadChunkContent(_file.FileId, chunkNum);
+                    buffer = _filesRepository.ReadChunkContent(_file.FileId, chunkNum);
                     bytesRead = buffer.Length; 
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                 }
-   
             }
             catch 
             {
@@ -63,114 +68,17 @@ namespace FileStore.Repositories
             finally
             {
                 outputStream.Close();
-                CloseConnection();
                 buffer = null;
             }
         }
-
-        private void OpenConnection(string connectionString)
-        {
-            try
-            {
-                if (_connection != null)
-                {
-                    CloseConnection();
-                }
-
-                if (String.IsNullOrEmpty(connectionString))
-                {
-                    throw new ArgumentException("Connection string is null or empty.");
-                }
-
-                _connection = new SqlConnection(connectionString);
-
-                _connection.Open();
-
-            }
-            catch
-            {
-                // log connection errors and rethrow 
-                throw;
-            }
-        }
-
-        private void CloseConnection()
-        {
-            if (_connection != null)
-            {
-                try
-                {
-                    if (_connection.State != ConnectionState.Closed)
-                    {
-                        _connection.Close();
-                    }
-                }
-                catch
-                {
-                    // ignored
-                }
-                _connection.Dispose();
-                _connection = null;
-            }
-        }
-
-        private Models.File ReadFileHead(Guid fileId)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@FileId", fileId);
-
-            Models.File file =
-                _connection.Query<Models.File>(
-                    "ReadFileHead",
-                    parameters,
-                    commandType: CommandType.StoredProcedure).FirstOrDefault<Models.File>();
-
-            return file;
-        }
-
-        private byte[] ReadChunkContent(Guid guid, int num)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@FileId", guid);
-            parameters.Add("@ChunkNum", num);
-
-            return _connection.ExecuteScalar<byte[]>(
-                    "ReadChunkContent",
-                    parameters,
-                    commandType: CommandType.StoredProcedure);
-
-        }
-
+       
         private void CheckInitialized()
         {
-            if (_connection == null || _connection.State != ConnectionState.Open)
-            {
-                throw new InvalidOperationException(
-                    "Sql connection is not open. Call Initialize method.");
-            }
-
             if (_file == null)
             {
                 throw new InvalidOperationException(
                     "File object is null. Call Initialize method.");
             }
-
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                // free managed resources
-                CloseConnection();
-            }
- 
         }
     }
-
 }

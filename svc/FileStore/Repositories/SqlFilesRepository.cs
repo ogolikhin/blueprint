@@ -78,17 +78,22 @@ namespace FileStore.Repositories
 			return prm.Get<Guid?>("DeletedFileId");
 		}
 
-        public System.IO.Stream GetFileContent(Guid fileId)
+        public Models.File GetFileInfo(Guid fileId)
         {
-            // return a custom stream reader that retrieves content from the
-            // FileChunks table in the Filestore database 
+            var prm = new DynamicParameters();
+            prm.Add("@FileId", fileId);
 
-            SqlReadStream sqlReadStream = null;
-    
-            sqlReadStream = new SqlReadStream();
-            sqlReadStream.Initialize(ConfigRepository.Instance.FileStoreDatabase, fileId);
-             
-            return sqlReadStream;
+            return ConnectionWrapper.Query<Models.File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure).FirstOrDefault();
         }
-	}
+
+        public byte[] ReadChunkContent(Guid guid, int num)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@FileId", guid);
+            prm.Add("@ChunkNum", num);
+
+            return ConnectionWrapper.ExecuteScalar<byte[]>("ReadChunkContent", prm, commandType: CommandType.StoredProcedure);
+        }
+
+    }
 }

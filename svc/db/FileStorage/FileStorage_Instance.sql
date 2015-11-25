@@ -4,7 +4,7 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [Bueprint_FileStorage];
+USE [Blueprint_FileStorage];
 GO
 SET NOCOUNT ON;
 Print 'Creating FileStorage Database...'

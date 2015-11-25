@@ -47,5 +47,7 @@ namespace AdminStore.Models
         public int InstanceAdminPrivileges { get; set; }
 
         public bool EULAccepted { get; set; }
+
+        public bool IsSso { get; set; }
     }
 }

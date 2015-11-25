@@ -39,8 +39,9 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var decodedLogin = HttpUtility.UrlDecode(login);
-                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, password);
+                var decodedLogin = SystemEncryptions.Decode(login);
+                var decodedPassword = SystemEncryptions.Decode(password);
+                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword);
                 return await RequestSessionTokenAsync(user, force);
             }
             catch (AuthenticationException ex)
@@ -48,7 +49,7 @@ namespace AdminStore.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
-            {
+            {              
                 return Conflict();
             }
             catch (ArgumentNullException)

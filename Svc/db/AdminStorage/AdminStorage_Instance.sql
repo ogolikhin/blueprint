@@ -1,6 +1,15 @@
 ﻿
+-- --------------------------------------------------
+-- Set the DB
+-- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Blueprint_AdminStorage]; -- REPLACE --
+GO
 SET NOCOUNT ON;
 Print 'Creating AdminStorage Database...'
+GO
+-- --------------------------------------------------
 
 -- Create Blueprint Roles
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')

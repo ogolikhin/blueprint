@@ -107,7 +107,17 @@ namespace AdminStore.Repositories
 
             var principal = _samlRepository.ProcessEncodedResponse(samlResponse, fedAuthSettings);
             var user = await _userRepository.GetUserByLoginAsync(principal.Identity.Name);
-            return user;
+
+	        if (user == null) // cannot find user in the DB
+	        {
+		        throw new AuthenticationException("Invalid user name or password");
+	        }
+	        else if(!user.IsEnabled)
+	        {
+				throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
+			}
+
+	        return user;
         }
 
         private AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int passwordExpirationInDays = 0)

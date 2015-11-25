@@ -1,8 +1,17 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".sql" encoding="utf-8" #>
 
+-- --------------------------------------------------
+-- Set the DB
+-- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Blueprint_ArtifactStorage]; -- REPLACE --
+GO
 SET NOCOUNT ON;
 Print 'Creating ArtifactStorage Database...'
+GO
+-- --------------------------------------------------
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\DatabaseRoles.sql" ) ) #>
 
@@ -15,7 +24,7 @@ Print 'Creating ArtifactStorage Database...'
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.0.0';
 GO
 -- --------------------------------------------------
 

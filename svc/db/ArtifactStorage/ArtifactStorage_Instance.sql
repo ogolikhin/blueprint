@@ -1,6 +1,15 @@
 ﻿
+-- --------------------------------------------------
+-- Set the DB
+-- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Blueprint_ArtifactStorage]; -- REPLACE --
+GO
 SET NOCOUNT ON;
 Print 'Creating ArtifactStorage Database...'
+GO
+-- --------------------------------------------------
 
 -- Create Blueprint Roles
 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
@@ -140,7 +149,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.0.0';
 GO
 -- --------------------------------------------------
 

@@ -49,5 +49,7 @@ namespace AdminStore.Models
         public bool EULAccepted { get; set; }
 
         public bool IsSso { get; set; }
+
+        public int LicenseType { get; set; }
     }
 }

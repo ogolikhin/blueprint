@@ -41,9 +41,10 @@ namespace AdminStore.Controllers
                 var session = await RequestPutSessionAsync();
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
-                {
+                {                    
                     throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
                 }
+                loginUser.LicenseType = session.LicenseLevel;
                 loginUser.IsSso = session.IsSso;
                 return Ok(loginUser);
             }

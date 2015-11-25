@@ -14,7 +14,7 @@ namespace FileStore.Repositories
         /// <param name="chunk"></param>
         /// <returns></returns>
 		Task<int> PostFileChunk(FileChunk chunk);
-	    void UpdateFileHead(Guid fileId, long fileSize, int chunkCount);
+	    Task UpdateFileHead(Guid fileId, long fileSize, int chunkCount);
 		Task<File> GetFileHead(Guid guid);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
         Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid);

@@ -11,9 +11,9 @@ namespace FileStore.Repositories
 		Task<int> PostFileChunk(FileChunk chunk);
 		Task<File> GetFileHead(Guid guid);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
-        Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid);
-        Task<Guid?> DeleteFile(Guid guid);
+		Task<IEnumerable<FileChunk>> GetAllFileChunks(Guid guid);
+		Task<Guid?> DeleteFile(Guid guid);
 
-        System.IO.Stream GetFileContent(Guid fileId);
+		System.IO.Stream GetFileContent(Guid fileId);
 	}
 }

@@ -28,6 +28,7 @@ namespace FileStore.Repositories
 			var prm = new DynamicParameters();
 			prm.Add("@FileName", file.FileName);
 			prm.Add("@FileType", file.FileType);
+			prm.Add("@ExpiredTime", file.ExpiredTime);
 			prm.Add("@ChunkCount", file.ChunkCount);
             prm.Add("@FileSize", file.FileSize);
 			prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
@@ -73,9 +74,8 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			prm.Add("@DeletedFileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-			await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure);
-			return prm.Get<Guid?>("DeletedFileId");
+			prm.Add("@ExpredTime", DateTime.UtcNow);
+			return (await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
 		}
 
         public System.IO.Stream GetFileContent(Guid fileId)

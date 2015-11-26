@@ -47,9 +47,9 @@ namespace FileStore.Controllers
 		}
 
 		[HttpPost]
-		[Route("")]
+		[Route("{expired}")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> PostFile()
+		public async Task<IHttpActionResult> PostFile(DateTime? expired)
 		{
 			try
 			{
@@ -77,6 +77,7 @@ namespace FileStore.Controllers
 				var file = new Models.File
 				{
 					StoredTime = DateTime.UtcNow, // use UTC time to store data
+					ExpiredTime = expired,
 					FileName = content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " "),
 					FileType = content.Headers.ContentType.MediaType,
 					FileSize = content.Headers.ContentLength.GetValueOrDefault(),

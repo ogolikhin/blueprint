@@ -31,6 +31,7 @@ namespace FileStore.Controllers
         private const string Pragma = "Pragma";
         private const string StoredDate = "Stored-Date";
         private const string FileSize = "File-Size";
+        private const string FileChunkCount = "File-Chunk-Count";
         private const string Attachment = "attachment";
         private const string NoCache = "no-cache";
         private const string NoStore = "no-store";
@@ -280,6 +281,7 @@ namespace FileStore.Controllers
                 response.Content.Headers.ContentLength = 0; // there is no content
                 response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
                 response.Headers.Add(FileSize, file.FileSize.ToString());
+                response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());
 
                 return ResponseMessage(response);
             }

@@ -8,9 +8,9 @@ using Moq;
 using ServiceLibrary.Helpers;
 using System.Threading.Tasks;
 using System.Net;
-using AccessControl.Models;
 using Newtonsoft.Json;
 using System.Web.Http.Results;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
 {

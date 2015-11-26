@@ -151,8 +151,9 @@ namespace AdminStore.Controllers
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
-                    result.EnsureSuccessStatusCode();
-                    return Ok();
+                    if (result.IsSuccessStatusCode)
+                        return Ok();
+                    return ResponseMessage(result);
                 }
             }
             catch

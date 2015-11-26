@@ -6,11 +6,11 @@ using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using AccessControl.Models;
 using AccessControl.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Log;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Controllers
 {

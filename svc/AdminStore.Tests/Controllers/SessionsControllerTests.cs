@@ -309,7 +309,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSessionSingleSignOn_InternalServerError()
+        public async Task PostSessionSingleSignOn_SessionExists_ConflictError()
         {
             // Arrange
             const string login = "admin";
@@ -331,10 +331,10 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var internalServerErrorResult = await controller.PostSessionSingleSignOn(samlResponse) as InternalServerErrorResult;
+            var conflictResult = await controller.PostSessionSingleSignOn(samlResponse) as ConflictResult;
 
             // Assert
-            Assert.IsNotNull(internalServerErrorResult);
+            Assert.IsNotNull(conflictResult);
         }
 
         #endregion

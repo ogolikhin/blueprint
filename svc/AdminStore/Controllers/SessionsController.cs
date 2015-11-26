@@ -127,7 +127,11 @@ namespace AdminStore.Controllers
                 }
                 return Unauthorized();
             }
-            catch (FormatException)
+			catch (ApplicationException)
+			{
+				return Conflict();
+			}
+			catch (FormatException)
             {
                 return BadRequest();
             }

@@ -6,7 +6,7 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [AdminStorage];
+USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 Print 'Creating AdminStorage Database...'

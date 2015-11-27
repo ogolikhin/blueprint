@@ -28,7 +28,6 @@ namespace FileStore.Repositories
         #endregion Constructor
 
         #region PostFile
-        [Ignore]
         [TestMethod]
         public async Task PostFile_QueryReturnsId_ReturnsId()
         {

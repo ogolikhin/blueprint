@@ -39,7 +39,9 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
+                var decodedLogin = SystemEncryptions.Decode(login);
+                var decodedPassword = SystemEncryptions.Decode(password);
+                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword);
                 return await RequestSessionTokenAsync(user, force);
             }
             catch (AuthenticationException ex)
@@ -47,7 +49,7 @@ namespace AdminStore.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
-            {
+            {              
                 return Conflict();
             }
             catch (ArgumentNullException)
@@ -64,7 +66,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool samlUser = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool isSso = false)
         {
             if (!force)
             {
@@ -89,7 +91,7 @@ namespace AdminStore.Controllers
 	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
 				queryParams.Add("userName", user.Login);
 				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
-				queryParams.Add("samlUser", samlUser.ToString());
+				queryParams.Add("isSso", isSso.ToString());
 
 	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
@@ -110,7 +112,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse, bool force = false)
+        public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
         {
             try
             {
@@ -125,7 +127,11 @@ namespace AdminStore.Controllers
                 }
                 return Unauthorized();
             }
-            catch (FormatException)
+			catch (ApplicationException)
+			{
+				return Conflict();
+			}
+			catch (FormatException)
             {
                 return BadRequest();
             }
@@ -149,8 +155,9 @@ namespace AdminStore.Controllers
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
-                    result.EnsureSuccessStatusCode();
-                    return Ok();
+                    if (result.IsSuccessStatusCode)
+                        return Ok();
+                    return ResponseMessage(result);
                 }
             }
             catch

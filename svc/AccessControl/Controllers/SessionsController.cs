@@ -7,9 +7,9 @@ using System.Net.Http;
 using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AccessControl.Models;
 using AccessControl.Repositories;
 using ServiceLibrary.Log;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Controllers
 {
@@ -141,11 +141,11 @@ namespace AccessControl.Controllers
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool samlUser = false)
+        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
         {
             try
             {
-                var guids = await Repo.BeginSession(uid, userName, licenseLevel, samlUser);
+                var guids = await Repo.BeginSession(uid, userName, licenseLevel, isSso);
                 if (!guids[0].HasValue)
                 {
                     throw new KeyNotFoundException();

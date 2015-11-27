@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using System.Web.Http;
+using File = FileStore.Models.File;
 using System.Text;
 using System.Linq;
 using Moq;
 using FileStore.Repositories;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Web;
 using FileStore.Models;
 
 namespace FileStore.Controllers
@@ -16,8 +20,9 @@ namespace FileStore.Controllers
 	[TestClass]
 	public class FilesControllerTests
 	{
+        #region Post unit tests
 		[TestMethod]
-		public void PostFile_MultipartSingleFile_Success()
+		public async Task PostFile_MultipartSingleFile_Success()
 		{
 			//Arrange
 			var guid = Guid.NewGuid();
@@ -28,7 +33,7 @@ namespace FileStore.Controllers
 
 			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
 
-			string fileName4Upload = "UploadTest.txt";
+			string fileName4Upload = "\"UploadTest.txt\"";
 			string fileContent4Upload = "This is the content of the uploaded test file";
 
 			MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
@@ -48,6 +53,9 @@ namespace FileStore.Controllers
 				Configuration = new HttpConfiguration()
 			};
 
+
+            var context = await SetupMultipartPost(multiPartContent);
+
 			controller.Configuration.Routes.MapHttpRoute(
 				 name: "DefaultApi",
 				 routeTemplate: "files/{id}",
@@ -55,7 +63,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFile(null).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -70,7 +78,7 @@ namespace FileStore.Controllers
 		}
 
 		[TestMethod]
-		public void PostFile_MultipartMultipleFiles_BadRequestFailure()
+		public async Task PostFile_MultipartMultipleFiles_BadRequestFailure()
 		{
 			//Arrange
 			var guid = Guid.NewGuid();
@@ -80,7 +88,7 @@ namespace FileStore.Controllers
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			string fileName4Upload = "UploadTest.txt";
+			string fileName4Upload = "\"UploadTest.txt\"";
 			string fileContent4Upload = "This is the content of the uploaded test file";
 
 			var multiPartContent1 = new MultipartFormDataContent("----MyGreatBoundary");
@@ -100,6 +108,9 @@ namespace FileStore.Controllers
 				Configuration = new HttpConfiguration()
 			};
 
+            var context = await SetupMultipartPost(multiPartContent1);
+
+
 			controller.Configuration.Routes.MapHttpRoute(
 				 name: "DefaultApi",
 				 routeTemplate: "files/{id}",
@@ -107,7 +118,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFile(null).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -141,6 +152,11 @@ namespace FileStore.Controllers
 				Configuration = new HttpConfiguration()
 			};
 
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+
 			controller.Configuration.Routes.MapHttpRoute(
 				 name: "DefaultApi",
 				 routeTemplate: "files/{id}",
@@ -159,7 +175,7 @@ namespace FileStore.Controllers
 		}
 
 		[TestMethod]
-		public void PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
+		public async Task PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
 		{
 			//Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -168,7 +184,7 @@ namespace FileStore.Controllers
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			string fileName4Upload = "UploadTest.txt";
+			string fileName4Upload = "\"UploadTest.txt\"";
 			string fileContent4Upload = "This is the content of the uploaded test file";
 
 			MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
@@ -186,6 +202,8 @@ namespace FileStore.Controllers
 				Configuration = new HttpConfiguration()
 			};
 
+            var context = await SetupMultipartPost(multiPartContent);
+
 			controller.Configuration.Routes.MapHttpRoute(
 				 name: "DefaultApi",
 				 routeTemplate: "files/{id}",
@@ -193,7 +211,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFile(null).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -202,7 +220,23 @@ namespace FileStore.Controllers
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
 		}
-        [Ignore]
+
+        private async Task<Mock<HttpContextWrapper>> SetupMultipartPost(MultipartFormDataContent multiPartContent)
+        {
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+
+            var context = new Mock<HttpContextWrapper>(HttpContext.Current);
+            var stream = await multiPartContent.ReadAsStreamAsync();
+
+            context.Setup(c => c.Request.GetBufferlessInputStream()).Returns(stream);
+            return context;
+        }
+
+        #endregion Post unit tests
+
         [TestMethod]
 		public void HeadFile_GetHeadForExistentFile_Success()
 		{
@@ -217,7 +251,8 @@ namespace FileStore.Controllers
 				FileId = new Guid("33333333-3333-3333-3333-333333333333"),
 				FileName = "Test3.txt",
 				StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-				FileType = "text/html"
+				FileType = "text/html",
+                ChunkCount = 1
 			};
 
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
@@ -457,9 +492,9 @@ namespace FileStore.Controllers
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
-
+        
         [Ignore] // TODO: Remove after chunk reading is complete
-		[TestMethod]
+        [TestMethod]
 		public void GetFile_ProperRequest_Success()
 		{
 			// Arrange
@@ -467,18 +502,34 @@ namespace FileStore.Controllers
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
-
-			var file = new File
+		    var contentString = "Test2 content";
+		    var fileChunk = new FileChunk()
+		    {
+		        ChunkNum = 1,
+		        ChunkContent = Encoding.UTF8.GetBytes(contentString),
+		        ChunkSize = Encoding.UTF8.GetBytes(contentString).Length
+            };
+            var file = new File
 			{
 				FileId = new Guid("22222222-2222-2222-2222-222222222222"),
 				FileName = "Test2.txt",
-				StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-				FileType = FileMapperRepository.DefaultMediaType
-			};
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+				FileType = FileMapperRepository.DefaultMediaType,
+                FileSize = fileChunk.ChunkSize,
+                ChunkCount = 1
+            };
             
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
-			moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
+
+            //TODO: Colin, please update this once your changes are in.
+            //moq.Setup(t => t.GetFileChunk(file.FileId, It.IsAny<int>())).Returns(Task.FromResult(fileChunk));
+
+            //var moqSqlReadStream = new SqlReadStream(moq.Object);
+            //moqSqlReadStream.Initialize("", file.FileId);
+            //moq.Setup(t => t.GetFileContent(It.IsAny<Guid>())).Returns(moqSqlReadStream);
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
 				 .Returns(FileMapperRepository.DefaultMediaType);
+		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1*1024*1024);
 
 			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{

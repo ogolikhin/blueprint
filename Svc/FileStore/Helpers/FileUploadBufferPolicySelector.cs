@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Net.Http;
 using System.Web.Http.WebHost;
 
-namespace FileStore.Controllers
+namespace FileStore
 {
     public class FileUploadBufferPolicySelector : WebHostBufferPolicySelector
     {
@@ -14,6 +11,10 @@ namespace FileStore.Controllers
         {
             return false;
         }
-        
+
+        public override bool UseBufferedOutputStream(HttpResponseMessage response)
+        {
+            return false;
+        }
     }
 }

@@ -6,11 +6,11 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [FileStorage];
+USE [Blueprint_FileStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 GO
 -- --------------------------------------------------
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\6.5.1.0\6.5.1.0.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\7.0.1.0\7.0.1.0.sql" ) ) #>
 

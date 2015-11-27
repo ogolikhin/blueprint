@@ -4,7 +4,7 @@
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
 GO
-USE [FileStorage];
+USE [Blueprint_FileStorage];
 GO
 SET NOCOUNT ON;
 Print 'Creating FileStorage Database...'
@@ -114,7 +114,7 @@ CREATE TABLE [dbo].[FileChunks](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[ChunkNum] [int] NOT NULL,
 	[ChunkSize] [int] NOT NULL,
-	[ChunkContent ] [varbinary](max) NULL,
+	[ChunkContent] [varbinary](max) NULL,
  CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
 (
 	[FileId] ASC,
@@ -462,39 +462,70 @@ END
 GO
 
 /******************************************************************************************************************************
-Name:			[ReadAllFileChunks]
+Name:			[UpdateFileHead]
 
-Description: Used for debugging. Retrieves all the file chunks in an ordered list 
+Description: 
 			
 Change History:
 Date			Name					Change
-2015/11/23		CRichards				Initial Version
+2015/11/23		Albert Wong				Initial
 ******************************************************************************************************************************/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadAllFileChunks]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[ReadAllFileChunks]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFileHead]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFileHead]
 GO
-CREATE PROCEDURE [dbo].[ReadAllFileChunks]
+
+CREATE PROCEDURE [dbo].[UpdateFileHead]
 ( 
-    @FileId uniqueidentifier
+    @FileId uniqueidentifier,
+	@FileSize bigint,
+	@ChunkCount int
+)
+AS
+BEGIN
+
+	UPDATE 
+		[dbo].[Files]
+    SET
+		[FileSize] = @FileSize,
+		[ChunkCount] = @ChunkCount 
+	WHERE 
+		[FileId] = @FileId;
+END
+
+GO
+
+/******************************************************************************************************************************
+Name:			[ReadChunkContent]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/24		CRichards				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadChunkContent]
+GO
+
+CREATE PROCEDURE [dbo].[ReadChunkContent]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNum int
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	SELECT [FileId]
-           ,[ChunkNum]
-           ,[ChunkSize]
-		   ,[ChunkContent]
+	SELECT [ChunkContent]
 	FROM [dbo].[FileChunks]
-	WHERE [FileId] = @FileId
-	ORDER BY ChunkNum ASC
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
 
 END
 
 GO
-
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

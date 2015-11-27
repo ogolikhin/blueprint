@@ -97,9 +97,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AccessControl\Models\Session.cs">
-      <Link>Models\Session.cs</Link>
-    </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />

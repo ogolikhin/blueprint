@@ -68,6 +68,19 @@ namespace FileStore.Repositories
             }
         }
 
+        int _legacyFileChunkSize;
+        public int LegacyFileChunkSize
+        {
+            get
+            {
+                if (_legacyFileChunkSize == 0)
+                {
+                    _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", 1);
+                }
+                return _legacyFileChunkSize;
+            }
+        }
+
         public static int GetConfigValue(string configValue, int defaultValue)
         {
             return (ConfigurationManager.AppSettings[configValue] != null ? int.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);

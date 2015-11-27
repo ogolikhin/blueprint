@@ -128,18 +128,15 @@ GO
 CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
-	@DeletedFileId AS uniqueidentifier OUTPUT
+	@ExpiredTime datetime
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    DELETE FROM [dbo].[Files]
-	OUTPUT DELETED.FileId INTO @op
+    UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
-	SELECT  @DeletedFileId = t.ColGuid FROM @op t
 END
 
 GO
@@ -168,6 +165,7 @@ BEGIN
 
 	SELECT [FileId]
 	,[StoredTime]
+	,[ExpiredTime]
 	,[FileName]
 	,[FileType]
 	,[ChunkCount]
@@ -223,6 +221,7 @@ BEGIN
 
 	SELECT [FileId]
 	,[StoredTime]
+	,[ExpiredTime]
 	,[FileName]
 	,[FileType]
 	,[FileSize]
@@ -249,6 +248,7 @@ CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
+    @ExpiredTime datetime,
 	@ChunkCount int,
 	@FileSize bigint,
 	@FileId AS uniqueidentifier OUTPUT
@@ -263,6 +263,7 @@ BEGIN
            ([StoredTime]
            ,[FileName]
            ,[FileType]
+           ,[ExpiredTime]
            ,[ChunkCount]
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
@@ -270,6 +271,7 @@ BEGIN
            (GETDATE()
            ,@FileName
            ,@FileType
+           ,@ExpiredTime
            ,@ChunkCount
 		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t

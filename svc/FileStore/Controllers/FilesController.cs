@@ -52,7 +52,7 @@ namespace FileStore.Controllers
 		[HttpPost]
 		[Route("")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> PostFile(DateTime? expired)
+		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
 		{
 			if (HttpContext.Current == null)
 			{

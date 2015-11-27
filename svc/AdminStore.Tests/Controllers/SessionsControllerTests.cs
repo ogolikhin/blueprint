@@ -188,7 +188,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var badRequestResult = await controller.PostSession(login, password, true) as BadRequestResult;
+            var badRequestResult = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true) as BadRequestResult;
 
             // Assert
             Assert.IsNotNull(badRequestResult);

@@ -8,6 +8,7 @@
 <html>
 <head>
 	<title>Scenario Manager for mxGraph</title>
+	<link rel="stylesheet" href="/demo/client/bower_components/bootstrap/dist/css/bootstrap.css">
 
 	<!-- Sets the basepath for the library if not in same directory -->
 	<script type="text/javascript">
@@ -16,6 +17,8 @@
 
 	<!-- Loads and initializes the library -->
 	<script type="text/javascript" src="../src/js/mxClient.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="/demo/client/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
 	<!-- Example code -->
 	<script type="text/javascript">
@@ -378,6 +381,16 @@ function addOverlays(graph, cell, addDeleteIcon)
 	
 		graph.addCellOverlay(cell, overlay);
 	}
+
+	overlay = new mxCellOverlay(new mxImage('images/icons48/gear.png', 30, 30), 'Open Dialog');
+	overlay.cursor = 'hand';
+	overlay.align = mxConstants.ALIGN_LEFT;
+	overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)
+	{
+		openDialog(graph, cell);
+	}));
+
+	graph.addCellOverlay(cell, overlay);	
 };
 
 function addChild(graph, cell)
@@ -422,6 +435,7 @@ function addChild(graph, cell)
 
 function deleteSubtree(graph, cell)
 {
+
 	// Gets the subtree from cell downwards
 	var cells = [];
 	graph.traverse(cell, true, function(vertex)
@@ -431,7 +445,26 @@ function deleteSubtree(graph, cell)
 		return true;
 	});
 
-	graph.removeCells(cells);
+	graph.removeCells(cells); 
+};
+
+
+function openDialog(graph, cell)
+{
+
+	$('#myModal').modal('show'); 
+
+	// Gets the subtree from cell downwards
+	/*
+	var cells = [];
+	graph.traverse(cell, true, function(vertex)
+	{
+		cells.push(vertex);
+		
+		return true;
+	});
+
+	graph.removeCells(cells); */
 };
 	</script>
 </head>
@@ -439,11 +472,33 @@ function deleteSubtree(graph, cell)
 <!-- Calls the main function after the page has loaded. Container is dynamically created. -->
 <body onload="main();">
 
+
+
+
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <p>One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 	<!-- Creates a container for the outline -->
 	<div id="outlineContainer"
 		style="z-index:1;position:absolute;overflow:hidden;top:0px;right:0px;width:160px;height:120px;background:transparent;border-style:solid;border-color:lightgray;">	    
 
 	</div>
+
 
 
 	

@@ -12,6 +12,8 @@ namespace FileStore.Models
 		[JsonProperty]
 		public DateTime StoredTime { get; set; }
 		[JsonProperty]
+		public DateTime? ExpiredTime { get; set; }
+		[JsonProperty]
 		public string FileName { get; set; }
 		[JsonProperty]
 		public string FileType { get; set; }

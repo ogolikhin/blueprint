@@ -15,18 +15,15 @@ GO
 CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
-	@DeletedFileId AS uniqueidentifier OUTPUT
+	@ExpredTime datetime
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    DELETE FROM [dbo].[Files]
-	OUTPUT DELETED.FileId INTO @op
+    UPDATE [dbo].[Files] SET ExpredTime = @ExpredTime
     WHERE [FileId] = @FileId
-	SELECT  @DeletedFileId = t.ColGuid FROM @op t
 END
 
 GO

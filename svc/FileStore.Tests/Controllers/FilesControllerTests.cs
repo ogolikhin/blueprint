@@ -14,6 +14,8 @@ using System.IO;
 using System.Net;
 using System.Web;
 using FileStore.Models;
+using System.Data.Common;
+using System.Data;
 
 namespace FileStore.Controllers
 {
@@ -493,7 +495,6 @@ namespace FileStore.Controllers
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
         
-        [Ignore] // TODO: Remove after chunk reading is complete
         [TestMethod]
 		public void GetFile_ProperRequest_Success()
 		{
@@ -518,15 +519,16 @@ namespace FileStore.Controllers
                 FileSize = fileChunk.ChunkSize,
                 ChunkCount = 1
             };
-            
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
 
-            //TODO: Colin, please update this once your changes are in.
-            //moq.Setup(t => t.GetFileChunk(file.FileId, It.IsAny<int>())).Returns(Task.FromResult(fileChunk));
+            var moqDbConnection = new Mock<DbConnection>();
 
-            //var moqSqlReadStream = new SqlReadStream(moq.Object);
-            //moqSqlReadStream.Initialize("", file.FileId);
-            //moq.Setup(t => t.GetFileContent(It.IsAny<Guid>())).Returns(moqSqlReadStream);
+            moq.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
+
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moq.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
+
+            moq.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1)).Returns(fileChunk.ChunkContent);
+
             moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
 				 .Returns(FileMapperRepository.DefaultMediaType);
 		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1*1024*1024);
@@ -573,7 +575,9 @@ namespace FileStore.Controllers
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
-			moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
+            // #DEBUG
+
+            //moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
 
 			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{
@@ -610,7 +614,9 @@ namespace FileStore.Controllers
 
 			File file = new File();
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
-			moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
+            
+            // #DEBUG
+            // moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
 
 			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{

@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FileStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
+using System.Globalization;
+using System.Data.Common;
+using Moq;
+using FileStore.Models;
+using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace FileStore.Repositories
 {
@@ -141,6 +147,98 @@ namespace FileStore.Repositories
         }
 
         #endregion GetFile
+
+        #region ReadChunkContent 
+
+        [TestMethod]
+        public void Read_File_Chunks_Success()
+        {
+            // This tests reading file chunks and pushing them to the output stream 
+
+            // Arrange
+            var moqFilesRepo = new Mock<IFilesRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+
+            int fileChunkSize = 125;
+            var contentString = GetRandomString(125);
+            // set the size of the content to force two loops to retrieve total of 250 bytes 
+            byte[] fileStreamContent = Encoding.UTF8.GetBytes(contentString + contentString);
+
+            var file = new File
+            {
+                FileId = new Guid("22222222-2222-2222-2222-222222222222"),
+                FileName = "Test2.txt",
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = FileMapperRepository.DefaultMediaType,
+                FileSize = fileStreamContent.Length,
+                ChunkCount = 2
+            };
+
+            var moqDbConnection = new Mock<DbConnection>();
+
+            moqFilesRepo.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
+
+            moqFilesRepo.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+
+            moqFilesRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, It.IsAny<Guid>(), It.IsAny<int>())).Returns(fileStreamContent.Take<byte>(125).ToArray<byte>());
+
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
+                 .Returns(FileMapperRepository.DefaultMediaType);
+
+            moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(fileChunkSize);
+
+            moqFilesRepo.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
+
+
+            // Act
+
+            string mappedContentType = moqFileMapper.Object.GetMappedOutputContentType(file.FileType);
+
+            SqlPushStream sqlPushStream = new SqlPushStream();
+
+            sqlPushStream.Initialize(moqFilesRepo.Object, file.FileId);
+
+            HttpContent responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+
+            Task<System.IO.Stream> response = responseContent.ReadAsStreamAsync();
+
+            string originalContent = Encoding.UTF8.GetString(fileStreamContent);
+            string resultContent = string.Empty;
+
+            using (var memoryStream = new System.IO.MemoryStream())
+            {
+                response.Result.CopyTo(memoryStream);
+                resultContent = Encoding.UTF8.GetString(memoryStream.ToArray());
+            }
+
+            // Assert
+
+            Assert.IsTrue(originalContent.Equals(resultContent));
+
+        }
+
+        private string GetRandomString(int length)
+        {
+            string result = string.Empty;
+
+            if (length < 1) length = 1;
+            // each string is 11 chars 
+            // combine to make a string of size length 
+            int loop = ((int)(length / 11)) + 1;
+            for (int i = 0; i < loop; i++)
+            {
+                string path = System.IO.Path.GetRandomFileName();
+                path = path.Replace(".", ""); // Remove period.
+                result += path;
+            }
+
+
+            return result.Substring(0, length);
+        }
+
+
+        #endregion
 
         #region DeleteFile
 

@@ -204,24 +204,22 @@ namespace FileStore.Controllers
                 var fileId = Models.File.ConvertToStoreId(id);
 
                 file = await _filesRepo.GetFileHead(fileId);
-                 
-                if (file == null)
-				{
+
+                if (file == null && _fileStreamRepo.FileExists(fileId))
+                {
                     // if the file is not found in the FileStore check the
                     // legacy database for the file 
 
-                    if (_fileStreamRepo.FileExists(fileId))
-                    {
-                        file = _fileStreamRepo.GetFileHead(fileId);
-                        isLegacyFile = true;
-                    }
-                    else
-                    {
-                        // the file was not found in either FileStore or legacy database 
-                        return NotFound();
-                    }
+                    file = _fileStreamRepo.GetFileHead(fileId);
+                    isLegacyFile = true;
                 }
-                
+
+                if (file == null)
+                {
+                    // the file was not found in either FileStore or legacy database 
+                    return NotFound();
+                }
+                   
                 if (isLegacyFile)
                 {
                     mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
@@ -273,21 +271,19 @@ namespace FileStore.Controllers
 
 				file = await _filesRepo.GetFileHead(fileId);
 
-                if (file == null)
+                if (file == null && _fileStreamRepo.FileExists(fileId))
                 {
                     // if the file is not found in the FileStore check the
-                    // legacy database for the file
-                     
-                    if (_fileStreamRepo.FileExists(fileId))
-                    {
-                        file = _fileStreamRepo.GetFileHead(fileId);
-                        isLegacyFile = true;
-                    }
-                    else
-                    {
-                        // the file was not found in either FileStore or legacy database 
-                        return NotFound();
-                    }
+                    // legacy database for the file 
+
+                    file = _fileStreamRepo.GetFileHead(fileId);
+                    isLegacyFile = true;
+                }
+
+                if (file == null)
+                {
+                    // the file was not found in either FileStore or legacy database 
+                    return NotFound();
                 }
 
                 if (isLegacyFile)
@@ -306,9 +302,12 @@ namespace FileStore.Controllers
 				{
                     // retrieve file content from legacy database 
 
-                    responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.LegacyFileChunkSize);
-				}
-				else
+                    FileStreamPushStream fsPushStream = new FileStreamPushStream();
+                    fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
+
+                    responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+                }
+                else
 				{
                     // retrieve file content from FileStore database 
                     
@@ -318,7 +317,7 @@ namespace FileStore.Controllers
                     SqlPushStream sqlPushStream = new SqlPushStream();
                     sqlPushStream.Initialize(_filesRepo, fileId);
  
-                    responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.FileType));
+                    responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
        			}
 
 				response.Content = responseContent;

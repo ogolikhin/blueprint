@@ -4,8 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using FileStore.Repositories;
 
 namespace FileStore
 {
@@ -13,7 +11,7 @@ namespace FileStore
     public class FileStoreSvcIntegrationTest
     {
         public TestContext TestContext { get; set; }
-
+        private const int _chunkSize = 1*1024*1024; // Default chunk size is 1MB in Filestore service
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
         [Ignore] // Integration test should be moved to blueprint-automationframework repository
@@ -150,10 +148,26 @@ namespace FileStore
             Assert.IsNull(fileGuid, "file should not be uploaded");
         }
 
-        [Ignore]
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
         [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadPutAndDelete.csv", "TestUploadPutAndDelete#csv", DataAccessMethod.Sequential)]
-        public void TestPutUploadAndDeleteFiles()
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        public void TestPutUploadAndDeleteFiles_SendDivisbleChunkSize()
+        {
+            PutTestExecute(_chunkSize*2);
+        }
+
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        public void TestPutUploadAndDeleteFiles_SendUnDivisbleChunkSize()
+        {
+            PutTestExecute(_chunkSize*2+1);
+        }
+
+
+        #region Private Service Call Methods
+
+        private void PutTestExecute(int sendChunkSize)
         {
             var testData = GetTestData();
 
@@ -161,18 +175,22 @@ namespace FileStore
             var status = GetStatus(testData.StatusCallUri);
 
             Assert.IsTrue(status, "Service health check failed");
-            int sizeToUpload = 1*1024*1024;
+
+            int chunkSize = sendChunkSize;
             //post file and get guid
-            var fileGuid = PostFileNonMultipart(testData.FilesUriCall, testData.AttachmentFileName, true, sizeToUpload);
-            PutFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, sizeToUpload, sizeToUpload, true);
+            var fileGuid = PostFileNonMultipart(testData.FilesUriCall, testData.AttachmentFileName, true, chunkSize);
+
+            fileGuid = fileGuid.Replace("\"", string.Empty);
+
+            PutFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, chunkSize, chunkSize, true);
 
 
             //Call Head Method
-            CheckGetHead(testData.FilesUriCall, fileGuid, testData.AttachmentFileName);
+            CheckGetHead(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, sentChunkSize: chunkSize);
 
             //Download file
             DownloadUploadedFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName);
-            
+
             //Delete File
             DeleteFile(testData.FilesUriCall, fileGuid);
 
@@ -181,10 +199,6 @@ namespace FileStore
             DownloadUploadedFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, true);
             DeleteFile(testData.FilesUriCall, fileGuid, true);
         }
-
-
-        #region Private Service Call Methods
-
         private bool GetStatus(string statusCallUri)
         {
             var fetchRequest = (HttpWebRequest)WebRequest.Create(statusCallUri);
@@ -297,14 +311,19 @@ namespace FileStore
                 {
                     var buffer = new byte[4096];
                     long totalBytesRead = 0;
+                    int bytesToRead = buffer.Length;
                     int bytesRead;
-                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                    while ((bytesRead = fileStream.Read(buffer, 0, bytesToRead)) != 0)
                     {
                         rs.Write(buffer, 0, bytesRead);
                         totalBytesRead += bytesRead;
-                        if (totalBytesRead + 4096 > bytesToUpload)
+                        if (totalBytesRead == bytesToUpload)
                         {
                             break;
+                        }
+                        if (totalBytesRead + bytesToRead > bytesToUpload)
+                        {
+                            bytesToRead = (int)(bytesToUpload - totalBytesRead);
                         }
                     }
                 }
@@ -339,10 +358,8 @@ namespace FileStore
             return fileGuid;
         }
 
-        private int PutRequest(string uri, string attachmentFileName, int offset, int putSize)
+        private int PutRequest(string uri, string attachmentFileName, int offset, int bytesToUpload)
         {
-            uri = uri.Replace("\"", String.Empty);
-
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
             fetchRequest.Accept = "application/json";
             fetchRequest.Method = "Put";
@@ -364,16 +381,21 @@ namespace FileStore
                     {
                         rs.Write(buffer, 0, bytesRead);
                         totalBytesRead += bytesRead;
-                        if (totalBytesRead + 4096 > putSize)
+                        if (totalBytesRead == bytesToUpload)
                         {
                             var putResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
-                            //Assert.AreEqual(HttpStatusCode.OK, putResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
-                            return  totalBytesRead;
+                            Assert.AreEqual(HttpStatusCode.OK, putResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
+                            return totalBytesRead;
+                        }
+                        if (totalBytesRead + readSize > bytesToUpload)
+                        {
+                            readSize = (int)(bytesToUpload - totalBytesRead);
                         }
                     }
                     if (totalBytesRead > 0)
                     {
                         var putResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+                        Assert.AreEqual(HttpStatusCode.OK, putResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
                         return totalBytesRead;
                     }
                 }
@@ -383,38 +405,15 @@ namespace FileStore
         private void PutFile(string putCallUri, string fileGuid, string attachmentFileName, int putSize, int offset, bool expectedToFail = false)
         {
             string uri = string.Format("{0}{1}", putCallUri, fileGuid);
-            while (true) 
+            for(int bytesRead = PutRequest(uri, attachmentFileName, offset, putSize);
+                bytesRead > 0; 
+                bytesRead = PutRequest(uri, attachmentFileName, offset, putSize))
             {
-                var bytesRead = PutRequest(uri, attachmentFileName, offset, putSize);
                 offset += bytesRead;
-                if (bytesRead == 0)
-                {
-                    break;
-                }
             }
-            //HttpWebResponse objResponse;
-            //try
-            //{
-            //    objResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
-            //}
-            //catch (WebException e)
-            //{
-            //    if (e.Response == null)
-            //    {
-            //        throw;
-            //    }
-            //    objResponse = (HttpWebResponse)e.Response;
-            //}
-            //if (expectedToFail)
-            //{
-            //    Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Service returned valid Head for file which is expected to not exist");
-            //    return;
-            //}
-
-            //Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
         }
 
-        private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
+        private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false, int sentChunkSize = _chunkSize)
         {
             string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
@@ -446,7 +445,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Head for file which is expected to exist");
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader,
+            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -460,10 +459,10 @@ namespace FileStore
             int.TryParse(contentLength, out actualFileSize);
             Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
 
-
-            var chunkCount = objResponse.Headers["File-Chunk-Count"];
-            int actualChunkCount = (int)Math.Ceiling((double)actualFileSize/(1*1024*1024));
-            Assert.AreEqual(chunkCount, actualChunkCount, "Service file chunk counts do not match");
+            int actualChunkCount;
+            int.TryParse(objResponse.Headers["File-Chunk-Count"], out actualChunkCount);
+            int expectedChunkCount = GetChunkCountFromSentChunkSize(actualFileSize, sentChunkSize);//(int)Math.Ceiling((double)actualFileSize/(sentChunkSize));
+            Assert.AreEqual(expectedChunkCount, actualChunkCount, "Service file chunk counts do not match");
         }
 
         private void DownloadUploadedFile(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
@@ -498,7 +497,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader,
+            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -572,6 +571,25 @@ namespace FileStore
 
         #region Helper Methods
 
+        private int GetChunkCountFromSentChunkSize(int actualFileSize, int sentChunkSize)
+        {
+            int remainingFileSize = actualFileSize;
+            int chunkCounts = 0;
+            
+            while (remainingFileSize > 0)
+            {
+                if (remainingFileSize < sentChunkSize)
+                {
+                    chunkCounts += (int)Math.Abs(Math.Ceiling((double)remainingFileSize / _chunkSize));
+                }
+                else
+                {
+                    chunkCounts += (int)Math.Abs(Math.Ceiling((double)sentChunkSize/_chunkSize ));
+                }
+                remainingFileSize -= sentChunkSize;
+            }
+            return chunkCounts;
+        }
         private string GetMD5ForFileStream(Stream stream)
         {
             using (var md5 = MD5.Create())

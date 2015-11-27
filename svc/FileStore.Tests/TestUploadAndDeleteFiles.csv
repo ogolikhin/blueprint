@@ -1,2 +1,3 @@
-StatusUriCall,FilesUriCall,AttachmentFileName
-http://localhost:9180/status/,http://localhost:9180/files/,BitmapAttachment.bmp
+StatusUriCall, FilesUriCall, AttachmentFileName
+http://localhost:9180/svc/filestore/status/,http://localhost:9180/svc/filestore/files/,BitmapAttachment.bmp
+http://localhost:9180/svc/filestore/status/,http://localhost:9180/svc/filestore/files/,Sandisk_Test.jpg

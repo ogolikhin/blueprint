@@ -81,7 +81,7 @@ namespace FileStore.Repositories
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			prm.Add("@ExpredTime", DateTime.UtcNow);
+			prm.Add("@ExpiredTime", DateTime.UtcNow);
 			return (await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
 		}
 

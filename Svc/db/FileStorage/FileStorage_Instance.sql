@@ -240,14 +240,14 @@ GO
 CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
-	@ExpredTime datetime
+	@ExpiredTime datetime
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-    UPDATE [dbo].[Files] SET ExpredTime = @ExpredTime
+    UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
 END
 
@@ -533,7 +533,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.0.0';
 GO
 -- --------------------------------------------------
 

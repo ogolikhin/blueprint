@@ -20,6 +20,13 @@
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script src="/demo/client/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
+	<style>
+	.img-circle {
+    	border-radius: 50%;
+    	border: 2px solid #73AD21;
+	}
+	</style>
+
 	<!-- Example code -->
 	<script type="text/javascript">
 		// Makes the shadow brighter
@@ -86,6 +93,9 @@
 				graph.setPanning(true);
 				graph.centerZoom = false;
 				graph.panningHandler.useLeftButtonForPanning = true;
+				graph.htmlLabels = true;
+
+
 
 				// Displays a popupmenu when the user clicks
 				// on a cell (using the left mouse button) but
@@ -106,24 +116,24 @@
 				
 				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
 				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
-				style[mxConstants.STYLE_SPACING_LEFT] = 54;
+				// style[mxConstants.STYLE_SPACING_LEFT] = 54;
 				
-				style[mxConstants.STYLE_GRADIENTCOLOR] = '#7d85df';
+				// style[mxConstants.STYLE_GRADIENTCOLOR] = '#7d85df';
 				style[mxConstants.STYLE_STROKECOLOR] = '#5d65df';
-				style[mxConstants.STYLE_FILLCOLOR] = '#adc5ff';
+				// style[mxConstants.STYLE_FILLCOLOR] = '#adc5ff';
 				
 				style[mxConstants.STYLE_FONTCOLOR] = '#1d258f';
 				style[mxConstants.STYLE_FONTFAMILY] = 'Verdana';
 				style[mxConstants.STYLE_FONTSIZE] = '12';
 				style[mxConstants.STYLE_FONTSTYLE] = '1';
 				
-				style[mxConstants.STYLE_SHADOW] = '1';
-				style[mxConstants.STYLE_ROUNDED] = '1';
-				style[mxConstants.STYLE_GLASS] = '1';
+				// style[mxConstants.STYLE_SHADOW] = '1';
+				// style[mxConstants.STYLE_ROUNDED] = '1';
+				// style[mxConstants.STYLE_GLASS] = '1';
 				
-				style[mxConstants.STYLE_IMAGE] = 'editors/images/scene.png';
-				style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
-				style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
+				//style[mxConstants.STYLE_IMAGE] = 'editors/images/scene.png';
+				//style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
+				//style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
 				style[mxConstants.STYLE_SPACING] = 8;
 
 				// Sets the default style for edges
@@ -235,7 +245,7 @@
 					var w = graph.container.offsetWidth;
 
 					var v1 = graph.insertVertex(parent, 'treeRoot',
-						'Scene 1', w/2 - 30, 20, 140, 60, 'image=editors/images/scene.png');
+						'<img class="img-circle" src="editors/images/scene.png" /> Scene 1<br/><br/><br/><br/>');
 					graph.updateCellSize(v1);
 					addOverlays(graph, v1, false);
 				}
@@ -402,7 +412,7 @@ function addChild(graph, cell)
 	model.beginUpdate();
 	try
 	{
-		vertex = graph.insertVertex(parent, null, 'Scene');
+		vertex = graph.insertVertex(parent, null, '<img class="img-circle" src="editors/images/scene.png" /> Scene 1<br/>');
 		var geometry = model.getGeometry(vertex);
 
 		// Updates the geometry of the vertex with the

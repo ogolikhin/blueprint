@@ -378,5 +378,23 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        [TestMethod]
+        public async Task DeleteSession_SessionTokenIsNull_BadRequest()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            // Act
+            var result = await controller.DeleteSession() as BadRequestResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
     }
 }

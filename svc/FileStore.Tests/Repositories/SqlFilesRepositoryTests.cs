@@ -250,7 +250,7 @@ namespace FileStore.Repositories
             var repository = new SqlFilesRepository(cxn.Object);
             var guid = new Guid("12345123451234512345123451234512");
             Guid? result = guid;
-            cxn.SetupExecuteAsync(
+            cxn.SetupExecuteScalarAsync(
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
@@ -271,7 +271,7 @@ namespace FileStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object);
             var guid = new Guid("34567345673456734567345673456734");
-            cxn.SetupExecuteAsync(
+            cxn.SetupExecuteScalarAsync(
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,

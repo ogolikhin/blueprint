@@ -65,7 +65,7 @@ namespace FileStore.Controllers
 			return await PostFileHttpContext(httpContextWrapper, expired);
 		}
 
-		public async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
+		internal async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
 		{
 			try
 			{
@@ -213,7 +213,7 @@ namespace FileStore.Controllers
 			}
 		}
 
-	    public async Task<IHttpActionResult> PutFileHttpContext(string id, HttpContextWrapper httpContextWrapper)
+	    internal async Task<IHttpActionResult> PutFileHttpContext(string id, HttpContextWrapper httpContextWrapper)
 	    {
 	        var fileId = Models.File.ConvertToStoreId(id);
 	        var fileHead = await _filesRepo.GetFileHead(fileId);

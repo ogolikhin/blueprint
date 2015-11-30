@@ -240,7 +240,7 @@ namespace FileStore.Controllers
 
         #region Put unit tests
         [TestMethod]
-	    public void PutFile_FileNotFound()
+	    public async Task PutFile_FileNotFound()
 	    {
             //Arrange
             var guid = Guid.NewGuid();
@@ -250,7 +250,7 @@ namespace FileStore.Controllers
             var moqConfigRepo = new Mock<IConfigRepository>();
             var httpContent = new StringContent("my file");
 
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
@@ -274,7 +274,7 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current)).Result;
+            var actionResult = await controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current));
 
             //Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -305,11 +305,11 @@ namespace FileStore.Controllers
             HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
             var stream = await content.ReadAsStreamAsync();
 
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
             moq.Setup(t => t.PostFileChunk(It.IsAny<FileChunk>()))
                 .Callback<FileChunk>((chunk)=>paramFileChunk = chunk).
-                Returns(Task.FromResult(3));
+                ReturnsAsync(3);
             moq.Setup(t => t.UpdateFileHead(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<int>())).Returns(Task.FromResult(0));
 
             moqHttpContextWrapper.Setup(c => c.Request.GetBufferlessInputStream()).Returns(stream);
@@ -339,7 +339,7 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object).Result;
+            var actionResult = await controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object);
 
             //Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Repositories;
-using System.Globalization;
 using System.Data.Common;
-using Moq;
-using FileStore.Models;
-using System.Text;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using FileStore.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Repositories;
 
 namespace FileStore.Repositories
 {
@@ -151,7 +151,7 @@ namespace FileStore.Repositories
         #region ReadChunkContent 
 
         [TestMethod]
-        public void Read_File_Chunks_Success()
+        public async Task Read_File_Chunks_Success()
         {
             // This tests reading file chunks and pushing them to the output stream 
 
@@ -179,7 +179,7 @@ namespace FileStore.Repositories
 
             moqFilesRepo.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
 
-            moqFilesRepo.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moqFilesRepo.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
 
             moqFilesRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, It.IsAny<Guid>(), It.IsAny<int>())).Returns(fileStreamContent.Take<byte>(125).ToArray<byte>());
 
@@ -201,14 +201,14 @@ namespace FileStore.Repositories
 
             HttpContent responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 
-            Task<System.IO.Stream> response = responseContent.ReadAsStreamAsync();
+            System.IO.Stream response = await responseContent.ReadAsStreamAsync();
 
             string originalContent = Encoding.UTF8.GetString(fileStreamContent);
             string resultContent = string.Empty;
 
             using (var memoryStream = new System.IO.MemoryStream())
             {
-                response.Result.CopyTo(memoryStream);
+                response.CopyTo(memoryStream);
                 resultContent = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
 
@@ -275,10 +275,10 @@ namespace FileStore.Repositories
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
-					 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
+                     new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
-			// Act
-			Guid? id = await repository.DeleteFile(guid);
+            // Act
+            Guid? id = await repository.DeleteFile(guid);
 
             // Assert
             cxn.Verify();

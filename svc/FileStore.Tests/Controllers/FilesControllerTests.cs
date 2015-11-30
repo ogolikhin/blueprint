@@ -239,6 +239,119 @@ namespace FileStore.Controllers
 
         #endregion Post unit tests
 
+        #region Put unit tests
+        [TestMethod]
+	    public void PutFile_FileNotFound()
+	    {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var httpContent = new StringContent("my file");
+
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = httpContent
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+            
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current)).Result;
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
+
+        [TestMethod]
+        public async Task PutFile_FileChunkCount_Correct()
+        {
+            //Arrange
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqHttpContextWrapper = new Mock<HttpContextWrapper>(HttpContext.Current);
+            var file = new File {ChunkCount = 1, FileId = guid};
+            var paramFileChunk = new FileChunk();
+            var httpContent = "my file";
+            HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
+            var stream = await content.ReadAsStreamAsync();
+
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moq.Setup(t => t.PostFileChunk(It.IsAny<FileChunk>()))
+                .Callback<FileChunk>((chunk)=>paramFileChunk = chunk).
+                Returns(Task.FromResult(3));
+            moq.Setup(t => t.UpdateFileHead(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<int>())).Returns(Task.FromResult(0));
+
+            moqHttpContextWrapper.Setup(c => c.Request.GetBufferlessInputStream()).Returns(stream);
+
+            moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1048576);
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = content
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object).Result;
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
+            Assert.IsTrue(paramFileChunk.ChunkNum == file.ChunkCount + 2);
+        }
+        #endregion Put unit tests
+
         [TestMethod]
 		public void HeadFile_GetHeadForExistentFile_Success()
 		{

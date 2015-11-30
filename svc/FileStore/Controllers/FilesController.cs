@@ -197,32 +197,15 @@ namespace FileStore.Controllers
 		[HttpPut]
 		[Route("{id}")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> PutFileChunk(string id)
+		public async Task<IHttpActionResult> PutFile(string id)
 		{
 			try
 			{
-				var fileId = Models.File.ConvertToStoreId(id);
-				var fileHead = await _filesRepo.GetFileHead(fileId);
-				if (fileHead == null)
-				{
-					return NotFound();
-				}
+			    if (HttpContext.Current == null)
+			        return InternalServerError();
+                var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
 
-				var chunk = new FileChunk()
-				{
-					ChunkNum = fileHead.ChunkCount + 1,
-					FileId = fileHead.FileId
-				};
-
-				long fileSize;
-				using (var stream = HttpContext.Current.Request.GetBufferlessInputStream())
-				{
-					fileSize = await PostFileInChunks(stream, chunk);
-				}
-
-				await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
-
-				return Ok();
+				return await PutFileHttpContext(id, httpContextWrapper);
 			}
 			catch (Exception ex)
 			{
@@ -230,7 +213,33 @@ namespace FileStore.Controllers
 			}
 		}
 
-		[HttpHead]
+	    public async Task<IHttpActionResult> PutFileHttpContext(string id, HttpContextWrapper httpContextWrapper)
+	    {
+	        var fileId = Models.File.ConvertToStoreId(id);
+	        var fileHead = await _filesRepo.GetFileHead(fileId);
+	        if (fileHead == null)
+	        {
+	            return NotFound();
+	        }
+
+	        var chunk = new FileChunk()
+	        {
+	            ChunkNum = fileHead.ChunkCount + 1,
+	            FileId = fileHead.FileId
+	        };
+
+	        long fileSize;
+	        using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
+	        {
+	            fileSize = await PostFileInChunks(stream, chunk);
+	        }
+
+	        await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
+
+	        return Ok();
+	    }
+
+	    [HttpHead]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileHead(string id)

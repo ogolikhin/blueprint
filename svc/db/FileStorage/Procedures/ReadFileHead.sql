@@ -23,6 +23,7 @@ BEGIN
 
 	SELECT [FileId]
 	,[StoredTime]
+	,[ExpiredTime]
 	,[FileName]
 	,[FileType]
 	,[ChunkCount]

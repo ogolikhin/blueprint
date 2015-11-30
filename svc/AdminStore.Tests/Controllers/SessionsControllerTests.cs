@@ -188,7 +188,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var badRequestResult = await controller.PostSession(login, password, true) as BadRequestResult;
+            var badRequestResult = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true) as BadRequestResult;
 
             // Assert
             Assert.IsNotNull(badRequestResult);
@@ -309,7 +309,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSessionSingleSignOn_InternalServerError()
+        public async Task PostSessionSingleSignOn_SessionExists_ConflictError()
         {
             // Arrange
             const string login = "admin";
@@ -331,10 +331,10 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var internalServerErrorResult = await controller.PostSessionSingleSignOn(samlResponse) as InternalServerErrorResult;
+            var conflictResult = await controller.PostSessionSingleSignOn(samlResponse) as ConflictResult;
 
             // Assert
-            Assert.IsNotNull(internalServerErrorResult);
+            Assert.IsNotNull(conflictResult);
         }
 
         #endregion
@@ -378,5 +378,23 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        [TestMethod]
+        public async Task DeleteSession_SessionTokenIsNull_BadRequest()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            // Act
+            var result = await controller.DeleteSession() as BadRequestResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+        }
     }
 }

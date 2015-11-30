@@ -53,17 +53,17 @@ namespace FileStore.Controllers
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> PostFile()
+		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
         {
             if (HttpContext.Current == null)
             {
                 return InternalServerError();
             }
             var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
-            return await PostFileHttpContext(httpContextWrapper);
+			return await PostFileHttpContext(httpContextWrapper, expired);
         }
 
-        public async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper)
+		public async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
         {
             try
             {
@@ -72,11 +72,11 @@ namespace FileStore.Controllers
                     var isMultipart = Request.Content.IsMimeMultipartContent();
                     if (isMultipart)
                     {
-                        return await PostMultipartRequest(stream);
+						return await PostMultipartRequest(stream, expired);
                     }
                     else
                     {
-                        return await PostNonMultipartRequest(stream);
+						return await PostNonMultipartRequest(stream, expired);
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace FileStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> PostMultipartRequest(Stream stream)
+		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
         {
             var mpp = new MultipartPartParser(stream);
             if (mpp.IsEndPart)
@@ -99,7 +99,7 @@ namespace FileStore.Controllers
                 var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
                 var fileType = mpp.ContentType;
 
-                var chunk = await PostCompleteFile(fileName, fileType, mpp);
+				var chunk = await PostCompleteFile(fileName, fileType, mpp, expired);
 
                 //move the stream foward until we get to the next part
                 mpp = mpp.ReadUntilNextPart();
@@ -115,9 +115,9 @@ namespace FileStore.Controllers
             return BadRequest();
         }
 
-        private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream)
+		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
         {
-            var chunk = await PostFileHeader(fileName, fileType);
+			var chunk = await PostFileHeader(fileName, fileType, expired);
 
             var fileSize = await PostFileInChunks(stream, chunk);
 
@@ -126,7 +126,7 @@ namespace FileStore.Controllers
             return chunk;
         }
 
-        private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream)
+		private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
         {
             if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
                     string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
@@ -137,7 +137,7 @@ namespace FileStore.Controllers
             var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
 
-            var chunk = await PostCompleteFile(fileName, fileMediaType, stream);
+			var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
 
             return Ok(Models.File.ConvertFileId(chunk.FileId));
         }
@@ -153,9 +153,9 @@ namespace FileStore.Controllers
             long fileSize = 0;
             chunk.ChunkSize = _configRepo.FileChunkSize;
             var buffer = new byte[_configRepo.FileChunkSize];
-            for (var readCounter =  stream.Read(buffer, 0, _configRepo.FileChunkSize);
+			for (var readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize);
                 readCounter > 0;
-                readCounter =  stream.Read(buffer, 0, _configRepo.FileChunkSize))
+				 readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize))
             {
                 chunk.ChunkSize = readCounter;
                 chunk.ChunkContent = buffer.Take(readCounter).ToArray();
@@ -171,14 +171,15 @@ namespace FileStore.Controllers
         /// <param name="fileName"></param>
         /// <param name="mediaType"></param>
         /// <returns></returns>
-        private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType)
+		private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType, DateTime? expired)
         {
             //we can access the filename from the part
             var file = new Models.File
             {
                 StoredTime = DateTime.UtcNow, // use UTC time to store data
                 FileName = fileName,
-                FileType = mediaType
+				FileType = mediaType,
+				ExpiredTime = expired
             };
 
             var fileId = await _filesRepo.PostFileHead(file);
@@ -221,7 +222,7 @@ namespace FileStore.Controllers
 
                 return Ok();
             }
-            catch(Exception ex)
+			catch (Exception ex)
             {
                 return InternalServerError(ex);
             }

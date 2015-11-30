@@ -19,6 +19,126 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
 Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
+-- Create Blueprint Roles
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_reader' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_reader]
+	GRANT SELECT TO db_blueprint_reader
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_writer' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_writer]
+	GRANT DELETE, INSERT, UPDATE TO db_blueprint_writer
+End
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = N'db_blueprint_executor' AND type = 'R')
+Begin
+	CREATE ROLE [db_blueprint_executor]
+	GRANT EXECUTE TO db_blueprint_executor
+End
+GO
+
+
+
+/******************************************************************************************************************************
+Name:			DbVersionInfo
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
+DROP TABLE [dbo].[DbVersionInfo]
+GO
+
+CREATE TABLE [dbo].[DbVersionInfo](
+	[Id] [int] NOT NULL,
+	[SchemaVersion] [nvarchar](32) NULL,
+ CONSTRAINT [PK_DbVersionInfo] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)) ON [PRIMARY]
+GO
+/******************************************************************************************************************************
+Name:			Files
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[DF__Files__FileId__117F9D94]') AND type = 'D')
+BEGIN
+ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
+END
+GO
+IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[FK_FileId]') AND type = 'F')
+AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+BEGIN
+ALTER TABLE [dbo].[FileChunks] DROP CONSTRAINT [FK_FileId]
+END
+GO
+
+
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
+DROP TABLE [dbo].[Files]
+GO
+
+CREATE TABLE [dbo].[Files](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[StoredTime] [datetime] NOT NULL,
+	[ExpiredTime] [datetime],
+	[FileName] [nvarchar](256) NOT NULL,
+	[FileType] [nvarchar](128) NOT NULL,
+	[ChunkCount] [int] NOT NULL,
+	[FileSize] [bigint] NOT NULL,
+ CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
+(
+	[FileId] ASC
+))
+GO
+
+ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
+GO
+
+/******************************************************************************************************************************
+Name:			Files
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/19		Albert Wong				Added FileChunks table
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
+DROP TABLE [dbo].[FileChunks]
+GO
+
+CREATE TABLE [dbo].[FileChunks](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[ChunkNum] [int] NOT NULL,
+	[ChunkSize] [int] NOT NULL,
+	[ChunkContent] [varbinary](max) NULL,
+ CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
+(
+	[FileId] ASC,
+	[ChunkNum] ASC
+),
+ CONSTRAINT [FK_FileId]
+ FOREIGN KEY ([FileId])
+    REFERENCES [dbo].[Files]
+        ([FileId])
+    ON DELETE CASCADE ON UPDATE CASCADE
+
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
 
@@ -128,18 +248,15 @@ GO
 CREATE PROCEDURE [dbo].[DeleteFile]
 (
 	@FileId uniqueidentifier,
-	@DeletedFileId AS uniqueidentifier OUTPUT
+	@ExpiredTime datetime
 )
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	DECLARE @op TABLE (ColGuid uniqueidentifier)
-    DELETE FROM [dbo].[Files]
-	OUTPUT DELETED.FileId INTO @op
+    UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
-	SELECT  @DeletedFileId = t.ColGuid FROM @op t
 END
 
 GO
@@ -168,6 +285,7 @@ BEGIN
 
 	SELECT [FileId]
 	,[StoredTime]
+	,[ExpiredTime]
 	,[FileName]
 	,[FileType]
 	,[ChunkCount]
@@ -223,6 +341,7 @@ BEGIN
 
 	SELECT [FileId]
 	,[StoredTime]
+	,[ExpiredTime]
 	,[FileName]
 	,[FileType]
 	,[FileSize]
@@ -249,6 +368,7 @@ CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
+    @ExpiredTime datetime,
 	@ChunkCount int,
 	@FileSize bigint,
 	@FileId AS uniqueidentifier OUTPUT
@@ -263,6 +383,7 @@ BEGIN
            ([StoredTime]
            ,[FileName]
            ,[FileType]
+           ,[ExpiredTime]
            ,[ChunkCount]
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
@@ -270,6 +391,7 @@ BEGIN
            (GETDATE()
            ,@FileName
            ,@FileType
+           ,@ExpiredTime
            ,@ChunkCount
 		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t
@@ -384,6 +506,37 @@ END
 
 GO
 
+/******************************************************************************************************************************
+Name:			[ReadChunkContent]
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/11/24		CRichards				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ReadChunkContent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ReadChunkContent]
+GO
+
+CREATE PROCEDURE [dbo].[ReadChunkContent]
+( 
+    @FileId uniqueidentifier,
+    @ChunkNum int
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+
+	SELECT [ChunkContent]
+	FROM [dbo].[FileChunks]
+	WHERE [FileId] = @FileId AND [ChunkNum] = @ChunkNum
+
+END
+
+GO
 
 
 -- --------------------------------------------------

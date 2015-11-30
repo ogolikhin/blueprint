@@ -151,12 +151,12 @@ namespace FileStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlFilesRepository(cxn.Object);
             var guid = new Guid("12345123451234512345123451234512");
-            Guid? result = new Guid("67890678906789067890678906789067");
+            Guid? result = guid;
             cxn.SetupExecuteAsync(
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
-                new Dictionary<string, object> { { "DeletedFileId", result } });
+                new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
             Guid? id = await repository.DeleteFile(guid);
@@ -167,7 +167,7 @@ namespace FileStore.Repositories
         }
         
         [TestMethod]
-        public async Task DeleteFile_QueryReturnsNull_ReturnsNull()
+        public async Task DeleteFile_QueryReturnsNull_ReturnsNotNull()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -177,14 +177,14 @@ namespace FileStore.Repositories
                 "DeleteFile",
                 new Dictionary<string, object> { { "FileId", guid } },
                 1,
-                new Dictionary<string, object> { { "DeletedFileId", null } });
+					 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
-            // Act
-            Guid? id = await repository.DeleteFile(guid);
+			// Act
+			Guid? id = await repository.DeleteFile(guid);
 
             // Assert
             cxn.Verify();
-            Assert.IsNull(id);
+            Assert.IsNotNull(id);
         }
 
         #endregion DeleteFile

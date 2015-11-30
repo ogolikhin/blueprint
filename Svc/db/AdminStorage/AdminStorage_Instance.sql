@@ -443,7 +443,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'6.5.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.0.0';
 GO
 -- --------------------------------------------------
 

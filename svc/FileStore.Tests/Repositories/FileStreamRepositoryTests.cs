@@ -4,7 +4,8 @@ using Moq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Web.Http;
-using File = FileStore.Models.File;
+using System.Data.SqlClient;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,8 +17,7 @@ using System.Data.Common;
 using System.Data;
 using FileStore.Models;
 using FileStore.Repositories;
-using System.Data.SqlClient;
-using System.Net.Http.Headers;
+using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
 {

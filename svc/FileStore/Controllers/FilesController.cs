@@ -167,13 +167,14 @@ namespace FileStore.Controllers
 			return fileSize;
 		}
 
-		/// <summary>
-		/// Posts the initial file header info and returns the first chunk with the FileId (guid) created in the database.
-		/// </summary>
-		/// <param name="fileName"></param>
-		/// <param name="mediaType"></param>
-		/// <returns></returns>
-		private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType, DateTime? expired)
+	    /// <summary>
+	    /// Posts the initial file header info and returns the first chunk with the FileId (guid) created in the database.
+	    /// </summary>
+	    /// <param name="fileName"></param>
+	    /// <param name="mediaType"></param>
+	    /// <param name="expired"></param>
+	    /// <returns></returns>
+	    private async Task<FileChunk> PostFileHeader(string fileName, string mediaType, DateTime? expired)
 		{
 			//we can access the filename from the part
 			var file = new Models.File
@@ -185,7 +186,7 @@ namespace FileStore.Controllers
 			};
 
 			var fileId = await _filesRepo.PostFileHead(file);
-			var chunk = new Models.FileChunk
+			var chunk = new FileChunk
 			{
 				FileId = fileId,
 				ChunkNum = 1
@@ -235,9 +236,9 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileHead(string id)
 		{
-			Models.File file = null;
+			Models.File file;
 			bool isLegacyFile = false;
-			string mappedContentType = FileMapperRepository.DefaultMediaType;
+			string mappedContentType;
 
 			try
 			{
@@ -302,9 +303,9 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileContent(string id)
 		{
-			Models.File file = null;
+			Models.File file;
 			bool isLegacyFile = false;
-			string mappedContentType = FileMapperRepository.DefaultMediaType;
+			string mappedContentType;
 
 			try
 			{
@@ -337,7 +338,7 @@ namespace FileStore.Controllers
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				HttpContent responseContent = null;
+				HttpContent responseContent;
 
 				if (isLegacyFile)
 				{
@@ -393,10 +394,12 @@ namespace FileStore.Controllers
 		[HttpDelete]
 		[Route("{id}")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired)
+		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
 		{
-			if (expired.HasValue && expired.Value < DateTime.UtcNow)
-				expired = DateTime.UtcNow;
+		    if (expired.HasValue && expired.Value < DateTime.UtcNow)
+		    {
+		        expired = DateTime.UtcNow;
+		    }
 			try
 			{
 				var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id));

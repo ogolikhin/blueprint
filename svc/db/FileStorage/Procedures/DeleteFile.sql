@@ -24,6 +24,8 @@ BEGIN
 
     UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
     WHERE [FileId] = @FileId
+
+	SELECT @@ROWCOUNT
 END
 
 GO

@@ -43,21 +43,21 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void GetSession_SessionNotFound()
+        public async Task GetSession_SessionNotFound()
         {
             // Arrange
             _sessionsRepoMock
                 .Setup(repo => repo.GetUserSession(It.IsAny<int>()))
-                .Returns(Task.FromResult((Session) null));
+                .ReturnsAsync(null);
 
             // Act
-            var result = _controller.GetSession(100).Result;
+            var result = await _controller.GetSession(100);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
         [TestMethod]
-        public void GetSession_RepositoryThrowsException_InternalServerError()
+        public async Task GetSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             int uid = 999;
@@ -66,7 +66,7 @@ namespace AccessControl.Controllers
                 .Throws(new Exception());
 
             // Act
-            var result = _controller.GetSession(uid).Result;
+            var result = await _controller.GetSession(uid);
 
             // Assert
             Assert.IsNotNull(result);
@@ -96,7 +96,7 @@ namespace AccessControl.Controllers
             int uid = 999;
             var sessionGuid = Guid.NewGuid();
             var session = new Session { SessionId = sessionGuid };
-            _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).ReturnsAsync(session);
 
             // Act
             var resultSession = await _controller.GetSession(uid);
@@ -115,7 +115,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 999;
             var session = new Session { EndTime = DateTime.UtcNow };
-            _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).ReturnsAsync(session);
 
             // Act
             var resultSession = await _controller.GetSession(uid);
@@ -134,8 +134,8 @@ namespace AccessControl.Controllers
             var newGuid = Guid.NewGuid();
             Guid?[] guids = { newGuid, Guid.NewGuid() };
             //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, true)).Returns(Task.FromResult(guids));
+            //_sessionsRepoMock.Setup(r => r.GetSession(newGuid)).ReturnsAsync(session);
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, true)).ReturnsAsync(guids);
             _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
 
             // Act
@@ -162,7 +162,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 999;
             Guid?[] guids = {  };
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
 
             // Act
             var resultSession = await _controller.PostSession(uid, "user", 3);
@@ -179,7 +179,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 999;
             Guid?[] guids = { null };
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
 
             // Act
             var resultSession = await _controller.PostSession(uid, "user", 3);
@@ -199,8 +199,8 @@ namespace AccessControl.Controllers
             var secondGuid = Guid.NewGuid();
             Guid?[] guids = { firstGuid, secondGuid };
             //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).Returns(Task.FromResult(guids));
+            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
             _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
 
             // Act
@@ -219,8 +219,8 @@ namespace AccessControl.Controllers
             var secondGuid = Guid.NewGuid();
             Guid?[] guids = { firstGuid, secondGuid };
             //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).Returns(Task.FromResult(guids));
+            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
             _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new KeyNotFoundException());
 
@@ -235,7 +235,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void PostSession_RepositoryThrowsException_InternalServerError()
+        public async Task PostSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             int uid = 999;
@@ -243,13 +243,13 @@ namespace AccessControl.Controllers
             var secondGuid = Guid.NewGuid();
             Guid?[] guids = { firstGuid, secondGuid };
             var session = new Session();
-            _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).Returns(Task.FromResult(session));
-            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).Returns(Task.FromResult(guids));
+            _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
+            _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
             _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new Exception());
 
             // Act
-            var result = _controller.PostSession(uid, "user", 3).Result;
+            var result = await _controller.PostSession(uid, "user", 3);
 
             // Assert
             Assert.IsNotNull(result);
@@ -258,47 +258,47 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_RepositoryThrowsException_KeyNotFound()
+        public async Task SelectSession_RepositoryThrowsException_KeyNotFound()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new KeyNotFoundException());
-                //.Returns(Task.FromResult((IEnumerable<Session>)new KeyNotFoundException()));
+                //.ReturnsAsync((IEnumerable<Session>)new KeyNotFoundException());
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var result = await _controller.SelectSessions();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
         [TestMethod]
-        public void SelectSession_CallingWithInvalidArgument_BadRequest()
+        public async Task SelectSession_CallingWithInvalidArgument_BadRequest()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
             // Act
-            var result = _controller.SelectSessions("0", "-1").Result;
+            var result = await _controller.SelectSessions("0", "-1");
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         [TestMethod]
-        public void SelectSession_RepositoryThrowsException_BadRequest()
+        public async Task SelectSession_RepositoryThrowsException_BadRequest()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new ArgumentNullException());
-                //.Returns(Task.FromResult((IEnumerable<Session>)null));
+                //.ReturnsAsync((IEnumerable<Session>)null);
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var result = await _controller.SelectSessions();
 
             // Assert
             Assert.IsNotNull(result);
@@ -307,7 +307,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_RepositoryThrowsException_InternalServerError()
+        public async Task SelectSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
@@ -316,7 +316,7 @@ namespace AccessControl.Controllers
                 .Throws(new Exception());
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var result = await _controller.SelectSessions();
 
             // Assert
             Assert.IsNotNull(result);
@@ -332,7 +332,7 @@ namespace AccessControl.Controllers
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(Task.FromResult((IEnumerable<Session>)sessions));
+                .ReturnsAsync(sessions);
 
             // Act
             var result = await _controller.SelectSessions();
@@ -344,12 +344,12 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void SelectSession_TokenNotSet_BadRequest()
+        public async Task SelectSession_TokenNotSet_BadRequest()
         {
             // Arrange
 
             // Act
-            var result = _controller.SelectSessions().Result;
+            var result = await _controller.SelectSessions();
 
             // Assert
             Assert.IsNotNull(result);
@@ -373,20 +373,20 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_TokenIsNotInRepository_KeyNotFound()
+        public async Task DeleteSession_TokenIsNotInRepository_KeyNotFound()
         {
             // Arrange
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
             // Act
-            var result = _controller.DeleteSession().Result;
+            var result = await _controller.DeleteSession();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
 
         [TestMethod]
-        public void DeleteSession_RepositoryThrowsException_InternalServerError()
+        public async Task DeleteSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -396,7 +396,7 @@ namespace AccessControl.Controllers
                 .Throws(new Exception());
 
             // Act
-            var result = _controller.DeleteSession().Result;
+            var result = await _controller.DeleteSession();
 
             // Assert
             Assert.IsNotNull(result);
@@ -405,7 +405,7 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_RepositoryThrowsException_ArgumentNull()
+        public async Task DeleteSession_RepositoryThrowsException_ArgumentNull()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
@@ -416,7 +416,7 @@ namespace AccessControl.Controllers
                 .Throws(new ArgumentNullException());
 
             // Act
-            var result = _controller.DeleteSession().Result;
+            var result = await _controller.DeleteSession();
 
             // Assert
             Assert.IsNotNull(result);
@@ -425,14 +425,14 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public void DeleteSession_TokenHasNotBeenSet_BadRequest()
+        public async Task DeleteSession_TokenHasNotBeenSet_BadRequest()
         {
             // Arrange
             var newGuid = Guid.NewGuid();
             _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
 
             // Act
-            var result = _controller.DeleteSession().Result;
+            var result = await _controller.DeleteSession();
 
             // Assert
             Assert.IsNotNull(result);
@@ -525,7 +525,7 @@ namespace AccessControl.Controllers
             var newGuid = Guid.NewGuid();
             var token = Session.Convert(newGuid);
             var session = new Session();
-            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).Returns(Task.FromResult(session));
+            _sessionsRepoMock.Setup(r => r.GetSession(newGuid)).ReturnsAsync(session);
             _controller.Request.Headers.Add("Session-Token", token);
 
             // Act
@@ -630,7 +630,7 @@ namespace AccessControl.Controllers
             var sessions = new List<Session>() { new Session() };
             _sessionsRepoMock
                 .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(Task.FromResult((IEnumerable<Session>)sessions));
+                .ReturnsAsync(sessions);
 
             // Act
             SessionsController.Load(_cacheMock.Object);

@@ -46,7 +46,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -82,7 +82,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -118,7 +118,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
 
@@ -140,7 +140,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
@@ -227,7 +227,7 @@ namespace AdminStore.Controllers
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -317,7 +317,7 @@ namespace AdminStore.Controllers
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 

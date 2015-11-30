@@ -81,7 +81,7 @@ namespace AdminStore.Repositories
         {
             //Arrange
             const string fakeLogin = "fakeLogin";
-            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).Returns(Task.FromResult<LoginUser>(null));
+            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(fakeLogin)).ReturnsAsync(null);
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
@@ -423,7 +423,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsSamlEnabled = true;
 
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
-                .Returns(Task.FromResult<IFederatedAuthenticationSettings>(null));
+                .ReturnsAsync(null);
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
@@ -445,7 +445,7 @@ namespace AdminStore.Repositories
             var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
             var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
-                .Returns(Task.FromResult<IFederatedAuthenticationSettings>(fedAuthSettings));
+                .ReturnsAsync(fedAuthSettings);
             var identityMock = new Mock<IIdentity>();
             identityMock.SetupGet(p => p.Name).Returns(Login);
             var principalMock = new Mock<IPrincipal>();

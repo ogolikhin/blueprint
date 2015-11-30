@@ -42,30 +42,30 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_Success()
+        public async Task GetLoginUser_Success()
         {
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult(new LoginUser()));
+                .ReturnsAsync(new LoginUser());
 
             // Act
-            var result = ((System.Web.Http.Results.OkNegotiatedContentResult<LoginUser>)(_controller.GetLoginUser().Result)).Content;
+            var result = ((OkNegotiatedContentResult<LoginUser>)await _controller.GetLoginUser()).Content;
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(LoginUser));
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryReturnsNull_Unauthorized()
+        public async Task GetLoginUser_RepositoryReturnsNull_Unauthorized()
         {
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult<LoginUser>(null));
+                .ReturnsAsync(null);
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);
@@ -74,7 +74,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
+        public async Task GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
         {
             // Arrange
             _usersRepoMock
@@ -82,7 +82,7 @@ namespace AdminStore.Controllers
                 .Throws(new ArgumentNullException());
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);
@@ -91,7 +91,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryThrowsException_InternalServerError()
+        public async Task GetLoginUser_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             //just to add code coverage
@@ -101,7 +101,7 @@ namespace AdminStore.Controllers
                 .Throws(new Exception());
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);

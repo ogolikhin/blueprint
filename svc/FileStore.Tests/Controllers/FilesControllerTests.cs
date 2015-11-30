@@ -22,8 +22,9 @@ namespace FileStore.Controllers
 	[TestClass]
 	public class FilesControllerTests
 	{
+	    private const int DefaultChunkSize = 1048576; // 1mb chunk size
         #region Post unit tests
-		[TestMethod]
+        [TestMethod]
 		public async Task PostFile_MultipartSingleFile_Success()
 		{
 			//Arrange
@@ -43,7 +44,7 @@ namespace FileStore.Controllers
 			byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
 			multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1048576);
+		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(DefaultChunkSize);
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{
@@ -315,7 +316,7 @@ namespace FileStore.Controllers
 
             moqHttpContextWrapper.Setup(c => c.Request.GetBufferlessInputStream()).Returns(stream);
 
-            moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1048576);
+            moqConfigRepo.Setup(t => t.FileChunkSize).Returns(DefaultChunkSize);
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
             {

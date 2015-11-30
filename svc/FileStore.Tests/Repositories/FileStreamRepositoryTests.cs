@@ -1,22 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Web.Http;
-using System.Data.SqlClient;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
-using System.Net;
-using System.Web;
-using System.Data.Common;
-using System.Data;
-using FileStore.Models;
-using FileStore.Repositories;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
@@ -25,7 +17,7 @@ namespace FileStore.Repositories
     public class FileStreamRepositoryTests
     {
         [TestMethod]
-        public void GetFileStream_Content_Success()
+        public async Task GetFileStream_Content_Success()
         {
             // This tests the legacy file stream retrieval logic 
 
@@ -72,14 +64,14 @@ namespace FileStore.Repositories
 
             HttpContent responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 
-            Task<Stream> response = responseContent.ReadAsStreamAsync();
+            Stream response = await responseContent.ReadAsStreamAsync();
 
             string originalContent = Encoding.UTF8.GetString(fileStreamContent);
             string resultContent = string.Empty;
 
             using (var memoryStream = new MemoryStream())
             {
-                response.Result.CopyTo(memoryStream);
+                response.CopyTo(memoryStream);
                 resultContent = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
  

@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Helpers;
-using System.Threading.Tasks;
-using System.Net;
 using Newtonsoft.Json;
-using System.Web.Http.Results;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
@@ -42,30 +42,30 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_Success()
+        public async Task GetLoginUser_Success()
         {
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult(new LoginUser()));
+                .ReturnsAsync(new LoginUser());
 
             // Act
-            var result = ((System.Web.Http.Results.OkNegotiatedContentResult<LoginUser>)(_controller.GetLoginUser().Result)).Content;
+            var result = ((OkNegotiatedContentResult<LoginUser>)await _controller.GetLoginUser()).Content;
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(LoginUser));
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryReturnsNull_Unauthorized()
+        public async Task GetLoginUser_RepositoryReturnsNull_Unauthorized()
         {
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult<LoginUser>(null));
+                .ReturnsAsync(null);
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);
@@ -74,24 +74,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryThrowsException_Conflict()
-        {
-            // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Throws(new ApplicationException());
-
-            // Act
-            var result = _controller.GetLoginUser().Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as ConflictResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public void GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
+        public async Task GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
         {
             // Arrange
             _usersRepoMock
@@ -99,7 +82,7 @@ namespace AdminStore.Controllers
                 .Throws(new ArgumentNullException());
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);
@@ -108,24 +91,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryThrowsFormatException_BadRequest()
-        {
-            // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Throws(new FormatException());
-
-            // Act
-            var result = _controller.GetLoginUser().Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public void GetLoginUser_RepositoryThrowsException_InternalServerError()
+        public async Task GetLoginUser_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             //just to add code coverage
@@ -135,7 +101,7 @@ namespace AdminStore.Controllers
                 .Throws(new Exception());
 
             // Act
-            var result = _controller.GetLoginUser().Result;
+            var result = await _controller.GetLoginUser();
 
             // Assert
             Assert.IsNotNull(result);

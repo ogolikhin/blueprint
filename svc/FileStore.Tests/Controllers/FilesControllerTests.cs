@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Net.Http;
-using System.Web.Http;
-using File = FileStore.Models.File;
-using System.Text;
-using System.Linq;
-using Moq;
-using FileStore.Repositories;
-using System.Threading.Tasks;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http;
 using FileStore.Models;
-using System.Data.Common;
-using System.Data;
+using FileStore.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using File = FileStore.Models.File;
 
 namespace FileStore.Controllers
 {
@@ -24,7 +22,7 @@ namespace FileStore.Controllers
 	{
 	    private const int DefaultChunkSize = 1048576; // 1mb chunk size
         #region Post unit tests
-        [TestMethod]
+		[TestMethod]
 		public async Task PostFile_MultipartSingleFile_Success()
 		{
 			//Arrange
@@ -34,7 +32,7 @@ namespace FileStore.Controllers
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
 
 			string fileName4Upload = "\"UploadTest.txt\"";
 			string fileContent4Upload = "This is the content of the uploaded test file";
@@ -66,14 +64,14 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
+            var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			var content = response.Content;
-			var fileContent4Download = content.ReadAsStringAsync().Result;
+            var fileContent4Download = await content.ReadAsStringAsync();
 			var contentType = content.Headers.ContentType;
 
 			// Assert
@@ -86,7 +84,7 @@ namespace FileStore.Controllers
 			//Arrange
 			var guid = Guid.NewGuid();
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -121,11 +119,11 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
+            var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			var content = response.Content;
 
@@ -134,12 +132,12 @@ namespace FileStore.Controllers
 		}
 
 		[TestMethod]
-		public void PostFile_NonMultipart_BadRequestFailure()
+        public async Task PostFile_NonMultipart_BadRequestFailure()
 		{
 			//Arrange
 			var guid = Guid.NewGuid();
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Returns(Task.FromResult<Guid>(guid));
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -167,11 +165,11 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFile(null).Result;
+            var actionResult = await controller.PostFile(null);
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
@@ -214,11 +212,11 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
+            var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
@@ -354,7 +352,7 @@ namespace FileStore.Controllers
         #endregion Put unit tests
 
         [TestMethod]
-		public void HeadFile_GetHeadForExistentFile_Success()
+        public async Task HeadFile_GetHeadForExistentFile_Success()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -371,7 +369,7 @@ namespace FileStore.Controllers
                 ChunkCount = 1
 			};
 
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
 
 			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
 			{
@@ -389,12 +387,12 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileHead("33333333333333333333333333333333").Result;
+            var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 			var content = response.Content;
-			var fileContent = content.ReadAsStringAsync().Result;
+            var fileContent = await content.ReadAsStringAsync();
 			var contentType = content.Headers.ContentType;
 			var fileName = content.Headers.ContentDisposition.FileName;
 			var storedTime = response.Headers.GetValues("Stored-Date");
@@ -406,7 +404,7 @@ namespace FileStore.Controllers
 		}
 
 		[TestMethod]
-		public void HeadFile_GetHeadForNonExistentFile_Failure()
+        public async Task HeadFile_GetHeadForNonExistentFile_Failure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -430,17 +428,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileHead("33333333333333333333333333333333").Result;
+            var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
 
 		[TestMethod]
-		public void HeadFile_ImproperGuid_FormatException()
+        public async Task HeadFile_ImproperGuid_FormatException()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -464,17 +462,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileHead("333333333!@#@!@!@!33333333333333333333333").Result;
+            var actionResult = await controller.GetFileHead("333333333!@#@!@!@!33333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
 		}
 
 		[TestMethod]
-		public void HeadFile_UnknownException_InternalServerErrorFailure()
+        public async Task HeadFile_UnknownException_InternalServerErrorFailure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -499,17 +497,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileHead("33333333333333333333333333333333").Result;
+            var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
 		}
 
 		[TestMethod]
-		public void GetFile_ImproperGuid_FormatException()
+        public async Task GetFile_ImproperGuid_FormatException()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -532,17 +530,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("333333333!@#@!@!@!33333333333333333333333").Result;
+            var actionResult = await controller.GetFileContent("333333333!@#@!@!@!33333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
 		}
 
 		[TestMethod]
-		public void GetFile_UnknownException_InternalServerErrorFailure()
+        public async Task GetFile_UnknownException_InternalServerErrorFailure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -566,21 +564,21 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("33333333333333333333333333333333").Result;
+            var actionResult = await controller.GetFileContent("33333333333333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
 		}
 
 		[TestMethod]
-		public void GetFile_NonExistentFile_NotFoundFailure()
+        public async Task GetFile_NonExistentFile_NotFoundFailure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult<File>(null));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
@@ -600,17 +598,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("33333333333333333333333333333333").Result;
+            var actionResult = await controller.GetFileContent("33333333333333333333333333333333");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
         
         [TestMethod]
-		public void GetFile_ProperRequest_Success()
+        public async Task GetFile_ProperRequest_Success()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -638,7 +636,7 @@ namespace FileStore.Controllers
 
             moq.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
 
-            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
             moq.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
 
             moq.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1)).Returns(fileChunk.ChunkContent);
@@ -662,12 +660,12 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("22222222222222222222222222222222").Result;
+            var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 			var content = response.Content;
-			var fileContent = content.ReadAsStringAsync().Result;
+            var fileContent = await content.ReadAsStringAsync();
 			var contentType = content.Headers.ContentType;
 			var fileName = content.Headers.ContentDisposition.FileName;
 			var storedTime = response.Headers.GetValues("Stored-Date");
@@ -680,7 +678,7 @@ namespace FileStore.Controllers
 		}
 
 		[TestMethod]
-		public void GetFile_NoFileRetrieved_Failure()
+        public async Task GetFile_NoFileRetrieved_Failure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -688,7 +686,7 @@ namespace FileStore.Controllers
 			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             // #DEBUG
 
             //moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
@@ -708,17 +706,17 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("22222222222222222222222222222222").Result;
+            var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
 		}
 
 		[TestMethod]
-		public void GetFile_NoFileRetrievedEmptyName_Failure()
+        public async Task GetFile_NoFileRetrievedEmptyName_Failure()
 		{
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
@@ -727,7 +725,7 @@ namespace FileStore.Controllers
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
 			File file = new File();
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(Task.FromResult((File)null));
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             
             // #DEBUG
             // moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
@@ -747,10 +745,10 @@ namespace FileStore.Controllers
 				 defaults: new { id = RouteParameter.Optional });
 
 			// Act
-			var actionResult = controller.GetFileContent("22222222222222222222222222222222").Result;
+            var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
 
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-			HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
 			// Assert
 			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);

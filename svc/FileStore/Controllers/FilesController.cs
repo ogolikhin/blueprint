@@ -131,7 +131,7 @@ namespace FileStore.Controllers
 		private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
 		{
 			if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
-					  string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
+					string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
 			{
 				return BadRequest();
 			}
@@ -156,7 +156,7 @@ namespace FileStore.Controllers
 			chunk.ChunkSize = _configRepo.FileChunkSize;
 			var buffer = new byte[_configRepo.FileChunkSize];
 			for (var readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize);
-					 readCounter > 0;
+						  readCounter > 0;
 				 readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize))
 			{
 				chunk.ChunkSize = readCounter;
@@ -245,21 +245,19 @@ namespace FileStore.Controllers
 
 				file = await _filesRepo.GetFileHead(fileId);
 
-				if (file == null)
+				if (file == null && _fileStreamRepo.FileExists(fileId))
 				{
 					// if the file is not found in the FileStore check the
 					// legacy database for the file 
 
-					if (_fileStreamRepo.FileExists(fileId))
-					{
-						file = _fileStreamRepo.GetFileHead(fileId);
-						isLegacyFile = true;
-					}
-					else
-					{
-						// the file was not found in either FileStore or legacy database 
-						return NotFound();
-					}
+					file = _fileStreamRepo.GetFileHead(fileId);
+					isLegacyFile = true;
+				}
+
+				if (file == null)
+				{
+					// the file was not found in either FileStore or legacy database 
+					return NotFound();
 				}
 
 				if (isLegacyFile)
@@ -314,21 +312,19 @@ namespace FileStore.Controllers
 
 				file = await _filesRepo.GetFileHead(fileId);
 
-				if (file == null)
+				if (file == null && _fileStreamRepo.FileExists(fileId))
 				{
 					// if the file is not found in the FileStore check the
 					// legacy database for the file
 
-					if (_fileStreamRepo.FileExists(fileId))
-					{
-						file = _fileStreamRepo.GetFileHead(fileId);
-						isLegacyFile = true;
-					}
-					else
-					{
-						// the file was not found in either FileStore or legacy database 
-						return NotFound();
-					}
+					file = _fileStreamRepo.GetFileHead(fileId);
+					isLegacyFile = true;
+				}
+
+				if (file == null)
+				{
+					// the file was not found in either FileStore or legacy database 
+					return NotFound();
 				}
 
 				if (isLegacyFile)
@@ -347,7 +343,10 @@ namespace FileStore.Controllers
 				{
 					// retrieve file content from legacy database 
 
-					responseContent = new StreamContent(_fileStreamRepo.GetFileContent(fileId), _configRepo.LegacyFileChunkSize);
+					FileStreamPushStream fsPushStream = new FileStreamPushStream();
+					fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
+
+					responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 				}
 				else
 				{
@@ -359,7 +358,7 @@ namespace FileStore.Controllers
 					SqlPushStream sqlPushStream = new SqlPushStream();
 					sqlPushStream.Initialize(_filesRepo, fileId);
 
-					responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.FileType));
+					responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 				}
 
 				response.Content = responseContent;
@@ -394,7 +393,7 @@ namespace FileStore.Controllers
 		[HttpDelete]
 		[Route("{id}")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
+		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired)
 		{
 			if (expired.HasValue && expired.Value < DateTime.UtcNow)
 				expired = DateTime.UtcNow;

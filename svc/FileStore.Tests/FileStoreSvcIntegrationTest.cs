@@ -324,9 +324,9 @@ namespace FileStore
                         if (totalBytesRead + bytesToRead > bytesToUpload)
                         {
                             bytesToRead = (int)(bytesToUpload - totalBytesRead);
-                        }
                     }
                 }
+            }
             }
 
             HttpWebResponse objResponse;
@@ -608,7 +608,7 @@ namespace FileStore
             if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
             {
                 testData.AttachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
-            }
+        }
 
             if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
             {

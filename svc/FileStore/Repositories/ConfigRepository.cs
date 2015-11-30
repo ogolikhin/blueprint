@@ -75,7 +75,8 @@ namespace FileStore.Repositories
             {
                 if (_legacyFileChunkSize == 0)
                 {
-                    _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", 1);
+                    // #DEBUG _legacyFileChunkSize = 1024 * 1024 * GetConfigValue("LegacyFileChunkSize", 1);
+                    _legacyFileChunkSize = 4096;
                 }
                 return _legacyFileChunkSize;
             }

@@ -82,7 +82,7 @@ namespace FileStore.Repositories
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
 			prm.Add("@ExpiredTime", DateTime.UtcNow);
-			return (await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
+            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
 		}
 
         public Models.File GetFileInfo(Guid fileId)

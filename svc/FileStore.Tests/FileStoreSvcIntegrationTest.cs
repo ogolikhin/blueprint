@@ -151,7 +151,7 @@ namespace FileStore
         [Ignore] // Integration test should be moved to blueprint-automationframework repository
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        public void TestPutUploadAndDeleteFiles_SendDivisbleChunkSize()
+        public void TestPutUploadAndDeleteFiles_SendDivisibleChunkSize()
         {
             PutTestExecute(_chunkSize*2);
         }
@@ -159,7 +159,7 @@ namespace FileStore
         [Ignore] // Integration test should be moved to blueprint-automationframework repository
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        public void TestPutUploadAndDeleteFiles_SendUnDivisbleChunkSize()
+        public void TestPutUploadAndDeleteFiles_SendUnDivisibleChunkSize()
         {
             PutTestExecute(_chunkSize*2+1);
         }

@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Helpers;
-using System.Threading.Tasks;
-using System.Net;
 using Newtonsoft.Json;
-using System.Web.Http.Results;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
@@ -74,46 +74,12 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public void GetLoginUser_RepositoryThrowsException_Conflict()
-        {
-            // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Throws(new ApplicationException());
-
-            // Act
-            var result = _controller.GetLoginUser().Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as ConflictResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
         public void GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
         {
             // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
                 .Throws(new ArgumentNullException());
-
-            // Act
-            var result = _controller.GetLoginUser().Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public void GetLoginUser_RepositoryThrowsFormatException_BadRequest()
-        {
-            // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Throws(new FormatException());
 
             // Act
             var result = _controller.GetLoginUser().Result;

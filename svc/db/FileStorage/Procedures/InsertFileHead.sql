@@ -16,6 +16,7 @@ CREATE PROCEDURE [dbo].[InsertFileHead]
 ( 
     @FileName nvarchar(256),
     @FileType nvarchar(64),
+    @ExpiredTime datetime,
 	@ChunkCount int,
 	@FileSize bigint,
 	@FileId AS uniqueidentifier OUTPUT
@@ -30,6 +31,7 @@ BEGIN
            ([StoredTime]
            ,[FileName]
            ,[FileType]
+           ,[ExpiredTime]
            ,[ChunkCount]
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
@@ -37,6 +39,7 @@ BEGIN
            (GETDATE()
            ,@FileName
            ,@FileType
+           ,@ExpiredTime
            ,@ChunkCount
 		   ,@FileSize)
 	SELECT  @FileId = t.ColGuid FROM @op t

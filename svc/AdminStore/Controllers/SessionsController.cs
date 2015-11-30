@@ -127,7 +127,11 @@ namespace AdminStore.Controllers
                 }
                 return Unauthorized();
             }
-            catch (FormatException)
+			catch (ApplicationException)
+			{
+				return Conflict();
+			}
+			catch (FormatException)
             {
                 return BadRequest();
             }
@@ -149,11 +153,18 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    if (Request.Headers.Contains("Session-Token") == false)
+                        throw new ArgumentNullException();
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
-                    result.EnsureSuccessStatusCode();
-                    return Ok();
+                    if (result.IsSuccessStatusCode)
+                        return Ok();
+                    return ResponseMessage(result);
                 }
+            }
+            catch (ArgumentNullException)
+            {
+                return BadRequest();
             }
             catch
             {

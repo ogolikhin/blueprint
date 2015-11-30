@@ -7,9 +7,9 @@ using System.Net.Http;
 using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AccessControl.Models;
 using AccessControl.Repositories;
 using ServiceLibrary.Log;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Controllers
 {

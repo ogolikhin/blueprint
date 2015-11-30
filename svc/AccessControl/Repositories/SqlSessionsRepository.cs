@@ -3,9 +3,9 @@ using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using AccessControl.Models;
 using System.Collections.Generic;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Repositories
 {

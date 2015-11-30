@@ -9,6 +9,12 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
 Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") +  @"Scripts\DatabaseRoles.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") +  @"Tables\DbVersionInfo.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Tables\Files.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Tables\FileChunks.sql" ) ) #>
+
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"\Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\SetSchemaVersion.sql" ) ) #>
@@ -20,6 +26,7 @@ Print 'Migrating 7.0.1.0 ...'
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\InsertFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\UpdateFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadChunkContent.sql" ) ) #>
 
 
 -- --------------------------------------------------

@@ -29,6 +29,7 @@ GO
 CREATE TABLE [dbo].[Files](
 	[FileId] [uniqueidentifier] NOT NULL,
 	[StoredTime] [datetime] NOT NULL,
+	[ExpiredTime] [datetime],
 	[FileName] [nvarchar](256) NOT NULL,
 	[FileType] [nvarchar](128) NOT NULL,
 	[ChunkCount] [int] NOT NULL,

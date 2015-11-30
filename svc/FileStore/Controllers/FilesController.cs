@@ -31,6 +31,7 @@ namespace FileStore.Controllers
 		private const string Pragma = "Pragma";
 		private const string StoredDate = "Stored-Date";
 		private const string FileSize = "File-Size";
+        private const string FileChunkCount = "File-Chunk-Count";
 		private const string Attachment = "attachment";
 		private const string NoCache = "no-cache";
 		private const string NoStore = "no-store";
@@ -52,17 +53,17 @@ namespace FileStore.Controllers
 		[HttpPost]
 		[Route("")]
 		[ResponseType(typeof(string))]
-		public async Task<IHttpActionResult> PostFile()
+		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
 		{
             if (HttpContext.Current == null)
             {
                 return InternalServerError();
             }
             var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
-            return await PostFileHttpContext(httpContextWrapper);
+			return await PostFileHttpContext(httpContextWrapper, expired);
         }
 
-        public async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper)
+		public async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
         {
 			try
 			{
@@ -71,11 +72,11 @@ namespace FileStore.Controllers
 				    var isMultipart = Request.Content.IsMimeMultipartContent();
 				    if (isMultipart)
 				    {
-                        return await PostMultipartRequest(stream);
+						return await PostMultipartRequest(stream, expired);
                     }
                     else
                     {
-                        return await PostNonMultipartRequest(stream);
+						return await PostNonMultipartRequest(stream, expired);
                     }
                 }
             }
@@ -85,7 +86,7 @@ namespace FileStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> PostMultipartRequest(Stream stream)
+		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
         {
             var mpp = new MultipartPartParser(stream);
             if (mpp.IsEndPart)
@@ -98,7 +99,7 @@ namespace FileStore.Controllers
                 var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
                 var fileType = mpp.ContentType;
 
-                var chunk = await PostCompleteFile(fileName, fileType, mpp);
+				var chunk = await PostCompleteFile(fileName, fileType, mpp, expired);
 
                 //move the stream foward until we get to the next part
                 mpp = mpp.ReadUntilNextPart();
@@ -114,9 +115,9 @@ namespace FileStore.Controllers
             return BadRequest();
 		}
 
-        private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream)
+		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
         {
-            var chunk = await PostFileHeader(fileName, fileType);
+			var chunk = await PostFileHeader(fileName, fileType, expired);
 
             var fileSize = await PostFileInChunks(stream, chunk);
 
@@ -125,7 +126,7 @@ namespace FileStore.Controllers
             return chunk;
 		}
 
-        private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream)
+		private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
 		{
 			if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
 					string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
@@ -136,7 +137,7 @@ namespace FileStore.Controllers
             var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
 
-            var chunk = await PostCompleteFile(fileName, fileMediaType, stream);
+			var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
 
             return Ok(Models.File.ConvertFileId(chunk.FileId));
 		}
@@ -152,9 +153,9 @@ namespace FileStore.Controllers
             long fileSize = 0;
             chunk.ChunkSize = _configRepo.FileChunkSize;
             var buffer = new byte[_configRepo.FileChunkSize];
-            for (var readCounter = await stream.ReadAsync(buffer, 0, chunk.ChunkSize);
+			for (var readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize);
                     readCounter > 0;
-                    readCounter = await stream.ReadAsync(buffer, 0, chunk.ChunkSize))
+				 readCounter = stream.Read(buffer, 0, _configRepo.FileChunkSize))
             {
                 chunk.ChunkSize = readCounter;
                 chunk.ChunkContent = buffer.Take(readCounter).ToArray();
@@ -170,14 +171,15 @@ namespace FileStore.Controllers
         /// <param name="fileName"></param>
         /// <param name="mediaType"></param>
         /// <returns></returns>
-        private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType)
+		private async Task<Models.FileChunk> PostFileHeader(string fileName, string mediaType, DateTime? expired)
         {
             //we can access the filename from the part
 			var file = new Models.File
 			{
 				StoredTime = DateTime.UtcNow, // use UTC time to store data
                 FileName = fileName,
-                FileType = mediaType
+				FileType = mediaType,
+				ExpiredTime = expired
 			};
 
             var fileId = await _filesRepo.PostFileHead(file);
@@ -189,6 +191,42 @@ namespace FileStore.Controllers
 
             return chunk;
 		}
+
+        [HttpPut]
+        [Route("{id}")]
+        [ResponseType(typeof(string))]
+        public async Task<IHttpActionResult> PutFileChunk(string id)
+        {
+            try
+            {
+                var fileId = Models.File.ConvertToStoreId(id);
+                var fileHead = await _filesRepo.GetFileHead(fileId);
+                if (fileHead == null)
+                {
+                    return NotFound();
+                }
+                
+                var chunk = new FileChunk()
+                {
+                    ChunkNum = fileHead.ChunkCount + 1,
+                    FileId = fileHead.FileId
+                };
+
+                long fileSize;
+                using (var stream = HttpContext.Current.Request.GetBufferlessInputStream())
+                {
+                    fileSize = await PostFileInChunks(stream, chunk);
+                }
+
+                await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
+
+                return Ok();
+            }
+			catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
 
 		[HttpHead]
 		[Route("{id}")]
@@ -204,22 +242,22 @@ namespace FileStore.Controllers
                 var fileId = Models.File.ConvertToStoreId(id);
 
                 file = await _filesRepo.GetFileHead(fileId);
-
+                 
                 if (file == null && _fileStreamRepo.FileExists(fileId))
-                {
+				{
                     // if the file is not found in the FileStore check the
                     // legacy database for the file 
 
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
-                }
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
 
                 if (file == null)
-                {
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-                }
-                   
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
+                
                 if (isLegacyFile)
                 {
                     mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
@@ -242,6 +280,7 @@ namespace FileStore.Controllers
                 response.Content.Headers.ContentLength = 0; // there is no content
                 response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
                 response.Headers.Add(FileSize, file.FileSize.ToString());
+                response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());
 
                 return ResponseMessage(response);
             }
@@ -274,17 +313,17 @@ namespace FileStore.Controllers
                 if (file == null && _fileStreamRepo.FileExists(fileId))
                 {
                     // if the file is not found in the FileStore check the
-                    // legacy database for the file 
-
-                    file = _fileStreamRepo.GetFileHead(fileId);
-                    isLegacyFile = true;
-                }
+                    // legacy database for the file
+                     
+                        file = _fileStreamRepo.GetFileHead(fileId);
+                        isLegacyFile = true;
+                    }
 
                 if (file == null)
-                {
-                    // the file was not found in either FileStore or legacy database 
-                    return NotFound();
-                }
+                    {
+                        // the file was not found in either FileStore or legacy database 
+                        return NotFound();
+                    }
 
                 if (isLegacyFile)
 				{
@@ -306,8 +345,8 @@ namespace FileStore.Controllers
                     fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
 
                     responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
-                }
-                else
+				}
+				else
 				{
                     // retrieve file content from FileStore database 
                     

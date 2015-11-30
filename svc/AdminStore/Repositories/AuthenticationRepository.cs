@@ -38,7 +38,7 @@ namespace AdminStore.Repositories
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
-                throw new AuthenticationException(string.Format("User does not exist with login: {0}", login));
+                throw new AuthenticationException(string.Format("User does not exist with login: {0}", login), ErrorCodes.InvalidCredentials);
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
@@ -47,7 +47,7 @@ namespace AdminStore.Repositories
 	            var isFallbackAllowed = !user.IsFallbackAllowed.HasValue || user.IsFallbackAllowed.Value;
 				if(!isFallbackAllowed)
 				{
-					throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism");
+					throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
 				}
             }
             AuthenticationStatus authenticationStatus;
@@ -59,7 +59,7 @@ namespace AdminStore.Repositories
                 case UserGroupSource.Windows:
                     if (!instanceSettings.IsLdapIntegrationEnabled)
                     {
-                        throw new AuthenticationException(string.Format("To authenticate user with login: {0}, ldap integration must be enabled", login));
+                        throw new AuthenticationException(string.Format("To authenticate user with login: {0}, ldap integration must be enabled", login), ErrorCodes.LdapIsDisabled);
                     }
                     authenticationStatus = await _ldapRepository.AuthenticateLdapUserAsync(login, password, instanceSettings.UseDefaultConnection);
                     break;
@@ -78,11 +78,11 @@ namespace AdminStore.Repositories
                     break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
-                    throw new AuthenticationException("Invalid username or password");
+                    throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
                 case AuthenticationStatus.PasswordExpired:
-                    throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login));
+                    throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login), ErrorCodes.PasswordExpired);
                 case AuthenticationStatus.Locked:
-                    throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
+                    throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
                 case AuthenticationStatus.Error:
                     throw new AuthenticationException("Authentication Error");
             }

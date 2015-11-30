@@ -65,7 +65,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -120,7 +120,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -166,7 +166,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFile().Result;
+			var actionResult = controller.PostFile(null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -213,7 +213,7 @@ namespace FileStore.Controllers
 
 			// Act
 			// 1. Upload file
-			var actionResult = controller.PostFileHttpContext(context.Object).Result;
+			var actionResult = controller.PostFileHttpContext(context.Object, null).Result;
 
 			//Assert
 			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();

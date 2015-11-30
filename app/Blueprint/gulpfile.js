@@ -1,6 +1,6 @@
 'use srtrict';
 
-var gulp = require('gulp'),
+var gulp = require('gulp-help')(require('gulp')),
 	bower = require('gulp-main-bower-files'),
 	addsrc = require('gulp-add-src'),
 	filter = require('gulp-filter'),
@@ -51,11 +51,11 @@ var tsProject = tscompile.createProject({
 
 gulp.task('clean', function (cb) {
 	del([dst.pub], cb);
-})
+});
 
 // build
 
-gulp.task('start-build', ['clean'])
+gulp.task('start-build', ['clean']);
 
 gulp.task('bower', ['start-build'], function () {
 	var jsfilter = filter('**/*.js')
@@ -78,7 +78,7 @@ gulp.task('bower', ['start-build'], function () {
     	}
     }))
     .pipe(gulp.dest(dst.lib));
-})
+});
 
 
 gulp.task('ts', ['start-build'], function() {
@@ -97,7 +97,7 @@ gulp.task('js', ['ts'], function () {
 		.pipe(jsminify())
 		.pipe(srcmaps.write())
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
 gulp.task('css', ['start-build'], function () {
 	return gulp.src([src.css])
@@ -106,19 +106,21 @@ gulp.task('css', ['start-build'], function () {
 		.pipe(cssminify())
 		.pipe(srcmaps.write())
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
 gulp.task('content', ['start-build'], function () {
 	return gulp.src(src.content)
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
-gulp.task('end-build', ['bower', 'js', 'css', 'content'])
+gulp.task('end-build', ['bower', 'js', 'css', 'content']);
 
 // post-build
 
-gulp.task('post-build', ['end-build'])
+gulp.task('post-build', ['end-build']);
 
-gulp.task('build', ['post-build'])
+gulp.task('build', ['post-build']);
 
-gulp.task('run', ['build'])
+gulp.task('run', ['build']);
+
+gulp.task('default', 'Display this help text.', ['help']);

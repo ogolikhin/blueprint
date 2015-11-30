@@ -392,7 +392,7 @@ namespace FileStore.Controllers
         [HttpDelete]
         [Route("{id}")]
         [ResponseType(typeof(string))]
-        public async Task<IHttpActionResult> DeleteFile(string id)
+        public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
         {
             try
             {

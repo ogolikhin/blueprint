@@ -77,11 +77,11 @@ namespace FileStore.Repositories
 			return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
  
-		public async Task<Guid?> DeleteFile(Guid guid)
+		public async Task<Guid?> DeleteFile(Guid guid, DateTime? expired = null)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);
-			prm.Add("@ExpiredTime", DateTime.UtcNow);
+			prm.Add("@ExpiredTime", (expired.HasValue && expired.Value > DateTime.UtcNow) ? expired.Value : DateTime.UtcNow);
 			return (await ConnectionWrapper.ExecuteAsync("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
 		}
 

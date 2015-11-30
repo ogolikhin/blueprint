@@ -17,7 +17,7 @@
     <RootNamespace>AdminStore</RootNamespace>
     <AssemblyName>AdminStore</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -172,7 +172,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>45032</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:9101/svc/adminstore</IISUrl>
+          <IISUrl>http://localhost:9801/svc/AdminStore</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

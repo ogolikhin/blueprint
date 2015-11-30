@@ -67,6 +67,7 @@
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\7.0.1.0\Sample.sql" />
+    <Content Include="Procedures\ReadChunkContent.sql" />
     <Content Include="Procedures\ReadFileChunk.sql" />
     <Content Include="Procedures\InsertFileChunk.sql" />
     <Content Include="Procedures\UpdateFileHead.sql" />

@@ -155,7 +155,7 @@ namespace AccessControl.Controllers
                 {
                     Cache.Remove(Session.Convert(guids[1].Value));
                 }
-	            var session = await Repo.GetUserSession(uid);
+                var session = await Repo.GetUserSession(uid);
                 AddSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -189,8 +189,8 @@ namespace AccessControl.Controllers
                     if (session == null || session.EndTime.HasValue)
                     {
                         throw new KeyNotFoundException();
-                    }                    
-					AddSession(token, session);
+                    }
+                    AddSession(token, session);
                 }
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -216,7 +216,7 @@ namespace AccessControl.Controllers
             }
         }
 
-	    [HttpDelete]
+        [HttpDelete]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> DeleteSession()

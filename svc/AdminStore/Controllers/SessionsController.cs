@@ -56,9 +56,9 @@ namespace AdminStore.Controllers
             {
                 return BadRequest();
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
-                return BadRequest();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.Message));
             }
             catch
             {
@@ -88,12 +88,12 @@ namespace AdminStore.Controllers
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-	            var queryParams = HttpUtility.ParseQueryString(string.Empty);
-				queryParams.Add("userName", user.Login);
-				queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
-				queryParams.Add("isSso", isSso.ToString());
+                var queryParams = HttpUtility.ParseQueryString(string.Empty);
+                queryParams.Add("userName", user.Login);
+                queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
+                queryParams.Add("isSso", isSso.ToString());
 
-	            var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
+                var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
                     throw new ServerException();
@@ -127,11 +127,11 @@ namespace AdminStore.Controllers
                 }
                 return Unauthorized();
             }
-			catch (ApplicationException)
-			{
-				return Conflict();
-			}
-			catch (FormatException)
+            catch (ApplicationException)
+            {
+                return Conflict();
+            }
+            catch (FormatException)
             {
                 return BadRequest();
             }
@@ -153,12 +153,16 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    if (Request.Headers.Contains("Session-Token") == false)
+                    if (!Request.Headers.Contains("Session-Token"))
+                    {
                         throw new ArgumentNullException();
+                    }
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
                     if (result.IsSuccessStatusCode)
+                    {
                         return Ok();
+                    }
                     return ResponseMessage(result);
                 }
             }

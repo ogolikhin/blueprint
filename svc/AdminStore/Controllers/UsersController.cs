@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ServiceLibrary.Helpers;
-using System.Linq;
 using AdminStore.Repositories;
 using Newtonsoft.Json;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
@@ -16,9 +16,9 @@ namespace AdminStore.Controllers
     [RoutePrefix("users")]
     public class UsersController : ApiController
     {
-        private readonly IHttpClientProvider _httpClientProvider;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
-        private readonly ISqlUserRepository _userRepository;
+        internal readonly ISqlUserRepository _userRepository;
 
         public UsersController()
             : this(new SqlUserRepository(), new HttpClientProvider())
@@ -41,7 +41,7 @@ namespace AdminStore.Controllers
                 var session = await RequestPutSessionAsync();
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
-                {                    
+                {
                     throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
                 }
                 loginUser.LicenseType = session.LicenseLevel;
@@ -52,15 +52,7 @@ namespace AdminStore.Controllers
             {
                 return Unauthorized();
             }
-            catch (ApplicationException)
-            {
-                return Conflict();
-            }
             catch (ArgumentNullException)
-            {
-                return BadRequest();
-            }
-            catch (FormatException)
             {
                 return BadRequest();
             }
@@ -77,8 +69,10 @@ namespace AdminStore.Controllers
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                if (Request.Headers.Contains("Session-Token") == false)
+                if (!Request.Headers.Contains("Session-Token"))
+                {
                     throw new ArgumentNullException();
+                }
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                 var result = await http.PutAsync(string.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
                 if (result.IsSuccessStatusCode)

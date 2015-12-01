@@ -77,7 +77,7 @@ namespace FileStore.Repositories
 			return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 		}
 
-		public async Task<Guid?> DeleteFile(Guid guid, DateTime? expired = null)
+		public async Task<Guid?> DeleteFile(Guid guid, DateTime expired)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", guid);

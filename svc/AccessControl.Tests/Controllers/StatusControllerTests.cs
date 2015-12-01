@@ -37,7 +37,7 @@ namespace AccessControl.Controllers
             // Arrange
             StatusController.Ready.Set();
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(true)).Verifiable();
+            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true).Verifiable();
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
 
             // Act
@@ -71,7 +71,7 @@ namespace AccessControl.Controllers
             // Arrange
             StatusController.Ready.Set();
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Returns(Task.FromResult(false)).Verifiable();
+            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false).Verifiable();
             var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
 
             // Act

@@ -37,18 +37,17 @@ namespace AdminStore.Repositories
             }
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
-            {
-                throw new AuthenticationException(string.Format("User does not exist with login: {0}", login), ErrorCodes.InvalidCredentials);
+            {               
+                throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
-				// Fallback is allowed by default (value is null)
-	            var isFallbackAllowed = !user.IsFallbackAllowed.HasValue || user.IsFallbackAllowed.Value;
-				if(!isFallbackAllowed)
-				{
-					throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
-				}
+                // Fallback is allowed by default (value is null)
+                if(!user.IsFallbackAllowed.GetValueOrDefault(true))
+                {
+                    throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
+                }
             }
             AuthenticationStatus authenticationStatus;
             switch (user.Source)
@@ -108,16 +107,16 @@ namespace AdminStore.Repositories
             var principal = _samlRepository.ProcessEncodedResponse(samlResponse, fedAuthSettings);
             var user = await _userRepository.GetUserByLoginAsync(principal.Identity.Name);
 
-	        if (user == null) // cannot find user in the DB
-	        {
-		        throw new AuthenticationException("Invalid user name or password");
-	        }
-	        else if(!user.IsEnabled)
-	        {
-				throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
-			}
+            if (user == null) // cannot find user in the DB
+            {
+                throw new AuthenticationException("Invalid user name or password");
+            }
+            if(!user.IsEnabled)
+            {
+                throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
+            }
 
-	        return user;
+            return user;
         }
 
         private AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int passwordExpirationInDays = 0)

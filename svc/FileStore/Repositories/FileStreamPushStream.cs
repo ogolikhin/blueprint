@@ -83,12 +83,16 @@ namespace FileStore.Repositories
             catch 
             {
                 // log error here
-                return;
+                throw;
             }
             finally
             {
                 outputStream.Close();
-                dbConnection.Close();
+                if (dbConnection != null)
+                {
+                    dbConnection.Close();
+                }
+                dbConnection = null;
                 buffer = null;
             }
         }

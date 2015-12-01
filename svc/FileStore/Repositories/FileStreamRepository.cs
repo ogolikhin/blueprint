@@ -121,7 +121,7 @@ namespace FileStore.Repositories
 
                     // get file type
                     cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                    cmd.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                     cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                     SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
                     pType.Direction = ParameterDirection.Output;
@@ -143,7 +143,7 @@ namespace FileStore.Repositories
                 {
                     sqlConnection.Open();
                     cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([File_FileGuid] = @pFileGuid);";
+                    cmd.CommandText = "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
                     cmd.Parameters.AddWithValue("@pFileGuid", fileId);
                     SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
                     pName.Direction = ParameterDirection.Output;

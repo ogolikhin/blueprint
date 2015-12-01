@@ -1,4 +1,6 @@
-﻿namespace FileStore.Repositories
+﻿using System.Web;
+
+namespace FileStore.Repositories
 {
     public class FileMapperRepository : IFileMapperRepository
     {
@@ -24,38 +26,7 @@
             {
                 return DefaultMediaType;
             }
-            switch (fileType.ToLower().Trim().TrimStart('.'))
-            {
-                case "txt":
-                    return TextMediaType;
-                case "rtx":
-                    return RichTextMediaType;
-                case "rtf":
-                    return RichTextFormatMediaType;
-                case "png":
-                    return PngMediaType;
-                case "jpg":
-                case "jpeg":
-                case "jpe":
-                    return JpgMediaType;
-                case "bmp":
-                    return BmpMediaType;
-                case "ief":
-                    return IefMediaType;
-                case "svg":
-                    return SvgMediaType;
-                case "tif":
-                case "tiff":
-                    return TiffMediaType;
-                case "css":
-                    return CssMediaType;
-                case "htm":
-                case "html":
-                case "stm":
-                    return HtmlMediaType;
-            }
-
-            return DefaultMediaType;
+            return MimeMapping.GetMimeMapping(fileType);
         }
     }
 }

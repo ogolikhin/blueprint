@@ -63,15 +63,18 @@ namespace FileStore.Repositories
                     await outputStream.WriteAsync(buffer, 0, bytesRead);
                 }
             }
-            catch 
+            catch
             {
                 // log error here
-                return;
+                throw ;
             }
             finally
             {
                 outputStream.Close();
-                dbConnection.Close();
+                if (dbConnection != null)
+                {
+                    dbConnection.Close();
+                }
                 buffer = null;
             }
         }

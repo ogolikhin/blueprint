@@ -67,7 +67,7 @@ namespace FileStore.Repositories
         public void GetMappedOutputContentType_TxtValue()
         {
             //Arrange
-            string input = "  Txt";
+            string input = ".Txt";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -76,89 +76,23 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.TextMediaType, result);
         }
 
-        [TestMethod]
-        public void GetMappedOutputContentType_rtfValue()
-        {
-            //Arrange
-            string input = "  rtf ";
+        
 
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
+        
 
-            //Assert
-            Assert.AreEqual(FileMapperRepository.RichTextFormatMediaType, result);
-        }
+        
 
-        [TestMethod]
-        public void GetMappedOutputContentType_RTXValue()
-        {
-            //Arrange
-            string input = "  RTX ";
+        
 
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
+        
 
-            //Assert
-            Assert.AreEqual(FileMapperRepository.RichTextMediaType, result);
-        }
-
-        [TestMethod]
-        public void GetMappedOutputContentType_pngValue()
-        {
-            //Arrange
-            string input = "  png ";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.PngMediaType, result);
-        }
-
-        [TestMethod]
-        public void GetMappedOutputContentType_jpeValue()
-        {
-            //Arrange
-            string input = "  jpe ";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
-        }
-
-        [TestMethod]
-        public void GetMappedOutputContentType_jpgValue()
-        {
-            //Arrange
-            string input = "  jpg ";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
-        }
-
-        [TestMethod]
-        public void GetMappedOutputContentType_jpegValue()
-        {
-            //Arrange
-            string input = "  jpeg ";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.JpgMediaType, result);
-        }
+        
 
         [TestMethod]
         public void GetMappedOutputContentType_bmpValue()
         {
             //Arrange
-            string input = "bmp";
+            string input = ".bmp";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -171,7 +105,7 @@ namespace FileStore.Repositories
         public void GetMappedOutputContentType_iefValue()
         {
             //Arrange
-            string input = "ief";
+            string input = ".ief";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -180,24 +114,13 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.IefMediaType, result);
         }
 
-        [TestMethod]
-        public void GetMappedOutputContentType_svgValue()
-        {
-            //Arrange
-            string input = " svg ";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.SvgMediaType, result);
-        }
+        
 
         [TestMethod]
         public void GetMappedOutputContentType_tifValue()
         {
             //Arrange
-            string input = "tif";
+            string input = ".tif";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -210,7 +133,7 @@ namespace FileStore.Repositories
         public void GetMappedOutputContentType_tiffValue()
         {
             //Arrange
-            string input = "tiff";
+            string input = ".tiff";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -219,24 +142,13 @@ namespace FileStore.Repositories
             Assert.AreEqual(FileMapperRepository.TiffMediaType, result);
         }
 
-        [TestMethod]
-        public void GetMappedOutputContentType_stmValue()
-        {
-            //Arrange
-            string input = "stm";
-
-            //Act
-            var result = _fileMapperRepository.GetMappedOutputContentType(input);
-
-            //Assert
-            Assert.AreEqual(FileMapperRepository.HtmlMediaType, result);
-        }
+        
 
         [TestMethod]
         public void GetMappedOutputContentType_HtmValue()
         {
             //Arrange
-            string input = "htm";
+            string input = ".htm";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -249,7 +161,7 @@ namespace FileStore.Repositories
         public void GetMappedOutputContentType_HtmlValue()
         {
             //Arrange
-            string input = "html";
+            string input = ".html";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);
@@ -262,7 +174,7 @@ namespace FileStore.Repositories
         public void GetMappedOutputContentType_CssValue()
         {
             //Arrange
-            string input = "css";
+            string input = ".css";
 
             //Act
             var result = _fileMapperRepository.GetMappedOutputContentType(input);

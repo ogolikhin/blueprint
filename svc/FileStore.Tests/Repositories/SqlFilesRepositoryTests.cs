@@ -257,7 +257,7 @@ namespace FileStore.Repositories
                 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
-            Guid? id = await repository.DeleteFile(guid);
+            Guid? id = await repository.DeleteFile(guid, DateTime.UtcNow);
 
             // Assert
             cxn.Verify();
@@ -278,7 +278,7 @@ namespace FileStore.Repositories
                      new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
-            Guid? id = await repository.DeleteFile(guid);
+            Guid? id = await repository.DeleteFile(guid, DateTime.UtcNow);
 
             // Assert
             cxn.Verify();

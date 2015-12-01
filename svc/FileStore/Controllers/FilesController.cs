@@ -55,8 +55,10 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
 		{
-			if (expired.HasValue && expired.Value < DateTime.UtcNow)
-				expired = DateTime.UtcNow;
+		    if (expired.HasValue && expired.Value < DateTime.UtcNow)
+		    {
+		        expired = DateTime.UtcNow;
+		    }
 			if (HttpContext.Current == null)
 			{
 				return InternalServerError();
@@ -108,7 +110,7 @@ namespace FileStore.Controllers
 				if (mpp != null)
 				{
 					// Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
-					await _filesRepo.DeleteFile(chunk.FileId);
+					await _filesRepo.DeleteFile(chunk.FileId, DateTime.UtcNow);
 					return BadRequest();
 				}
 				return Ok(Models.File.ConvertFileId(chunk.FileId));
@@ -405,13 +407,10 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
 		{
-		    if (expired.HasValue && expired.Value < DateTime.UtcNow)
-		    {
-		        expired = DateTime.UtcNow;
-		    }
+		    var expirationTime = expired.HasValue && expired.Value > DateTime.UtcNow ? expired.Value : DateTime.UtcNow;
 			try
 			{
-				var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id));
+				var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id), expirationTime);
 				if (guid.HasValue)
 				{
 					return Ok(Models.File.ConvertFileId(guid.Value));

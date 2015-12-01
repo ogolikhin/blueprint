@@ -56,9 +56,9 @@ namespace AdminStore.Controllers
             {
                 return BadRequest();
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
-                return BadRequest();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.Message));
             }
             catch
             {

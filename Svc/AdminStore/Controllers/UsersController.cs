@@ -16,9 +16,9 @@ namespace AdminStore.Controllers
     [RoutePrefix("users")]
     public class UsersController : ApiController
     {
-        private readonly IHttpClientProvider _httpClientProvider;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
-        private readonly ISqlUserRepository _userRepository;
+        internal readonly ISqlUserRepository _userRepository;
 
         public UsersController()
             : this(new SqlUserRepository(), new HttpClientProvider())
@@ -69,7 +69,7 @@ namespace AdminStore.Controllers
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                if (Request.Headers.Contains("Session-Token") == false)
+                if (!Request.Headers.Contains("Session-Token"))
                 {
                     throw new ArgumentNullException();
                 }

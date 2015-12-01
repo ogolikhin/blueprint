@@ -51,11 +51,6 @@ namespace AdminStore.Helpers
 
         internal static string Serialize<T>(T data)
         {
-            if (data == null)
-            {
-                return string.Empty;
-            }
-
             var serializer = new DataContractSerializer(typeof(T));
 
             var result = new StringBuilder();

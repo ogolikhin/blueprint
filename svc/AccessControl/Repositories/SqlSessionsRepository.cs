@@ -55,9 +55,9 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId);
             prm.Add("@BeginTime", DateTime.UtcNow);
-			prm.Add("@UserName", userName);
-			prm.Add("@LicenseLevel", licenseLevel);
-			prm.Add("@IsSso", isSso);
+            prm.Add("@UserName", userName);
+            prm.Add("@LicenseLevel", licenseLevel);
+            prm.Add("@IsSso", isSso);
             prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);

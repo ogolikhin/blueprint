@@ -17,6 +17,7 @@ namespace AccessControl.Controllers
     [TestClass]
     public class SessionsControllerTests
     {
+        private static Mock<ILogProvider> _logProviderMock;
         private Mock<ISessionsRepository> _sessionsRepoMock;
         private Mock<ObjectCache> _cacheMock;
         private SessionsController _controller;
@@ -37,10 +38,12 @@ namespace AccessControl.Controllers
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            var logProviderMock = new Mock<ILogProvider>();
-            logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
-            LogProvider.Init(logProviderMock.Object);
+            _logProviderMock = new Mock<ILogProvider>();
+            _logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
+            LogProvider.Init(_logProviderMock.Object);
         }
+
+        #region GetSession
 
         [TestMethod]
         public async Task GetSession_SessionNotFound()
@@ -56,6 +59,7 @@ namespace AccessControl.Controllers
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundResult));
         }
+
         [TestMethod]
         public async Task GetSession_RepositoryThrowsException_InternalServerError()
         {
@@ -125,6 +129,10 @@ namespace AccessControl.Controllers
             var responseResult = resultSession as NotFoundResult;
             Assert.IsNotNull(responseResult);
         }
+
+        #endregion GetSesstion
+
+        #region PostSession
 
         [TestMethod]
         public async Task PostSession_PostCorrectSession()
@@ -207,7 +215,9 @@ namespace AccessControl.Controllers
             await _controller.PostSession(uid, "user", 3);
 
             // Assert
+            var token = Session.Convert(firstGuid);
             _cacheMock.Verify(m => m.Remove(Session.Convert(secondGuid), null));
+            _cacheMock.Verify(c => c.Add(token, null, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
         }
 
         [TestMethod]
@@ -256,6 +266,10 @@ namespace AccessControl.Controllers
             var responseResult = result as InternalServerErrorResult;
             Assert.IsNotNull(responseResult);
         }
+
+        #endregion PostSession
+
+        #region SelectSession
 
         [TestMethod]
         public async Task SelectSession_RepositoryThrowsException_KeyNotFound()
@@ -372,6 +386,10 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(responseResult);
         }
 
+        #endregion SelectSession
+
+        #region DeleteSession
+
         [TestMethod]
         public async Task DeleteSession_TokenIsNotInRepository_KeyNotFound()
         {
@@ -473,6 +491,10 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(responseResult);
         }
 
+        #endregion DeleteSession
+
+        #region PutSession
+
         [TestMethod]
         public async Task PutSession_KeyNotFound()
         {
@@ -545,6 +567,7 @@ namespace AccessControl.Controllers
             Assert.IsTrue(pragmaValues.Count() == 1);
             Assert.IsTrue(pragmaValues.First() == "no-cache");
 
+            _cacheMock.Verify(c => c.Add(token, session, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
         }
 
         [TestMethod]
@@ -623,6 +646,10 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(responseResult);
         }
 
+        #endregion PutSession
+
+        #region Load
+
         [TestMethod]
         public void Load_RepositoryReturnsSessions_ReadyIsSet()
         {
@@ -654,5 +681,17 @@ namespace AccessControl.Controllers
             // Assert
             Assert.IsFalse(StatusController.Ready.Wait(200));
         }
+
+        #endregion Load
+
+        private bool VerifyPolicy(CacheItemPolicy policy, string token)
+        {
+            policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
+            _logProviderMock.Verify(l => l.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error));
+            policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
+            _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token)));
+            return true;
+        }
+
     }
 }

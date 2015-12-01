@@ -41,23 +41,44 @@ namespace AdminStore.Controllers
             _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
         }
 
+        #region Constuctor
+
         [TestMethod]
-        public async Task GetLoginUser_Success()
+        public void Constructor_CreatesDefaultDependencies()
         {
             // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(new LoginUser());
 
             // Act
-            var result = ((OkNegotiatedContentResult<LoginUser>)await _controller.GetLoginUser()).Content;
+            var controller = new UsersController();
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(LoginUser));
+            Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
+            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
+        }
+
+        #endregion
+
+        #region GetLoginUser
+
+        [TestMethod]
+        public async Task GetLoginUser_RepositoryReturnsUser_REturnsUser()
+        {
+            // Arrange
+            var loginUser = new LoginUser();
+            _usersRepoMock
+                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(loginUser);
+
+            // Act
+            var result = await _controller.GetLoginUser() as OkNegotiatedContentResult<LoginUser>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(loginUser, result.Content);
         }
 
         [TestMethod]
-        public async Task GetLoginUser_RepositoryReturnsNull_Unauthorized()
+        public async Task GetLoginUser_RepositoryReturnsNull_UnauthorizedResult()
         {
             // Arrange
             _usersRepoMock
@@ -65,48 +86,60 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(null);
 
             // Act
-            var result = await _controller.GetLoginUser();
+            IHttpActionResult result = await _controller.GetLoginUser();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as UnauthorizedResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
         [TestMethod]
-        public async Task GetLoginUser_RepositoryThrowsArgumentNullException_BadRequest()
+        public async Task GetLoginUser_SessionNotFound_UnauthorizedResult()
         {
             // Arrange
-            _usersRepoMock
-                .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
-                .Throws(new ArgumentNullException());
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
+            _usersRepoMock = new Mock<ISqlUserRepository>();
+            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider)
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
             // Act
-            var result = await _controller.GetLoginUser();
+            IHttpActionResult result = await _controller.GetLoginUser();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
         [TestMethod]
-        public async Task GetLoginUser_RepositoryThrowsException_InternalServerError()
+        public async Task GetLoginUser_SessionTokenIsNull_BadRequestResult()
         {
             // Arrange
-            //just to add code coverage
-            var usercontroller = new UsersController();
+            _controller.Request.Headers.Remove("Session-Token");
+
+            // Act
+            IHttpActionResult result = await _controller.GetLoginUser();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        [TestMethod]
+        public async Task GetLoginUser_RepositoryThrowsException_InternalServerErrorResult()
+        {
+            // Arrange
             _usersRepoMock
                 .Setup(repo => repo.GetLoginUserByIdAsync(It.IsAny<int>()))
                 .Throws(new Exception());
 
             // Act
-            var result = await _controller.GetLoginUser();
+            IHttpActionResult result = await _controller.GetLoginUser();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as InternalServerErrorResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
+
+        #endregion GetLoginUser
     }
 }

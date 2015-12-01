@@ -16,7 +16,7 @@ body {
 
 #blueprint-bar > span.left {
    position: fixed; 
-   left: 1em; 
+   left: .8em; 
    top: 3px; 
    font-size: large;
    font-weight: 600;
@@ -44,4 +44,8 @@ body {
 /*** jqx customization */
 .jqx-layout-group-auto-hide-content-vertical {
    width: 200px;
+}
+
+#topmenu > ul {
+	margin-top: 29px;
 }

@@ -6,18 +6,18 @@
 
     <!-- build:css styles/lib.css -->
    <!-- bower:css -->
-   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" >
-   <link rel="stylesheet" href="bower_components/jqwidgets/jqwidgets/styles/jqx.base.css" type="text/css" >
-   <link rel="stylesheet" href="bower_components/jstree/dist/themes/default/style.min.css" type="text/css">
+   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" >
+   <link rel="stylesheet" type="text/css" href="bower_components/jqwidgets/jqwidgets/styles/jqx.base.css">
+   <link rel="stylesheet" type="text/css" href="bower_components/jstree/dist/themes/default/style.min.css">
     <!-- endbower -->    
     <!-- endbuild -->
 
 
    <!-- build:css styles/app.css -->
    <!-- inject:css -->
+   <link rel="stylesheet" type="text/css" href="styles/blueprint.min.css" >
 
-   <link rel="stylesheet" href="styles/blueprint.min.css" type="text/css" >
-   <link rel="stylesheet" href="styles/nova.css" type="text/css">
+   <link rel="stylesheet" type="text/css" href="styles/nova.css" >
 
     <!-- endinject -->
     <!-- endbuild -->
@@ -46,6 +46,19 @@
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdockinglayout.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtree.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxwindow.js"></script>
+
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.selection.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.sort.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.filter.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+
+
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxangular.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
@@ -79,38 +92,38 @@
                         initContent: function () {
                             // initialize a jqxTree inside the Solution Explorer Panel
                             var source = [{
-                                icon: 'jqwidgets-ver3.9.1/images/earth.png',
+                                icon: '/images/earth.png',
                                 label: 'Project',
                                 expanded: true,
                                 items: [{
-                                    icon: 'jqwidgets-ver3.9.1/images/folder.png',
+                                    icon: '/images/Folder.png',
                                     label: 'css',
                                     expanded: true,
                                     items: [{
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqx.base.css'
                                     }, {
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqx.energyblue.css'
                                     }, {
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqx.orange.css'
                                     }]
                                 }, {
-                                    icon: 'jqwidgets-ver3.9.1/images/folder.png',
+                                    icon: '/images/Folder.png',
                                     label: 'scripts',
                                     items: [{
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqxcore.js'
                                     }, {
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqxdata.js'
                                     }, {
-                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        icon: '/images/Text.png',
                                         label: 'jqxgrid.js'
                                     }]
                                 }, {
-                                    icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                    icon: '/images/Text.png',
                                     label: 'index.htm'
                                 }]
                             }];
@@ -153,7 +166,8 @@
                               "plugins" : [
                                 "contextmenu", "dnd", "search", "state", "types", "wholerow"
                               ]
-                            });                            
+                            });
+
                         }
                     }, {
                         type: 'layoutPanel',
@@ -173,7 +187,91 @@
                         items: [{
                             type: 'documentPanel',
                             title: 'Document 1',
-                            contentContainer: 'Document1Panel'
+                            contentContainer: 'Document1Panel',
+                            initContent: function () {
+                                var data = new Array();
+                                var rowscount = 100;
+                                var firstNames =
+                                [
+                                    "Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
+                                ];
+
+                                var lastNames =
+                                [
+                                    "Fuller", "Davolio", "Burke", "Murphy", "Nagase", "Saavedra", "Ohno", "Devling", "Wilson", "Peterson", "Winkler", "Bein", "Petersen", "Rossi", "Vileid", "Saylor", "Bjorn", "Nodier"
+                                ];
+
+                                var productNames =
+                                [
+                                    "Black Tea", "Green Tea", "Caffe Espresso", "Doubleshot Espresso", "Caffe Latte", "White Chocolate Mocha", "Caramel Latte", "Caffe Americano", "Cappuccino", "Espresso Truffle", "Espresso con Panna", "Peppermint Mocha Twist"
+                                ];
+
+                                var priceValues =
+                                [
+                                     "2.25", "1.5", "3.0", "3.3", "4.5", "3.6", "3.8", "2.5", "5.0", "1.75", "3.25", "4.0"
+                                ];
+
+                                for (var i = 0; i < rowscount; i++) {
+                                    var row = {};
+                                    var productindex = Math.floor(Math.random() * productNames.length);
+                                    var price = parseFloat(priceValues[productindex]);
+                                    var quantity = 1 + Math.round(Math.random() * 10);
+
+                                    row["id"] = i;
+                                    row["available"] = productindex % 2 == 0;
+                                        if (productindex % 2 != 0) {
+                                            var random = Math.floor(Math.random() * rowscount);
+                                            row["available"] = i % random == 0 ? null : false;
+                                        }
+                                    row["firstname"] = firstNames[Math.floor(Math.random() * firstNames.length)];
+                                    row["lastname"] = lastNames[Math.floor(Math.random() * lastNames.length)];
+                                    row["name"] = row["firstname"] + " " + row["lastname"]; 
+                                    row["productname"] = productNames[productindex];
+                                    row["price"] = price;
+                                    row["quantity"] = quantity;
+                                    row["total"] = price * quantity;
+
+                                    var date = new Date();
+                                    date.setFullYear(2015, Math.floor(Math.random() * 12), Math.floor(Math.random() * 27));
+                                    date.setHours(0, 0, 0, 0);
+                                    row["date"] = date;
+                                   
+                                    data[i] = row;
+                                }
+
+                                        var source =
+                                        {
+                                            localdata: data,
+                                            datafields:
+                                            [
+                                                { name: 'name', type: 'string' },
+                                                { name: 'productname', type: 'string' },
+                                                { name: 'available', type: 'bool' },
+                                                { name: 'date', type: 'date'},
+                                                { name: 'quantity', type: 'number' }
+                                            ],
+                                            datatype: "array"
+                                        };
+                                        var dataAdapter = new $.jqx.dataAdapter(source);
+                                        $("#jqxgrid").jqxGrid(
+                                        {
+                                            width: '100%',
+                                            height: '100%',
+                                            source: dataAdapter,
+                                            showfilterrow: true,
+                                            filterable: true,
+                                            theme: 'blueprint',
+                                            selectionmode: 'multiplecellsextended',
+                                            columns: [
+                                              { text: 'Name', columntype: 'textbox',  datafield: 'name', width: '20%' },
+                                              {
+                                                  text: 'Product', datafield: 'productname', width: '35%'
+                                              },
+                                              { text: 'Ship Date', datafield: 'date', filtertype: 'date', width: '30%', cellsalign: 'right', cellsformat: 'd' },
+                                              { text: 'Qty.', datafield: 'quantity', width: '15%',  cellsalign: 'right' }
+                                            ]
+                                        });
+                            }
                         }, {
                             type: 'documentPanel',
                             title: 'Document 2',
@@ -241,13 +339,55 @@
 
                 ]
             }];
-
-
-
-
             $scope.settings = {width: $window.innerWidth , height: $window.innerHeight -60 , layout: layout, theme: 'blueprint' };
-
         }]);
+
+
+        nova.controller("demoController", function ($scope) {
+            // Grid data.
+            var data = new Array();
+            var firstNames = ["Nancy", "Andrew", "Janet", "Margaret", "Steven", "Michael", "Robert", "Laura", "Anne"];
+            var lastNames = ["Davolio", "Fuller", "Leverling", "Peacock", "Buchanan", "Suyama", "King", "Callahan", "Dodsworth"];
+            var titles = ["Sales Representative", "Vice President, Sales", "Sales Representative", "Sales Representative", "Sales Manager", "Sales Representative", "Sales Representative", "Inside Sales Coordinator", "Sales Representative"];
+            var city = ["Seattle", "Tacoma", "Kirkland", "Redmond", "London", "London", "London", "Seattle", "London"];
+            var country = ["USA", "USA", "USA", "USA", "UK", "UK", "UK", "USA", "UK"];
+
+            for (var i = 0; i < firstNames.length; i++) {
+                var row = {};
+                row["firstname"] = firstNames[i];
+                row["lastname"] = lastNames[i];
+                row["title"] = titles[i];
+                row["city"] = city[i];
+                row["country"] = country[i];
+                data[i] = row;
+            }
+
+            $scope.people = data;
+
+            $scope.bindingCompleted = "";
+            $scope.settings =
+            {
+                altrows: true,
+                width: 800,
+                height: 200,
+                ready: function()
+                {
+                    $scope.settings.apply('selectrow', 1);
+                },
+                sortable: true,
+                source: $scope.people,
+                columns: [
+                    { text: 'First Name', datafield: 'firstname', width: 150 },
+                    { text: 'Last Name', datafield: 'lastname', width: 150 },
+                    { text: 'Title', datafield: 'title', width: 150 },
+                    { text: 'City', datafield: 'city', width: 150 },
+                    { text: 'Country', datafield: 'country' }
+                ],
+                bindingcomplete: function (event) {
+                    $scope.bindingCompleted = "binding is completed";
+                }
+            }
+        });
 
 
     </script>
@@ -255,15 +395,14 @@
 
 
 </head>
-<body  ng-controller="novaController" >
-<span class="glyphicon glyphicon-home"></span>
-        <jqx-menu jqx-width="'100%'" jqx-height="'37px'" jqx-animation-show-duration="0" jqx-animation-hide-duration="0" jqx-animation-show-delay="0" jqx-animation-hide-delay="0" jqx-theme="'blueprint'">
+<body ng-controller="novaController" >
+    <jqx-menu id="topmenu" jqx-width="'100%'" jqx-height="'60px'" jqx-animation-show-duration="0" jqx-animation-hide-duration="0" jqx-animation-show-delay="'0'" jqx-animation-hide-delay="'0'" jqx-theme="'blueprint'">
         <div id="blueprint-bar" >
             <span class="left">blueprint ®</span>
-            <span class="right"><span class="glyphicon glyphicon-user"></span> Welcome Pegah Tabrizi | Logout</span>
+            <span class="right"><span class="glyphicon glyphicon-user"></span> Welcome Pegah Tabrizi | Logout </span>
         </div> 
  
-      <ul style="margin-top:7px;">
+      <ul>
         <li><a href="#Home"><span class="glyphicon glyphicon-home"></span></a>
             <ul>
               <li>Save
@@ -365,9 +504,7 @@
     </jqx-menu>
 
 
-       <jqx-docking-layout jqx-settings="settings" id="jqxLayout">
-        <!--The panel content divs can have a flat structure-->
-
+    <jqx-docking-layout jqx-settings="settings" id="jqxLayout">
 
         <!--right tabbedGroup-->
         <div data-container="SolutionExplorerPanel">
@@ -375,15 +512,17 @@
             <div id="jstree"></div>
 
         </div>
-        <div data-container="PropertiesPanel">
-            
+        <div data-container="PropertiesPanel">            
            <div id="solutionExplorerTree" style="border: none;"></div> 
 
         </div>
 
         <!--documentGroup-->
         <div data-container="Document1Panel">
-            Document 1 content</div>
+            <div style="overflow:hidden;height:100%;">
+               <div id="jqxgrid"></div>
+            </div>
+        </div>
         <div data-container="Document2Panel">
             Document 2 content</div>
         <!--bottom tabbedGroup-->
@@ -403,8 +542,6 @@
         <div data-container="ReviewsPanel">Review</div>
 
     </jqx-docking-layout>
-
-
 
 </body>
 </html>

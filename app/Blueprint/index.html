@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html ng-app="nova" lang="en">
+<head>
+   <link rel="icon" type="image/ico" href="images/blueprint.ico">
+
+
+    <!-- build:css styles/lib.css -->
+   <!-- bower:css -->
+   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" >
+   <link rel="stylesheet" href="bower_components/jqwidgets/jqwidgets/styles/jqx.base.css" type="text/css" >
+   <link rel="stylesheet" href="bower_components/jstree/dist/themes/default/style.min.css" type="text/css">
+    <!-- endbower -->    
+    <!-- endbuild -->
+
+
+   <!-- build:css styles/app.css -->
+   <!-- inject:css -->
+
+   <link rel="stylesheet" href="styles/blueprint.min.css" type="text/css" >
+   <link rel="stylesheet" href="styles/nova.css" type="text/css">
+
+    <!-- endinject -->
+    <!-- endbuild -->
+
+
+    <!-- build:js js/lib.js -->
+    <!-- bower:js -->
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/jstree/dist/jstree.min.js"></script>
+
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtooltip.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxnumberinput.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxradiobutton.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxinput.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxribbon.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxlayout.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdockinglayout.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtree.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxwindow.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxangular.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+
+
+    <!-- build:js js/app.js -->
+    <!-- inject:js -->
+    <!-- endinject -->
+
+
+
+
+    <script type="text/javascript">
+        var nova = angular.module("nova", ["jqwidgets"]);
+        nova.controller("novaController", ['$scope', '$window', function ($scope, $window) {
+            // the 'layout' JSON array defines the internal structure of the layout
+            var layout = [{
+                type: 'layoutGroup',
+                orientation: 'horizontal',
+                items: [
+
+                {
+                    type: 'tabbedGroup',
+                    width: 220,
+                    minWidth: 200,
+                    items: [{
+                        type: 'layoutPanel',
+                        title: 'Explorer',
+                        contentContainer: 'SolutionExplorerPanel',
+                        initContent: function () {
+                            // initialize a jqxTree inside the Solution Explorer Panel
+                            var source = [{
+                                icon: 'jqwidgets-ver3.9.1/images/earth.png',
+                                label: 'Project',
+                                expanded: true,
+                                items: [{
+                                    icon: 'jqwidgets-ver3.9.1/images/folder.png',
+                                    label: 'css',
+                                    expanded: true,
+                                    items: [{
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqx.base.css'
+                                    }, {
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqx.energyblue.css'
+                                    }, {
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqx.orange.css'
+                                    }]
+                                }, {
+                                    icon: 'jqwidgets-ver3.9.1/images/folder.png',
+                                    label: 'scripts',
+                                    items: [{
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqxcore.js'
+                                    }, {
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqxdata.js'
+                                    }, {
+                                        icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                        label: 'jqxgrid.js'
+                                    }]
+                                }, {
+                                    icon: 'jqwidgets-ver3.9.1/images/nav1.png',
+                                    label: 'index.htm'
+                                }]
+                            }];
+
+                            $('#solutionExplorerTree').jqxTree({ source: source, width: 190 });
+
+                            $('#jstree').jstree({
+                              "core" : {
+                                "animation" : 0,
+                                "check_callback" : true,
+                                "themes" : { "stripes" : false },
+                                'data' : {
+                                  'url' : function (node) {
+                                    return node.id === '#' ?
+                                      'app/tree_root.json' : 'app/tree_children.json';
+                                  },
+                                  'data' : function (node) {
+                                    return { 'id' : node.id };
+                                  }
+                                }
+                              },
+                              "types" : {
+                                "#" : {
+                                  "max_children" : 1, 
+                                  "max_depth" : 4, 
+                                  "valid_children" : ["root"]
+                                },
+                                "root" : {
+                                  "icon" : "/static/3.2.1/assets/images/tree_icon.png",
+                                  "valid_children" : ["default"]
+                                },
+                                "default" : {
+                                  "valid_children" : ["default","file"]
+                                },
+                                "file" : {
+                                  "icon" : "glyphicon glyphicon-file",
+                                  "valid_children" : []
+                                }
+                              },
+                              "plugins" : [
+                                "contextmenu", "dnd", "search", "state", "types", "wholerow"
+                              ]
+                            });                            
+                        }
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Properties',
+                        contentContainer: 'PropertiesPanel'
+                    }]
+                },
+
+                {
+                    type: 'layoutGroup',
+                    orientation: 'vertical',
+                    width:  $window.innerWidth - 220 -100,
+                    items: [{
+                        type: 'documentGroup',
+                        height: $window.innerHeight - 200 -60,
+                        minHeight: 200,
+                        items: [{
+                            type: 'documentPanel',
+                            title: 'Document 1',
+                            contentContainer: 'Document1Panel'
+                        }, {
+                            type: 'documentPanel',
+                            title: 'Document 2',
+                            contentContainer: 'Document2Panel'
+                        }]
+                    }, {
+                        type: 'tabbedGroup',
+                        height: 200,
+                        pinnedHeight: 30,
+                        items: [{
+                            type: 'layoutPanel',
+                            title: 'Error List',
+                            contentContainer: 'ErrorListPanel'
+                        }, {
+                            type: 'layoutPanel',
+                            title: 'Output',
+                            contentContainer: 'OutputPanel',
+                            selected: true
+                        }]
+                    }]
+                },
+
+                {
+                    type: 'autoHideGroup',
+                    alignment: 'right',
+                    width: 100,
+                    unpinnedWidth: 200,
+
+                    items: [{
+                        type: 'layoutPanel',
+                        title: 'Properties',
+                        contentContainer: 'Utility-PropertiesPanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Discussions',
+                        contentContainer: 'DiscussionsPanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Files',
+                        contentContainer: 'FilesPanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Relationships',
+                        contentContainer: 'RelationshipsPanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Outline',
+                        contentContainer: 'OutlinePanel'
+                    },  {
+                        type: 'layoutPanel',
+                        title: 'Browse',
+                        contentContainer: 'BrowsePanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'History',
+                        contentContainer: 'HistoryPanel'
+                    }, {
+                        type: 'layoutPanel',
+                        title: 'Review',
+                        contentContainer: 'ReviewsPanel'
+                    }]
+
+
+                }
+
+                ]
+            }];
+
+
+
+
+            $scope.settings = {width: $window.innerWidth , height: $window.innerHeight -60 , layout: layout, theme: 'blueprint' };
+
+        }]);
+
+
+    </script>
+
+
+
+</head>
+<body  ng-controller="novaController" >
+<span class="glyphicon glyphicon-home"></span>
+        <jqx-menu jqx-width="'100%'" jqx-height="'37px'" jqx-animation-show-duration="0" jqx-animation-hide-duration="0" jqx-animation-show-delay="0" jqx-animation-hide-delay="0" jqx-theme="'blueprint'">
+        <div id="blueprint-bar" >
+            <span class="left">blueprint ®</span>
+            <span class="right"><span class="glyphicon glyphicon-user"></span> Welcome Pegah Tabrizi | Logout</span>
+        </div> 
+ 
+      <ul style="margin-top:7px;">
+        <li><a href="#Home"><span class="glyphicon glyphicon-home"></span></a>
+            <ul>
+              <li>Save
+                <ul>
+                  <li>Save All</li>
+                  <li>Save</li>
+                </ul>
+              </li>
+              <li>Publish
+                <ul>
+                  <li>Publish All</li>
+                  <li>Publish</li>
+                </ul>
+              </li>
+              <li>Discard
+                <ul>
+                  <li>Discard All</li>
+                  <li>Discard</li>
+                </ul>
+              </li>
+              <li>Refresh
+                <ul>
+                  <li>Refresh All</li>
+                  <li>Refresh</li>
+                </ul>
+              </li>
+              <li>Print
+                <ul>
+                  <li>Print to PDF</li>
+                  <li>Print to Word</li>
+                </ul>
+              </li>
+              <li>Open</li>
+              <li>Open Recent
+                <ul>
+                  <li>Project 1</li>
+                  <li>Project 2</li>
+                </ul>
+              </li>
+              <li>Close
+                <ul>
+                  <li>Project 1</li>
+                  <li>Project 2</li>
+                </ul>
+              </li>                             
+              <li>Manage
+                <ul>
+                  <li>Jobs</li>
+                  <li>Instance Administration</li>
+                  <li>Project 1 - Project Administration</li>
+                </ul>
+              </li>                           
+            </ul>
+          </li>
+          <li>
+            View
+            <ul>
+              <li>TODO</li>
+            </ul>
+          </li>
+          <li>
+            Import/Export
+            <ul>
+              <li>Import
+                <ul>
+                  <li>Artifacts</li>
+                  <li class="disabled">Glossary Terms</li>
+                  <li>Visio Diagram</li>
+                  <li>Excel Update</li>
+                </ul>
+              </li>
+              <li>Export
+                <ul>
+                  <li>Office Document
+                    <ul>
+                      <li>From Selection</li>
+                      <li>From Selection - include descendants</li>
+                    </ul>
+                  </li>
+                  <li>ALM Export</li>
+                  <li>Test Plans</li>
+                  <li>Artifact List View</li>
+                  <li>Generate Excel Update Template</li>
+                  <li class="disabled">Visio Diagram</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li>Help
+            <ul>
+              <li>Blueprint &trade; Help</li>
+              <li>Keyboard Shortcuts</li>
+               <li type='separator'></li>
+              <li>About Blueprint ®</li>
+            </ul>
+          </li>         
+      </ul>
+    </jqx-menu>
+
+
+       <jqx-docking-layout jqx-settings="settings" id="jqxLayout">
+        <!--The panel content divs can have a flat structure-->
+
+
+        <!--right tabbedGroup-->
+        <div data-container="SolutionExplorerPanel">
+            <!--<div jstree id="jstree" selected-node="selectedTreeNode" selected-path ="selectedPath" selected-node-changed="nodeChanged" style="z-index:20000;"> </div> -->
+            <div id="jstree"></div>
+
+        </div>
+        <div data-container="PropertiesPanel">
+            
+           <div id="solutionExplorerTree" style="border: none;"></div> 
+
+        </div>
+
+        <!--documentGroup-->
+        <div data-container="Document1Panel">
+            Document 1 content</div>
+        <div data-container="Document2Panel">
+            Document 2 content</div>
+        <!--bottom tabbedGroup-->
+        <div data-container="ErrorListPanel">
+            List of errors</div>
+        <div data-container="OutputPanel">
+            Output</div>
+
+        <!--autoHideGroup-->
+        <div data-container="Utility-PropertiesPanel">Properties</div>
+        <div data-container="DiscussionsPanel">List of Discussions</div>
+        <div data-container="FilesPanel">Files</div>
+        <div data-container="RelationshipsPanel">Relationships</div>
+        <div data-container="OutlinePanel">Outline</div>
+        <div data-container="BrowsePanel">Browse</div>
+        <div data-container="HistoryPanel">History</div>
+        <div data-container="ReviewsPanel">Review</div>
+
+    </jqx-docking-layout>
+
+
+
+</body>
+</html>

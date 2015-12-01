@@ -203,16 +203,24 @@ namespace AdminStore.Controllers
             const string password = "changeme";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password))
-                .Throws(new FormatException());
-
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
+           
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider())
+            {
+                Request = new HttpRequestMessage()
+            };
 
             // Act
-            IHttpActionResult result = await controller.PostSession(login, password, true) as BadRequestResult;
-
+            try
+            {
+                await controller.PostSession(login, password, true);
+            }
+            catch (HttpResponseException ex)
+            {
+                Assert.IsTrue(ex.Response.StatusCode == HttpStatusCode.Unauthorized);
+                return;
+            }
             // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+            Assert.IsTrue(false);           
         }
 
         #endregion

@@ -326,12 +326,6 @@ namespace FileStore.Controllers
                 Configuration = new HttpConfiguration()
             };
 
-            HttpContext.Current = new HttpContext(
-                new HttpRequest("", "http://tempuri.org", ""),
-                new HttpResponse(new StringWriter())
-                );
-
-
             controller.Configuration.Routes.MapHttpRoute(
                  name: "DefaultApi",
                  routeTemplate: "files/{id}",
@@ -348,6 +342,92 @@ namespace FileStore.Controllers
             // Assert
             Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
             Assert.IsTrue(paramFileChunk.ChunkNum == file.ChunkCount + 2);
+        }
+
+        [TestMethod]
+        public async Task PutFile_HttpContextIsNull_InternalServerError()
+        {
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var httpContent = "my file";
+            HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = content
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            HttpContext.Current = null;
+
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = await controller.PutFile(guid.ToString());
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
+
+        [TestMethod]
+        public async Task PutFile_ExceptionThrows_InternalServerError()
+        {
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var httpContent = "my file";
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
+            HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = content
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
+
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = await controller.PutFile(guid.ToString());
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
         }
         #endregion Put unit tests
 

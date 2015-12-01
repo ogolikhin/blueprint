@@ -1,6 +1,7 @@
 'use srtrict';
 
 var gulp = require('gulp-help')(require('gulp')),
+	help = require('gulp-help'),
 	bower = require('gulp-main-bower-files'),
 	addsrc = require('gulp-add-src'),
 	filter = require('gulp-filter'),
@@ -10,6 +11,7 @@ var gulp = require('gulp-help')(require('gulp')),
 	tscompile = require('gulp-typescript'),
 	jsminify = require('gulp-uglify')
 	cssminify = require('gulp-csso'),
+	webserver = require('gulp-webserver'),
 	del = require('del');
 
 var src = {
@@ -123,4 +125,15 @@ gulp.task('build', ['post-build']);
 
 gulp.task('run', ['build']);
 
+
+// temporary serving the single page webapp before server components are ready
+
 gulp.task('default', 'Display this help text.', ['help']);
+
+gulp.task('serve', function() {
+  gulp.src('.')
+    .pipe(webserver({
+      livereload: true,
+      open: true
+    }));
+});

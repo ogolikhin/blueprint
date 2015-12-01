@@ -14,213 +14,297 @@ using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using File = FileStore.Models.File;
+using System.Web.Http.Results;
 
 namespace FileStore.Controllers
 {
-	[TestClass]
-	public class FilesControllerTests
-	{
+    [TestClass]
+    public class FilesControllerTests
+    {
 	    private const int DefaultChunkSize = 1048576; // 1mb chunk size
         #region Post unit tests
-		[TestMethod]
-		public async Task PostFile_MultipartSingleFile_Success()
-		{
-			//Arrange
-			var guid = Guid.NewGuid();
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        [TestMethod]
+        public async Task PostFile_MultipartSingleFile_Success()
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
 
-			string fileName4Upload = "\"UploadTest.txt\"";
-			string fileContent4Upload = "This is the content of the uploaded test file";
+            string fileName4Upload = "\"UploadTest.txt\"";
+            string fileContent4Upload = "This is the content of the uploaded test file";
 
-			MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
-			ByteArrayContent byteArrayContent = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
-			byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
-			multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
+            MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
+            ByteArrayContent byteArrayContent = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
+            multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
 		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(DefaultChunkSize);
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Content = multiPartContent
-				},
-				Configuration = new HttpConfiguration()
-			};
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent
+                },
+                Configuration = new HttpConfiguration()
+            };
 
 
             var context = await SetupMultipartPost(multiPartContent);
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
-			// 1. Upload file
+            // Act
+            // 1. Upload file
             var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
-			//Assert
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			var content = response.Content;
+            var content = response.Content;
             var fileContent4Download = await content.ReadAsStringAsync();
-			var contentType = content.Headers.ContentType;
+            var contentType = content.Headers.ContentType;
 
-			// Assert
-			Assert.IsTrue(response.IsSuccessStatusCode);
-		}
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+        }
 
-		[TestMethod]
-		public async Task PostFile_MultipartMultipleFiles_BadRequestFailure()
-		{
-			//Arrange
-			var guid = Guid.NewGuid();
-			var moq = new Mock<IFilesRepository>();
+        [TestMethod]
+        public async Task PostFile_MultipartMultipleFiles_BadRequestFailure()
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			string fileName4Upload = "\"UploadTest.txt\"";
-			string fileContent4Upload = "This is the content of the uploaded test file";
+            string fileName4Upload = "\"UploadTest.txt\"";
+            string fileContent4Upload = "This is the content of the uploaded test file";
 
-			var multiPartContent1 = new MultipartFormDataContent("----MyGreatBoundary");
-			ByteArrayContent byteArrayContent1 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
-			ByteArrayContent byteArrayContent2 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
-			byteArrayContent1.Headers.Add("Content-Type", "multipart/form-data");
-			multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);
-			multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
+            var multiPartContent1 = new MultipartFormDataContent("----MyGreatBoundary");
+            ByteArrayContent byteArrayContent1 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            ByteArrayContent byteArrayContent2 = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            byteArrayContent1.Headers.Add("Content-Type", "multipart/form-data");
+            multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);
+            multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Content = multiPartContent1
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent1
+                },
+                Configuration = new HttpConfiguration()
+            };
 
             var context = await SetupMultipartPost(multiPartContent1);
 
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
-			// 1. Upload file
+            // Act
+            // 1. Upload file
             var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
-			//Assert
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			var content = response.Content;
+            var content = response.Content;
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task PostFile_NonMultipart_BadRequestFailure()
-		{
-			//Arrange
-			var guid = Guid.NewGuid();
-			var moq = new Mock<IFilesRepository>();
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var httpContent = new StringContent("my file");
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Content = httpContent
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var httpContent = new StringContent("my file");
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = httpContent
+                },
+                Configuration = new HttpConfiguration()
+            };
 
             HttpContext.Current = new HttpContext(
                 new HttpRequest("", "http://tempuri.org", ""),
                 new HttpResponse(new StringWriter())
                 );
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
-			// 1. Upload file
+            // Act
+            // 1. Upload file
             var actionResult = await controller.PostFile(null);
 
-			//Assert
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
 
-		[TestMethod]
-		public async Task PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
-		{
-			//Arrange
-			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Throws(new Exception());
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        [TestMethod]
+        public async Task PostFile_NonMultipartDateTimeExpired_BadRequestFailure()
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			string fileName4Upload = "\"UploadTest.txt\"";
-			string fileContent4Upload = "This is the content of the uploaded test file";
+            var httpContent = new StringContent("my file");
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = httpContent
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
-			ByteArrayContent byteArrayContent = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
-			byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
-			multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
+            HttpContext.Current = new HttpContext(
+                new HttpRequest("", "http://tempuri.org", ""),
+                new HttpResponse(new StringWriter())
+                );
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Content = multiPartContent
-				},
-				Configuration = new HttpConfiguration()
-			};
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = await controller.PostFile(DateTime.Now);
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PostFile_HttpContextNull_InternalServerError()
+        {
+            //Arrange
+            var guid = Guid.NewGuid();
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            var httpContent = new StringContent("my file");
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = httpContent
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            // 1. Upload file
+            var actionResult = await controller.PostFile(DateTime.Now);
+
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
+
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
+
+        [TestMethod]
+        public async Task PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            string fileName4Upload = "\"UploadTest.txt\"";
+            string fileContent4Upload = "This is the content of the uploaded test file";
+
+            MultipartFormDataContent multiPartContent = new MultipartFormDataContent("----MyGreatBoundary");
+            ByteArrayContent byteArrayContent = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent4Upload));
+            byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
+            multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Content = multiPartContent
+                },
+                Configuration = new HttpConfiguration()
+            };
 
             var context = await SetupMultipartPost(multiPartContent);
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
-			// 1. Upload file
+            // Act
+            // 1. Upload file
             var actionResult = await controller.PostFileHttpContext(context.Object, null);
 
-			//Assert
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            //Assert
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
 
         private async Task<Mock<HttpContextWrapper>> SetupMultipartPost(MultipartFormDataContent multiPartContent)
         {
@@ -353,281 +437,338 @@ namespace FileStore.Controllers
 
         [TestMethod]
         public async Task HeadFile_GetHeadForExistentFile_Success()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var file = new File
-			{
-				FileId = new Guid("33333333-3333-3333-3333-333333333333"),
-				FileName = "Test3.txt",
-				StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-				FileType = "text/html",
+            var file = new File
+            {
+                FileId = new Guid("33333333-3333-3333-3333-333333333333"),
+                FileName = "Test3.txt",
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = "text/html",
                 ChunkCount = 1
-			};
+            };
 
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Method = HttpMethod.Head
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
-			var content = response.Content;
+            var content = response.Content;
             var fileContent = await content.ReadAsStringAsync();
-			var contentType = content.Headers.ContentType;
-			var fileName = content.Headers.ContentDisposition.FileName;
-			var storedTime = response.Headers.GetValues("Stored-Date");
+            var contentType = content.Headers.ContentType;
+            var fileName = content.Headers.ContentDisposition.FileName;
+            var storedTime = response.Headers.GetValues("Stored-Date");
 
-			// Assert
-			Assert.IsTrue(response.IsSuccessStatusCode);
-			Assert.IsTrue(fileName == "Test3.txt");
-			Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
-		}
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(fileName == "Test3.txt");
+            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
 
-		[TestMethod]
-        public async Task HeadFile_GetHeadForNonExistentFile_Failure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        [TestMethod]
+        public async Task HeadFile_GetHeadForExistentFileStreamFile_Success()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Method = HttpMethod.Head
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var file = new File
+            {
+                FileId = new Guid("33333333-3333-3333-3333-333333333333"),
+                FileName = "Test3.txt",
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = "text/html",
+                ChunkCount = 1
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
 
-			// Act
+            moqFileStreamRepo.Setup(t => t.FileExists(file.FileId)).Returns(true);
+            moqFileStreamRepo.Setup(t => t.GetFileHead(file.FileId)).Returns(file);
+
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(file.FileType)).Returns("application/octet-stream");
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
             var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
+            var content = response.Content;
+            var fileContent = await content.ReadAsStringAsync();
+            var contentType = content.Headers.ContentType;
+            var fileName = content.Headers.ContentDisposition.FileName;
+            var storedTime = response.Headers.GetValues("Stored-Date");
+
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(fileName == "Test3.txt");
+            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
+
+        [TestMethod]
+        public async Task HeadFile_GetHeadForNonExistentFile_Failure()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task HeadFile_ImproperGuid_FormatException()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Method = HttpMethod.Head
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileHead("333333333!@#@!@!@!33333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task HeadFile_UnknownException_InternalServerErrorFailure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files"),
-					Method = HttpMethod.Head
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files"),
+                    Method = HttpMethod.Head
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileHead("33333333333333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task GetFile_ImproperGuid_FormatException()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileContent("333333333!@#@!@!@!33333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task GetFile_UnknownException_InternalServerErrorFailure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileContent("33333333333333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task GetFile_NonExistentFile_NotFoundFailure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileContent("33333333333333333333333333333333");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
         
         [TestMethod]
         public async Task GetFile_ProperRequest_Success()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
-		    var contentString = "Test2 content";
-		    var fileChunk = new FileChunk()
-		    {
-		        ChunkNum = 1,
-		        ChunkContent = Encoding.UTF8.GetBytes(contentString),
-		        ChunkSize = Encoding.UTF8.GetBytes(contentString).Length
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var contentString = "Test2 content";
+            var fileChunk = new FileChunk()
+            {
+                ChunkNum = 1,
+                ChunkContent = Encoding.UTF8.GetBytes(contentString),
+                ChunkSize = Encoding.UTF8.GetBytes(contentString).Length
             };
             var file = new File
-			{
-				FileId = new Guid("22222222-2222-2222-2222-222222222222"),
-				FileName = "Test2.txt",
+            {
+                FileId = new Guid("22222222-2222-2222-2222-222222222222"),
+                FileName = "Test2.txt",
                 StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-				FileType = FileMapperRepository.DefaultMediaType,
+                FileType = FileMapperRepository.DefaultMediaType,
                 FileSize = fileChunk.ChunkSize,
                 ChunkCount = 1
             };
@@ -642,116 +783,449 @@ namespace FileStore.Controllers
             moq.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1)).Returns(fileChunk.ChunkContent);
 
             moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
-				 .Returns(FileMapperRepository.DefaultMediaType);
-		    moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1*1024*1024);
+                 .Returns(FileMapperRepository.DefaultMediaType);
+            moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1*1024*1024);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
-			var content = response.Content;
+            var content = response.Content;
             var fileContent = await content.ReadAsStringAsync();
-			var contentType = content.Headers.ContentType;
-			var fileName = content.Headers.ContentDisposition.FileName;
-			var storedTime = response.Headers.GetValues("Stored-Date");
+            var contentType = content.Headers.ContentType;
+            var fileName = content.Headers.ContentDisposition.FileName;
+            var storedTime = response.Headers.GetValues("Stored-Date");
 
-			// Assert
-			Assert.IsTrue(response.IsSuccessStatusCode);
-			Assert.IsTrue(fileName == "Test2.txt");
-			Assert.IsTrue(fileContent == "Test2 content");
-			Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
-		}
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(fileName == "Test2.txt");
+            Assert.IsTrue(fileContent == "Test2 content");
+            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
 
-		[TestMethod]
+        [TestMethod]
+        public async Task GetFile_ProperRequestFileStream_Success()
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var contentString = "Test2 content";
+            var fileChunk = new FileChunk()
+            {
+                ChunkNum = 1,
+                ChunkContent = Encoding.UTF8.GetBytes(contentString),
+                ChunkSize = Encoding.UTF8.GetBytes(contentString).Length
+            };
+            var file = new File
+            {
+                FileId = new Guid("22222222-2222-2222-2222-222222222222"),
+                FileName = "Test2.txt",
+                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                FileType = FileMapperRepository.DefaultMediaType,
+                FileSize = fileChunk.ChunkSize,
+                ChunkCount = 1
+            };
+
+            var moqDbConnection = new Mock<DbConnection>();
+
+            moqConfigRepo.Setup(t => t.FileChunkSize).Returns(1 * 1024 * 1024);
+            moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(1);
+
+            moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
+            moq.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
+            moq.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1)).Returns(fileChunk.ChunkContent);
+
+            moqFileStreamRepo.Setup(t => t.CreateConnection()).Returns(moqDbConnection.Object);
+            moqFileStreamRepo.Setup(t => t.FileExists(It.IsAny<Guid>())).Returns(true);
+            moqFileStreamRepo.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Returns(file);
+            moqFileStreamRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, file.FileId, 1, 0)).Returns(fileChunk.ChunkContent);
+
+            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
+                 .Returns(FileMapperRepository.DefaultMediaType);
+            
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            // Act
+            var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
+            var content = response.Content;
+            
+            var contentType = content.Headers.ContentType;
+            var fileName = content.Headers.ContentDisposition.FileName;
+            var storedTime = response.Headers.GetValues("Stored-Date");
+
+            var fileContent = await content.ReadAsStringAsync();
+
+            // Assert
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(fileName == "Test2.txt");
+            Assert.IsTrue(contentType.MediaType == "application/octet-stream");
+            Assert.IsTrue(fileContent == "Test2 content", "Improper content was returned");
+            Assert.IsTrue(storedTime.First() == "2015-09-05T22:57:31.7824054-04:00");
+        }
+
+        [TestMethod]
         public async Task GetFile_NoFileRetrieved_Failure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             // #DEBUG
 
             //moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			// Act
+            // Act
             var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
-		}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public async Task GetFile_NoFileRetrievedEmptyName_Failure()
-		{
-			// Arrange
-			var moq = new Mock<IFilesRepository>();
-			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
-			var moqConfigRepo = new Mock<IConfigRepository>();
+        {
+            // Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
 
-			File file = new File();
+            File file = new File();
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync((File)null);
             
             // #DEBUG
             // moqFileStreamRepo.Setup(m => m.GetFileContent(It.IsAny<Guid>())).Returns((System.IO.Stream)null);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
-			{
-				Request = new HttpRequestMessage
-				{
-					RequestUri = new Uri("http://localhost/files")
-				},
-				Configuration = new HttpConfiguration()
-			};
 
-			controller.Configuration.Routes.MapHttpRoute(
-				 name: "DefaultApi",
-				 routeTemplate: "files/{id}",
-				 defaults: new { id = RouteParameter.Optional });
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
 
-			// Act
-            var actionResult = await controller.GetFileContent("22222222222222222222222222222222");
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
 
-			System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
+            // Act
+			var actionResult = controller.GetFileContent("22222222222222222222222222222222").Result;
+
+            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
             HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
 
-			// Assert
-			Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
-		}
-	}
+            // Assert
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+        }
+
+        [TestMethod]
+	    public void DeleteFile_FormatException_BadRequest()
+	    {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), DateTime.UtcNow)).Throws(new FormatException());
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+
+            //ct
+            var result = controller.DeleteFile("", null);
+
+            //Assert
+            Assert.IsInstanceOfType(result.Result, typeof(BadRequestResult), "Result should be BadRequestResult");
+	    }
+
+        [TestMethod]
+        public void DeleteFile_Exception_InternalServerError()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Throws(new Exception());
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(Guid.NewGuid().ToString("N"), null);
+
+            //Act
+            Assert.IsInstanceOfType(result.Result, typeof(InternalServerErrorResult), "Result should be InternalServerError");
+
+        }
+
+        [TestMethod]
+        public void DeleteFile_FileNotFound()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)null));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(Guid.NewGuid().ToString("N"), null);
+
+            //Act
+            Assert.IsInstanceOfType(result.Result, typeof(NotFoundResult), "Result should be NotFound");
+
+        }
+
+        [TestMethod]
+        public void DeleteFile_FileFound_Successfull()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var guid = Guid.NewGuid();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(guid.ToString("N"), null);
+
+            //Act
+            var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
+            
+            Assert.IsNotNull(okNegotiatedContentResult);
+            Assert.AreEqual(guid.ToString("N"), okNegotiatedContentResult.Content, "Guid returned is not same as supplied");
+
+        }
+
+        [TestMethod]
+        public void DeleteFile_FileFoundDateSupplied_Successfull()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var guid = Guid.NewGuid();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now);
+
+            //Act
+            var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
+
+            Assert.IsNotNull(okNegotiatedContentResult);
+            Assert.AreEqual(guid.ToString("N"), okNegotiatedContentResult.Content, "Guid returned is not same as supplied");
+
+        }
+
+        [TestMethod]
+        public void DeleteFile_FileFoundHistoricalDateSupplied_Successfull()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var guid = Guid.NewGuid();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now.AddDays(-10));
+
+            //Act
+            var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
+
+            Assert.IsNotNull(okNegotiatedContentResult);
+            Assert.AreEqual(guid.ToString("N"), okNegotiatedContentResult.Content, "Guid returned is not same as supplied");
+
+        }
+
+        [TestMethod]
+        public void DeleteFile_FileFoundHFutureDateSupplied_Successfull()
+        {
+            //Arrange
+            var moq = new Mock<IFilesRepository>();
+            var moqFileStreamRepo = new Mock<IFileStreamRepository>();
+            var moqFileMapper = new Mock<IFileMapperRepository>();
+            var moqConfigRepo = new Mock<IConfigRepository>();
+            var guid = Guid.NewGuid();
+
+            File file = new File();
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            {
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://localhost/files")
+                },
+                Configuration = new HttpConfiguration()
+            };
+
+            controller.Configuration.Routes.MapHttpRoute(
+                 name: "DefaultApi",
+                 routeTemplate: "files/{id}",
+                 defaults: new { id = RouteParameter.Optional });
+
+            //Assert
+            var result = controller.DeleteFile(guid.ToString("N"), DateTime.Now.AddDays(10));
+
+            //Act
+            var okNegotiatedContentResult = result.Result as OkNegotiatedContentResult<string>;
+
+            Assert.IsNotNull(okNegotiatedContentResult);
+            Assert.AreEqual(guid.ToString("N"), okNegotiatedContentResult.Content, "Guid returned is not same as supplied");
+
+        }
+    }
 }

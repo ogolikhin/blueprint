@@ -1,18 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
-using System.Net.Http.Formatting;
-using AdminStore.Models;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
 
 namespace AdminStore.Controllers
 {
@@ -42,13 +42,14 @@ namespace AdminStore.Controllers
         public async Task GetConfigSettings_HttpClientReturnsContent_ReturnsHeadersAndContent()
         {
             // Arrange
-            ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group" } };
+            var settings = new Dictionary<string, Dictionary<string, string>>();
+            settings.Add("Group", new Dictionary<string, string>());
+            settings["Group"].Add("Key", "Value");
             var configRepo = new Mock<IConfigRepository>();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
-                new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -59,7 +60,7 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
-            Assert.AreEqual(settings, await result.Response.Content.ReadAsAsync<ConfigSetting[]>());
+            Assert.AreEqual(settings, await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>());
         }
 
         [TestMethod]
@@ -68,8 +69,7 @@ namespace AdminStore.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act
@@ -87,15 +87,16 @@ namespace AdminStore.Controllers
         public async Task GetConfig_NoLocale_ReturnsHeadersAndContent()
         {
             // Arrange
-            ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group" } };
+            var settings = new Dictionary<string, Dictionary<string, string>>();
+            settings.Add("Group", new Dictionary<string, string>());
+            settings["Group"].Add("Key", "Value");
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "Key", Locale = "en-US", Text = "Text" } };
             var configRepo = new Mock<IConfigRepository>();
-            configRepo.Setup(r => r.GetLabels("en-US")).Returns(Task.FromResult(labels)).Verifiable();
+            configRepo.Setup(r => r.GetLabels("en-US")).ReturnsAsync(labels).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
-                new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -108,7 +109,7 @@ namespace AdminStore.Controllers
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'Key':'Text'} };console.log('Configuration for locale en-US loaded successfully.');",
-                await result.Response.Content.ReadAsStringAsync());
+                 await result.Response.Content.ReadAsStringAsync());
         }
 
         [TestMethod]
@@ -116,15 +117,16 @@ namespace AdminStore.Controllers
         {
             // Arrange
             string locale = "en-CA";
-            ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group" } };
+            var settings = new Dictionary<string, Dictionary<string, string>>();
+            settings.Add("Group", new Dictionary<string, string>());
+            settings["Group"].Add("Key", "Value");
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "KeyCA", Locale = locale, Text = "TextCA" } };
             var configRepo = new Mock<IConfigRepository>();
-            configRepo.Setup(r => r.GetLabels(locale)).Returns(Task.FromResult(labels)).Verifiable();
+            configRepo.Setup(r => r.GetLabels(locale)).ReturnsAsync(labels).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
-                new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+                 new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             controller.Request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(locale));
@@ -138,7 +140,7 @@ namespace AdminStore.Controllers
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'KeyCA':'TextCA'} };console.log('Configuration for locale " + locale + @" loaded successfully.');",
-                await result.Response.Content.ReadAsStringAsync());
+                 await result.Response.Content.ReadAsStringAsync());
         }
 
         [TestMethod]
@@ -147,8 +149,7 @@ namespace AdminStore.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act

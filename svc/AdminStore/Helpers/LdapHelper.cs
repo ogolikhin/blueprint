@@ -1,5 +1,4 @@
 ﻿using System;
-using System.DirectoryServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using AdminStore.Models;
@@ -19,9 +18,8 @@ namespace AdminStore.Helpers
 
             //http://stackoverflow.com/questions/649149/how-to-escape-a-string-in-c-for-use-in-an-ldap-query/694915#694915
             StringBuilder escape = new StringBuilder();
-            for (int i = 0; i < searchFilter.Length; ++i)
+            foreach (char current in searchFilter)
             {
-                char current = searchFilter[i];
                 switch (current)
                 {
                     case '\\':
@@ -51,13 +49,6 @@ namespace AdminStore.Helpers
             return escape.ToString();
         }
 
-        public static string GetEffectiveDomainAttribute(this LdapSettings ldapSettings)
-        {
-            return ldapSettings.EnableCustomSettings
-                ? (string.IsNullOrWhiteSpace(ldapSettings.DomainAttribute) ? null : ldapSettings.DomainAttribute)
-                : null;
-        }
-
         public static string GetEffectiveAccountNameAttribute(this LdapSettings ldapSettings)
         {
             return ldapSettings.EnableCustomSettings
@@ -65,32 +56,18 @@ namespace AdminStore.Helpers
                 : DefaultAccountNameAttribute;
         }
 
-        public static bool MatchsUser(this LdapSettings ldapSettings, string domain)
+        public static bool MatchesDomain(this LdapSettings ldapSettings, string domain)
         {
-            const string pattern = @"(DC=[\w\s\-\&]+)";
+            const string pattern = @"DC=([\w\s\-\&]+)";
             var regex = new Regex(pattern, RegexOptions.IgnoreCase);
             var match = regex.Match(ldapSettings.LdapAuthenticationUrl);
 
-            if (match.Groups.Count < 1)
+            if (match.Groups.Count < 2)
                 return false;
 
-            var dcMatch = match.Groups[0].Value.Trim();
-            var ar = dcMatch.Split('=');
+            var dc = match.Groups[1].Value.Trim();
 
-            if (ar.Length != 2)
-                return false;
-
-            var dc = ar[1].Trim();
-
-            return string.Compare(domain.Trim(), dc, StringComparison.OrdinalIgnoreCase) == 0;
-        }
-
-        public static DirectoryEntry CreateDirectoryEntry(this LdapSettings ldapSettings)
-        {
-            return new DirectoryEntry(ldapSettings.LdapAuthenticationUrl
-                                    , ldapSettings.BindUser
-                                    , ldapSettings.BindPassword
-                                    , ldapSettings.AuthenticationType);
+            return string.Compare(domain == null ? "" : domain.Trim(), dc, StringComparison.OrdinalIgnoreCase) == 0;
         }
     }
 }

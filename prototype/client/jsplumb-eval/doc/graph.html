@@ -1,0 +1,418 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Graph Operations</h2>
+
+<p>Underlying each instance of the Toolkit there is a <a href="http://en.wikipedia.org/wiki/Directed_graph">directed graph</a>.  This 
+object - accessed via the <code>getGraph</code> method of a <code>jsPlumbToolkitInstance</code> - offers a complete set of methods for 
+querying the state of the graph - from questions like &quot;is node A connected to node B&quot; through to &quot;what is the shortest 
+path from node A and node B?&quot;, or &quot;what is the centrality of Node C?&quot;. </p>
+
+<ul>
+<li><a href="#paths">Paths</a>
+
+<ul>
+<li><a href="#distance">Distance between objects</a></li>
+<li><a href="#findpath">Shortest Path</a></li>
+</ul></li>
+<li><a href="#centrality">Centrality</a>
+
+<ul>
+<li><a href="#degreecentrality">Degree Centrality</a></li>
+<li><a href="#indegreecentrality">Indegree Centrality</a></li>
+<li><a href="#outdegreecentrality">Outdegree Centrality</a></li>
+<li><a href="#closeness">Closeness</a></li>
+<li><a href="#farness">Farness</a></li>
+<li><a href="#betweenness">Betweenness</a></li>
+</ul></li>
+<li>General
+
+<ul>
+<li><a href="#diameter">Graph Diameter</a></li>
+</ul></li>
+</ul>
+
+<p>The code snippets on this page all refer to this dataset:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+    <span class="nx">data</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">nodes</span><span class="o">:</span><span class="p">[</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;1&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;2&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;3&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;4&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;5&quot;</span> <span class="p">}</span> <span class="p">],</span>
+      <span class="nx">edges</span><span class="o">:</span><span class="p">[</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">5</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span> <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="paths"></a></p>
+
+<h3>Paths</h3>
+
+<p><a name="distance"></a></p>
+
+<h4>Distance between objects</h4>
+
+<p>To find the distance between two objects, use the <code>getDistance</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDistance</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">15</span>
+
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDistance</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">25</span>
+
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDistance</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="kc">undefined</span>
+</code></pre></div>
+<p>Note the last example returns <code>undefined</code>: remember that Edges in the Toolkit are, by default, directed. If you look
+ again at the dataset you can see that there is no route from Node 4 to Node 5, since both of these Nodes are connected 
+ to the Graph only as targets of Edges from Node 3.</p>
+
+<p><a name="findpath"></a></p>
+
+<h4>Shortest Paths</h4>
+
+<p>To get the shortest path from some Node/Port to another Node/Port, use the <code>getPath</code> method:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getPath</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="nx">target</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">})</span>
+<span class="o">-&gt;</span> <span class="nx">e</span><span class="err">…</span><span class="nx">s</span><span class="p">.</span><span class="nx">Path</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="nb">Object</span><span class="p">}</span>
+</code></pre></div>
+<p>The return value from this method is a [Path](paths]. This is a complex object with many helper functions; if you 
+need a more simple return value you can access the Graph&#39;s <code>findPath</code> method directly:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">findPath</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="nb">Object</span> <span class="p">{</span><span class="nx">dist</span><span class="o">:</span> <span class="nb">Object</span><span class="p">,</span> <span class="nx">previous</span><span class="o">:</span> <span class="nb">Object</span><span class="p">,</span> <span class="nx">edges</span><span class="o">:</span> <span class="nb">Object</span><span class="p">,</span> <span class="nx">path</span><span class="o">:</span> <span class="nb">Array</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="nx">pathDistance</span><span class="o">:</span> <span class="mi">15</span><span class="p">}</span>
+</code></pre></div>
+<hr>
+
+<p><a name="centrality"></a></p>
+
+<h3>Centrality</h3>
+
+<p><a name="degreecentrality"></a></p>
+
+<h4>Degree Centrality</h4>
+
+<p>The degree centrality of a node is the sum of the number of Edges entering and exiting the node divided by the total
+ number of Edges in the Graph. Looking at the dataset we&#39;re using on this page you may have noticed that Node 3 has more
+ connections than any other node, and this observation is reflected in the output of <code>getDegreeCentrality</code> :</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDegreeCentrality</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.75</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDegreeCentrality</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.25</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDegreeCentrality</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.5</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDegreeCentrality</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.25</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDegreeCentrality</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.25</span>
+</code></pre></div>
+<p><a name="indegreecentrality"></a></p>
+
+<h4>Indegree Centrality</h4>
+
+<p>The indegree centrality of a node is the number of edges entering the node, divided by the number of Edges in the Graph:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getIndegreeCentrality</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getIndegreeCentrality</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getIndegreeCentrality</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getIndegreeCentrality</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getIndegreeCentrality</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+</code></pre></div>
+<p><a name="outdegreecentrality"></a></p>
+
+<h4>Outdegree Centrality</h4>
+
+<p>The outdegree centrality of a node is the number of edges exiting the node, divided by the number of Edges in the Graph:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getOutdegreeCentrality</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.5</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getOutdegreeCentrality</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getOutdegreeCentrality</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getOutdegreeCentrality</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getOutdegreeCentrality</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+</code></pre></div>
+<p><a name="farness"></a></p>
+
+<h4>Farness</h4>
+
+<p>The <code>farness</code> of a node is the sum of its distance from all other Nodes, where the distance from one Node to another 
+is given by the associated cost of the Edge joining the two Nodes. As with degree centrality, this is divided by 
+the number of Edges, to normalise the results. Note that here we have a Graph that has Nodes which cannot &quot;reach&quot;
+ every other Node (because all Edges are <code>directed</code>), so the &quot;farness&quot; of every Node is Infinity except Node 1, which
+ can trace a path to every other Node.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="kc">Infinity</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">18.75</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="kc">Infinity</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="kc">Infinity</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="kc">Infinity</span>
+</code></pre></div>
+<p><a name="closeness"></a></p>
+
+<h4>Closeness</h4>
+
+<p>This is the inverse of a Node&#39;s <code>farness</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.05333333333333334</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+</code></pre></div>
+<p>...so the only Node that has a useful value for closeness is Node 1. At the bottom of this page we present a revised
+version of the dataset in which Edges are all marked <code>directed:false</code>, and then we show that the output of <code>getFarness</code>
+and <code>getCloseness</code> provides a usable value for every Node.</p>
+
+<p><a name="betweenness"></a></p>
+
+<h4>Betweenness Centrality</h4>
+
+<p>The <a href="https://en.wikipedia.org/wiki/Betweenness_centrality">betweenness centrality</a> of a Node measures how central 
+the Node is in the Graph. It is the number of shortest paths between any two Nodes in the Graph that pass through 
+the given Nodes. The jsPlumb Toolkit computes this by first computing all the shortest paths in the Graph using 
+the <a href="https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm">Floyd-Warshall</a> algorithm.</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getBetweenness</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">1.6666666666666667</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getBetweenness</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getBetweenness</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">0.6666666666666666</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getBetweenness</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getBetweenness</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">0</span>
+</code></pre></div>
+<p>We see from the output here that Node 3 is the most &quot;central&quot; Node in this Graph, with Node 2 next. Nodes 1, 4 and 5 are
+not &quot;central&quot; as no paths go through these Nodes.</p>
+
+<hr>
+
+<p><a name="general"></a></p>
+
+<h3>General</h3>
+
+<p><a name="diameter"></a></p>
+
+<h4>Graph Diameter</h4>
+
+<p>Use the <code>getDiameter</code> method to find the Graph&#39;s <a href="http://mathworld.wolfram.com/GraphDiameter.html">diameter</a> - the length
+of the &quot;longest shortest path&quot; in the Graph.</p>
+
+<p>In a Graph that contains at least one pair of Nodes for which there is no available path, this value, strictly speaking,
+ is Infinity. Our dataset on this page is one such Graph, but it doesn&#39;t seem like an unreasonable dataset, right? So 
+ the Toolkit allows you to specify that you&#39;re happy to ignore the case that there are one or more pairs of Nodes for
+ which no Path exists:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDiameter</span><span class="p">()</span>
+<span class="o">-&gt;</span><span class="kc">Infinity</span>
+
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDiameter</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">25</span>
+</code></pre></div>
+<p>The second result - 25 - is the distance of the path from Node 1 to Node 4 or 5, which is to say, the &quot;longest shortest 
+path&quot; in the Graph:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getDistance</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">25</span>
+</code></pre></div>
+<h3>Undirected Graphs</h3>
+
+<p>If we take the data from above and make every edge bidirectional, we get vastly different results for the centrality
+methods:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+    <span class="nx">data</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">nodes</span><span class="o">:</span><span class="p">[</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;1&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;2&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;3&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;4&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;5&quot;</span> <span class="p">}</span> <span class="p">],</span>
+      <span class="nx">edges</span><span class="o">:</span><span class="p">[</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">directed</span><span class="o">:</span><span class="kc">false</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span> <span class="nx">directed</span><span class="o">:</span><span class="kc">false</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">directed</span><span class="o">:</span><span class="kc">false</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="nx">cost</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">directed</span><span class="o">:</span><span class="kc">false</span> <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>For instance, here are the values for <code>getFarness</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">10</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">18.75</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">11.25</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">17.5</span>
+<span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getFarness</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mf">17.5</span>
+</code></pre></div>
+<p>Note how the value for Node 1 - the only Node in the previous Graph that could &quot;reach&quot; all the other Nodes - is the
+ same as in the previous Graph.</p>
+
+<p>Here are the results for <code>getCloseness</code> :</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.1</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.05333333333333334</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.08888888888888889</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.05714285714285714</span>
+ <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getGraph</span><span class="p">().</span><span class="nx">getCloseness</span><span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+ <span class="o">-&gt;</span> <span class="mf">0.05714285714285714</span>
+</code></pre></div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

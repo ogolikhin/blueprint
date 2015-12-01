@@ -13,7 +13,7 @@ namespace FileStore.Models
 
             try
             {
-                // Act 
+                // Act
                 File.ConvertToStoreId("333333333!@#@!@!@!33333333333333333333333");
             }
             catch (FormatException)
@@ -30,7 +30,7 @@ namespace FileStore.Models
             // Arrange
             var guid = Guid.NewGuid().ToString("N");
 
-            // Act 
+            // Act
             var actualGuid = File.ConvertToStoreId(guid);
 
             Assert.IsTrue(actualGuid != Guid.Empty);
@@ -42,7 +42,7 @@ namespace FileStore.Models
             // Arrange
             var guid = Guid.NewGuid().ToString("D");
 
-            // Act 
+            // Act
             var actualGuid = File.ConvertToStoreId(guid);
 
             Assert.IsTrue(actualGuid != Guid.Empty);

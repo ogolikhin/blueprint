@@ -97,5 +97,19 @@ namespace AdminStore.Helpers
 
             return decryptedString;
         }
+
+        public static string Decode(string input)
+        {
+            return input == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(input));
+        }
+
+        public static string EncodeTo64UTF8(string m_enc)
+        {
+            byte[] toEncodeAsBytes =
+            System.Text.Encoding.UTF8.GetBytes(m_enc);
+            string returnValue =
+            System.Convert.ToBase64String(toEncodeAsBytes);
+            return returnValue;
+        }
     }
 }

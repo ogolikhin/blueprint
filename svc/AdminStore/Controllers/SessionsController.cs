@@ -4,10 +4,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Remoting;
-using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
+using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
 using ServiceLibrary.Helpers;
@@ -33,19 +35,21 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(string login, string password, bool force = false)
+        public async Task<IHttpActionResult> PostSession(string login, [FromBody]string password, bool force = false)
         {
             try
             {
-                var user = await _authenticationRepository.AuthenticateUserAsync(login, password);
-                return await RequestSessionTokenAsync(user.Id);
+                var decodedLogin = SystemEncryptions.Decode(login);
+                var decodedPassword = SystemEncryptions.Decode(password);
+                var user = await _authenticationRepository.AuthenticateUserAsync(decodedLogin, decodedPassword);
+                return await RequestSessionTokenAsync(user, force);
             }
-            catch (AuthenticationException)
+            catch (AuthenticationException ex)
             {
-                return NotFound();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
-            {
+            {              
                 return Conflict();
             }
             catch (ArgumentNullException)
@@ -62,7 +66,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(int userId, bool force = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool isSso = false)
         {
             if (!force)
             {
@@ -71,7 +75,7 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var result = await http.GetAsync("sessions/" + userId.ToString());
+                    var result = await http.GetAsync("sessions/" + user.Id);
                     if (result.IsSuccessStatusCode) // session exists
                     {
                         throw new ApplicationException("Conflict");
@@ -83,7 +87,13 @@ namespace AdminStore.Controllers
                 http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var result = await http.PostAsJsonAsync("sessions/" + userId.ToString(), userId);
+
+                var queryParams = HttpUtility.ParseQueryString(string.Empty);
+                queryParams.Add("userName", user.Login);
+                queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
+                queryParams.Add("isSso", isSso.ToString());
+
+                var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
                     throw new ServerException();
@@ -102,16 +112,28 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSessionSingleSignOn(string samlResponse, bool force = false)
+        public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
         {
             try
             {
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
-                return await RequestSessionTokenAsync(user.Id, force);
+                return await RequestSessionTokenAsync(user, force, true);
             }
-            catch (FederatedAuthenticationException)
+            catch (FederatedAuthenticationException e)
             {
-                return NotFound();
+                if (e.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
+                {
+                    return BadRequest();
+                }
+                return Unauthorized();
+            }
+            catch (ApplicationException)
+            {
+                return Conflict();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
             }
             catch
             {
@@ -131,11 +153,22 @@ namespace AdminStore.Controllers
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
                     http.DefaultRequestHeaders.Accept.Clear();
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    if (!Request.Headers.Contains("Session-Token"))
+                    {
+                        throw new ArgumentNullException();
+                    }
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.DeleteAsync("sessions");
-                    result.EnsureSuccessStatusCode();
-                    return Ok();
+                    if (result.IsSuccessStatusCode)
+                    {
+                        return Ok();
+                    }
+                    return ResponseMessage(result);
                 }
+            }
+            catch (ArgumentNullException)
+            {
+                return BadRequest();
             }
             catch
             {

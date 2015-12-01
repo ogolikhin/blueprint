@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html ng-app="bpApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html ng-app="bpApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html ng-app="bpApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html ng-app="bpApp" class="no-js"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">		
+	<title ng-bind="metaservice.metaTitle()">Blueprint</title>
+	<meta name="description" content="{{ metaservice.metaDescription() }}"  ng-bind="metaservice.metaDescription()"></meta>
+	<meta name="keywords" content="{{metaservice.metaKeywords()}}" ng-bind="metaservice.metaKeywords()"></meta>
+	<meta name="title" content="{{metaservice.metaTitle()}}">
+	<meta name="author" content="pegah" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+	<link rel="shortcut icon" href="icns/favicon.ico">
+	<script src="modernizr-2.6.2.min.js"></script>
+	<!-- Respond.js for IE 8 or less only -->
+	<!--[if (lt IE 9) & (!IEMobile)]>
+		<script src="respond.min.js"></script>
+	<![endif]-->
+
+	<!-- scripts that are required by dependent script must be included first -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="jquery-1.10.2.min.js"><\/script>')</script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script> <!--RALPH-->
+	
+	<link rel="stylesheet" href="jstree/themes/default/style.min.css" />
+	<link rel="stylesheet" href="jquery-layout/jquery.scrollpane.css" type="text/css" />
+
+	<link rel="stylesheet" href="bower_components/ag-grid/dist/them-blue.min.css" type="text/css" />
+	<link rel="stylesheet" href="stylesheets/bp.css" type="text/css"  />
+	    
+	<script src="jstree/jstree.min.js"></script>
+	<!-- these two needs to be reimplemented for Angular -->
+
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-route/angular-route.js"></script>
+	<script src="bower_components/angular-cookies/angular-cookies.js"></script>	
+	<script src="bower_components/ag-grid/dist/ag-grid.js"></script>	
+
+	<script src="jquery-layout/jquery-ui-latest.js"></script>
+	<script src="jquery-layout/jquery.layout-latest.js"></script>
+	<script src="jquery-layout/jquery.scrollpane.js"></script>
+	<script src="jquery-layout/jquery.mousewheel.js"></script>
+	
+	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="angular-jscrollpane.min.js"></script>
+
+<link rel="icon" type="image/ico" href="http://localhost:3000/blueprint.ico"/>
+
+
+
+
+	<script src="bp.js"></script>	           
+    </head>
+    <body>
+		<!-- Bootstrap 3.x only supports IE8+ -->
+        <!--[if lte IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+		<div ng-view></div>
+
+    </body>
+</html>

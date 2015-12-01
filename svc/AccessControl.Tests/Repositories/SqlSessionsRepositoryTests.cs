@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AccessControl.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Repositories
 {
@@ -68,6 +68,46 @@ namespace AccessControl.Repositories
 
         #endregion GetSession
 
+        #region GetUserSession
+
+        [TestMethod]
+        public async Task GetUserSession_QueryReturnsSession_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int uid = 1;
+            Session[] result = { new Session { UserId = uid } };
+            cxn.SetupQueryAsync("GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
+
+            // Act
+            Session session = await repository.GetUserSession(uid);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), session);
+        }
+
+        [TestMethod]
+        public async Task GetUserSession_QueryReturnsEmpty_ReturnsNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            int uid = 5;
+            Session[] result = { };
+            cxn.SetupQueryAsync("GetUserSession", new Dictionary<string, object> { { "UserId", uid } }, result);
+
+            // Act
+            Session session = await repository.GetUserSession(uid);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsNull(session);
+        }
+
+        #endregion GetUserSession
+
         #region SelectSessions
 
         [TestMethod]
@@ -123,16 +163,18 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             int id = 123;
+            string userName = "user";
+            int licenseLevel = 3;
             Guid? newSession = new Guid("12345678901234567890123456789012");
             Guid? oldSession = new Guid("11111111111111111111111111111111");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false } },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", oldSession } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, false);
 
             // Assert
             cxn.Verify();
@@ -146,15 +188,17 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             int id = 123;
+            string userName = "user";
+            int licenseLevel = 3;
             Guid? newSession = new Guid("12345678901234567890123456789012");
             cxn.SetupExecuteAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true } },
                 1,
                 new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", null } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id);
+            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, true);
 
             // Assert
             cxn.Verify();

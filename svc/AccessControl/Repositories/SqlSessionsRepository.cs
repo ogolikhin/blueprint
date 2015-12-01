@@ -3,9 +3,9 @@ using System.Linq;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using AccessControl.Models;
 using System.Collections.Generic;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Repositories
 {
@@ -30,8 +30,15 @@ namespace AccessControl.Repositories
             return (await _connectionWrapper.QueryAsync<Session>("GetSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
+        public async Task<Session> GetUserSession(int uid)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", uid);
+            return (await _connectionWrapper.QueryAsync<Session>("GetUserSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+        }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ps">Page Size</param>
         /// <param name="pn">Page Number</param>
@@ -43,11 +50,14 @@ namespace AccessControl.Repositories
             prm.Add("@pn", pn);
             return (await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure));
         }
-        public async Task<Guid?[]> BeginSession(int id)
+        public async Task<Guid?[]> BeginSession(int userId, string userName, int licenseLevel, bool isSso)
         {
             var prm = new DynamicParameters();
-            prm.Add("@UserId", id);
+            prm.Add("@UserId", userId);
             prm.Add("@BeginTime", DateTime.UtcNow);
+            prm.Add("@UserName", userName);
+            prm.Add("@LicenseLevel", licenseLevel);
+            prm.Add("@IsSso", isSso);
             prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);

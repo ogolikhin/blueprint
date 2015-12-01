@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Http.Results;
+using System.Web.UI.WebControls;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
@@ -37,7 +39,7 @@ namespace AdminStore.Controllers
         #region PostSession
 
         [TestMethod]
-        public async Task PostSession_Force_True_Success()
+        public async Task PostSession_ForceIsTrue_Success()
         {
             // Arrange
             const string login = "admin";
@@ -45,7 +47,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -63,7 +65,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(login, password, true);
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -73,7 +75,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSession_Success()
+        public async Task PostSession_SessionNotFound_Success()
         {
             // Arrange
             const string login = "admin";
@@ -81,7 +83,7 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -99,7 +101,7 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var result = (ResponseMessageResult)await controller.PostSession(login, password);
+            var result = (ResponseMessageResult)await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password));
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
@@ -109,7 +111,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSession_SessionExists_ConflictResult()
+        public async Task PostSession_SessionFound_ConflictResult()
         {
             // Arrange
             const string login = "admin";
@@ -117,17 +119,17 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
 
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var conflictResult = await controller.PostSession(login, password) as ConflictResult;
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password));
 
             // Assert
-            Assert.IsNotNull(conflictResult);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -139,21 +141,22 @@ namespace AdminStore.Controllers
             var loginUser = new LoginUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var internalServerErrorResult = await controller.PostSession(login, password, true) as InternalServerErrorResult;
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
 
             // Assert
-            Assert.IsNotNull(internalServerErrorResult);
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         [TestMethod]
-        public async Task PostSession_AuthenticationException_NotFoundResult()
+        [ExpectedException(typeof(HttpResponseException))]
+        public async Task PostSession_AuthenticationException_HttpResponseException()
         {
             // Arrange
             const string login = "admin";
@@ -161,15 +164,15 @@ namespace AdminStore.Controllers
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password))
-                .Throws(new AuthenticationException());
+                .Throws(new AuthenticationException("Invalid username or password"));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider())
+            {
+                Request = new HttpRequestMessage()
+            };
 
             // Act
-            var notFoundResult = await controller.PostSession(login, password, true) as NotFoundResult;
-
-            // Assert
-            Assert.IsNotNull(notFoundResult);
+            await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
         }
 
         [TestMethod]
@@ -186,10 +189,10 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var badRequestResult = await controller.PostSession(login, password, true) as BadRequestResult;
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
 
             // Assert
-            Assert.IsNotNull(badRequestResult);
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         [TestMethod]
@@ -206,10 +209,10 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var badRequestResult = await controller.PostSession(login, password, true) as BadRequestResult;
+            IHttpActionResult result = await controller.PostSession(login, password, true) as BadRequestResult;
 
             // Assert
-            Assert.IsNotNull(badRequestResult);
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         #endregion
@@ -217,7 +220,7 @@ namespace AdminStore.Controllers
         #region PostSessionSingleSignOn
 
         [TestMethod]
-        public async Task PostSessionSingleSignOn_Success()
+        public async Task PostSessionSingleSignOn_SessionNotFound_Success()
         {
             // Arrange
             const string login = "admin";
@@ -225,7 +228,7 @@ namespace AdminStore.Controllers
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -253,7 +256,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task PostSessionSingleSignOn_FederatedAuthenticationException_NotFoundResult()
+        public async Task PostSessionSingleSignOn_FederatedAuthenticationException_UnauthorizedResult()
         {
             // Arrange
             const string samlResponse = "samlResponse";
@@ -264,14 +267,50 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
 
             // Act
-            var notFoundResult = await controller.PostSessionSingleSignOn(samlResponse) as NotFoundResult;
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
 
             // Assert
-            Assert.IsNotNull(notFoundResult);
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
         [TestMethod]
-        public async Task PostSessionSingleSignOn_InternalServerError()
+        public async Task PostSessionSingleSignOn_FormatException_BadRequestResult()
+        {
+            // Arrange
+            const string samlResponse = "samlResponse";
+
+            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FormatException());
+
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
+
+            // Act
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        [TestMethod]
+        public async Task PostSessionSingleSignOn_FederatedAuthenticationException_BadRequestResult()
+        {
+            // Arrange
+            const string samlResponse = "samlResponse";
+
+            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.WrongFormat));
+
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider());
+
+            // Act
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        [TestMethod]
+        public async Task PostSessionSingleSignOn_SessionFound_ConflictResult()
         {
             // Arrange
             const string login = "admin";
@@ -279,7 +318,7 @@ namespace AdminStore.Controllers
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Returns(Task.FromResult(loginUser));
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
 
             var token = Guid.NewGuid().ToString();
 
@@ -293,10 +332,32 @@ namespace AdminStore.Controllers
             var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
 
             // Act
-            var internalServerErrorResult = await controller.PostSessionSingleSignOn(samlResponse) as InternalServerErrorResult;
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
 
             // Assert
-            Assert.IsNotNull(internalServerErrorResult);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
+        }
+
+        [TestMethod]
+        public async Task PostSessionSingleSignOn_ServerError_InternalServerErrorResult()
+        {
+            // Arrange
+            const string login = "admin";
+            var loginUser = new LoginUser { Id = 1, Login = login };
+            const string samlResponse = "samlResponse";
+
+            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
+            authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).ReturnsAsync(loginUser);
+
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
+
+            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider);
+
+            // Act
+            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         #endregion
@@ -304,7 +365,7 @@ namespace AdminStore.Controllers
         #region DeleteSession
 
         [TestMethod]
-        public async Task DeleteSession_OkResult()
+        public async Task DeleteSession_SessionFound_OkResult()
         {
             // Arrange
             var httpRequestMessage = new HttpRequestMessage();
@@ -318,25 +379,70 @@ namespace AdminStore.Controllers
             };
 
             // Act
-            var okResult = await controller.DeleteSession() as OkResult;
+            IHttpActionResult result = await controller.DeleteSession();
 
             // Assert
-            Assert.IsNotNull(okResult);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
         [TestMethod]
-        public async Task DeleteSession_InternalServerError()
+        public async Task DeleteSession_SessionNotFound_ResponseMessageResult()
         {
             // Arrange
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
+
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider);
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider)
+            {
+                Request = httpRequestMessage
+            };
 
             // Act
-            var internalServerErrorResult = await controller.DeleteSession() as InternalServerErrorResult;
+            IHttpActionResult result = await controller.DeleteSession();
 
             // Assert
-            Assert.IsNotNull(internalServerErrorResult);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_Exception_InternalServerErrorResult()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Headers.Add("Session-Token", Guid.NewGuid().ToString());
+
+            var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
+
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider)
+            {
+                Request = httpRequestMessage
+            };
+
+            // Act
+            IHttpActionResult result = await controller.DeleteSession();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_SessionTokenIsNull_BadRequest()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+
+            var controller = new SessionsController(new AuthenticationRepository(), httpClientProvider)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            // Act
+            IHttpActionResult result = await controller.DeleteSession();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         #endregion

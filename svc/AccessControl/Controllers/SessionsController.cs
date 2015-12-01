@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
@@ -8,8 +7,9 @@ using System.Net.Http;
 using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AccessControl.Models;
 using AccessControl.Repositories;
+using ServiceLibrary.Log;
+using ServiceLibrary.Models;
 
 namespace AccessControl.Controllers
 {
@@ -21,15 +21,12 @@ namespace AccessControl.Controllers
 
         internal static void Load(ObjectCache cache)
         {
-            if (!EventLog.SourceExists(WebApiConfig.ServiceLogSource))
-                EventLog.CreateEventSource(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName);
-
             Task.Run(() =>
             {
                 Cache = cache;
                 try
                 {
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", EventLogEntryType.Information);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", LogEntryType.Information);
                     var ps = 100;
                     var pn = 1;
                     int count;
@@ -40,16 +37,16 @@ namespace AccessControl.Controllers
                         foreach (var session in sessions)
                         {
                             ++count;
-                            AddSession(Session.Convert(session.SessionId), session.UserId);
+                            AddSession(Session.Convert(session.SessionId), session);
                         }
                         ++pn;
                     } while (count == ps);
                     StatusController.Ready.Set();
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", EventLogEntryType.Information);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", LogEntryType.Information);
                 }
                 catch (Exception)
                 {
-                    EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", EventLogEntryType.Error);
+                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", LogEntryType.Error);
                 }
             });
         }
@@ -64,6 +61,13 @@ namespace AccessControl.Controllers
             Repo = repo;
         }
 
+        private string GetHeaderSessionToken()
+        {
+            if(Request.Headers.Contains("Session-Token") == false)
+                throw new ArgumentNullException();
+            return Request.Headers.GetValues("Session-Token").FirstOrDefault();
+        }
+
         [HttpGet]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -71,24 +75,21 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
-                var session = await Repo.GetSession(Session.Convert(token)); // reading from database to avoid extending existing session
+                var session = await Repo.GetUserSession(uid); // reading from database to avoid extending existing session
                 if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }
+
+                if (session.EndTime != null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
-            }
-            catch (ArgumentNullException)
-            {
-                return BadRequest();
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
             }
             catch (KeyNotFoundException)
             {
@@ -103,13 +104,21 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> SelectSessions(int ps = 100, int pn = 1)
+        public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                int psIntValue, pnIntValue;
+                if (int.TryParse(ps, out psIntValue) == false ||
+                    int.TryParse(pn, out pnIntValue) == false ||
+                    psIntValue <= 0 ||
+                    pnIntValue <= 0)
+                    throw new FormatException("Specified parameter is not valid.");
+
+                var token = GetHeaderSessionToken();
+                //Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
                 var guid = Session.Convert(token);
-                return Ok(await Repo.SelectSessions(ps, pn)); // reading from database to avoid extending existing session
+                return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
             catch (ArgumentNullException)
             {
@@ -132,11 +141,11 @@ namespace AccessControl.Controllers
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostSession(int uid)
+        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
         {
             try
             {
-                var guids = await Repo.BeginSession(uid);
+                var guids = await Repo.BeginSession(uid, userName, licenseLevel, isSso);
                 if (!guids[0].HasValue)
                 {
                     throw new KeyNotFoundException();
@@ -146,7 +155,8 @@ namespace AccessControl.Controllers
                 {
                     Cache.Remove(Session.Convert(guids[1].Value));
                 }
-                AddSession(token, uid);
+                var session = await Repo.GetUserSession(uid);
+                AddSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
@@ -170,19 +180,19 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var userId = Cache.Get(token);
-                if (userId == null)
+                var session = Cache.Get(token) as Session;
+                if (session == null)
                 {
-                    var session = await Repo.GetSession(guid);
+                    session = await Repo.GetSession(guid);
                     if (session == null || session.EndTime.HasValue)
                     {
                         throw new KeyNotFoundException();
                     }
-                    userId = session.UserId;
+                    AddSession(token, session);
                 }
-                var response = Request.CreateResponse(HttpStatusCode.OK, userId);
+                var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
@@ -213,13 +223,14 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var token = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+                var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
+
+                await Repo.EndSession(guid);
                 if (Cache.Remove(token) == null)
                 {
                     throw new KeyNotFoundException();
                 }
-                await Repo.EndSession(guid);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -240,9 +251,9 @@ namespace AccessControl.Controllers
             }
         }
 
-        private static void AddSession(string key, int id)
+        private static void AddSession(string key, Session session)
         {
-            Cache.Add(key, id, new CacheItemPolicy
+            Cache.Add(key, session, new CacheItemPolicy
             {
                 SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
                 RemovedCallback = args =>
@@ -250,7 +261,7 @@ namespace AccessControl.Controllers
                     switch (args.RemovedReason)
                     {
                         case CacheEntryRemovedReason.Evicted:
-                            EventLog.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", EventLogEntryType.Error);
+                            LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error);
                             break;
                         case CacheEntryRemovedReason.Expired:
                             Repo.EndSession(Session.Convert(args.CacheItem.Key));

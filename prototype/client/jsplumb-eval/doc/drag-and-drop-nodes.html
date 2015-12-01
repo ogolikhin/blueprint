@@ -1,0 +1,303 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Drag and Drop for Nodes</h2>
+
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#init-dropped-nodes">Initialising Dropped Nodes</a></li>
+<li><a href="#dd-options">Drag and Drop Options</a></li>
+<li><a href="#drag-callbacks">Drag Callbacks</a></li>
+<li><a href="#css">CSS Considerations</a></li>
+</ul>
+
+<p><a name="summary"></a></p>
+
+<h3>Summary</h3>
+
+<p>A common use case in the sorts of applications for which the Toolkit is useful is the requirement to be able to drag and drop new nodes onto the workspace.  Surface widgets support this concept via the <code>registerDroppableNodes</code> method.  A quick example:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">),</span>
+  <span class="p">...</span> <span class="nx">other</span> <span class="nx">options</span> <span class="p">...</span>
+<span class="p">});</span>
+
+<span class="nx">surface</span><span class="p">.</span><span class="nx">registerDroppableNodes</span><span class="p">({</span>
+  <span class="nx">droppables</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.aSelector&quot;</span><span class="p">),</span>
+  <span class="nx">typeExtractor</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">},</span>
+  <span class="nx">dataGenerator</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>There are three parameters shown here on the call to <code>registerDroppableNodes</code>:</p>
+
+<ul>
+<li><strong>droppables</strong> A selector, array, DOM element, or element id of element(s) to configure as being draggable and droppable onto the Surface&#39;s canvas.</li>
+<li><strong>typeExtractor</strong> A function used by the Surface to derive the type of some element that was dropped onto the canvas. See example below.</li>
+<li><strong>dataGenerator</strong> This optional function is used by the Renderer to get some initial data to represent a new node that has been dropped on the canvas.</li>
+</ul>
+
+<p><a name="init-dropped-nodes"></a></p>
+
+<h3>Initialising Dropped Nodes</h3>
+
+<p>When you drag and drop a new Node onto the canvas, the Surface needs to be able to figure out the type of the new Node. This is what the <code>typeExtractor</code> function does. You can also, optionally, supply a function to be used to prepare some data for the new Node - which is what the <code>dataGenerator</code> function does. Consider this markup:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;workspace&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;canvas&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+    <span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">&quot;palette&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;li</span> <span class="na">data-type=</span><span class="s">&quot;table&quot;</span><span class="nt">&gt;</span>Table<span class="nt">&lt;/li&gt;</span>
+      <span class="nt">&lt;li</span> <span class="na">data-type=</span><span class="s">&quot;view&quot;</span><span class="nt">&gt;</span>View<span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div>
+<p>Here we see a <code>div</code> that we&#39;re going to turn into a Surface, and a <code>ul</code> containing items we&#39;re going to drag and drop onto that Surface&#39;s canvas.  </p>
+
+<p>First, of course, get the Surface:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Then register those <code>li</code> elements, providing a function that can tell the Surface what the type of a new Node is, and a function that can give the Surface some new data:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">surface</span><span class="p">.</span><span class="nx">registerDroppableNodes</span><span class="p">({</span>
+  <span class="nx">droppables</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#palette li&quot;</span><span class="p">),</span>
+  <span class="nx">typeExtractor</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;data-type&quot;</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">dataGenerator</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="p">...</span> <span class="nx">some</span> <span class="nx">appropriate</span> <span class="nx">data</span> <span class="p">...</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5>A note on the <em>dataGenerator</em> function</h5>
+
+<p>Even if you supply a <code>dataGenerator</code>, the Toolkit will still call the current NodeFactory to get the data for a 
+new Node, so it really is optional. It may just be the case that you wish to associate something with the Node 
+that you derived from the dragged object.</p>
+
+<h5>A note on Node type</h5>
+
+<p>Every Node in a Toolkit instance is expected to be associated with some <em>type</em>. The default mechanism for making 
+this association is to look for a <code>type</code> member in a Node&#39;s data. When you use the drag and drop functionality 
+discussed here, the result of your <em>typeGenerator</em> function is automatically written as the <code>type</code> member of 
+the data for the new Node. If you use some custom mechanism for marking a Node&#39;s type then you may need to take 
+care of configuring that in your <a href="Data-Model.html#nodefactory">Node Factory</a>.  In that case, also, you may wish 
+to <code>delete</code> the <code>type</code> member from the data.</p>
+
+<p><a name="dd-options"></a>      </p>
+
+<h3>Drag and Drop Options</h3>
+
+<p>This method just wraps your underlying library&#39;s drag and drop functionality, inserting handlers where it needs to, so you can provide custom drag and drop options if you need to.</p>
+
+<p>With jQuery UI draggable, for instance, you can provide a <code>containment</code> parameter as a drag option, which will constrain any dragged element to that remain within some given bounds:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">surface</span><span class="p">.</span><span class="nx">registerDroppableNodes</span><span class="p">({</span>
+  <span class="nx">droppables</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#palette li&quot;</span><span class="p">),</span>
+  <span class="nx">dragOptions</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">containment</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#workspace&quot;</span><span class="p">),</span>
+    <span class="nx">scroll</span><span class="o">:</span><span class="kc">false</span>
+  <span class="p">},</span>
+  <span class="nx">dropOptions</span><span class="o">:</span><span class="p">{</span> 
+    <span class="nx">drop</span><span class="o">:</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;something was dropped&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">typeExtractor</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;data-type&quot;</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">dataGenerator</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="p">...</span> <span class="nx">some</span> <span class="nx">appropriate</span> <span class="nx">data</span> <span class="p">...</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here we see the <code>containment</code> parameter in use in the <code>dragOptions</code> object.  This example also shows some drop options - although this code does not do anything useful.    </p>
+
+<p><a name="drag-callbacks"></a></p>
+
+<h3>Drag Callbacks</h3>
+
+<p>You can use any of the underlying library&#39;s drag callbacks with this method too - here&#39;s an example that registers a <code>drag</code> and a <code>stop</code> callback:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">),</span>
+  <span class="p">...</span> <span class="nx">other</span> <span class="nx">options</span> <span class="p">...</span>
+<span class="p">});</span>
+
+<span class="nx">surface</span><span class="p">.</span><span class="nx">registerDroppableNodes</span><span class="p">({</span>
+  <span class="nx">droppables</span><span class="o">:</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.aSelector&quot;</span><span class="p">),</span>
+  <span class="nx">typeExtractor</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">},</span>
+  <span class="nx">dataGenerator</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">},</span>
+  <span class="nx">drag</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">ui</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// drag callback</span>
+  <span class="p">},</span>
+  <span class="nx">stop</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">ui</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// called on drag stop</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="css"></a></p>
+
+<h3>CSS Considerations</h3>
+
+<p>In order that the Surface can calculate with precision whereabouts your dragged object is positioned, it is important that you ensure the object has no <code>margins</code> set on it while dragging.  jQuery, for instance, ignores the margins of some element when calculating the offset.</p>
+
+<p>Most libraries attach one or more CSS classes to an object that is currently being dragged. It is recommended that you use this to set margins to 0 while dragging.  Here&#39;s what you would do in jQuery:</p>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.ui-draggable-dragging</span> <span class="p">{</span>
+  <span class="k">margin</span><span class="o">:</span><span class="m">0</span>
+<span class="p">}</span>
+</code></pre></div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

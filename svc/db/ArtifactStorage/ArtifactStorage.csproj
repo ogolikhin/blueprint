@@ -47,34 +47,34 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
-    <Content Include="Instance.sql">
-      <DependentUpon>Instance.tt</DependentUpon>
+    <Content Include="ArtifactStorage_Instance.sql">
+      <DependentUpon>ArtifactStorage_Instance.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Content>
-    <Content Include="Instance.tt">
+    <Content Include="ArtifactStorage_Instance.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Instance.sql</LastGenOutput>
+      <LastGenOutput>ArtifactStorage_Instance.sql</LastGenOutput>
     </Content>
-    <Content Include="Migration.sql">
-      <DependentUpon>Migration.tt</DependentUpon>
+    <Content Include="ArtifactStorage_Migration.sql">
+      <DependentUpon>ArtifactStorage_Migration.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Content>
-    <Content Include="Migration.tt">
+    <Content Include="ArtifactStorage_Migration.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Migration.sql</LastGenOutput>
+      <LastGenOutput>ArtifactStorage_Migration.sql</LastGenOutput>
     </Content>
-    <Content Include="Migration\6.5.1.0\6.5.1.0.sql">
-      <DependentUpon>6.5.1.0.tt</DependentUpon>
+    <Content Include="Migration\7.0.1.0\7.0.1.0.sql">
+      <DependentUpon>7.0.1.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Content>
-    <Content Include="Migration\6.5.1.0\6.5.1.0.tt">
+    <Content Include="Migration\7.0.1.0\7.0.1.0.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>6.5.1.0.sql</LastGenOutput>
+      <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
-    <Content Include="Migration\6.5.1.0\Sample.sql" />
+    <Content Include="Migration\7.0.1.0\Sample.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="RecreateArtifactStorage.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />

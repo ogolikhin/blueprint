@@ -38,10 +38,12 @@ namespace ConfigControl.Controllers
         {
             // Arrange
             ConfigSetting[] settings = { new ConfigSetting { Key = "Key", Value = "Value", Group = "Group", IsRestricted = true } };
+            var expected = new Dictionary<string, Dictionary<string, string>>();
+            expected.Add("Group", new Dictionary<string, string>());
+            expected["Group"].Add("Key", "Value");
             var configRepo = new Mock<IConfigRepository>();
-            configRepo.Setup(r => r.GetSettings(It.IsAny<bool>())).Returns(Task.FromResult((IEnumerable<ConfigSetting>)settings)).Verifiable();
-            var controller = new ConfigController(configRepo.Object);
-            controller.Request = new HttpRequestMessage();
+            configRepo.Setup(r => r.GetSettings(It.IsAny<bool>())).ReturnsAsync((IEnumerable<ConfigSetting>)settings).Verifiable();
+            var controller = new ConfigController(configRepo.Object) { Request = new HttpRequestMessage() };
             controller.Request.SetConfiguration(new HttpConfiguration());
 
             // Act
@@ -52,7 +54,9 @@ namespace ConfigControl.Controllers
             Assert.IsNotNull(result);
             Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
             Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
-            CollectionAssert.AreEquivalent(settings, (await result.Response.Content.ReadAsAsync<IEnumerable<ConfigSetting>>()).ToList());
+            var actual = await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
+         Assert.AreEqual(expected["Group"]["Key"], actual["Group"]["Key"]);
+            
         }
 
         [TestMethod]
@@ -61,8 +65,7 @@ namespace ConfigControl.Controllers
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
             configRepo.Setup(r => r.GetSettings(It.IsAny<bool>())).Throws<Exception>().Verifiable();
-            var controller = new ConfigController(configRepo.Object);
-            controller.Request = new HttpRequestMessage();
+            var controller = new ConfigController(configRepo.Object) { Request = new HttpRequestMessage() };
             controller.Request.SetConfiguration(new HttpConfiguration());
 
             // Act

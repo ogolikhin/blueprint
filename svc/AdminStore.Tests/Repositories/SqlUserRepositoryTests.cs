@@ -1,9 +1,9 @@
-﻿using AdminStore.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceLibrary.Repositories;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
 {
@@ -34,7 +34,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object);
-            var login = "User";
+            string login = "User";
             LoginUser[] result = { new LoginUser { Login = login } };
             cxn.SetupQueryAsync("GetUserByLogin", new Dictionary<string, object> { { "Login", login } }, result);
 
@@ -65,6 +65,46 @@ namespace AdminStore.Repositories
         }
 
         #endregion GetUserByLoginAsync
+
+        #region GetLoginUserByIdAsync
+
+        [TestMethod]
+        public async Task GetLoginUserByIdAsync_QueryReturnsUser_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            int userId = 1;
+            LoginUser[] result = { new LoginUser { Id = userId } };
+            cxn.SetupQueryAsync("GetLoginUserById", new Dictionary<string, object> { { "UserId", userId } }, result);
+
+            // Act
+            LoginUser user = await repository.GetLoginUserByIdAsync(userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), user);
+        }
+
+        [TestMethod]
+        public async Task GetLoginUserByIdAsync_QueryReturnsEmpty_ReturnsNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            int userId = 5;
+            LoginUser[] result = { };
+            cxn.SetupQueryAsync("GetLoginUserById", new Dictionary<string, object> { { "UserId", userId } }, result);
+
+            // Act
+            LoginUser user = await repository.GetLoginUserByIdAsync(userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsNull(user);
+        }
+
+        #endregion GetLoginUserByIdAsync
 
         #region UpdateUserOnInvalidLoginAsync
 

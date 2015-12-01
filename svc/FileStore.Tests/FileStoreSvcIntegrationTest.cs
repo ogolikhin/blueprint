@@ -4,8 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using FileStore.Repositories;
 
 namespace FileStore
 {
@@ -13,11 +11,11 @@ namespace FileStore
     public class FileStoreSvcIntegrationTest
     {
         public TestContext TestContext { get; set; }
-
+        private const int _chunkSize = 1*1024*1024; // Default chunk size is 1MB in Filestore service
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
-        public async Task TestUploadAndDeleteFilesUsingMultipart()
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
+        public void TestUploadAndDeleteFilesUsingMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -57,7 +55,7 @@ namespace FileStore
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            DeleteFile(filesUriCall, fileGuid);// await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -67,8 +65,8 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
-        public async Task TestUploadAndDeleteFilesUsingNonMultipart()
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
+        public void TestUploadAndDeleteFilesUsingNonMultipart()
         {
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
@@ -108,7 +106,7 @@ namespace FileStore
             DownloadUploadedFile(filesUriCall, fileGuid, attachmentFileName);
 
             //Delete File
-            await new SqlFilesRepository().DeleteFile(Models.File.ConvertToStoreId(fileGuid));
+            DeleteFile(filesUriCall, fileGuid);
 
             //Try to call methods again again to ensure that NotFound is returned
             CheckGetHead(filesUriCall, fileGuid, attachmentFileName, true);
@@ -118,7 +116,7 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
         public void TestUploadAndDeleteFilesUsingNonMultipartNoHeadersFailure()
         {
             var filesUriCall = "";
@@ -150,8 +148,57 @@ namespace FileStore
             Assert.IsNull(fileGuid, "file should not be uploaded");
         }
 
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        public void TestPutUploadAndDeleteFiles_SendDivisibleChunkSize()
+        {
+            PutTestExecute(_chunkSize*2);
+        }
+
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
+        [TestMethod]
+        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestUploadAndDeleteFiles.csv", "TestUploadAndDeleteFiles#csv", DataAccessMethod.Sequential)]
+        public void TestPutUploadAndDeleteFiles_SendUnDivisibleChunkSize()
+        {
+            PutTestExecute(_chunkSize*2+1);
+        }
+
+
         #region Private Service Call Methods
 
+        private void PutTestExecute(int sendChunkSize)
+        {
+            var testData = GetTestData();
+
+            //Get status of Web service
+            var status = GetStatus(testData.StatusCallUri);
+
+            Assert.IsTrue(status, "Service health check failed");
+
+            int chunkSize = sendChunkSize;
+            //post file and get guid
+            var fileGuid = PostFileNonMultipart(testData.FilesUriCall, testData.AttachmentFileName, true, chunkSize);
+
+            fileGuid = fileGuid.Replace("\"", string.Empty);
+
+            PutFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, chunkSize, chunkSize, true);
+
+
+            //Call Head Method
+            CheckGetHead(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, sentChunkSize: chunkSize);
+
+            //Download file
+            DownloadUploadedFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName);
+
+            //Delete File
+            DeleteFile(testData.FilesUriCall, fileGuid);
+
+            //Try to call methods again again to ensure that NotFound is returned
+            CheckGetHead(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, true);
+            DownloadUploadedFile(testData.FilesUriCall, fileGuid, testData.AttachmentFileName, true);
+            DeleteFile(testData.FilesUriCall, fileGuid, true);
+        }
         private bool GetStatus(string statusCallUri)
         {
             var fetchRequest = (HttpWebRequest)WebRequest.Create(statusCallUri);
@@ -186,14 +233,14 @@ namespace FileStore
             fetchRequest.KeepAlive = true;
             fetchRequest.Credentials = CredentialCache.DefaultCredentials;
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes(boundary);
 
             fetchRequest.ContentType = "multipart/form-data; boundary=" + boundary;
 
             using (Stream rs = fetchRequest.GetRequestStream())
             {
                 rs.Write(boundarybytes, 0, boundarybytes.Length);
-                string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+                string headerTemplate = "\r\nContent-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
                 string header = string.Format(headerTemplate, "attachment", attachmentFileName, "image/bmp");
                 byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
                 rs.Write(headerbytes, 0, headerbytes.Length);
@@ -208,7 +255,7 @@ namespace FileStore
                     }
                 }
 
-                byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+                byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n" + boundary + "\r\n");
                 rs.Write(trailer, 0, trailer.Length);
             }
 
@@ -238,7 +285,7 @@ namespace FileStore
             return fileGuid;
         }
 
-        private string PostFileNonMultipart(string postCallUri, string attachmentFileName, bool addContentHeaders)
+        private string PostFileNonMultipart(string postCallUri, string attachmentFileName, bool addContentHeaders, int bytesToUpload = Int32.MaxValue)
         {
             var fetchRequest = (HttpWebRequest)WebRequest.Create(postCallUri);
             fetchRequest.Accept = "*/*";
@@ -263,12 +310,23 @@ namespace FileStore
                 using (var fileStream = new FileStream(attachmentFileName, FileMode.Open, FileAccess.Read))
                 {
                     var buffer = new byte[4096];
+                    long totalBytesRead = 0;
+                    int bytesToRead = buffer.Length;
                     int bytesRead;
-                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                    while ((bytesRead = fileStream.Read(buffer, 0, bytesToRead)) != 0)
                     {
                         rs.Write(buffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        if (totalBytesRead == bytesToUpload)
+                        {
+                            break;
+                        }
+                        if (totalBytesRead + bytesToRead > bytesToUpload)
+                        {
+                            bytesToRead = (int)(bytesToUpload - totalBytesRead);
                     }
                 }
+            }
             }
 
             HttpWebResponse objResponse;
@@ -300,7 +358,62 @@ namespace FileStore
             return fileGuid;
         }
 
-        private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
+        private int PutRequest(string uri, string attachmentFileName, int offset, int bytesToUpload)
+        {
+            var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
+            fetchRequest.Accept = "application/json";
+            fetchRequest.Method = "Put";
+            fetchRequest.KeepAlive = true;
+            fetchRequest.Credentials = CredentialCache.DefaultCredentials;
+
+            using (var rs = fetchRequest.GetRequestStream())
+            {
+                using (var fileStream = new FileStream(attachmentFileName, FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.Position = offset;
+                    var buffer = new byte[4096];
+                    int readSize = buffer.Length;
+                    int totalBytesRead = 0;
+                    int bytesRead;
+                    for (bytesRead = fileStream.Read(buffer, 0, readSize);
+                        bytesRead > 0;
+                        bytesRead = fileStream.Read(buffer, 0, readSize))
+                    {
+                        rs.Write(buffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        if (totalBytesRead == bytesToUpload)
+                        {
+                            var putResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+                            Assert.AreEqual(HttpStatusCode.OK, putResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
+                            return totalBytesRead;
+                        }
+                        if (totalBytesRead + readSize > bytesToUpload)
+                        {
+                            readSize = (int)(bytesToUpload - totalBytesRead);
+                        }
+                    }
+                    if (totalBytesRead > 0)
+                    {
+                        var putResponse = fetchRequest.GetResponse() as HttpWebResponse;// Source of xml
+                        Assert.AreEqual(HttpStatusCode.OK, putResponse.StatusCode, "Service returned invalid Put for file which is expected to exist");
+                        return totalBytesRead;
+                    }
+                }
+            }
+            return 0;
+        }
+        private void PutFile(string putCallUri, string fileGuid, string attachmentFileName, int putSize, int offset, bool expectedToFail = false)
+        {
+            string uri = string.Format("{0}{1}", putCallUri, fileGuid);
+            for(int bytesRead = PutRequest(uri, attachmentFileName, offset, putSize);
+                bytesRead > 0; 
+                bytesRead = PutRequest(uri, attachmentFileName, offset, putSize))
+            {
+                offset += bytesRead;
+            }
+        }
+
+        private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false, int sentChunkSize = _chunkSize)
         {
             string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
@@ -332,7 +445,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Head for file which is expected to exist");
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader, 
+            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -345,6 +458,11 @@ namespace FileStore
             int actualFileSize;
             int.TryParse(contentLength, out actualFileSize);
             Assert.AreEqual(fileSize, actualFileSize, "Service file size value does not exist");
+
+            int actualChunkCount;
+            int.TryParse(objResponse.Headers["File-Chunk-Count"], out actualChunkCount);
+            int expectedChunkCount = GetChunkCountFromSentChunkSize(actualFileSize, sentChunkSize);//(int)Math.Ceiling((double)actualFileSize/(sentChunkSize));
+            Assert.AreEqual(expectedChunkCount, actualChunkCount, "Service file chunk counts do not match");
         }
 
         private void DownloadUploadedFile(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
@@ -379,7 +497,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual("attachment; filename=BitmapAttachment.bmp", contentDispositionHeader,
+            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -434,7 +552,7 @@ namespace FileStore
 
             if (expectedToFail)
             {
-                Assert.AreEqual(HttpStatusCode.MethodNotAllowed, objResponse.StatusCode, "Non-existent file was deleted by server");
+                Assert.AreEqual(HttpStatusCode.NotFound, objResponse.StatusCode, "Non-existent file was deleted by server");
                 return;
             }
 
@@ -453,6 +571,25 @@ namespace FileStore
 
         #region Helper Methods
 
+        private int GetChunkCountFromSentChunkSize(int actualFileSize, int sentChunkSize)
+        {
+            int remainingFileSize = actualFileSize;
+            int chunkCounts = 0;
+            
+            while (remainingFileSize > 0)
+            {
+                if (remainingFileSize < sentChunkSize)
+                {
+                    chunkCounts += (int)Math.Abs(Math.Ceiling((double)remainingFileSize / _chunkSize));
+                }
+                else
+                {
+                    chunkCounts += (int)Math.Abs(Math.Ceiling((double)sentChunkSize/_chunkSize ));
+                }
+                remainingFileSize -= sentChunkSize;
+            }
+            return chunkCounts;
+        }
         private string GetMD5ForFileStream(Stream stream)
         {
             using (var md5 = MD5.Create())
@@ -460,7 +597,32 @@ namespace FileStore
                 return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
             }
         }
+        private TestData GetTestData()
+        {
+            TestData testData = new TestData();
+            if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
+            {
+                testData.FilesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+            }
 
+            if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
+            {
+                testData.AttachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+        }
+
+            if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
+            {
+                testData.StatusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+            }
+            return testData;
+        }
         #endregion
+    }
+
+    public class TestData
+    {
+        public string StatusCallUri { get; set; }
+        public string FilesUriCall { get; set; }
+        public string AttachmentFileName { get; set; }
     }
 }

@@ -1,83 +1,66 @@
 <!DOCTYPE html>
-<html ng-app="pegah">
+<html>
   <head>
-
     <base href="/">
-
-    <title>pegah</title>
-
+    <title>pegah's prototypes</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-
-    <!-- build:css app.css -->
-
-    <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="bower_components/toastr/toastr.css">
-    <link rel="stylesheet" href="bower_components/animate.css/animate.css">
-    <link rel="stylesheet" href="bower_components/ag-grid/dist/angular-grid.css">
-    <link rel="stylesheet" href="bower_components/ag-grid/dist/theme-fresh.css">
-    <link rel="stylesheet" href="bower_components/ag-grid/dist/theme-dark.css">
-    <!-- endinject -->
-
-    <link rel="stylesheet" href="styles/css/app.css">
-
-    <!-- endbuild -->
-<style>
-.secondary-menu {
-    background: #333;
-    position: fixed;
-    top: 50%;
-    right: 0;
-    margin-top: -92px;
-    z-index: 999;
-}
-</style>
-
   </head>
   <body>
+    <h3>Base Expreience/Nova Mockups</h3>
+    <h4>
+        <ul>
+            <li><a href="kendo.html">Using Kendo UI (spliter/tree/menu/grid/tabs/...)</a> - jquery</li>
+            <li><a href="/demo/client">Using open source components(bootstrap/jquery-layout/jstree)</a>  - angularjs no typescript
+                <ul>
+                    <li><a href="/tree/tree.html">jstree</a></li>
+                    <li><a href="http://layout.jquery-dev.com/demos/complex.html">jquery-layout</a></li>
+                </ul>
+            </li>
+            <br/>
+            <li><a href="/nova-ng">Using off-shelf bootstrap based admin template (bootstrap/jstree/...)</a>  - angularjs no typescript 
+                <ul>
+                    <li> <a href="http://seantheme.com/source-admin-v1.2/admin/html/index_v2.html">wrapbootstrap</a></li><li> <a href="https://wrapbootstrap.com/theme/source-admin-angular-js-html-apps-WB0N5F2FP">template</a></li>
+                </ul>
+            </li>
+            <li><b><a href="/jq">Using jqwidgets and jstree</a> showing docking/pinning of pannels </b> - angularjs no typescript 
+                <ul>
+                    <li> <a href="http://www.jqwidgets.com/">jqwidgets</a></li><li> <a href="https://www.jstree.com/">jstree</a></li>
+                </ul>
+            </li>            
+            <br/>
+            <li>CSS only sliding panel
+                <ul>
+                    <li><a href="/tree/pure-drawer/test-squeeze.html">Novina's sliding menu using </a> - <a href="http://mac81.github.io/pure-drawer/">Pure Drawer</a> </li>
+                    <li><a href="/tree/">does not integrate well with jstree</a> - plus it is off canvas which is not going to work for our requirement</li>
+                    <li><a href="/layout3.html">pegah's own implementation using css only</a></li>
+                </ul>
+            </li>
+        </ul>        
+    </h4>
 
-<h1>Fonts Demo</h1>
-<h4>
-<ul><li><a href="fonts/demo.html">Using custom fonts</a></li>
-    <li><a href="fonts/nofont.html">Using font stacks</a></li>
-</ul>
-</h4>
+    <h3>Scenario Manager </h3>
+    <h4>
+        <ul>
+            <li><a href="/mxgraph/javascript/examples/scenario.html">Secnario Manager actions using mxgraph</a></li>
+            <li><a href="/scenario-manager/jsplumb-test.html">Novina's jsPlumb demo - css animation on nodes</a></li>
+            <li><a href="/render.html">MxGraph vs Jsplumb for 1000 connected nodes</a> 
+                <ul>
+                    <li><a href="/mxgraph/javascript/examples/performance2.html">mxgraph</a></li>
+                    <li><a href="/jsplumb-eval/performance.html">jsplumb community</a></li>
+                </ul>
+            </li>
+        </ul>
+    </h4>
 
-<h1>Base Expreience</h1>
-<h4>
-<ul><li><a href="kendo.html">Mockup using Kendo UI</a></li></ul>
-</h4>
-    <div ng-view></div>
-
-    <!-- build:js app.js -->
-
-    <!-- bower:js -->
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.js"></script>
-    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/malarkey/dist/malarkey.min.js"></script>
-    <script src="bower_components/toastr/toastr.js"></script>
-    <script src="bower_components/moment/moment.js"></script>
-    <script src="bower_components/kendo-ui-core/js/kendo.ui.core.min.js"></script>
-    <script src="bower_components/d3/d3.js"></script>
-    <script src="bower_components/tinymce/tinymce.min.js"></script>
-    <script src="bower_components/ag-grid/dist/angular-grid.js"></script>
-    <!-- endinject -->
-
-    <!-- inject:js -->
-    <script src="app.js"></script>
-    <!-- endinject -->
-
-    <!-- endbuild -->
+    <h3>Fonts Demo for RapidReview</h3>
+    <h4>
+        <ul>
+            <li><a href="fonts/demo.html">Using custom fonts</a></li>
+            <li><a href="fonts/nofont.html">Using font stacks</a></li>
+        </ul>
+    </h4>
 
   </body>
 </html>

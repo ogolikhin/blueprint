@@ -1,5 +1,4 @@
-﻿using AdminStore.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AdminStore.Helpers;
 
 namespace AdminStore.Repositories

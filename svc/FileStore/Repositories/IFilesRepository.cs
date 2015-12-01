@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Data.Common;
 using FileStore.Models;
 
 namespace FileStore.Repositories
 {
 	public interface IFilesRepository
 	{
-		Task<Guid?> PostFile(File file);
-		Task<File> HeadFile(Guid guid);
-		Task<File> GetFile(Guid guid);
-		Task<Guid?> DeleteFile(Guid guid);
+		DbConnection CreateConnection();
+		Task<Guid> PostFileHead(File file);
+		/// <summary>
+		/// Returns the next chunk number
+		/// </summary>
+		/// <param name="chunk"></param>
+		/// <returns></returns>
+		Task<int> PostFileChunk(FileChunk chunk);
+		Task UpdateFileHead(Guid fileId, long fileSize, int chunkCount);
+		Task<File> GetFileHead(Guid guid);
+		File GetFileInfo(Guid fileId);
+		Task<FileChunk> GetFileChunk(Guid guid, int num);
+		byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num);
+		Task<Guid?> DeleteFile(Guid guid, DateTime? expired = null);
+
 	}
 }

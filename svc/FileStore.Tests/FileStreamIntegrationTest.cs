@@ -10,9 +10,9 @@ namespace FileStore
     [TestClass]
     public class FileStreamIntegrationTest
     {
-        // Note: database connection strings for integration testing are in app.config 
-        // The connection strings will be loaded into WebApiConfig static variables when 
-        // the service initializes  
+        // Note: database connection strings for integration testing are in app.config
+        // The connection strings will be loaded into WebApiConfig static variables when
+        // the service initializes
 
         private struct TestSetup
         {
@@ -22,17 +22,17 @@ namespace FileStore
             public int FileSize;
             public string ContentType;
         }
-        
+
 
         public TestContext TestContext { get; set; }
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
         public void TestGetFileInfoWhenFileExists()
         {
             TestSetup thisTest = SetupTest();
-            
+
             //Call Head Method
             var response = GetResponse(thisTest.FileStoreSvcUri, thisTest.FileGuid, "HEAD");
 
@@ -41,13 +41,13 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
         public void TestGetFileContentWhenFileExists()
         {
-            // Request file content from FileStream database 
-            // Repeat this test for each row in the datasource csv file 
+            // Request file content from FileStream database
+            // Repeat this test for each row in the datasource csv file
 
-            // Setup 
+            // Setup
             TestSetup thisTest = SetupTest();
 
             // Act
@@ -62,15 +62,15 @@ namespace FileStore
 
         [TestMethod]
         [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "TestFileStreamIntegration.csv", "TestFileStreamIntegration#csv", DataAccessMethod.Sequential)]
-        [TestCategory("Integration")]
+        [Ignore] // Integration test should be moved to blueprint-automationframework repository
         public void TestGetFileContentWhenFileNotFound()
         {
-            // Request file content from FileStream database 
+            // Request file content from FileStream database
             // using a file id that is not in the database
 
-            // Repeat this test for each row in the datasource csv file 
+            // Repeat this test for each row in the datasource csv file
 
-            // Setup 
+            // Setup
             TestSetup thisTest = SetupTest();
             thisTest.FileGuid = "9E9A2E81-6363-463A-8467-8E2DF5635B60";
 
@@ -83,14 +83,14 @@ namespace FileStore
             AssertFileContentIsEmpty(response);
 
         }
-        
+
         #region [ Private Methods]
 
         private TestSetup SetupTest()
         {
             var testSetup = new TestSetup
             {
-                ContentType = Convert.ToString(TestContext.DataRow["ContentType"]),             
+                ContentType = Convert.ToString(TestContext.DataRow["ContentType"]),
                 FileGuid = Convert.ToString(TestContext.DataRow["FileGuid"]),
                 FileName = Convert.ToString(TestContext.DataRow["FileName"]),
                 FileSize = Convert.ToInt32(TestContext.DataRow["FileSize"]),
@@ -173,10 +173,10 @@ namespace FileStore
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode,
                 String.Format("Expecting status code 404 (Not Found) but got {0} instead.", response.StatusCode));
- 
+
         }
 
-        
+
         private void AssertFileContentIsEmpty(HttpWebResponse response)
         {
             Assert.AreEqual(response.ContentLength, 0,

@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Drawing Tools</h2>
+
+<p>The Flowchart Builder application imports a basic set of tools to help with the positioning and resizing of nodes.  These are in the file <strong>jsPlumbToolkit-drawing-1.0.3.js</strong>. These are not part of the Toolkit core but while writing this functionality for the Flowchart Builder it became apparent that it might be useful if it were externalized.  </p>
+
+<p>The drawing tools perform two main functions: they automatically decorate selected nodes with resize handles, a visual indicator of selected state, and a drag handle, and they provide the ability for a user to resize a node.</p>
+
+<ul>
+<li><a href="#require">Requirements</a></li>
+<li><a href="#init">Initialization</a></li>
+<li><a href="#att-names">Attribute Names</a></li>
+<li><a href="#css">CSS Classes</a></li>
+</ul>
+
+<p><a name="require"></a></p>
+
+<h3>Requirements</h3>
+
+<p>You will need to import the drawing tools script:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">src=</span><span class="s">&quot;jsPlumbToolkit-drawing-1.0.3.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+<p>But for the tools to work you also need to ensure that you are using the default templating engine - <a href="https://github.com/jsplumb/rotors">Rotors</a>.</p>
+
+<p><a name="init"></a></p>
+
+<h3>Initialization</h3>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// first get a Surface</span>
+<span class="kd">var</span> <span class="nx">surface</span> <span class="o">=</span> <span class="nx">someToolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="p">...</span>
+<span class="p">});</span>
+
+<span class="c1">// then initialize the drawing tools</span>
+<span class="k">new</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">DrawingTools</span><span class="p">({</span><span class="nx">renderer</span><span class="o">:</span> <span class="nx">surface</span><span class="p">});</span>
+</code></pre></div>
+<p>Now, whenever a node is added to the underlying Toolkit&#39;s <em>currentSelection</em>, the drawing tools will add an <a href="#css">appropriate class</a> to it, and remove it once the node is no longer selected.</p>
+
+<p>Here&#39;s what the defaults look like - this is a selected node in the Flowchart Builder application:</p>
+
+<p><img src="flowchart-selected-node.png" alt="Selected Node"></p>
+
+<p><a name="att-names"></a></p>
+
+<h3>Attribute Names</h3>
+
+<p>By default, the drawing tools store a node&#39;s current position using the parameters <code>left</code> and <code>top</code> in the node&#39;s data, and the size of the node as <code>w</code> and <code>h</code>.  This can be overridden in the constructor:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">new</span> <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">DrawingTools</span><span class="p">({</span>
+  <span class="nx">renderer</span><span class="o">:</span> <span class="nx">surface</span><span class="p">,</span>
+  <span class="nx">widthAttribute</span><span class="o">:</span><span class="s2">&quot;width&quot;</span><span class="p">,</span>
+  <span class="nx">heightAttribute</span><span class="o">:</span><span class="s2">&quot;height&quot;</span><span class="p">,</span>
+  <span class="nx">leftAttribute</span><span class="o">:</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+  <span class="nx">topAttribute</span><span class="o">:</span><span class="s2">&quot;y&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="css"></a></p>
+
+<h3>CSS Classes</h3>
+
+<p>There are defaults for all of these classes defined in <strong>jsPlumbToolkit-defaults.css</strong>.</p>
+
+<table>
+<tr><th>Class</th><th>Explanation</th></tr>
+<tr><td>jtk-draw-skeleton</td><td>Assigned to the element that is drawn around some other element when it is selected</td></tr>
+<tr><td>jtk-draw-handle</td><td>Assigned to every handle (top left, top right, bottom left, bottom right, center) in a draw skeleton.</td></tr>
+<tr><td>jtk-draw-handle-tl</td><td>Assigned to the top left handle in a draw skeleton</td></tr>
+<tr><td>jtk-draw-handle-tr</td><td>Assigned to the top right handle in a draw skeleton</td></tr>
+<tr><td>jtk-draw-handle-bl</td><td>Assigned to the bottom left handle in a draw skeleton</td></tr>
+<tr><td>jtk-draw-handle-br</td><td>Assigned to the bottom right handle in a draw skeleton</td></tr>
+<tr><td>jtk-draw-drag</td><td>Assigned to the center handle in a draw skeleton (the handle by which the element may be dragged)</td></tr>
+<tr><td>jtk-draw-select-defeat</td><td>Added to the document body on drag resize start and removed at the end of resizing. Its purpose is to switch off text selection on all elements while the user is resizing an element.</td></tr>
+</table>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

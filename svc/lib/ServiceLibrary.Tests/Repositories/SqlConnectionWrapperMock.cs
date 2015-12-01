@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Moq;
 
 namespace ServiceLibrary.Repositories
@@ -23,7 +22,25 @@ namespace ServiceLibrary.Repositories
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Equals(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
             var setup = Setup(c => c.ExecuteAsync(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .Returns(Task.FromResult(result));
+                .ReturnsAsync(result);
+            if (outParameters != null)
+            {
+                setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
+                {
+                    foreach (var kv in outParameters)
+                    {
+                        SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
+                    }
+                });
+            }
+            setup.Verifiable();
+        }
+
+        public void SetupExecuteScalarAsync<T>(string sql, Dictionary<string, object> param, T result, Dictionary<string, object> outParameters = null)
+        {
+            Expression<Func<object, bool>> match = p => param == null || param.All(kv => Equals(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
+            var setup = Setup(c => c.ExecuteScalarAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
+                .ReturnsAsync(result);
             if (outParameters != null)
             {
                 setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
@@ -41,7 +58,7 @@ namespace ServiceLibrary.Repositories
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Equals(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
             Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
-                .Returns(Task.FromResult(result))
+                .ReturnsAsync(result)
                 .Verifiable();
         }
     }

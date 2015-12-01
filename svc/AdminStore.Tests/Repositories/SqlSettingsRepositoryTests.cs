@@ -80,7 +80,7 @@ namespace AdminStore.Repositories
             cxn.SetupQueryAsync("GetInstanceSettings", null, result);
 
             // Act
-            InstanceSettings settings = await repository.GetInstanceSettingsAsync();
+            await repository.GetInstanceSettingsAsync();
 
             // Assert
             cxn.Verify();
@@ -102,7 +102,7 @@ namespace AdminStore.Repositories
             dbObject.Certificate = null;
             var expectedFedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             var result = new [] { dbObject };
-            cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
+            cxn.SetupQueryAsync("GetFederatedAuthentications", null, result);
 
             // Act
             var settings = await repository.GetFederatedAuthenticationSettingsAsync();
@@ -119,7 +119,7 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSettingsRepository(cxn.Object);
             dynamic result = new dynamic[] { };
-            cxn.SetupQueryAsync("GetFederatedAuthentication", null, result);
+            cxn.SetupQueryAsync("GetFederatedAuthentications", null, result);
 
             // Act
             var settings = await repository.GetFederatedAuthenticationSettingsAsync();

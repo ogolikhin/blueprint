@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Paths</h2>
+
+<p>A <strong>Path</strong> represents the path from one Node/Port through a series of edges and intermediate Nodes/Ports to another Node/Port.   The jsPlumb Toolkit provides several methods for the creation and manipulation of Paths.</p>
+
+<h3>Toolkit Paths vs Renderer Paths</h3>
+
+<p>You can work with Paths through both an instance of the jsPlumb Toolkit and any Renderers. The object representing a Path differs slightly between the two, in that Paths created from a Renderer support a few extra (UI-related) methods, such as <code>setVisible</code>.</p>
+
+<h3>Getting a Path</h3>
+
+<p>To get a Path, you call <code>getPath</code> on either a Toolkit instance or a Renderer, with a valid path spec. A quick example to kick off:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getPath</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="nx">someNode</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherNode</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This will return you the <strong>shortest path</strong> from <code>someNode</code> to <code>someOtherNode</code>, where the Path length is related to its <code>cost</code>.       </p>
+
+<h4>Path Specs</h4>
+
+<p>The example above shows the required arguments for retrieving a Path. You can, however, supply a filter function for both Nodes and Edges, allowing you specify with more detail what sort of Path you want to traverse.  Consider:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getPath</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="nx">someNode</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherNode</span><span class="p">,</span>
+  <span class="nx">nodeFilter</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">n</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">!=</span> <span class="s2">&quot;aTypeIWantToIgnore&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Here we pass in a function that will be called for every prospective Node in the Path. If it returns false then the Graph treats the Node as if it were at a distance of Infinity - not reachable.</p>
+
+<p>You can also provide an <code>edgeFilter</code> if you control what sorts of Edges your Path will traverse:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">getPath</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="nx">someNode</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherNode</span><span class="p">,</span>
+  <span class="nx">edgeFilter</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">!=</span> <span class="s2">&quot;aTypeIWantToIgnore&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><strong>Note</strong> the arguments to these functions are Node or Edge objects from the Toolkit. You may wish to use information contained in those classes to make your decisions, but if you just want to access the original data, you use the <code>data</code> member as shown above.</p>
+
+<h3>The Path Object</h3>
+
+<p>The basic Path object, as used by an instance of the Toolkit, supports the following methods:</p>
+
+<ul>
+<li><code>getCost()</code></li>
+</ul>
+
+<p>Gets the cost of the given path.  Edges in the Toolkit can have a cost associated with them (the default is 1), and so the cost of any given Path is the sum of the cost of all of the Edges in the Path.</p>
+
+<ul>
+<li><code>getNodeCount()</code></li>
+</ul>
+
+<p>Counts the number of Nodes in the Path (including the start and end Nodes).  Note that for the purposes of this calculation, a Port is considered a Node.</p>
+
+<ul>
+<li><code>getEdgeCount()</code></li>
+</ul>
+
+<p>Counts the number of Edges in the Path.  This may be zero, if the given path spec did not select a valid Path in the Toolkit instance.</p>
+
+<ul>
+<li><code>contains(Object, doNotFuzzyMatchNodes)</code></li>
+</ul>
+
+<p>Returns true if the Path contains the given object (a Node, Port or Edge), false otherwise.  By default, if you pass a Node in to this method and the Path passes through a Port on that Node, this method returns true. But if you set <code>doNotFuzzyMatchNodes</code> to true, then this method will return true only if the Node itself is on the Path.</p>
+
+<ul>
+<li><code>deleteEdges()</code></li>
+</ul>
+
+<p>Deletes all the Edges in the Path</p>
+
+<ul>
+<li><code>deleteNodes()</code></li>
+</ul>
+
+<p>Deletes all the Nodes in the Path. As with the <code>contains</code> method, there is a special consideration here: if a Path passes through Ports on a Node, then that Node will be, for the purposes of this method, considered to be part of the Path and it will be deleted.  If you instead wish to delete only the Ports in a Path, use <code>deletePorts</code>.  Note that this method will, of course, have the effect of also deleting all the Edges, since the Nodes for those Edges will no longer exist.</p>
+
+<ul>
+<li><code>deletePorts()</code></li>
+</ul>
+
+<p>Deletes all Ports in the Path (and any Edges to/from those Ports).  This is strict about deleting only Ports: the Nodes on which those Ports exist will not be deleted.</p>
+
+<ul>
+<li><code>deleteAll()</code></li>
+</ul>
+
+<p>Deletes everything that constitutes part of the Path.  This change will be communicated to all Renderers registered with the given Toolkit instance.</p>
+
+<p><strong>Note</strong>  Once you have executed one of the <code>delete***</code> methods on a Path, your Path may contain references to objects that no longer exist in the Toolkit. </p>
+
+<h3>The Renderer&#39;s Path Object</h3>
+
+<p>Calling <code>getPath(...)</code> on a Renderer returns you an extension of the basic Path object, with several extra methods:</p>
+
+<ul>
+<li><p><code>addNodeClass(clazz)</code>
+Adds a class to all Nodes in the Path</p></li>
+<li><p><code>addEdgeClass(clazz)</code>
+Adds a class to all Edges in the Path</p></li>
+<li><p><code>removeNodeClass(clazz)</code>
+Removes a class from all Nodes in the Path</p></li>
+<li><p><code>removeEdgeClass(clazz)</code>
+Removes a class from all Edges in the Path</p></li>
+<li><p><code>addClass(clazz)</code>
+Adds a class to all Nodes and Edges in the Path</p></li>
+<li><p><code>removeClass(clazz)</code>
+Removes a class from all Nodes and Edges in the Path</p></li>
+<li><p><code>setVisible(boolean)</code>
+Shows/hides all objects in the Path.</p></li>
+</ul>
+
+<p>All of the class manipulation methods actually take a space-delimited string as argument.</p>
+
+<p><strong>Note</strong> calling any of the methods from the basic Path object on the result of a <code>getPath</code> call to a 
+Renderer that result in a change to the data model will cause those data model changes to be communicated 
+automatically to any other Renderers registered on the given Toolkit instance.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

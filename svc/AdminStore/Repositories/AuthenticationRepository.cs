@@ -37,8 +37,8 @@ namespace AdminStore.Repositories
             }
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
-            {
-                throw new AuthenticationException(string.Format("User does not exist with login: {0}", login), ErrorCodes.InvalidCredentials);
+            {               
+                throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())

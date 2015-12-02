@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -23,17 +24,24 @@ namespace ServiceLibrary.Repositories
 			_httpClientProvider = hcp;
 		}
 
-		public async Task<Dictionary<string, Dictionary<string, string>>> GetConfig()
+		// Wrapper call for Access Control Put method
+		public async Task GetAccessAsync(HttpRequestMessage request, string op, int aid)
 		{
-			var uri = ConfigurationManager.AppSettings["ConfigControl"] + "true";
+			var uri = ConfigurationManager.AppSettings["AccessControl"] + op + "/" + aid.ToString();
          using (var http = _httpClientProvider.Create())
 			{
 				http.BaseAddress = new Uri(uri);
 				http.DefaultRequestHeaders.Accept.Clear();
-				var result = await http.GetAsync("settings");
+				http.DefaultRequestHeaders.Add("Session-Token", GetHeaderSessionToken(request));
+				var result = await http.PutAsync("sessions", null);
 				result.EnsureSuccessStatusCode();
-				return JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(await result.Content.ReadAsStringAsync());
 			}
+		}
+		private string GetHeaderSessionToken(HttpRequestMessage request)
+		{
+			if (request.Headers.Contains("Session-Token") == false)
+				throw new ArgumentNullException();
+			return request.Headers.GetValues("Session-Token").FirstOrDefault();
 		}
 	}
 }

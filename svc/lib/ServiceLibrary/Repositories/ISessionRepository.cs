@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories
 {
 	public interface ISessionRepository
 	{
-		Task<Dictionary<string, Dictionary<string, string>>> GetConfig();
+		Task GetAccessAsync(HttpRequestMessage request, string op, int aid);
 	}
 }

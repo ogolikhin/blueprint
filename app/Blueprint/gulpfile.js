@@ -1,6 +1,7 @@
 'use srtrict';
 
-var gulp = require('gulp'),
+var gulp = require('gulp-help')(require('gulp')),
+	help = require('gulp-help'),
 	bower = require('gulp-main-bower-files'),
 	addsrc = require('gulp-add-src'),
 	filter = require('gulp-filter'),
@@ -10,6 +11,7 @@ var gulp = require('gulp'),
 	tscompile = require('gulp-typescript'),
 	jsminify = require('gulp-uglify')
 	cssminify = require('gulp-csso'),
+	webserver = require('gulp-webserver'),
 	del = require('del');
 
 var src = {
@@ -51,11 +53,11 @@ var tsProject = tscompile.createProject({
 
 gulp.task('clean', function (cb) {
 	del([dst.pub], cb);
-})
+});
 
 // build
 
-gulp.task('start-build', ['clean'])
+gulp.task('start-build', ['clean']);
 
 gulp.task('bower', ['start-build'], function () {
 	var jsfilter = filter('**/*.js')
@@ -78,7 +80,7 @@ gulp.task('bower', ['start-build'], function () {
     	}
     }))
     .pipe(gulp.dest(dst.lib));
-})
+});
 
 
 gulp.task('ts', ['start-build'], function() {
@@ -97,7 +99,7 @@ gulp.task('js', ['ts'], function () {
 		.pipe(jsminify())
 		.pipe(srcmaps.write())
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
 gulp.task('css', ['start-build'], function () {
 	return gulp.src([src.css])
@@ -106,19 +108,32 @@ gulp.task('css', ['start-build'], function () {
 		.pipe(cssminify())
 		.pipe(srcmaps.write())
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
 gulp.task('content', ['start-build'], function () {
 	return gulp.src(src.content)
 		.pipe(gulp.dest(dst.pub));
-})
+});
 
-gulp.task('end-build', ['bower', 'js', 'css', 'content'])
+gulp.task('end-build', ['bower', 'js', 'css', 'content']);
 
 // post-build
 
-gulp.task('post-build', ['end-build'])
+gulp.task('post-build', ['end-build']);
 
-gulp.task('build', ['post-build'])
+gulp.task('build', ['post-build']);
 
-gulp.task('run', ['build'])
+gulp.task('run', ['build']);
+
+
+// temporary serving the single page webapp before server components are ready
+
+gulp.task('default', 'Display this help text.', ['help']);
+
+gulp.task('serve', function() {
+  gulp.src('.')
+    .pipe(webserver({
+      livereload: true,
+      open: true
+    }));
+});

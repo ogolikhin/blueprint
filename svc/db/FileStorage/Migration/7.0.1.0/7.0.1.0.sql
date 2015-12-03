@@ -27,105 +27,6 @@ GO
 
 
 
-/******************************************************************************************************************************
-Name:			DbVersionInfo
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DbVersionInfo]') AND type in (N'U'))
-DROP TABLE [dbo].[DbVersionInfo]
-GO
-
-CREATE TABLE [dbo].[DbVersionInfo](
-	[Id] [int] NOT NULL,
-	[SchemaVersion] [nvarchar](32) NULL,
- CONSTRAINT [PK_DbVersionInfo] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)) ON [PRIMARY]
-GO
-/******************************************************************************************************************************
-Name:			Files
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/10/28		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[DF__Files__FileId__117F9D94]') AND type = 'D')
-BEGIN
-ALTER TABLE [dbo].[Files] DROP CONSTRAINT [DF__Files__FileId__117F9D94]
-END
-GO
-IF  EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[FK_FileId]') AND type = 'F')
-AND EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
-BEGIN
-ALTER TABLE [dbo].[FileChunks] DROP CONSTRAINT [FK_FileId]
-END
-GO
-
-
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Files]') AND type in (N'U'))
-DROP TABLE [dbo].[Files]
-GO
-
-CREATE TABLE [dbo].[Files](
-	[FileId] [uniqueidentifier] NOT NULL,
-	[StoredTime] [datetime] NOT NULL,
-	[ExpiredTime] [datetime],
-	[FileName] [nvarchar](256) NOT NULL,
-	[FileType] [nvarchar](128) NOT NULL,
-	[ChunkCount] [int] NOT NULL,
-	[FileSize] [bigint] NOT NULL,
- CONSTRAINT [PK_Files] PRIMARY KEY CLUSTERED 
-(
-	[FileId] ASC
-))
-GO
-
-ALTER TABLE [dbo].[Files] ADD  DEFAULT (newsequentialid()) FOR [FileId]
-GO
-
-/******************************************************************************************************************************
-Name:			Files
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/19		Albert Wong				Added FileChunks table
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FileChunks]') AND type in (N'U'))
-DROP TABLE [dbo].[FileChunks]
-GO
-
-CREATE TABLE [dbo].[FileChunks](
-	[FileId] [uniqueidentifier] NOT NULL,
-	[ChunkNum] [int] NOT NULL,
-	[ChunkSize] [int] NOT NULL,
-	[ChunkContent] [varbinary](max) NULL,
- CONSTRAINT [PK_FileChunks] PRIMARY KEY CLUSTERED 
-(
-	[FileId] ASC,
-	[ChunkNum] ASC
-),
- CONSTRAINT [FK_FileId]
- FOREIGN KEY ([FileId])
-    REFERENCES [dbo].[Files]
-        ([FileId])
-    ON DELETE CASCADE ON UPDATE CASCADE
-
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-
-GO
 
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
@@ -378,7 +279,7 @@ BEGIN
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
-           (GETDATE()
+           (GETUTCDATE()
            ,@FileName
            ,@FileType
            ,@ExpiredTime

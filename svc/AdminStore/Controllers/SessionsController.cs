@@ -90,7 +90,7 @@ namespace AdminStore.Controllers
 
                 var queryParams = HttpUtility.ParseQueryString(string.Empty);
                 queryParams.Add("userName", user.Login);
-                queryParams.Add("licenseLevel", 3.ToString()); //TODO: user real user license
+                queryParams.Add("licenseLevel", user.LicenseType.ToString());
                 queryParams.Add("isSso", isSso.ToString());
 
                 var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);

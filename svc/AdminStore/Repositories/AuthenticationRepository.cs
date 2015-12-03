@@ -66,6 +66,9 @@ namespace AdminStore.Repositories
                     throw new AuthenticationException(string.Format("Authentication provider could not be found for login: {0}", login));
             }
             await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
+
+	        user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
+
             return user;
         }
 
@@ -116,7 +119,9 @@ namespace AdminStore.Repositories
                 throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
             }
 
-            return user;
+			user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
+
+			return user;
         }
 
         private AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int passwordExpirationInDays = 0)

@@ -64,11 +64,49 @@ namespace AdminStore.Repositories
             Assert.IsNull(user);
         }
 
-        #endregion GetUserByLoginAsync
+		#endregion GetUserByLoginAsync
 
-        #region GetLoginUserByIdAsync
+		#region GetEffectiveUserLicense
+		[TestMethod]
+		public async Task GetEffectiveUserLicenseAsync_QueryReturnsLicenseType_ReturnsFirst()
+		{
+			// Arrange
+			var cxn = new SqlConnectionWrapperMock();
+			var repository = new SqlUserRepository(cxn.Object);
+			var userId = 1;
+			int[] result = { 3 };
+			cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
 
-        [TestMethod]
+			// Act
+			var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
+
+			// Assert
+			cxn.Verify();
+			Assert.AreEqual(result.First(), licenseType);
+		}
+
+		[TestMethod]
+		public async Task GetEffectiveUserLicenseAsync_QueryReturnsEmpty_ReturnsZero()
+		{
+			// Arrange
+			var cxn = new SqlConnectionWrapperMock();
+			var repository = new SqlUserRepository(cxn.Object);
+			var userId = 1;
+			int[] result = { };
+			cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
+
+			// Act
+			var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
+
+			// Assert
+			cxn.Verify();
+			Assert.AreEqual(0, licenseType);
+		}
+		#endregion
+
+		#region GetLoginUserByIdAsync
+
+		[TestMethod]
         public async Task GetLoginUserByIdAsync_QueryReturnsUser_ReturnsFirst()
         {
             // Arrange

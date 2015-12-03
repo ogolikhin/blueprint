@@ -339,7 +339,12 @@ namespace FileStore.Controllers
 					return NotFound();
 				}
 
-				if (isLegacyFile)
+                if (file.ExpiredTime.HasValue && file.ExpiredTime.Value.ToUniversalTime() <= DateTime.UtcNow)
+                {
+                    return NotFound();
+                }
+
+                if (isLegacyFile)
 				{
 					mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
 				}
@@ -357,8 +362,9 @@ namespace FileStore.Controllers
 
 					FileStreamPushStream fsPushStream = new FileStreamPushStream();
 					fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
-
-					responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+                    
+                    //Please do not remove the redundant casting
+					responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 				}
 				else
 				{
@@ -370,7 +376,8 @@ namespace FileStore.Controllers
 					SqlPushStream sqlPushStream = new SqlPushStream();
 					sqlPushStream.Initialize(_filesRepo, fileId);
 
-					responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+                    //Please do not remove the redundant casting
+                    responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 				}
 
 				response.Content = responseContent;

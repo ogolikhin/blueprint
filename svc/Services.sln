@@ -39,7 +39,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtifactStore.Tests", "Arti
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9B6567D-DF27-45FE-BC79-439FAF3CB6F1}"
 	ProjectSection(SolutionItems) = preProject
+		Blueprint.Common.props = Blueprint.Common.props
+		BlueprintStrongName.snk = BlueprintStrongName.snk
 		CodeCoverage.runsettings = CodeCoverage.runsettings
+		RecommendedAndSecurity.ruleset = RecommendedAndSecurity.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseLibrary", "lib\LicenseLibrary\LicenseLibrary.csproj", "{05D3A9B8-3B2B-4BAE-BBD7-F3C0FCE758C7}"

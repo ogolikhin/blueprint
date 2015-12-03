@@ -19,6 +19,7 @@ Print 'Migrating 7.0.1.0 ...'
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\SetSchemaVersion.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\DeleteFile.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\DeleteFileChunk.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadFileHead.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\GetStatus.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\HeadFile.sql" ) ) #>

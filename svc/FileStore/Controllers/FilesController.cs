@@ -97,7 +97,7 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-			while (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
+			if (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
 			{
 				// Gets current part's header information
 				var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
@@ -122,10 +122,17 @@ namespace FileStore.Controllers
 		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
 		{
 			var chunk = await PostFileHeader(fileName, fileType, expired);
+            try {
+                var fileSize = await PostFileInChunks(stream, chunk);
 
-			var fileSize = await PostFileInChunks(stream, chunk);
-
-			await _filesRepo.UpdateFileHead(chunk.FileId, fileSize, chunk.ChunkNum - 1);
+                await _filesRepo.UpdateFileHead(chunk.FileId, fileSize, chunk.ChunkNum - 1);
+            }
+            catch
+            {
+                // Deleting file since there was an exception in uploading the chunks or updating file head, meaning the file is only partially uploaded.                
+                await DeleteFile(chunk.FileId.ToString());
+                throw;
+            }
 
 			return chunk;
 		}
@@ -224,24 +231,40 @@ namespace FileStore.Controllers
 	        {
 	            return NotFound();
 	        }
-
-	        var chunk = new FileChunk()
+            int startingChunkNumber = fileHead.ChunkCount + 1;
+            var chunk = new FileChunk()
 	        {
-	            ChunkNum = fileHead.ChunkCount + 1,
+	            ChunkNum = startingChunkNumber,
 	            FileId = fileHead.FileId
 	        };
 
 	        long fileSize;
-	        using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
-	        {
-	            fileSize = await PostFileInChunks(stream, chunk);
-	        }
-
-	        await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
+            try {
+                using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
+                {
+                    fileSize = await PostFileInChunks(stream, chunk);
+                }
+                await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
+            }
+            catch
+            {
+                // Delete all chunks after the starting chunk of this PUT.
+                await DeleteFileChunks(chunk.FileId, startingChunkNumber);
+                throw;
+            }
 
 	        return Ok();
 	    }
-
+        private async Task<int> DeleteFileChunks(Guid guid, int startingChunkNumber)
+        {
+            int rowsAffected = 0;
+            int chunkNumber = startingChunkNumber;
+            while(await _filesRepo.DeleteFileChunk(guid, chunkNumber++) > 0)
+            {
+                rowsAffected++;
+            }
+            return rowsAffected;
+        }
 	    [HttpHead]
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]

@@ -413,7 +413,7 @@ BEGIN
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
-           (GETDATE()
+           (GETUTCDATE()
            ,@FileName
            ,@FileType
            ,@ExpiredTime

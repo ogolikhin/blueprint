@@ -21,7 +21,8 @@ namespace FileStore.Repositories
 		File GetFileInfo(Guid fileId);
 		Task<FileChunk> GetFileChunk(Guid guid, int num);
 		byte[] ReadChunkContent(DbConnection dbConnection, Guid guid, int num);
-		Task<Guid?> DeleteFile(Guid guid, DateTime? expired = null);
+		Task<Guid?> DeleteFile(Guid guid, DateTime expired);
+        Task<int> DeleteFileChunk(Guid guid, int chunkNumber);
 
-	}
+    }
 }

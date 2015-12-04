@@ -115,8 +115,11 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task AuthenticateUserAsync_DatabaseUser_Success()
         {
-            // Arrange
-            _instanceSettings.IsSamlEnabled = true;
+			// Arrange
+			var userLicense = 3;
+			_sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
+
+			_instanceSettings.IsSamlEnabled = true;
             _loginUser.IsFallbackAllowed = true;
             _loginUser.Source = UserGroupSource.Database;
 
@@ -129,6 +132,7 @@ namespace AdminStore.Repositories
 
             // Assert
             Assert.AreEqual(_loginUser, result);
+			Assert.AreEqual(userLicense, result.LicenseType);
         }
 
         [TestMethod]
@@ -457,6 +461,9 @@ namespace AdminStore.Repositories
         public async Task AuthenticateSamlUserAsync_UserIsEnabled_ReturnsUser()
         {
             // Arrange
+	        var userLicense = 2;
+	        _sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
+
             _instanceSettings.IsSamlEnabled = true;
             const string samlEncodedResponse = "fakeSamlResponce";
 
@@ -480,6 +487,7 @@ namespace AdminStore.Repositories
 
             // Assert
             Assert.AreEqual(_loginUser, result);
+			Assert.AreEqual(userLicense, result.LicenseType);
         }
 
         [TestMethod]

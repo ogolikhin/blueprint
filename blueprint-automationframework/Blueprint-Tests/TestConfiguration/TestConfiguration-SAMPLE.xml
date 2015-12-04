@@ -1,0 +1,21 @@
+<TestConfiguration>
+  <!-- This is the URL of the Blueprint server to test against. -->
+  <BlueprintServerAddress>http://localhost:8080/</BlueprintServerAddress>
+
+
+  <!-- This is where you add the databases used by the tests. -->
+  <Databases>
+    <Database Name="Blueprint" ConnectionString="Data Source=TestServerName;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=Welcome1;"/>
+    <Database Name="AccessControl" ConnectionString="Data Source=TestServerName;Initial Catalog=AccessControl;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=Welcome1;"/>
+  </Databases>
+
+  <!-- This is the level of logging to use.  Valid values are:  NONE, ERROR, WARNING, INFO, DEBUG, TRACE -->
+  <LogLevel>TRACE</LogLevel>
+
+  <!-- The password for the user. -->
+  <Password>changeme</Password>
+
+
+  <!-- A valid username to connect to the Blueprint server. -->
+  <Username>admin</Username>
+</TestConfiguration>

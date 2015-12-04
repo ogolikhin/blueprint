@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using FileStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
+using File = FileStore.Models.File;
 
 namespace FileStore.Repositories
 {
@@ -199,7 +201,7 @@ namespace FileStore.Repositories
 
             sqlPushStream.Initialize(moqFilesRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent(sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 
             System.IO.Stream response = await responseContent.ReadAsStreamAsync();
 
@@ -257,7 +259,7 @@ namespace FileStore.Repositories
                 new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
-            Guid? id = await repository.DeleteFile(guid);
+            Guid? id = await repository.DeleteFile(guid, DateTime.UtcNow);
 
             // Assert
             cxn.Verify();
@@ -278,7 +280,7 @@ namespace FileStore.Repositories
                      new Dictionary<string, object> { { "ExpiredTime", DateTime.UtcNow } });
 
             // Act
-            Guid? id = await repository.DeleteFile(guid);
+            Guid? id = await repository.DeleteFile(guid, DateTime.UtcNow);
 
             // Assert
             cxn.Verify();

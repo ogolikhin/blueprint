@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -62,7 +63,7 @@ namespace FileStore.Repositories
 
             fsPushStream.Initialize(moqFSRepo.Object, moqConfigRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent(fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
 
             Stream response = await responseContent.ReadAsStreamAsync();
 

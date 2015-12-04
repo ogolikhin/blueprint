@@ -72,11 +72,11 @@
                         initContent: function () {
                             // initialize a jqxTree inside the Solution Explorer Panel
                             var source = [{
-                                icon: 'jqwidgets-ver3.9.1/images/earth.png',
+                                icon: '/images/earth.png',
                                 label: 'Project',
                                 expanded: true,
                                 items: [{
-                                    icon: 'jqwidgets-ver3.9.1/images/folder.png',
+                                    icon: '/images/Folder.png',
                                     label: 'css',
                                     expanded: true,
                                     items: [{
@@ -375,13 +375,17 @@
         </div>
         <div data-container="PropertiesPanel">
             
-           <div id="solutionExplorerTree" style="border: none;"></div> 
+          <div id="solutionExplorerTree" style="border: none;"></div> 
 
         </div>
 
         <!--documentGroup-->
         <div data-container="Document1Panel">
-            Document 1 content</div>
+          <jqx-grid jqx-settings="gridsettings"></jqx-grid>
+          <br />
+          {{bindingCompleted}}
+
+        </div>
         <div data-container="Document2Panel">
             Document 2 content</div>
         <!--bottom tabbedGroup-->

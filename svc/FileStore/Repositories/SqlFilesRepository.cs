@@ -84,8 +84,14 @@ namespace FileStore.Repositories
 			prm.Add("@ExpiredTime", expired);
 			return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
 		}
-
-		public Models.File GetFileInfo(Guid fileId)
+        public async Task<int> DeleteFileChunk(Guid guid, int chunkNumber)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@FileId", guid);
+            prm.Add("@ChunkNumber", chunkNumber);
+            return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFileChunk", prm, commandType: CommandType.StoredProcedure));
+        }
+        public Models.File GetFileInfo(Guid fileId)
 		{
 			var prm = new DynamicParameters();
 			prm.Add("@FileId", fileId);

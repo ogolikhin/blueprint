@@ -327,6 +327,7 @@ namespace Model.Impl
                 ex = new Http403BadRequestException(message);
                 break;
             case "404":
+            case "NotFound":
                 ex = new Http404NotFoundException(message);
                 break;
             case "406":

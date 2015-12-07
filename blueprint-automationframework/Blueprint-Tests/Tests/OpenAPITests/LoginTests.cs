@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Model;
 using System.Collections.Generic;
 using System.Threading;
+using CustomAttributes;
 using Helper.Factories;
 using Logging;
 using Model.Impl;
@@ -14,6 +15,7 @@ using TestConfig;
 namespace OpenAPITests
 {
     [TestFixture]
+    [Category(Categories.OpenAPI)]
     public class LoginTests
     {
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
@@ -109,7 +111,7 @@ namespace OpenAPITests
         }
 
         [Test]
-        [Explicit("Ignore since current build has this defect")]
+        [Explicit(IgnoreReasons.ProductBug)]
         public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
         {
             HttpWebResponse response = null;
@@ -246,7 +248,8 @@ namespace OpenAPITests
 
         [TestCase(10, (uint)1)]
         [TestCase(100, (uint)2)]
-        [TestCase(1000, (uint)5, Explicit = true, Reason = "Test takes too long and kills the server.")]
+        [TestCase(1000, (uint)5, Explicit = true, Reason = IgnoreReasons.OverloadsTheSystem)]
+        [Category(Categories.ConcurrentTest)]
         public void LoginValidUsersConcurrently_OK(int numUsers, uint maxRetries)
         {
             List<IUser> users = new List<IUser>();

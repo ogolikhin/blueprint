@@ -4,40 +4,37 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C8E3F911-C256-4F27-828E-12337321C847}</ProjectGuid>
+    <ProjectGuid>{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FileStoreTests</RootNamespace>
-    <AssemblyName>FileStoreTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>CustomAttributes</RootNamespace>
+    <AssemblyName>CustomAttributes</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>..\..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,33 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicTests.cs" />
+    <Compile Include="Categories.cs" />
+    <Compile Include="IgnoreReasons.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
-      <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
-      <Name>CustomAttributes</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Helper\Helper.csproj">
-      <Project>{23c53dc5-1245-4877-9487-a05a46914fe3}</Project>
-      <Name>Helper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Logging\Logging.csproj">
-      <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
-      <Name>Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Model\Model.csproj">
-      <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
-      <Name>Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
-      <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
-      <Name>TestConfig</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

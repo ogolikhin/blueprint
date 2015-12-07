@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using CustomAttributes;
 using Helper.Factories;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestConfig;
 
 namespace FileStoreTests
 {
+    [TestFixture]
+    [Category(Categories.Filestore)]
     public class BasicTests
     {
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
@@ -37,10 +36,10 @@ namespace FileStoreTests
             }
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "Text", Explicit = true, Reason = "Partially not implemented")]
-        [TestCase((uint)2048, "2KB_File.txt", "Text", Explicit = true, Reason = "Partially not implemented")]
-        [TestCase((uint)4096, "4KB_File.txt", "Text", Explicit = true, Reason = "Partially not implemented")]
-        [TestCase((uint)8192, "8KB_File.txt", "Text", Explicit = true, Reason = "Partially not implemented")]
+        [TestCase((uint)1024, "1KB_File.txt", "Text", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)2048, "2KB_File.txt", "Text", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)4096, "4KB_File.txt", "Text", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)8192, "8KB_File.txt", "Text", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
         public void AddFile_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.

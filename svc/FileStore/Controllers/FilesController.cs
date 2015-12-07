@@ -111,9 +111,9 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-			catch
+			catch(Exception ex)
 			{
-				return InternalServerError();
+				return InternalServerError(ex);
 			}
 		}
 
@@ -212,9 +212,9 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-			catch
+			catch (Exception ex)
 			{
-				return InternalServerError();
+				return InternalServerError(ex);
 			}
 		}
 
@@ -273,9 +273,9 @@ namespace FileStore.Controllers
 			{
 				return BadRequest();
 			}
-            catch
+            catch(Exception ex)
             {
-                return InternalServerError();
+                return InternalServerError(ex);
             }
         }
 
@@ -300,9 +300,9 @@ namespace FileStore.Controllers
 					}
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
-				return InternalServerError();
+				return InternalServerError(ex);
 			}
 		}
 

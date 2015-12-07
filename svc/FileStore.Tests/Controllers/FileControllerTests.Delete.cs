@@ -74,7 +74,7 @@ namespace FileStore.Controllers
             var result = controller.DeleteFile(Guid.NewGuid().ToString("N"));
 
             //Act
-            Assert.IsInstanceOfType(result.Result, typeof(InternalServerErrorResult), "Result should be InternalServerError");
+            Assert.IsInstanceOfType(result.Result, typeof(ExceptionResult), "Result should be ExceptionResult");
 
         }
 

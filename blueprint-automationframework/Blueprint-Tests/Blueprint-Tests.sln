@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{52DB8811-A018-4CEC-BA81-8DDA947CC007}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControlTests", "Tests\AccessControlTests\AccessControlTests.csproj", "{0D9767DA-3BC1-456F-845F-2F9C4EA05D0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPITests", "Tests\OpenAPITests\OpenAPITests.csproj", "{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStoreTests", "Tests\FileStoreTests\FileStoreTests.csproj", "{C8E3F911-C256-4F27-828E-12337321C847}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8E3F911-C256-4F27-828E-12337321C847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8E3F911-C256-4F27-828E-12337321C847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8E3F911-C256-4F27-828E-12337321C847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8E3F911-C256-4F27-828E-12337321C847}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,5 +60,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0D9767DA-3BC1-456F-845F-2F9C4EA05D0F} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
+		{C8E3F911-C256-4F27-828E-12337321C847} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
 	EndGlobalSection
 EndGlobal

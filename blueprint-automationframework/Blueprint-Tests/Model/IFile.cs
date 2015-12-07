@@ -6,7 +6,7 @@ namespace Model
     {
         string FileName { get; set; }
         string FileType { get; set; }
-        Guid Id { get; set; }
+        string Id { get; set; }
         DateTime LastModifiedDate { get; set; }
     }
 

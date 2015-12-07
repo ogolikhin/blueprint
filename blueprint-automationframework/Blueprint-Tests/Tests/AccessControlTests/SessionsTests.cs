@@ -1,14 +1,15 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 using NUnit.Framework;
 using System.Collections.Generic;
+using CustomAttributes;
 using Model.Facades;
 using Model.Factories;
 
 namespace AccessControlTests
 { 
     [TestFixture]
+    [Category(Categories.AccessControl)]
     public static class SessionsTests
     {
         private const string _serverUrl = "http://localhost:9801/";//TODO: replace with TestConfiguration.GetInstance();
@@ -23,7 +24,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void PostNewSession_OK()
         {
             int userId = 12534;//in current implementation of AccessControl we can put any Int
@@ -39,7 +40,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void PutSession_OK()
         {
             int userId = 1124;//in current implementation of AccessControl we can put any Int
@@ -58,7 +59,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void PutSession_BadRequest()
         {
             int userId = 1124;//in current implementation of AccessControl we can put any Int
@@ -76,7 +77,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void GetSessionsWithoutSessionToken_OK()
         {
             int userId = 12434;//in current implementation of AccessControl we can put any Int
@@ -93,7 +94,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void DeleteSessions_OK()
         {
             int userId = 2311;//in current implementation of AccessControl we can put any Int
@@ -107,7 +108,7 @@ namespace AccessControlTests
         }
 
         [Test]
-        [Explicit("we don't have deployed access control service")]
+        [Explicit(IgnoreReasons.DeploymentNotReady)]
         public static void DeleteSessions_BadRequest()
         {
             int userId = 2311;//in current implementation of AccessControl we can put any Int

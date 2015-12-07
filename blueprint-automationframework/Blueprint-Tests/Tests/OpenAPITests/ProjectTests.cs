@@ -1,15 +1,16 @@
 ﻿
 using System.Collections.Generic;
+using CustomAttributes;
 using Helper.Factories;
 using Logging;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
 using Model.Impl;
 
 namespace OpenAPITests
 {
     [TestFixture]
+    [Category(Categories.OpenAPI)]
     public class ProjectTests
     {
         private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
@@ -32,6 +33,7 @@ namespace OpenAPITests
         }
 
         [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         public void GetProjects()
         {
             // TODO: Create some projects.
@@ -50,7 +52,7 @@ namespace OpenAPITests
         }
 
         [Test]
-        [Ignore("under development")]
+        [Ignore(IgnoreReasons.UnderDevelopment)]
         public void GetProject()
         {
             // TODO: Create some projects and collect the projectID

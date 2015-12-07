@@ -46,6 +46,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
+      <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
+      <Name>CustomAttributes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Helper\Helper.csproj">
       <Project>{23C53DC5-1245-4877-9487-A05A46914FE3}</Project>
       <Name>Helper</Name>

@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControlTests", "Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPITests", "Tests\OpenAPITests\OpenAPITests.csproj", "{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStoreTests", "FileStoreTests\FileStoreTests.csproj", "{1E570078-301E-4F77-A938-CF8FAE5B3443}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,10 +47,6 @@ Global
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E570078-301E-4F77-A938-CF8FAE5B3443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E570078-301E-4F77-A938-CF8FAE5B3443}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E570078-301E-4F77-A938-CF8FAE5B3443}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E570078-301E-4F77-A938-CF8FAE5B3443}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +54,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0D9767DA-3BC1-456F-845F-2F9C4EA05D0F} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
 		{5DC33CAC-36CF-477F-BCFA-8B2ECD5B623F} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
-		{1E570078-301E-4F77-A938-CF8FAE5B3443} = {F8CA78A5-5285-41FD-9AA1-9F003F88B5FE}
 	EndGlobalSection
 EndGlobal

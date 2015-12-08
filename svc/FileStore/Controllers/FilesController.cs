@@ -24,7 +24,6 @@ namespace FileStore.Controllers
 
 		private readonly IFilesRepository _filesRepo;
 		private readonly IFileStreamRepository _fileStreamRepo;
-		private readonly IFileMapperRepository _fileMapperRepo;
 		private readonly IConfigRepository _configRepo;
 
 		private const string CacheControl = "Cache-Control";
@@ -38,15 +37,14 @@ namespace FileStore.Controllers
 		private const string MustRevalidate = "must-revalidate";
 		private const string StoredDateFormat = "o";
 
-		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), ConfigRepository.Instance)
+		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), ConfigRepository.Instance)
 		{
 		}
 
-		internal FilesController(IFilesRepository fr, IFileStreamRepository fsr, IFileMapperRepository fmr, IConfigRepository cr)
+		internal FilesController(IFilesRepository fr, IFileStreamRepository fsr, IConfigRepository cr)
 		{
 			_filesRepo = fr;
 			_fileStreamRepo = fsr;
-			_fileMapperRepo = fmr;
 			_configRepo = cr;
 		}
         
@@ -57,8 +55,6 @@ namespace FileStore.Controllers
 		public async Task<IHttpActionResult> GetFileHead(string id)
 		{
 			Models.File file;
-			bool isLegacyFile = false;
-			string mappedContentType;
 
 			try
 			{
@@ -72,22 +68,12 @@ namespace FileStore.Controllers
 					// legacy database for the file 
 
 					file = _fileStreamRepo.GetFileHead(fileId);
-					isLegacyFile = true;
 				}
 
 				if (file == null)
 				{
 					// the file was not found in either FileStore or legacy database 
 					return NotFound();
-				}
-
-				if (isLegacyFile)
-				{
-					mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
-				}
-				else
-				{
-					mappedContentType = file.FileType;
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
@@ -99,7 +85,7 @@ namespace FileStore.Controllers
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 				response.Content.Headers.ContentLength = 0; // there is no content
 				response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
@@ -124,8 +110,6 @@ namespace FileStore.Controllers
 		public async Task<IHttpActionResult> GetFileContent(string id)
 		{
 			Models.File file;
-			bool isLegacyFile = false;
-			string mappedContentType;
 
 			try
 			{
@@ -139,7 +123,6 @@ namespace FileStore.Controllers
 					// legacy database for the file
 
 					file = _fileStreamRepo.GetFileHead(fileId);
-					isLegacyFile = true;
 				}
 
 				if (file == null)
@@ -153,45 +136,28 @@ namespace FileStore.Controllers
                     return NotFound();
                 }
 
-				if (isLegacyFile)
-				{
-					mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
-				}
-				else
-				{
-					mappedContentType = file.FileType;
-				}
-
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				HttpContent responseContent;
 
-				if (isLegacyFile)
+			    IPushStream pushStream;
+                if (file.IsLegacyFile)
 				{
 					// retrieve file content from legacy database 
-
-					FileStreamPushStream fsPushStream = new FileStreamPushStream();
-					fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
-
-                    //Please do not remove the redundant casting
-                    responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+					pushStream = new FileStreamPushStream();
+                    ((FileStreamPushStream)pushStream).Initialize(_fileStreamRepo, _configRepo, fileId);
 				}
 				else
 				{
-					// retrieve file content from FileStore database 
-
-					// Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
-					// and flush these bits to the output stream.
-
-					SqlPushStream sqlPushStream = new SqlPushStream();
-					sqlPushStream.Initialize(_filesRepo, fileId);
-
-                    //Please do not remove the redundant casting
-                    responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+                    // retrieve file content from FileStore database 
+                    // Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
+                    // and flush these bits to the output stream.
+                    pushStream = new SqlPushStream();
+                    ((SqlPushStream)pushStream).Initialize(_filesRepo, fileId);
 				}
 
-				response.Content = responseContent;
+                //Please do not remove the redundant casting
+                response.Content = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)pushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
-				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
+                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
 
 				if (response.Content != null)
@@ -200,7 +166,7 @@ namespace FileStore.Controllers
 					{
 						FileName = file.FileName
 					};
-					response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+					response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 					response.Content.Headers.ContentLength = file.FileSize;
 				}
 				response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));

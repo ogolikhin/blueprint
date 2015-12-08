@@ -1,13 +1,16 @@
 using Newtonsoft.Json;
 using System;
-using System.IO;
+using System.Web;
 
 namespace FileStore.Models
 {
 	[JsonObject]
 	public class File
 	{
-		[JsonProperty]
+        [JsonIgnore]
+        private const string DefaultMediaType = "application/octet-stream";
+
+        [JsonProperty]
 		public Guid FileId { get; set; }
 		[JsonProperty]
 		public DateTime StoredTime { get; set; }
@@ -21,6 +24,22 @@ namespace FileStore.Models
 		public long FileSize { get; set; }
 		[JsonProperty]
 		public int ChunkCount { get; set; }
+
+        [JsonIgnore]
+        public bool IsLegacyFile { get; set; }
+
+        [JsonIgnore]
+        public string ContentType
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(FileType))
+                {
+                    return DefaultMediaType;
+                }
+                return IsLegacyFile ? MimeMapping.GetMimeMapping(FileType) : FileType;
+            }
+        }
 
 		public static string ConvertFileId(Guid guid)
 		{

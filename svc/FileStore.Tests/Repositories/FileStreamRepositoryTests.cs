@@ -25,7 +25,6 @@ namespace FileStore.Repositories
             // Arrange
             var moqFSRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             int legacyFileChunkSize = 125; 
             var contentString = GetRandomString(125);
@@ -37,7 +36,7 @@ namespace FileStore.Repositories
                 FileId = new Guid("22222222-2222-2222-2222-222222222222"),
                 FileName = "Test2.txt",
                 StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-                FileType = FileMapperRepository.DefaultMediaType,
+                FileType = "application/octet-stream",
                 FileSize = fileStreamContent.Length,
                 ChunkCount = 1
             };
@@ -50,20 +49,16 @@ namespace FileStore.Repositories
 
             moqFSRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>())).Returns(fileStreamContent.Take<byte>(125).ToArray<byte>());
 
-            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
-                 .Returns(FileMapperRepository.DefaultMediaType);
-
             moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(legacyFileChunkSize);
 
             // Act
 
-            string mappedContentType = moqFileMapper.Object.GetMappedOutputContentType(file.FileType);
 
             FileStreamPushStream fsPushStream = new FileStreamPushStream();
 
             fsPushStream.Initialize(moqFSRepo.Object, moqConfigRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) fsPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
             Stream response = await responseContent.ReadAsStreamAsync();
 

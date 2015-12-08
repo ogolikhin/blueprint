@@ -160,7 +160,6 @@ namespace FileStore.Repositories
             // Arrange
             var moqFilesRepo = new Mock<IFilesRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
 
             int fileChunkSize = 125;
             var contentString = GetRandomString(125);
@@ -172,7 +171,7 @@ namespace FileStore.Repositories
                 FileId = new Guid("22222222-2222-2222-2222-222222222222"),
                 FileName = "Test2.txt",
                 StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
-                FileType = FileMapperRepository.DefaultMediaType,
+                FileType = "application/octet-stream",
                 FileSize = fileStreamContent.Length,
                 ChunkCount = 2
             };
@@ -185,9 +184,6 @@ namespace FileStore.Repositories
 
             moqFilesRepo.Setup(t => t.ReadChunkContent(moqDbConnection.Object, It.IsAny<Guid>(), It.IsAny<int>())).Returns(fileStreamContent.Take<byte>(125).ToArray<byte>());
 
-            moqFileMapper.Setup(t => t.GetMappedOutputContentType(It.IsAny<string>()))
-                 .Returns(FileMapperRepository.DefaultMediaType);
-
             moqConfigRepo.Setup(t => t.LegacyFileChunkSize).Returns(fileChunkSize);
 
             moqFilesRepo.Setup(t => t.GetFileInfo(It.IsAny<Guid>())).Returns(file);
@@ -195,13 +191,12 @@ namespace FileStore.Repositories
 
             // Act
 
-            string mappedContentType = moqFileMapper.Object.GetMappedOutputContentType(file.FileType);
 
             SqlPushStream sqlPushStream = new SqlPushStream();
 
             sqlPushStream.Initialize(moqFilesRepo.Object, file.FileId);
 
-            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+            HttpContent responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>) sqlPushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
             System.IO.Stream response = await responseContent.ReadAsStreamAsync();
 

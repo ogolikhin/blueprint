@@ -81,7 +81,6 @@
     <Compile Include="Models\FileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileStoreSvcIntegrationTest.cs" />
-    <Compile Include="Repositories\FileMapperRepositoryTests.cs" />
     <Compile Include="Repositories\FileStreamRepositoryTests.cs" />
     <Compile Include="Repositories\SqlFilesRepositoryTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />

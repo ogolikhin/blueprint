@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net;
-using System.Web;
 using System.Threading.Tasks;
 using System.Data.Common;
-using FileStore.Models;
 
 namespace FileStore.Repositories
 {
-    public class SqlPushStream 
+    public class SqlPushStream : IPushStream
     {
         private Models.File _file = null;
         private IFilesRepository _filesRepository = null;

@@ -23,7 +23,6 @@ namespace FileStore.Controllers
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
@@ -38,7 +37,7 @@ namespace FileStore.Controllers
 
             moqConfigRepo.Setup(t => t.FileChunkSize).Returns(DefaultChunkSize);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -81,7 +80,6 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             string fileName4Upload = "\"UploadTest.txt\"";
@@ -94,7 +92,7 @@ namespace FileStore.Controllers
             multiPartContent1.Add(byteArrayContent1, "this is the name of the content", fileName4Upload);
             multiPartContent1.Add(byteArrayContent2, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -135,11 +133,10 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             var httpContent = new StringContent("my file");
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -180,11 +177,10 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             var httpContent = new StringContent("my file");
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -225,11 +221,10 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             var httpContent = new StringContent("my file");
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -264,7 +259,6 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Throws(new Exception());
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             string fileName4Upload = "\"UploadTest.txt\"";
@@ -275,7 +269,7 @@ namespace FileStore.Controllers
             byteArrayContent.Headers.Add("Content-Type", "multipart/form-data");
             multiPartContent.Add(byteArrayContent, "this is the name of the content", fileName4Upload);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {

@@ -209,7 +209,7 @@ namespace Utilities.Facades
 
             if (!expectedStatusCodes.Contains(statusCode))
             {
-                throw WebExceptionFactory.Create(statusCode.ToString());
+                throw WebExceptionFactory.Create((int)statusCode);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Utilities.Facades
         /// <summary>
         /// Creates the web request and get the response which is then serialized into the specified type.
         /// </summary>
-        /// <typeparam name="T">The type of object to be returned by the GetResponse() call.</typeparam>
+        /// <typeparam name="T">The type of object to be returned by this call.</typeparam>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
@@ -282,7 +282,7 @@ namespace Utilities.Facades
         /// <param name="fileContent">(optional) If you are sending a file, pass the file content here.</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
-        /// <returns>The HttpWebResponse object.</returns>
+        /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public RestResponse SendRequestAndGetResponse(string resourcePath, RestRequestMethod method,
             string fileName = null, byte[] fileContent = null,
@@ -305,7 +305,7 @@ namespace Utilities.Facades
 
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
 
-                return ConvertToRestResponse(response);
+                return _restResponse;
             }
             catch (WebException e)
             {

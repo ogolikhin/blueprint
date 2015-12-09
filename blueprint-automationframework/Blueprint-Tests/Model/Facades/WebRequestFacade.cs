@@ -69,7 +69,7 @@ namespace Model.Facades
 
                     if (!expectedStatusCodes.Contains(response.StatusCode))
                     {
-                        throw WebExceptionFactory.Create(response.StatusCode.ToString());
+                        throw WebExceptionFactory.Create((int)response.StatusCode);
                     }
 
                     var encoding = Encoding.UTF8;

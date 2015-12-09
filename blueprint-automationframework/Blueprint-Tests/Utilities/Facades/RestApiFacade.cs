@@ -57,26 +57,13 @@ namespace Utilities.Facades
 
         #region Properties
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public string Content { get { return _restResponse.Content; } private set { _restResponse.Content = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public string ContentEncoding { get { return _restResponse.ContentEncoding; } private set { _restResponse.ContentEncoding = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public long ContentLength { get { return _restResponse.ContentLength; } private set { _restResponse.ContentLength = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public string ContentType { get { return _restResponse.ContentType; } private set { _restResponse.ContentType = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public Exception ErrorException { get { return _restResponse.ErrorException; } private set { _restResponse.ErrorException = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public string ErrorMessage { get { return _restResponse.ErrorMessage; } private set { _restResponse.ErrorMessage = value; } }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]   // Ignore this warning.
-        public HttpStatusCode StatusCode { get { return _restResponse.StatusCode; } private set { _restResponse.StatusCode = value; } }
+        public string Content               { get { return _restResponse.Content; } }
+        public string ContentEncoding       { get { return _restResponse.ContentEncoding; } }
+        public long ContentLength           { get { return _restResponse.ContentLength; } }
+        public string ContentType           { get { return _restResponse.ContentType; } }
+        public Exception ErrorException     { get { return _restResponse.ErrorException; } }
+        public string ErrorMessage          { get { return _restResponse.ErrorMessage; } }
+        public HttpStatusCode StatusCode    { get { return _restResponse.StatusCode; } }
 
         #endregion Properties
 

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.Caching;
 using System.Web.Http;
+using AccessControl.Helpers;
 
 namespace AccessControl
 {
@@ -20,6 +21,9 @@ namespace AccessControl
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
         public static int SessionTimeoutInterval = int.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+
+	    public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
+		    ConfigurationManager.AppSettings["LHTSetting"], 1440);
 
         public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 

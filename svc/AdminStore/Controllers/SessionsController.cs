@@ -96,7 +96,12 @@ namespace AdminStore.Controllers
                 var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
-                    throw new ServerException();
+					// No license available
+	                if (result.StatusCode == HttpStatusCode.Forbidden)
+	                {
+						throw new AuthenticationException("Max license limit has been reached", ErrorCodes.LicenseLimit);
+	                }
+	                throw new ServerException();
                 }
                 var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                 var response = new HttpResponseMessage(HttpStatusCode.OK)

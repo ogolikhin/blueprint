@@ -28,14 +28,14 @@ namespace FileStore.Helpers
             throw new MultipartReadException(error);
         }
 
-        protected override async Task ExeucteFunction(Stream stream)
+        protected override async Task ExecuteFunctionAsync(Stream stream)
         {
             // Gets current part's header information
-            var fileName = MultiPartParser.Filename.Replace("\"", string.Empty).Replace("%20", " ");
-            var fileType = MultiPartParser.ContentType;
+            var fileName = MultipartPartParser.Filename.Replace("\"", string.Empty).Replace("%20", " ");
+            var fileType = MultipartPartParser.ContentType;
 
             LogHelper.Log.DebugFormat("POST: Posting first multi-part file {0}", fileName);
-            _fileChunk = await _function(fileName, fileType, MultiPartParser, _expired);
+            _fileChunk = await _function(fileName, fileType, MultipartPartParser, _expired);
             LogHelper.Log.DebugFormat("POST: Chunks posted {0}", _fileChunk.ChunkNum - 1);
         }
         

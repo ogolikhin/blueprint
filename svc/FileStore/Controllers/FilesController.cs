@@ -300,7 +300,7 @@ namespace FileStore.Controllers
 		    {
 		        try
 		        {
-		            await postReader.ReadAndExecuteRequest();
+		            await postReader.ReadAndExecuteRequestAsync();
 		            var guid = postReader.GetFileId();
 
 		            if (guid != null)
@@ -459,7 +459,7 @@ namespace FileStore.Controllers
 	    {
 	        using (var putFileMultipart = new PutMultipartReader(stream, chunk, PostFileInChunks))
 	        {
-	            await putFileMultipart.ReadAndExecuteRequest();
+	            await putFileMultipart.ReadAndExecuteRequestAsync();
 	            var fileSize = putFileMultipart.GetFileSize();
 	            if (fileSize.HasValue)
 	            {

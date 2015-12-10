@@ -6,25 +6,25 @@ namespace FileStore.Helpers
 {
     public abstract class MultipartReader: IDisposable
     {
-        protected MultipartPartParser MultiPartParser;
+        protected MultipartPartParser MultipartPartParser;
 
         protected MultipartReader(Stream stream)
         {
-            MultiPartParser = new MultipartPartParser(stream);
+            MultipartPartParser = new MultipartPartParser(stream);
         }
-        public async Task ReadAndExecuteRequest()
+        public async Task ReadAndExecuteRequestAsync()
         {
-            if (MultiPartParser.IsEndPart)
+            if (MultipartPartParser.IsEndPart)
             {
                 HandleMultipartReadError("End part detected after reading Headers. No more parts detected.");
             }
-            if (!MultiPartParser.IsEndPart && !string.IsNullOrWhiteSpace(MultiPartParser.Filename))
+            if (!MultipartPartParser.IsEndPart && !string.IsNullOrWhiteSpace(MultipartPartParser.Filename))
             {
-                await ExeucteFunction(MultiPartParser);
+                await ExecuteFunctionAsync(MultipartPartParser);
 
                 //move the stream foward until we get to the next part
-                MultiPartParser = MultiPartParser.ReadUntilNextPart();
-                if (MultiPartParser != null)
+                MultipartPartParser = MultipartPartParser.ReadUntilNextPart();
+                if (MultipartPartParser != null)
                 {
                     HandleMultipartReadError("Only one part is supported for multi-part.");
                 }
@@ -34,7 +34,7 @@ namespace FileStore.Helpers
         }
 
         protected abstract void HandleMultipartReadError(string error);
-        protected abstract Task ExeucteFunction(Stream stream);
+        protected abstract Task ExecuteFunctionAsync(Stream stream);
 
         #region Dispose Methods
         bool disposed = false;
@@ -52,9 +52,9 @@ namespace FileStore.Helpers
             {
                 // Free any other managed objects here.
                 //
-                if (MultiPartParser != null)
+                if (MultipartPartParser != null)
                 {
-                    MultiPartParser.Dispose();
+                    MultipartPartParser.Dispose();
                 }
             }
 

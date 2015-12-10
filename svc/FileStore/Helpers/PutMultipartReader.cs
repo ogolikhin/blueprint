@@ -27,7 +27,7 @@ namespace FileStore.Helpers
             throw new MultipartReadException(error);
         }
 
-        protected override async Task ExeucteFunction(Stream stream)
+        protected override async Task ExecuteFunctionAsync(Stream stream)
         {
             LogHelper.Log.DebugFormat("PUT: Posting first multi-part file chunk");
             _fileSize = await _function(stream, _fileChunk);

@@ -253,6 +253,7 @@ namespace FileStore.Controllers
 
         [TestCategory("FileStoreTests.Post")]
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
         public async Task PostFile_MultipartRepoThrowsException()
         {
             //Arrange
@@ -289,18 +290,7 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            Exception ex = null;
-            try
-            {
-                 await controller.PostFileHttpContext(context.Object, null);
-            }
-            catch (Exception e)
-            {
-                ex = e;
-            }
-
-            // Assert
-            Assert.IsTrue(ex != null);
+            await controller.PostFileHttpContext(context.Object, null);
         }
 
         private async Task<Mock<HttpContextWrapper>> SetupMultipartPost(MultipartFormDataContent multiPartContent)

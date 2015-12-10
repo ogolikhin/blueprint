@@ -37,14 +37,14 @@ namespace AdminStore.Repositories
             }
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
-            {               
+            {
                 throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
             {
                 // Fallback is allowed by default (value is null)
-                if(!user.IsFallbackAllowed.GetValueOrDefault(true))
+                if (!user.IsFallbackAllowed.GetValueOrDefault(true))
                 {
                     throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
                 }
@@ -67,7 +67,7 @@ namespace AdminStore.Repositories
             }
             await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
 
-	        user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
+            user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
 
             return user;
         }
@@ -77,6 +77,10 @@ namespace AdminStore.Repositories
             switch (authenticationStatus)
             {
                 case AuthenticationStatus.Success:
+                    if (!user.IsEnabled)
+                    {
+                        throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
+                    }
                     break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
@@ -114,14 +118,14 @@ namespace AdminStore.Repositories
             {
                 throw new AuthenticationException("Invalid user name or password");
             }
-            if(!user.IsEnabled)
+            if (!user.IsEnabled)
             {
                 throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
             }
 
-			user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
+            user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);
 
-			return user;
+            return user;
         }
 
         private AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int passwordExpirationInDays = 0)

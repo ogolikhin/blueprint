@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace TestConfig
 {
@@ -69,30 +66,35 @@ namespace TestConfig
         /// </summary>
         /// <param name="path">The path to the TestConfiguration.xml file.</param>
         /// <returns>The TestConfiguration that was read.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]    // Ignore this warning.
         public static TestConfiguration ReadTestConfigFile(string path)
         {
             Logger.LogLevel = Logger.LogLevels.INFO;
             Logger.WriteInfo("Reading test configuration from: '{0}'.", path);
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path);
-
+            XmlReaderSettings readerSettings = new XmlReaderSettings();
+            readerSettings.IgnoreComments = true;
             TestConfiguration testConfig = new TestConfiguration();
-            XmlNode root = doc.SelectSingleNode("/TestConfiguration");
-            testConfig.BlueprintServerAddress = root.SelectSingleNode("BlueprintServerAddress").InnerText;
-            testConfig.Username = root.SelectSingleNode("Username").InnerText;
-            testConfig.Password = root.SelectSingleNode("Password").InnerText;
-            testConfig.LogLevel = (Logger.LogLevels)Enum.Parse(typeof(Logger.LogLevels), root.SelectSingleNode("LogLevel").InnerText);
-            Logger.LogLevel = testConfig.LogLevel;
-            XmlNode databasesNode = root.SelectSingleNode("Databases");
 
-            foreach (XmlNode databaseNode in databasesNode.ChildNodes)
+            using (XmlReader xmlReader = XmlReader.Create(path, readerSettings))
             {
-                Database database = new Database();
-                database.Name = databaseNode.Attributes["Name"].Value;
-                database.ConnectionString = databaseNode.Attributes["ConnectionString"].Value;
-                testConfig.Databases.Add(database.Name, database);
+                XmlDocument doc = new XmlDocument();
+                doc.Load(xmlReader);
+
+                XmlNode root = doc.SelectSingleNode("/TestConfiguration");
+                testConfig.BlueprintServerAddress = root.SelectSingleNode("BlueprintServerAddress").InnerText;
+                testConfig.Username = root.SelectSingleNode("Username").InnerText;
+                testConfig.Password = root.SelectSingleNode("Password").InnerText;
+                testConfig.LogLevel = (Logger.LogLevels)Enum.Parse(typeof (Logger.LogLevels), root.SelectSingleNode("LogLevel").InnerText);
+                Logger.LogLevel = testConfig.LogLevel;
+                XmlNode databasesNode = root.SelectSingleNode("Databases");
+
+                foreach (XmlNode databaseNode in databasesNode.ChildNodes)
+                {
+                    Database database = new Database();
+                    database.Name = databaseNode.Attributes["Name"].Value;
+                    database.ConnectionString = databaseNode.Attributes["ConnectionString"].Value;
+                    testConfig.Databases.Add(database.Name, database);
+                }
             }
 
             return testConfig;

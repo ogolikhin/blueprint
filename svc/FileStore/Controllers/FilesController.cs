@@ -296,33 +296,30 @@ namespace FileStore.Controllers
 
 		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
 		{
-			var mpp = new MultipartPartParser(stream);
-			if (mpp.IsEndPart)
-			{
-				return BadRequest();
-			}
-			while (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
-			{
-				// Gets current part's header information
-				var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
-				var fileType = mpp.ContentType;
+		    using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile))
+		    {
+		        try
+		        {
+		            await postReader.ReadAndExecuteRequestAsync();
+		            var guid = postReader.GetFileId();
 
-                LogHelper.Log.DebugFormat("POST: Posting first multi-part file {0}", fileName);
-                var chunk = await PostCompleteFile(fileName, fileType, mpp, expired);
-                LogHelper.Log.DebugFormat("POST: Chunks posted {0}", chunk.ChunkNum-1);
+		            if (guid != null)
+		            {
+		                return Ok(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		        catch (MultipartReadException)
+		        {
+		            var guid = postReader.GetFileId();
 
-                //move the stream foward until we get to the next part
-                mpp = mpp.ReadUntilNextPart();
-				if (mpp != null)
-				{
-					// Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
-					await _filesRepo.DeleteFile(chunk.FileId, DateTime.UtcNow);
-					return BadRequest();
-				}
-				return Ok(Models.File.ConvertFileId(chunk.FileId));
-			}
-
-			return BadRequest();
+		            if (guid != null)
+		            {
+		                await DeleteFile(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		    }
 		}
 
 		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
@@ -460,28 +457,17 @@ namespace FileStore.Controllers
 
 	    internal async Task<long> PutFileMultipart(Stream stream, FileChunk chunk)
 	    {
-	        long fileSize = 0;
-            var mpp = new MultipartPartParser(stream);
-            if (mpp.IsEndPart)
-            {
-                throw new Exception("PUT multipart - only headers found, no other parts were detected");
-            }
-            if (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
-            {
-                LogHelper.Log.DebugFormat("PUT: Posting first multi-part file chunk");
-                fileSize = await PostFileInChunks(mpp, chunk);
-                LogHelper.Log.DebugFormat("PUT: Chunks posted {0}", chunk.ChunkNum - 1);
-
-                //move the stream foward until we get to the next part
-                mpp = mpp.ReadUntilNextPart();
-                if (mpp != null)
-                {
-                    throw new Exception("PUT multi-part does not support more than one part currently.");
-                }
-                return fileSize;
-            }
-            throw new Exception("PUT could not read content data.");
-        }
+	        using (var putFileMultipart = new PutMultipartReader(stream, chunk, PostFileInChunks))
+	        {
+	            await putFileMultipart.ReadAndExecuteRequestAsync();
+	            var fileSize = putFileMultipart.GetFileSize();
+	            if (fileSize.HasValue)
+	            {
+	                return fileSize.Value;
+	            }
+	            throw new Exception("File size does not have a value after executing the PUT");
+	        }
+	    }
 
         private async Task<int> DeleteFileChunks(Guid guid, int startingChunkNumber)
         {

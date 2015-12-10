@@ -24,7 +24,6 @@ namespace FileStore.Controllers
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
 			var file = new File
@@ -38,7 +37,7 @@ namespace FileStore.Controllers
 
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(file);
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
 			{
 				Request = new HttpRequestMessage
 				{
@@ -77,7 +76,6 @@ namespace FileStore.Controllers
             // Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             var file = new File
@@ -86,7 +84,8 @@ namespace FileStore.Controllers
                 FileName = "Test3.txt",
                 StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
                 FileType = "text/html",
-                ChunkCount = 1
+                ChunkCount = 1,
+                IsLegacyFile = true
             };
 
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
@@ -94,9 +93,7 @@ namespace FileStore.Controllers
             moqFileStreamRepo.Setup(t => t.FileExists(file.FileId)).Returns(true);
             moqFileStreamRepo.Setup(t => t.GetFileHead(file.FileId)).Returns(file);
 
-            moqFileMapper.Setup(t => t.GetMappedOutputContentType(file.FileType)).Returns("application/octet-stream");
-
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -135,10 +132,9 @@ namespace FileStore.Controllers
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
 			{
 				Request = new HttpRequestMessage
 				{
@@ -170,10 +166,9 @@ namespace FileStore.Controllers
 			// Arrange
 			var moq = new Mock<IFilesRepository>();
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
 			{
 				Request = new HttpRequestMessage
 				{
@@ -206,10 +201,9 @@ namespace FileStore.Controllers
 			var moq = new Mock<IFilesRepository>();
 			moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
 			var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-			var moqFileMapper = new Mock<IFileMapperRepository>();
 			var moqConfigRepo = new Mock<IConfigRepository>();
 
-			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+			var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
 			{
 				Request = new HttpRequestMessage
 				{

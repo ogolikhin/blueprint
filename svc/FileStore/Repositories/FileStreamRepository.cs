@@ -77,7 +77,7 @@ namespace FileStore.Repositories
             file.FileSize = GetFileSize(fileId);
             file.FileName = GetFileName(fileId);
             file.FileType = GetFileType(fileId);
-            
+            file.IsLegacyFile = true;
 
             // if there is no file content assume that the file does not exist in the legacy db
             return file.FileSize == 0 ? null : file; 

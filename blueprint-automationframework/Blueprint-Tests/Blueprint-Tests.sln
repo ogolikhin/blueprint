@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPITests", "Tests\OpenA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStoreTests", "Tests\FileStoreTests\FileStoreTests.csproj", "{C8E3F911-C256-4F27-828E-12337321C847}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomAttributes", "CustomAttributes\CustomAttributes.csproj", "{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{C8E3F911-C256-4F27-828E-12337321C847}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8E3F911-C256-4F27-828E-12337321C847}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8E3F911-C256-4F27-828E-12337321C847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

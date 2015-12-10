@@ -31,6 +31,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetUserSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SelectSessions.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLicensesStatus.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

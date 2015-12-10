@@ -5,6 +5,7 @@ using System.Net;
 using Logging;
 using RestSharp;
 using RestSharp.Authenticators;
+using RestSharp.Extensions;
 using Utilities.Factories;
 
 namespace Utilities.Facades
@@ -28,15 +29,13 @@ namespace Utilities.Facades
     /// </summary>
     public class RestResponse
     {
-        private Dictionary<string, object> _headers = new Dictionary<string, object>();
-
         public string Content { get; set; }
         public string ContentEncoding { get; set; }
         public long ContentLength { get; set; }
         public string ContentType { get; set; }
         public Exception ErrorException { get; set; }
         public string ErrorMessage { get; set; }
-        public Dictionary<string, object> Headers { get { return _headers; } }
+        public Dictionary<string, object> Headers { get; } = new Dictionary<string, object>();
         public HttpStatusCode StatusCode { get; set; }
     }
 
@@ -47,23 +46,23 @@ namespace Utilities.Facades
     {
         #region Member variables
 
-        private Uri _baseUri;
-        private string _username;
-        private string _password;
-        private string _token;
+        private readonly Uri _baseUri;
+        private readonly string _username;
+        private readonly string _password;
+        private readonly string _token;
         private RestResponse _restResponse = new RestResponse();
 
         #endregion Member variables
 
         #region Properties
 
-        public string Content               { get { return _restResponse.Content; } }
-        public string ContentEncoding       { get { return _restResponse.ContentEncoding; } }
-        public long ContentLength           { get { return _restResponse.ContentLength; } }
-        public string ContentType           { get { return _restResponse.ContentType; } }
-        public Exception ErrorException     { get { return _restResponse.ErrorException; } }
-        public string ErrorMessage          { get { return _restResponse.ErrorMessage; } }
-        public HttpStatusCode StatusCode    { get { return _restResponse.StatusCode; } }
+        public string Content => _restResponse.Content;
+        public string ContentEncoding => _restResponse.ContentEncoding;
+        public long ContentLength => _restResponse.ContentLength;
+        public string ContentType => _restResponse.ContentType;
+        public Exception ErrorException => _restResponse.ErrorException;
+        public string ErrorMessage => _restResponse.ErrorMessage;
+        public HttpStatusCode StatusCode => _restResponse.StatusCode;
 
         #endregion Properties
 
@@ -75,8 +74,9 @@ namespace Utilities.Facades
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) List of query parameters to add to the request.</param>
         /// <returns>An IRestRequest object.</returns>
-        private IRestRequest CreateRequest(string resourcePath, RestRequestMethod method, Dictionary<string, string> additionalHeaders = null)
+        private IRestRequest CreateRequest(string resourcePath, RestRequestMethod method, Dictionary<string, string> additionalHeaders = null, Dictionary<string, string> queryParameters = null)
         {
             var client = new RestClient(_baseUri);
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
@@ -93,6 +93,14 @@ namespace Utilities.Facades
                 foreach (var header in additionalHeaders)
                 {
                     request.AddHeader(header.Key, header.Value);
+                }
+            }
+
+            if (queryParameters != null)
+            {
+                foreach (var queryParameter in queryParameters)
+                {
+                    request.AddQueryParameter(queryParameter.Key, queryParameter.Value);
                 }
             }
 
@@ -132,9 +140,9 @@ namespace Utilities.Facades
         /// <returns>A RestResponse object.</returns>
         private static RestResponse ConvertToRestResponse(IRestResponse restResponse)
         {
-            if (restResponse == null) { throw new ArgumentNullException("restResponse"); }
+            if (restResponse == null) { throw new ArgumentNullException(nameof(restResponse)); }
 
-            RestResponse response = new RestResponse()
+            var response = new RestResponse
             {
                 Content = restResponse.Content,
                 ContentEncoding = restResponse.ContentEncoding,
@@ -145,7 +153,7 @@ namespace Utilities.Facades
                 StatusCode = restResponse.StatusCode
             };
 
-            foreach (Parameter param in restResponse.Headers)
+            foreach (var param in restResponse.Headers)
             {
                 response.Headers.Add(param.Name, param.Value);
             }
@@ -164,7 +172,7 @@ namespace Utilities.Facades
             var client = new RestClient(_baseUri);
             client.Authenticator = new HttpBasicAuthenticator(username, password);
 
-            string resource = "authentication/v1/login";
+            var resource = "authentication/v1/login";
             var authRequest = new RestRequest(resource, Method.GET);
             client.Authenticator.Authenticate(client, authRequest);
 
@@ -173,10 +181,7 @@ namespace Utilities.Facades
             ThrowIfUnexpectedStatusCode(string.Format("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
 
             // If there is no "Authorization" header, param will be null.
-            Parameter param = Enumerable.FirstOrDefault(response.Headers, p =>
-            {
-                return (p.Name == "Authorization");
-            });
+            var param = response.Headers.FirstOrDefault(p => p.Name == "Authorization");
 
             string token = null;
 
@@ -205,7 +210,7 @@ namespace Utilities.Facades
         {
             Logger.WriteDebug("'{0} {1}' got back Status Code: {2}", method.ToString(), fullAddress, statusCode.ToString());
 
-            if (expectedStatusCodes == null) { expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK }; }
+            if (expectedStatusCodes == null) { expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK }; }
 
             if (!expectedStatusCodes.Contains(statusCode))
             {
@@ -247,15 +252,19 @@ namespace Utilities.Facades
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
-        public T SendRequestAndDeserializeObject<T>(string resourcePath, RestRequestMethod method,
+        public T SendRequestAndDeserializeObject<T>(
+            string resourcePath, 
+            RestRequestMethod method,
             Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null) where T : new()
         {
             var client = new RestClient(_baseUri);
-            var request = CreateRequest(resourcePath, method, additionalHeaders);
+            var request = CreateRequest(resourcePath, method, additionalHeaders, queryParameters);
 
             try
             {
@@ -280,26 +289,40 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="fileName">(optional) If you are sending a file, pass the file name here.</param>
         /// <param name="fileContent">(optional) If you are sending a file, pass the file content here.</param>
+        /// <param name="useMultiPartMime">(optional) Use multi-part mime for the request</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
-        public RestResponse SendRequestAndGetResponse(string resourcePath, RestRequestMethod method,
-            string fileName = null, byte[] fileContent = null,
+        public RestResponse SendRequestAndGetResponse(
+            string resourcePath, 
+            RestRequestMethod method,
+            string fileName = null, 
+            byte[] fileContent = null,
+            bool useMultiPartMime = false,
             Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var client = new RestClient(_baseUri);
-            var request = CreateRequest(resourcePath, method, additionalHeaders);
+            var request = CreateRequest(resourcePath, method, additionalHeaders, queryParameters);
 
-            if ((fileName != null) && (fileContent != null))
+            if (fileName.HasValue() && (fileContent != null))
             {
-                request.AddFile(fileName, fileContent, fileName);
+                if (useMultiPartMime)
+                {
+                    request.AddFile(fileName, fileContent, fileName);
+                }
+                else
+                {
+                    request.AddParameter(fileName, fileContent, ParameterType.RequestBody);
+                }
             }
 
             try
             {
-                IRestResponse response = client.Execute(request);
+                var response = client.Execute(request);
 
                 _restResponse = ConvertToRestResponse(response);
 

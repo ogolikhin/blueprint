@@ -15,9 +15,9 @@
 
    <!-- build:css styles/app.css -->
    <!-- inject:css -->
-   <link rel="stylesheet" type="text/css" href="styles/blueprint.min.css" >
+   <link rel="stylesheet" type="text/css" href="css/blueprint.min.css" >
 
-   <link rel="stylesheet" type="text/css" href="styles/nova.css" >
+   <link rel="stylesheet" type="text/css" href="css/nova.css" >
 
     <!-- endinject -->
     <!-- endbuild -->
@@ -60,337 +60,20 @@
 
 
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxangular.js"></script>
+
     <!-- endbower -->
     <!-- endbuild -->
 
+    <script src="scripts/mxClient.min.js"></script>
 
+    <script src="app/nova.js"></script>
+    <script src="app/mxutility.js"></script>
 
     <!-- build:js js/app.js -->
     <!-- inject:js -->
     <!-- endinject -->
 
 
-
-
-    <script type="text/javascript">
-        var nova = angular.module("nova", ["jqwidgets"]);
-        nova.controller("novaController", ['$scope', '$window', function ($scope, $window) {
-            // the 'layout' JSON array defines the internal structure of the layout
-            var layout = [{
-                type: 'layoutGroup',
-                orientation: 'horizontal',
-                items: [
-
-                {
-                    type: 'tabbedGroup',
-                    width: 220,
-                    minWidth: 200,
-                    items: [{
-                        type: 'layoutPanel',
-                        title: 'Explorer',
-                        contentContainer: 'SolutionExplorerPanel',
-                        initContent: function () {
-                            // initialize a jqxTree inside the Solution Explorer Panel
-                            var source = [{
-                                icon: '/images/earth.png',
-                                label: 'Project',
-                                expanded: true,
-                                items: [{
-                                    icon: '/images/Folder.png',
-                                    label: 'css',
-                                    expanded: true,
-                                    items: [{
-                                        icon: '/images/Text.png',
-                                        label: 'jqx.base.css'
-                                    }, {
-                                        icon: '/images/Text.png',
-                                        label: 'jqx.energyblue.css'
-                                    }, {
-                                        icon: '/images/Text.png',
-                                        label: 'jqx.orange.css'
-                                    }]
-                                }, {
-                                    icon: '/images/Folder.png',
-                                    label: 'scripts',
-                                    items: [{
-                                        icon: '/images/Text.png',
-                                        label: 'jqxcore.js'
-                                    }, {
-                                        icon: '/images/Text.png',
-                                        label: 'jqxdata.js'
-                                    }, {
-                                        icon: '/images/Text.png',
-                                        label: 'jqxgrid.js'
-                                    }]
-                                }, {
-                                    icon: '/images/Text.png',
-                                    label: 'index.htm'
-                                }]
-                            }];
-
-                            $('#solutionExplorerTree').jqxTree({ source: source, width: 190 });
-
-                            $('#jstree').jstree({
-                              "core" : {
-                                "animation" : 0,
-                                "check_callback" : true,
-                                "themes" : { "stripes" : false },
-                                'data' : {
-                                  'url' : function (node) {
-                                    return node.id === '#' ?
-                                      'app/tree_root.json' : 'app/tree_children.json';
-                                  },
-                                  'data' : function (node) {
-                                    return { 'id' : node.id };
-                                  }
-                                }
-                              },
-                              "types" : {
-                                "#" : {
-                                  "max_children" : 1, 
-                                  "max_depth" : 4, 
-                                  "valid_children" : ["root"]
-                                },
-                                "root" : {
-                                  "icon" : "/static/3.2.1/assets/images/tree_icon.png",
-                                  "valid_children" : ["default"]
-                                },
-                                "default" : {
-                                  "valid_children" : ["default","file"]
-                                },
-                                "file" : {
-                                  "icon" : "glyphicon glyphicon-file",
-                                  "valid_children" : []
-                                }
-                              },
-                              "plugins" : [
-                                "contextmenu", "dnd", "search", "state", "types", "wholerow"
-                              ]
-                            });
-
-                        }
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Properties',
-                        contentContainer: 'PropertiesPanel'
-                    }]
-                },
-
-                {
-                    type: 'layoutGroup',
-                    orientation: 'vertical',
-                    width:  $window.innerWidth - 220 -100,
-                    items: [{
-                        type: 'documentGroup',
-                        height: $window.innerHeight - 200 -60,
-                        minHeight: 200,
-                        items: [{
-                            type: 'documentPanel',
-                            title: 'Document 1',
-                            contentContainer: 'Document1Panel',
-                            initContent: function () {
-                                var data = new Array();
-                                var rowscount = 100;
-                                var firstNames =
-                                [
-                                    "Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
-                                ];
-
-                                var lastNames =
-                                [
-                                    "Fuller", "Davolio", "Burke", "Murphy", "Nagase", "Saavedra", "Ohno", "Devling", "Wilson", "Peterson", "Winkler", "Bein", "Petersen", "Rossi", "Vileid", "Saylor", "Bjorn", "Nodier"
-                                ];
-
-                                var productNames =
-                                [
-                                    "Black Tea", "Green Tea", "Caffe Espresso", "Doubleshot Espresso", "Caffe Latte", "White Chocolate Mocha", "Caramel Latte", "Caffe Americano", "Cappuccino", "Espresso Truffle", "Espresso con Panna", "Peppermint Mocha Twist"
-                                ];
-
-                                var priceValues =
-                                [
-                                     "2.25", "1.5", "3.0", "3.3", "4.5", "3.6", "3.8", "2.5", "5.0", "1.75", "3.25", "4.0"
-                                ];
-
-                                for (var i = 0; i < rowscount; i++) {
-                                    var row = {};
-                                    var productindex = Math.floor(Math.random() * productNames.length);
-                                    var price = parseFloat(priceValues[productindex]);
-                                    var quantity = 1 + Math.round(Math.random() * 10);
-
-                                    row["id"] = i;
-                                    row["available"] = productindex % 2 == 0;
-                                        if (productindex % 2 != 0) {
-                                            var random = Math.floor(Math.random() * rowscount);
-                                            row["available"] = i % random == 0 ? null : false;
-                                        }
-                                    row["firstname"] = firstNames[Math.floor(Math.random() * firstNames.length)];
-                                    row["lastname"] = lastNames[Math.floor(Math.random() * lastNames.length)];
-                                    row["name"] = row["firstname"] + " " + row["lastname"]; 
-                                    row["productname"] = productNames[productindex];
-                                    row["price"] = price;
-                                    row["quantity"] = quantity;
-                                    row["total"] = price * quantity;
-
-                                    var date = new Date();
-                                    date.setFullYear(2015, Math.floor(Math.random() * 12), Math.floor(Math.random() * 27));
-                                    date.setHours(0, 0, 0, 0);
-                                    row["date"] = date;
-                                   
-                                    data[i] = row;
-                                }
-
-                                        var source =
-                                        {
-                                            localdata: data,
-                                            datafields:
-                                            [
-                                                { name: 'name', type: 'string' },
-                                                { name: 'productname', type: 'string' },
-                                                { name: 'available', type: 'bool' },
-                                                { name: 'date', type: 'date'},
-                                                { name: 'quantity', type: 'number' }
-                                            ],
-                                            datatype: "array"
-                                        };
-                                        var dataAdapter = new $.jqx.dataAdapter(source);
-                                        $("#jqxgrid").jqxGrid(
-                                        {
-                                            width: '100%',
-                                            height: '100%',
-                                            source: dataAdapter,
-                                            showfilterrow: true,
-                                            filterable: true,
-                                            theme: 'blueprint',
-                                            selectionmode: 'multiplecellsextended',
-                                            columns: [
-                                              { text: 'Name', columntype: 'textbox',  datafield: 'name', width: '20%' },
-                                              {
-                                                  text: 'Product', datafield: 'productname', width: '35%'
-                                              },
-                                              { text: 'Ship Date', datafield: 'date', filtertype: 'date', width: '30%', cellsalign: 'right', cellsformat: 'd' },
-                                              { text: 'Qty.', datafield: 'quantity', width: '15%',  cellsalign: 'right' }
-                                            ]
-                                        });
-                            }
-                        }, {
-                            type: 'documentPanel',
-                            title: 'Document 2',
-                            contentContainer: 'Document2Panel'
-                        }]
-                    }, {
-                        type: 'tabbedGroup',
-                        height: 200,
-                        pinnedHeight: 30,
-                        items: [{
-                            type: 'layoutPanel',
-                            title: 'Error List',
-                            contentContainer: 'ErrorListPanel'
-                        }, {
-                            type: 'layoutPanel',
-                            title: 'Output',
-                            contentContainer: 'OutputPanel',
-                            selected: true
-                        }]
-                    }]
-                },
-
-                {
-                    type: 'autoHideGroup',
-                    alignment: 'right',
-                    width: 100,
-                    unpinnedWidth: 200,
-
-                    items: [{
-                        type: 'layoutPanel',
-                        title: 'Properties',
-                        contentContainer: 'Utility-PropertiesPanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Discussions',
-                        contentContainer: 'DiscussionsPanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Files',
-                        contentContainer: 'FilesPanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Relationships',
-                        contentContainer: 'RelationshipsPanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Outline',
-                        contentContainer: 'OutlinePanel'
-                    },  {
-                        type: 'layoutPanel',
-                        title: 'Browse',
-                        contentContainer: 'BrowsePanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'History',
-                        contentContainer: 'HistoryPanel'
-                    }, {
-                        type: 'layoutPanel',
-                        title: 'Review',
-                        contentContainer: 'ReviewsPanel'
-                    }]
-
-
-                }
-
-                ]
-            }];
-            $scope.settings = {width: $window.innerWidth , height: $window.innerHeight -60 , layout: layout, theme: 'blueprint' };
-        }]);
-
-
-        nova.controller("demoController", function ($scope) {
-            // Grid data.
-            var data = new Array();
-            var firstNames = ["Nancy", "Andrew", "Janet", "Margaret", "Steven", "Michael", "Robert", "Laura", "Anne"];
-            var lastNames = ["Davolio", "Fuller", "Leverling", "Peacock", "Buchanan", "Suyama", "King", "Callahan", "Dodsworth"];
-            var titles = ["Sales Representative", "Vice President, Sales", "Sales Representative", "Sales Representative", "Sales Manager", "Sales Representative", "Sales Representative", "Inside Sales Coordinator", "Sales Representative"];
-            var city = ["Seattle", "Tacoma", "Kirkland", "Redmond", "London", "London", "London", "Seattle", "London"];
-            var country = ["USA", "USA", "USA", "USA", "UK", "UK", "UK", "USA", "UK"];
-
-            for (var i = 0; i < firstNames.length; i++) {
-                var row = {};
-                row["firstname"] = firstNames[i];
-                row["lastname"] = lastNames[i];
-                row["title"] = titles[i];
-                row["city"] = city[i];
-                row["country"] = country[i];
-                data[i] = row;
-            }
-
-            $scope.people = data;
-
-            $scope.bindingCompleted = "";
-            $scope.settings =
-            {
-                altrows: true,
-                width: 800,
-                height: 200,
-                ready: function()
-                {
-                    $scope.settings.apply('selectrow', 1);
-                },
-                sortable: true,
-                source: $scope.people,
-                columns: [
-                    { text: 'First Name', datafield: 'firstname', width: 150 },
-                    { text: 'Last Name', datafield: 'lastname', width: 150 },
-                    { text: 'Title', datafield: 'title', width: 150 },
-                    { text: 'City', datafield: 'city', width: 150 },
-                    { text: 'Country', datafield: 'country' }
-                ],
-                bindingcomplete: function (event) {
-                    $scope.bindingCompleted = "binding is completed";
-                }
-            }
-        });
-
-
-    </script>
 
 
 
@@ -523,8 +206,15 @@
                <div id="jqxgrid"></div>
             </div>
         </div>
+        
         <div data-container="Document2Panel">
-            Document 2 content</div>
+            <div id="mxgraph">
+                <div id="outlineContainer" style="z-index:1;position:absolute;overflow:hidden;bottom:0px;right:0px;width:160px;height:120px;background:transparent;border-style:solid;border-color:lightgray;">        
+                </div>
+            </div>
+        </div>
+
+
         <!--bottom tabbedGroup-->
         <div data-container="ErrorListPanel">
             List of errors</div>

@@ -1,0 +1,33 @@
+[        
+  {
+    "id": "scenario1",
+    "text": "Hotels",
+    "children": false,
+    "icon": "images/charts-flow-chart-icon.png",                  
+    "state": {
+      "opened": false
+    },
+    "url": "/api/resources?path=Features"
+  },
+  {
+    "id": "scenario2",
+    "text": "Flights",
+    "children": false,
+    "icon": "images/charts-flow-chart-icon.png",                  
+    "state": {
+      "opened": false
+    },
+    "url": "/api/resources?path=Features"
+  },    
+  {
+    "id": "scenario3",
+    "text": "Cars",
+    "children": false,
+    "icon": "images/charts-flow-chart-icon.png",                  
+    "state": {
+      "opened": false
+    },
+    "url": "/api/resources?path=Features"
+  }    
+
+]

@@ -41,11 +41,14 @@
       <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Sp.Agent, Version=3.1.1925.4, Culture=neutral, PublicKeyToken=5b7832056d5afd0b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InishTechLicenseProviderTests.cs" />
-    <Compile Include="LicenseWrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

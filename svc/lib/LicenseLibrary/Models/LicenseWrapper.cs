@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sp.Agent.Licensing;
 
-namespace LicenseLibrary
+namespace LicenseLibrary.Models
 {
     public class LicenseWrapper
     {

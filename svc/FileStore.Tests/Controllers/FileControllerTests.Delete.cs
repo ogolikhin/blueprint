@@ -18,11 +18,10 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), DateTime.UtcNow)).Throws(new FormatException());
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -51,12 +50,11 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Throws(new Exception());
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -85,12 +83,11 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)null));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -119,13 +116,12 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var guid = Guid.NewGuid();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -157,13 +153,12 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var guid = Guid.NewGuid();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -195,13 +190,12 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var guid = Guid.NewGuid();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -233,13 +227,12 @@ namespace FileStore.Controllers
             //Arrange
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
-            var moqFileMapper = new Mock<IFileMapperRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var guid = Guid.NewGuid();
 
             moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqFileMapper.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
             {
                 Request = new HttpRequestMessage
                 {

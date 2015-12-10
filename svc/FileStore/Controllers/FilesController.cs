@@ -24,7 +24,6 @@ namespace FileStore.Controllers
 
 		private readonly IFilesRepository _filesRepo;
 		private readonly IFileStreamRepository _fileStreamRepo;
-		private readonly IFileMapperRepository _fileMapperRepo;
 		private readonly IConfigRepository _configRepo;
 
 		private const string CacheControl = "Cache-Control";
@@ -38,15 +37,14 @@ namespace FileStore.Controllers
 		private const string MustRevalidate = "must-revalidate";
 		private const string StoredDateFormat = "o";
 
-		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), new FileMapperRepository(), ConfigRepository.Instance)
+		public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), ConfigRepository.Instance)
 		{
 		}
 
-		internal FilesController(IFilesRepository fr, IFileStreamRepository fsr, IFileMapperRepository fmr, IConfigRepository cr)
+		internal FilesController(IFilesRepository fr, IFileStreamRepository fsr, IConfigRepository cr)
 		{
 			_filesRepo = fr;
 			_fileStreamRepo = fsr;
-			_fileMapperRepo = fmr;
 			_configRepo = cr;
 		}
         
@@ -55,10 +53,9 @@ namespace FileStore.Controllers
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileHead(string id)
-		{
-			Models.File file;
-			bool isLegacyFile = false;
-			string mappedContentType;
+        {
+            LogHelper.Log.DebugFormat("HEAD:{0}, Getting file head", id);
+            Models.File file;
 
 			try
 			{
@@ -68,26 +65,17 @@ namespace FileStore.Controllers
 
 				if (file == null && _fileStreamRepo.FileExists(fileId))
 				{
-					// if the file is not found in the FileStore check the
-					// legacy database for the file 
+                    // if the file is not found in the FileStore check the
+                    // legacy database for the file 
 
-					file = _fileStreamRepo.GetFileHead(fileId);
-					isLegacyFile = true;
+                    LogHelper.Log.DebugFormat("HEAD:{0}, Getting file head in filestream (legacy)", id);
+                    file = _fileStreamRepo.GetFileHead(fileId);
 				}
 
 				if (file == null)
 				{
 					// the file was not found in either FileStore or legacy database 
 					return NotFound();
-				}
-
-				if (isLegacyFile)
-				{
-					mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
-				}
-				else
-				{
-					mappedContentType = file.FileType;
 				}
 
 				var response = Request.CreateResponse(HttpStatusCode.OK);
@@ -99,7 +87,7 @@ namespace FileStore.Controllers
 				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
 				response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
-				response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+				response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 				response.Content.Headers.ContentLength = 0; // there is no content
 				response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
@@ -108,12 +96,14 @@ namespace FileStore.Controllers
 				return ResponseMessage(response);
 			}
 			catch (FormatException)
-			{
-				return BadRequest();
+            {
+                LogHelper.Log.ErrorFormat("HEAD:{0}, bad request", id);
+                return BadRequest();
 			}
 			catch(Exception ex)
-			{
-				return InternalServerError(ex);
+            {
+                LogHelper.Log.ErrorFormat("HEAD:{0}, Exception{1}", id, ex);
+                return InternalServerError(ex);
 			}
 		}
 
@@ -122,10 +112,10 @@ namespace FileStore.Controllers
 		[Route("{id}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetFileContent(string id)
-		{
-			Models.File file;
-			bool isLegacyFile = false;
-			string mappedContentType;
+        {
+            LogHelper.Log.DebugFormat("GET:{0}, Getting file", id);
+
+            Models.File file;
 
 			try
 			{
@@ -135,11 +125,11 @@ namespace FileStore.Controllers
 
 				if (file == null && _fileStreamRepo.FileExists(fileId))
 				{
-					// if the file is not found in the FileStore check the
-					// legacy database for the file
+                    // if the file is not found in the FileStore check the
+                    // legacy database for the file
 
-					file = _fileStreamRepo.GetFileHead(fileId);
-					isLegacyFile = true;
+                    LogHelper.Log.DebugFormat("GET:{0}, Getting file from the filestream (legacy file)", id);
+                    file = _fileStreamRepo.GetFileHead(fileId);
 				}
 
 				if (file == null)
@@ -150,48 +140,34 @@ namespace FileStore.Controllers
 
                 if (file.ExpiredTime.HasValue && file.ExpiredTime.Value.ToUniversalTime() <= DateTime.UtcNow)
                 {
+                    LogHelper.Log.DebugFormat("GET:{0}, File has expired, returning not found", id);
                     return NotFound();
                 }
 
-				if (isLegacyFile)
-				{
-					mappedContentType = _fileMapperRepo.GetMappedOutputContentType(file.FileType);
-				}
-				else
-				{
-					mappedContentType = file.FileType;
-				}
-
 				var response = Request.CreateResponse(HttpStatusCode.OK);
-				HttpContent responseContent;
 
-				if (isLegacyFile)
-				{
-					// retrieve file content from legacy database 
-
-					FileStreamPushStream fsPushStream = new FileStreamPushStream();
-					fsPushStream.Initialize(_fileStreamRepo, _configRepo, fileId);
-
-                    //Please do not remove the redundant casting
-                    responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)fsPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+			    IPushStream pushStream;
+                LogHelper.Log.DebugFormat("GET:{0}, Initializing push stream", id);
+                if (file.IsLegacyFile)
+                {
+                    // retrieve file content from legacy database 
+                    pushStream = new FileStreamPushStream();
+                    ((FileStreamPushStream)pushStream).Initialize(_fileStreamRepo, _configRepo, fileId);
 				}
 				else
 				{
-					// retrieve file content from FileStore database 
-
-					// Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
-					// and flush these bits to the output stream.
-
-					SqlPushStream sqlPushStream = new SqlPushStream();
-					sqlPushStream.Initialize(_filesRepo, fileId);
-
-                    //Please do not remove the redundant casting
-                    responseContent = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)sqlPushStream.WriteToStream, new MediaTypeHeaderValue(mappedContentType));
+                    // retrieve file content from FileStore database 
+                    // Note: In the WriteToStream method, we proceed to read the file chunks progressively from the db
+                    // and flush these bits to the output stream.
+                    pushStream = new SqlPushStream();
+                    ((SqlPushStream)pushStream).Initialize(_filesRepo, fileId);
 				}
 
-				response.Content = responseContent;
+                LogHelper.Log.DebugFormat("GET:{0}, Adding content to the response", id);
+                //Please do not remove the redundant casting
+                response.Content = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)pushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
-				response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
+                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
 				response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
 
 				if (response.Content != null)
@@ -200,21 +176,24 @@ namespace FileStore.Controllers
 					{
 						FileName = file.FileName
 					};
-					response.Content.Headers.ContentType = new MediaTypeHeaderValue(mappedContentType);
+					response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 					response.Content.Headers.ContentLength = file.FileSize;
 				}
 				response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
 				response.Headers.Add(FileSize, file.FileSize.ToString());
 
-				return ResponseMessage(response);
+                LogHelper.Log.DebugFormat("GET:{0}, Returning file \'{1}\'", id, file.FileName);
+                return ResponseMessage(response);
 			}
 			catch (FormatException)
-			{
-				return BadRequest();
+            {
+                LogHelper.Log.ErrorFormat("GET:{0}, bad request", id);
+                return BadRequest();
 			}
 			catch (Exception ex)
-			{
-				return InternalServerError(ex);
+            {
+                LogHelper.Log.ErrorFormat("GET:{0}, Exception{1}", id, ex);
+                return InternalServerError(ex);
 			}
 		}
 
@@ -222,24 +201,35 @@ namespace FileStore.Controllers
 		[Route("")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
-		{
-		    if (expired.HasValue && expired.Value < DateTime.UtcNow)
-		    {
-		        expired = DateTime.UtcNow;
-		    }
-			if (HttpContext.Current == null)
-			{
-				return InternalServerError();
-			}
-			var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
-			return await PostFileHttpContext(httpContextWrapper, expired);
-		}
+        {
+            try
+            {
+                LogHelper.Log.DebugFormat("POST: Initiate post");
+                if (expired.HasValue && expired.Value < DateTime.UtcNow)
+                {
+                    expired = DateTime.UtcNow;
+                }
+                if (HttpContext.Current == null)
+                {
+                    LogHelper.Log.ErrorFormat("POST: httpcontext.current is null");
+                    return InternalServerError();
+                }
+                var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
+                return await PostFileHttpContext(httpContextWrapper, expired);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.ErrorFormat("POST: Exception:{0}", ex);
+                return InternalServerError(ex);
+            }
+        }
 
         [HttpPut]
         [Route("{id}")]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PutFile(string id)
         {
+            LogHelper.Log.DebugFormat("PUT:{0}, Initiate PUT", id);
             try
             {
                 if (HttpContext.Current == null)
@@ -250,6 +240,7 @@ namespace FileStore.Controllers
             }
             catch (Exception ex)
             {
+                LogHelper.Log.ErrorFormat("PUT:{0}, Exception{1}", id, ex);
                 return InternalServerError(ex);
             }
         }
@@ -258,23 +249,27 @@ namespace FileStore.Controllers
 		[Route("{id}")]
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
-		{
-		    var expirationTime = expired.HasValue && expired.Value > DateTime.UtcNow ? expired.Value : DateTime.UtcNow;
-			try
+        {
+            var expirationTime = expired.HasValue && expired.Value > DateTime.UtcNow ? expired.Value : DateTime.UtcNow;
+            LogHelper.Log.DebugFormat("DELETE:{0}, {1}, Deleting file", id, expirationTime);
+            try
 			{
 				var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id), expirationTime);
 				if (guid.HasValue)
-				{
-					return Ok(Models.File.ConvertFileId(guid.Value));
+                {
+                    LogHelper.Log.DebugFormat("DELETE:{0}, {1}, Deleting file success", id, expirationTime);
+                    return Ok(Models.File.ConvertFileId(guid.Value));
 				}
 				return NotFound();
 			}
 			catch (FormatException)
-			{
-				return BadRequest();
+            {
+                LogHelper.Log.ErrorFormat("DELETE:{0}, bad request", id);
+                return BadRequest();
 			}
             catch(Exception ex)
             {
+                LogHelper.Log.ErrorFormat("DELETE:{0}, Exception{1}", id, ex);
                 return InternalServerError(ex);
             }
         }
@@ -285,54 +280,46 @@ namespace FileStore.Controllers
 
         internal async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
 		{
-			try
+			using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
 			{
-				using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
+				var isMultipart = Request.Content.IsMimeMultipartContent();
+				if (isMultipart)
 				{
-					var isMultipart = Request.Content.IsMimeMultipartContent();
-					if (isMultipart)
-					{
-						return await PostMultipartRequest(stream, expired);
-					}
-					else
-					{
-						return await PostNonMultipartRequest(stream, expired);
-					}
+                    return await PostMultipartRequest(stream, expired);
 				}
-			}
-			catch(Exception ex)
-			{
-				return InternalServerError(ex);
+				else
+				{
+					return await PostNonMultipartRequest(stream, expired);
+				}
 			}
 		}
 
 		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
 		{
-			var mpp = new MultipartPartParser(stream);
-			if (mpp.IsEndPart)
-			{
-				return BadRequest();
-			}
-			while (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
-			{
-				// Gets current part's header information
-				var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
-				var fileType = mpp.ContentType;
+		    using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile))
+		    {
+		        try
+		        {
+		            await postReader.ReadAndExecuteRequestAsync();
+		            var guid = postReader.GetFileId();
 
-				var chunk = await PostCompleteFile(fileName, fileType, mpp, expired);
+		            if (guid != null)
+		            {
+		                return Ok(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		        catch (MultipartReadException)
+		        {
+		            var guid = postReader.GetFileId();
 
-				//move the stream foward until we get to the next part
-				mpp = mpp.ReadUntilNextPart();
-				if (mpp != null)
-				{
-					// Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
-					await _filesRepo.DeleteFile(chunk.FileId, DateTime.UtcNow);
-					return BadRequest();
-				}
-				return Ok(Models.File.ConvertFileId(chunk.FileId));
-			}
-
-			return BadRequest();
+		            if (guid != null)
+		            {
+		                await DeleteFile(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		    }
 		}
 
 		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
@@ -364,10 +351,11 @@ namespace FileStore.Controllers
 			// Grabs all available information from the header
 			var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
 			var fileMediaType = Request.Content.Headers.ContentType.MediaType;
+            LogHelper.Log.DebugFormat("POST: Posting non-multi-part file {0}", fileName);
+            var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
+            LogHelper.Log.DebugFormat("POST: Chunks posted {0}", chunk.ChunkNum - 1);
 
-			var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
-
-			return Ok(Models.File.ConvertFileId(chunk.FileId));
+            return Ok(Models.File.ConvertFileId(chunk.FileId));
 		}
 
 		/// <summary>
@@ -444,7 +432,15 @@ namespace FileStore.Controllers
             {
                 using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
                 {
-                    fileSize = await PostFileInChunks(stream, chunk);
+                    var isMultipart = Request.Content.IsMimeMultipartContent();
+                    if (isMultipart)
+                    {
+                        fileSize = await PutFileMultipart(stream, chunk);
+                    }
+                    else
+                    {
+                        fileSize = await PostFileInChunks(stream, chunk);
+                    }
                 }
                 await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
             }
@@ -455,8 +451,23 @@ namespace FileStore.Controllers
                 throw;
             }
 
+            LogHelper.Log.DebugFormat("PUT:{0}, Chunks were added in PUT. Total chunks in file:{2}", id, chunk.ChunkNum-1);
             return Ok();
         }
+
+	    internal async Task<long> PutFileMultipart(Stream stream, FileChunk chunk)
+	    {
+	        using (var putFileMultipart = new PutMultipartReader(stream, chunk, PostFileInChunks))
+	        {
+	            await putFileMultipart.ReadAndExecuteRequestAsync();
+	            var fileSize = putFileMultipart.GetFileSize();
+	            if (fileSize.HasValue)
+	            {
+	                return fileSize.Value;
+	            }
+	            throw new Exception("File size does not have a value after executing the PUT");
+	        }
+	    }
 
         private async Task<int> DeleteFileChunks(Guid guid, int startingChunkNumber)
         {

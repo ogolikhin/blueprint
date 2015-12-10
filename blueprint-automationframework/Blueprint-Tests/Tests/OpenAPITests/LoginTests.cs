@@ -10,6 +10,7 @@ using Helper.Factories;
 using Logging;
 using Model.Impl;
 using TestConfig;
+using Utilities;
 
 
 namespace OpenAPITests
@@ -217,7 +218,7 @@ namespace OpenAPITests
                 {
                     LoginWithValidCredentials(user, maxRetries);
                 }
-                catch (ThreadAbortException e)
+                catch (ThreadAbortException)
                 {
                     Logger.WriteTrace("Thread [{0}] was aborted.", Thread.CurrentThread.ManagedThreadId);
                 }

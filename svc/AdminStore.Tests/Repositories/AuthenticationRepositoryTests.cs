@@ -176,6 +176,35 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        public async Task AuthenticateUserAsync_WindowsUser_Success_DisabledUser()
+        {
+            // Arrange
+            _loginUser.Source = UserGroupSource.Windows;
+            _instanceSettings.IsLdapIntegrationEnabled = true;
+            _loginUser.IsEnabled = false;
+
+            _ldapRepositoryMock.Setup(m => m.AuthenticateLdapUserAsync(Login, Password, false))
+                .ReturnsAsync(AuthenticationStatus.Success);
+
+            var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
+                                                                        _sqlSettingsRepositoryMock.Object,
+                                                                        _ldapRepositoryMock.Object,
+                                                                        _samlRepositoryMock.Object);
+            // Act
+            try
+            {
+                await authenticationRepository.AuthenticateUserAsync(Login, Password);
+            }
+            catch (AuthenticationException ex)
+            {
+                Assert.IsTrue(ex.ErrorCode == ErrorCodes.AccountIsLocked);
+                return;
+            }
+            // Assert
+            Assert.IsTrue(false);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(AuthenticationException))]
         public async Task AuthenticateUserAsync_UnknownAuthenticationSource_AuthenticationException()
         {

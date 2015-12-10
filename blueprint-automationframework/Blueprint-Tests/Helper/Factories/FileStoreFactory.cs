@@ -3,7 +3,7 @@ using Model.Impl;
 
 namespace Helper.Factories
 {
-    public class FileStoreFactory
+    public static class FileStoreFactory
     {
         /// <summary>
         /// Creates a new IFileStore.

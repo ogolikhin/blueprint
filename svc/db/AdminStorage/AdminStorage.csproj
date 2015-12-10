@@ -76,6 +76,7 @@
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
     <Content Include="Migration\7.0.1.0\Sample.sql" />
+    <Content Include="Procedures\GetLicensesStatus.sql" />
     <Content Include="Procedures\GetUserSession.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />

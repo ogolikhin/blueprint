@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Logging;
 using Model.Facades;
 using System.Net;
+using Utilities.Facades;
 
 namespace Model.Impl
 {
@@ -70,9 +71,11 @@ namespace Model.Impl
         /// <returns>A list of all projects on the Blueprint server.</returns>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            int projectId = 0;
-            Dictionary<string, string> addedHeaders = CommonGetProjects(address, projectId, user);
-            List<Project> projects = WebRequestFacade.CreateWebRequestAndGetResponse<List<Project>>(address + SVC_PROJECTS_PATH, "GET", addedHeaders);
+            if (user == null) { throw new ArgumentNullException("user"); }
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password);
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
+
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);
         }

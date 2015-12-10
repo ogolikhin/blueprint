@@ -33,7 +33,10 @@ namespace FileStore.Helpers
             HandleMultipartReadError("Error reading multi-part");
         }
 
-        protected abstract void HandleMultipartReadError(string error);
+        protected virtual void HandleMultipartReadError(string error)
+        {
+            throw new MultipartReadException(error);
+        }
         protected abstract Task ExecuteFunctionAsync(Stream stream);
 
         #region Dispose Methods
@@ -63,13 +66,5 @@ namespace FileStore.Helpers
             disposed = true;
         }
         #endregion Dispose Methods
-    }
-    [Serializable]
-    public class MultipartReadException : Exception
-    {
-        public MultipartReadException(string message)
-            : base(message)
-        {
-        }
     }
 }

@@ -23,11 +23,6 @@ namespace FileStore.Helpers
             _function = function;
         }
 
-        protected override void HandleMultipartReadError(string error)
-        {
-            throw new MultipartReadException(error);
-        }
-
         protected override async Task ExecuteFunctionAsync(Stream stream)
         {
             // Gets current part's header information

@@ -21,12 +21,7 @@ namespace FileStore.Helpers
             _function = function;
             _fileChunk = fileChunk;
         }
-
-        protected override void HandleMultipartReadError(string error)
-        {
-            throw new MultipartReadException(error);
-        }
-
+        
         protected override async Task ExecuteFunctionAsync(Stream stream)
         {
             LogHelper.Log.DebugFormat("PUT: Posting first multi-part file chunk");

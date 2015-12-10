@@ -46,7 +46,7 @@
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdockinglayout.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtree.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxwindow.js"></script>
-
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxexpander.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcheckbox.js"></script>
     <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.js"></script>
@@ -222,7 +222,61 @@
             Output</div>
 
         <!--autoHideGroup-->
-        <div data-container="Utility-PropertiesPanel">Properties</div>
+        <div data-container="Utility-PropertiesPanel">
+            <div style="width:100%;">
+            <div id="props">
+                <div>Properties</div>
+                <div>
+                    <div class="row">
+                        <div class="col-xs-6">Name</div>
+                        <div class="col-xs-6"><input type="text"  value="Document - Features" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Id</div>
+                        <div class="col-xs-6"><input type="text"  value="DOC281964" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Artifact Type</div>
+                        <div class="col-xs-6"><input type="text"  value="Document" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">File</div>
+                        <div class="col-xs-6"><input type="text"  value="Document - Features.docx" ></div>
+                    </div>
+                </div>
+            </div>
+            <div id="author">
+                <div>Author History</div>
+                <div>
+                    <div class="row">
+                        <div class="col-xs-6">Created By</div>
+                        <div class="col-xs-6"><input type="text"  value="Aman Bhalla" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Last Edited by</div>
+                        <div class="col-xs-6"><input type="text"  value="Aman Bhalla" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Created On</div>
+                        <div class="col-xs-6"><input type="text"  value="2015-09-03 12:31 PM" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Last Edited On</div>
+                        <div class="col-xs-6"><input type="text"  value="2015-09-03 12:31 PM" ></div>
+                    </div>
+                </div>
+            </div>
+            <div id='details'>
+                <div>Details</div>
+                <div>
+                    <textarea class="form-control" rows="7">Some details...</textarea>
+                </div>
+            </div>
+            </div>
+
+
+
+        </div>
         <div data-container="DiscussionsPanel">List of Discussions</div>
         <div data-container="FilesPanel">Files</div>
         <div data-container="RelationshipsPanel">Relationships</div>

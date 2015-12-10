@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using Model.Impl;
+using Utilities;
+using Utilities.Factories;
 
 namespace Model.Facades
 {
@@ -67,7 +69,7 @@ namespace Model.Facades
 
                     if (!expectedStatusCodes.Contains(response.StatusCode))
                     {
-                        throw WebExceptionFactory.Create(response.StatusCode.ToString());
+                        throw WebExceptionFactory.Create((int)response.StatusCode);
                     }
 
                     var encoding = Encoding.UTF8;

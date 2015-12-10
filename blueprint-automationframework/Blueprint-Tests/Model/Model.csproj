@@ -89,7 +89,6 @@
     <Compile Include="Impl\BlueprintToken.cs" />
     <Compile Include="Impl\HashingUtilities.cs" />
     <Compile Include="Impl\MsSqlDatabase.cs" />
-    <Compile Include="Impl\WebExceptions.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
     <Compile Include="Impl\Project.cs" />
@@ -123,6 +122,10 @@
     <ProjectReference Include="..\TestConfiguration\TestConfig.csproj">
       <Project>{28AB2F4A-233B-4B44-914F-C0F0FA5A30B8}</Project>
       <Name>TestConfig</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
+      <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

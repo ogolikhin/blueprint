@@ -104,6 +104,9 @@
     </Compile>
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\MultipartPartParser.cs" />
+    <Compile Include="Helpers\MultipartReader.cs" />
+    <Compile Include="Helpers\PostMultipartReader.cs" />
+    <Compile Include="Helpers\PutMultipartReader.cs" />
     <Compile Include="Models\FileChunk.cs" />
     <Compile Include="Models\File.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -253,7 +253,7 @@ namespace FileStore.Controllers
 
         [TestCategory("FileStoreTests.Post")]
         [TestMethod]
-        public async Task PostFile_MultipartRepoThrowsException_InternalServerErrorFailure()
+        public async Task PostFile_MultipartRepoThrowsException()
         {
             //Arrange
             var moq = new Mock<IFilesRepository>();
@@ -280,6 +280,7 @@ namespace FileStore.Controllers
             };
 
             var context = await SetupMultipartPost(multiPartContent);
+            
 
             controller.Configuration.Routes.MapHttpRoute(
                  name: "DefaultApi",
@@ -288,14 +289,18 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PostFileHttpContext(context.Object, null);
-
-            //Assert
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
+            Exception ex = null;
+            try
+            {
+                 await controller.PostFileHttpContext(context.Object, null);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
 
             // Assert
-            Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
+            Assert.IsTrue(ex != null);
         }
 
         private async Task<Mock<HttpContextWrapper>> SetupMultipartPost(MultipartFormDataContent multiPartContent)

@@ -82,7 +82,7 @@ namespace Helper.Factories
             user.Email = string.Format("{0}.{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
             user.Enabled = true;
             user.FirstName = RandomGenerator.RandomAlphaNumeric(10);
-            user.InstanceAdminRole = InstanceAdminRole.AdministerALLProjects;
+            user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;
             user.LastName = RandomGenerator.RandomAlphaNumeric(10);
             user.DisplayName = string.Format("{0} {1}", user.FirstName, user.LastName);
             user.License = LicenseType.Author;

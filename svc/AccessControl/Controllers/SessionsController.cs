@@ -19,7 +19,7 @@ namespace AccessControl.Controllers
         private static ObjectCache Cache;
         private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
 
-        internal static void Load(ObjectCache cache)
+		internal static void Load(ObjectCache cache)
         {
             Task.Run(() =>
             {
@@ -143,6 +143,18 @@ namespace AccessControl.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
         {
+	        try
+	        {
+		        if (!await HasAvailableLicense(uid, licenseLevel))
+		        {
+			        return StatusCode(HttpStatusCode.Forbidden);
+		        }
+	        }
+	        catch
+	        {
+		        return InternalServerError();
+	        }
+
             try
             {
                 var guids = await Repo.BeginSession(uid, userName, licenseLevel, isSso);
@@ -251,7 +263,14 @@ namespace AccessControl.Controllers
             }
         }
 
-        private static void AddSession(string key, Session session)
+	    private async Task<bool> HasAvailableLicense(int userId, int licenseLevel)
+	    {
+		    var usedLicenses = await Repo.GetActiveLicenses(userId, licenseLevel, WebApiConfig.LicenseHoldTime);
+
+		    return usedLicenses < 2; //TODO: get maximum licenses from LicenseLibrary
+	    }
+
+	    private static void AddSession(string key, Session session)
         {
             Cache.Add(key, session, new CacheItemPolicy
             {

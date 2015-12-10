@@ -202,19 +202,27 @@ namespace FileStore.Controllers
 		[ResponseType(typeof(string))]
 		public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
         {
-            LogHelper.Log.DebugFormat("POST: Initiate post");
-            if (expired.HasValue && expired.Value < DateTime.UtcNow)
-		    {
-		        expired = DateTime.UtcNow;
-		    }
-			if (HttpContext.Current == null)
+            try
             {
-                LogHelper.Log.ErrorFormat("POST: httpcontext.current is null");
-                return InternalServerError();
-			}
-			var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
-			return await PostFileHttpContext(httpContextWrapper, expired);
-		}
+                LogHelper.Log.DebugFormat("POST: Initiate post");
+                if (expired.HasValue && expired.Value < DateTime.UtcNow)
+                {
+                    expired = DateTime.UtcNow;
+                }
+                if (HttpContext.Current == null)
+                {
+                    LogHelper.Log.ErrorFormat("POST: httpcontext.current is null");
+                    return InternalServerError();
+                }
+                var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
+                return await PostFileHttpContext(httpContextWrapper, expired);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log.ErrorFormat("POST: Exception:{0}", ex);
+                return InternalServerError(ex);
+            }
+        }
 
         [HttpPut]
         [Route("{id}")]
@@ -272,57 +280,46 @@ namespace FileStore.Controllers
 
         internal async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
 		{
-			try
+			using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
 			{
-				using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
+				var isMultipart = Request.Content.IsMimeMultipartContent();
+				if (isMultipart)
 				{
-					var isMultipart = Request.Content.IsMimeMultipartContent();
-					if (isMultipart)
-					{
-                        return await PostMultipartRequest(stream, expired);
-					}
-					else
-					{
-						return await PostNonMultipartRequest(stream, expired);
-					}
+                    return await PostMultipartRequest(stream, expired);
 				}
-			}
-			catch(Exception ex)
-            {
-                LogHelper.Log.ErrorFormat("POST: Exception:{0}", ex);
-                return InternalServerError(ex);
+				else
+				{
+					return await PostNonMultipartRequest(stream, expired);
+				}
 			}
 		}
 
 		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
 		{
-			var mpp = new MultipartPartParser(stream);
-			if (mpp.IsEndPart)
-			{
-				return BadRequest();
-			}
-			while (!mpp.IsEndPart && !string.IsNullOrWhiteSpace(mpp.Filename))
-			{
-				// Gets current part's header information
-				var fileName = mpp.Filename.Replace("\"", string.Empty).Replace("%20", " ");
-				var fileType = mpp.ContentType;
+		    using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile))
+		    {
+		        try
+		        {
+		            await postReader.ReadAndExecuteRequestAsync();
+		            var guid = postReader.GetFileId();
 
-                LogHelper.Log.DebugFormat("POST: Posting first multi-part file {0}", fileName);
-                var chunk = await PostCompleteFile(fileName, fileType, mpp, expired);
-                LogHelper.Log.DebugFormat("POST: Chunks posted {0}", chunk.ChunkNum-1);
+		            if (guid != null)
+		            {
+		                return Ok(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		        catch (MultipartReadException)
+		        {
+		            var guid = postReader.GetFileId();
 
-                //move the stream foward until we get to the next part
-                mpp = mpp.ReadUntilNextPart();
-				if (mpp != null)
-				{
-					// Right now we are only supporting uploading the first part of multipart. Can easily change it to upload more than one.
-					await _filesRepo.DeleteFile(chunk.FileId, DateTime.UtcNow);
-					return BadRequest();
-				}
-				return Ok(Models.File.ConvertFileId(chunk.FileId));
-			}
-
-			return BadRequest();
+		            if (guid != null)
+		            {
+		                await DeleteFile(Models.File.ConvertFileId(guid.Value));
+		            }
+		            return BadRequest();
+		        }
+		    }
 		}
 
 		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
@@ -435,7 +432,15 @@ namespace FileStore.Controllers
             {
                 using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
                 {
-                    fileSize = await PostFileInChunks(stream, chunk);
+                    var isMultipart = Request.Content.IsMimeMultipartContent();
+                    if (isMultipart)
+                    {
+                        fileSize = await PutFileMultipart(stream, chunk);
+                    }
+                    else
+                    {
+                        fileSize = await PostFileInChunks(stream, chunk);
+                    }
                 }
                 await _filesRepo.UpdateFileHead(chunk.FileId, fileHead.FileSize + fileSize, chunk.ChunkNum - 1);
             }
@@ -449,6 +454,20 @@ namespace FileStore.Controllers
             LogHelper.Log.DebugFormat("PUT:{0}, Chunks were added in PUT. Total chunks in file:{2}", id, chunk.ChunkNum-1);
             return Ok();
         }
+
+	    internal async Task<long> PutFileMultipart(Stream stream, FileChunk chunk)
+	    {
+	        using (var putFileMultipart = new PutMultipartReader(stream, chunk, PostFileInChunks))
+	        {
+	            await putFileMultipart.ReadAndExecuteRequestAsync();
+	            var fileSize = putFileMultipart.GetFileSize();
+	            if (fileSize.HasValue)
+	            {
+	                return fileSize.Value;
+	            }
+	            throw new Exception("File size does not have a value after executing the PUT");
+	        }
+	    }
 
         private async Task<int> DeleteFileChunks(Guid guid, int startingChunkNumber)
         {

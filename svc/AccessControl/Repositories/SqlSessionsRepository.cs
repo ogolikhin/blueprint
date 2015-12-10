@@ -71,5 +71,20 @@ namespace AccessControl.Repositories
             prm.Add("@EndTime", DateTime.UtcNow);
             await _connectionWrapper.ExecuteAsync("EndSession", prm, commandType: CommandType.StoredProcedure);
         }
-    }
+
+	    public Task<int> GetActiveLicenses(int excludeUserId, int licenseLevel, int licenseLockTimeMinutes)
+	    {
+			var prm = new DynamicParameters();
+			prm.Add("@TimeUtc", DateTime.UtcNow);
+			prm.Add("@UserId", excludeUserId);
+			prm.Add("@LicenseLevel", licenseLevel);
+			prm.Add("@TimeDiff", -licenseLockTimeMinutes);
+
+		    return _connectionWrapper.ExecuteScalarAsync<int>(
+				@"SELECT COUNT(*) FROM [dbo].[Sessions] 
+				WHERE LicenseLevel = @LicenseLevel AND UserId <> @UserId AND 
+				(EndTime IS NULL OR EndTime > DATEADD(MINUTE, @TimeDiff, @TimeUtc) )", 
+				prm);
+	    }
+	}
 }

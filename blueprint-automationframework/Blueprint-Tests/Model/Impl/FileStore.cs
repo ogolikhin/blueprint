@@ -5,6 +5,8 @@ using Logging;
 using Model.Facades;
 using RestSharp;
 using RestSharp.Authenticators;
+using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Model.Impl
 {
@@ -43,21 +45,11 @@ namespace Model.Impl
             if (file == null) { throw new ArgumentNullException("file"); }
             if (user == null) { throw new ArgumentNullException("user"); }
 
-            var client = new RestClient(new Uri(_address));
-            client.Authenticator = new HttpBasicAuthenticator(user.Username, user.Password);
-
             string path = string.Format("{0}/files", SVC_PATH);
-            var request = new RestRequest(path, Method.POST);
-            request.AddFile(file.FileName, file.Content, file.FileName);
 
-            IRestResponse response = client.Execute(request);
-
-            if (expectedStatusCodes == null) { expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK }; }
-
-            if (!expectedStatusCodes.Contains(response.StatusCode))
-            {
-                throw WebExceptionFactory.Create(response.StatusCode.ToString());
-            }
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName,
+                file.Content, expectedStatusCodes: expectedStatusCodes);
 
             string fileGuid = response.Content;
 

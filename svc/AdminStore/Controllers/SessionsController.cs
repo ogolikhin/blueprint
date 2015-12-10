@@ -96,7 +96,12 @@ namespace AdminStore.Controllers
                 var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
-                    throw new ServerException();
+					// No license available
+	                if (result.StatusCode == HttpStatusCode.Forbidden)
+	                {
+		                throw new AuthenticationException("Max license limit has been reached", GetLicenseLimitErrorCode(user.LicenseType));
+	                }
+	                throw new ServerException();
                 }
                 var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                 var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -109,7 +114,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        [HttpPost]
+	    [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
@@ -175,5 +180,25 @@ namespace AdminStore.Controllers
                 return InternalServerError();
             }
         }
-    }
+
+		private static int GetLicenseLimitErrorCode(int licenseLevel)
+		{
+			int errorCode;
+			switch (licenseLevel)
+			{
+				case 1:
+					errorCode = ErrorCodes.ViewerLicenseLimit;
+					break;
+				case 2:
+					errorCode = ErrorCodes.CollaboratorLicenseLimit;
+					break;
+				case 3:
+					errorCode = ErrorCodes.AuthorLicenseLimit;
+					break;
+				default:
+					throw new ServerException("Unknown LicenseLevel: " + licenseLevel);
+			}
+			return errorCode;
+		}
+	}
 }

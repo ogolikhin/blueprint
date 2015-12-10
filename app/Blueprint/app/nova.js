@@ -105,7 +105,7 @@
                              ]
                          });
                          $('#jstree').bind('select_node.jstree', function(event, data) {
-                             if (data.node.id.indexOf('scenario') === -1) return;
+                             if (data.node.id.indexOf('scenario') === -1 || data.node.text === 'Scenarios') return;
                              console.log(data.node.id);
                              console.log(data.node);
                              console.log(layout);
@@ -312,7 +312,7 @@
                  width: $window.innerWidth - 220 - 100,
                  items: [{
                      type: 'documentGroup',
-                     height: $window.innerHeight - 200 - 60,
+                     height: $window.innerHeight - 120 - 60,
                      minHeight: 200,
                      items: [{
                          type: 'documentPanel',
@@ -726,7 +726,7 @@
                      }]
                  }, {
                      type: 'tabbedGroup',
-                     height: 200,
+                     height: 120,
                      pinnedHeight: 30,
                      items: [{
                          type: 'layoutPanel',
@@ -750,7 +750,12 @@
                  items: [{
                      type: 'layoutPanel',
                      title: 'Properties',
-                     contentContainer: 'Utility-PropertiesPanel'
+                     contentContainer: 'Utility-PropertiesPanel',
+                     initContent: function() {
+                        $('#props').jqxExpander({width: '100%', theme: 'blueprint'});
+                        $('#author').jqxExpander({width: '100%', theme: 'blueprint'});
+                        $('#details').jqxExpander({width: '100%', theme: 'blueprint'});
+                     }
                  }, {
                      type: 'layoutPanel',
                      title: 'Discussions',

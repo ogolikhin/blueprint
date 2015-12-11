@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using CustomAttributes;
 using Helper.Factories;
@@ -53,12 +54,27 @@ namespace OpenAPITests
 
         [Test]
         [Ignore(IgnoreReasons.UnderDevelopment)]
+        // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject().
         public void GetProject()
         {
-            // TODO: Create some projects and collect the projectID
-            // TODO: Verify that the projects we created were returned in the list of projects.
-            IProject projects = new Project().GetProject(_server.Address, 1, _user);
-            // TODO: Delete the projects we added.
+            // Setup: Create a project and collect the projectID
+            IProject project = ProjectFactory.CreateProject();
+
+            try
+            {
+                // Try to get the project we added.
+                IProject foundProject = new Project().GetProject(_server.Address, project.Id, _user);
+
+                // Verify that the projects we created were returned in the list of projects.
+                Assert.That(project.Equals(foundProject),
+                    "The project we found on the server is not the same as the project we added!\n--> Added project = {0}\n--> Found project = {1}",
+                    project.ToString(), foundProject.ToString());
+            }
+            finally
+            {
+                // Cleanup: Delete the project we added.
+                project.DeleteProject();
+            }
         }
     }
 }

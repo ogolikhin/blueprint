@@ -9,7 +9,8 @@ using System.Web.Http;
 using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using File = FileStore.Models.File;
+using FsFile = FileStore.Models.File;
+using FsModel = FileStore.Models;
 
 namespace FileStore.Controllers
 {
@@ -25,7 +26,7 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
 
             string fileName4Upload = "\"UploadTest.txt\"";
             string fileContent4Upload = "This is the content of the uploaded test file";
@@ -57,18 +58,10 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PostFileHttpContext(context.Object, null);
-
-            //Assert
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
-
-            var content = response.Content;
-            var fileContent4Download = await content.ReadAsStringAsync();
-            var contentType = content.Headers.ContentType;
+            var response = await controller.PostFileHttpContext(context.Object, null);
 
             // Assert
-            Assert.IsTrue(response.IsSuccessStatusCode);
+            Assert.IsTrue(response.FileId.HasValue);
         }
 
         [TestCategory("FileStoreTests.Post")]
@@ -78,7 +71,7 @@ namespace FileStore.Controllers
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
@@ -112,16 +105,10 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PostFileHttpContext(context.Object, null);
+            var response = await controller.PostFileHttpContext(context.Object, null);
 
             //Assert
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = await actionResult.ExecuteAsync(cancellationToken);
-
-            var content = response.Content;
-
-            // Assert
-            Assert.IsTrue(response.StatusCode == HttpStatusCode.BadRequest);
+            Assert.IsTrue(response.Status == HttpStatusCode.BadRequest);
         }
 
         [TestCategory("FileStoreTests.Post")]
@@ -131,7 +118,7 @@ namespace FileStore.Controllers
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
@@ -158,7 +145,7 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PostFile(null);
+            var actionResult = await controller.PostFile();
 
             //Assert
             System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
@@ -175,7 +162,7 @@ namespace FileStore.Controllers
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
@@ -219,7 +206,7 @@ namespace FileStore.Controllers
             //Arrange
             var guid = Guid.NewGuid();
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).ReturnsAsync(guid);
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).ReturnsAsync(guid);
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 
@@ -258,7 +245,7 @@ namespace FileStore.Controllers
         {
             //Arrange
             var moq = new Mock<IFilesRepository>();
-            moq.Setup(t => t.PostFileHead(It.IsAny<File>())).Throws(new Exception());
+            moq.Setup(t => t.PostFileHead(It.IsAny<FsFile>())).Throws(new Exception());
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
 

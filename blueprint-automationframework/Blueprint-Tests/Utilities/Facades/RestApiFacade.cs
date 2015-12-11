@@ -37,6 +37,7 @@ namespace Utilities.Facades
         public string ErrorMessage { get; set; }
         public Dictionary<string, object> Headers { get; } = new Dictionary<string, object>();
         public HttpStatusCode StatusCode { get; set; }
+        public byte[] RawBytes { get; set; }
     }
 
     /// <summary>
@@ -150,7 +151,8 @@ namespace Utilities.Facades
                 ContentType = restResponse.ContentType,
                 ErrorException = restResponse.ErrorException,
                 ErrorMessage = restResponse.ErrorMessage,
-                StatusCode = restResponse.StatusCode
+                StatusCode = restResponse.StatusCode,
+                RawBytes = restResponse.RawBytes
             };
 
             foreach (var param in restResponse.Headers)
@@ -226,6 +228,17 @@ namespace Utilities.Facades
         /// <param name="baseAddress">The base URI of the REST calls.</param>
         /// <param name="username">Username to authenticate with.</param>
         /// <param name="password">Password to authenticate with.</param>
+        public RestApiFacade(string baseAddress)
+            : this(new Uri(baseAddress), null, null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="baseAddress">The base URI of the REST calls.</param>
+        /// <param name="username">Username to authenticate with.</param>
+        /// <param name="password">Password to authenticate with.</param>
         public RestApiFacade(string baseAddress, string username, string password)
             : this(new Uri(baseAddress), username, password)
         {
@@ -240,9 +253,12 @@ namespace Utilities.Facades
         public RestApiFacade(Uri baseUri, string username, string password)
         {
             _baseUri = baseUri;
-            _username = username;
-            _password = password;
-            _token = GetUserToken(_username, _password);
+            if (username.HasValue() && password.HasValue())
+            {
+                _username = username;
+                _password = password;
+                _token = GetUserToken(_username, _password);
+            }
         }
 
         /// <summary>

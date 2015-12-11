@@ -1,33 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using RestSharp;
 
 namespace Model
 {
     public interface IFileStore
     {
-        List<IFileMetadata> Files { get; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="useMultiPartMime"></param>
+        /// <param name="chunkSize"></param>
+        /// <param name="expireTime"></param>
+        /// <param name="expectedStatusCodes"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        IFile AddFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+            int chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Adds the specified file to the FileStore.
+        /// 
         /// </summary>
-        /// <param name="file">The file to add.</param>
-        /// <param name="user">The user to authenticate to the FileStore.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '200 OK' is expected.</param>
-        /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
-        /// <exception cref="WebException">A WebException sub-class if FileStore returned an unexpected HTTP status code.</exception>
-        IFile AddFile(IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <param name="fileId"></param>
+        /// <param name="user"></param>
+        /// <param name="expireTime"></param>
+        /// <param name="expectedStatusCode"></param>
+        void DeleteFile(string fileId, IUser user, DateTime? expireTime = null, HttpStatusCode? expectedStatusCode = null);
 
-        void DeleteFile(Guid id);
-        void DeleteFile(IFile file);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="user"></param>
+        /// <param name="expectedStatusCode"></param>
+        /// <returns></returns>
+        IFile GetFile(string fileId, IUser user, HttpStatusCode? expectedStatusCode = null);
 
-        IFile GetFile(string id);
-        IFile GetFile(IFile file);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="user"></param>
+        /// <param name="expectedStatusCode"></param>
+        /// <returns></returns>
+        IFileMetadata GetFileMetadata(string fileId, IUser user, HttpStatusCode? expectedStatusCode = null);
 
-        IFileMetadata GetFileMetadata(Guid id);
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
-        short GetStatus();
+        HttpStatusCode GetStatus();
     }
 }

@@ -138,7 +138,7 @@ namespace FileStore.Controllers
 					return NotFound();
 				}
 
-                if (file.ExpiredTime.HasValue && file.ExpiredTime.Value.ToUniversalTime() <= DateTime.UtcNow)
+                if (file.ExpiredTime.HasValue && file.ExpiredTime.Value <= DateTime.UtcNow)
                 {
                     LogHelper.Log.DebugFormat("GET:{0}, File has expired, returning not found", id);
                     return NotFound();

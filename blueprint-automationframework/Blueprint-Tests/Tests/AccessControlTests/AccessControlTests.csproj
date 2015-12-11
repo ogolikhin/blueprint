@@ -83,6 +83,10 @@
       <Project>{52db8811-a018-4cec-ba81-8dda947cc007}</Project>
       <Name>Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
+      <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
+      <Name>TestConfig</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

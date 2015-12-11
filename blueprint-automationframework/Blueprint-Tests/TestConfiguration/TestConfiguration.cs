@@ -11,7 +11,12 @@ namespace TestConfig
         // Example:
         // Data Source=cjust-test02;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=Welcome1;
         public string ConnectionString { get; set; }
+        public string Name { get; set; }
+    }
 
+    public class Service
+    {
+        public string Address { get; set; }
         public string Name { get; set; }
     }
 
@@ -20,12 +25,14 @@ namespace TestConfig
         private static TestConfiguration _instance = null;
 
         private Dictionary<string, Database> _databases = new Dictionary<string, Database>();
+        private Dictionary<string, Service> _services = new Dictionary<string, Service>();
 
         #region Properties
 
         public string BlueprintServerAddress { get; set; }
 
         public Dictionary<string, Database> Databases { get { return _databases; } }
+        public Dictionary<string, Service> Services { get { return _services; } }
 
         public string Username { get; set; }
 
@@ -44,6 +51,59 @@ namespace TestConfig
         private TestConfiguration() { }
 
         #endregion Constructors
+
+        #region Private functions
+
+        /// <summary>
+        /// Reads the BlueprintServer tag in the XML and adds the address & credentials to the specified TestConfiguration.
+        /// </summary>
+        /// <param name="testConfig">This will be updated with the Blueprint Server info found in the XML.</param>
+        /// <param name="root">The root XML node.</param>
+        private static void ReadBlueprintServerNode(TestConfiguration testConfig, XmlNode root)
+        {
+            XmlNode blueprintServerNode = root.SelectSingleNode("BlueprintServer");
+            testConfig.BlueprintServerAddress = blueprintServerNode.Attributes["address"].Value;
+            testConfig.Username = blueprintServerNode.Attributes["username"].Value;
+            testConfig.Password = blueprintServerNode.Attributes["password"].Value;
+        }
+
+        /// <summary>
+        /// Reads the Service tags in the BlueprintServices XML node and adds them to the specified TestConfiguration.
+        /// </summary>
+        /// <param name="testConfig">This will be updated with the Blueprint Services found in the XML.</param>
+        /// <param name="root">The root XML node.</param>
+        private static void ReadBlueprintServicesNodes(TestConfiguration testConfig, XmlNode root)
+        {
+            XmlNode blueprintServicesNode = root.SelectSingleNode("BlueprintServices");
+
+            foreach (XmlNode node in blueprintServicesNode.ChildNodes)
+            {
+                Service service = new Service();
+                service.Name = node.Attributes["name"].Value;
+                service.Address = node.Attributes["address"].Value;
+                testConfig.Services.Add(service.Name, service);
+            }
+        }
+
+        /// <summary>
+        /// Reads the Database tags in the Databases XML node and adds them to the specified TestConfiguration.
+        /// </summary>
+        /// <param name="testConfig">This will be updated with the Databases found in the XML.</param>
+        /// <param name="root">The root XML node.</param>
+        private static void ReadDatabasesNodes(TestConfiguration testConfig, XmlNode root)
+        {
+            XmlNode databasesNode = root.SelectSingleNode("Databases");
+
+            foreach (XmlNode node in databasesNode.ChildNodes)
+            {
+                Database database = new Database();
+                database.Name = node.Attributes["name"].Value;
+                database.ConnectionString = node.Attributes["connection_string"].Value;
+                testConfig.Databases.Add(database.Name, database);
+            }
+        }
+
+        #endregion Private functions
 
         #region Public functions
 
@@ -81,20 +141,13 @@ namespace TestConfig
                 doc.Load(xmlReader);
 
                 XmlNode root = doc.SelectSingleNode("/TestConfiguration");
-                testConfig.BlueprintServerAddress = root.SelectSingleNode("BlueprintServerAddress").InnerText;
-                testConfig.Username = root.SelectSingleNode("Username").InnerText;
-                testConfig.Password = root.SelectSingleNode("Password").InnerText;
-                testConfig.LogLevel = (Logger.LogLevels)Enum.Parse(typeof (Logger.LogLevels), root.SelectSingleNode("LogLevel").InnerText);
-                Logger.LogLevel = testConfig.LogLevel;
-                XmlNode databasesNode = root.SelectSingleNode("Databases");
 
-                foreach (XmlNode databaseNode in databasesNode.ChildNodes)
-                {
-                    Database database = new Database();
-                    database.Name = databaseNode.Attributes["Name"].Value;
-                    database.ConnectionString = databaseNode.Attributes["ConnectionString"].Value;
-                    testConfig.Databases.Add(database.Name, database);
-                }
+                testConfig.LogLevel = (Logger.LogLevels)Enum.Parse(typeof(Logger.LogLevels), root.SelectSingleNode("LogLevel").InnerText);
+                Logger.LogLevel = testConfig.LogLevel;
+
+                ReadBlueprintServerNode(testConfig, root);
+                ReadDatabasesNodes(testConfig, root);
+                ReadBlueprintServicesNodes(testConfig, root);
             }
 
             return testConfig;

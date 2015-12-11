@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using FileStore.Helpers;
 using FileStore.Models;
 using FileStore.Repositories;
@@ -214,8 +215,11 @@ namespace FileStore.Controllers
                     LogHelper.Log.ErrorFormat("POST: httpcontext.current is null");
                     return InternalServerError();
                 }
+
                 var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
-                return await PostFileHttpContext(httpContextWrapper, expired);
+
+                var uploadResult = await PostFileHttpContext(httpContextWrapper, expired);
+                return ConstructHttpActionResult(uploadResult);
             }
             catch (Exception ex)
             {
@@ -233,10 +237,14 @@ namespace FileStore.Controllers
             try
             {
                 if (HttpContext.Current == null)
+                {
                     return InternalServerError();
+                }
+
                 var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
 
-                return await PutFileHttpContext(id, httpContextWrapper);
+                var uploadResult = await PutFileHttpContext(id, httpContextWrapper);
+                return ConstructHttpActionResult(uploadResult);
             }
             catch (Exception ex)
             {
@@ -278,7 +286,7 @@ namespace FileStore.Controllers
 
         #region POST Logic
 
-        internal async Task<IHttpActionResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
+        internal async Task<UploadResult> PostFileHttpContext(HttpContextWrapper httpContextWrapper, DateTime? expired)
 		{
 			using (var stream = httpContextWrapper.Request.GetBufferlessInputStream())
 			{
@@ -287,40 +295,42 @@ namespace FileStore.Controllers
 				{
                     return await PostMultipartRequest(stream, expired);
 				}
-				else
-				{
-					return await PostNonMultipartRequest(stream, expired);
-				}
+				return await PostNonMultipartRequest(stream, expired);
 			}
 		}
 
-		private async Task<IHttpActionResult> PostMultipartRequest(Stream stream, DateTime? expired)
+		private async Task<UploadResult> PostMultipartRequest(Stream stream, DateTime? expired)
 		{
-		    using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile))
-		    {
-		        try
-		        {
-		            await postReader.ReadAndExecuteRequestAsync();
-		            var guid = postReader.GetFileId();
+            using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile))
+            {
+                try
+                {
+                    await postReader.ReadAndExecuteRequestAsync();
+                    var fileId = postReader.GetFileId();
 
-		            if (guid != null)
-		            {
-		                return Ok(Models.File.ConvertFileId(guid.Value));
-		            }
-		            return BadRequest();
-		        }
-		        catch (MultipartReadException)
-		        {
-		            var guid = postReader.GetFileId();
+                    return new UploadResult
+                    {
+                        FileId = fileId,
+                        Status = fileId.HasValue ? HttpStatusCode.Created : HttpStatusCode.BadRequest
+                    };
+                }
+                catch (MultipartReadException)
+                {
+                    var guid = postReader.GetFileId();
 
-		            if (guid != null)
-		            {
-		                await DeleteFile(Models.File.ConvertFileId(guid.Value));
-		            }
-		            return BadRequest();
-		        }
-		    }
-		}
+                    if (guid != null)
+                    {
+                        await DeleteFile(Models.File.ConvertFileId(guid.Value));
+                    }
+                    return new UploadResult
+                    {
+                        FileId = null,
+                        Status = HttpStatusCode.BadRequest
+                    };
+                }
+
+            }
+        }
 
 		private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
 		{
@@ -341,13 +351,17 @@ namespace FileStore.Controllers
             return chunk;
         }
 
-		private async Task<IHttpActionResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
+		private async Task<UploadResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
 		{
 			if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
 					string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
 			{
-				return BadRequest();
-			}
+                return new UploadResult
+                {
+                    FileId = null,
+                    Status = HttpStatusCode.BadRequest
+                };
+            }
 			// Grabs all available information from the header
 			var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
 			var fileMediaType = Request.Content.Headers.ContentType.MediaType;
@@ -355,8 +369,12 @@ namespace FileStore.Controllers
             var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
             LogHelper.Log.DebugFormat("POST: Chunks posted {0}", chunk.ChunkNum - 1);
 
-            return Ok(Models.File.ConvertFileId(chunk.FileId));
-		}
+            return new UploadResult
+            {
+                FileId = chunk.FileId,
+                Status = HttpStatusCode.Created
+            };
+        }
 
 		/// <summary>
 		/// Posts the file from the stream in multiple chunks and returns the file size.
@@ -412,13 +430,17 @@ namespace FileStore.Controllers
 
         #region PUT Logic
 
-        internal async Task<IHttpActionResult> PutFileHttpContext(string id, HttpContextWrapper httpContextWrapper)
+        internal async Task<UploadResult> PutFileHttpContext(string id, HttpContextWrapper httpContextWrapper)
 	    {
             var fileId = Models.File.ConvertToStoreId(id);
             var fileHead = await _filesRepo.GetFileHead(fileId);
             if (fileHead == null)
             {
-                return NotFound();
+                return new UploadResult
+                {
+                    FileId = null,
+                    Status = HttpStatusCode.NotFound
+                };
             }
             int startingChunkNumber = fileHead.ChunkCount + 1;
             var chunk = new FileChunk()
@@ -451,23 +473,27 @@ namespace FileStore.Controllers
                 throw;
             }
 
-            LogHelper.Log.DebugFormat("PUT:{0}, Chunks were added in PUT. Total chunks in file:{2}", id, chunk.ChunkNum-1);
-            return Ok();
+            LogHelper.Log.DebugFormat("PUT:{0}, Chunks were added in PUT. Total chunks in file:{1}", id, chunk.ChunkNum-1);
+            return new UploadResult
+            {
+                FileId = chunk.FileId,
+                Status = HttpStatusCode.OK
+            };
         }
 
 	    internal async Task<long> PutFileMultipart(Stream stream, FileChunk chunk)
 	    {
 	        using (var putFileMultipart = new PutMultipartReader(stream, chunk, PostFileInChunks))
-	        {
+            {
 	            await putFileMultipart.ReadAndExecuteRequestAsync();
 	            var fileSize = putFileMultipart.GetFileSize();
 	            if (fileSize.HasValue)
-	            {
+                {
 	                return fileSize.Value;
-	            }
+                }
 	            throw new Exception("File size does not have a value after executing the PUT");
-	        }
-	    }
+            }
+        }
 
         private async Task<int> DeleteFileChunks(Guid guid, int startingChunkNumber)
         {
@@ -479,8 +505,36 @@ namespace FileStore.Controllers
             }
             return rowsAffected;
         }
+
         #endregion
 
+        #region Http Result
+
+        private IHttpActionResult ConstructHttpActionResult(UploadResult uploadResult)
+        {
+
+            if (uploadResult.Status == HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            if (uploadResult.Status == HttpStatusCode.BadRequest || !uploadResult.FileId.HasValue)
+            {
+                return BadRequest();
+            }
+            if (uploadResult.Status == HttpStatusCode.Created)
+            {
+                var uri = new Uri(string.Format("{0}/{1}", Request.RequestUri.LocalPath, uploadResult.FileId.Value), UriKind.Relative);
+                return Created(uri, uploadResult.FileId.Value);
+            }
+            if (uploadResult.Status == HttpStatusCode.OK)
+            {
+                return Ok(uploadResult.FileId.Value);
+            }
+            return new NegotiatedContentResult<Guid>(uploadResult.Status, uploadResult.FileId.Value, this);
+        }
+
+        #endregion
 
     }
+
 }

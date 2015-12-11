@@ -1,21 +1,22 @@
 <TestConfiguration>
 
   <!-- This is the URL of the Blueprint server to test against. -->
-  <BlueprintServerAddress>http://silver02.blueprintsys.net/</BlueprintServerAddress>
+  <BlueprintServer address="http://silver02.blueprintsys.net/" username="admin" password="$Blueprint99" />
 
+  <BlueprintServices>
+    <Service name="AdminStore"    address="http://silver02.blueprintsys.net/" />
+    <Service name="AccessControl" address="http://silver02.blueprintsys.net:82/" />
+    <Service name="FileStore"     address="http://silver02.blueprintsys.net/" />
+  </BlueprintServices>
 
   <Databases>
-    <Database Name="Blueprint" ConnectionString="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database Name="AdminStorage" ConnectionString="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="Blueprint"     connection_string="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="FileStore"     connection_string="Data Source=silver02.blueprintsys.net;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
   </Databases>
-
+  
   <!-- This is the level of logging to use.  Valid values are:  NONE, ERROR, WARNING, INFO, DEBUG, TRACE -->
   <LogLevel>TRACE</LogLevel>
 
-  <!-- The password for the user. -->
-  <Password>$Blueprint99</Password>
-
-
-  <!-- A valid username to connect to the Blueprint server. -->
-  <Username>admin</Username>
 </TestConfiguration>

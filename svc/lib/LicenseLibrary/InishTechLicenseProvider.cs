@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using LicenseLibrary.Models;
 using Sp.Agent.Configuration;
 using Sp.Agent.Configuration.Internal;
 
@@ -7,10 +8,10 @@ namespace LicenseLibrary
 {
     public class InishTechLicenseProvider : ILicenseProvider
     {
-        private const string ProductName = "Blueprint";
-        private const string ProductVersion = "5.0";
-        private const string DataAnalyticsProductName = "Blueprint Data Analytics";
-        private const string DataAnalyticsProductVersion = "5.0";
+        internal const string ProductName = "Blueprint";
+        internal const string ProductVersion = "5.0";
+        internal const string DataAnalyticsProductName = "Blueprint Data Analytics";
+        internal const string DataAnalyticsProductVersion = "5.0";
 
         #region Singleton
 
@@ -66,7 +67,7 @@ namespace LicenseLibrary
 
         private IEnumerable<LicenseWrapper> GetLicenses(string productName, string productVersion, string feature = null)
         {
-            lock (_instance)
+            lock (syncRoot)
             {
                 var productContext = _agentContext.ProductContextFor(productName, productVersion);
 

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 using CustomAttributes;
@@ -14,8 +15,8 @@ namespace AccessControlTests
     {
         private const string _serviceRoute = "/svc/accesscontrol/";
         private const string _statusRoute = "status/";
-        private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
-        private static string _sessionUrl = BlueprintServerFactory.GetBlueprintServerFromTestConfig().Address + _serviceRoute + _statusRoute;
+        private static Dictionary<string, Service> _services = TestConfiguration.GetInstance().Services;
+        private static string _sessionUrl = _services["AccessControl"].Address + _serviceRoute + _statusRoute;
 
         [Test]
         [Explicit(IgnoreReasons.ProductBug)]

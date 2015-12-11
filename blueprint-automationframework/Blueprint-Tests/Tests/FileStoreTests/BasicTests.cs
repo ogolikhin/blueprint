@@ -13,17 +13,13 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     public class BasicTests
     {
-        private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
-
-        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-        private IFileStore _filestore = null;
+        private IFileStore _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
         private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _filestore = FileStoreFactory.CreateFileStore(_server.Address);
         }
 
         [TearDown]

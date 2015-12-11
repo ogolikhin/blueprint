@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sp.Agent.Web</name>
+    </assembly>
+    <members>
+        <member name="T:Sp.Agent.Configuration.WebApplicationStoreConfigurationExtensions">
+            <summary>
+             Provides extension methods for <see cref="T:Sp.Agent.Configuration.IStartingConfigurationPhase"/> relevant to ASP .NET applications. 
+            </summary>
+        </member>
+        <member name="M:Sp.Agent.Configuration.WebApplicationStoreConfigurationExtensions.WithFileStoreDirectoryInitializationAction(Sp.Agent.Configuration.IStartingConfigurationPhase,System.Action{System.IO.DirectoryInfo})">
+            <summary>
+            Registers an Action for the Software Potential Agent to invoke when initializing a Web Application Store license directory.
+            </summary>
+            <param name="that">Starting point of Sp.Agent configuration pipeline.</param>
+            <param name="initialize">Action that initializes a License Store directory for a given combination of Product / Version / Hosting context.</param>
+            <returns>A reference to the same phase. Typically this is followed by a call to <c>.WithHttpApplicationStore()</c>.</returns>
+        </member>
+        <member name="M:Sp.Agent.Configuration.WebApplicationStoreConfigurationExtensions.WithHttpApplicationIdStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.String)">
+            <summary>
+            Configures the Software Potential Agent to maintain its licenses in the file system, locked to the currently running IIS 6 or later Web Application.
+            </summary>
+            <param name="that">Starting point of Sp.Agent configuration pipeline.</param>
+            <param name="licenseStoreRootPath">License store root directory.</param>
+            <returns>A reference to the next phase of the configuration pipeline.</returns>
+            <remarks>
+            <para>Every combination of IIS Application name/Software potential product sharing a given <paramref name="licenseStoreRootPath"/> will have an isolated store subdirectory within which that set of  licenses are maintained.</para>
+            <para>Note: If one intends to Initialize a store via <see cref="T:Sp.Agent.Storage.Internal.IStoreInitialization"/><c>.Initialize()</c>, it is mandatory to first supply a directory initialization Action first via <c>WithFileStoreDirectoryInitializationAction()</c>.</para>
+            </remarks>
+        </member>
+        <member name="M:Sp.Agent.Configuration.WebApplicationStoreConfigurationExtensions.WithHttpApplicationIdStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.String,System.String)">
+            <summary>
+            Configures the Software Potential Agent to maintain its licenses in the file system, tied to a nominated Web application hosted in IIS.
+            </summary>
+            <param name="that">Starting point of Sp.Agent configuration pipeline.</param>
+            <param name="licenseStoreRootPath">License store root directory.</param>
+            <param name="webApplicationIdOverride">IIS Web Application Id in IIS metabase format (i.e., <c>/LM/W3SVC/&lt;SiteId&gt;/ROOT/&lt;WebApplicationName&gt;</c> see http://technet.microsoft.com/en-us/library/cc784572%28v=ws.10%29.aspx). Note that specifying this override only applies to <see cref="T:Sp.Agent.Storage.Internal.IStoreInitialization"/> and <see cref="T:Sp.Agent.Activation.IActivateLicenses"/>.</param>
+            <returns>A reference to the next phase of the configuration pipeline.</returns>
+            <remarks>
+            <para>Every combination of <paramref name="webApplicationIdOverride"/>/Software potential product sharing a given <paramref name="licenseStoreRootPath"/> will have an isolated store subdirectory within which that set of licenses are maintained.</para>
+            <para>Note: If one intends to Initialize a store via <see cref="T:Sp.Agent.Storage.Internal.IStoreInitialization"/><c>.Initialize()</c>, it is mandatory to first supply a directory initialization Action first via <c>WithFileStoreDirectoryInitializationAction()</c>.</para>
+            </remarks>
+        </member>
+        <member name="T:Sp.Agent.Storage.Internal.FileStoreInitialization">
+            <summary>
+            Provides helper facilities for initializing File-based License Stores.
+            </summary>
+        </member>
+        <member name="M:Sp.Agent.Storage.Internal.FileStoreInitialization.EnsureExistsAndConfigureAccessFor(System.Security.Principal.IdentityReference,System.IO.DirectoryInfo)">
+            <summary>
+            Configures the specified <paramref name="directory"/> to have an explicit Allow ACL for the indicated <paramref name="identityReference"/>, and inherit other permissions from the parent.
+            </summary>
+            <param name="identityReference">The identity to confer the rights on.</param>
+            <param name="directory">The directory on which to apply the ACL entry.</param>
+        </member>
+    </members>
+</doc>

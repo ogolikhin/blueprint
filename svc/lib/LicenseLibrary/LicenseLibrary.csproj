@@ -31,8 +31,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Sp.Agent">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Crm">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Crm.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Crm.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Crm.eb771.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.eb771.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Web">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Web.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Web.eb771.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,6 +60,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LicenseConstants.cs" />
+    <Compile Include="Models\LicenseWrapper.cs" />
+    <Compile Include="ILicenseProvider.cs" />
+    <Compile Include="InishTechLicenseProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

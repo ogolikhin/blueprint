@@ -54,7 +54,26 @@ namespace ServiceLibrary.Repositories
             setup.Verifiable();
         }
 
-        public void SetupQueryAsync<T>(string sql, Dictionary<string, object> param, IEnumerable<T> result)
+		public void SetupExecuteScalarAsync<T>(Expression<Func<string, bool>> sqlMatcher, Dictionary<string, object> param, T result, Dictionary<string, object> outParameters = null)
+		{
+			Expression<Func<object, bool>> match = p => param == null || param.All(kv => Equals(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
+			var setup = Setup(c => c.ExecuteScalarAsync<T>(It.Is(sqlMatcher), It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()))
+				.ReturnsAsync(result);
+			if (outParameters != null)
+			{
+				setup.Callback((string s, object p, IDbTransaction t, int? o, CommandType c) =>
+				{
+					foreach (var kv in outParameters)
+					{
+						SqlConnectionWrapper.Set(p, kv.Key, kv.Value);
+					}
+				});
+			}
+			setup.Verifiable();
+		}
+
+
+		public void SetupQueryAsync<T>(string sql, Dictionary<string, object> param, IEnumerable<T> result)
         {
             Expression<Func<object, bool>> match = p => param == null || param.All(kv => Equals(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
             Setup(c => c.QueryAsync<T>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))

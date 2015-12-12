@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AccessControl.Repositories;
-using LicenseLibrary;
 using LicenseLibrary.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

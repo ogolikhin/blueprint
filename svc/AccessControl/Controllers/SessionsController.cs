@@ -8,7 +8,6 @@ using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
-using LicenseLibrary;
 using LicenseLibrary.Models;
 using LicenseLibrary.Repositories;
 using ServiceLibrary.Log;

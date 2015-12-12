@@ -60,9 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LicenseManager.cs" />
+    <Compile Include="Repositories\LicenseManager.cs" />
     <Compile Include="Repositories\DebugLicenseManager.cs" />
-    <Compile Include="LicenseConstants.cs" />
+    <Compile Include="Helpers\LicenseConstants.cs" />
     <Compile Include="Models\ProductFeature.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
     <Compile Include="Repositories\ILicenseManager.cs" />

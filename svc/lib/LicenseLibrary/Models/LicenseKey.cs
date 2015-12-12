@@ -5,14 +5,14 @@ using Sp.Agent.Licensing;
 
 namespace LicenseLibrary.Models
 {
-    public class LicenseInfo
+    public class LicenseKey
     {
         public ProductFeature ProductFeature { get; }
         public int? MaximumLicenses { get; }
         public DateTime ExpirationDate { get; }
         public string ActivationKey { get; }
 
-        internal LicenseInfo(ProductFeature productFeature, int? maximumLicenses, DateTime expirationDate, string activationKey)
+        public LicenseKey(ProductFeature productFeature, int? maximumLicenses, DateTime expirationDate, string activationKey)
         {
             ProductFeature = productFeature;
             MaximumLicenses = maximumLicenses;
@@ -20,27 +20,27 @@ namespace LicenseLibrary.Models
             ActivationKey = activationKey;
         }
 
-        internal static LicenseInfo Get(ILicense license, ProductFeature productFeature)
+        internal static LicenseKey Get(ILicense license, ProductFeature productFeature)
         {
             var featureName = productFeature.GetFeatureName();
             if (featureName == null)
             {
-                return new LicenseInfo(productFeature, license.Advanced.ConcurrentUsageLimit, license.ValidUntil, license.ActivationKey);
+                return new LicenseKey(productFeature, license.Advanced.ConcurrentUsageLimit, license.ValidUntil, license.ActivationKey);
             }
 
             IFeature feature = license.Advanced.AllFeatures().Where(kvp => kvp.Key == featureName).Select(kvp => kvp.Value).FirstOrDefault();
             if (feature != null && feature.ValidUntil >= DateTime.Now)
             {
-                return new LicenseInfo(productFeature, feature.ConcurrentUsageLimit,
+                return new LicenseKey(productFeature, feature.ConcurrentUsageLimit,
                     license.ValidUntil > feature.ValidUntil ? feature.ValidUntil : license.ValidUntil, // Minimum of the two
                     license.ActivationKey);
             }
             return null;
         }
 
-        internal static LicenseInfo Aggregate(IEnumerable<LicenseInfo> infos)
+        internal static LicenseKey Aggregate(IEnumerable<LicenseKey> keys)
         {
-            var list = infos.Where(i => i != null).ToList();
+            var list = keys.Where(k => k != null).ToList();
             if (list.Any())
             {
                 int? maximumLicenses;
@@ -52,8 +52,8 @@ namespace LicenseLibrary.Models
                 {
                     maximumLicenses = null;
                 }
-                return new LicenseInfo(list.Select(i => i.ProductFeature).First(), maximumLicenses,
-                    list.Max(i => i.ExpirationDate), list.Select(i => i.ActivationKey).First());
+                return new LicenseKey(list.Select(i => i.ProductFeature).First(), maximumLicenses,
+                    list.Max(k => k.ExpirationDate), list.Select(k => k.ActivationKey).First());
             }
             return null;
         }

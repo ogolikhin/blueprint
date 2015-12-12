@@ -5,9 +5,13 @@ namespace LicenseLibrary.Repositories
 {
     public class DebugLicenseManager : ILicenseManager
     {
-        public LicenseInfo GetLicenseInfo(ProductFeature feature)
+        #region ILicenseManager
+
+        public LicenseKey GetLicenseKey(ProductFeature feature)
         {
-            return new LicenseInfo(feature, null, DateTime.MaxValue, null);
+            return new LicenseKey(feature, null, DateTime.MaxValue, null);
         }
+
+        #endregion ILicenseManager
     }
 }

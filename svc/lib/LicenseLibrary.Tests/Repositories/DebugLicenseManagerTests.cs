@@ -7,20 +7,24 @@ namespace LicenseLibrary.Repositories
     [TestClass]
     public class DebugLicenseManagerTests
     {
+        #region GetLicenseKey
+
         [TestMethod]
-        public void GetLicenseInfo_Always_ReturnsUnlimitedLicenseInfo()
+        public void GetLicenseKey_Always_ReturnsUnlimitedLicenseInfo()
         {
             // Arrange
             var feature = ProductFeature.Author;
             var licenseManager = new DebugLicenseManager();
 
             // Act
-            LicenseInfo result = licenseManager.GetLicenseInfo(feature);
+            LicenseKey result = licenseManager.GetLicenseKey(feature);
 
             // Assert
             Assert.AreEqual(feature, result.ProductFeature);
             Assert.IsNull(result.MaximumLicenses);
             Assert.AreEqual(DateTime.MaxValue, result.ExpirationDate);
         }
+
+        #endregion GetLicenseKey
     }
 }

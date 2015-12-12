@@ -64,7 +64,7 @@
     <Compile Include="Repositories\DebugLicenseManager.cs" />
     <Compile Include="Helpers\LicenseConstants.cs" />
     <Compile Include="Models\ProductFeature.cs" />
-    <Compile Include="Models\LicenseInfo.cs" />
+    <Compile Include="Models\LicenseKey.cs" />
     <Compile Include="Repositories\ILicenseManager.cs" />
     <Compile Include="Repositories\InishTechLicenseManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

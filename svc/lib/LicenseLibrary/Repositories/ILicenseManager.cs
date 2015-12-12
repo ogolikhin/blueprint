@@ -4,6 +4,6 @@ namespace LicenseLibrary.Repositories
 {
     public interface ILicenseManager
     {
-        LicenseInfo GetLicenseInfo(ProductFeature feature);
+        LicenseKey GetLicenseKey(ProductFeature feature);
     }
 }

@@ -33,13 +33,13 @@ namespace LicenseLibrary.Repositories
 
         #region ILicenseManager
 
-        public LicenseInfo GetLicenseInfo(ProductFeature feature)
+        public LicenseKey GetLicenseKey(ProductFeature feature)
         {
             lock (SyncRoot)
             {
                 var productContext = _agentContext.ProductContextFor(feature.GetProductName(), feature.GetProductVersion());
 
-                return LicenseInfo.Aggregate(productContext.Licenses.Valid().Select(l => LicenseInfo.Get(l, feature)));
+                return LicenseKey.Aggregate(productContext.Licenses.Valid().Select(l => LicenseKey.Get(l, feature)));
             }
         }
 

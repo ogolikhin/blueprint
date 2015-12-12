@@ -12,10 +12,10 @@ namespace LicenseLibrary.Repositories
     [TestClass]
     public class InishTechLicenseManagerTests
     {
-        #region GetLicenseInfo
+        #region GetLicenseKey
 
         [TestMethod]
-        public void GetLicenseInfo_NoValidLicenses_ReturnsNull()
+        public void GetLicenseKey_NoValidLicenses_ReturnsNull()
         {
             // Arrange
             var agentContext = CreateAgentContext(null, null);
@@ -23,14 +23,14 @@ namespace LicenseLibrary.Repositories
             var productFeature = ProductFeature.None;
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(productFeature);
+            LicenseKey result = licenseProvider.GetLicenseKey(productFeature);
 
             // Assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
-        public void GetLicenseInfo_NoMatchingFeature_ReturnsNull()
+        public void GetLicenseKey_NoMatchingFeature_ReturnsNull()
         {
             // Arrange
             var nextWeek = DateTime.Now.AddDays(7);
@@ -43,14 +43,14 @@ namespace LicenseLibrary.Repositories
             var productFeature = ProductFeature.Author;
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(productFeature);
+            LicenseKey result = licenseProvider.GetLicenseKey(productFeature);
 
             // Assert
             Assert.IsNull(result);
         }
 
         [TestMethod]
-        public void GetLicenseInfo_MatchingLicense_ReturnsCorrectInfo()
+        public void GetLicenseKey_MatchingLicense_ReturnsCorrectInfo()
         {
             // Arrange
             var nextWeek = DateTime.Now.AddDays(7);
@@ -62,7 +62,7 @@ namespace LicenseLibrary.Repositories
             var productFeature = ProductFeature.DataAnalytics;
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(productFeature);
+            LicenseKey result = licenseProvider.GetLicenseKey(productFeature);
 
             // Assert
             Assert.AreEqual(productFeature, result.ProductFeature);
@@ -72,7 +72,7 @@ namespace LicenseLibrary.Repositories
         }
 
         [TestMethod]
-        public void GetLicenseInfo_MultipleMatchingLicenses_ReturnsCorrectInfo()
+        public void GetLicenseKey_MultipleMatchingLicenses_ReturnsCorrectInfo()
         {
             // Arrange
             var tomorrow = DateTime.Now.AddDays(1);
@@ -88,7 +88,7 @@ namespace LicenseLibrary.Repositories
             var licenseProvider = new InishTechLicenseManager(agentContext);
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(ProductFeature.Author);
+            LicenseKey result = licenseProvider.GetLicenseKey(ProductFeature.Author);
 
             // Assert
             Assert.AreEqual(ProductFeature.Author, result.ProductFeature);
@@ -98,7 +98,7 @@ namespace LicenseLibrary.Repositories
         }
 
         [TestMethod]
-        public void GetLicenseInfo_ConcurrentUsageLimitIsNull_ReturnsUnlimitedUsage()
+        public void GetLicenseKey_ConcurrentUsageLimitIsNull_ReturnsUnlimitedUsage()
         {
             // Arrange
             var tomorrow = DateTime.Now.AddDays(1);
@@ -113,7 +113,7 @@ namespace LicenseLibrary.Repositories
             var licenseProvider = new InishTechLicenseManager(agentContext);
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(ProductFeature.Author);
+            LicenseKey result = licenseProvider.GetLicenseKey(ProductFeature.Author);
 
             // Assert
             Assert.AreEqual(ProductFeature.Author, result.ProductFeature);
@@ -123,7 +123,7 @@ namespace LicenseLibrary.Repositories
         }
 
         [TestMethod]
-        public void GetLicenseInfo_ConcurrentUsageLimitOverflows_ReturnsUnlimitedUsage()
+        public void GetLicenseKey_ConcurrentUsageLimitOverflows_ReturnsUnlimitedUsage()
         {
             // Arrange
             var tomorrow = DateTime.Now.AddDays(1);
@@ -140,7 +140,7 @@ namespace LicenseLibrary.Repositories
             var licenseProvider = new InishTechLicenseManager(agentContext);
 
             // Act
-            LicenseInfo result = licenseProvider.GetLicenseInfo(ProductFeature.Author);
+            LicenseKey result = licenseProvider.GetLicenseKey(ProductFeature.Author);
 
             // Assert
             Assert.AreEqual(ProductFeature.Author, result.ProductFeature);
@@ -149,7 +149,7 @@ namespace LicenseLibrary.Repositories
             Assert.AreEqual(activationKey, result.ActivationKey);
         }
 
-        #endregion GetLicenseInfo
+        #endregion GetLicenseKey
 
         private static IAgentContext CreateAgentContext(string productName, string productVersion,
             params ILicense[] licenses)

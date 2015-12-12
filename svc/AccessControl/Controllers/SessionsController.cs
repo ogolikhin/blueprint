@@ -268,18 +268,18 @@ namespace AccessControl.Controllers
 
         private async Task<bool> HasAvailableLicense(int userId, int licenseLevel)
         {
-            var licenseWrapper = LicenseManager.Current.GetLicenseInfo(GetFeature(licenseLevel));
-            if (licenseWrapper == null)
+            var licenseKey = LicenseManager.Current.GetLicenseKey(GetFeature(licenseLevel));
+            if (licenseKey == null)
             {
                 return false;
             }
-            if (!licenseWrapper.MaximumLicenses.HasValue)
+            if (!licenseKey.MaximumLicenses.HasValue)
             {
                 return true;
             }
 
             var usedLicenses = await _repo.GetActiveLicenses(userId, licenseLevel, WebApiConfig.LicenseHoldTime);
-            return usedLicenses < licenseWrapper.MaximumLicenses;
+            return usedLicenses < licenseKey.MaximumLicenses;
         }
 
         private static ProductFeature GetFeature(int licenseLevel)

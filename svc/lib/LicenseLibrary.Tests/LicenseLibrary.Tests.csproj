@@ -48,7 +48,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InishTechLicenseProviderTests.cs" />
+    <Compile Include="Repositories\DebugLicenseManagerTests.cs" />
+    <Compile Include="Repositories\InishTechLicenseManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

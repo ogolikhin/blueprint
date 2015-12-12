@@ -60,11 +60,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LicenseManager.cs" />
+    <Compile Include="Repositories\DebugLicenseManager.cs" />
     <Compile Include="LicenseConstants.cs" />
-    <Compile Include="Models\LicenseWrapper.cs" />
-    <Compile Include="ILicenseProvider.cs" />
-    <Compile Include="InishTechLicenseProvider.cs" />
+    <Compile Include="Models\ProductFeature.cs" />
+    <Compile Include="Models\LicenseInfo.cs" />
+    <Compile Include="Repositories\ILicenseManager.cs" />
+    <Compile Include="Repositories\InishTechLicenseManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
+      <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
+      <Name>ServiceLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

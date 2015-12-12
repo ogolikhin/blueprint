@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AccessControl.Repositories;
+using LicenseLibrary;
+using LicenseLibrary.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Log;
@@ -17,6 +19,7 @@ namespace AccessControl.Controllers
     [TestClass]
     public class SessionsControllerTests
     {
+        private static Mock<ILicenseManager> _licenseManagerMock;
         private static Mock<ILogProvider> _logProviderMock;
         private Mock<ISessionsRepository> _sessionsRepoMock;
         private Mock<ObjectCache> _cacheMock;
@@ -38,6 +41,8 @@ namespace AccessControl.Controllers
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
+            _licenseManagerMock = new Mock<ILicenseManager>();
+            LicenseManager.Init(_licenseManagerMock.Object);
             _logProviderMock = new Mock<ILogProvider>();
             _logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
             LogProvider.Init(_logProviderMock.Object);

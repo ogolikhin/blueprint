@@ -1,0 +1,47 @@
+﻿using System.Linq;
+using System.Web.Hosting;
+using LicenseLibrary.Models;
+using Sp.Agent.Configuration;
+using Sp.Agent.Configuration.Internal;
+
+namespace LicenseLibrary.Repositories
+{
+    public class InishTechLicenseManager : ILicenseManager
+    {
+        private static readonly object SyncRoot = new object();
+
+        private readonly IAgentContext _agentContext;
+
+        public InishTechLicenseManager()
+        {
+            lock (SyncRoot)
+            {
+                _agentContext = AgentContext.For(LicenseConstants.PermutationShortId);
+                _agentContext.Configure(x => x.WithHttpApplicationIdStore(LicenseConstants.LicenseFolderFullPath,
+                    HostingEnvironment.ApplicationID).CompleteWithDefaults());
+            }
+        }
+
+        internal InishTechLicenseManager(IAgentContext agentContext)
+        {
+            lock (SyncRoot)
+            {
+                _agentContext = agentContext;
+            }
+        }
+
+        #region ILicenseManager
+
+        public LicenseInfo GetLicenseInfo(ProductFeature feature)
+        {
+            lock (SyncRoot)
+            {
+                var productContext = _agentContext.ProductContextFor(feature.GetProductName(), feature.GetProductVersion());
+
+                return LicenseInfo.Aggregate(productContext.Licenses.Valid().Select(l => LicenseInfo.Get(l, feature)));
+            }
+        }
+
+        #endregion ILicenseManager
+    }
+}

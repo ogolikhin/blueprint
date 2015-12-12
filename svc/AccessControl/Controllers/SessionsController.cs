@@ -90,7 +90,7 @@ namespace AccessControl.Controllers
                 }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
-                response.Headers.Add("_cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
@@ -173,7 +173,7 @@ namespace AccessControl.Controllers
                 var session = await _repo.GetUserSession(uid);
                 AddSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Headers.Add("_cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
@@ -208,7 +208,7 @@ namespace AccessControl.Controllers
                     AddSession(token, session);
                 }
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
-                response.Headers.Add("_cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);

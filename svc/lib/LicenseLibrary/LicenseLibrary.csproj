@@ -31,8 +31,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Sp.Agent">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Crm">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Crm.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Crm.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Crm.eb771.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.eb771.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Web">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Sp.Agent.Web.eb771">
+      <HintPath>..\InishTech\Perm-eb771\Sp.Agent.Web.eb771.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +60,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Repositories\LicenseManager.cs" />
+    <Compile Include="Repositories\DebugLicenseManager.cs" />
+    <Compile Include="Helpers\LicenseConstants.cs" />
+    <Compile Include="Models\ProductFeature.cs" />
+    <Compile Include="Models\LicenseKey.cs" />
+    <Compile Include="Repositories\ILicenseManager.cs" />
+    <Compile Include="Repositories\InishTechLicenseManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
+      <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
+      <Name>ServiceLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

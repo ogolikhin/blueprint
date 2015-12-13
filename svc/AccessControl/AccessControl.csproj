@@ -123,6 +123,10 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\LicenseLibrary\LicenseLibrary.csproj">
+      <Project>{05d3a9b8-3b2b-4bae-bbd7-f3c0fce758c7}</Project>
+      <Name>LicenseLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>

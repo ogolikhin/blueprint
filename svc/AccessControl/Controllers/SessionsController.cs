@@ -8,6 +8,8 @@ using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
+using LicenseLibrary.Models;
+using LicenseLibrary.Repositories;
 using ServiceLibrary.Log;
 using ServiceLibrary.Models;
 
@@ -16,14 +18,14 @@ namespace AccessControl.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private static ObjectCache Cache;
-        private static ISessionsRepository Repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
+        private static ObjectCache _cache;
+        private static ISessionsRepository _repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
 
-		internal static void Load(ObjectCache cache)
+        internal static void Load(ObjectCache cache)
         {
             Task.Run(() =>
             {
-                Cache = cache;
+                _cache = cache;
                 try
                 {
                     LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", LogEntryType.Information);
@@ -33,7 +35,7 @@ namespace AccessControl.Controllers
                     do
                     {
                         count = 0;
-                        var sessions = Repo.SelectSessions(ps, pn).Result;
+                        var sessions = _repo.SelectSessions(ps, pn).Result;
                         foreach (var session in sessions)
                         {
                             ++count;
@@ -52,13 +54,14 @@ namespace AccessControl.Controllers
         }
 
         public SessionsController()
+            : this(_cache, _repo)
         {
         }
 
         internal SessionsController(ObjectCache cache, ISessionsRepository repo)
         {
-            Cache = cache;
-            Repo = repo;
+            _cache = cache;
+            _repo = repo;
         }
 
         private string GetHeaderSessionToken()
@@ -75,7 +78,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var session = await Repo.GetUserSession(uid); // reading from database to avoid extending existing session
+                var session = await _repo.GetUserSession(uid); // reading from database to avoid extending existing session
                 if (session == null)
                 {
                     throw new KeyNotFoundException();
@@ -118,7 +121,7 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 //Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
                 var guid = Session.Convert(token);
-                return Ok(await Repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
+                return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
             catch (ArgumentNullException)
             {
@@ -143,21 +146,21 @@ namespace AccessControl.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
         {
-	        try
-	        {
-		        if (!await HasAvailableLicense(uid, licenseLevel))
-		        {
-			        return StatusCode(HttpStatusCode.Forbidden);
-		        }
-	        }
-	        catch
-	        {
-		        return InternalServerError();
-	        }
+            try
+            {
+                if (!await HasAvailableLicense(uid, licenseLevel))
+                {
+                    return StatusCode(HttpStatusCode.Forbidden);
+                }
+            }
+            catch
+            {
+                return InternalServerError();
+            }
 
             try
             {
-                var guids = await Repo.BeginSession(uid, userName, licenseLevel, isSso);
+                var guids = await _repo.BeginSession(uid, userName, licenseLevel, isSso);
                 if (!guids[0].HasValue)
                 {
                     throw new KeyNotFoundException();
@@ -165,9 +168,9 @@ namespace AccessControl.Controllers
                 var token = Session.Convert(guids[0].Value);
                 if (guids[1].HasValue)
                 {
-                    Cache.Remove(Session.Convert(guids[1].Value));
+                    _cache.Remove(Session.Convert(guids[1].Value));
                 }
-                var session = await Repo.GetUserSession(uid);
+                var session = await _repo.GetUserSession(uid);
                 AddSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -194,10 +197,10 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var session = Cache.Get(token) as Session;
+                var session = _cache.Get(token) as Session;
                 if (session == null)
                 {
-                    session = await Repo.GetSession(guid);
+                    session = await _repo.GetSession(guid);
                     if (session == null || session.EndTime.HasValue)
                     {
                         throw new KeyNotFoundException();
@@ -238,8 +241,8 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
 
-                await Repo.EndSession(guid);
-                if (Cache.Remove(token) == null)
+                await _repo.EndSession(guid);
+                if (_cache.Remove(token) == null)
                 {
                     throw new KeyNotFoundException();
                 }
@@ -263,16 +266,36 @@ namespace AccessControl.Controllers
             }
         }
 
-	    private async Task<bool> HasAvailableLicense(int userId, int licenseLevel)
-	    {
-		    var usedLicenses = await Repo.GetActiveLicenses(userId, licenseLevel, WebApiConfig.LicenseHoldTime);
-
-		    return usedLicenses < 2; //TODO: get maximum licenses from LicenseLibrary
-	    }
-
-	    private static void AddSession(string key, Session session)
+        private async Task<bool> HasAvailableLicense(int userId, int licenseLevel)
         {
-            Cache.Add(key, session, new CacheItemPolicy
+            var licenseKey = LicenseManager.Current.GetLicenseKey(GetFeature(licenseLevel));
+            if (licenseKey == null)
+            {
+                return false;
+            }
+            if (!licenseKey.MaximumLicenses.HasValue)
+            {
+                return true;
+            }
+
+            var usedLicenses = await _repo.GetActiveLicenses(userId, licenseLevel, WebApiConfig.LicenseHoldTime);
+            return usedLicenses < licenseKey.MaximumLicenses;
+        }
+
+        private static ProductFeature GetFeature(int licenseLevel)
+        {
+            switch (licenseLevel)
+            {
+                case 1: return ProductFeature.Viewer;
+                case 2: return ProductFeature.Collaborator;
+                case 3: return ProductFeature.Author;
+                default: return ProductFeature.None;
+            }
+        }
+
+        private static void AddSession(string key, Session session)
+        {
+            _cache.Add(key, session, new CacheItemPolicy
             {
                 SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
                 RemovedCallback = args =>
@@ -283,7 +306,7 @@ namespace AccessControl.Controllers
                             LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error);
                             break;
                         case CacheEntryRemovedReason.Expired:
-                            Repo.EndSession(Session.Convert(args.CacheItem.Key));
+                            _repo.EndSession(Session.Convert(args.CacheItem.Key));
                             break;
                     }
                 }

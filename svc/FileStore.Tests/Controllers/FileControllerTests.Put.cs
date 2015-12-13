@@ -52,14 +52,11 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current));
+            var response = await controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current));
 
-            //Assert
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
-
+            
             // Assert
-            Assert.IsTrue(response.StatusCode == HttpStatusCode.NotFound);
+            Assert.IsTrue(response.Status == HttpStatusCode.NotFound);
         }
 
         [TestCategory("FileStoreTests.Put")]
@@ -111,14 +108,11 @@ namespace FileStore.Controllers
 
             // Act
             // 1. Upload file
-            var actionResult = await controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object);
+            var response = await controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object);
 
-            //Assert
-            System.Threading.CancellationToken cancellationToken = new System.Threading.CancellationToken();
-            HttpResponseMessage response = actionResult.ExecuteAsync(cancellationToken).Result;
-
+            
             // Assert
-            Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
+            Assert.IsTrue(response.Status == HttpStatusCode.OK);
             Assert.IsTrue(paramFileChunk.ChunkNum == file.ChunkCount + 2);
         }
 

@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Sp.Agent.Crm</name>
+    </assembly>
+    <members>
+        <member name="T:Sp.Agent.Configuration.CrmActivationEndpointsConfigurationPhaseExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase"/> relevant to the Microsoft Dynamics CRM 2011 platform.<para/>
+            See <see cref="M:Sp.Agent.Configuration.CrmStartingConfigurationPhaseExtensions.WithCrmOnlineOrganizationStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.Func{System.IServiceProvider},System.String)"/> for the preceding phase in the configuration sequence.
+            </summary>
+            <example>See <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/> for an example integration wrapper</example>
+            <seealso cref="M:Sp.Agent.Configuration.CrmStartingConfigurationPhaseExtensions.WithCrmOnlineOrganizationStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.Func{System.IServiceProvider},System.String)"/>
+        </member>
+        <member name="M:Sp.Agent.Configuration.CrmActivationEndpointsConfigurationPhaseExtensions.CompleteWithDefaults(Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase)">
+            <summary>
+            Uses the default Software Potential service activation endpoint.
+            </summary>
+            <remarks>Currently same as <c>ICrmActivationEndpointsConfigurationPhase.WithDefaultActivationEndpoint()</c>, but subject to change.</remarks>
+        </member>
+        <member name="T:Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase">
+            <summary>
+            Enables specification of an appropriate activation endpoint to be used when a <see cref="T:Sp.Agent.Licensing.ILicense">License</see> is to be <see cref="T:Sp.Agent.Activation.IActivateLicenses">activated</see>.<para/>
+            See <see cref="M:Sp.Agent.Configuration.CrmStartingConfigurationPhaseExtensions.WithCrmOnlineOrganizationStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.Func{System.IServiceProvider},System.String)"/> for the preceding phase in the configuration sequence.
+            </summary>
+        </member>
+        <member name="M:Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase.WithDefaultActivationEndpoint">
+            <summary>
+            Uses the default Software Potential service activation endpoint over plain http.
+            </summary>
+        </member>
+        <member name="M:Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase.WithSslActivationEndpoint">
+            <summary>
+            Uses the Software Potential service activation endpoint over https.
+            </summary>
+        </member>
+        <member name="T:Sp.Agent.Configuration.Internal.CrmActivationEndpointsConfigurationPhaseInternalExtensions">
+            <summary>
+            For internal use only.
+            </summary>
+            <remarks>
+            Subject to unlimited change without notice even in minor version changes.
+            </remarks>
+        </member>
+        <member name="M:Sp.Agent.Configuration.Internal.CrmActivationEndpointsConfigurationPhaseInternalExtensions.NextPhase(Sp.Agent.Configuration.ICrmActivationEndpointsConfigurationPhase)">
+            <summary>
+            For internal use only.
+            </summary>
+            <remarks>
+            Subject to unlimited change without notice even in minor version changes.
+            </remarks>
+        </member>
+        <member name="T:Sp.Agent.Configuration.CrmAgentContextExtensions">
+            <summary>
+            Layers configuration extension methods onto <see cref="T:Sp.Agent.Configuration.IAgentContext"/> appropriate to the Microsoft Dynamics CRM 2011 environment.<para/>
+            See <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/> for a usage example.
+            </summary>
+            <seealso cref="T:Sp.Agent.Configuration.IAgentContext"/>
+            <seealso cref="T:Sp.Agent.Configuration.AgentContext"/>
+            <seealso cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/>
+        </member>
+        <member name="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})">
+             <summary>
+             Enables one to provide a Configuration Expression specifying the details appropriate to the execution and/or licensing of your Microsoft Dynamics CRM 2011 Component.
+             </summary>
+             <param name="that"><see cref="T:Sp.Agent.Configuration.IAgentContext"/> to be configured. See <see cref="M:Sp.Agent.Configuration.AgentContext.For(System.String)"/> for details of obtaining an instance.</param>
+             <param name="compose"><see cref="T:Sp.Agent.Configuration.IStartingConfigurationPhase"/> for details of composing a Configuration Expression appropriate to your application style/environment using the fluent expression composition sequence.</param>
+             <remarks>This method can be called any number of times; the implementation ensures that the underlying <c>.Configure()</c> method only gets triggered once.</remarks>
+             <example><code>
+             // NB an Assembly Reference to Sp.Agent.Crm.dll is required for this to work
+            using Sp.Agent.Configuration; // AgentContext.For, IAgentContext.EnsureConfigured
+            using Sp.Agent; // IProductContext
+            using System; // IServiceProvider
+            
+            class SpAgent
+            {
+                static readonly IAgentContext _agentContext = AgentContext.For( "abc12" );
+                static IProductContext _productContext;
+            
+                // Maintains a copy of the Dynamics CRM Service Context for the current processing thread. 
+                // NB For this to work correctly, it is important that Sp.Agent Apis are only called from the same processing thread that invokes SpAgent.Initialize
+                [ThreadStatic]
+                static IServiceProvider _currentServiceProvider;
+            
+                // Provides access to Product-level information from the Software Potential Agent
+                // Should not be accessed without first calling SpAgent.Initialize on the calling thread.
+                public static IProductContext Product
+                {
+                    get
+                    {
+                        if ( _productContext == null )
+                            _productContext = _agentContext.ProductContextFor( "My Plugin", "1.0" );
+                        return _productContext;
+                    }
+                }
+            
+                // Should be called from your Plugin.cs IPlugin.Execute implementation, i.e., as follows:-
+                //
+                // public void Execute( IServiceProvider serviceProvider )
+                // {
+                //     SpAgent.Initialize(serviceProvider);
+                //     // ... rest of method ....
+                public static void Initialize( IServiceProvider serviceProvider )
+                {
+                    // Update thread-relative 
+                    _currentServiceProvider = serviceProvider;
+            
+                   // Applies the configuration (if it has not already been applied for this AppDomain).
+                   // NB the _currentServiceProvider reference below is triggered on the fly as the Sp.Agent components require it. See comment beside the field above.
+                    _agentContext.EnsureConfigured( x =&gt; x
+                        .WithCrmOnlineOrganizationStore( () =&gt; _currentServiceProvider, "new" )
+                        .CompleteWithDefaults()
+                    );
+                }
+            
+                // Triggers an Online Activation from the Software Potential service of the license with the specified activationKey identifier.
+                // Should not be accessed without first calling SpAgent.Initialize on the calling thread.
+                public static void Activate( string activationKey )
+                {
+                    Product.Activation.OnlineActivate( activationKey );
+                }
+            }
+             </code></example>
+        </member>
+        <member name="T:Sp.Agent.Configuration.CrmStartingConfigurationPhaseExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Sp.Agent.Configuration.IStartingConfigurationPhase"/> relevant to the Microsoft Dynamics CRM 2011 platform.
+            </summary>
+            <example>See <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/> for an example integration wrapper</example>
+            <seealso cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/>
+        </member>
+        <member name="M:Sp.Agent.Configuration.CrmStartingConfigurationPhaseExtensions.WithCrmOnlineOrganizationStore(Sp.Agent.Configuration.IStartingConfigurationPhase,System.Func{System.IServiceProvider},System.String)">
+            <summary>
+            Configures the Software Potential to maintain its licenses within the Microsoft Dynamics CRM 2011 system as custom entities.
+            </summary>
+            <example>See <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})"/> for an example integration wrapper.</example>
+            <param name="that">Starting point of Sp.Agent configuration pipeline, as supplied by <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})">CrmAgentContextExtensions.EnsureConfigured</see>.</param>
+            <param name="currentServiceProvider">Callback which yields the <see cref="T:System.IServiceProvider"/> that applies to the current processing Thread. Typically implemented via a <c>[ThreadStatic] IServiceProvider _serviceProvider</c> field within a <i>SpAgent integration class</i>. See <see cref="M:Sp.Agent.Configuration.CrmAgentContextExtensions.EnsureConfigured(Sp.Agent.Configuration.IAgentContext,System.Func{Sp.Agent.Configuration.IStartingConfigurationPhase,Sp.Agent.Configuration.ICompletedConfigurationPhase})">CrmAgentContextExtensions.EnsureConfigured</see>.</param>
+            <param name="entityPrefix">Prefix string to apply to internal Dynamics CRM Custom entities used to maintain Licenses, e.g., <c>"new"</c></param>
+        </member>
+    </members>
+</doc>

@@ -34,6 +34,15 @@ namespace Model.Factories
         }
 
         /// <summary>
+        /// Generates a random number.
+        /// </summary>
+        /// <returns>A random number.</returns>
+        public static int RandomNumber()
+        {
+            return _random.Next(1, int.MaxValue);
+        }
+
+        /// <summary>
         /// Generates a random alpha-numeric string (with both upper and lower case letters) of the specified length.
         /// </summary>
         /// <param name="length">The length of the random string to create.</param>

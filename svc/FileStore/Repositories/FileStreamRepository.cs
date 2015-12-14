@@ -109,50 +109,98 @@ namespace FileStore.Repositories
             return fileSize; 
         }
 
+        private string _fileType;
         public string GetFileType(Guid fileId)
         {
-            string fileType = string.Empty;
+            if (!string.IsNullOrWhiteSpace(_fileType))
+            {
+                return _fileType;
+            }
 
             using (var sqlConnection = CreateConnection())
             {
                 using (SqlCommand cmd = (sqlConnection as SqlConnection).CreateCommand())
                 {
                     sqlConnection.Open();
-
                     // get file type
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
-                    cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                    SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
-                    pType.Direction = ParameterDirection.Output;
-                    cmd.ExecuteNonQuery();
-                    fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
-
+                    var pType = GetFileTypeFromAttachmentVersions(fileId, cmd);
+                    _fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
+                    if (string.IsNullOrWhiteSpace(_fileType))
+                    {
+                        var fileName = GetFileName(fileId);
+                        if (!string.IsNullOrWhiteSpace(fileName))
+                        {
+                            var fileInfo = new FileInfo(fileName);
+                            _fileType = fileInfo.Extension;
+                        }
+                        else
+                        {
+                            _fileType = string.Empty;
+                        }
+                    }
                 }
             }
-            return fileType;
+            return _fileType;
         }
 
+        private SqlParameter GetFileTypeFromAttachmentVersions(Guid fileId, SqlCommand cmd)
+        {
+            cmd.Parameters.Clear();
+            cmd.CommandText =
+                "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
+            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+            SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
+            pType.Direction = ParameterDirection.Output;
+            cmd.ExecuteNonQuery();
+            return pType;
+        }
+
+        private string _fileName;
         public string GetFileName(Guid fileId)
         {
-            string fileName = string.Empty;
+            if (!string.IsNullOrWhiteSpace(_fileName))
+            {
+                return _fileName;
+            }
 
             using (var sqlConnection = CreateConnection())
             {
                 using (SqlCommand cmd = (sqlConnection as SqlConnection).CreateCommand())
                 {
                     sqlConnection.Open();
-                    cmd.Parameters.Clear();
-                    cmd.CommandText = "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
-                    cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                    SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
-                    pName.Direction = ParameterDirection.Output;
-                    cmd.ExecuteNonQuery();
-                    fileName = (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
-
+                    
+                    _fileName = GetFileNameFromAttachmentVersions(fileId, cmd);
+                    
+                    if (string.IsNullOrWhiteSpace(_fileName))
+                    {
+                        _fileName = GetFileNameFromTemplates(fileId, cmd);
+                    }
                 }
             }
-            return fileName;
+            return _fileName;
+        }
+
+        private static string GetFileNameFromAttachmentVersions(Guid fileId, SqlCommand cmd)
+        {
+            cmd.Parameters.Clear();
+            cmd.CommandText =
+                "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
+            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+            SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+            pName.Direction = ParameterDirection.Output;
+            cmd.ExecuteNonQuery();
+            return (pName.Value is DBNull) ? string.Empty : (string) pName.Value;
+        }
+
+        private static string GetFileNameFromTemplates(Guid fileId, SqlCommand cmd)
+        {
+            cmd.Parameters.Clear();
+            cmd.CommandText = "SELECT TOP 1 @pName = [Path] FROM [dbo].[Templates] WHERE ([FileGuid] = @pFileGuid);";
+            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+            SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+            pName.Direction = ParameterDirection.Output;
+            cmd.ExecuteNonQuery();
+            return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
         }
 
         public byte[] ReadChunkContent(DbConnection dbConnection, Guid fileId, long count, long position)

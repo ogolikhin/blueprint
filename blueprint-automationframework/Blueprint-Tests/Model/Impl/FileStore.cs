@@ -145,7 +145,10 @@ namespace Model.Impl
             }
             finally
             {
-                Files.Remove(Files.First(i => i.Id == fileId));
+                if (expireTime == null || expireTime <= DateTime.Now)
+                {
+                    Files.Remove(Files.First(i => i.Id == fileId));
+                }
             }
         }
 

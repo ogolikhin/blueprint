@@ -28,6 +28,12 @@ namespace FileStoreTests
         [TearDown]
         public void TearDown()
         {
+            // Delete any files from FileStore that the tests left behind.
+            if (_filestore != null)
+            {
+                _filestore.Files.ForEach(f => _filestore.DeleteFile(f.Id, _user));
+            }
+
             if (_user != null)
             {
                 _user.DeleteUser(deleteFromDatabase: true);
@@ -35,29 +41,29 @@ namespace FileStoreTests
             }
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        public void PostFileWithMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        public void PostFileWithMultiMimeParts_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             PostFile(fileSize, fakeFileName, fileType, true);
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        public void PostFileWithoutMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        public void PostFileWithoutMultiMimeParts_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             PostFile(fileSize, fakeFileName, fileType);
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        public void PostFileWithExpireTime_OK(uint fileSize, string fakeFileName, string fileType)
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        public void PostFileWithExpireTimeThenDeleteFile_VerifyFileWasAddedAndDeleted(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
@@ -87,11 +93,11 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        public void PostFileWithDeleteExpireTime_OK(uint fileSize, string fakeFileName, string fileType)
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        public void PostFileThenDeleteWithFutureExpireTime_VerifyFileWasAddedButNotDeleted_ThenDeleteImmediately(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
@@ -129,10 +135,10 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void GetHeadOnly_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
@@ -155,7 +161,7 @@ namespace FileStoreTests
                 "The file type returned does not match the type sent!");
         }
 
-        [TestCase(Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [Test]
         public void Status_OK()
         { 
             // Add the file to Filestore.

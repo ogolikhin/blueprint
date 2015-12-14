@@ -1,56 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using RestSharp;
 
 namespace Model
 {
     public interface IFileStore
     {
         /// <summary>
-        /// 
+        /// The list of files added to the file store
         /// </summary>
-        /// <param name="file"></param>
-        /// <param name="useMultiPartMime"></param>
-        /// <param name="chunkSize"></param>
-        /// <param name="expireTime"></param>
-        /// <param name="expectedStatusCodes"></param>
-        /// <param name="user"></param>
+        List<IFileMetadata> Files { get; }
+
+        /// <summary>
+        /// Adds a file to the file store
+        /// </summary>
+        /// <param name="file">The file being added</param>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="expireTime">The file expiry date/time; The time after which the file can be deleted</param>
+        /// <param name="useMultiPartMime">(optional) Flag to use multi-part mime or not</param>
+        /// <param name="chunkSize">(optional) The chunk size used for POST/PUT requests</param>
+        /// <param name="expectedStatusCodes">Expected status codes for the request</param>
         /// <returns></returns>
         IFile AddFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
-            int chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null);
+            uint chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// 
+        /// Deletes a file from the file store
         /// </summary>
-        /// <param name="fileId"></param>
-        /// <param name="user"></param>
-        /// <param name="expireTime"></param>
-        /// <param name="expectedStatusCode"></param>
-        void DeleteFile(string fileId, IUser user, DateTime? expireTime = null, HttpStatusCode? expectedStatusCode = null);
+        /// <param name="fileId">The file GUID</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expireTime">(optional) The file expiry date/time; The time after which the file can be deleted</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        void DeleteFile(string fileId, IUser user, DateTime? expireTime = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// 
+        /// Gets a file from the file store
         /// </summary>
-        /// <param name="fileId"></param>
-        /// <param name="user"></param>
-        /// <param name="expectedStatusCode"></param>
+        /// <param name="fileId">The file GUID</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
-        IFile GetFile(string fileId, IUser user, HttpStatusCode? expectedStatusCode = null);
+        IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// 
+        /// Gets file metadata from the file store
         /// </summary>
-        /// <param name="fileId"></param>
-        /// <param name="user"></param>
-        /// <param name="expectedStatusCode"></param>
+        /// <param name="fileId">The file GUID</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
-        IFileMetadata GetFileMetadata(string fileId, IUser user, HttpStatusCode? expectedStatusCode = null);
+        IFile GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// 
+        /// Gets the current status of the File Store service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Status of File Store service.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
         HttpStatusCode GetStatus();
     }

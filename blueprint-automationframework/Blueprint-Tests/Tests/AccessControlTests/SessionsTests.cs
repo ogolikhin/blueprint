@@ -12,7 +12,7 @@ namespace AccessControlTests
 {
     [TestFixture]
     [Category(Categories.AccessControl)]
-    public class SessionsTests
+    public static class SessionsTests
     {
         private const string _serviceRoute = "svc/accesscontrol/";
         private const string _sessionRoute = "sessions/";
@@ -80,6 +80,7 @@ namespace AccessControlTests
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "'GET {0}' should return {1}, but failed with {2}",
                 _sessionUrl + expectedSession.UserId, HttpStatusCode.NotFound, response.StatusCode);
             DeleteSession(headers);
+            Assert.True(expectedSession.Equals(session));
         }
 
         [Test]

@@ -10,7 +10,7 @@ namespace FileStore.Repositories
     public class FileStreamRepository : IFileStreamRepository
     {
         private readonly IConfigRepository _configRepository;
- 
+
         private const int CommandTimeout = 60;
 
         public FileStreamRepository() : this(ConfigRepository.Instance)
@@ -31,7 +31,7 @@ namespace FileStore.Repositories
 
         public bool IsDatabaseAvailable()
         {
-             // check that we have a connection string for the legacy db
+            // check that we have a connection string for the legacy db
             return (string.IsNullOrEmpty(_configRepository.FileStreamDatabase)) ? false : true;
         }
 
@@ -53,14 +53,15 @@ namespace FileStore.Repositories
             {
                 throw new ArgumentException("fileId param is empty.");
             }
-
-            fileSize = GetFileSize(fileId);
+            using (var sqlConnection = CreateConnection())
+            {
+                fileSize = GetFileSize((SqlConnection) sqlConnection, fileId);
+            }
 
             // if there is no file content assume that the file does not exist in the legacy db
             return fileSize == 0 ? false : true;
 
         }
-
         public File GetFileHead(Guid fileId)
         {
             // return a File object with the file info  or null if the file is
@@ -72,135 +73,112 @@ namespace FileStore.Repositories
             }
 
             File file = new File();
- 
+            using (var sqlConnection = CreateConnection())
+            {
+                sqlConnection.Open();
+
+                // get file length from the FileStream 
+                file.FileSize = GetFileSize((SqlConnection)sqlConnection, fileId);
+
+                // get file name either from AttachmentVersions table or Templates table
+                file.FileName = GetFileNameFromAttachmentVersions((SqlConnection)sqlConnection, fileId);
+
+                if (string.IsNullOrWhiteSpace(file.FileName))
+                {
+                    file.FileName = GetFileNameFromTemplates((SqlConnection)sqlConnection, fileId);
+                }
+
+                // get file type from AttachmentVersions table
+                file.FileType = GetFileTypeFromAttachmentVersions((SqlConnection)sqlConnection, fileId, file.FileName);
+            }
+
             file.FileId = fileId;
-            file.FileSize = GetFileSize(fileId);
-            file.FileName = GetFileName(fileId);
-            file.FileType = GetFileType(fileId);
             file.IsLegacyFile = true;
 
             // if there is no file content assume that the file does not exist in the legacy db
-            return file.FileSize == 0 ? null : file; 
-             
+            return file.FileSize == 0 ? null : file;
+
         }
 
-        public long GetFileSize(Guid fileId)
+        private long GetFileSize(SqlConnection sqlConnection, Guid fileId)
         {
-            long fileSize = 0;
-
-            using (var sqlConnection = CreateConnection())
+            using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
-                using (SqlCommand cmd = (sqlConnection as SqlConnection).CreateCommand())
-                {
-                    sqlConnection.Open();
+                sqlConnection.Open();
 
-                    // get file size by checking the file content
-                    cmd.CommandTimeout = CommandTimeout;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
-                    cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-                    SqlParameter pLength = cmd.Parameters.AddWithValue("@pLength", 0L);
-                    pLength.Direction = ParameterDirection.Output;
-                    cmd.ExecuteNonQuery();
+                // get file size by checking the file content
+                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText =
+                    "SELECT @pLength = DATALENGTH([Content]) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+                SqlParameter pLength = cmd.Parameters.AddWithValue("@pLength", 0L);
+                pLength.Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
 
-                    fileSize = (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
-                }
+                return (pLength.Value is DBNull) ? 0L : (Int64)pLength.Value;
             }
-            return fileSize; 
         }
 
-        private string _fileType;
-        public string GetFileType(Guid fileId)
-        {
-            if (!string.IsNullOrWhiteSpace(_fileType))
-            {
-                return _fileType;
-            }
 
-            using (var sqlConnection = CreateConnection())
+
+        private string GetFileTypeFromAttachmentVersions(SqlConnection sqlConnection, Guid fileId, string fileName)
+        {
+            string fileType = null;
+            using (var cmd = sqlConnection.CreateCommand())
             {
-                using (SqlCommand cmd = (sqlConnection as SqlConnection).CreateCommand())
+                cmd.Parameters.Clear();
+                cmd.CommandText =
+                    "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+                SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
+                pType.Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+
+                fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
+                if (string.IsNullOrWhiteSpace(fileType))
                 {
-                    sqlConnection.Open();
-                    // get file type
-                    var pType = GetFileTypeFromAttachmentVersions(fileId, cmd);
-                    _fileType = (pType.Value is DBNull) ? string.Empty : (string)pType.Value;
-                    if (string.IsNullOrWhiteSpace(_fileType))
+                    if (!string.IsNullOrWhiteSpace(fileName))
                     {
-                        var fileName = GetFileName(fileId);
-                        if (!string.IsNullOrWhiteSpace(fileName))
-                        {
-                            var fileInfo = new FileInfo(fileName);
-                            _fileType = fileInfo.Extension;
-                        }
-                        else
-                        {
-                            _fileType = string.Empty;
-                        }
+                        var fileInfo = new FileInfo(fileName);
+                        fileType = fileInfo.Extension;
+                    }
+                    else
+                    {
+                        fileType = string.Empty;
                     }
                 }
             }
-            return _fileType;
+            return fileType;
         }
 
-        private SqlParameter GetFileTypeFromAttachmentVersions(Guid fileId, SqlCommand cmd)
+        private static string GetFileNameFromAttachmentVersions(SqlConnection sqlConnection, Guid fileId)
         {
-            cmd.Parameters.Clear();
-            cmd.CommandText =
-                "SELECT TOP 1 @pType = [Type] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
-            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-            SqlParameter pType = cmd.Parameters.Add("@pType", SqlDbType.NVarChar, Int32.MaxValue);
-            pType.Direction = ParameterDirection.Output;
-            cmd.ExecuteNonQuery();
-            return pType;
-        }
-
-        private string _fileName;
-        public string GetFileName(Guid fileId)
-        {
-            if (!string.IsNullOrWhiteSpace(_fileName))
+            using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
-                return _fileName;
+                cmd.Parameters.Clear();
+                cmd.CommandText =
+                    "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+                pName.Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+                return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
             }
+        }
 
-            using (var sqlConnection = CreateConnection())
+        private static string GetFileNameFromTemplates(SqlConnection sqlConnection, Guid fileId)
+        {
+            using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
-                using (SqlCommand cmd = (sqlConnection as SqlConnection).CreateCommand())
-                {
-                    sqlConnection.Open();
-                    
-                    _fileName = GetFileNameFromAttachmentVersions(fileId, cmd);
-                    
-                    if (string.IsNullOrWhiteSpace(_fileName))
-                    {
-                        _fileName = GetFileNameFromTemplates(fileId, cmd);
-                    }
-                }
+                cmd.Parameters.Clear();
+                cmd.CommandText = "SELECT TOP 1 @pName = [Path] FROM [dbo].[Templates] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+                SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
+                pName.Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+                return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
             }
-            return _fileName;
-        }
-
-        private static string GetFileNameFromAttachmentVersions(Guid fileId, SqlCommand cmd)
-        {
-            cmd.Parameters.Clear();
-            cmd.CommandText =
-                "SELECT TOP 1 @pName = [Name] FROM [dbo].[AttachmentVersions] WHERE ([FileGuid] = @pFileGuid);";
-            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-            SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
-            pName.Direction = ParameterDirection.Output;
-            cmd.ExecuteNonQuery();
-            return (pName.Value is DBNull) ? string.Empty : (string) pName.Value;
-        }
-
-        private static string GetFileNameFromTemplates(Guid fileId, SqlCommand cmd)
-        {
-            cmd.Parameters.Clear();
-            cmd.CommandText = "SELECT TOP 1 @pName = [Path] FROM [dbo].[Templates] WHERE ([FileGuid] = @pFileGuid);";
-            cmd.Parameters.AddWithValue("@pFileGuid", fileId);
-            SqlParameter pName = cmd.Parameters.Add("@pName", SqlDbType.NVarChar, Int32.MaxValue);
-            pName.Direction = ParameterDirection.Output;
-            cmd.ExecuteNonQuery();
-            return (pName.Value is DBNull) ? string.Empty : (string)pName.Value;
         }
 
         public byte[] ReadChunkContent(DbConnection dbConnection, Guid fileId, long count, long position)
@@ -222,7 +200,7 @@ namespace FileStore.Repositories
             using (SqlCommand cmd = (dbConnection as SqlConnection).CreateCommand())
             {
                 cmd.CommandTimeout = CommandTimeout;
- 
+
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT @pContent = SUBSTRING([Content], @pOffset, @pCount ) FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
                 cmd.Parameters.AddWithValue("@pFileGuid", fileId);
@@ -238,7 +216,7 @@ namespace FileStore.Repositories
                 if (contentParam.Value is DBNull)
                 {
                     // return null if no bytes read 
-                    content = null; 
+                    content = null;
                 }
                 else
                 {
@@ -246,8 +224,8 @@ namespace FileStore.Repositories
                 }
             }
 
-            return content;     
+            return content;
         }
- 
+
     }
 }

@@ -81,12 +81,7 @@ namespace FileStore.Repositories
                 file.FileSize = GetFileSize((SqlConnection)sqlConnection, fileId);
 
                 // get file name either from AttachmentVersions table or Templates table
-                file.FileName = GetFileNameFromAttachmentVersions((SqlConnection)sqlConnection, fileId);
-
-                if (string.IsNullOrWhiteSpace(file.FileName))
-                {
-                    file.FileName = GetFileNameFromTemplates((SqlConnection)sqlConnection, fileId);
-                }
+                file.FileName = GetFileName((SqlConnection) sqlConnection, fileId);
 
                 // get file type from AttachmentVersions table
                 file.FileType = GetFileTypeFromAttachmentVersions((SqlConnection)sqlConnection, fileId, file.FileName);
@@ -100,6 +95,17 @@ namespace FileStore.Repositories
 
         }
 
+        private string GetFileName(SqlConnection sqlConnection, Guid fileId)
+        {
+            string fileName = null;
+            fileName = GetFileNameFromAttachmentVersions(sqlConnection, fileId);
+
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = GetFileNameFromTemplates(sqlConnection, fileId);
+            }
+            return fileName;
+        }
         private long GetFileSize(SqlConnection sqlConnection, Guid fileId)
         {
             using (SqlCommand cmd = sqlConnection.CreateCommand())
@@ -152,7 +158,7 @@ namespace FileStore.Repositories
             return fileType;
         }
 
-        private static string GetFileNameFromAttachmentVersions(SqlConnection sqlConnection, Guid fileId)
+        private string GetFileNameFromAttachmentVersions(SqlConnection sqlConnection, Guid fileId)
         {
             using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
@@ -167,7 +173,7 @@ namespace FileStore.Repositories
             }
         }
 
-        private static string GetFileNameFromTemplates(SqlConnection sqlConnection, Guid fileId)
+        private string GetFileNameFromTemplates(SqlConnection sqlConnection, Guid fileId)
         {
             using (SqlCommand cmd = sqlConnection.CreateCommand())
             {

@@ -38,6 +38,31 @@ End
 GO
 
 
+/******************************************************************************************************************************
+Name:			MigrationLog
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/10/28		Michael Talis			Initial Version
+******************************************************************************************************************************/
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MigrationLog]') AND type in (N'U'))
+BEGIN
+ALTER TABLE [dbo].[MigrationLog] DROP CONSTRAINT [DF_MigrationLog_StoredTime]
+DROP TABLE [dbo].[MigrationLog]
+END;
+
+
+/****** Object:  Table [dbo].[MigrationLog]    Script Date: 12/15/2015 10:23:10 AM ******/
+CREATE TABLE [dbo].[MigrationLog](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[StoredTime] [datetime] NOT NULL
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[MigrationLog] ADD  CONSTRAINT [DF_MigrationLog_StoredTime]  DEFAULT (getutcdate()) FOR [StoredTime]
+GO
 
 
 /******************************************************************************************************************************

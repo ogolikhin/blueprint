@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Web;
 using System.Web.Http;
-using LicenseLibrary;
-using LicenseLibrary.Repositories;
 using ServiceLibrary.Log;
 
 namespace AccessControl
@@ -11,12 +9,6 @@ namespace AccessControl
     {
         protected void Application_Start()
         {
-#if DEBUG
-            LicenseManager.Init(new DebugLicenseManager());
-#else
-            //LicenseManager.Init(new InishTechLicenseManager());
-            LicenseManager.Init(new DebugLicenseManager());
-#endif
             LogProvider.Init(new EventLogProviderImpl(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName));
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }

@@ -60,6 +60,7 @@
     <Compile Include="LoginTests.cs" />
     <Compile Include="ProjectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">

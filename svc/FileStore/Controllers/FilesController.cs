@@ -85,15 +85,12 @@ namespace FileStore.Controllers
 
                 // return file info in headers
 
-                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
-                response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                 response.Content.Headers.ContentLength = 0; // there is no content
-                response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
-                response.Headers.Add(FileSize, file.FileSize.ToString());
-                response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());
 
+                SetHeaderContent(response, file);
                 return ResponseMessage(response);
             }
             catch (FormatException)
@@ -168,9 +165,6 @@ namespace FileStore.Controllers
                 //Please do not remove the redundant casting
                 response.Content = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)pushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
-                response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
-                response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
-
                 if (response.Content != null)
                 {
                     response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment)
@@ -180,8 +174,8 @@ namespace FileStore.Controllers
                     response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                     response.Content.Headers.ContentLength = file.FileSize;
                 }
-                response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
-                response.Headers.Add(FileSize, file.FileSize.ToString());
+
+                SetHeaderContent(response, file);
 
                 LogHelper.Log.DebugFormat("GET:{0}, Returning file \'{1}\'", id, file.FileName);
                 return ResponseMessage(response);
@@ -280,6 +274,15 @@ namespace FileStore.Controllers
                 LogHelper.Log.ErrorFormat("DELETE:{0}, Exception{1}", id, ex);
                 return InternalServerError(ex);
             }
+        }
+
+        private void SetHeaderContent(HttpResponseMessage response, Models.File file)
+        {
+            response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
+            response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
+            response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
+            response.Headers.Add(FileSize, file.FileSize.ToString());
+            response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());
         }
 
         #endregion

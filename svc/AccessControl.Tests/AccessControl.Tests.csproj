@@ -80,10 +80,6 @@
       <Project>{7FC77681-0B52-478D-AC13-38F8CEF84695}</Project>
       <Name>AccessControl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\lib\LicenseLibrary\LicenseLibrary.csproj">
-      <Project>{05d3a9b8-3b2b-4bae-bbd7-f3c0fce758c7}</Project>
-      <Name>LicenseLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary.Tests\ServiceLibrary.Tests.csproj">
       <Project>{610A5EBA-78F0-4FC9-A08E-9916A2BBA6F5}</Project>
       <Name>ServiceLibrary.Tests</Name>

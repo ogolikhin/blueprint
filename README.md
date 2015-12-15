@@ -11,4 +11,3 @@ hotfix - production code hotfix branch
 release - target release code branch, bug fix merge
 
 dev - main development code branch, regular development merge
-

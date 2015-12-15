@@ -15,12 +15,6 @@ namespace FileStore.Repositories
 
         bool FileExists(Guid fileId);
 
-        string GetFileType(Guid fileId);
-
-        string GetFileName(Guid fileId);
-
-        long GetFileSize(Guid fileId);
-
         byte[] ReadChunkContent(DbConnection sqlConnection, Guid fileId, long count, long position);
 
       

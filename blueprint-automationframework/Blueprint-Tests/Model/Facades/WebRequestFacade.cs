@@ -34,6 +34,9 @@ namespace Model.Facades
                 foreach (string key in additionalHeaders.Keys)
                 {
                     Logger.WriteTrace("*** Adding Headers[{0}] = '{1}'", key, additionalHeaders[key]);
+                    if (key == "Content-Type")
+                        request.ContentType = additionalHeaders[key];
+                    else
                     request.Headers[key] = additionalHeaders[key];
                 }
             }
@@ -125,13 +128,14 @@ namespace Model.Facades
         /// <returns>The WebResponseFacade.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if an error occurred.</exception>
         public static WebResponseFacade GetWebResponseFacade(string address, string httpMethod = "GET", Dictionary<string, string> additionalHeaders = null,
-            string requestBody = null)
+            object requestBody = null)
         {
             var fetchRequest = CreateWebRequest(address, httpMethod, additionalHeaders);
             UTF8Encoding encoding = new UTF8Encoding();
             if (!ReferenceEquals(requestBody, null))
             {
-                byte[] data = encoding.GetBytes(requestBody);
+                string jsonBody = JsonConvert.SerializeObject(requestBody);
+                byte[] data = encoding.GetBytes(jsonBody);
                 fetchRequest.ContentLength = data.Length;
                 using (Stream requestStream = fetchRequest.GetRequestStream())
                 {

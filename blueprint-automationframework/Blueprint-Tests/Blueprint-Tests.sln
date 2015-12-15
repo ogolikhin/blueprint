@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomAttributes", "CustomA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminStoreTests", "AdminStoreTests\AdminStoreTests.csproj", "{79F22051-5145-49E2-80B7-FFF7F80EF02D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminStoreTests", "Tests\AdminStoreTests\AdminStoreTests.csproj", "{79F22051-5145-49E2-80B7-FFF7F80EF02D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

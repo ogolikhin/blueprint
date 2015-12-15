@@ -20,7 +20,7 @@
     <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\..\AlmostAllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
@@ -61,27 +61,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj">
+    <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
       <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
       <Name>CustomAttributes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Helper\Helper.csproj">
+    <ProjectReference Include="..\..\Helper\Helper.csproj">
       <Project>{23c53dc5-1245-4877-9487-a05a46914fe3}</Project>
       <Name>Helper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Logging\Logging.csproj">
+    <ProjectReference Include="..\..\Logging\Logging.csproj">
       <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
       <Name>Logging</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Model\Model.csproj">
+    <ProjectReference Include="..\..\Model\Model.csproj">
       <Project>{52db8811-a018-4cec-ba81-8dda947cc007}</Project>
       <Name>Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestConfiguration\TestConfig.csproj">
+    <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
       <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
       <Name>TestConfig</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Utilities\Utilities.csproj">
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>

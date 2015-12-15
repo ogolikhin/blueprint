@@ -31,7 +31,12 @@ namespace Model.Impl
             _address = address;
         }
 
-        public IFile AddFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false, uint chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null)
+        public IFile AddFile(IFile file,
+            IUser user,
+            DateTime? expireTime = null,
+            bool useMultiPartMime = false,
+            uint chunkSize = 0,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (file == null)
             {
@@ -91,7 +96,16 @@ namespace Model.Impl
             return file;
         }
 
-        private static void PutFile(IFile file, bool useMultiPartMime, uint chunkSize, List<HttpStatusCode> expectedStatusCodes, byte[] fileBytes, ref byte[] chunk, Dictionary<string, string> queryParameters, Dictionary<string, string> additionalHeaders, RestApiFacade restApi, ref RestResponse response)
+        private static void PutFile(IFile file,
+            bool useMultiPartMime,
+            uint chunkSize,
+            List<HttpStatusCode> expectedStatusCodes,
+            byte[] fileBytes,
+            ref byte[] chunk,
+            Dictionary<string, string> queryParameters,
+            Dictionary<string, string> additionalHeaders,
+            RestApiFacade restApi,
+            ref RestResponse response)
         {
             string path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
@@ -113,7 +127,11 @@ namespace Model.Impl
         {
             return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes);
         }
-        public void DeleteFile(string fileId, IUser user, DateTime? expireTime = null, List<HttpStatusCode> expectedStatusCodes = null)
+
+        public void DeleteFile(string fileId,
+            IUser user,
+            DateTime? expireTime = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (fileId == null)
             {
@@ -154,7 +172,7 @@ namespace Model.Impl
 
         public HttpStatusCode GetStatus()
         {
-            var restApi = new RestApiFacade(_address);
+            var restApi = new RestApiFacade(_address, token:string.Empty);
             var path = string.Format("{0}/status", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
@@ -162,7 +180,10 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
-        private static IFile GetFile(string fileId, IUser user, RestRequestMethod webRequestMethod, List<HttpStatusCode> expectedStatusCodes = null)
+        private static IFile GetFile(string fileId,
+            IUser user,
+            RestRequestMethod webRequestMethod,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             File file = null;
 

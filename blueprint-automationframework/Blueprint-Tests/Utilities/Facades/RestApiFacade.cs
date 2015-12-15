@@ -228,8 +228,7 @@ namespace Utilities.Facades
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="baseAddress">The base URI of the REST calls.</param>
-        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
+        /// <param name="baseAddress">The base URI of the REST calls. 
         /// If you don't want to use a token, you should pass an empty string here.</param>
         public RestApiFacade(string baseAddress) : this(new Uri(baseAddress), null, null, string.Empty)
         {
@@ -316,7 +315,7 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="fileName">(optional) If you are sending a file, pass the file name here.</param>
         /// <param name="fileContent">(optional) If you are sending a file, pass the file content here.</param>
-        /// <param name="contentType"></param>
+        /// <param name="contentType">The mime content type</param>
         /// <param name="useMultiPartMime">(optional) Use multi-part mime for the request</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>

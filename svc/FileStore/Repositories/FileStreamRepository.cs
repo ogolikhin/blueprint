@@ -55,6 +55,7 @@ namespace FileStore.Repositories
             }
             using (var sqlConnection = CreateConnection())
             {
+                sqlConnection.Open();
                 fileSize = GetFileSize((SqlConnection) sqlConnection, fileId);
             }
 
@@ -110,8 +111,7 @@ namespace FileStore.Repositories
         {
             using (SqlCommand cmd = sqlConnection.CreateCommand())
             {
-                sqlConnection.Open();
-
+                cmd.Parameters.Clear();
                 // get file size by checking the file content
                 cmd.CommandTimeout = CommandTimeout;
                 cmd.CommandType = CommandType.Text;

@@ -7,6 +7,8 @@ using Model.Facades;
 using Model.Factories;
 using TestConfig;
 using Helper.Factories;
+using Model;
+using Model.Impl;
 
 namespace AccessControlTests
 {
@@ -28,7 +30,7 @@ namespace AccessControlTests
         [Test]
         public static void PostNewSession_OK()
         {
-            Session expectSession = Session.CreateSession();
+            ISession expectSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectSession);
             var session = WebRequestFacade.GetWebResponseFacade(_sessionUrl + expectSession.UserId, "GET", headers);
             Assert.AreEqual(session.StatusCode, HttpStatusCode.OK, "'GET {0}' should return {1}, but failed with {2}",
@@ -41,7 +43,7 @@ namespace AccessControlTests
         public static void PutSession_OK()
         {
             int artifactId = RandomGenerator.RandomNumber();
-            Session expectedSession = Session.CreateSession();
+            ISession expectedSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectedSession);
             string action = "do_some_artifact_action/";//in current implementation it is an optional parameter to identify operation
 
@@ -57,7 +59,7 @@ namespace AccessControlTests
         [Test]
         public static void PutSession_BadRequest()
         {
-            Session expectedSession = Session.CreateSession();
+            ISession expectedSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectedSession);
             
             string action = "do_some_action/";//in current implementation it is an optional parameter to identify operation
@@ -71,7 +73,7 @@ namespace AccessControlTests
         [Test]
         public static void GetSessionsWithoutSessionToken_OK()
         {
-            Session expectedSession = Session.CreateSession();
+            ISession expectedSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectedSession);
 
             var response = WebRequestFacade.GetWebResponseFacade(CreateSessionUrl(expectedSession));
@@ -86,7 +88,7 @@ namespace AccessControlTests
         [Test]
         public static void DeleteSessions_OK()
         {
-            Session expectedSession = Session.CreateSession();
+            ISession expectedSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectedSession);
 
             var response = DeleteSession(headers);
@@ -98,7 +100,7 @@ namespace AccessControlTests
         [Test]
         public static void DeleteSessions_BadRequest()
         {
-            Session expectedSession = Session.CreateSession();
+            ISession expectedSession = SessionFactory.CreateRandomSession();
             Dictionary<string, string> headers = GetSessionToken(expectedSession);
 
             var response = WebRequestFacade.GetWebResponseFacade(_sessionUrl, "DELETE");
@@ -115,7 +117,7 @@ namespace AccessControlTests
         /// <param name="licenseLevel">license - now any int</param>
         /// <param name="isSso">boolean value</param>
         /// <returns>Header with valid Session-Token</returns>
-        private static Dictionary<string, string> GetSessionToken(Session session)
+        private static Dictionary<string, string> GetSessionToken(ISession session)
         {
             var requestToken = WebRequestFacade.GetWebResponseFacade(CreateSessionUrl(session) + "?userName=" +
                 session.UserName + "&licenseLevel=" + session.LicenseLevel + "&isSso=" + session.IsSso, "POST");
@@ -144,7 +146,7 @@ namespace AccessControlTests
         /// <param name="licenseLevel">license - now any int</param>
         /// <param name="isSso">boolean value</param>
         /// <returns>url for Session object</returns>
-        private static string CreateSessionUrl(Session session)
+        private static string CreateSessionUrl(ISession session)
         {
             return _sessionUrl + session.UserId;
         }

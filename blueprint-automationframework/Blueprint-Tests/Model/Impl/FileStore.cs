@@ -85,21 +85,19 @@ namespace Model.Impl
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
                 byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
-                if (rem.Length > 0)
+
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+                path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
+
+                do
                 {
-                    expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-                    path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
+                    chunk = rem.Take((int)chunkSize).ToArray();
 
-                    do
-                    {
-                        chunk = rem.Take((int)chunkSize).ToArray();
+                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
+                        file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
 
-                        response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
-                            file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
-
-                        rem = rem.Skip((int)chunkSize).ToArray();
-                    } while (rem.Length > 0 && expectedStatusCodes.Contains(response.StatusCode));
-                }
+                    rem = rem.Skip((int)chunkSize).ToArray();
+                } while (rem.Length > 0 && expectedStatusCodes.Contains(response.StatusCode));
             }
 
             Files.Add(file);

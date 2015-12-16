@@ -8,8 +8,6 @@ using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
-using LicenseLibrary.Models;
-using LicenseLibrary.Repositories;
 using ServiceLibrary.Log;
 using ServiceLibrary.Models;
 
@@ -148,18 +146,6 @@ namespace AccessControl.Controllers
         {
             try
             {
-                if (!await HasAvailableLicense(uid, licenseLevel))
-                {
-                    return StatusCode(HttpStatusCode.Forbidden);
-                }
-            }
-            catch
-            {
-                return InternalServerError();
-            }
-
-            try
-            {
                 var guids = await _repo.BeginSession(uid, userName, licenseLevel, isSso);
                 if (!guids[0].HasValue)
                 {
@@ -263,33 +249,6 @@ namespace AccessControl.Controllers
             catch
             {
                 return InternalServerError();
-            }
-        }
-
-        private async Task<bool> HasAvailableLicense(int userId, int licenseLevel)
-        {
-            var licenseKey = LicenseManager.Current.GetLicenseKey(GetFeature(licenseLevel));
-            if (licenseKey == null)
-            {
-                return false;
-            }
-            if (!licenseKey.MaximumLicenses.HasValue)
-            {
-                return true;
-            }
-
-            var usedLicenses = await _repo.GetActiveLicenses(userId, licenseLevel, WebApiConfig.LicenseHoldTime);
-            return usedLicenses < licenseKey.MaximumLicenses;
-        }
-
-        private static ProductFeature GetFeature(int licenseLevel)
-        {
-            switch (licenseLevel)
-            {
-                case 1: return ProductFeature.Viewer;
-                case 2: return ProductFeature.Collaborator;
-                case 3: return ProductFeature.Author;
-                default: return ProductFeature.None;
             }
         }
 

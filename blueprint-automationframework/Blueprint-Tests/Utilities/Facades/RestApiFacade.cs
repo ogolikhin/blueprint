@@ -63,6 +63,7 @@ namespace Utilities.Facades
         public string ContentType => _restResponse.ContentType;
         public Exception ErrorException => _restResponse.ErrorException;
         public string ErrorMessage => _restResponse.ErrorMessage;
+        public byte[] RawBytes => _restResponse.RawBytes;
         public HttpStatusCode StatusCode => _restResponse.StatusCode;
 
         #endregion Properties
@@ -72,12 +73,17 @@ namespace Utilities.Facades
         /// <summary>
         /// Creates a new RestRequest for use by other functions.
         /// </summary>
+        /// <param name="client">The RestClient that you will be using with this request.</param>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) List of query parameters to add to the request.</param>
         /// <returns>An IRestRequest object.</returns>
-        private IRestRequest CreateRequest(RestClient client, string resourcePath, RestRequestMethod method, Dictionary<string, string> additionalHeaders = null, Dictionary<string, string> queryParameters = null)
+        private IRestRequest CreateRequest(RestClient client,
+            string resourcePath,
+            RestRequestMethod method,
+            Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null)
         {
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
 
@@ -228,9 +234,11 @@ namespace Utilities.Facades
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="baseAddress">The base URI of the REST calls. 
+        /// <param name="baseAddress">The base URI of the REST calls.
+        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user. 
         /// If you don't want to use a token, you should pass an empty string here.</param>
-        public RestApiFacade(string baseAddress) : this(new Uri(baseAddress), null, null, string.Empty)
+        public RestApiFacade(string baseAddress, string token = null)
+            : this(new Uri(baseAddress), null, null, token)
         {
         }
 
@@ -242,7 +250,8 @@ namespace Utilities.Facades
         /// <param name="password">Password to authenticate with.</param>
         /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
         /// If you don't want to use a token, you should pass an empty string here.</param>
-        public RestApiFacade(string baseAddress, string username, string password, string token = null) : this(new Uri(baseAddress), username, password, token)
+        public RestApiFacade(string baseAddress, string username, string password, string token = null)
+            : this(new Uri(baseAddress), username, password, token)
         {
         }
 
@@ -259,6 +268,7 @@ namespace Utilities.Facades
             _baseUri = baseUri;
             _username = username;
             _password = password;
+
             if (token == null)
             {
                 _token = GetUserToken(_username, _password);
@@ -267,7 +277,6 @@ namespace Utilities.Facades
             {
                 _token = token;
             }
-            
         }
 
         /// <summary>
@@ -315,7 +324,7 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="fileName">(optional) If you are sending a file, pass the file name here.</param>
         /// <param name="fileContent">(optional) If you are sending a file, pass the file content here.</param>
-        /// <param name="contentType">The mime content type</param>
+        /// <param name="contentType">(optional) The Mime content type.</param>
         /// <param name="useMultiPartMime">(optional) Use multi-part mime for the request</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>

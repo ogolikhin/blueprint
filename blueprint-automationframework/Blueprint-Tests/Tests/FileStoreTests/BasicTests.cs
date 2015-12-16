@@ -36,7 +36,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
-        public void PostFileWithMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
+        public void PostFileWithMultiMimeParts_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -66,7 +66,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
-        public void PostFileWithoutMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
+        public void PostFileWithoutMultiMimeParts_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -96,7 +96,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
-        public void PostFileWithMultiMimePartsUsingPut_OK(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        public void PostFileWithExpireTimeThenDeleteFile_VerifyFileWasAddedAndDeleted(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -126,7 +126,7 @@ namespace FileStoreTests
         [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
-        public void PostFileWithoutMultiMimePartsUsingPut_OK(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        public void PostFileThenDeleteWithFutureExpireTime_VerifyFileWasAddedButNotDeleted_ThenDeleteImmediately(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -184,7 +184,7 @@ namespace FileStoreTests
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void PostFileWithExpireTimeInPast_VerifyFileNotFound(uint fileSize, string fakeFileName, string fileType)
-        {
+        { 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 

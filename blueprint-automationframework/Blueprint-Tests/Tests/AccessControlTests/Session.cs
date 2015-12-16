@@ -28,10 +28,6 @@ namespace AccessControlTests
 
         public int UserId { get; private set; }
 
-        public DateTime? BeginTime { get; private set; }
-
-        public DateTime? EndTime { get; private set; }
-
         public string UserName { get; private set; }
 
         public bool IsSso { get; private set; }

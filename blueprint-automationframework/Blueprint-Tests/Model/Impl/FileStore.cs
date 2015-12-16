@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using NUnit.Framework;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -47,14 +48,6 @@ namespace Model.Impl
                 throw new ArgumentNullException(nameof(user));
             }
 
-            byte[] fileBytes = file.Content.ToArray();
-            byte[] chunk = fileBytes;
-
-            if (chunkSize > 0)
-            {
-                 chunk = fileBytes.Take((int)chunkSize).ToArray();
-            }
-
             var queryParameters = new Dictionary<string, string>();
 
             if (expireTime.HasValue)
@@ -80,15 +73,34 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
+            byte[] fileBytes = file.Content;
+            byte[] chunk = fileBytes;
+
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
+            {
+                chunk = fileBytes.Take((int)chunkSize).ToArray();
+            }
+
             var path = string.Format("{0}/files", SVC_PATH);
             var restApi = new RestApiFacade(_address, user.Username, user.Password);
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName, chunk, file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
 
             file.Id = response.Content.Replace("\"", "");
 
-            if (chunkSize > 0)
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                PutFile(file, useMultiPartMime, chunkSize, expectedStatusCodes, fileBytes, ref chunk, queryParameters, additionalHeaders, restApi, ref response);
+                byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
+
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+                path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
+
+                do
+                {
+                    chunk = rem.Take((int)chunkSize).ToArray();
+
+                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
+                        file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
+                } while (rem.Length > 0 && expectedStatusCodes.Contains(response.StatusCode));
             }
 
             Files.Add(file);
@@ -96,34 +108,12 @@ namespace Model.Impl
             return file;
         }
 
-        private static void PutFile(IFile file,
-            bool useMultiPartMime,
-            uint chunkSize,
-            List<HttpStatusCode> expectedStatusCodes,
-            byte[] fileBytes,
-            ref byte[] chunk,
-            Dictionary<string, string> queryParameters,
-            Dictionary<string, string> additionalHeaders,
-            RestApiFacade restApi,
-            ref RestResponse response)
-        {
-            string path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
-            byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
-
-            while (rem.Length > 0 && response.StatusCode == HttpStatusCode.Created)
-            {
-                chunk = rem.Take((int)chunkSize).ToArray();
-                rem = rem.Skip((int)chunkSize).ToArray();
-                response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk, file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
-            }
-        }
-
         public IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes);
         }
 
-        public IFile GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IFileMetadata GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes);
         }
@@ -199,12 +189,12 @@ namespace Model.Impl
             var restApi = new RestApiFacade(_address, user.Username, user.Password);
             var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
             var response = restApi.SendRequestAndGetResponse(path, webRequestMethod, expectedStatusCodes:expectedStatusCodes);
+
+            if (webRequestMethod == RestRequestMethod.HEAD)
+            {
+                Assert.That(response.RawBytes.Length == 0, "Content returned for a HEAD request!");
+            }
 
             if (response.StatusCode == HttpStatusCode.OK)
             {

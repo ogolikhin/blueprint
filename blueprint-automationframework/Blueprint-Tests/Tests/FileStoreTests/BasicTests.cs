@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using CustomAttributes;
 using Helper.Factories;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
 
 namespace FileStoreTests
@@ -34,14 +32,14 @@ namespace FileStoreTests
             }
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void PostFileWithMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -64,14 +62,14 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void PostFileWithoutMultiMimeParts_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -94,14 +92,14 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
         public void PostFileWithMultiMimePartsUsingPut_OK(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -124,14 +122,14 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024, Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
         public void PostFileWithoutMultiMimePartsUsingPut_OK(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -154,14 +152,14 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void PostFileWithExpireTime_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -184,11 +182,11 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        public void PostFileWithExpireTime_ExpiretimeInThePast_OK(uint fileSize, string fakeFileName, string fileType)
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        public void PostFileWithExpireTimeInPast_VerifyFileNotFound(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -201,14 +199,14 @@ namespace FileStoreTests
             Assert.IsNull(returnedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void DeleteFileWithFutureExpiryDate_VerifyFileStillExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -237,11 +235,11 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void DeleteFileImmediately_VerifyFileIsDeleted(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -258,11 +256,11 @@ namespace FileStoreTests
             Assert.IsNull(deletedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void DeleteFileWithPassedExpiryDate_VerifyFileDoesNotExist(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -279,14 +277,14 @@ namespace FileStoreTests
             Assert.IsNull(returnedFile, "File was not deleted!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain", Explicit = true, Reason = IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void GetHeadOnly_OK(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -308,14 +306,6 @@ namespace FileStoreTests
             var response = _filestore.GetStatus();
 
             Assert.That(response == HttpStatusCode.OK, "File store service status is not OK!");
-        }
-
-        private static IFile CreateFileWithRandomByteArray(uint fileSize, string fakeFileName, string fileType)
-        {
-            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
-            byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
-            IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileContents);
-            return file;
         }
     }
 }

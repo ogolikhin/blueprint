@@ -6,6 +6,7 @@ using Logging;
 using Model.Facades;
 using Newtonsoft.Json;
 using Utilities;
+using Utilities.Facades;
 
 
 namespace Model.Impl
@@ -65,11 +66,9 @@ namespace Model.Impl
 
             if (forceNew || (user.Token == null))
             {
-                using (HttpWebResponse resp = LoginUsingBasicAuthorization(address, user))
-                {
-                    user.Token = getTokenFromResponse(resp);
-                    Logger.WriteTrace("Disposing HttpWebResponse from LoginUsingBasicAuthorization().");
-                }
+                RestResponse resp = LoginUsingBasicAuthorization(address, user);
+                user.Token = getTokenFromResponse(resp);
+                Logger.WriteTrace("Disposing HttpWebResponse from LoginUsingBasicAuthorization().");
             }
 
             return user.Token;
@@ -79,11 +78,13 @@ namespace Model.Impl
         /// Login to the Blueprint server using the Basic authorization method.
         /// </summary>
         /// <param name="user">The user whose credentials will be used to login.</param>
+        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
+        /// If you don't want to use a token, you should pass an empty string here.</param>
         /// <param name="maxRetries">(optional) The maximum number of times to retry the login in case we get socket timeouts.</param>
-        /// <returns>The HttpWebResponse received from the server.</returns>
-        public HttpWebResponse LoginUsingBasicAuthorization(IUser user, uint maxRetries = 1)
+        /// <returns>The RestResponse received from the server.</returns>
+        public RestResponse LoginUsingBasicAuthorization(IUser user, string token = null, uint maxRetries = 1)
         {
-            return LoginUsingBasicAuthorization(Address, user, maxRetries);
+            return LoginUsingBasicAuthorization(Address, user, token, maxRetries);
         }
 
         /// <summary>
@@ -91,22 +92,22 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">The user whose credentials will be used to login.</param>
+        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
+        /// If you don't want to use a token, you should pass an empty string here.</param>
         /// <param name="maxRetries">(optional) The maximum number of times to retry the login in case we get socket timeouts.</param>
-        /// <returns>The HttpWebResponse received from the server.</returns>
-        public static HttpWebResponse LoginUsingBasicAuthorization(string address, IUser user, uint maxRetries = 1)
+        /// <returns>The RestResponse received from the server.</returns>
+        public static RestResponse LoginUsingBasicAuthorization(string address, IUser user, string token = null, uint maxRetries = 1)
         {
-            if (user == null) { throw new ArgumentNullException("user"); }
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
 
-            HttpWebResponse response = null;
+            RestResponse response = null;
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, token);
 
             for (uint attempt = 1; attempt <= maxRetries + 1; ++attempt)
             {
                 try
                 {
-                    response = WebRequestFacade.CreateWebRequestAndGetResponse(
-                        address + "/authentication/v1/login", "GET",
-                        getBasicAuthorizationHeader(user)
-                        );
+                    response = restApi.SendRequestAndGetResponse("authentication/v1/login", RestRequestMethod.GET);
                     break;
                 }
                 catch (WebException e)
@@ -141,25 +142,20 @@ namespace Model.Impl
         #region Private functions
 
         /// <summary>
-        /// Gets the HTTP headers necessary for basic authorization using the credentials of the user that is passed in.
-        /// </summary>
-        /// <param name="user">The user whose credentials will be used in the HTTP header.</param>
-        /// <returns>A Dictionary of keys/values to add to the HTTP request header.</returns>
-        private static Dictionary<string, string> getBasicAuthorizationHeader(IUser user)
-        {
-            Logger.WriteTrace("  Adding username='{0}' & password='{1}' to header.", user.Username, user.Password);
-            var dict = new Dictionary<string, string>() { { "Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", user.Username, user.Password))) } };
-            return dict;
-        }
-
-        /// <summary>
         /// Gets the token from the specified HttpWebResponse.
         /// </summary>
         /// <param name="response">The response from a login request.</param>
         /// <returns>A token.</returns>
-        private static IBlueprintToken getTokenFromResponse(HttpWebResponse response)
+        private static IBlueprintToken getTokenFromResponse(RestResponse response)
         {
-            IBlueprintToken token = new BlueprintToken(response.Headers["Authorization"]);
+            string tokenString = null;
+
+            if (response.Headers.ContainsKey("Authorization"))
+            {
+                tokenString = (string) response.Headers["Authorization"];
+            }
+
+            IBlueprintToken token = new BlueprintToken(tokenString);
             return token;
         }
 

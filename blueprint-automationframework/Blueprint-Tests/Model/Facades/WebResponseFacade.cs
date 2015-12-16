@@ -58,9 +58,9 @@ namespace Model.Facades
         /// Returns response body as a string without decoding. Can be use to read error message or when response isn't encoded
         /// </summary>
         /// <returns>Response body.</returns>
-        public string GetResponseString()
+        public string ResponseString
         {
-            return _response;
+            get { return _response; }
         }
 
         private readonly HttpStatusCode _statusCode;

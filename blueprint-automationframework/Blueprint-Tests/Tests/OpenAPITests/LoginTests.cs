@@ -8,9 +8,9 @@ using System.Threading;
 using CustomAttributes;
 using Helper.Factories;
 using Logging;
-using Model.Impl;
 using TestConfig;
 using Utilities;
+using Utilities.Facades;
 
 
 namespace OpenAPITests
@@ -40,167 +40,7 @@ namespace OpenAPITests
             }
         }
 
-        /// <summary>
-        /// Tries to login using invalid credentials (i.e. bad password).
-        /// </summary>
-        /// <param name="username">The username to attempt to login with.</param>
-        /// <exception cref="NUnit.Framework.AssertionException">If the login doesn't fail with a 401 Unauthorized exception.</exception>
-        private void LoginWithInvalidCredentials(string username)
-        {
-            IUser invalidUser = UserFactory.CreateUserOnly(username, "bad-password");
-            HttpWebResponse response = null;
-
-            try
-            {
-                WebException ex = Assert.Throws<Http401UnauthorizedException>(
-                    () => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
-                    string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
-                        _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password));
-
-                // Make sure that the exception also has the right error message.
-                const string expectedMsg = "(401) Unauthorized";
-                Assert.That(ex.Message.Contains(expectedMsg), "The exception should contain '{0}', but instead it has: '{1}'!", expectedMsg, ex.Message);
-            }
-            finally
-            {
-                if (response != null) { response.Dispose(); }
-            }
-        }
-
-        /// <summary>
-        /// Tries to login with the specified user and expects login to succeed.
-        /// </summary>
-        /// <param name="user">The user to login with.</param>
-        /// <param name="maxRetries">(optional) The number of times to retry the login in cases such as Socket Timeouts...</param>
-        /// <exception cref="NUnit.Framework.AssertionException">If the login fails and all retries are exhausted.</exception>
-        private void LoginWithValidCredentials(IUser user, uint maxRetries = 1)
-        {
-            HttpWebResponse response = null;
-
-            try
-            {
-                Logger.WriteDebug("Before logging in user {0}.", user.Username);
-                Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(user, maxRetries); });
-                Logger.WriteDebug("After logging in user {0}.", user.Username);
-
-                Assert.IsNotNull(response, "Login failed for user {0} and returned a null HttpWebResponse!", user.Username);
-                Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
-                    response.StatusCode);
-            }
-            finally
-            {
-                if (response != null) { response.Dispose(); }
-            }
-        }
-
-        [Test]
-        public void LoginWithInvalidPassword_401Error()
-        {
-            LoginWithInvalidCredentials(_user.Username);
-        }
-
-        [Test]
-        public void LoginWithInvalidUser_401Error()
-        {
-            LoginWithInvalidCredentials("wrong-user");
-        }
-
-        [Test]
-        public void LoginWithValidCredentials_OK()
-        {
-            LoginWithValidCredentials(_user);
-        }
-
-        [Test]
-        [Explicit(IgnoreReasons.ProductBug)]
-        public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
-        {
-            HttpWebResponse response = null;
-
-            // Creating the user with invalid password.
-            IUser invalidUser = UserFactory.CreateUserOnly(_user.Username, "bad-password");
-
-            // Invalid login attempt 4 times.
-            for (int i = 0; i < 4; i++)
-            {
-                Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
-                    string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'. <Iteration: {3}>",
-                        _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password, i+1));
-            }
-
-            // Valid login should reset InvalidLogonAttemptsNumber value to 0.
-            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
-            using (response)
-            {
-                Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
-                    response.StatusCode);
-            }
-
-            // Invalid login to see if it gets locked.
-            Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
-                string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
-                    _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password));
-
-            // Valid login should reset InvalidLogonAttemptsNumber.
-            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
-            using (response)
-            {
-                Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
-                    response.StatusCode);
-            }
-        }
-
-        [Test]
-        public static void GetUserInfoFromDatabase_VerifyUserExists()
-        {
-            List<IUser> users = UserFactory.GetUsers();
-
-            foreach (var user in users)
-            {
-                Logger.WriteDebug(user.ToString());
-            }
-
-            // We assume that every Blueprint installation has an 'admin' user by default.
-            Assert.That(users.Exists(x => x.Username == "admin"), "Couldn't find 'admin' user in database!");
-        }
-
-        [Test]
-        public void CreateUserInDatabase_VerifyUserExists()
-        {
-            List<IUser> users = UserFactory.GetUsers();
-
-            Assert.That(users.Exists(x => x.Username == _user.Username), "Couldn't find user '{0}' in database after adding the user to the database!", _user.Username);
-        }
-
-        [Test]
-        public void DeleteUser_VerifyUserIsDeleted()
-        {
-            List<IUser> users = UserFactory.GetUsers();
-            string username = _user.Username;
-
-            Assert.That(users.Exists(x => x.Username == username), "Couldn't find user '{0}' in database after adding the user to the database!", username);
-
-            // Now delete the user.
-            _user.DeleteUser();
-
-            // Verify that the user was deleted.
-            users = UserFactory.GetUsers();
-
-            Assert.IsFalse(users.Exists(x => x.Username == username), "We found user '{0}' in database after deleting the user!", username);
-        }
-
-        /// <summary>
-        /// Kills the specified thread, unless the specified thread is this thread.
-        /// </summary>
-        /// <param name="thread">The thread to kill.</param>
-        private static void KillThreadIfNotCurrentThread(Thread thread)
-        {
-            if (Thread.CurrentThread != thread)
-            {
-                Logger.WriteTrace("Killing thread [{0}]...", Thread.CurrentThread.ManagedThreadId);
-                thread.Abort();
-            }
-        }
+        #region Private Functions
 
         /// <summary>
         /// Creates a new thread that logs in with the specified user, with the specified number of retries.
@@ -245,6 +85,109 @@ namespace OpenAPITests
             });
 
             return thread;
+        }
+
+        /// <summary>
+        /// Kills the specified thread, unless the specified thread is this thread.
+        /// </summary>
+        /// <param name="thread">The thread to kill.</param>
+        private static void KillThreadIfNotCurrentThread(Thread thread)
+        {
+            if (Thread.CurrentThread != thread)
+            {
+                Logger.WriteTrace("Killing thread [{0}]...", Thread.CurrentThread.ManagedThreadId);
+                thread.Abort();
+            }
+        }
+
+        /// <summary>
+        /// Tries to login using invalid credentials (i.e. bad password).
+        /// </summary>
+        /// <param name="username">The username to attempt to login with.</param>
+        /// <exception cref="NUnit.Framework.AssertionException">If the login doesn't fail with a 401 Unauthorized exception.</exception>
+        private void LoginWithInvalidCredentials(string username)
+        {
+            const string badPassword = "bad-password";
+            string noToken = string.Empty;
+            IUser invalidUser = UserFactory.CreateUserOnly(username, badPassword);
+
+            Assert.Throws<Http401UnauthorizedException>(
+                () => { _server.LoginUsingBasicAuthorization(invalidUser, noToken); },
+                string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
+                    _server.Address, username, badPassword));
+        }
+
+        /// <summary>
+        /// Tries to login with the specified user and expects login to succeed.
+        /// </summary>
+        /// <param name="user">The user to login with.</param>
+        /// <param name="maxRetries">(optional) The number of times to retry the login in cases such as Socket Timeouts...</param>
+        /// <exception cref="NUnit.Framework.AssertionException">If the login fails and all retries are exhausted.</exception>
+        private void LoginWithValidCredentials(IUser user, uint maxRetries = 1)
+        {
+            RestResponse response = null;
+            string noToken = string.Empty;
+
+            // Login.
+            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(user, noToken, maxRetries); });
+
+            // Verify login was successful.
+            Assert.IsNotNull(response, "Login for user {0} returned a null RestResponse!", user.Username);
+            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "Login for user '{0}' should get '200 OK', but got '{1}' instead!",
+                user.Username, response.StatusCode);
+        }
+
+        #endregion Private Functions
+
+        [Test]
+        public void LoginWithInvalidPassword_401Error()
+        {
+            LoginWithInvalidCredentials(_user.Username);
+        }
+
+        [Test]
+        public void LoginWithInvalidUser_401Error()
+        {
+            LoginWithInvalidCredentials("wrong-user");
+        }
+
+        [Test]
+        public void LoginWithValidCredentials_OK()
+        {
+            LoginWithValidCredentials(_user);
+        }
+
+        [Test]
+        [Explicit(IgnoreReasons.ProductBug)]
+        public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
+        {
+            RestResponse response = null;
+
+            // Creating the user with invalid password.
+            IUser invalidUser = UserFactory.CreateUserOnly(_user.Username, "bad-password");
+
+            // Invalid login attempt 4 times.
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
+                    string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'. <Iteration: {3}>",
+                        _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password, i+1));
+            }
+
+            // Valid login should reset InvalidLogonAttemptsNumber value to 0.
+            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
+            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
+                response.StatusCode);
+
+            // Invalid login to see if it gets locked.
+            Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
+                string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
+                    _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password));
+
+            // Valid login should reset InvalidLogonAttemptsNumber.
+            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
+            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
+                response.StatusCode);
         }
 
         [TestCase(10, (uint)1)]

@@ -93,6 +93,7 @@
     <Compile Include="Impl\FileStore.cs" />
     <Compile Include="Impl\Project.cs" />
     <Compile Include="Impl\BlueprintServer.cs" />
+    <Compile Include="Impl\Session.cs" />
     <Compile Include="Impl\User.cs" />
     <Compile Include="InstanceAdminRole.cs" />
     <Compile Include="IPaginable.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="IReview.cs" />
     <Compile Include="IScenario.cs" />
     <Compile Include="IBlueprintServer.cs" />
+    <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
     <Compile Include="IStoryboard.cs" />
     <Compile Include="ITextualRequirement.cs" />

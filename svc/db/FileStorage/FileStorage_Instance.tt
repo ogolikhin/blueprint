@@ -18,6 +18,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Files.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\FileChunks.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\MigrationLog.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 

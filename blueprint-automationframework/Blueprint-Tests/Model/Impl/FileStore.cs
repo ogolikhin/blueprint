@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using Logging;
-using Model.Facades;
-using RestSharp;
-using RestSharp.Authenticators;
+using System.Net.Mime;
+using NUnit.Framework;
 using Utilities.Facades;
-using Utilities.Factories;
 
 namespace Model.Impl
 {
@@ -14,12 +12,11 @@ namespace Model.Impl
     {
         private const string SVC_PATH = "svc/filestore";
 
-        private string _address = null;
-        private List<IFileMetadata> _Files = new List<IFileMetadata>();
+        private static string _address;
 
         #region Inherited from IFileStore
 
-        public List<IFileMetadata> Files { get { return _Files; } }
+        public List<IFileMetadata> Files { get; } = new List<IFileMetadata>();
 
         /// <summary>
         /// Constructor.
@@ -27,67 +24,195 @@ namespace Model.Impl
         /// <param name="address">The URI address of the FileStore.</param>
         public FileStore(string address)
         {
-            if (address == null) { throw new ArgumentNullException("address"); }
+            if (address == null)
+            {
+                throw new ArgumentNullException(nameof(address));
+            }
 
             _address = address;
         }
 
-        /// <summary>
-        /// Adds the specified file to the FileStore.
-        /// </summary>
-        /// <param name="file">The file to add.</param>
-        /// <param name="user">The user to authenticate to the FileStore.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '200 OK' is expected.</param>
-        /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
-        /// <exception cref="WebException">A WebException sub-class if FileStore returned an unexpected HTTP status code.</exception>
-        public IFile AddFile(IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IFile AddFile(IFile file,
+            IUser user,
+            DateTime? expireTime = null,
+            bool useMultiPartMime = false,
+            uint chunkSize = 0,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (file == null) { throw new ArgumentNullException("file"); }
-            if (user == null) { throw new ArgumentNullException("user"); }
+            if (file == null)
+            {
+                throw new ArgumentNullException(nameof(file));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
 
-            string path = string.Format("{0}/files", SVC_PATH);
+            var queryParameters = new Dictionary<string, string>();
 
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName,
-                file.Content, expectedStatusCodes: expectedStatusCodes);
+            if (expireTime.HasValue)
+            {
+                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+            }
 
-            string fileGuid = response.Content;
+            var additionalHeaders = new Dictionary<string, string>();
 
-            Logger.WriteDebug(string.Format("POST {0} returned: {1}", path, fileGuid));
-            file.Id = fileGuid;
-            _Files.Add(file);
+            if (!string.IsNullOrEmpty(file.FileType))
+            {
+                additionalHeaders.Add("Content-Type", file.FileType);
+            }
+
+            if (!string.IsNullOrEmpty(file.FileName))
+            {
+
+                additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            byte[] fileBytes = file.Content;
+            byte[] chunk = fileBytes;
+
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
+            {
+                chunk = fileBytes.Take((int)chunkSize).ToArray();
+            }
+
+            var path = string.Format("{0}/files", SVC_PATH);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName, chunk, file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
+
+            file.Id = response.Content.Replace("\"", "");
+
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
+            {
+                byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
+
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+                path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
+
+                do
+                {
+                    chunk = rem.Take((int)chunkSize).ToArray();
+
+                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
+                        file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
+                } while (rem.Length > 0 && expectedStatusCodes.Contains(response.StatusCode));
+            }
+
+            Files.Add(file);
 
             return file;
         }
 
-        public void DeleteFile(Guid id)
+        public IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            return GetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes);
         }
 
-        public void DeleteFile(IFile file)
+        public IFileMetadata GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes);
         }
 
-        public IFile GetFile(string id)
+        public void DeleteFile(string fileId,
+            IUser user,
+            DateTime? expireTime = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            if (fileId == null)
+            {
+                throw new ArgumentNullException(nameof(fileId));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (expireTime.HasValue)
+            {
+                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+
+            try
+            {
+                restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            }
+            finally
+            {
+                if (expireTime == null || expireTime <= DateTime.Now)
+                {
+                    Files.Remove(Files.First(i => i.Id == fileId));
+                }
+            }
         }
 
-        public IFile GetFile(IFile file)
+        public HttpStatusCode GetStatus()
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, token:string.Empty);
+            var path = string.Format("{0}/status", SVC_PATH);
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+
+            return response.StatusCode;
         }
 
-        public IFileMetadata GetFileMetadata(Guid id)
+        private static IFile GetFile(string fileId,
+            IUser user,
+            RestRequestMethod webRequestMethod,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
-        }
+            File file = null;
 
-        public short GetStatus()
-        {
-            throw new NotImplementedException();
+            if (fileId == null)
+            {
+                throw new ArgumentNullException(nameof(fileId));
+            }
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
+
+            var response = restApi.SendRequestAndGetResponse(path, webRequestMethod, expectedStatusCodes:expectedStatusCodes);
+
+            if (webRequestMethod == RestRequestMethod.HEAD)
+            {
+                Assert.That(response.RawBytes.Length == 0, "Content returned for a HEAD request!");
+            }
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                file = new File
+                {
+                    Content = response.RawBytes,
+                    Id = fileId,
+                    LastModifiedDate =
+                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
+                            null),
+                    FileType = response.ContentType,
+                    FileName =
+                        new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName
+                };
+            }
+
+            return file;
         }
 
         #endregion Inherited from IFileStore

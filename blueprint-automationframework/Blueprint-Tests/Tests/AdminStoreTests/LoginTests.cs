@@ -1,16 +1,11 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Net;
-
-using NUnit.Framework;
-using Model;
-using System.Collections.Generic;
-using System.Threading;
 using CustomAttributes;
 using Helper.Factories;
-using Logging;
-using Model.Impl;
-using TestConfig;
+using Model;
 using Model.Facades;
+using NUnit.Framework;
+using TestConfig;
 
 namespace AdminStoreTests
 {
@@ -22,7 +17,7 @@ namespace AdminStoreTests
         private const string _sessionRoute = "sessions/";
         private static Dictionary<string, Service> _services = TestConfiguration.GetInstance().Services;
         private static string _sessionUrl = _services["AdminStore"].Address + _serviceRoute + _sessionRoute;
-        private static IUser _user = null;
+        private IUser _user = null;
 
         [SetUp]
         public void SetUp()
@@ -42,7 +37,7 @@ namespace AdminStoreTests
 
         [Explicit(CustomAttributes.IgnoreReasons.DeploymentNotReady)]
         [Test]
-        public static void Login_ValidUser_OK()
+        public void Login_ValidUser_OK()
         {
             WebResponseFacade _response = Login(_user);
             Assert.AreEqual(HttpStatusCode.OK, _response.StatusCode, "Login failed with {0} code and {1}", _response.StatusCode,

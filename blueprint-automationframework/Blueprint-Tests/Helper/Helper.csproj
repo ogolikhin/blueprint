@@ -44,10 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\ArtifactFactory.cs" />
+    <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="Factories\BlueprintServerFactory.cs" />
     <Compile Include="Factories\FileFactory.cs" />
     <Compile Include="Factories\FileStoreFactory.cs" />
     <Compile Include="Factories\ProjectFactory.cs" />
+    <Compile Include="Factories\PropertyFactory.cs" />
     <Compile Include="Factories\SessionFactory.cs" />
     <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

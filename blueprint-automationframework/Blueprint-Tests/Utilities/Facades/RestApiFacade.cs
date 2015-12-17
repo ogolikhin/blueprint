@@ -288,6 +288,7 @@ namespace Utilities.Facades
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="jsonObject">(optional) Add json object for the web request</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public T SendRequestAndDeserializeObject<T>(
@@ -295,10 +296,16 @@ namespace Utilities.Facades
             RestRequestMethod method,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
-            List<HttpStatusCode> expectedStatusCodes = null) where T : new()
+            List<HttpStatusCode> expectedStatusCodes = null,
+            object jsonObject = null) where T : new()
         {
             var client = new RestClient(_baseUri);
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+
+            if (jsonObject != null)
+            {
+                request.AddJsonBody(jsonObject);
+            }
 
             try
             {

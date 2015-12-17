@@ -92,6 +92,31 @@ namespace Utilities
     }
 
     [Serializable]
+    public class Http405MethodNotAllowedException : WebException
+    {
+        public const string ERROR = "Received status code: 405.";
+
+        public Http405MethodNotAllowedException()
+        { }
+
+        public Http405MethodNotAllowedException(WebException ex)
+            : base(((ex == null) ? ERROR : ex.Message), ex)
+        { }
+
+        public Http405MethodNotAllowedException(string msg)
+            : base(msg)
+        { }
+
+        public Http405MethodNotAllowedException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected Http405MethodNotAllowedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+    }
+
+    [Serializable]
     public class Http406NotAcceptableException : WebException
     {
         public const string ERROR = "(406) Not Acceptable";
@@ -269,6 +294,10 @@ namespace Utilities
             else if (ex.Message.Contains(Http404NotFoundException.ERROR))
             {
                 ex = new Http404NotFoundException(ex);
+            }
+            else if (ex.Message.Contains(Http405MethodNotAllowedException.ERROR))
+            {
+                ex = new Http405MethodNotAllowedException(ex);
             }
             else if (ex.Message.Contains(Http406NotAcceptableException.ERROR))
             {

@@ -7,6 +7,7 @@ using Model.Facades;
 using Model.Factories;
 using TestConfig;
 using Helper.Factories;
+using Logging;
 using Model;
 using Model.Impl;
 
@@ -14,29 +15,48 @@ namespace AccessControlTests
 {
     [TestFixture]
     [Category(Categories.AccessControl)]
-    public static class SessionsTests
+    public class SessionsTests
     {
         private const string _serviceRoute = "svc/accesscontrol/";
         private const string _sessionRoute = "sessions/";
+
         private static Dictionary<string, Service> _services = TestConfiguration.GetInstance().Services;
         private static string _sessionUrl = _services["AccessControl"].Address + _serviceRoute + _sessionRoute;
 
-        [TearDown]
-        public static void TearDown()
+        private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
+        private ISession _randomSession = null;
+
+
+        [SetUp]
+        public void SetUp()
         {
-            //TODO: here we can put query 'delete FROM [AdminStorage].[dbo].[Sessions]'
+            // Setup: Create a random session.
+            _randomSession = SessionFactory.CreateRandomSession();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Delete all sessions created by the tests.
+            _accessControl.Sessions.ForEach(s => _accessControl.DeleteSession(s));
         }
 
         [Test]
-        public static void PostNewSession_OK()
+        public void PostNewSession_OK()
         {
-            ISession expectSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectSession);
-            var session = WebRequestFacade.GetWebResponseFacade(_sessionUrl + expectSession.UserId, "GET", headers);
-            Assert.AreEqual(session.StatusCode, HttpStatusCode.OK, "'GET {0}' should return {1}, but failed with {2}",
-                _sessionUrl, HttpStatusCode.OK, session.StatusCode);
-            Assert.True(expectSession.Equals(session.GetBlueprintObject<Session>()), "UserID from returned session object must be equal to UserID used during session creation");
-            DeleteSession(headers);
+            // POST the new session.
+            ISession createdSession = _accessControl.CreateSession(_randomSession);
+
+            // Verify that the POST returned the expected session.
+            Assert.True(_randomSession.Equals(createdSession),
+                "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
+                createdSession.SessionId, _randomSession.SessionId);
+
+            // Verify that the session was saved by AccessControl.
+            ISession session = _accessControl.GetSession(_randomSession.UserId);
+            Assert.True(_randomSession.Equals(session),
+                "GET returned a different session than expected!  Got '{0}', but expected '{1}'.",
+                session.SessionId, _randomSession.SessionId);
         }
 
         [Test]

@@ -29,6 +29,9 @@ namespace Utilities.Factories
                 case 404:
                     ex = new Http404NotFoundException(message);
                     break;
+                case 405:
+                    ex = new Http405MethodNotAllowedException(message);
+                    break;
                 case 406:
                     ex = new Http406NotAcceptableException(message);
                     break;

@@ -97,6 +97,7 @@ namespace Model.Impl
                 do
                 {
                     chunk = rem.Take((int)chunkSize).ToArray();
+                    rem = rem.Skip((int)chunkSize).ToArray();
 
                     response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
                         file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);

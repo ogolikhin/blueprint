@@ -19,6 +19,9 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ApplicationLabels.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ConfigSettings.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Sessions.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Traces.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Types\TracesType.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 
@@ -32,6 +35,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetUserSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SelectSessions.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLicensesStatus.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\WriteTraces.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

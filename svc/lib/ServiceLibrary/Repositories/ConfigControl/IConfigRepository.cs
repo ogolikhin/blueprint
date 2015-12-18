@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ServiceLibrary.Repositories
+namespace ServiceLibrary.Repositories.ConfigControl
 {
 	public interface IConfigRepository
 	{

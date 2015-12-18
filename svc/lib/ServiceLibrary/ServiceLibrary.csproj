@@ -65,18 +65,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventSources\BlueprintEventSource.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\ServiceLocator.cs" />
+    <Compile Include="LocalEventLog\ILocalLog.cs" />
+    <Compile Include="LocalEventLog\LocalLog.cs" />
     <Compile Include="Log\EventLogProviderImpl.cs" />
     <Compile Include="Log\ILogProvider.cs" />
     <Compile Include="Log\LogProvider.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
+    <Compile Include="Models\LogEntry.cs" />
+    <Compile Include="Models\LogLevelEnum.cs" />
     <Compile Include="Models\Session.cs" />
-    <Compile Include="Repositories\ISessionRepository.cs" />
-    <Compile Include="Repositories\IConfigRepository.cs" />
-    <Compile Include="Repositories\ServiceSessionRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
+    <Compile Include="Repositories\AccessControl\ISessionRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
+    <Compile Include="Repositories\AccessControl\ServiceSessionRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
-    <Compile Include="Repositories\ServiceConfigRepository.cs" />
+    <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IStatusRepository.cs" />
@@ -87,6 +95,10 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>cd "%25temp%25/7D2611AE-6432-4639-8B91-3E46EB56CADF"
+del BlueprintSys*.*</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

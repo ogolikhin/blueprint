@@ -4,6 +4,7 @@ using Dapper;
 using ConfigControl.Models;
 using System.Collections.Generic;
 using ServiceLibrary.Repositories;
+using System.Configuration;
 
 namespace ConfigControl.Repositories
 {
@@ -27,5 +28,16 @@ namespace ConfigControl.Repositories
             prm.Add("@AllowRestricted", allowRestricted);
             return await _connectionWrapper.QueryAsync<ConfigSetting>("GetConfigSettings", prm, commandType: CommandType.StoredProcedure);
         }
+
+        public static string AdminStorageDatabase
+        {
+            get
+            {
+                var cn = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
+
+                return cn;
+            }
+        }
+
     }
 }

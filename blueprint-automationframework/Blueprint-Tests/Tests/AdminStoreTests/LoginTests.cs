@@ -6,8 +6,8 @@ using Model;
 using Model.Facades;
 using NUnit.Framework;
 using TestConfig;
-using Model.Facades;
 using Model.Factories;
+using Model.Impl;
 
 namespace AdminStoreTests
 {
@@ -19,7 +19,7 @@ namespace AdminStoreTests
         private const string _sessionRoute = "sessions/";
         private static Dictionary<string, Service> _services = TestConfiguration.GetInstance().Services;
         private static string _sessionUrl = _services["AdminStore"].Address + _serviceRoute + _sessionRoute;
-        private IUser _user = null;
+        private static IUser _user = null;
 
         [SetUp]
         public static void SetUp()
@@ -39,7 +39,7 @@ namespace AdminStoreTests
 
         [Explicit(CustomAttributes.IgnoreReasons.DeploymentNotReady)]
         [Test]
-        public void Login_ValidUser_OK()
+        public static void Login_ValidUser_OK()
         {
             WebResponseFacade _response = Login(_user.Username, _user.Password);
             Assert.AreEqual(HttpStatusCode.OK, _response.StatusCode, "Login failed with {0} code and {1}", _response.StatusCode,

@@ -42,10 +42,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Blueprint.Common.props = Blueprint.Common.props
 		BlueprintStrongName.snk = BlueprintStrongName.snk
 		CodeCoverage.runsettings = CodeCoverage.runsettings
+		NuGet.config = NuGet.config
 		RecommendedAndSecurity.ruleset = RecommendedAndSecurity.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Database", "lib\Logging.Database\Logging.Database.csproj", "{717F5600-AF8E-4732-B456-A61794BD2B64}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{66B69F6B-FEC9-42C4-A589-F4B8409E4222}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -37,7 +37,6 @@ namespace AdminStoreTests
             }
         }
 
-        [Explicit(CustomAttributes.IgnoreReasons.DeploymentNotReady)]
         [Test]
         public static void Login_ValidUser_OK()
         {

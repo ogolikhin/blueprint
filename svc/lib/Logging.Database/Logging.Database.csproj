@@ -75,6 +75,10 @@
     <Compile Include="Sinks\BlueprintSqlDatabaseSink.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="BlueprintSqlDatabaseSink.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

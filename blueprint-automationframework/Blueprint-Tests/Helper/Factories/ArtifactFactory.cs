@@ -28,7 +28,6 @@ namespace Helper.Factories
             _artifact.ProjectId = projectId;
             _artifact.ArtifactTypeId = artifactTypeId;
             _artifact.SetProperties(PropertyFactory.AddProperty(propertyName));
-            //_artifact.Properties = PropertyFactory.AddProperty(propertyName);
             return _artifact;
         }
     }

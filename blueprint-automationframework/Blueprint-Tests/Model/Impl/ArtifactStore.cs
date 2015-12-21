@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.Facades;
 using Logging;
-using RestSharp;
-using RestSharp.Authenticators;
-using RestSharp.Deserializers;
 using Utilities.Facades;
-using Utilities.Factories;
 
 namespace Model.Impl
 {
@@ -53,9 +48,9 @@ namespace Model.Impl
             Artifact artractObject = (Artifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
             ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult,Artifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
-            Logger.WriteDebug("{0}", artifactResult);
-            //Logger.WriteDebug(string.Format("POST {0} returned followings: Message: {1}, ResultCode: {1}, ", path, artifactResult.Message, artifactResult.ResultCode));
-
+            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
+            Logger.WriteDebug(string.Format("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
+            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
             return artifact;
         }
     }

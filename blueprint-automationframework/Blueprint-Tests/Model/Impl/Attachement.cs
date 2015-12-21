@@ -2,7 +2,7 @@
 
 namespace Model.Impl
 {
-    public class Attachment
+    public class Attachment : IAttachment
     {
         public int Id { get; set; }
         public string FileName { get; set; }

@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
-using System.Threading.Tasks;
 using Model;
 using Model.Impl;
-using Model.Factories;
 using TestConfig;
 using Logging;
 

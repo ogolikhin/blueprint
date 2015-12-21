@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="BlueprintSqlDatabaseSink"
+      targetNamespace="http://schemas.blueprintsys.com/sinks/blueprintSqlDatabaseSink"
+      xmlns="http://schemas.blueprintsys.com/sinks/blueprintSqlDatabaseSink"
+      xmlns:etw="http://schemas.microsoft.com/practices/2013/entlib/semanticlogging/etw"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      elementFormDefault="qualified"
+      attributeFormDefault="unqualified">
+
+  <xs:element name="blueprintSqlDatabaseSink">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="NoEmptyString" use="required" />
+      <xs:attribute name="instanceName" type="NoEmptyString" use="required" />
+      <xs:attribute name="connectionString" type="NoEmptyString" use="required" />
+      <xs:attribute name="tableName" type="NoEmptyString" use="optional" />
+      <xs:attribute name="bufferingIntervalInSeconds" type="PositiveAndMinusOneInteger" use="optional" />
+      <xs:attribute name="bufferingCount" type="PositiveInteger" use="optional" />
+      <xs:attribute name="maxBufferSize" type="PositiveInteger" use="optional" />
+      <xs:attribute name="bufferingFlushAllTimeoutInSeconds" type="PositiveAndMinusOneInteger" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="NoEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:pattern value=".*[^\s].*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PositiveInteger">
+    <xs:restriction base="xs:int">
+      <xs:pattern value="^[0-9]+$" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PositiveAndMinusOneInteger">
+    <xs:restriction base="xs:int">
+      <xs:pattern value="^-[1]+$|^[0-9]+$" />
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

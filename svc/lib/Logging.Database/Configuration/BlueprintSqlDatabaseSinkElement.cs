@@ -9,7 +9,7 @@ namespace Logging.Database.Configuration
 {
     internal class BlueprintSqlDatabaseSinkElement : ISinkElement
     {
-        private readonly XName sinkName = XName.Get("BlueprintSqlDatabaseSink", "urn:dhs.sinks.BlueprintSqlDatabaseSink");
+        private readonly XName sinkName = XName.Get("blueprintSqlDatabaseSink", "http://schemas.blueprintsys.com/sinks/blueprintSqlDatabaseSink");
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Validated with Guard class")]
         public bool CanCreateSink(XElement element)

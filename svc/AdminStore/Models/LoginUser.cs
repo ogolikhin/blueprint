@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace AdminStore.Models
 {
+    [JsonObject]
     public class LoginUser
     {
         public int Id { get; set; }
 
         public string Login { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public string Password { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public bool IsEnabled { get; set; }
 
         public UserGroupSource Source { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public int InvalidLogonAttemptsNumber { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public DateTime? LastInvalidLogonTimeStamp { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public Guid UserSalt { get; set; }
 
         public bool? IsFallbackAllowed { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public DateTime? LastPasswordChangeTimestamp { get; set; }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public bool? ExpirePassword { get; set; }
 
         public string FirstName { get; set; }

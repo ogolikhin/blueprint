@@ -89,11 +89,13 @@
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
+    <Content Include="Tables\LicenseActivityDetails.sql" />
     <Content Include="Tables\Traces.sql" />
     <Content Include="Tables\Sessions.sql" />
     <Content Include="Tables\ConfigSettings.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
     <Content Include="Tables\ApplicationLabels.sql" />
+    <Content Include="Tables\LicenseActivities.sql" />
     <Content Include="Types\TracesType.sql" />
   </ItemGroup>
   <ItemGroup>

@@ -131,6 +131,65 @@ CREATE TABLE [dbo].[Sessions](
 GO
 
 /******************************************************************************************************************************
+Name:			LicenseActivityDetails
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/12/16		Glen Stone				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[LicenseActivityDetails]') AND type in (N'U'))
+DROP TABLE [dbo].[LicenseActivityDetails]
+GO
+
+CREATE TABLE [dbo].[LicenseActivityDetails](
+	[LicenseActivityId] [int] NOT NULL,
+	[LicenseType] [int] NOT NULL,
+	[Count] [int] NOT NULL,
+ CONSTRAINT [PK_LicenseActivityDetails] PRIMARY KEY CLUSTERED 
+(
+	[LicenseActivityId] ASC,
+	[LicenseType] ASC
+)) ON [PRIMARY]
+
+/******************************************************************************************************************************
+Name:			LicenseActivities
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/12/16		Glen Stone				Initial Version
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[LicenseActivities]') AND type in (N'U'))
+DROP TABLE [dbo].[LicenseActivities]
+GO
+
+CREATE TABLE [dbo].[LicenseActivities](
+	[LicenseActivityId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[UserLicenseType] [int] NOT NULL,
+	[TransactionType] [int] NOT NULL,
+	[ActionType] [int] NOT NULL,
+	[ConsumerType] [int] NOT NULL,
+	[TimeStamp] [datetime] NOT NULL,
+ CONSTRAINT [PK_LicenseActivities] PRIMARY KEY CLUSTERED 
+(
+	[LicenseActivityId] ASC
+)) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[LicenseActivityDetails]  WITH CHECK ADD  CONSTRAINT [FK_LicenseActivityDetails_LicenseActivities] FOREIGN KEY([LicenseActivityId])
+REFERENCES [dbo].[LicenseActivities] ([LicenseActivityId])
+GO
+
+ALTER TABLE [dbo].[LicenseActivityDetails] CHECK CONSTRAINT [FK_LicenseActivityDetails_LicenseActivities]
+GO
+
+/******************************************************************************************************************************
 Name:			Traces
 
 Description: 
@@ -350,7 +409,8 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@LicenseLevel int,
 	@IsSso bit = 0,
 	@NewSessionId uniqueidentifier OUTPUT,
-	@OldSessionId uniqueidentifier OUTPUT
+	@OldSessionId uniqueidentifier OUTPUT,
+	@licenseLockTimeMinutes int
 )
 AS
 BEGIN
@@ -369,6 +429,30 @@ BEGIN
 		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
 			UserName = @UserName, LicenseLevel = @LicenseLevel, IsSso = @IsSso 
 		WHERE UserId = @UserId;
+	END
+
+	INSERT INTO [dbo].[LicenseActivities]
+		([UserId]
+		,[UserLicenseType]
+		,[TransactionType]
+		,[ActionType]
+		,[ConsumerType]
+		,[TimeStamp])
+	VALUES
+		(@UserId
+		,@LicenseLevel
+		,1 -- LicenseTransactionType.Acquire
+		,1 -- LicenseActionType.Login
+		,1 -- LicenseConsumerType.Client
+		,@BeginTime)
+
+	IF SCOPE_IDENTITY() > 0
+	BEGIN
+		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		SELECT SCOPE_IDENTITY(), LicenseLevel, COUNT(*) as [Count]
+		FROM [dbo].[Sessions]
+		WHERE EndTime IS NULL OR EndTime > DATEADD(MINUTE, -@licenseLockTimeMinutes, @BeginTime)
+		GROUP BY LicenseLevel
 	END
 	COMMIT TRANSACTION;
 END
@@ -391,13 +475,42 @@ GO
 CREATE PROCEDURE [dbo].[EndSession] 
 (
 	@SessionId uniqueidentifier,
-	@EndTime datetime
+	@EndTime datetime,
+	@Timeout bit,
+	@licenseLockTimeMinutes int
 )
 AS
 BEGIN
 	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 	BEGIN TRANSACTION;
-	UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime where SessionId = @SessionId;
+	UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime WHERE SessionId = @SessionId;
+
+	DECLARE @UserId int
+	DECLARE @LicenseLevel int
+	SELECT @UserId = UserId, @LicenseLevel = LicenseLevel FROM [dbo].[Sessions] WHERE SessionId = @SessionId;
+	INSERT INTO [dbo].[LicenseActivities]
+		([UserId]
+		,[UserLicenseType]
+		,[TransactionType]
+		,[ActionType]
+		,[ConsumerType]
+		,[TimeStamp])
+	VALUES
+		(@UserId
+		,@LicenseLevel
+		,2 -- LicenseTransactionType.Release
+		,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
+		,1 -- LicenseConsumerType.Client
+		,@EndTime)
+
+	IF SCOPE_IDENTITY() > 0
+	BEGIN
+		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		SELECT SCOPE_IDENTITY(), LicenseLevel, COUNT(*) as [Count]
+		FROM [dbo].[Sessions]
+		WHERE EndTime IS NULL OR EndTime > DATEADD(MINUTE, -@licenseLockTimeMinutes, @EndTime)
+		GROUP BY LicenseLevel
+	END
 	COMMIT TRANSACTION;
 END
 GO

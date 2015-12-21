@@ -19,6 +19,8 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ApplicationLabels.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ConfigSettings.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Sessions.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivityDetails.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivities.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Traces.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Types\TracesType.sql" ) ) #>

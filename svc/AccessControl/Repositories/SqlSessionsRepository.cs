@@ -50,6 +50,7 @@ namespace AccessControl.Repositories
             prm.Add("@pn", pn);
             return (await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure));
         }
+
         public async Task<Guid?[]> BeginSession(int userId, string userName, int licenseLevel, bool isSso)
         {
             var prm = new DynamicParameters();
@@ -60,31 +61,19 @@ namespace AccessControl.Repositories
             prm.Add("@IsSso", isSso);
             prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+            prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
             await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);
             return new[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
         }
 
-        public async Task EndSession(Guid guid)
+        public async Task EndSession(Guid guid, bool timeout)
         {
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);
             prm.Add("@EndTime", DateTime.UtcNow);
+            prm.Add("@Timeout", timeout ? 1 : 0);
+            prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
             await _connectionWrapper.ExecuteAsync("EndSession", prm, commandType: CommandType.StoredProcedure);
         }
-
-	    public Task<int> GetActiveLicenses(int excludeUserId, int licenseLevel, int licenseLockTimeMinutes)
-	    {
-			var prm = new DynamicParameters();
-			prm.Add("@TimeUtc", DateTime.UtcNow);
-			prm.Add("@UserId", excludeUserId);
-			prm.Add("@LicenseLevel", licenseLevel);
-			prm.Add("@TimeDiff", -licenseLockTimeMinutes);
-
-		    return _connectionWrapper.ExecuteScalarAsync<int>(
-				@"SELECT COUNT(*) FROM [dbo].[Sessions] 
-				WHERE LicenseLevel = @LicenseLevel AND UserId <> @UserId AND 
-				(EndTime IS NULL OR EndTime > DATEADD(MINUTE, @TimeDiff, @TimeUtc) )", 
-				prm);
-	    }
-	}
+    }
 }

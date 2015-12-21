@@ -141,10 +141,7 @@ namespace AccessControl.Controllers
             int uid = 999;
             var newGuid = Guid.NewGuid();
             Guid?[] guids = { newGuid, Guid.NewGuid() };
-            //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(newGuid)).ReturnsAsync(session);
             _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, true)).ReturnsAsync(guids);
-            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
 
             // Act
             var resultSession = await _controller.PostSession(uid, "user", 3, true);
@@ -206,10 +203,7 @@ namespace AccessControl.Controllers
             var firstGuid = Guid.NewGuid();
             var secondGuid = Guid.NewGuid();
             Guid?[] guids = { firstGuid, secondGuid };
-            //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
             _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
-            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
 
             // Act
             await _controller.PostSession(uid, "user", 3);
@@ -228,10 +222,7 @@ namespace AccessControl.Controllers
             var firstGuid = Guid.NewGuid();
             var secondGuid = Guid.NewGuid();
             Guid?[] guids = { firstGuid, secondGuid };
-            //var session = new Session();
-            //_sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
             _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
-            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new KeyNotFoundException());
 
 
@@ -255,7 +246,6 @@ namespace AccessControl.Controllers
             var session = new Session();
             _sessionsRepoMock.Setup(r => r.GetSession(firstGuid)).ReturnsAsync(session);
             _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), "user", 3, It.IsAny<bool>())).ReturnsAsync(guids);
-            _sessionsRepoMock.Setup(r => r.EndSession(It.IsAny<Guid>())).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Throws(new Exception());
 
             // Act
@@ -410,7 +400,7 @@ namespace AccessControl.Controllers
             var newGuid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
             _sessionsRepoMock
-                .Setup(repo => repo.EndSession(newGuid))
+                .Setup(repo => repo.EndSession(newGuid, false))
                 .Throws(new Exception());
 
             // Act
@@ -430,7 +420,7 @@ namespace AccessControl.Controllers
             _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
             _sessionsRepoMock
-                .Setup(repo => repo.EndSession(newGuid))
+                .Setup(repo => repo.EndSession(newGuid, false))
                 .Throws(new ArgumentNullException());
 
             // Act
@@ -447,7 +437,7 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var newGuid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
+            _sessionsRepoMock.Setup(r => r.EndSession(newGuid, false)).Returns(Task.FromResult(new object()));
 
             // Act
             var result = await _controller.DeleteSession();
@@ -463,7 +453,7 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var newGuid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(r => r.EndSession(newGuid)).Returns(Task.FromResult(new object()));
+            _sessionsRepoMock.Setup(r => r.EndSession(newGuid, false)).Returns(Task.FromResult(new object()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
             _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
 
@@ -689,9 +679,8 @@ namespace AccessControl.Controllers
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
             _logProviderMock.Verify(l => l.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error));
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
-            _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token)));
+            _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token), true));
             return true;
         }
-
     }
 }

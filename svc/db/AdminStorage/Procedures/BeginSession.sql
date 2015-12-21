@@ -20,7 +20,8 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@LicenseLevel int,
 	@IsSso bit = 0,
 	@NewSessionId uniqueidentifier OUTPUT,
-	@OldSessionId uniqueidentifier OUTPUT
+	@OldSessionId uniqueidentifier OUTPUT,
+	@licenseLockTimeMinutes int
 )
 AS
 BEGIN
@@ -39,6 +40,30 @@ BEGIN
 		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
 			UserName = @UserName, LicenseLevel = @LicenseLevel, IsSso = @IsSso 
 		WHERE UserId = @UserId;
+	END
+
+	INSERT INTO [dbo].[LicenseActivities]
+		([UserId]
+		,[UserLicenseType]
+		,[TransactionType]
+		,[ActionType]
+		,[ConsumerType]
+		,[TimeStamp])
+	VALUES
+		(@UserId
+		,@LicenseLevel
+		,1 -- LicenseTransactionType.Acquire
+		,1 -- LicenseActionType.Login
+		,1 -- LicenseConsumerType.Client
+		,@BeginTime)
+
+	IF SCOPE_IDENTITY() > 0
+	BEGIN
+		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		SELECT SCOPE_IDENTITY(), LicenseLevel, COUNT(*) as [Count]
+		FROM [dbo].[Sessions]
+		WHERE EndTime IS NULL OR EndTime > DATEADD(MINUTE, -@licenseLockTimeMinutes, @BeginTime)
+		GROUP BY LicenseLevel
 	END
 	COMMIT TRANSACTION;
 END

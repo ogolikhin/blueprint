@@ -6,6 +6,8 @@ using Logging;
 using RestSharp;
 using RestSharp.Authenticators;
 using RestSharp.Extensions;
+using RestSharp.Deserializers;
+using Newtonsoft.Json;
 using Utilities.Factories;
 
 namespace Utilities.Facades
@@ -282,6 +284,53 @@ namespace Utilities.Facades
         /// <summary>
         /// Creates the web request and get the response which is then serialized into the specified type.
         /// </summary>
+        /// <typeparam name="T1">The type of object to be returned by this call.</typeparam>
+        /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
+        /// <param name="method">The method (GET, POST...).</param>
+        /// <typeparam name="T2">The type of JSON object for the web request.</typeparam>
+        /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <returns>The response object(s).</returns>
+        /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        public T1 SendRequestAndDeserializeObject<T1,T2>(
+            string resourcePath, 
+            RestRequestMethod method,
+            T2 jsonObject,
+            Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+            where T1 : new()
+            where T2 : new()
+        {
+            var client = new RestClient(_baseUri);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+
+            if (jsonObject != null)
+            {
+                request.AddJsonBody(jsonObject);
+            }
+
+            try
+            {
+                var response = client.Execute(request);
+                //proper serialization using JsonConvert
+                var result = JsonConvert.DeserializeObject<T1>(response.Content);
+                Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
+                Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
+                _restResponse = ConvertToRestResponse(response);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
+                return result;   // This will deserialize the data for us.
+            }
+            catch (WebException e)
+            {
+                throw WebExceptionConverter.Convert(e);
+            }
+        }
+
+        /// <summary>
+        /// Creates the web request and get the response which is then serialized into the specified type.
+        /// </summary>
         /// <typeparam name="T">The type of object to be returned by this call.</typeparam>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
@@ -291,30 +340,13 @@ namespace Utilities.Facades
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public T SendRequestAndDeserializeObject<T>(
-            string resourcePath, 
-            RestRequestMethod method,
-            Dictionary<string, string> additionalHeaders = null,
-            Dictionary<string, string> queryParameters = null,
-            List<HttpStatusCode> expectedStatusCodes = null) where T : new()
+           string resourcePath,
+           RestRequestMethod method,
+           Dictionary<string, string> additionalHeaders = null,
+           Dictionary<string, string> queryParameters = null,
+           List<HttpStatusCode> expectedStatusCodes = null) where T : new()
         {
-            var client = new RestClient(_baseUri);
-            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
-
-            try
-            {
-                var response = client.Execute<T>(request);
-                Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
-
-                _restResponse = ConvertToRestResponse(response);
-
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
-
-                return response.Data;   // This will deserialize the data for us.
-            }
-            catch (WebException e)
-            {
-                throw WebExceptionConverter.Convert(e);
-            }
+            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes);
         }
 
         /// <summary>

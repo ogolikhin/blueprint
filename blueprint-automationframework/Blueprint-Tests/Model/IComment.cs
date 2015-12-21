@@ -6,12 +6,12 @@ namespace Model
 {
     public interface IComment
     {
-        string Comment { get; set; }
-        int Dislikes { get; set; }
-        bool IsOpen { get; set; }
-        int Likes { get; set; }
-        List<IComment> Replies { get; }
-        DateTime Timestamp { get; set; }
-        User User { get; set; }
+        string LastModified { get; set; }
+        bool IsClosed { get; set; }
+        string Status { get; set; }
+        int Id { get; set; }
+        IAuthor Author { get; set; }
+        int Version { get; set; }
+        string Description { get; set; }
     }
 }

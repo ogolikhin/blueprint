@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model.Impl
 {
-    public class Author
+    public class Author : IAuthor
     {
         public string Type { get; set; }
         public int Id { get; set; }

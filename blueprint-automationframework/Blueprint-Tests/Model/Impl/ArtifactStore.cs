@@ -50,9 +50,10 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode>();
                 expectedStatusCodes.Add(HttpStatusCode.Created);
             }
+            Artifact artractObject = (Artifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult>(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes, jsonObject:artifact);
-
+            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult,Artifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
+            Logger.WriteDebug("{0}", artifactResult);
             //Logger.WriteDebug(string.Format("POST {0} returned followings: Message: {1}, ResultCode: {1}, ", path, artifactResult.Message, artifactResult.ResultCode));
 
             return artifact;

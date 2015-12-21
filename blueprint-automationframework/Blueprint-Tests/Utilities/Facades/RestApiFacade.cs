@@ -291,13 +291,15 @@ namespace Utilities.Facades
         /// <param name="jsonObject">(optional) Add json object for the web request</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
-        public T SendRequestAndDeserializeObject<T>(
+        public T1 SendRequestAndDeserializeObject<T1,T2>(
             string resourcePath, 
             RestRequestMethod method,
+            T2 jsonObject,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            object jsonObject = null) where T : new()
+            List<HttpStatusCode> expectedStatusCodes = null)
+            where T1 : new()
+            where T2 : new()
         {
             var client = new RestClient(_baseUri);
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
@@ -309,7 +311,7 @@ namespace Utilities.Facades
 
             try
             {
-                var response = client.Execute<T>(request);
+                var response = client.Execute<T1>(request);
                 Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
 
                 _restResponse = ConvertToRestResponse(response);
@@ -322,6 +324,16 @@ namespace Utilities.Facades
             {
                 throw WebExceptionConverter.Convert(e);
             }
+        }
+
+        public T SendRequestAndDeserializeObject<T>(
+           string resourcePath,
+           RestRequestMethod method,
+           Dictionary<string, string> additionalHeaders = null,
+           Dictionary<string, string> queryParameters = null,
+           List<HttpStatusCode> expectedStatusCodes = null) where T : new()
+        {
+            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes);
         }
 
         /// <summary>

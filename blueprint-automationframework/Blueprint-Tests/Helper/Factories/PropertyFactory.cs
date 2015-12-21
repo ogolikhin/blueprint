@@ -8,12 +8,12 @@ using Model.Impl;
 
 namespace Helper.Factories
 {
-    public class PropertyFactory
+    public static class PropertyFactory
     {
-        private static Dictionary<string, IProperty> DefaultProperties()
+        private static Dictionary<string, IAProperty> DefaultProperties()
         {
-            Dictionary<string, IProperty> _properties = new Dictionary<string, IProperty>();
-            IProperty _property = new Property();
+            Dictionary<string, IAProperty> _properties = new Dictionary<string, IAProperty>();
+            IAProperty _property = new AProperty();
             //first entry
             _property.PropertyTypeId = 50;
             _property.Name = "Name";
@@ -34,10 +34,10 @@ namespace Helper.Factories
             return _properties;
         }
 
-        public static List<IProperty> AddProperty(String propertyName, string propertyTextOrChoiceValue = null)
+        public static List<IAProperty> AddProperty(String propertyName, string propertyTextOrChoiceValue = null)
         {
-            List<IProperty> _properties = new List<IProperty>();
-            Dictionary<string, IProperty> defaultProperties = DefaultProperties();
+            List<IAProperty> _properties = new List<IAProperty>();
+            Dictionary<string, IAProperty> defaultProperties = DefaultProperties();
             if (propertyTextOrChoiceValue != null)
             {
                 defaultProperties[propertyName].TextOrChoiceValue = propertyTextOrChoiceValue;

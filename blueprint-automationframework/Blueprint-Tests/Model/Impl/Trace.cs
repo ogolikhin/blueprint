@@ -2,7 +2,7 @@
 
 namespace Model.Impl
 {
-    public class Trace
+    public class Trace : ITrace
     {
         public string Type { get; set; }
         public string Direction { get; set; }
@@ -10,7 +10,7 @@ namespace Model.Impl
         public int ArtifactId { get; set; }
         public string ArtifactPropertyName { get; set; }
         public string Label { get; set; }
-        public string BlueprintUrl { get; set; }
+        public Uri BlueprintUrl { get; set; }
         public string Link { get; set; }
         public bool IsSuspect { get; set; }
     }

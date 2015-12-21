@@ -10,7 +10,7 @@ namespace OpenAPITests
     [Category(Categories.OpenAPI)]
     public class ArtifactTests
     {
-        private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
+        //private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
         private IUser _user = null;
         private IArtifactStore _artifactStore = ArtifactStoreFactory.CreateArtifactStore("http://bpakvmsys08:8080/");
 

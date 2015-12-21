@@ -20,7 +20,7 @@ namespace Helper.Factories
             return artifactstore;
         }
 
-        [Obsolete]
+        [Obsolete("Under developement")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IArtifactStore GetArtifactStoreFromTestConfig()
         {

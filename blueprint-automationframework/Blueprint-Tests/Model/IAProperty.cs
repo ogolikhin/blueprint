@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-    public interface IProperty
+    public interface IAProperty
     {
         int PropertyTypeId { get; set; }
         string Name { get; set; }
@@ -14,8 +14,8 @@ namespace Model
         string TextOrChoiceValue { get; set; }
         bool IsRichText { get; set; }
         bool IsReadOnly { get; set; }
-        List<object> UsersAndGroups { get; set; }
-        List<object> Choices { get; set; }
+        List<object> UsersAndGroups { get; }
+        List<object> Choices { get; }
         string DateValue { get; set; }
     }
 }

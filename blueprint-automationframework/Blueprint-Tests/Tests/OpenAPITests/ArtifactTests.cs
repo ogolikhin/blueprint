@@ -30,6 +30,7 @@ namespace OpenAPITests
         }
 
         [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         public void ArtifactCreation()
         {
             ArtifactCreation(1, 90);

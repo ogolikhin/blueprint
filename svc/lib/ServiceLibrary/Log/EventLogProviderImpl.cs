@@ -7,9 +7,16 @@ namespace ServiceLibrary.Log
     {
         public EventLogProviderImpl(string source, string logName)
         {
-            if (!EventLog.SourceExists(source))
+            try
             {
-                EventLog.CreateEventSource(source, logName);
+                if (!EventLog.SourceExists(source))
+                {
+                    EventLog.CreateEventSource(source, logName);
+                }
+            }
+            catch
+            {
+                //Temporarily hide all exceptions
             }
         }
 

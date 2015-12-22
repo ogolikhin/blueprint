@@ -1,15 +1,5 @@
-﻿
--- --------------------------------------------------
--- Set the DB
--- --------------------------------------------------
-SET QUOTED_IDENTIFIER ON;
-GO
-USE [Blueprint_FileStorage]; -- REPLACE --
-GO
-SET NOCOUNT ON;
-GO
--- --------------------------------------------------
-
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".sql" #>
 
 -- --------------------------------------------------
 -- Migration 7.0.0.0
@@ -29,4 +19,3 @@ IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.0') <> 0)
 GO
 set noexec off
 -- --------------------------------------------------
-

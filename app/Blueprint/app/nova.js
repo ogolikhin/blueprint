@@ -140,7 +140,7 @@
                                      }
                                      var graph = new mxGraph(container);
                                      graph.setCellsMovable(true);
-                                     graph.setAutoSizeCells(true);
+                                     graph.setAutoSizeCells(false);
                                      graph.setPanning(true);
                                      graph.centerZoom = true;
                                      graph.panningHandler.useLeftButtonForPanning = true;
@@ -155,11 +155,11 @@
                                      style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
                                      // style[mxConstants.STYLE_SPACING_LEFT] = 54;
 
-                                     style[mxConstants.STYLE_GRADIENTCOLOR] = '#B7CEE2';
-                                     //style[mxConstants.STYLE_STROKECOLOR] = '#5d65df';
-                                     style[mxConstants.STYLE_FILLCOLOR] = '#F8F8F8';
+                                     style[mxConstants.STYLE_GRADIENTCOLOR] = '#dddddd';
+                                     style[mxConstants.STYLE_STROKECOLOR] = '#999999';
+                                     style[mxConstants.STYLE_FILLCOLOR] = '#ffffff';
 
-                                     style[mxConstants.STYLE_FONTCOLOR] = '#337ab7';
+                                     style[mxConstants.STYLE_FONTCOLOR] = '#333333';
                                      style[mxConstants.STYLE_FONTFAMILY] = '"Helvetica Neue",Helvetica,Arial,sans-serif';
                                      style[mxConstants.STYLE_FONTSIZE] = '12';
                                      style[mxConstants.STYLE_FONTSTYLE] = '0';
@@ -183,6 +183,7 @@
                                      style[mxConstants.STYLE_ENTRY_X] = 0; // left
                                      style[mxConstants.STYLE_ENTRY_Y] = 0.5; // center
                                      style[mxConstants.STYLE_ENTRY_PERIMETER] = 0; // disabled
+                                     style[mxConstants.STYLE_STROKECOLOR] = '#999999';
 
                                      // Disable the following for straight lines
                                      style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
@@ -231,16 +232,16 @@
                                      };
 
                                      // Fix for wrong preferred size
-                                     var oldGetPreferredSizeForCell = graph.getPreferredSizeForCell;
-                                     graph.getPreferredSizeForCell = function(cell) {
-                                         var result = oldGetPreferredSizeForCell.apply(this, arguments);
+                                     // var oldGetPreferredSizeForCell = graph.getPreferredSizeForCell;
+                                     // graph.getPreferredSizeForCell = function(cell) {
+                                     //     var result = oldGetPreferredSizeForCell.apply(this, arguments);
 
-                                         if (result != null) {
-                                             result.width = Math.max(120, result.width - 40);
-                                         }
+                                     //     if (result != null) {
+                                     //         result.width = Math.max(120, result.width - 40);
+                                     //     }
 
-                                         return result;
-                                     };
+                                     //     return result;
+                                     // };
 
                                      // Sets the maximum text scale to 1
                                      graph.cellRenderer.getTextScale = function(state) {
@@ -271,22 +272,20 @@
                                      var v1;
 
 
-                                     // Adds the root vertex of the tree
-                                     graph.getModel().beginUpdate();
-                                     try {
-                                         var w = graph.container.offsetWidth;
-                                         v1 = graph.insertVertex(parent, 'treeRoot', 'Task');
-                                         graph.updateCellSize(v1);
-                                         addOverlays(graph, v1, false);
+                                    graph.getModel().beginUpdate();         
+                                    try
+                                    {
+                                        v1 = addTask(graph,null)
 
-                                     } finally {
-                                         // Updates the display
-                                         graph.getModel().endUpdate();
-                                     }
+                                    }
+                                    finally
+                                    {
+                                        // Updates the display
+                                        graph.getModel().endUpdate();
+                                    }
 
-                                     graph.bpStop = addStop(graph, v1);
-                                     addStart(graph, v1);
-
+                                    graph.bpStop = addStop(graph, v1);
+                                    addStart(graph, v1);
 
                                  }
                              );
@@ -372,7 +371,7 @@
                              // Enables automatic sizing for vertices after editing and
                              // panning by using the left mouse button.
                              graph.setCellsMovable(true);
-                             graph.setAutoSizeCells(true);
+                             graph.setAutoSizeCells(false);
                              graph.setPanning(true);
                              graph.centerZoom = true;
                              graph.panningHandler.useLeftButtonForPanning = true;
@@ -401,11 +400,11 @@
                              style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
                              // style[mxConstants.STYLE_SPACING_LEFT] = 54;
 
-                             style[mxConstants.STYLE_GRADIENTCOLOR] = '#B7CEE2';
-                             //style[mxConstants.STYLE_STROKECOLOR] = '#5d65df';
-                             style[mxConstants.STYLE_FILLCOLOR] = '#F8F8F8';
+                             style[mxConstants.STYLE_GRADIENTCOLOR] = '#dddddd';
+                             //style[mxConstants.STYLE_STROKECOLOR] = '#999999';
+                             style[mxConstants.STYLE_FILLCOLOR] = '#ffffff';
 
-                             style[mxConstants.STYLE_FONTCOLOR] = '#337ab7';
+                             style[mxConstants.STYLE_FONTCOLOR] = '#333333';
                              style[mxConstants.STYLE_FONTFAMILY] = '"Helvetica Neue",Helvetica,Arial,sans-serif';
                              style[mxConstants.STYLE_FONTSIZE] = '12';
                              style[mxConstants.STYLE_FONTSTYLE] = '0';
@@ -429,6 +428,7 @@
                              style[mxConstants.STYLE_ENTRY_X] = 0; // left
                              style[mxConstants.STYLE_ENTRY_Y] = 0.5; // center
                              style[mxConstants.STYLE_ENTRY_PERIMETER] = 0; // disabled
+                             style[mxConstants.STYLE_STROKECOLOR] = '#999999';
 
                              // Disable the following for straight lines
                              style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
@@ -510,16 +510,16 @@
                              };
 
                              // Fix for wrong preferred size
-                             var oldGetPreferredSizeForCell = graph.getPreferredSizeForCell;
-                             graph.getPreferredSizeForCell = function(cell) {
-                                 var result = oldGetPreferredSizeForCell.apply(this, arguments);
+                             // var oldGetPreferredSizeForCell = graph.getPreferredSizeForCell;
+                             // graph.getPreferredSizeForCell = function(cell) {
+                             //     var result = oldGetPreferredSizeForCell.apply(this, arguments);
 
-                                 if (result != null) {
-                                     result.width = Math.max(120, result.width - 40);
-                                 }
+                             //     if (result != null) {
+                             //         result.width = Math.max(120, result.width - 40);
+                             //     }
 
-                                 return result;
-                             };
+                             //     return result;
+                             // };
 
                              // Sets the maximum text scale to 1
                              graph.cellRenderer.getTextScale = function(state) {
@@ -551,20 +551,21 @@
 
 
                              // Adds the root vertex of the tree
-                             graph.getModel().beginUpdate();
-                             try {
-                                 var w = graph.container.offsetWidth;
-                                 v1 = graph.insertVertex(parent, 'treeRoot', 'Task');
-                                 graph.updateCellSize(v1);
-                                 addOverlays(graph, v1, false);
+                            graph.getModel().beginUpdate();         
+                            try
+                            {
+                                v1 = addTask(graph,null)
 
-                             } finally {
-                                 // Updates the display
-                                 graph.getModel().endUpdate();
-                             }
+                            }
+                            finally
+                            {
+                                // Updates the display
+                                graph.getModel().endUpdate();
+                            }
 
-                             graph.bpStop = addStop(graph, v1);
-                             addStart(graph, v1);
+                            graph.bpStop = addStop(graph, v1);
+                            addStart(graph, v1);
+
 
                              /*
 
@@ -745,7 +746,7 @@
                  type: 'autoHideGroup',
                  alignment: 'right',
                  width: 100,
-                 unpinnedWidth: 200,
+                 unpinnedWidth: 300,
 
                  items: [{
                      type: 'layoutPanel',

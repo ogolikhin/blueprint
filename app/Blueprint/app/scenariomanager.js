@@ -68,7 +68,7 @@ bpApp.directive('mxgraph', function() {
 			// Enables automatic sizing for vertices after editing and
 			// panning by using the left mouse button.
 			graph.setCellsMovable(true);
-			graph.setAutoSizeCells(true);
+			graph.setAutoSizeCells(false);
 			graph.setPanning(true);
 			graph.centerZoom = false;
 			graph.panningHandler.useLeftButtonForPanning = true;
@@ -97,11 +97,11 @@ bpApp.directive('mxgraph', function() {
 			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
 			// style[mxConstants.STYLE_SPACING_LEFT] = 54;
 			
-			style[mxConstants.STYLE_GRADIENTCOLOR] = '#B7CEE2';
-			//style[mxConstants.STYLE_STROKECOLOR] = '#5d65df';
-			style[mxConstants.STYLE_FILLCOLOR] = '#F8F8F8';
+			style[mxConstants.STYLE_GRADIENTCOLOR] = '#dddddd';
+			style[mxConstants.STYLE_STROKECOLOR] = '#999999';
+			style[mxConstants.STYLE_FILLCOLOR] = '#ffffff';
 			
-			style[mxConstants.STYLE_FONTCOLOR] = '#337ab7';
+			style[mxConstants.STYLE_FONTCOLOR] = '#333333';
 			style[mxConstants.STYLE_FONTFAMILY] = '"Helvetica Neue",Helvetica,Arial,sans-serif';
 			style[mxConstants.STYLE_FONTSIZE] = '12';
 			style[mxConstants.STYLE_FONTSTYLE] = '0';
@@ -125,6 +125,7 @@ bpApp.directive('mxgraph', function() {
 			style[mxConstants.STYLE_ENTRY_X] = 0; // left
 			style[mxConstants.STYLE_ENTRY_Y] = 0.5; // center
 			style[mxConstants.STYLE_ENTRY_PERIMETER] = 0; // disabled
+			style[mxConstants.STYLE_STROKECOLOR] = '#999999';
 			
 			// Disable the following for straight lines
 			style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
@@ -139,16 +140,6 @@ bpApp.directive('mxgraph', function() {
 			//pegah var layout = new mxCompactTreeLayout(graph, false);
 			
 			var layout = new mxCompactTreeLayout(graph, true);
-
-
-
-
-
-
-
-
-
-
 
 //var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
 				
@@ -192,14 +183,6 @@ bpApp.directive('mxgraph', function() {
 					edgeHandleConnect.apply(this, arguments);
 					executeLayout();
 				};
-				
-
-
-
-
-
-
-
 //
 
 //
@@ -284,11 +267,7 @@ bpApp.directive('mxgraph', function() {
 			graph.getModel().beginUpdate();			
 			try
 			{
-				var w = graph.container.offsetWidth;
-				v1 = graph.insertVertex(parent, 'treeRoot','Task');				
-				graph.updateCellSize(v1);
-				addOverlays(graph, v1, false);
-
+				v1 = addTask(graph,null)
 			}
 			finally
 			{

@@ -11,6 +11,7 @@ namespace Model.Impl
     public class AccessControl : IAccessControl
     {
         private const string SVC_PATH = "svc/accesscontrol";
+        private const string TOKEN_HEADER = "Session-Token";
 
         private static string _address;
 
@@ -28,14 +29,18 @@ namespace Model.Impl
             _address = address;
         }
 
+        /// <summary>
+        /// Extracts the session token from the specified RestResponse.
+        /// </summary>
+        /// <param name="response">The RestResponse containing the session token.</param>
+        /// <returns>A session token, or null if no token was found.</returns>
         private static string GetToken(RestResponse response)
         {
-            const string tokenHeader = "Session-Token";
             string token = null;
 
-            if (response.Headers.ContainsKey(tokenHeader))
+            if (response.Headers.ContainsKey(TOKEN_HEADER))
             {
-                token = (string)response.Headers[tokenHeader];
+                token = (string)response.Headers[TOKEN_HEADER];
             }
 
             return token;
@@ -45,12 +50,33 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public void AuthorizeOperation(int userId, string operation = null, IArtifact artifact = null)    // PUT /sessions[/{op}[/{artifactId}]]
+        public ISession AuthorizeOperation(ISession session) // PUT /sessions
         {
             throw new NotImplementedException();
         }
 
-        public ISession CreateSession(int userId,
+        public ISession AuthorizeOperation(ISession session, string operation) // PUT /sessions/{op}
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISession AuthorizeOperation(ISession session, string operation, int artifactId)    // PUT /sessions/{op}/{artifactId}
+        {
+            if (session == null) { throw new ArgumentNullException(nameof(session)); }
+            if (operation == null) { throw new ArgumentNullException(nameof(operation)); }
+
+            var restApi = new RestApiFacade(_address, session.SessionId);
+            string path = string.Format("{0}/sessions/{1}/{2}", SVC_PATH, operation, artifactId);
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string> {{ TOKEN_HEADER, session.SessionId }};
+
+            Logger.WriteTrace("path = '{0}'.", path);
+            Logger.WriteInfo("Put Session for User ID: {0}.", session.UserId);
+            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT, additionalHeaders);
+
+            return returnedSession;
+        }
+
+        public ISession AddSession(int userId,
             string username = null,
             DateTime? beginTime = null,
             DateTime? endTime = null,
@@ -89,11 +115,11 @@ namespace Model.Impl
             return session;
         }
 
-        public ISession CreateSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)   // POST /sessions/{userId}
         {
             if (session == null) { throw new ArgumentNullException(nameof(session)); }
 
-            return CreateSession(session.UserId,
+            return AddSession(session.UserId,
                 session.UserName,
                 session.BeginTime,
                 session.EndTime,
@@ -104,34 +130,38 @@ namespace Model.Impl
 
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
-            if (session == null) { throw new ArgumentNullException(nameof(session)); }
-
             var restApi = new RestApiFacade(_address, string.Empty);
             const string sessionTokenHeader = "Session-Token";
             string path = string.Format("{0}/sessions/", SVC_PATH);
             Dictionary<string, string> additionalHeaders = null;
 
             // We need the Session Token to identify which session to delete.
-            if (session.SessionId != null)
+            if (session?.SessionId != null)
             {
-                additionalHeaders = new Dictionary<string, string> {{sessionTokenHeader, session.SessionId}};
+                additionalHeaders = new Dictionary<string, string> {{sessionTokenHeader, session?.SessionId}};
             }
 
-            Logger.WriteInfo("Deleting session '{0}'.", session.SessionId);
+            Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
             // Remove the session from the list of created sessions.
             Sessions.Remove(session);
         }
 
-        public ISession GetSession(int userId, uint pageSize, uint pageNumber)    // GET /sessions  or  GET /sessions/select?ps={ps}&pn={pn}
+        public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
             var restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions/{1}", SVC_PATH, userId);
+            string path = string.Format("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToString() : string.Empty));
 
+            Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Getting Session for User ID: {0}.", userId);
             ISession session = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.GET);
             return session;
+        }
+
+        public List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber) // GET /sessions/select?ps={ps}&pn={pn}
+        {
+            throw new NotImplementedException();
         }
 
         public HttpStatusCode GetStatus()    // GET /status

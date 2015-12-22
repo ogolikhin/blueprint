@@ -17,9 +17,34 @@ namespace Utilities
     #region Exceptions
 
     [Serializable]
+    public class Http400BadRequestException : WebException
+    {
+        public const string ERROR = "Received status code: 400";
+
+        public Http400BadRequestException()
+        { }
+
+        public Http400BadRequestException(WebException ex)
+            : base(((ex == null) ? ERROR : ex.Message), ex)
+        { }
+
+        public Http400BadRequestException(string msg)
+            : base(msg)
+        { }
+
+        public Http400BadRequestException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected Http400BadRequestException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+    }
+
+    [Serializable]
     public class Http401UnauthorizedException : WebException
     {
-        public const string ERROR = "(401) Unauthorized";
+        public const string ERROR = "Received status code: 401";
 
         public Http401UnauthorizedException()
         {}
@@ -42,26 +67,26 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http403BadRequestException : WebException
+    public class Http403ForbiddenException : WebException
     {
-        public const string ERROR = "(403) Bad Request";
+        public const string ERROR = "Received status code: 403";
 
-        public Http403BadRequestException()
+        public Http403ForbiddenException()
         {}
 
-        public Http403BadRequestException(WebException ex)
+        public Http403ForbiddenException(WebException ex)
             : base(((ex == null) ? ERROR : ex.Message), ex)
         {}
 
-        public Http403BadRequestException(string msg)
+        public Http403ForbiddenException(string msg)
             : base(msg)
         {}
 
-        public Http403BadRequestException(string msg, Exception e)
+        public Http403ForbiddenException(string msg, Exception e)
             : base(msg, e)
         {}
 
-        protected Http403BadRequestException(SerializationInfo info, StreamingContext context)
+        protected Http403ForbiddenException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {}
     }
@@ -69,7 +94,7 @@ namespace Utilities
     [Serializable]
     public class Http404NotFoundException : WebException
     {
-        public const string ERROR = "(404) Not Found";
+        public const string ERROR = "Received status code: 404";
 
         public Http404NotFoundException()
         {}
@@ -119,7 +144,7 @@ namespace Utilities
     [Serializable]
     public class Http406NotAcceptableException : WebException
     {
-        public const string ERROR = "(406) Not Acceptable";
+        public const string ERROR = "Received status code: 406";
 
         public Http406NotAcceptableException()
         {}
@@ -144,7 +169,7 @@ namespace Utilities
     [Serializable]
     public class Http500InternalServerErrorException : WebException
     {
-        public const string ERROR = "(500) Internal Server Error";
+        public const string ERROR = "Received status code: 500";
 
         public Http500InternalServerErrorException()
         {}
@@ -169,7 +194,7 @@ namespace Utilities
     [Serializable]
     public class Http503ServiceUnavailableException : WebException
     {
-        public const string ERROR = "(503) Service Unavailable";
+        public const string ERROR = "Received status code: 500";
 
         public Http503ServiceUnavailableException()
         {}
@@ -283,13 +308,17 @@ namespace Utilities
         {
             if (ex == null) { throw new ArgumentNullException ("ex"); }
 
-            if (ex.Message.Contains(Http401UnauthorizedException.ERROR))
+            if (ex.Message.Contains(Http400BadRequestException.ERROR))
+            {
+                ex = new Http400BadRequestException(ex);
+            }
+            else if (ex.Message.Contains(Http401UnauthorizedException.ERROR))
             {
                 ex = new Http401UnauthorizedException(ex);
             }
-            else if (ex.Message.Contains(Http403BadRequestException.ERROR))
+            else if (ex.Message.Contains(Http403ForbiddenException.ERROR))
             {
-                ex = new Http403BadRequestException(ex);
+                ex = new Http403ForbiddenException(ex);
             }
             else if (ex.Message.Contains(Http404NotFoundException.ERROR))
             {

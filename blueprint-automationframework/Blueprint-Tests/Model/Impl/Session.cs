@@ -1,17 +1,23 @@
 ﻿
 using System;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
     public class Session : ISession
     {
         // These properties are returned in the Response Body of a GET request.
+        [JsonProperty("UserId")]
         public int UserId { get; private set; }
+        [JsonProperty("UserName")]
+        public string UserName { get; private set; }
+        [JsonProperty("IsSso")]
+        public bool IsSso { get; private set; }
+        [JsonProperty("LicenseLevel")]
+        public int LicenseLevel { get; private set; }
+
         public DateTime? BeginTime { get; private set; }
         public DateTime? EndTime { get; private set; }
-        public string UserName { get; private set; }
-        public bool IsSso { get; private set; }
-        public int LicenseLevel { get; private set; }
 
         /// <summary>
         /// The Session ID token is returned in the HTTP headers.

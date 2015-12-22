@@ -1,15 +1,10 @@
-﻿using System.Net;
-
-using NUnit.Framework;
-using System.Collections.Generic;
+﻿using NUnit.Framework;
 using CustomAttributes;
-using Model.Facades;
 using Model.Factories;
-using TestConfig;
 using Helper.Factories;
 using Logging;
 using Model;
-using Model.Impl;
+using Utilities;
 
 namespace AccessControlTests
 {
@@ -17,158 +12,115 @@ namespace AccessControlTests
     [Category(Categories.AccessControl)]
     public class SessionsTests
     {
-        private const string _serviceRoute = "svc/accesscontrol/";
-        private const string _sessionRoute = "sessions/";
-
-        private static Dictionary<string, Service> _services = TestConfiguration.GetInstance().Services;
-        private static string _sessionUrl = _services["AccessControl"].Address + _serviceRoute + _sessionRoute;
-
         private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
-        private ISession _randomSession = null;
 
-
-        [SetUp]
-        public void SetUp()
-        {
-            // Setup: Create a random session.
-            _randomSession = SessionFactory.CreateRandomSession();
-        }
 
         [TearDown]
         public void TearDown()
         {
+            Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
             // Delete all sessions created by the tests.
             _accessControl.Sessions.ForEach(s => _accessControl.DeleteSession(s));
         }
 
-        [Test]
-        public void PostNewSession_OK()
+        /// <summary>
+        /// Adds (POST's) the specified session to the AccessControl service.
+        /// </summary>
+        /// <param name="session">The session to add.</param>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession AddSessionToAccessControl(ISession session)
         {
             // POST the new session.
-            ISession createdSession = _accessControl.CreateSession(_randomSession);
+            ISession createdSession = _accessControl.AddSession(session);
 
             // Verify that the POST returned the expected session.
-            Assert.True(_randomSession.Equals(createdSession),
+            Assert.True(session.Equals(createdSession),
                 "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
-                createdSession.SessionId, _randomSession.SessionId);
+                createdSession.SessionId, session.SessionId);
 
-            // Verify that the session was saved by AccessControl.
-            ISession session = _accessControl.GetSession(_randomSession.UserId);
-            Assert.True(_randomSession.Equals(session),
-                "GET returned a different session than expected!  Got '{0}', but expected '{1}'.",
-                session.SessionId, _randomSession.SessionId);
+            return createdSession;
+        }
+
+        /// <summary>
+        /// Creates a random session and adds (POST's) it to the AccessControl service.
+        /// </summary>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession CreateAndAddSessionToAccessControl()
+        {
+            ISession randomSession = SessionFactory.CreateRandomSession();
+
+            // POST the new session.
+            return AddSessionToAccessControl(randomSession);
         }
 
         [Test]
-        public static void PutSession_OK()
+        public void PostNewSession_Verify200OK()
         {
+            // POST the new session.  There should be no errors.
+            CreateAndAddSessionToAccessControl();
+        }
+
+        [Test]
+        public void PutSessionWithSessionToken_Verify200OK()
+        {
+            ISession createdSession = CreateAndAddSessionToAccessControl();
             int artifactId = RandomGenerator.RandomNumber();
-            ISession expectedSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectedSession);
-            string action = "do_some_artifact_action/";//in current implementation it is an optional parameter to identify operation
 
-            var response = WebRequestFacade.GetWebResponseFacade(_sessionUrl + action + artifactId, "PUT", headers);
-            var session = response.GetBlueprintObject<Session>();
+            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, "do_some_action", artifactId);
 
-            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "'PUT {0}' should return {1}, but failed with {2}",
-                _sessionUrl + action + expectedSession.UserId, HttpStatusCode.OK, response.StatusCode);
-            Assert.True(expectedSession.Equals(session));
-            DeleteSession(headers);
+            Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }
 
         [Test]
-        public static void PutSession_BadRequest()
+        public void PutSessionWithoutSessionToken_Verify400BadRequest()
         {
-            ISession expectedSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectedSession);
-            
-            string action = "do_some_action/";//in current implementation it is an optional parameter to identify operation
-            var session = WebRequestFacade.GetWebResponseFacade(_sessionUrl + action + RandomGenerator.RandomNumber(), "PUT");
+            ISession session = SessionFactory.CreateRandomSession();
+            int artifactId = RandomGenerator.RandomNumber();
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, session.StatusCode, "'PUT {0}' should return {1}, but failed with {2}",
-                _sessionUrl + action, HttpStatusCode.BadRequest, session.StatusCode);
-            DeleteSession(headers);
-        }
-
-        [Test]
-        public static void GetSessionsWithoutSessionToken_OK()
-        {
-            ISession expectedSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectedSession);
-
-            var response = WebRequestFacade.GetWebResponseFacade(CreateSessionUrl(expectedSession));
-            var session = response.GetBlueprintObject<Session>();
-
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "'GET {0}' should return {1}, but failed with {2}",
-                _sessionUrl + expectedSession.UserId, HttpStatusCode.NotFound, response.StatusCode);
-            DeleteSession(headers);
-            Assert.True(expectedSession.Equals(session));
-        }
-
-        [Test]
-        public static void DeleteSessions_OK()
-        {
-            ISession expectedSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectedSession);
-
-            var response = DeleteSession(headers);
-
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "'DELETE {0}' should return {1}, but failed with {2}",
-                _sessionUrl, HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Test]
-        public static void DeleteSessions_BadRequest()
-        {
-            ISession expectedSession = SessionFactory.CreateRandomSession();
-            Dictionary<string, string> headers = GetSessionToken(expectedSession);
-
-            var response = WebRequestFacade.GetWebResponseFacade(_sessionUrl, "DELETE");
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode, "'DELETE {0}' should return {1}, but failed with {2}",
-                _sessionUrl, HttpStatusCode.BadRequest, response.StatusCode);
-            DeleteSession(headers);
-        }
-
-        /// <summary>
-        /// Returns header with Session-Token.
-        /// </summary>
-        /// <param name="userId">Id to use for Session-Token creation</param>
-        /// <param name="userName">username</param>
-        /// <param name="licenseLevel">license - now any int</param>
-        /// <param name="isSso">boolean value</param>
-        /// <returns>Header with valid Session-Token</returns>
-        private static Dictionary<string, string> GetSessionToken(ISession session)
-        {
-            var requestToken = WebRequestFacade.GetWebResponseFacade(CreateSessionUrl(session) + "?userName=" +
-                session.UserName + "&licenseLevel=" + session.LicenseLevel + "&isSso=" + session.IsSso, "POST");
-
-            Assert.AreEqual(requestToken.StatusCode, HttpStatusCode.OK, "'POST {0}' should return {1}, but failed with {2}",
-                _sessionUrl + session.UserId, HttpStatusCode.OK, requestToken.StatusCode);
-
-            Dictionary<string, string> headers = new Dictionary<string, string>
+            Assert.Throws<Http400BadRequestException>(() =>
             {
-                {"Session-Token", requestToken.GetHeaderValue("Session-Token")}
-            };
-
-            return headers;
+                _accessControl.AuthorizeOperation(session, "do_some_action", artifactId);
+            }, "Calling PUT without a session token should return 400 Bad Request!");
         }
 
-        private static WebResponseFacade DeleteSession(Dictionary <string, string> headers)
+        [Test]
+        public void GetSessionForUserIdWithActiveSession_VerifyPostAndGetSessionsMatch()
         {
-            return WebRequestFacade.GetWebResponseFacade(_sessionUrl, "DELETE", headers);
+            ISession addedSession = CreateAndAddSessionToAccessControl();
+
+            ISession returnedSession = _accessControl.GetSession(addedSession.UserId);
+
+            Assert.That(addedSession.Equals(returnedSession), "'GET {0}' returned a different session than the one we added!", addedSession.UserId);
         }
 
-        /// <summary>
-        /// Creates url for PostSession request.
-        /// </summary>
-        /// <param name="userId">Id to use for Session-Token creation</param>
-        /// <param name="userName">username</param>
-        /// <param name="licenseLevel">license - now any int</param>
-        /// <param name="isSso">boolean value</param>
-        /// <returns>url for Session object</returns>
-        private static string CreateSessionUrl(ISession session)
+        [Test]
+        public void GetSessionsForUserIdWithNoActiveSessions_Verify404NotFound()
         {
-            return _sessionUrl + session.UserId;
+            // Add 1 session to AccessControl.
+            CreateAndAddSessionToAccessControl();
+
+            // Now create another session, but don't add it to AccessControl.
+            ISession randomSession = SessionFactory.CreateRandomSession();
+
+            // Try to get the session without the session token, which should give a 404 error.
+            Assert.Throws<Http404NotFoundException>(() => { _accessControl.GetSession(randomSession.UserId); });
+        }
+
+        [Test]
+        public void DeleteSessionWithSessionToken_Verify200OK()
+        {
+            // Setup: Create a session to be deleted.
+            ISession createdSession = CreateAndAddSessionToAccessControl();
+
+            // Delete the session.  We should get no errors.
+            _accessControl.DeleteSession(createdSession);
+        }
+
+        [Test]
+        public void DeleteSessionsWithoutSessionToken_Verify400BadRequest()
+        {
+            // Call the DELETE RestAPI without a session token which should return a 400 error.
+            Assert.Throws<Http400BadRequestException>(() => { _accessControl.DeleteSession(null); });
         }
     }
 }

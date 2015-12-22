@@ -20,11 +20,14 @@ namespace Utilities.Factories
 
             switch (statusCode)
             {
+                case 400:
+                    ex = new Http400BadRequestException(message);
+                    break;
                 case 401:
                     ex = new Http401UnauthorizedException(message);
                     break;
                 case 403:
-                    ex = new Http403BadRequestException(message);
+                    ex = new Http403ForbiddenException(message);
                     break;
                 case 404:
                     ex = new Http404NotFoundException(message);

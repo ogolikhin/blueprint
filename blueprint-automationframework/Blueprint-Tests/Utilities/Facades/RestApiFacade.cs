@@ -240,8 +240,9 @@ namespace Utilities.Facades
         /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user. 
         /// If you don't want to use a token, you should pass an empty string here.</param>
         public RestApiFacade(string baseAddress, string token = null)
-            : this(new Uri(baseAddress), null, null, token)
         {
+            _baseUri = new Uri(baseAddress);
+            _token = token;
         }
 
         /// <summary>

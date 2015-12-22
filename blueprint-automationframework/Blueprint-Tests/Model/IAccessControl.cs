@@ -7,11 +7,54 @@ namespace Model
 {
     public interface IAccessControl
     {
+        /// <summary>
+        /// Stores a list of sessions that were added to AccessControl, but haven't been deleted yet.
+        /// Deleting a session should remove it from this list.
+        /// </summary>
         List<ISession> Sessions { get; }
 
-        void AuthorizeOperation(int userId, string operation = null, IArtifact artifact = null);    // PUT /sessions[/{op}[/{artifactId}]]
+        /// <summary>
+        /// Checks if the specified session is not expired.  If the session is valid, its timeout value is extended.
+        /// (Runs: PUT /sessions)
+        /// </summary>
+        /// <param name="session">A session containing a session token to check for authorization.</param>
+        /// <returns>The session that we just authorized.</returns>
+        ISession AuthorizeOperation(ISession session);
 
-        ISession CreateSession(int userId,
+        /// <summary>
+        /// Checks if the specified session is not expired and if the user is authorized to perform the specified operation on the specified artifact.
+        /// If the session is valid, its timeout value is extended.
+        /// (Runs: PUT /sessions/{op})
+        /// </summary>
+        /// <param name="session">A session containing a session token to check for authorization.</param>
+        /// <param name="operation">(optional) The operation to authorize.</param>
+        /// <returns>The session that we just authorized.</returns>
+        ISession AuthorizeOperation(ISession session, string operation);
+
+        /// <summary>
+        /// Checks if the specified session is not expired and if the user is authorized to perform the specified operation on the specified artifact.
+        /// If the session is valid, its timeout value is extended.
+        /// (Runs: PUT /sessions/{op}/{artifactId})
+        /// </summary>
+        /// <param name="session">A session containing a session token to check for authorization.</param>
+        /// <param name="operation">(optional) The operation to authorize.</param>
+        /// <param name="artifactId">(optional) The artifact to authorize.</param>
+        /// <returns>The session that we just authorized.</returns>
+        ISession AuthorizeOperation(ISession session, string operation, int artifactId);
+
+        /// <summary>
+        /// Adds a new session in AccessControl for the specified user and returns the session object containing the new session token.
+        /// (Runs: POST /sessions/{userId})
+        /// </summary>
+        /// <param name="userId">The User ID.</param>
+        /// <param name="username">(optional) The user name.</param>
+        /// <param name="beginTime">(optional) </param>
+        /// <param name="endTime">(optional) </param>
+        /// <param name="isSso">(optional) </param>
+        /// <param name="licenseLevel">(optional) </param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A session object containing the new session token.</returns>
+        ISession AddSession(int userId,
             string username = null,
             DateTime? beginTime = null,
             DateTime? endTime = null,
@@ -19,12 +62,47 @@ namespace Model
             int? licenseLevel = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
-        ISession CreateSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);        // POST /sessions/{userId}
+        /// <summary>
+        /// Adds a new session in AccessControl for the specified user and returns the session object containing the new session token.
+        /// (Runs: POST /sessions/{userId})
+        /// </summary>
+        /// <param name="session">The session to add to AccessControl.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A session object containing the new session token.</returns>
+        ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 
-        void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);   // DELETE /sessions
+        /// <summary>
+        /// Deletes the specified session from AccessControl.
+        /// (Runs: DELETE /sessions)
+        /// </summary>
+        /// <param name="session">The session to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 
-        ISession GetSession(int userId, uint pageSize = 0, uint pageNumber = 0);     // GET /sessions  or  GET /sessions/select?ps={ps}&pn={pn}
+        /// <summary>
+        /// Gets a session for the specified user.
+        /// (Runs: GET /sessions/{userId})
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        ISession GetSession(int? userId);
+
+        /// <summary>
+        /// Gets a session for the specified user.
+        /// (Runs: GET /sessions/select?ps={ps}&pn={pn})
+        /// </summary>
+        /// <param name="adminToken">A token to identify an admin user.</param>
+        /// <param name="pageSize">Page size.</param>
+        /// <param name="pageNumber">Page number.</param>
+        /// <returns>A paged list of existing sessions.</returns>
+        List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber);
+
+        /// <summary>
+        /// Checks if the AccessControl service is ready for operation.
+        /// (Runs: GET /status)
+        /// </summary>
+        /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        HttpStatusCode GetStatus();                         // GET /status
+        HttpStatusCode GetStatus();
     }
 }

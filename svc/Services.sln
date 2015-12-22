@@ -330,4 +330,7 @@ Global
 		{0BACDB24-665D-4CD7-890E-5D2416B407A0} = {C49CE3E3-AF3D-47FA-9B1E-D6C4DD558448}
 		{717F5600-AF8E-4732-B456-A61794BD2B64} = {1A285524-40FC-49C6-B0D8-DF9ED0270E97}
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.Data.6.0.1304.1\lib\NET45
+	EndGlobalSection
 EndGlobal

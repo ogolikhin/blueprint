@@ -42,15 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="Migration\7.0.0.0\7.0.0.0.sql">
-      <DependentUpon>7.0.0.0.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Content>
-    <Content Include="Migration\7.0.0.0\7.0.0.0.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>7.0.0.0.sql</LastGenOutput>
-    </Content>
     <Content Include="Tables\MigrationLog.sql" />
   </ItemGroup>
   <ItemGroup>

@@ -66,15 +66,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ArtifactStorage_Migration.sql</LastGenOutput>
     </Content>
-    <Content Include="Migration\7.0.0.0\7.0.0.0.sql">
-      <DependentUpon>7.0.0.0.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Content>
-    <Content Include="Migration\7.0.0.0\7.0.0.0.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>7.0.0.0.sql</LastGenOutput>
-    </Content>
     <Content Include="Migration\7.0.1.0\7.0.1.0.sql">
       <DependentUpon>7.0.1.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>

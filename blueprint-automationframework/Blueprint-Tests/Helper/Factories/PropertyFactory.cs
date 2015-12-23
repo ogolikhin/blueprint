@@ -10,10 +10,10 @@ namespace Helper.Factories
 {
     public static class PropertyFactory
     {
-        private static Dictionary<string, IAProperty> DefaultProperties()
+        private static Dictionary<string, IProperty> DefaultProperties()
         {
-            Dictionary<string, IAProperty> _properties = new Dictionary<string, IAProperty>();
-            IAProperty _property = new AProperty();
+            Dictionary<string, IProperty> _properties = new Dictionary<string, IProperty>();
+            IProperty _property = new Property();
             //first entry
             _property.PropertyTypeId = 50;
             _property.Name = "Name";
@@ -34,10 +34,10 @@ namespace Helper.Factories
             return _properties;
         }
 
-        public static List<IAProperty> AddProperty(String propertyName, string propertyTextOrChoiceValue = null)
+        public static List<IProperty> AddProperty(String propertyName, string propertyTextOrChoiceValue = null)
         {
-            List<IAProperty> _properties = new List<IAProperty>();
-            Dictionary<string, IAProperty> defaultProperties = DefaultProperties();
+            List<IProperty> _properties = new List<IProperty>();
+            Dictionary<string, IProperty> defaultProperties = DefaultProperties();
             if (propertyTextOrChoiceValue != null)
             {
                 defaultProperties[propertyName].TextOrChoiceValue = propertyTextOrChoiceValue;

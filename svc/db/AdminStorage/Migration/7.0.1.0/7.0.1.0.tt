@@ -4,12 +4,34 @@
 -- --------------------------------------------------
 -- Migration 7.0.1.0
 -- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Blueprint_AdminStorage]; -- REPLACE --
+GO
+SET NOCOUNT ON;
+GO
 IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
 	set noexec on
 Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Sample.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Scripts\DatabaseRoles.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Types\TracesType.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\SetSchemaVersion.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetStatus.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\BeginSession.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\EndSession.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetApplicationLabels.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetConfigSettings.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetSession.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetUserSession.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\SelectSessions.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetLicensesStatus.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\WriteTraces.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

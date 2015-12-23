@@ -66,7 +66,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<IHttpActionResult> RequestSessionTokenAsync(LoginUser user, bool force = false, bool isSso = false)
+        private async Task<IHttpActionResult> RequestSessionTokenAsync(AuthenticationUser user, bool force = false, bool isSso = false)
         {
             if (!force)
             {
@@ -96,7 +96,7 @@ namespace AdminStore.Controllers
                 var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                 if (!result.IsSuccessStatusCode)
                 {
-	                throw new ServerException();
+                    throw new ServerException();
                 }
                 var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                 var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -109,7 +109,7 @@ namespace AdminStore.Controllers
             }
         }
 
-	    [HttpPost]
+        [HttpPost]
         [Route("sso")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
@@ -175,5 +175,5 @@ namespace AdminStore.Controllers
                 return InternalServerError();
             }
         }
-	}
+    }
 }

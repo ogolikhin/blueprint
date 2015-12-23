@@ -29,7 +29,7 @@ namespace AdminStore.Repositories
             _samlRepository = samlRepository;
         }
 
-        public async Task<LoginUser> AuthenticateUserAsync(string login, string password)
+        public async Task<AuthenticationUser> AuthenticateUserAsync(string login, string password)
         {
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
@@ -72,7 +72,7 @@ namespace AdminStore.Repositories
             return user;
         }
 
-        private async Task ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, LoginUser user, InstanceSettings instanceSettings)
+        private async Task ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, AuthenticationUser user, InstanceSettings instanceSettings)
         {
             switch (authenticationStatus)
             {
@@ -94,7 +94,7 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task<LoginUser> AuthenticateSamlUserAsync(string samlResponse)
+        public async Task<AuthenticationUser> AuthenticateSamlUserAsync(string samlResponse)
         {
             if (string.IsNullOrEmpty(samlResponse))
             {
@@ -128,7 +128,7 @@ namespace AdminStore.Repositories
             return user;
         }
 
-        private AuthenticationStatus AuthenticateDatabaseUser(LoginUser user, string password, int passwordExpirationInDays = 0)
+        private AuthenticationStatus AuthenticateDatabaseUser(AuthenticationUser user, string password, int passwordExpirationInDays = 0)
         {
             var hashedPassword = HashingUtilities.GenerateSaltedHash(password, user.UserSalt);
             if (!string.Equals(user.Password, hashedPassword))
@@ -146,7 +146,7 @@ namespace AdminStore.Repositories
             return AuthenticationStatus.Success;
         }
 
-        private bool HasExpiredPassword(LoginUser user, int passwordExpirationInDays)
+        private bool HasExpiredPassword(AuthenticationUser user, int passwordExpirationInDays)
         {
             // If the value is 0 then password never expires
             if (passwordExpirationInDays <= 0)
@@ -170,7 +170,7 @@ namespace AdminStore.Repositories
             return hasExpiredPassword;
         }
 
-        private async Task LockUserIfApplicable(LoginUser user, InstanceSettings instanceSettings)
+        private async Task LockUserIfApplicable(AuthenticationUser user, InstanceSettings instanceSettings)
         {
             if (instanceSettings.MaximumInvalidLogonAttempts <= 0)
             {

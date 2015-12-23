@@ -8,10 +8,10 @@ namespace AccessControl.Repositories
     [TestClass]
     public class SqlLicensesRepositoryTests
     {
-        #region GetActiveLicenses
+        #region GetLockedLicenses
 
         [TestMethod]
-        public async Task GetActiveLicenses_QueryReturnsValue_ReturnsValue()
+        public async Task GetLockedLicenses_QueryReturnsValue_ReturnsValue()
         {
             // Arrange
             const int userId = 1;
@@ -30,13 +30,13 @@ namespace AccessControl.Repositories
                 }, result);
 
             // Act
-            var count = await repository.GetActiveLicenses(userId, 3, 1440);
+            var count = await repository.GetLockedLicenses(userId, 3, 1440);
 
             // Assert
             cxn.Verify();
             Assert.AreEqual(result, count);
         }
 
-        #endregion
+        #endregion GetLockedLicenses
     }
 }

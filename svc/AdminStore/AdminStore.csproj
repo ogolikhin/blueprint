@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
@@ -114,9 +115,11 @@
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\SystemEncryptions.cs" />
     <Compile Include="Models\ApplicationLabel.cs" />
+    <Compile Include="Models\AuthenticationUser.cs" />
     <Compile Include="Models\FederatedAuthenticationSettings.cs" />
     <Compile Include="Models\InstanceSettings.cs" />
     <Compile Include="Models\LdapSettings.cs" />
+    <Compile Include="Models\LicenseTransactionUser.cs" />
     <Compile Include="Models\LoginUser.cs" />
     <Compile Include="Models\UserGroupSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

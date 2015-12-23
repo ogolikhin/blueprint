@@ -4,6 +4,12 @@
 -- --------------------------------------------------
 -- Migration 7.0.1.0
 -- --------------------------------------------------
+SET QUOTED_IDENTIFIER ON;
+GO
+USE [Blueprint_FileStorage]; -- REPLACE --
+GO
+SET NOCOUNT ON;
+GO
 IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
 	set noexec on
 Print 'Migrating 7.0.1.0 ...'
@@ -14,17 +20,17 @@ Print 'Migrating 7.0.1.0 ...'
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Functions\IsSchemaVersionLessOrEqual.sql" ) ) #>
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\SetSchemaVersion.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\DeleteFile.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\DeleteFileChunk.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadFileHead.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\GetStatus.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\HeadFile.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\InsertFileHead.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\InsertFileChunk.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadFileChunk.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\UpdateFileHead.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( Host.ResolveAssemblyReference("$(ProjectDir)") + @"Procedures\ReadChunkContent.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\SetSchemaVersion.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\DeleteFile.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\DeleteFileChunk.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\ReadFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetStatus.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\HeadFile.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\InsertFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\InsertFileChunk.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\ReadFileChunk.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\UpdateFileHead.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\ReadChunkContent.sql" ) ) #>
 
 
 -- --------------------------------------------------

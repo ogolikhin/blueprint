@@ -6,7 +6,6 @@ using Logging;
 using RestSharp;
 using RestSharp.Authenticators;
 using RestSharp.Extensions;
-using RestSharp.Deserializers;
 using Newtonsoft.Json;
 using Utilities.Factories;
 
@@ -93,14 +92,18 @@ namespace Utilities.Facades
 
             if (_token != null)
             {
-                Logger.WriteTrace("**** Adding Authorization header.");
-                request.AddHeader("Authorization", _token);
+                Logger.WriteTrace("**** Adding Authorization headers.");
+                request.AddHeader("Authorization", _token);     // This is for old OpenAPI.
+                request.AddHeader("Session-Token", _token);     // This is for new AccessControl.
             }
 
             if (additionalHeaders != null)
             {
                 foreach (var header in additionalHeaders)
                 {
+                    // First if the header already exists, remove it so we can replace it.
+                    request.Parameters.RemoveAll(p => { return (p.Name == header.Key); });
+
                     Logger.WriteTrace("**** Adding additional header '{0}'.", header.Key);
                     request.AddHeader(header.Key, header.Value);
                 }
@@ -236,7 +239,7 @@ namespace Utilities.Facades
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="baseAddress">The base URI of the REST calls.
+        /// <param name="baseAddress">The base URI of the REST calls.</param>
         /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user. 
         /// If you don't want to use a token, you should pass an empty string here.</param>
         public RestApiFacade(string baseAddress, string token = null)
@@ -286,9 +289,10 @@ namespace Utilities.Facades
         /// Creates the web request and get the response which is then serialized into the specified type.
         /// </summary>
         /// <typeparam name="T1">The type of object to be returned by this call.</typeparam>
+        /// <typeparam name="T2">The type of object to send for the web request.</typeparam>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
-        /// <typeparam name="T2">The type of JSON object for the web request.</typeparam>
+        /// <param name="jsonObject">The concrete (non-interface) object to serialize and send in the request body.</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>

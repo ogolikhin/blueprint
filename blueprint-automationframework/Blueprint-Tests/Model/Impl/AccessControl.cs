@@ -67,11 +67,10 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(_address, session.SessionId);
             string path = string.Format("{0}/sessions/{1}/{2}", SVC_PATH, operation, artifactId);
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string> {{ TOKEN_HEADER, session.SessionId }};
 
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Put Session for User ID: {0}.", session.UserId);
-            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT, additionalHeaders);
+            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT);
 
             return returnedSession;
         }
@@ -103,7 +102,7 @@ namespace Model.Impl
 
             // Execute POST and get session token from the response.
             Logger.WriteInfo("Creating session for User ID: {0}.", userId);
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, queryParameters: queryParameters);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
             string token = GetToken(response);
             ISession session = new Session(userId, username, licenseLevel.GetValueOrDefault(), isSso.GetValueOrDefault(), token, beginTime, endTime);
@@ -130,19 +129,11 @@ namespace Model.Impl
 
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            const string sessionTokenHeader = "Session-Token";
+            var restApi = new RestApiFacade(_address, session?.SessionId);
             string path = string.Format("{0}/sessions/", SVC_PATH);
-            Dictionary<string, string> additionalHeaders = null;
-
-            // We need the Session Token to identify which session to delete.
-            if (session?.SessionId != null)
-            {
-                additionalHeaders = new Dictionary<string, string> {{sessionTokenHeader, session?.SessionId}};
-            }
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
             // Remove the session from the list of created sessions.
             Sessions.Remove(session);

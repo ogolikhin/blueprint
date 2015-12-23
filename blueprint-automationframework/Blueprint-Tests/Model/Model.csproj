@@ -56,7 +56,7 @@
     <Compile Include="Facades\WebResponseFacade.cs" />
     <Compile Include="Factories\DatabaseFactory.cs" />
     <Compile Include="Factories\RandomGenerator.cs" />
-    <Compile Include="IAProperty.cs" />
+    <Compile Include="IProperty.cs" />
     <Compile Include="IArtifactResult.cs" />
     <Compile Include="IArtifactStore.cs" />
     <Compile Include="IAttachment.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="IGenericDiagram.cs" />
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
-    <Compile Include="Impl\AProperty.cs" />
+    <Compile Include="Impl\Property.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />

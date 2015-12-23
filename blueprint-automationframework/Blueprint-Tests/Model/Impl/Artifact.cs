@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using RestSharp;
 
 namespace Model.Impl
 {
@@ -19,19 +18,19 @@ namespace Model.Impl
         public bool AreTracesReadOnly { get; set; }
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }
-        [JsonConverter(typeof(ConcreteConverter<AProperty>))]
-        public List<IAProperty> Properties { get; private set; }
+        [JsonConverter(typeof(ConcreteConverter<Property>))]
+        public List<IProperty> Properties { get; private set; }
         [JsonConverter(typeof(ConcreteConverter<Comment>))]
         public List<IComment> Comments { get; }
         [JsonConverter(typeof(ConcreteConverter<Trace>))]
         public List<ITrace> Traces { get; }
         [JsonConverter(typeof(ConcreteConverter<Attachment>))]
         public List<IAttachment> Attachments { get; }
-        public void SetProperties(List <IAProperty> aproperty)
+        public void SetProperties(List <IProperty> aproperty)
         {
             if (this.Properties == null)
             {
-                Properties = new List<IAProperty>();
+                Properties = new List<IProperty>();
             }
             Properties = aproperty;
         }

@@ -17,10 +17,10 @@ namespace Model
         bool AreTracesReadOnly { get; set; }
         bool AreAttachmentsReadOnly { get; set; }
         bool AreDocumentReferencesReadOnly { get; set; }
-        List<IAProperty> Properties { get; }
+        List<IProperty> Properties { get; }
         List<IComment> Comments { get; }
         List<ITrace> Traces { get; }
         List<IAttachment> Attachments { get; }
-        void SetProperties(List<IAProperty> aproperty);
+        void SetProperties(List<IProperty> aproperty);
     }
 }

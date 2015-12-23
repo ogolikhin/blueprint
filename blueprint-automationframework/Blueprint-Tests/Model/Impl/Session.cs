@@ -1,12 +1,31 @@
 ﻿
+using System;
+using Newtonsoft.Json;
+
 namespace Model.Impl
 {
     public class Session : ISession
     {
+        // These properties are returned in the Response Body of a GET request.
+        [JsonProperty("UserId")]
         public int UserId { get; private set; }
+        [JsonProperty("UserName")]
         public string UserName { get; private set; }
+        [JsonProperty("IsSso")]
         public bool IsSso { get; private set; }
+        [JsonProperty("LicenseLevel")]
         public int LicenseLevel { get; private set; }
+
+        public DateTime? BeginTime { get; private set; }
+        public DateTime? EndTime { get; private set; }
+
+        /// <summary>
+        /// The Session ID token is returned in the HTTP headers.
+        /// </summary>
+        public string SessionId { get; private set; }
+
+        public Session()
+        { }
 
         /// <summary>
         /// Constructor.
@@ -15,12 +34,19 @@ namespace Model.Impl
         /// <param name="userName">The Username.</param>
         /// <param name="licenseLevel">The license level</param>  // TODO: Should this be an enum?
         /// <param name="isSso"></param>  // TODO: What is this for?
-        public Session(int userId, string userName, int licenseLevel, bool isSso)
+        /// <param name="sessionId">(optional) This is the session token.</param>
+        /// <param name="beginTime">(optional) </param>     // TODO: What is this for?
+        /// <param name="endTime">(optional) </param>       // TODO: What is this for?
+        public Session(int userId, string userName, int licenseLevel, bool isSso,
+            string sessionId = null, DateTime? beginTime = null, DateTime? endTime = null)
         {
-            this.UserId = userId;
-            this.UserName = userName;
-            this.LicenseLevel = licenseLevel;
-            this.IsSso = isSso;
+            UserId = userId;
+            UserName = userName;
+            LicenseLevel = licenseLevel;
+            IsSso = isSso;
+            SessionId = sessionId;
+            BeginTime = beginTime;
+            EndTime = endTime;
         }
 
         /// <summary>

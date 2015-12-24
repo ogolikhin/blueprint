@@ -75,6 +75,7 @@
     <Compile Include="Log\ILogProvider.cs" />
     <Compile Include="Log\LogProvider.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
+    <Compile Include="Models\LicenseTransaction.cs" />
     <Compile Include="Models\LogEntry.cs" />
     <Compile Include="Models\LogLevelEnum.cs" />
     <Compile Include="Models\Session.cs" />

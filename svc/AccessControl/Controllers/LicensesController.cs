@@ -13,71 +13,91 @@ namespace AccessControl.Controllers
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {
-	    private readonly ILicensesRepository _repo;
-	    private readonly ISessionsRepository _sessions;
+        private readonly ILicensesRepository _repo;
+        private readonly ISessionsRepository _sessions;
 
-	    public LicensesController(): this(new SqlLicensesRepository(WebApiConfig.AdminStorage), new SqlSessionsRepository(WebApiConfig.AdminStorage))
+        public LicensesController(): this(new SqlLicensesRepository(WebApiConfig.AdminStorage), new SqlSessionsRepository(WebApiConfig.AdminStorage))
         {
         }
 
-	    internal LicensesController(ILicensesRepository repo, ISessionsRepository sessions)
-	    {
-		    _repo = repo;
-		    _sessions = sessions;
-	    }
+        internal LicensesController(ILicensesRepository repo, ISessionsRepository sessions)
+        {
+            _repo = repo;
+            _sessions = sessions;
+        }
 
-		private string GetHeaderSessionToken()
-		{
-			if (Request.Headers.Contains("Session-Token") == false)
-				throw new ArgumentNullException();
-			return Request.Headers.GetValues("Session-Token").FirstOrDefault();
-		}
+        private string GetHeaderSessionToken()
+        {
+            if (Request.Headers.Contains("Session-Token") == false)
+                throw new ArgumentNullException();
+            return Request.Headers.GetValues("Session-Token").FirstOrDefault();
+        }
 
-		[HttpGet]
-        [Route("status")]
+        [HttpGet]
+        [Route("active")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetActiveLicenses()
         {
-	        try
-	        {
-		        var licenses = await _repo.GetLicensesStatus(WebApiConfig.LicenseHoldTime);
+            try
+            {
+                var licenses = await _repo.GetActiveLicenses(DateTime.UtcNow, WebApiConfig.LicenseHoldTime);
 
-		        var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
-		        response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-		        response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-		        return ResponseMessage(response);
-	        }
-	        catch
-	        {
-		        return InternalServerError();
-	        }
+                var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+                return ResponseMessage(response);
+            }
+            catch
+            {
+                return InternalServerError();
+            }
         }
 
-		[HttpGet]
-		[Route("locked")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetLockedLicenses()
-		{
-			try
-			{
-				var token = GetHeaderSessionToken();
-				var session = await _sessions.GetSession(Session.Convert(token));
-				var licenses = await _repo.GetActiveLicenses(session.UserId, session.LicenseLevel, WebApiConfig.LicenseHoldTime);
+        [HttpGet]
+        [Route("locked")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetLockedLicenses()
+        {
+            try
+            {
+                var token = GetHeaderSessionToken();
+                var session = await _sessions.GetSession(Session.Convert(token));
+                var licenses = await _repo.GetLockedLicenses(session.UserId, session.LicenseLevel, WebApiConfig.LicenseHoldTime);
 
-				var response = Request.CreateResponse(HttpStatusCode.OK,
-					new LicenseInfo {LicenseLevel = session.LicenseLevel, Count = licenses});
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-				return ResponseMessage(response);
-			}
-			catch (ArgumentNullException)
-			{
-				return Unauthorized();
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
-	}
+                var response = Request.CreateResponse(HttpStatusCode.OK,
+                    new LicenseInfo {LicenseLevel = session.LicenseLevel, Count = licenses});
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+                return ResponseMessage(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized();
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+
+        [HttpGet]
+        [Route("transactions")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetLicenseTransactions(int days, int consumerType)
+        {
+            try
+            {
+                var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
+                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+                return ResponseMessage(response);
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+    }
 }

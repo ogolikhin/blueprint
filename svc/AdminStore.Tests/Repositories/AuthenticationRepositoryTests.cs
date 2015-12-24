@@ -23,13 +23,13 @@ namespace AdminStore.Repositories
 
         private static InstanceSettings _instanceSettings;
 
-        private static LoginUser _loginUser;
+        private static AuthenticationUser _loginUser;
 
         [TestInitialize]
         public void Init()
         {
             _instanceSettings = new InstanceSettings { MaximumInvalidLogonAttempts = 5 };
-            _loginUser = new LoginUser { Id = 1, Login = Login, UserSalt = UserSalt, Password = HashedPassword, IsEnabled = true };
+            _loginUser = new AuthenticationUser { Id = 1, Login = Login, UserSalt = UserSalt, Password = HashedPassword, IsEnabled = true };
 
             _sqlUserRepositoryMock = new Mock<ISqlUserRepository>();
             _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).ReturnsAsync(_loginUser);
@@ -115,11 +115,11 @@ namespace AdminStore.Repositories
         [TestMethod]
         public async Task AuthenticateUserAsync_DatabaseUser_Success()
         {
-			// Arrange
-			var userLicense = 3;
-			_sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
+            // Arrange
+            var userLicense = 3;
+            _sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
 
-			_instanceSettings.IsSamlEnabled = true;
+            _instanceSettings.IsSamlEnabled = true;
             _loginUser.IsFallbackAllowed = true;
             _loginUser.Source = UserGroupSource.Database;
 
@@ -132,7 +132,7 @@ namespace AdminStore.Repositories
 
             // Assert
             Assert.AreEqual(_loginUser, result);
-			Assert.AreEqual(userLicense, result.LicenseType);
+            Assert.AreEqual(userLicense, result.LicenseType);
         }
 
         [TestMethod]
@@ -378,7 +378,7 @@ namespace AdminStore.Repositories
             }
             catch
             {
-                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.IsEnabled == false)));
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.IsEnabled == false)));
             }
         }
 
@@ -426,7 +426,7 @@ namespace AdminStore.Repositories
             }
             catch
             {
-                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<LoginUser>(u => u.InvalidLogonAttemptsNumber == 1)));
+                _sqlUserRepositoryMock.Verify(m => m.UpdateUserOnInvalidLoginAsync(It.Is<AuthenticationUser>(u => u.InvalidLogonAttemptsNumber == 1)));
             }
         }
 
@@ -490,8 +490,8 @@ namespace AdminStore.Repositories
         public async Task AuthenticateSamlUserAsync_UserIsEnabled_ReturnsUser()
         {
             // Arrange
-	        var userLicense = 2;
-	        _sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
+            var userLicense = 2;
+            _sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
 
             _instanceSettings.IsSamlEnabled = true;
             const string samlEncodedResponse = "fakeSamlResponce";
@@ -516,7 +516,7 @@ namespace AdminStore.Repositories
 
             // Assert
             Assert.AreEqual(_loginUser, result);
-			Assert.AreEqual(userLicense, result.LicenseType);
+            Assert.AreEqual(userLicense, result.LicenseType);
         }
 
         [TestMethod]
@@ -527,7 +527,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsSamlEnabled = true;
             const string samlEncodedResponse = "fakeSamlResponce";
 
-            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).ReturnsAsync(new LoginUser { IsEnabled = false });
+            _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).ReturnsAsync(new AuthenticationUser { IsEnabled = false });
             var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
             var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())

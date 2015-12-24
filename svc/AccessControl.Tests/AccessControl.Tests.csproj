@@ -74,6 +74,7 @@
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Models\SessionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\SqlLicensesRepositoryTests.cs" />
     <Compile Include="Repositories\SqlSessionsRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>

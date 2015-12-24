@@ -76,7 +76,8 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
-    <Content Include="Procedures\GetLicensesStatus.sql" />
+    <Content Include="Procedures\GetActiveLicenses.sql" />
+    <Content Include="Procedures\GetLicenseTransactions.sql" />
     <Content Include="Procedures\GetUserSession.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
@@ -89,11 +90,13 @@
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
+    <Content Include="Tables\LicenseActivityDetails.sql" />
     <Content Include="Tables\Traces.sql" />
     <Content Include="Tables\Sessions.sql" />
     <Content Include="Tables\ConfigSettings.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
     <Content Include="Tables\ApplicationLabels.sql" />
+    <Content Include="Tables\LicenseActivities.sql" />
     <Content Include="Types\TracesType.sql" />
   </ItemGroup>
   <ItemGroup>

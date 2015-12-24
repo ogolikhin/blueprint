@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using System.Web.UI.WebControls;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -44,7 +43,7 @@ namespace AdminStore.Controllers
             // Arrange
             const string login = "admin";
             const string password = "changeme";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
@@ -80,7 +79,7 @@ namespace AdminStore.Controllers
             // Arrange
             const string login = "admin";
             const string password = "changeme";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
@@ -116,7 +115,7 @@ namespace AdminStore.Controllers
             // Arrange
             const string login = "admin";
             const string password = "changeme";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
@@ -138,7 +137,7 @@ namespace AdminStore.Controllers
             // Arrange
             const string login = "admin";
             const string password = "changeme";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
@@ -232,7 +231,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const string login = "admin";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
@@ -322,7 +321,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const string login = "admin";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
@@ -351,7 +350,7 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const string login = "admin";
-            var loginUser = new LoginUser { Id = 1, Login = login };
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
             const string samlResponse = "samlResponse";
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();

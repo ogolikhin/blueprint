@@ -216,44 +216,15 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid } }, 1);
+            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, 1);
 
             // Act
-            await repository.EndSession(guid);
+            await repository.EndSession(guid, true);
 
             // Assert
             cxn.Verify();
         }
 
-		#endregion EndSession
-
-		#region GetActiveLicenses
-		[TestMethod]
-		public async Task GetActiveLicenses_ReturnValues()
-		{
-			// Arrange
-			const int userId = 1;
-			const int licenseLevel = 3;
-			const int lockTime = 1440;
-
-			var cxn = new SqlConnectionWrapperMock();
-			var repository = new SqlSessionsRepository(cxn.Object);
-			int result = 2;
-			cxn.SetupExecuteScalarAsync(v => true,
-				new Dictionary<string, object>
-				{
-					{"UserId", userId},
-					{"LicenseLevel", licenseLevel},
-					{"TimeDiff", -lockTime}
-				}, result);
-
-			// Act
-			var count = await repository.GetActiveLicenses(userId, 3, 1440);
-
-			// Assert
-			cxn.Verify();
-			Assert.AreEqual(result, count);
-		}
-		#endregion
-	}
+        #endregion EndSession
+    }
 }

@@ -35,11 +35,11 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object);
             string login = "User";
-            LoginUser[] result = { new LoginUser { Login = login } };
+            AuthenticationUser[] result = { new AuthenticationUser { Login = login } };
             cxn.SetupQueryAsync("GetUserByLogin", new Dictionary<string, object> { { "Login", login } }, result);
 
             // Act
-            LoginUser user = await repository.GetUserByLoginAsync(login);
+            AuthenticationUser user = await repository.GetUserByLoginAsync(login);
 
             // Assert
             cxn.Verify();
@@ -53,60 +53,60 @@ namespace AdminStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object);
             string login = "User";
-            LoginUser[] result = { };
+            AuthenticationUser[] result = { };
             cxn.SetupQueryAsync("GetUserByLogin", new Dictionary<string, object> { { "Login", login } }, result);
 
             // Act
-            LoginUser user = await repository.GetUserByLoginAsync(login);
+            AuthenticationUser user = await repository.GetUserByLoginAsync(login);
 
             // Assert
             cxn.Verify();
             Assert.IsNull(user);
         }
 
-		#endregion GetUserByLoginAsync
+        #endregion GetUserByLoginAsync
 
-		#region GetEffectiveUserLicense
-		[TestMethod]
-		public async Task GetEffectiveUserLicenseAsync_QueryReturnsLicenseType_ReturnsFirst()
-		{
-			// Arrange
-			var cxn = new SqlConnectionWrapperMock();
-			var repository = new SqlUserRepository(cxn.Object);
-			var userId = 1;
-			int[] result = { 3 };
-			cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
+        #region GetEffectiveUserLicense
+        [TestMethod]
+        public async Task GetEffectiveUserLicenseAsync_QueryReturnsLicenseType_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            var userId = 1;
+            int[] result = { 3 };
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
 
-			// Act
-			var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
+            // Act
+            var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
 
-			// Assert
-			cxn.Verify();
-			Assert.AreEqual(result.First(), licenseType);
-		}
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), licenseType);
+        }
 
-		[TestMethod]
-		public async Task GetEffectiveUserLicenseAsync_QueryReturnsEmpty_ReturnsZero()
-		{
-			// Arrange
-			var cxn = new SqlConnectionWrapperMock();
-			var repository = new SqlUserRepository(cxn.Object);
-			var userId = 1;
-			int[] result = { };
-			cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
+        [TestMethod]
+        public async Task GetEffectiveUserLicenseAsync_QueryReturnsEmpty_ReturnsZero()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            var userId = 1;
+            int[] result = { };
+            cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
 
-			// Act
-			var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
+            // Act
+            var licenseType = await repository.GetEffectiveUserLicenseAsync(userId);
 
-			// Assert
-			cxn.Verify();
-			Assert.AreEqual(0, licenseType);
-		}
-		#endregion
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(0, licenseType);
+        }
+        #endregion
 
-		#region GetLoginUserByIdAsync
+        #region GetLoginUserByIdAsync
 
-		[TestMethod]
+        [TestMethod]
         public async Task GetLoginUserByIdAsync_QueryReturnsUser_ReturnsFirst()
         {
             // Arrange
@@ -152,7 +152,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object);
-            LoginUser user = new LoginUser
+            AuthenticationUser user = new AuthenticationUser
             {
                 Login = "User",
                 IsEnabled = true,

@@ -227,7 +227,7 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
 
-                await _repo.EndSession(guid);
+                await _repo.EndSession(guid, false);
                 if (_cache.Remove(token) == null)
                 {
                     throw new KeyNotFoundException();
@@ -265,7 +265,7 @@ namespace AccessControl.Controllers
                             LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error);
                             break;
                         case CacheEntryRemovedReason.Expired:
-                            _repo.EndSession(Session.Convert(args.CacheItem.Key));
+                            _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
                             break;
                     }
                 }

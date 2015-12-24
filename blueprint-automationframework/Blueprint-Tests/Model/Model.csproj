@@ -57,6 +57,7 @@
     <Compile Include="Factories\DatabaseFactory.cs" />
     <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="IAccessControl.cs" />
+    <Compile Include="IAdminStore.cs" />
     <Compile Include="IArtifactResult.cs" />
     <Compile Include="IArtifactStore.cs" />
     <Compile Include="IAttachment.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
     <Compile Include="Impl\AccessControl.cs" />
+    <Compile Include="Impl\AdminStore.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
@@ -99,7 +101,6 @@
     <Compile Include="Impl\Comment.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
-    <Compile Include="Impl\HashingUtilities.cs" />
     <Compile Include="Impl\MsSqlDatabase.cs" />
     <Compile Include="Impl\Property.cs" />
     <Compile Include="Impl\Project.cs" />

@@ -8,21 +8,21 @@ namespace Model.Impl
     {
         // These properties are returned in the Response Body of a GET request.
         [JsonProperty("UserId")]
-        public int UserId { get; private set; }
+        public int UserId { get; set; }
         [JsonProperty("UserName")]
-        public string UserName { get; private set; }
+        public string UserName { get; set; }
         [JsonProperty("IsSso")]
-        public bool IsSso { get; private set; }
+        public bool IsSso { get; set; }
         [JsonProperty("LicenseLevel")]
-        public int LicenseLevel { get; private set; }
+        public int LicenseLevel { get; set; }
 
-        public DateTime? BeginTime { get; private set; }
-        public DateTime? EndTime { get; private set; }
+        public DateTime? BeginTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         /// <summary>
         /// The Session ID token is returned in the HTTP headers.
         /// </summary>
-        public string SessionId { get; private set; }
+        public string SessionId { get; set; }
 
         public Session()
         { }

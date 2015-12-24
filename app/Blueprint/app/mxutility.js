@@ -1,4 +1,4 @@
-
+var taskid = 1;
 
 // Function to create the entries in the popupmenu
 function createPopupMenu(graph, menu, cell, evt) {
@@ -17,6 +17,7 @@ function createPopupMenu(graph, menu, cell, evt) {
 			addCondition(graph, cell);
 		});
 
+		console.log(cell.style);
 		if (cell.style &&  cell.style.shape == mxConstants.SHAPE_RHOMBUS) {
 			menu.addItem('Add Condition Branch', 'images/tree.gif', function() {
 				addConditionBranch(graph, cell);
@@ -123,7 +124,14 @@ function addOverlays(graph, cell, addDeleteIcon)
 
 	*/
 
-	overlay = new mxCellOverlay(new mxImage('images/colors-on.png', 25, 25), 'Colors');
+
+	var overlays = graph.getCellOverlays(cell);
+					
+	if (overlays != null) {
+		graph.removeCellOverlays(cell);
+	}
+
+	var overlay = new mxCellOverlay(new mxImage('images/colors-on.png', 25, 25), 'Colors');
 	overlay.align = mxConstants.ALIGN_RIGHT;
 	overlay.verticalAlign = mxConstants.ALIGN_TOP;
 	overlay.offset = new mxPoint(-12, 12);	
@@ -136,7 +144,10 @@ function addOverlays(graph, cell, addDeleteIcon)
 	graph.addCellOverlay(cell, overlay);		
 
 
+
 	overlay = new mxCellOverlay(new mxImage('images/trash-on.png', 20, 20), 'Trash');
+	if (taskid%2 == 0)
+		overlay = new mxCellOverlay(new mxImage('images/trash-off.png', 20, 20), 'Trash');
 	overlay.align = mxConstants.ALIGN_LEFT;
 	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
 	overlay.offset = new mxPoint(15, -15);	
@@ -165,10 +176,10 @@ function addOverlays(graph, cell, addDeleteIcon)
 	overlay.align = mxConstants.ALIGN_LEFT;
 	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
 	overlay.offset = new mxPoint(105, -15);	
-	graph.addCellOverlay(cell, overlay);
-
+	graph.addCellOverlay(cell, overlay);	
 
 };
+
 
 function addTask(graph, cell) {
 
@@ -192,18 +203,18 @@ function addTask(graph, cell) {
 			}
 		});
 
-
-		vertex = graph.insertVertex(parent, null, 'Task');
+		vertex = graph.insertVertex(parent, "Task_"+taskid, 'Task');
+		taskid++;
 		var geometry = model.getGeometry(vertex);
 		var size = graph.getPreferredSizeForCell(vertex);
 		geometry.width = 126;
 		geometry.height = 150;
-		var edge = graph.insertEdge(parent, null, '', cell, vertex);
+		var edge = addEdge(graph,parent, null, '', cell, vertex);  
 		edge.geometry.x = 1;
 		edge.geometry.y = 0;
 		edge.geometry.offset = new mxPoint(0, -20);
 
-		var insertedEdge = graph.insertEdge(parent, null, '', vertex, nextCell);
+		var insertedEdge = addEdge(graph,parent, null, '', vertex, nextCell); 
 		insertedEdge.geometry.x = 1;
 		insertedEdge.geometry.y = 0;
 		insertedEdge.geometry.offset = new mxPoint(0, -20);
@@ -247,13 +258,13 @@ function addCondition(graph, cell) {
 		var size = graph.getPreferredSizeForCell(vertex);
 		geometry.width = 100;
 		geometry.height = 100;
-		var edge = graph.insertEdge(parent, null, '', cell, vertex);
+		var edge =  addEdge(graph,parent, null, '', cell, vertex);  
 		edge.geometry.x = 1;
 		edge.geometry.y = 0;
 		edge.geometry.offset = new mxPoint(0, -20);
 		vertex.setStyle( style );
 
-		var insertedEdge = graph.insertEdge(parent, null, '', vertex, nextCell);
+		var insertedEdge = addEdge(graph,parent, null, '', vertex, nextCell); 
 		insertedEdge.geometry.x = 1;
 		insertedEdge.geometry.y = 0;
 		insertedEdge.geometry.offset = new mxPoint(0, -20);
@@ -287,21 +298,10 @@ function addConditionBranch(graph, cell) {
 
 
 
-		var e = graph.insertEdge(parent, null, '', cell, graph.bpStop);
-		// e.geometry.x = 1;
-		// e.geometry.y = 0;
-		// e.geometry.offset = new mxPoint(0, -20);
-
-		e.geometry.points = [
-			new mxPoint(cell.geometry.x + cell.geometry.width / 2, cell.geometry.y + cell.geometry.height / 2 + 50) ,
-			new mxPoint(graph.bpStop.geometry.x + graph.bpStop.geometry.width / 2, graph.bpStop.geometry.y + graph.bpStop.geometry.height / 2 + 50)
-			];
-
-		// e = graph.insertEdge(lane1a, null, 'Depending', step12, end1, 'verticalAlign=bottom');
-		// e.geometry.points = [
-		// 	new mxPoint(step12.geometry.x + step12.geometry.width / 2, step12.geometry.y + step12.geometry.height / 2 + 80) ,
-		// 	new mxPoint(end1.geometry.x + end1.geometry.width / 2, end1.geometry.y + end1.geometry.height / 2 + 80)
-		// 	];		
+		var endEdge = graph.insertEdge(parent, null, '', cell, graph.bpStop, 'edgeStyle=orthogonalEdgeStyle;');
+		endEdge.geometry.x = 1;
+		endEdge.geometry.y = 0;
+		endEdge.geometry.offset = new mxPoint(0, -20);
 
 
 
@@ -343,13 +343,13 @@ function addStop(graph, cell) {
 		var size = graph.getPreferredSizeForCell(vertex);
 		geometry.width = 20;
 		geometry.height = 20;
-		var edge = graph.insertEdge(parent, null, '', cell, vertex);
+		var edge = addEdge(graph,parent, null, '', cell, vertex); //graph.insertEdge(parent, null, '', cell, vertex);
 		edge.geometry.x = 1;
 		edge.geometry.y = 0;
 		edge.geometry.offset = new mxPoint(0, -20);
 		vertex.setStyle( style );
 
-		var insertedEdge = graph.insertEdge(parent, null, '', vertex, nextCell);
+		var insertedEdge = addEdge(graph,parent, null, '', vertex, nextCell); 
 		insertedEdge.geometry.x = 1;
 		insertedEdge.geometry.y = 0;
 		insertedEdge.geometry.offset = new mxPoint(0, -20);
@@ -384,13 +384,13 @@ function addStart(graph, cell) {
 		var size = graph.getPreferredSizeForCell(vertex);
 		geometry.width = 20;
 		geometry.height = 20;
-		var edge = graph.insertEdge(parent, null, '', vertex, cell);
+		var edge = addEdge(graph,parent, null, '', vertex, cell);
 		edge.geometry.x = 1;
 		edge.geometry.y = 0;
 		edge.geometry.offset = new mxPoint(0, -20);
 		vertex.setStyle( style );
 
-		var insertedEdge = graph.insertEdge(parent, null, '', vertex, nextCell);
+		var insertedEdge = addEdge(graph,parent, null, '', vertex, nextCell); 
 		insertedEdge.geometry.x = 1;
 		insertedEdge.geometry.y = 0;
 		insertedEdge.geometry.offset = new mxPoint(0, -20);
@@ -412,6 +412,7 @@ function deleteTask(graph, cell) {
 	var nextCell;
 	var prevCell;
 
+taskid--;
 	model.beginUpdate();
 	try {
 
@@ -428,7 +429,10 @@ function deleteTask(graph, cell) {
 			}
 		});
 
-		var insertedEdge = graph.insertEdge(parent, null, '', prevCell, nextCell);
+		var insertedEdge = addEdge(graph,parent, null, '', prevCell, nextCell);
+
+
+		//graph.insertEdge(parent, null, '', prevCell, nextCell);
 			insertedEdge.geometry.x = 1;
 			insertedEdge.geometry.y = 0;
 			insertedEdge.geometry.offset = new mxPoint(0, -20);	
@@ -455,6 +459,27 @@ function deleteTask(graph, cell) {
 	*/
 }
 
+
+
+
+function addEdge(graph, parent, id, label, prevCell, nextCell, style) {
+	var edge = graph.insertEdge(parent, id, label, prevCell, nextCell, style);
+	var overlay = new mxCellOverlay(new mxImage('images/add128.png', 16, 16), 'Add Task/Condition');
+	overlay.cursor = 'hand';
+	overlay.align = mxConstants.ALIGN_LEFT;
+	overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)	{
+		// TODO - show a menu with add task/add condition
+		addTask(graph, prevCell);
+		//mxUtils.popup("testing", true);
+		// var cell = evt.getProperty('cell');
+		// console.log(cell);
+		// graph.popupMenuHandler.factoryMethod = mxUtils.bind(this, function(menu, cell, evt)	{
+		// 	return createPopupMenu(menu, cell, evt);
+		// });
+	}));
+	graph.addCellOverlay(edge, overlay);
+	return edge;
+}
 
 
 

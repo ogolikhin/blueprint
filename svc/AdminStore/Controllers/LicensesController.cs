@@ -31,28 +31,6 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet]
-        [Route("active")]
-        [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetActiveLicenses()
-        {
-            try
-            {
-                using (var http = _httpClientProvider.Create())
-                {
-                    http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-                    http.DefaultRequestHeaders.Accept.Clear();
-                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    var result = await http.GetAsync("licenses/active");
-                    return ResponseMessage(result);
-                }
-            }
-            catch
-            {
-                return InternalServerError();
-            }
-        }
-
-        [HttpGet]
         [Route("transactions")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days)

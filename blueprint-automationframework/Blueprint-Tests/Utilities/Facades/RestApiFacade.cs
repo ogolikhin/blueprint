@@ -369,9 +369,9 @@ namespace Utilities.Facades
         /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public RestResponse SendRequestAndGetResponse(
-            string resourcePath, 
+            string resourcePath,
             RestRequestMethod method,
-            string fileName = null, 
+            string fileName = null,
             byte[] fileContent = null,
             string contentType = null,
             bool useMultiPartMime = false,
@@ -395,6 +395,47 @@ namespace Utilities.Facades
                     request.AddParameter(contentType, fileContent, ParameterType.RequestBody);
                 }
             }
+
+            try
+            {
+                var response = client.Execute(request);
+                Logger.WriteDebug("SendRequestAndGetResponse() got Status Code '{0}' for user '{1}'.",
+                    response.StatusCode, _username);
+
+                _restResponse = ConvertToRestResponse(response);
+
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
+
+                return _restResponse;
+            }
+            catch (WebException e)
+            {
+                throw WebExceptionConverter.Convert(e);
+            }
+        }
+
+        /// <summary>
+        /// Creates the web request with a JSON body and get the response object.
+        /// </summary>
+        /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
+        /// <param name="method">The method (GET, POST...).</param>
+        /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="bodyObject">(optional) An object to send in the HTTP body of the request.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <returns>The RestResponse object.</returns>
+        /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        public RestResponse SendRequestAndGetResponse<T>(
+            string resourcePath, 
+            RestRequestMethod method,
+            Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
+            T bodyObject = null,
+            List<HttpStatusCode> expectedStatusCodes = null) where T : class
+        {
+            var client = new RestClient(_baseUri);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+            request.AddJsonBody(bodyObject);
 
             try
             {

@@ -2,11 +2,25 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Model.Impl
+namespace Utilities
 {
     // NOTE: This class was copied from the blueprint-current.git repo (and slightly modified).
     public static class HashingUtilities
     {
+        /// <summary>
+        /// Encode string to Base64.
+        /// </summary>
+        /// <param name="valueToEncode">String to encode.</param>
+        /// <returns>The Base64 encoded string.</returns>
+        public static string EncodeTo64UTF8(string valueToEncode)
+        {
+            byte[] toEncodeAsBytes =
+            System.Text.Encoding.UTF8.GetBytes(valueToEncode);
+            string returnValue =
+            System.Convert.ToBase64String(toEncodeAsBytes);
+            return returnValue;
+        }
+
         /// <summary>
         /// Encrypts a password using the specified salt.
         /// </summary>

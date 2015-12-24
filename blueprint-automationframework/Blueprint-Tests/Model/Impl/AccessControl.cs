@@ -11,7 +11,7 @@ namespace Model.Impl
     public class AccessControl : IAccessControl
     {
         private const string SVC_PATH = "svc/accesscontrol";
-        private const string TOKEN_HEADER = "Session-Token";
+        private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         private static string _address;
 

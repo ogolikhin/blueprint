@@ -3,6 +3,10 @@ namespace Model
 {
     public interface IBlueprintToken
     {
-        string TokenString { get; }
+        string AccessControlTokenHeader { get; }
+        string OpenApiTokenHeader { get; }
+
+        string AccessControlToken { get; set; }
+        string OpenApiToken { get; set; }
     }
 }

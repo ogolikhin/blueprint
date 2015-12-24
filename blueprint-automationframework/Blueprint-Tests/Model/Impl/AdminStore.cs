@@ -1,0 +1,126 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using Logging;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using TestConfig;
+using Utilities;
+using Utilities.Facades;
+
+namespace Model.Impl
+{
+    public class AdminStore : IAdminStore
+    {
+        private const string SVC_PATH = "svc/adminstore";
+        private const string TOKEN_HEADER = "Session-Token";
+
+        private string _address = null;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="address">The base URI of the AdminStore service.</param>
+        public AdminStore(string address)
+        {
+            if (address == null)
+            {
+                throw new ArgumentNullException(nameof(address));
+            }
+
+            _address = address;
+        }
+
+        /// <summary>
+        /// Extracts the session token from the specified RestResponse.
+        /// </summary>
+        /// <param name="response">The RestResponse containing the session token.</param>
+        /// <returns>A session token, or null if no token was found.</returns>
+        private static string GetToken(RestResponse response)
+        {
+            string token = null;
+
+            if (response.Headers.ContainsKey(TOKEN_HEADER))
+            {
+                token = (string)response.Headers[TOKEN_HEADER];
+            }
+
+            return token;
+        }
+
+        #region Members inherited from IAdminStore
+
+        public List<ISession> Sessions { get; } = new List<ISession>();
+
+        public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISession AddSession(string username = null, string password = null, bool? isSso = default(bool?),
+            List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = string.Format("{0}/sessions", SVC_PATH);
+
+            string encodedUsername = HashingUtilities.EncodeTo64UTF8(username);
+            string encodedPassword = HashingUtilities.EncodeTo64UTF8(password);
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "login", encodedUsername } };
+
+            try
+            {
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
+                    encodedPassword, expectedStatusCodes);
+
+                string token = GetToken(response);
+                ISession session = new Session { UserName = username, IsSso = isSso.GetValueOrDefault(), SessionId = token };
+                Logger.WriteDebug("Got session token '{0}' for User: {1}.", token, username);
+
+                // Add session to list of created sessions, so we can delete them later.
+                Sessions.Add(session);
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                return session;
+            }
+            catch (WebException)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    Assert.That(expectedServiceErrorMessage.Equals(serviceErrorMessage),
+                        "Response message is different from expected!");
+                }
+
+                throw;
+            }
+        }
+
+        public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISession GetSession(int? userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public HttpStatusCode GetStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion Members inherited from IAdminStore
+    }
+}

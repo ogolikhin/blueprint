@@ -15,7 +15,7 @@ namespace ServiceLibrary.Models
         public int TransactionType { get; set; }
         public int ActionType { get; set; }
         public int ConsumerType { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public DateTime Date { get; set; }
 
         // Populated from LicenseActivitiyDetails Table
 

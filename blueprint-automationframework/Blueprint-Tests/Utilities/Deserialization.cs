@@ -5,6 +5,7 @@ namespace Utilities
 {
     public static class Deserialization
     {
+
         /// <summary>
         /// ConcreteConverter converts deserialize object based on the class which contains interface properties 
         /// </summary>

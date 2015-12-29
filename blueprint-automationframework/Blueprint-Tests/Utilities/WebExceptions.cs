@@ -167,6 +167,31 @@ namespace Utilities
     }
 
     [Serializable]
+    public class Http409ConflictException : WebException
+    {
+        public const string ERROR = "Received status code: 409";
+
+        public Http409ConflictException()
+        { }
+
+        public Http409ConflictException(WebException ex)
+            : base(((ex == null) ? ERROR : ex.Message), ex)
+        { }
+
+        public Http409ConflictException(string msg)
+            : base(msg)
+        { }
+
+        public Http409ConflictException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected Http409ConflictException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+    }
+
+    [Serializable]
     public class Http500InternalServerErrorException : WebException
     {
         public const string ERROR = "Received status code: 500";

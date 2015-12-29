@@ -36,6 +36,23 @@ namespace AdminStoreTests
         }
 
         [Test]
+        public void Login_ValidUser_VerifySecondLogin409Error()
+        {
+            _adminStore.AddSession(_user.Username, _user.Password);
+            Assert.Throws<Http409ConflictException>(() =>
+           {
+               _adminStore.AddSession(_user.Username, _user.Password);
+           });
+        }
+
+        [Test]
+        public void Login_ValidUser_VerifySForceLogin200OK()
+        {
+            _adminStore.AddSession(_user.Username, _user.Password);
+            _adminStore.AddSession(_user.Username, _user.Password, true);
+        }
+
+        [Test]
         public void Login_ValidUserBadPassword_Verify401Error()
         {
             IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000, "Invalid username or password");

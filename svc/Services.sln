@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStore", "FileStore\FileStore.csproj", "{CFF54A06-4B33-44BF-9034-7BA48D95CC8B}"
 EndProject
@@ -43,7 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		BlueprintStrongName.snk = BlueprintStrongName.snk
 		CodeCoverage.runsettings = CodeCoverage.runsettings
 		NuGet.config = NuGet.config
-		RecommendedAndSecurity.ruleset = RecommendedAndSecurity.ruleset
+		RecommendedSecurityAndGlobalization.ruleset = RecommendedSecurityAndGlobalization.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Database", "lib\Logging.Database\Logging.Database.csproj", "{717F5600-AF8E-4732-B456-A61794BD2B64}"

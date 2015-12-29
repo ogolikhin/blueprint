@@ -4,8 +4,10 @@ using Model.Impl;
 
 namespace Helper.Factories
 {
+
     public static class FileFactory
     {
+
         /// <summary>
         /// Creates a new IFile.
         /// </summary>
@@ -23,8 +25,9 @@ namespace Helper.Factories
                 FileType = fileType,
                 LastModifiedDate = lastModifiedDate
             };
-
             return file;
         }
+
     }
+
 }

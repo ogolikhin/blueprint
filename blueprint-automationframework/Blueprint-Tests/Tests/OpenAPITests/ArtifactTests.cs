@@ -6,6 +6,7 @@ using TestConfig;
 
 namespace OpenAPITests
 {
+
     [TestFixture]
     [Category(Categories.OpenAPI)]
     public class ArtifactTests
@@ -13,7 +14,6 @@ namespace OpenAPITests
         //private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
         private IUser _user = null;
         private IArtifactStore _artifactStore = ArtifactStoreFactory.CreateArtifactStore("http://bpakvmsys08:8080/");
-//        private IArtifactStore _artifactStore = ArtifactStoreFactory.CreateArtifactStore(TestConfiguration.GetInstance().BlueprintServerAddress);
 
         [SetUp]
         public void SetUp()

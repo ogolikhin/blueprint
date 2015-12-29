@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Logging;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using TestConfig;
 using Utilities;
 using Utilities.Facades;
 
@@ -16,7 +12,7 @@ namespace Model.Impl
     public class AdminStore : IAdminStore
     {
         private const string SVC_PATH = "svc/adminstore";
-        private const string TOKEN_HEADER = "Session-Token";
+        private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         private string _address = null;
 

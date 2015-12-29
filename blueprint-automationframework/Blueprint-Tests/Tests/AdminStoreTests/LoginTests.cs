@@ -45,5 +45,21 @@ namespace AdminStoreTests
                 _adminStore.AddSession(_user.Username, "bad-password", expectedServiceErrorMessage: expectedServiceErrorMessage);
             });
         }
+
+        [Test]
+        public void Login_LockedUser_Verify401Error()
+        {
+            var lockedUser = UserFactory.CreateUserOnly();
+            lockedUser.Enabled = false;
+            lockedUser.CreateUser();
+            IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2001, 
+                "User account is locked out for the login: " + lockedUser.Username);
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.AddSession(lockedUser.Username, lockedUser.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
+            });
+            lockedUser.DeleteUser(deleteFromDatabase: true);
+            lockedUser = null;
+        }
     }
 }

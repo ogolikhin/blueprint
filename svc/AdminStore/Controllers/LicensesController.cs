@@ -17,8 +17,8 @@ namespace AdminStore.Controllers
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {
-        private readonly IHttpClientProvider _httpClientProvider;
-        private readonly ISqlUserRepository _userRepository;
+        internal readonly IHttpClientProvider _httpClientProvider;
+        internal readonly ISqlUserRepository _userRepository;
 
         public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository())
         {

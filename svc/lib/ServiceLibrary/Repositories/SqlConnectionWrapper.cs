@@ -87,5 +87,18 @@ namespace ServiceLibrary.Repositories
         {
             ((DynamicParameters)parameters).Add(name, value);
         }
+
+        public static DataTable ToDataTable<T>(IEnumerable<T> values, string typeName, string columnName)
+            where T : struct
+        {
+            var table = new DataTable();
+            table.SetTypeName(typeName);
+            table.Columns.Add(columnName, typeof(int));
+            foreach (var value in values)
+            {
+                table.Rows.Add(value);
+            }
+            return table;
+        }
     }
 }

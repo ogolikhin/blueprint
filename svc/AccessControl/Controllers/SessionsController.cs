@@ -17,7 +17,7 @@ namespace AccessControl.Controllers
     public class SessionsController : ApiController
     {
         private static ObjectCache _cache;
-        private static ISessionsRepository _repo = new SqlSessionsRepository(WebApiConfig.AdminStorage);
+        private static ISessionsRepository _repo = new SqlSessionsRepository();
 
         internal static void Load(ObjectCache cache)
         {

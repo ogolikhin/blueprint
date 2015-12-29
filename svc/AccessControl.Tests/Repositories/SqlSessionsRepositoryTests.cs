@@ -14,16 +14,15 @@ namespace AccessControl.Repositories
         #region Constuctor
 
         [TestMethod]
-        public void Constructor_ConnectionString_CreatesConnectionWithString()
+        public void Constructor_CreatesConnectionToAdminStorage()
         {
             // Arrange
-            string cxn = "data source=(local)";
 
             // Act
-            var repository = new SqlSessionsRepository(cxn);
+            var repository = new SqlSessionsRepository();
 
             // Assert
-            Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor
@@ -210,13 +209,29 @@ namespace AccessControl.Repositories
         #region EndSession
 
         [TestMethod]
-        public async Task EndSession_CallsProcedureWithCorrectParameters()
+        public async Task EndSession_Logout_CallsProcedureWithCorrectParameters()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, 1);
+            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 0 } }, 1);
+
+            // Act
+            await repository.EndSession(guid, false);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        [TestMethod]
+        public async Task EndSession_Timeout_CallsProcedureWithCorrectParameters()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("00000000000000000000000000000000");
+            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 0 } }, 1);
 
             // Act
             await repository.EndSession(guid, true);

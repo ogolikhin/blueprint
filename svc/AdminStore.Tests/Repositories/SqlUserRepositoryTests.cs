@@ -144,6 +144,34 @@ namespace AdminStore.Repositories
 
         #endregion GetLoginUserByIdAsync
 
+        #region GetLicenseTransactionUserInfoAsync
+
+        [TestMethod]
+        public async Task GetLicenseTransactionUserInfoAsync_QueryReturnsUsers_ReturnsUsers()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            int[] userIds = { 1, 2, 3 };
+            var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
+            LicenseTransactionUser[] result =
+            {
+                new LicenseTransactionUser { Id = 1, Login = "Login", Department = "Dept" },
+                new LicenseTransactionUser { Id = 2, Login = "Login2", Department = null },
+                new LicenseTransactionUser { Id = 3, Login = "Login3", Department = "Another Dept" }
+            };
+            cxn.SetupQueryAsync("GetLicenseTransactionUser", new Dictionary<string, object> { { "UserIds", userIdTable } }, result);
+
+            // Act
+            IEnumerable<LicenseTransactionUser> users = await repository.GetLicenseTransactionUserInfoAsync(userIds);
+
+            // Assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(result, users.ToList());
+        }
+
+        #endregion GetLicenseTransactionUserInfoAsync
+
         #region UpdateUserOnInvalidLoginAsync
 
         [TestMethod]

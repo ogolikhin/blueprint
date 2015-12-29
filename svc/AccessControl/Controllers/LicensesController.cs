@@ -13,10 +13,10 @@ namespace AccessControl.Controllers
     [RoutePrefix("licenses")]
     public class LicensesController : ApiController
     {
-        private readonly ILicensesRepository _repo;
-        private readonly ISessionsRepository _sessions;
+        internal readonly ILicensesRepository _repo;
+        internal readonly ISessionsRepository _sessions;
 
-        public LicensesController(): this(new SqlLicensesRepository(WebApiConfig.AdminStorage), new SqlSessionsRepository(WebApiConfig.AdminStorage))
+        public LicensesController(): this(new SqlLicensesRepository(), new SqlSessionsRepository())
         {
         }
 
@@ -40,12 +40,17 @@ namespace AccessControl.Controllers
         {
             try
             {
+                GetHeaderSessionToken();
                 var licenses = await _repo.GetActiveLicenses(DateTime.UtcNow, WebApiConfig.LicenseHoldTime);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized();
             }
             catch
             {
@@ -87,12 +92,17 @@ namespace AccessControl.Controllers
         {
             try
             {
+                GetHeaderSessionToken();
                 var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
+            }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized();
             }
             catch
             {

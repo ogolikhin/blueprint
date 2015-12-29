@@ -46,14 +46,7 @@ namespace AdminStore.Repositories
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();
-            var userIdTable = new DataTable();
-            userIdTable.SetTypeName("Int32Collection");
-            userIdTable.Columns.Add("Int32Value", typeof(int));
-            foreach (var id in userIds)
-            {
-                userIdTable.Rows.Add(id);
-            }
-            prm.Add("@UserIds", userIdTable);
+            prm.Add("@UserIds", SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value"));
             return await _connectionWrapper.QueryAsync<LicenseTransactionUser>("GetLicenseTransactionUser", prm, commandType: CommandType.StoredProcedure);
         }
 

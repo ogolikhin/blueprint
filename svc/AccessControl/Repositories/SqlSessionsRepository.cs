@@ -13,8 +13,8 @@ namespace AccessControl.Repositories
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
-        public SqlSessionsRepository(string cxn)
-            : this(new SqlConnectionWrapper(cxn))
+        public SqlSessionsRepository()
+            : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
         }
 

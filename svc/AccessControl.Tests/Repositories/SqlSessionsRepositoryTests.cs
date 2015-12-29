@@ -231,7 +231,7 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("00000000000000000000000000000000");
-            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 0 } }, 1);
+            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, 1);
 
             // Act
             await repository.EndSession(guid, true);

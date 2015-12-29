@@ -89,9 +89,9 @@ namespace AccessControl.Repositories
             var repository = new SqlLicensesRepository(cxn.Object);
             var transactions = new[]
             {
-                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, TransactionType = 1, ActionType = 1, ConsumerType = 2 },
-                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, TransactionType = 1, ActionType = 1, ConsumerType = 2 },
-                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, TransactionType = 2, ActionType = 2, ConsumerType = 2 },
+                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, LicenseType = 1, TransactionType = 1, ActionType = 1, ConsumerType = 2 },
+                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, LicenseType = 3, TransactionType = 1, ActionType = 1, ConsumerType = 2 },
+                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, LicenseType = 1, TransactionType = 2, ActionType = 2, ConsumerType = 2 },
             };
             cxn.SetupQueryAsync("GetLicenseTransactions", new Dictionary<string, object> { { "StartTime", startTime }, { "ConsumerType", consumerType } }, transactions);
 

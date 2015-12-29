@@ -12,6 +12,7 @@ namespace ServiceLibrary.Models
 
         public int LicenseActivityId { get; set; }
         public int UserId { get; set; }
+        public int LicenseType { get; set; }
         public int TransactionType { get; set; }
         public int ActionType { get; set; }
         public int ConsumerType { get; set; }

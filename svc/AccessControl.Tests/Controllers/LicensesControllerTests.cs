@@ -165,9 +165,9 @@ namespace AccessControl.Controllers
             int consumerType = 1;
             var transactions = new []
             {
-                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
-                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
-                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, LicenseType = 1, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, LicenseType = 3, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, LicenseType = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
             };
             repo.Setup(r => r.GetLicenseTransactions(It.IsAny<DateTime>(), consumerType)).ReturnsAsync(transactions);
             var controller = CreateController(repo.Object, sessions.Object, token);

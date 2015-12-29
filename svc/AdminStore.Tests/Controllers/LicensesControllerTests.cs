@@ -44,9 +44,9 @@ namespace AdminStore.Controllers
             // Arrange
             var transactions = new []
             {
-                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
-                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
-                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 1, UserId = 1, LicenseType = 1, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 2, UserId = 2, LicenseType = 3, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
+                new LicenseTransaction { LicenseActivityId = 3, UserId = 1, LicenseType = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
             };
             var httpClientProvider = CreateTestHttpClientProvider(transactions);
             var users = new[]
@@ -57,6 +57,7 @@ namespace AdminStore.Controllers
             var userRepository = new Mock<ISqlUserRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new [] { 1, 2 })).ReturnsAsync(users);
             var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            controller.Request.Headers.Add("Session-Token", string.Empty);
             int days = 1;
 
             // Act
@@ -68,6 +69,22 @@ namespace AdminStore.Controllers
             AddUserInfo(transactions, users);
             var resultContent = await result.Response.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>();
             CollectionAssert.AreEqual(transactions, resultContent.ToList());
+        }
+
+        [TestMethod]
+        public async Task GetLicenseTransactions_SessionTokenIsNull_UnauthorizedResult()
+        {
+            // Arrange
+            var httpClientProvider = CreateTestHttpClientProvider(null);
+            var userRepository = new Mock<ISqlUserRepository>();
+            var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            int days = 1;
+
+            // Act
+            IHttpActionResult result = await controller.GetLicenseTransactions(days);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
         [TestMethod]
@@ -84,6 +101,7 @@ namespace AdminStore.Controllers
             var userRepository = new Mock<ISqlUserRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).Throws<Exception>();
             var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            controller.Request.Headers.Add("Session-Token", string.Empty);
             int days = 1;
 
             // Act

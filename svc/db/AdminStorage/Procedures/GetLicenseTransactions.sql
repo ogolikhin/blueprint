@@ -9,7 +9,7 @@ CREATE PROCEDURE [dbo].[GetLicenseTransactions]
 )
 AS
 BEGIN
-	SELECT [UserId], [UserLicenseType], [TransactionType], [ActionType], [TimeStamp] AS [Date],
+	SELECT [UserId], [UserLicenseType] AS [LicenseType], [TransactionType], [ActionType], [TimeStamp] AS [Date],
 		ISNULL(STUFF((SELECT CONCAT(';', [LicenseType], ':', [Count])
 		FROM [dbo].[LicenseActivityDetails] D
 		WHERE D.[LicenseActivityId] = A.[LicenseActivityId]

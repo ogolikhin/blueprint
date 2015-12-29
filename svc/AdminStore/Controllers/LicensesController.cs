@@ -63,6 +63,10 @@ namespace AdminStore.Controllers
                     return ResponseMessage(response);
                 }
             }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized();
+            }
             catch
             {
                 return InternalServerError();

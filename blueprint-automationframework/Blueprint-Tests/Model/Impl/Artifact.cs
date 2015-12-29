@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Utilities;
 
 namespace Model.Impl
 {
@@ -18,13 +19,13 @@ namespace Model.Impl
         public bool AreTracesReadOnly { get; set; }
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }
-        [JsonConverter(typeof(ConcreteConverter<Property>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Property>))]
         public List<IProperty> Properties { get; private set; }
-        [JsonConverter(typeof(ConcreteConverter<Comment>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Comment>))]
         public List<IComment> Comments { get; }
-        [JsonConverter(typeof(ConcreteConverter<Trace>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Trace>))]
         public List<ITrace> Traces { get; }
-        [JsonConverter(typeof(ConcreteConverter<Attachment>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Attachment>))]
         public List<IAttachment> Attachments { get; }
         public void SetProperties(List <IProperty> aproperty)
         {
@@ -33,28 +34,6 @@ namespace Model.Impl
                 Properties = new List<IProperty>();
             }
             Properties = aproperty;
-        }
-    }
-    public class ConcreteConverter<T> : JsonConverter
-    {
-        public override bool CanConvert(Type objectType) => true;
-        public override object ReadJson(JsonReader reader,
-         Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (serializer == null)
-            {
-                throw new ArgumentNullException("serializer");
-            }
-            return serializer.Deserialize<T>(reader);
-        }
-        public override void WriteJson(JsonWriter writer,
-            object value, JsonSerializer serializer)
-        {
-            if (serializer == null)
-            {
-                throw new ArgumentNullException("serializer");
-            }
-            serializer.Serialize(writer, value);
         }
     }
 }

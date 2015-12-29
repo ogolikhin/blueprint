@@ -8,8 +8,10 @@ using Model.Impl;
 
 namespace Helper.Factories
 {
+
     public static class PropertyFactory
     {
+
         /// <summary>
         /// Class that contains default value for standard properties
         /// Currently contains minimum default property values to create a simple artifact: "Name" and "Desciption" properties
@@ -35,7 +37,6 @@ namespace Helper.Factories
             property.IsRichText = true;
             property.IsReadOnly = false;
             properties.Add("Description", property);
-
             return properties;
         }
 
@@ -55,5 +56,7 @@ namespace Helper.Factories
             properties.Add(defaultProperties[propertyName]);
             return properties;
         }
+
     }
+
 }

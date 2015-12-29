@@ -11,7 +11,9 @@ namespace Utilities
         /// </summary>
         public class ConcreteConverter<T> : JsonConverter
         {
+
             public override bool CanConvert(Type objectType) => true;
+
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
             {
                 if (serializer == null)
@@ -20,6 +22,7 @@ namespace Utilities
                 }
                 return serializer.Deserialize<T>(reader);
             }
+
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
                 if (serializer == null)
@@ -28,6 +31,7 @@ namespace Utilities
                 }
                 serializer.Serialize(writer, value);
             }
+
         }
 
     }

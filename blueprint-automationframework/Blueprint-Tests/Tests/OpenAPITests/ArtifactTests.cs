@@ -6,6 +6,7 @@ using TestConfig;
 
 namespace OpenAPITests
 {
+
     [TestFixture]
     [Category(Categories.OpenAPI)]
     public class ArtifactTests

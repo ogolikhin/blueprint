@@ -6,6 +6,7 @@ using Utilities.Facades;
 
 namespace Model.Impl
 {
+
     public class ArtifactStore : IArtifactStore
     {
         private const string SVC_PATH = "api/v1/projects";
@@ -53,5 +54,7 @@ namespace Model.Impl
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
             return artifact;
         }
+
     }
+
 }

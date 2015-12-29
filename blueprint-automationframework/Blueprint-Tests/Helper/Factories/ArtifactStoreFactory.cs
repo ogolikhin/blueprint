@@ -7,8 +7,10 @@ using Logging;
 
 namespace Helper.Factories
 {
+
     public static class ArtifactStoreFactory
     {
+
         public static IArtifactStore CreateArtifactStore(string address)
         {
             IArtifactStore artifactstore = new ArtifactStore(address);
@@ -28,8 +30,9 @@ namespace Helper.Factories
                 Logger.WriteError(msg);
                 throw new DataException(msg);
             }
-
             return CreateArtifactStore(testConfig.Services[keyName].Address);
         }
+
     }
+
 }

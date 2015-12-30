@@ -20,7 +20,7 @@ namespace AdminStore.Controllers
     {
         internal readonly IConfigRepository _configRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
-        private readonly sl.IServiceLogRepository _log;
+        internal readonly sl.IServiceLogRepository _log;
 
         public ConfigController() : this(new SqlConfigRepository(), new HttpClientProvider(), new sl.ServiceLogRepository())
         {

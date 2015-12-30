@@ -33,6 +33,7 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsInstanceOfType(controller._configRepo, typeof(SqlConfigRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
+            Assert.IsInstanceOfType(controller._log, typeof(sl.ServiceLogRepository));
         }
 
         #endregion

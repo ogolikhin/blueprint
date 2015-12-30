@@ -14,7 +14,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var servicelog = new ServiceLogRepository();
 
             // Act
-            await servicelog.LogInformation("FileStore API", "Hello World");
+            await servicelog.LogInformation("ServiceLogRepositoryTests", "Hello World");
 
             // Assert
             // Throws an error if it fails
@@ -27,7 +27,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var servicelog = new ServiceLogRepository();
 
             // Act
-            await servicelog.LogVerbose("FileStore API", "Hello World");
+            await servicelog.LogVerbose("ServiceLogRepositoryTests", "Hello World");
 
             // Assert
             // Throws an error if it fails
@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var servicelog = new ServiceLogRepository();
 
             // Act
-            await servicelog.LogWarning("FileStore API", "Hello World");
+            await servicelog.LogWarning("ServiceLogRepositoryTests", "Hello World");
 
             // Assert
             // Throws an error if it fails
@@ -53,7 +53,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var servicelog = new ServiceLogRepository();
 
             // Act
-            await servicelog.LogError("FileStore API", "Hello World");
+            await servicelog.LogError("ServiceLogRepositoryTests", "Hello World");
 
             // Assert
             // Throws an error if it fails
@@ -68,7 +68,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var ex = new Exception("Some bad thing", innerEx);
 
             // Act
-            await servicelog.LogError("FileStore API", ex);
+            await servicelog.LogError("ServiceLogRepositoryTests", ex);
 
             // Assert
             // Throws an error if it fails

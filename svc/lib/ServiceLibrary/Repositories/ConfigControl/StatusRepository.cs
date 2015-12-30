@@ -1,5 +1,5 @@
 ﻿using ServiceLibrary.Helpers;
-using ServiceLibrary.LocalEventLog;
+using ServiceLibrary.LocalLog;
 using System;
 using System.Configuration;
 using System.Net.Http;
@@ -12,14 +12,17 @@ namespace ServiceLibrary.Repositories.ConfigControl
     public class StatusRepository : IStatusRepository
     {
         internal readonly IHttpClientProvider _httpClientProvider;
+        private readonly ILocalLog _localLog;
+
         public StatusRepository()
-            : this(new HttpClientProvider())
+            : this(new HttpClientProvider(), new LocalFileLog())
         {
         }
 
-        public StatusRepository(IHttpClientProvider hcp)
+        public StatusRepository(IHttpClientProvider hcp, ILocalLog localLog)
         {
             _httpClientProvider = hcp;
+            _localLog = localLog;
         }
 
         [Route("")]
@@ -30,6 +33,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -45,7 +49,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Status service: {0}", ex.Message));
+                _localLog.LogError(string.Format("Problem with ConfigControl Status service: {0}", ex.Message));
             }
 
             return status;

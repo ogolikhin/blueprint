@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
-namespace ServiceLibrary.LocalEventLog
+namespace ServiceLibrary.LocalLog
 {
-    public class LocalLog : ILocalLog
+    public class LocalEventLog : ILocalLog
     {
-        public static LocalLog Log = new LocalLog();
-
         private const string LOGNAME = "BlueprintSys";
         private const string LOGSOURCE = "BlueprintSys-Admin";
+
+        public LocalEventLog()
+        {
+            CreateLogs();
+        }
 
         private void CreateLogs()
         {
@@ -24,14 +22,17 @@ namespace ServiceLibrary.LocalEventLog
 
         public void LogError(string message)
         {
-            CreateLogs();
             EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Error);
         }
 
         public void LogWarning(string message)
         {
-            CreateLogs();
             EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Warning);
+        }
+
+        public void LogInformation(string message)
+        {
+            EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Information);
         }
     }
 }

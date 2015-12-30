@@ -54,7 +54,7 @@ namespace ConfigControl
             }
             catch (Exception ex)
             {
-                localLog.LogError($"Logging listener failed: {ex.Message}");
+                localLog.LogError(string.Format("Logging listener failed: {0}", ex.Message));
                 throw;
             }
         }

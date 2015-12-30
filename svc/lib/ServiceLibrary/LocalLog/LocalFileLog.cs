@@ -66,7 +66,7 @@ namespace ServiceLibrary.LocalLog
 
         private string FormatMessage(string level, string message)
         {
-            return $"[{level}] [{DateTime.Now}] {message}";
+            return string.Format("[{0}] [{1}] {2}", level, DateTime.Now, message);
         }
 
     }

@@ -1,10 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CustomAttributes;
-using Helper.Factories;
 using Logging;
 using Model;
+using Model.Factories;
 using NUnit.Framework;
 using Model.Impl;
 

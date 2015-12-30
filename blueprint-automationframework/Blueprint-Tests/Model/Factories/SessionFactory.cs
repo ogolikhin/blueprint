@@ -1,8 +1,7 @@
-﻿using Model;
-using Model.Factories;
-using Model.Impl;
+﻿using Model.Impl;
+using Utilities.Factories;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
     public static class SessionFactory
     {

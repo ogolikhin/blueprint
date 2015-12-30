@@ -1,13 +1,11 @@
-﻿using Model;
-using Model.Factories;
-using Model.Impl;
+﻿using Model.Impl;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
     /// <summary>
     /// Creates a new ServiceErrorMessage.
     /// </summary>
-    /// <returns>A new ServiceErrorMessage object.</retur
+    /// <returns>A new ServiceErrorMessage object.</returns>
     public static class ServiceErrorMessageFactory
     {
         public static IServiceErrorMessage CreateServiceErrorMessage(int errorCode, string errorMessage)

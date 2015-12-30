@@ -1,9 +1,7 @@
-﻿using System;
-using Model;
-using Model.Factories;
-using Model.Impl;
+﻿using Model.Impl;
+using Utilities.Factories;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
     public static class ProjectFactory
     {
@@ -21,7 +19,7 @@ namespace Helper.Factories
             if (description == null) { description = RandomGenerator.RandomAlphaNumeric(10); }
             if (location == null) { location = RandomGenerator.RandomAlphaNumeric(10); }
 
-            IProject project = new Project() { Name = name, Description = description, Location = location, Id = id };
+            IProject project = new Project { Name = name, Description = description, Location = location, Id = id };
             return project;
         }
     }

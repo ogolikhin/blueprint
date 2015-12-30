@@ -1,8 +1,7 @@
 ﻿using Model;
-using Helper.Factories;
 using NUnit.Framework;
 using CustomAttributes;
-using TestConfig;
+using Model.Factories;
 
 namespace OpenAPITests
 {

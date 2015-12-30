@@ -1,13 +1,10 @@
 ﻿using System;
-using Model;
 using Model.Impl;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
-
     public static class FileFactory
     {
-
         /// <summary>
         /// Creates a new IFile.
         /// </summary>
@@ -18,16 +15,15 @@ namespace Helper.Factories
         /// <returns>An IFile.</returns>
         public static IFile CreateFile(string fileName, string fileType, DateTime lastModifiedDate, byte[] fileContents)
         {
-            IFile file = new File()
+            IFile file = new File
             {
                 Content = fileContents,
                 FileName = fileName,
                 FileType = fileType,
                 LastModifiedDate = lastModifiedDate
             };
+
             return file;
         }
-
     }
-
 }

@@ -1,15 +1,12 @@
 ﻿using System.Data;
 using Logging;
-using Model;
 using Model.Impl;
 using TestConfig;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
-
     public static class FileStoreFactory
     {
-
         /// <summary>
         /// Creates a new IFileStore.
         /// </summary>
@@ -38,9 +35,8 @@ namespace Helper.Factories
                 Logger.WriteError(msg);
                 throw new DataException(msg);
             }
+
             return CreateFileStore(testConfig.Services[keyName].Address);
         }
-
     }
-
 }

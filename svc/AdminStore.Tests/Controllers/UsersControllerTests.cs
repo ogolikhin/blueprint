@@ -11,13 +11,15 @@ using Moq;
 using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
     [TestClass]
-    public class UsersControllerTests 
+    public class UsersControllerTests
     {
         private Mock<ISqlUserRepository> _usersRepoMock;
+        private Mock<IServiceLogRepository> _logMock;
         private UsersController _controller;
 
         [TestInitialize]
@@ -33,7 +35,8 @@ namespace AdminStore.Controllers
                 return httpResponseMessage;
             });
             _usersRepoMock = new Mock<ISqlUserRepository>();
-            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider)
+            _logMock = new Mock<IServiceLogRepository>();
+            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -54,6 +57,7 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
+            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
         }
 
         #endregion
@@ -98,7 +102,8 @@ namespace AdminStore.Controllers
             // Arrange
             var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
             _usersRepoMock = new Mock<ISqlUserRepository>();
-            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider)
+            _logMock = new Mock<IServiceLogRepository>();
+            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

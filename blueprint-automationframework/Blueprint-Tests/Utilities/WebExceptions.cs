@@ -7,7 +7,6 @@ namespace Utilities
 {
     /**
      * TODO: implement following exceptions:
-     * 409: Conflict
      * 411: Length Required
      * 413: Request Entriy Too Large
      * 415: Unsupported Media Type
@@ -356,6 +355,10 @@ namespace Utilities
             else if (ex.Message.Contains(Http406NotAcceptableException.ERROR))
             {
                 ex = new Http406NotAcceptableException(ex);
+            }
+            else if (ex.Message.Contains(Http409ConflictException.ERROR))
+            {
+                ex = new Http409ConflictException(ex);
             }
             else if (ex.Message.Contains(Http500InternalServerErrorException.ERROR))
             {

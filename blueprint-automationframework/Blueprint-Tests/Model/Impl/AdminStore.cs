@@ -51,7 +51,7 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public ISession AddSession(ISession session, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             throw new NotImplementedException();
         }
@@ -67,8 +67,10 @@ namespace Model.Impl
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "login", encodedUsername } };
             if (force != null)
-            queryParameters.Add("force", force.ToString());
-
+            {
+                queryParameters.Add("force", force.ToString());
+            }
+            
             try
             {
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,

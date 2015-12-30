@@ -46,10 +46,10 @@ namespace AdminStoreTests
         }
 
         [Test]
-        public void Login_ValidUser_VerifySForceLogin200OK()
+        public void Login_ValidUser_VerifyForceLogin200OK()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
-            _adminStore.AddSession(_user.Username, _user.Password, true);
+            _adminStore.AddSession(_user.Username, _user.Password, force: true);
         }
 
         [Test]
@@ -66,17 +66,16 @@ namespace AdminStoreTests
         [Test]
         public void Login_LockedUser_Verify401Error()
         {
-            var lockedUser = UserFactory.CreateUserOnly();
-            lockedUser.Enabled = false;
-            lockedUser.CreateUser();
+            _user.DeleteUser(deleteFromDatabase: true);
+            _user = UserFactory.CreateUserOnly();
+            _user.Enabled = false;
+            _user.CreateUser();
             IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2001, 
-                "User account is locked out for the login: " + lockedUser.Username);
+                "User account is locked out for the login: " + _user.Username);
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.AddSession(lockedUser.Username, lockedUser.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
+                _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
             });
-            lockedUser.DeleteUser(deleteFromDatabase: true);
-            lockedUser = null;
         }
     }
 }

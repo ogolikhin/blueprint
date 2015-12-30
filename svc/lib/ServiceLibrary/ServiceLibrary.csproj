@@ -69,8 +69,9 @@
     <Compile Include="EventSources\BlueprintEventSource.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\ServiceLocator.cs" />
-    <Compile Include="LocalEventLog\ILocalLog.cs" />
-    <Compile Include="LocalEventLog\LocalLog.cs" />
+    <Compile Include="LocalLog\ILocalLog.cs" />
+    <Compile Include="LocalLog\LocalEventLog.cs" />
+    <Compile Include="LocalLog\LocalFileLog.cs" />
     <Compile Include="Log\EventLogProviderImpl.cs" />
     <Compile Include="Log\ILogProvider.cs" />
     <Compile Include="Log\LogProvider.cs" />

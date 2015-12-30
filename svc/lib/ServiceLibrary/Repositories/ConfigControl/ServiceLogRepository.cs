@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
-using ServiceLibrary.LocalEventLog;
+using ServiceLibrary.LocalLog;
 using ServiceLibrary.Models;
 using System;
 using System.Configuration;
@@ -14,14 +14,17 @@ namespace ServiceLibrary.Repositories.ConfigControl
     public class ServiceLogRepository : IServiceLogRepository
     {
         internal readonly IHttpClientProvider _httpClientProvider;
+        private readonly ILocalLog _localLog;
+
         public ServiceLogRepository()
-            : this(new HttpClientProvider())
+            : this(new HttpClientProvider(), new LocalFileLog())
         {
         }
 
-        public ServiceLogRepository(IHttpClientProvider hcp)
+        public ServiceLogRepository(IHttpClientProvider hcp, ILocalLog localLog)
         {
             _httpClientProvider = hcp;
+            _localLog = localLog;
         }
 
         /// <summary>
@@ -46,6 +49,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -73,8 +77,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
-                throw;
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
 
@@ -100,6 +103,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -127,8 +131,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
-                throw;
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
 
@@ -154,6 +157,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -181,8 +185,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
-                throw;
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
 
@@ -208,6 +211,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -235,8 +239,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
-                throw;
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
 
@@ -262,6 +265,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             try
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(uri);
@@ -289,8 +293,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                LocalLog.Log.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
-                throw;
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
 

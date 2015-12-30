@@ -38,6 +38,9 @@ namespace Utilities.Factories
                 case 406:
                     ex = new Http406NotAcceptableException(message);
                     break;
+                case 409:
+                    ex = new Http409ConflictException(message);
+                    break;
                 case 500:
                     ex = new Http500InternalServerErrorException(message);
                     break;

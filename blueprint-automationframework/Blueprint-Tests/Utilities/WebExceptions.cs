@@ -7,7 +7,6 @@ namespace Utilities
 {
     /**
      * TODO: implement following exceptions:
-     * 409: Conflict
      * 411: Length Required
      * 413: Request Entriy Too Large
      * 415: Unsupported Media Type
@@ -164,6 +163,31 @@ namespace Utilities
         protected Http406NotAcceptableException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {}
+    }
+
+    [Serializable]
+    public class Http409ConflictException : WebException
+    {
+        public const string ERROR = "Received status code: 409";
+
+        public Http409ConflictException()
+        { }
+
+        public Http409ConflictException(WebException ex)
+            : base(((ex == null) ? ERROR : ex.Message), ex)
+        { }
+
+        public Http409ConflictException(string msg)
+            : base(msg)
+        { }
+
+        public Http409ConflictException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected Http409ConflictException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
     }
 
     [Serializable]
@@ -331,6 +355,10 @@ namespace Utilities
             else if (ex.Message.Contains(Http406NotAcceptableException.ERROR))
             {
                 ex = new Http406NotAcceptableException(ex);
+            }
+            else if (ex.Message.Contains(Http409ConflictException.ERROR))
+            {
+                ex = new Http409ConflictException(ex);
             }
             else if (ex.Message.Contains(Http500InternalServerErrorException.ERROR))
             {

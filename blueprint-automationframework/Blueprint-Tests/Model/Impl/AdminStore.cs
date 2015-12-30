@@ -51,12 +51,12 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public ISession AddSession(ISession session, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             throw new NotImplementedException();
         }
 
-        public ISession AddSession(string username = null, string password = null, bool? isSso = default(bool?),
+        public ISession AddSession(string username = null, string password = null, bool? force = default(bool?),
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
@@ -66,14 +66,19 @@ namespace Model.Impl
             string encodedPassword = HashingUtilities.EncodeTo64UTF8(password);
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "login", encodedUsername } };
-
+            if (force != null)
+            {
+                queryParameters.Add("force", force.ToString());
+            }
+            
             try
             {
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
                     encodedPassword, expectedStatusCodes);
 
                 string token = GetToken(response);
-                ISession session = new Session { UserName = username, IsSso = isSso.GetValueOrDefault(), SessionId = token };
+                //similar to code in SessionController.cs from AdminStore
+                ISession session = new Session { UserName = username, IsSso = false, SessionId = token };
                 Logger.WriteDebug("Got session token '{0}' for User: {1}.", token, username);
 
                 // Add session to list of created sessions, so we can delete them later.

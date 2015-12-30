@@ -42,9 +42,8 @@ namespace ServiceLibrary.LocalLog
                     await writer.WriteLineAsync(FormatMessage("Information", message));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
                 // Do Nothing
             }
         }

@@ -8,8 +8,8 @@ using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
-using ServiceLibrary.Log;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Controllers
 {
@@ -18,22 +18,23 @@ namespace AccessControl.Controllers
     {
         private static ObjectCache _cache;
         private static ISessionsRepository _repo = new SqlSessionsRepository();
+        private static IServiceLogRepository _log = new ServiceLogRepository();
 
         internal static void Load(ObjectCache cache)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 _cache = cache;
                 try
                 {
-                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service starting...", LogEntryType.Information);
+                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service starting...");
                     var ps = 100;
                     var pn = 1;
                     int count;
                     do
                     {
                         count = 0;
-                        var sessions = _repo.SelectSessions(ps, pn).Result;
+                        var sessions = await _repo.SelectSessions(ps, pn);
                         foreach (var session in sessions)
                         {
                             ++count;
@@ -42,29 +43,31 @@ namespace AccessControl.Controllers
                         ++pn;
                     } while (count == ps);
                     StatusController.Ready.Set();
-                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Service started.", LogEntryType.Information);
+                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service started.");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Error loading sessions from database.", LogEntryType.Error);
+                    await _log.LogError(WebApiConfig.LogSource_Sessions,
+                        new Exception("Error loading sessions from database.", ex));
                 }
             });
         }
 
         public SessionsController()
-            : this(_cache, _repo)
+            : this(_cache, _repo, _log)
         {
         }
 
-        internal SessionsController(ObjectCache cache, ISessionsRepository repo)
+        internal SessionsController(ObjectCache cache, ISessionsRepository repo, IServiceLogRepository log)
         {
             _cache = cache;
             _repo = repo;
+            _log = log;
         }
 
         private string GetHeaderSessionToken()
         {
-            if(Request.Headers.Contains("Session-Token") == false)
+            if (Request.Headers.Contains("Session-Token") == false)
                 throw new ArgumentNullException();
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
@@ -257,15 +260,15 @@ namespace AccessControl.Controllers
             _cache.Add(key, session, new CacheItemPolicy
             {
                 SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
-                RemovedCallback = args =>
+                RemovedCallback = async args =>
                 {
                     switch (args.RemovedReason)
                     {
                         case CacheEntryRemovedReason.Evicted:
-                            LogProvider.Current.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error);
+                            await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
                             break;
                         case CacheEntryRemovedReason.Expired:
-                            _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
+                            await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
                             break;
                     }
                 }

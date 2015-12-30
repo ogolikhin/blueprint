@@ -72,9 +72,6 @@
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
-    <Compile Include="Log\EventLogProviderImpl.cs" />
-    <Compile Include="Log\ILogProvider.cs" />
-    <Compile Include="Log\LogProvider.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
     <Compile Include="Models\LicenseTransaction.cs" />
     <Compile Include="Models\LogEntry.cs" />

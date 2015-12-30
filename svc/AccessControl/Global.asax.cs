@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using System.Web.Http;
-using ServiceLibrary.Log;
 
 namespace AccessControl
 {
@@ -9,7 +8,6 @@ namespace AccessControl
     {
         protected void Application_Start()
         {
-            LogProvider.Init(new EventLogProviderImpl(WebApiConfig.ServiceLogSource, WebApiConfig.ServiceLogName));
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
 
@@ -24,7 +22,6 @@ namespace AccessControl
             if (disposing)
             {
                 base.Dispose();
-                LogProvider.DisposeCurrent();
             }
         }
     }

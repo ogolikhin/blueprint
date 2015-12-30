@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.Caching;
 using System.Web.Http;
 using AccessControl.Helpers;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl
 {
@@ -22,11 +23,9 @@ namespace AccessControl
 
         public static int SessionTimeoutInterval = int.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
 
-	    public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
-		    ConfigurationManager.AppSettings["LHTSetting"], 1440);
+        public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
+            ConfigurationManager.AppSettings["LHTSetting"], 1440);
 
-        public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
-
-        public static string ServiceLogName = ServiceLogSource + " Log";
+        internal static string LogSource_Sessions= "AccessControl.Sessions";
     }
 }

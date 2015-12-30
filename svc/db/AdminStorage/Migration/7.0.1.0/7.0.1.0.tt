@@ -30,7 +30,8 @@ Print 'Migrating 7.0.1.0 ...'
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetUserSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\SelectSessions.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetLicensesStatus.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetActiveLicenses.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetLicenseTransactions.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\WriteTraces.sql" ) ) #>
 
 -- --------------------------------------------------

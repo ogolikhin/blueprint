@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using FileStore.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Helpers
 {
@@ -10,13 +11,15 @@ namespace FileStore.Helpers
         private readonly Func<Stream, FileChunk, Task<long>> _function;
         private readonly FileChunk _fileChunk;
         private long? _fileSize;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="fileChunk"></param>
         /// <param name="function">Function to be executed</param>
-        public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function) : base(stream)
+        public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function, IServiceLogRepository log) 
+            : base(stream, log)
         {
             _function = function;
             _fileChunk = fileChunk;
@@ -24,9 +27,9 @@ namespace FileStore.Helpers
         
         protected override async Task ExecuteFunctionAsync(Stream stream)
         {
-            LogHelper.Log.DebugFormat("PUT: Posting first multi-part file chunk");
+            await _log.LogVerbose(WebApiConfig.LogSource_Files, "PUT: Posting first multi-part file chunk");
             _fileSize = await _function(stream, _fileChunk);
-            LogHelper.Log.DebugFormat("PUT: Chunks posted {0}", _fileChunk.ChunkNum - 1);
+            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"PUT: Chunks posted {_fileChunk.ChunkNum - 1}");
         }
 
         public long? GetFileSize()

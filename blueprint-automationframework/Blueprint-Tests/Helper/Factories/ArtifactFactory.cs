@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Impl;
 using Model.Factories;
+using Utilities.Factories;
 
 namespace Helper.Factories
 {

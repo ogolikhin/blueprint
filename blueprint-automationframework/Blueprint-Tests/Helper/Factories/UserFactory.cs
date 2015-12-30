@@ -7,6 +7,7 @@ using Model.Factories;
 using Model.Impl;
 using TestConfig;
 using Utilities;
+using Utilities.Factories;
 
 namespace Helper.Factories
 {

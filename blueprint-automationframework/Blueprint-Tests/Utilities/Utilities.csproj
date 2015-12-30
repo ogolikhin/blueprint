@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deserialization.cs" />
+    <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="Factories\WebExceptionFactory.cs" />
     <Compile Include="HashingUtilities.cs" />
     <Compile Include="WebExceptions.cs" />

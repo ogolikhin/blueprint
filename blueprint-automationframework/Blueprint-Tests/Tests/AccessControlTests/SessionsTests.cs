@@ -5,6 +5,7 @@ using Helper.Factories;
 using Logging;
 using Model;
 using Utilities;
+using Utilities.Factories;
 
 namespace AccessControlTests
 {

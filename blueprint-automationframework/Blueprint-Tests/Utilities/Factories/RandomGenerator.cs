@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Model.Factories
+namespace Utilities.Factories
 {
     public static class RandomGenerator
     {

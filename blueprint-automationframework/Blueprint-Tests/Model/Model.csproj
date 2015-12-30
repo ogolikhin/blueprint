@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="Facades\WebResponseFacade.cs" />
     <Compile Include="Factories\DatabaseFactory.cs" />
-    <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
     <Compile Include="IArtifactResult.cs" />

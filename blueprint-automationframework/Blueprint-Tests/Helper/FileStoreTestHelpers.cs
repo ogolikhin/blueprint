@@ -3,6 +3,7 @@ using System.Text;
 using Helper.Factories;
 using Model;
 using Model.Factories;
+using Utilities.Factories;
 
 namespace FileStoreTests
 {

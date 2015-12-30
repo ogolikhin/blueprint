@@ -53,6 +53,7 @@
     <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
     <Compile Include="Factories\SessionFactory.cs" />
     <Compile Include="Factories\UserFactory.cs" />
+    <Compile Include="FileStoreTestHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

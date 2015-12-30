@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,10 +8,12 @@ namespace FileStore.Helpers
     public abstract class MultipartReader: IDisposable
     {
         protected MultipartPartParser MultipartPartParser;
+        protected IServiceLogRepository _log;
 
-        protected MultipartReader(Stream stream)
+        protected MultipartReader(Stream stream, IServiceLogRepository log)
         {
-            MultipartPartParser = new MultipartPartParser(stream);
+            MultipartPartParser = new MultipartPartParser(stream, log);
+            _log = log;
         }
         public async Task ReadAndExecuteRequestAsync()
         {

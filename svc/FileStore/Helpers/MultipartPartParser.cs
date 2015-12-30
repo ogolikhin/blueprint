@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceLibrary.Repositories.ConfigControl;
+using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,6 +12,8 @@ namespace FileStore.Helpers
     /// </summary>
     public class MultipartPartParser : Stream
     {
+        protected IServiceLogRepository _log;
+
         /// <summary>
         /// Stream the multipart message is being read from
         /// </summary>
@@ -73,14 +76,16 @@ namespace FileStore.Helpers
         protected byte[] NewLine { get; private set; }
 
 
-        public MultipartPartParser(Stream multipartStream) : this(multipartStream, Encoding.UTF8)
+        public MultipartPartParser(Stream multipartStream, IServiceLogRepository log)
+            : this(multipartStream, Encoding.UTF8, log)
         {
         }
 
-        public MultipartPartParser(Stream multipartStream, Encoding encoding, MemoryStream buffer = null)
+        public MultipartPartParser(Stream multipartStream, Encoding encoding, IServiceLogRepository log, MemoryStream buffer = null)
         {
             this.MultipartStream = multipartStream;
             this.Encoding = encoding;
+            this._log = log;
 
             LocalBuffer = new MemoryStream();
             if (buffer != null)
@@ -271,7 +276,7 @@ namespace FileStore.Helpers
                 //the boundary we were looking for had a newline appended to it
                 //we dont want to send the newline to the next part so we will skip
                 LocalBuffer.Position += NewLine.Length;
-                NextPart = new MultipartPartParser(MultipartStream, Encoding, LocalBuffer);
+                NextPart = new MultipartPartParser(MultipartStream, Encoding, _log, LocalBuffer);
 
                 //The next part may actually just the be end indicator, if thats the case
                 //we will null it and not return it

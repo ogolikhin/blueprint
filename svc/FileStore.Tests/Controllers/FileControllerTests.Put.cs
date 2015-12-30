@@ -11,6 +11,7 @@ using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using File = FileStore.Models.File;
+using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
@@ -26,10 +27,11 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqLog = new Mock<sl.IServiceLogRepository>();
             var httpContent = new StringContent("my file");
 
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).ReturnsAsync(null);
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -54,7 +56,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var response = await controller.PutFileHttpContext(guid.ToString(), new HttpContextWrapper(HttpContext.Current));
 
-            
+
             // Assert
             Assert.IsTrue(response.Status == HttpStatusCode.NotFound);
         }
@@ -74,6 +76,7 @@ namespace FileStore.Controllers
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
             var moqHttpContextWrapper = new Mock<HttpContextWrapper>(HttpContext.Current);
+            var moqLog = new Mock<sl.IServiceLogRepository>();
             var file = new File { ChunkCount = 1, FileId = guid };
             var paramFileChunk = new FileChunk();
             var httpContent = "my file";
@@ -91,7 +94,7 @@ namespace FileStore.Controllers
 
             moqConfigRepo.Setup(t => t.FileChunkSize).Returns(DefaultChunkSize);
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -110,7 +113,7 @@ namespace FileStore.Controllers
             // 1. Upload file
             var response = await controller.PutFileHttpContext(guid.ToString(), moqHttpContextWrapper.Object);
 
-            
+
             // Assert
             Assert.IsTrue(response.Status == HttpStatusCode.OK);
             Assert.IsTrue(paramFileChunk.ChunkNum == file.ChunkCount + 2);
@@ -124,10 +127,11 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqLog = new Mock<sl.IServiceLogRepository>();
             var httpContent = "my file";
             HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
                 Request = new HttpRequestMessage
                 {
@@ -165,11 +169,12 @@ namespace FileStore.Controllers
             var moq = new Mock<IFilesRepository>();
             var moqFileStreamRepo = new Mock<IFileStreamRepository>();
             var moqConfigRepo = new Mock<IConfigRepository>();
+            var moqLog = new Mock<sl.IServiceLogRepository>();
             var httpContent = "my file";
             moq.Setup(t => t.GetFileHead(It.IsAny<Guid>())).Throws(new Exception());
             HttpContent content = new ByteArrayContent(Encoding.UTF8.GetBytes(httpContent));
 
-            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object)
+            var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
                 Request = new HttpRequestMessage
                 {

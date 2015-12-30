@@ -1,6 +1,5 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Hosting;
-using FileStore.Controllers;
 
 namespace FileStore
 {
@@ -14,5 +13,8 @@ namespace FileStore
             // Web API routes
             config.MapHttpAttributeRoutes();
         }
+
+        internal static string LogSource_Files = "FileStore.Files";
+
     }
 }

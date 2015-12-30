@@ -13,6 +13,7 @@ using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
+using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -46,10 +47,11 @@ namespace AdminStore.Controllers
             settings.Add("Group", new Dictionary<string, string>());
             settings["Group"].Add("Key", "Value");
             var configRepo = new Mock<IConfigRepository>();
+            var logMock = new Mock<sl.IServiceLogRepository>();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                  new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -68,8 +70,9 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
+            var logMock = new Mock<sl.IServiceLogRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act
@@ -92,11 +95,12 @@ namespace AdminStore.Controllers
             settings["Group"].Add("Key", "Value");
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "Key", Locale = "en-US", Text = "Text" } };
             var configRepo = new Mock<IConfigRepository>();
+            var logMock = new Mock<sl.IServiceLogRepository>();
             configRepo.Setup(r => r.GetLabels("en-US")).ReturnsAsync(labels).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                  new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
 
@@ -122,11 +126,12 @@ namespace AdminStore.Controllers
             settings["Group"].Add("Key", "Value");
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "KeyCA", Locale = locale, Text = "TextCA" } };
             var configRepo = new Mock<IConfigRepository>();
+            var logMock = new Mock<sl.IServiceLogRepository>();
             configRepo.Setup(r => r.GetLabels(locale)).ReturnsAsync(labels).Verifiable();
             var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWith("settings/false") ?
                  new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
-            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             controller.Request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(locale));
@@ -148,8 +153,9 @@ namespace AdminStore.Controllers
         {
             // Arrange
             var configRepo = new Mock<IConfigRepository>();
+            var logMock = new Mock<sl.IServiceLogRepository>();
             var httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
-            var controller = new ConfigController(configRepo.Object, httpClientProvider) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
 
             // Act

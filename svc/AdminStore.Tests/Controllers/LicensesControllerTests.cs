@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -32,6 +33,7 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
             Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
+            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
         }
 
         #endregion Constructor
@@ -42,7 +44,7 @@ namespace AdminStore.Controllers
         public async Task GetLicenseTransactions_HttpClientAndRepositoryReturnResults_ReturnsCombinedResults()
         {
             // Arrange
-            var transactions = new []
+            var transactions = new[]
             {
                 new LicenseTransaction { LicenseActivityId = 1, UserId = 1, LicenseType = 1, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
                 new LicenseTransaction { LicenseActivityId = 2, UserId = 2, LicenseType = 3, TransactionType = 1, ActionType = 1, ConsumerType = 1 },
@@ -55,8 +57,9 @@ namespace AdminStore.Controllers
                 new LicenseTransactionUser { Id = 2, Login = "another_user" }
             };
             var userRepository = new Mock<ISqlUserRepository>();
-            userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new [] { 1, 2 })).ReturnsAsync(users);
-            var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            var logMock = new Mock<IServiceLogRepository>();
+            userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).ReturnsAsync(users);
+            var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", string.Empty);
             int days = 1;
 
@@ -77,7 +80,8 @@ namespace AdminStore.Controllers
             // Arrange
             var httpClientProvider = CreateTestHttpClientProvider(null);
             var userRepository = new Mock<ISqlUserRepository>();
-            var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            var logMock = new Mock<IServiceLogRepository>();
+            var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
             int days = 1;
 
             // Act
@@ -99,8 +103,9 @@ namespace AdminStore.Controllers
             };
             var httpClientProvider = CreateTestHttpClientProvider(transactions);
             var userRepository = new Mock<ISqlUserRepository>();
+            var logMock = new Mock<IServiceLogRepository>();
             userRepository.Setup(r => r.GetLicenseTransactionUserInfoAsync(new[] { 1, 2 })).Throws<Exception>();
-            var controller = new LicensesController(httpClientProvider, userRepository.Object) { Request = new HttpRequestMessage() };
+            var controller = new LicensesController(httpClientProvider, userRepository.Object, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", string.Empty);
             int days = 1;
 

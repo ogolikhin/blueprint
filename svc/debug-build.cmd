@@ -14,6 +14,7 @@ call "%VS120COMNTOOLS%VsDevCmd.bat"
 SETLOCAL
 SET NUGET_VERSION=latest
 SET CACHED_NUGET=%LocalAppData%\NuGet\nuget.%NUGET_VERSION%.exe
+SET MSBUILDDISABLENODEREUSE=1
 
 IF EXIST %CACHED_NUGET% goto copynuget
 echo Downloading latest version of NuGet.exe...

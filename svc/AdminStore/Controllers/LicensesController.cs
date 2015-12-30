@@ -11,6 +11,7 @@ using System.Web.Http.Description;
 using AdminStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -19,15 +20,17 @@ namespace AdminStore.Controllers
     {
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly ISqlUserRepository _userRepository;
+        internal readonly IServiceLogRepository _log;
 
-        public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository())
+        public LicensesController(): this(new HttpClientProvider(), new SqlUserRepository(), new ServiceLogRepository())
         {
         }
 
-        internal LicensesController(IHttpClientProvider httpClientProvider, ISqlUserRepository userRepository)
+        internal LicensesController(IHttpClientProvider httpClientProvider, ISqlUserRepository userRepository, IServiceLogRepository log)
         {
             _httpClientProvider = httpClientProvider;
             _userRepository = userRepository;
+            _log = log;
         }
 
         [HttpGet]
@@ -37,6 +40,7 @@ namespace AdminStore.Controllers
         {
             try
             {
+                await _log.LogInformation(WebApiConfig.LogSource_Licenses, "hey");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);
@@ -67,8 +71,9 @@ namespace AdminStore.Controllers
             {
                 return Unauthorized();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Licenses, ex);
                 return InternalServerError();
             }
         }

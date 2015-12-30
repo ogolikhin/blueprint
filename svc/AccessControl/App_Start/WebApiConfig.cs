@@ -27,5 +27,7 @@ namespace AccessControl
             ConfigurationManager.AppSettings["LHTSetting"], 1440);
 
         internal static string LogSource_Sessions= "AccessControl.Sessions";
+
+        internal static string LogSource_Licenses = "AccessControl.Licenses";
     }
 }

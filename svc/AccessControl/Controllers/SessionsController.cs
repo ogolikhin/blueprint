@@ -99,8 +99,9 @@ namespace AccessControl.Controllers
             {
                 return NotFound();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
                 return InternalServerError();
             }
         }
@@ -136,8 +137,9 @@ namespace AccessControl.Controllers
             {
                 return NotFound();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
                 return InternalServerError();
             }
         }
@@ -171,8 +173,9 @@ namespace AccessControl.Controllers
             {
                 return NotFound();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
                 return InternalServerError();
             }
         }
@@ -214,8 +217,9 @@ namespace AccessControl.Controllers
             {
                 return NotFound();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
                 return InternalServerError();
             }
         }
@@ -249,8 +253,9 @@ namespace AccessControl.Controllers
             {
                 return NotFound();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
                 return InternalServerError();
             }
         }

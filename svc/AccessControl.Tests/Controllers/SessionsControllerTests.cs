@@ -9,15 +9,15 @@ using System.Web.Http.Results;
 using AccessControl.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Log;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Controllers
 {
     [TestClass]
     public class SessionsControllerTests
     {
-        private static Mock<ILogProvider> _logProviderMock;
+        private Mock<IServiceLogRepository> _logMock;
         private Mock<ISessionsRepository> _sessionsRepoMock;
         private Mock<ObjectCache> _cacheMock;
         private SessionsController _controller;
@@ -27,20 +27,13 @@ namespace AccessControl.Controllers
         {
             _sessionsRepoMock = new Mock<ISessionsRepository>();
             _cacheMock = new Mock<ObjectCache>();
+            _logMock = new Mock<IServiceLogRepository>();
 
-            _controller = new SessionsController(_cacheMock.Object, _sessionsRepoMock.Object)
+            _controller = new SessionsController(_cacheMock.Object, _sessionsRepoMock.Object, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
-        }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            _logProviderMock = new Mock<ILogProvider>();
-            _logProviderMock.Setup(m => m.WriteEntry(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<LogEntryType>()));
-            LogProvider.Init(_logProviderMock.Object);
         }
 
         #region GetSession
@@ -677,7 +670,7 @@ namespace AccessControl.Controllers
         private bool VerifyPolicy(CacheItemPolicy policy, string token)
         {
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
-            _logProviderMock.Verify(l => l.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error));
+            //_logMock.Verify(l => l.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error));
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
             _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token), true));
             return true;

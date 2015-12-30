@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using CustomAttributes;
-using Helper.Factories;
 using Model;
+using Model.Factories;
 using NUnit.Framework;
 
 namespace FileStoreTests

@@ -41,18 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\AccessControlFactory.cs" />
-    <Compile Include="Factories\AdminStoreFactory.cs" />
-    <Compile Include="Factories\ArtifactFactory.cs" />
-    <Compile Include="Factories\ArtifactStoreFactory.cs" />
-    <Compile Include="Factories\BlueprintServerFactory.cs" />
-    <Compile Include="Factories\FileFactory.cs" />
-    <Compile Include="Factories\FileStoreFactory.cs" />
-    <Compile Include="Factories\ProjectFactory.cs" />
-    <Compile Include="Factories\PropertyFactory.cs" />
-    <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
-    <Compile Include="Factories\SessionFactory.cs" />
-    <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="FileStoreTestHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -73,6 +61,9 @@
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Factories\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

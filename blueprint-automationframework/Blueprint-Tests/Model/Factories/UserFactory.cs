@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Logging;
-using Model;
-using Model.Factories;
 using Model.Impl;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
     public static class UserFactory
     {

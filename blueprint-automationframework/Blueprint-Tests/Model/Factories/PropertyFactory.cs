@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Model;
+﻿using System.Collections.Generic;
 using Model.Impl;
 
-namespace Helper.Factories
+namespace Model.Factories
 {
-
     public static class PropertyFactory
     {
-
         /// <summary>
         /// Class that contains default value for standard properties
         /// Currently contains minimum default property values to create a simple artifact: "Name" and "Desciption" properties
@@ -21,6 +14,7 @@ namespace Helper.Factories
         {
             Dictionary<string, IProperty> properties = new Dictionary<string, IProperty>();
             IProperty property = new Property();
+
             //first entry: set default value for the "Name" Property
             property.PropertyTypeId = 50;
             property.Name = "Name";
@@ -29,6 +23,7 @@ namespace Helper.Factories
             property.IsRichText = false;
             property.IsReadOnly = false ;
             properties.Add("Name", property);
+
             //second entry: set default value for the "Description" Property
             property.PropertyTypeId = 51;
             property.Name = "Description";
@@ -37,6 +32,7 @@ namespace Helper.Factories
             property.IsRichText = true;
             property.IsReadOnly = false;
             properties.Add("Description", property);
+
             return properties;
         }
 
@@ -45,18 +41,19 @@ namespace Helper.Factories
         /// </summary>
         /// <param name="propertyName">property name</param>
         /// <param name="propertyTextOrChoiceValue">(Optional) property value</param>
-        public static List<IProperty> AddProperty(String propertyName, string propertyTextOrChoiceValue = null)
+        public static List<IProperty> AddProperty(string propertyName, string propertyTextOrChoiceValue = null)
         {
             List<IProperty> properties = new List<IProperty>();
             Dictionary<string, IProperty> defaultProperties = DefaultProperties();
+
             if (propertyTextOrChoiceValue != null)
             {
                 defaultProperties[propertyName].TextOrChoiceValue = propertyTextOrChoiceValue;
             }
+
             properties.Add(defaultProperties[propertyName]);
+
             return properties;
         }
-
     }
-
 }

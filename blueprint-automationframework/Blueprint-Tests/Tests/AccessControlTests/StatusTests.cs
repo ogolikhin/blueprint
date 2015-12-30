@@ -5,7 +5,6 @@ using NUnit.Framework;
 using CustomAttributes;
 using Model.Facades;
 using TestConfig;
-using Helper.Factories;
 
 namespace AccessControlTests
 {

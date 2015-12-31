@@ -391,17 +391,6 @@ END
 GO 
 
 
-/******************************************************************************************************************************
-Name:			BeginSession
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-2015/12/22		Glen Stone				Added inserts to LicenseActivities and LicenseActivityDetails
-******************************************************************************************************************************/
-
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[BeginSession]
 GO
@@ -415,7 +404,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@LicenseLevel int,
 	@IsSso bit = 0,
 	@licenseLockTimeMinutes int,
-	@OldSessionId uniqueidentifier OUTPUT,
+	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
 BEGIN
@@ -426,7 +415,7 @@ BEGIN
 
 		-- [Sessions]
 		SELECT @OldSessionId = SessionId FROM [dbo].[Sessions] WHERE UserId = @UserId;
-		SELECT @NewSessionId = NEWID();
+		DECLARE @NewSessionId uniqueidentifier = NEWID();
 		IF @OldSessionId IS NULL
 		BEGIN
 			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
@@ -438,7 +427,7 @@ BEGIN
 			UPDATE [dbo].[Sessions]
 			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-			WHERE [UserId] = @UserId;
+			WHERE [SessionId] = @OldSessionId;
 		END
 
 		-- [LicenseActivities]
@@ -491,17 +480,6 @@ BEGIN
 END
 GO
 
-/******************************************************************************************************************************
-Name:			EndSession
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-2015/12/22		Glen Stone				Added inserts to LicenseActivities and LicenseActivityDetails
-******************************************************************************************************************************/
-
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[EndSession]
 GO
@@ -521,7 +499,10 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		UPDATE [dbo].[Sessions] SET EndTime = @EndTime WHERE SessionId = @SessionId AND EndTime < @EndTime;
+		UPDATE [dbo].[Sessions] SET [EndTime] = @EndTime
+		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+		WHERE [SessionId] = @SessionId AND [EndTime] > @EndTime;
+
 		IF @@ROWCOUNT > 0 BEGIN
 			-- [LicenseActivities]
 			DECLARE @UserId int

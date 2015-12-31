@@ -12,6 +12,6 @@ namespace AccessControl.Repositories
         Task<IEnumerable<Session>> SelectSessions(int ps, int pn);
         Task<Session> BeginSession(int userId, string userName, int licenseLevel, bool isSso, Action<Guid> oldSessionIdAction = null);
         Task<Session> ExtendSession(Guid guid);
-        Task EndSession(Guid guid, bool timeout);
+        Task<Session> EndSession(Guid guid, bool timeout);
     }
 }

@@ -34,7 +34,7 @@ BEGIN
 			UPDATE [dbo].[Sessions]
 			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
 			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-			WHERE [UserId] = @UserId;
+			WHERE [SessionId] = @OldSessionId;
 		END
 
 		-- [LicenseActivities]

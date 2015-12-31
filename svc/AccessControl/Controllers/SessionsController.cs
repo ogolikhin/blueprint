@@ -188,11 +188,11 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
 
-                await _repo.EndSession(guid, false);
-                if (_cache.Remove(token) == null)
+                if (await _repo.EndSession(guid, false) == null)
                 {
                     throw new KeyNotFoundException();
                 }
+                _cache.Remove(token);
                 return Ok();
             }
             catch (ArgumentNullException)

@@ -17,7 +17,9 @@ BEGIN
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		UPDATE [dbo].[Sessions] SET EndTime = @EndTime WHERE SessionId = @SessionId AND EndTime < @EndTime;
+		UPDATE [dbo].[Sessions] SET [EndTime] = @EndTime
+		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+		WHERE [SessionId] = @SessionId AND [EndTime] > @EndTime;
 
 		IF @@ROWCOUNT > 0 BEGIN
 			-- [LicenseActivities]

@@ -320,10 +320,12 @@ namespace AccessControl.Controllers
         #region DeleteSession
 
         [TestMethod]
-        public async Task DeleteSession_TokenIsNotInRepository_KeyNotFound()
+        public async Task DeleteSession_SessionDoesNotExist_NotFound()
         {
             // Arrange
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+            var guid = new Guid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).ReturnsAsync(null);
 
             // Act
             var result = await _controller.DeleteSession();
@@ -336,88 +338,57 @@ namespace AccessControl.Controllers
         public async Task DeleteSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
-            _sessionsRepoMock
-                .Setup(repo => repo.EndSession(newGuid, false))
-                .Throws(new Exception());
+            var guid = Guid.NewGuid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).Throws<Exception>();
 
             // Act
             var result = await _controller.DeleteSession();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as InternalServerErrorResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         [TestMethod]
-        public async Task DeleteSession_RepositoryThrowsException_ArgumentNull()
+        public async Task DeleteSession_MissingToken_BadRequest()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(newGuid));
+
+            // Act
+            var result = await _controller.DeleteSession();
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_SessionExists_OkResult()
+        {
+            // Arrange
+            var guid = Guid.NewGuid();
+            _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
+            var session = new Session { SessionId = guid };
+            _sessionsRepoMock.Setup(r => r.EndSession(guid, false)).ReturnsAsync(session);
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
-            _sessionsRepoMock
-                .Setup(repo => repo.EndSession(newGuid, false))
-                .Throws(new ArgumentNullException());
 
             // Act
             var result = await _controller.DeleteSession();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
         [TestMethod]
-        public async Task DeleteSession_TokenHasNotBeenSet_BadRequest()
+        public async Task DeleteSession_MalformedToken_BadRequest()
         {
             // Arrange
-            var newGuid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(r => r.EndSession(newGuid, false)).Returns(Task.FromResult(new object()));
+            _controller.Request.Headers.Add("Session-Token", "bad token");
 
             // Act
             var result = await _controller.DeleteSession();
 
             // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public async Task DeleteSession_RepositoryReturnsResult_OkResult()
-        {
-            // Arrange
-            var newGuid = Guid.NewGuid();
-            _sessionsRepoMock.Setup(r => r.EndSession(newGuid, false)).Returns(Task.FromResult(new object()));
-            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
-            _controller.Request.Headers.Add("Session-Token", newGuid.ToString("N"));
-
-            // Act
-            var result = await _controller.DeleteSession();
-
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as OkResult;
-            Assert.IsNotNull(responseResult);
-        }
-
-        [TestMethod]
-        public async Task DeleteSession_TokenIsNull_BadRequest()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", "null");
-
-            // Act
-            var resultSessions = await _controller.DeleteSession();
-
-            // Assert
-            Assert.IsNotNull(resultSessions);
-            var responseResult = resultSessions as BadRequestResult;
-            Assert.IsNotNull(responseResult);
+            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         #endregion DeleteSession

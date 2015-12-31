@@ -24,6 +24,7 @@ Print 'Migrating 7.0.1.0 ...'
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\SetSchemaVersion.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetStatus.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\BeginSession.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\ExtendSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\EndSession.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetApplicationLabels.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Procedures\GetConfigSettings.sql" ) ) #>

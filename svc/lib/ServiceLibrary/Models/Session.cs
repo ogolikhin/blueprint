@@ -21,6 +21,11 @@ namespace ServiceLibrary.Models
         [JsonProperty]
         public int LicenseLevel { get; set; }
 
+        public bool IsExpired()
+        {
+            return EndTime <= DateTime.UtcNow;
+        }
+
         public static string Convert(Guid guid)
         {
             return guid.ToString(("N"));

@@ -48,22 +48,37 @@ namespace AccessControl.Repositories
             var prm = new DynamicParameters();
             prm.Add("@ps", ps);
             prm.Add("@pn", pn);
-            return (await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure));
+            return await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Guid?[]> BeginSession(int userId, string userName, int licenseLevel, bool isSso)
+        public async Task<Session> BeginSession(int userId, string userName, int licenseLevel, bool isSso, Action<Guid> oldSessionIdAction = null)
         {
+            var now = DateTime.UtcNow;
             var prm = new DynamicParameters();
             prm.Add("@UserId", userId);
-            prm.Add("@BeginTime", DateTime.UtcNow);
+            prm.Add("@BeginTime", now);
+            prm.Add("@EndTime", now.AddSeconds(WebApiConfig.SessionTimeoutInterval));
             prm.Add("@UserName", userName);
             prm.Add("@LicenseLevel", licenseLevel);
             prm.Add("@IsSso", isSso);
-            prm.Add("@NewSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
-            prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
-            await _connectionWrapper.ExecuteAsync("BeginSession", prm, commandType: CommandType.StoredProcedure);
-            return new[] {prm.Get<Guid?>("NewSessionId"), prm.Get<Guid?>("OldSessionId")};
+            prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
+            var result = (await _connectionWrapper.QueryAsync<Session>("BeginSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            var oldSessionId = prm.Get<Guid?>("OldSessionId");
+            if (oldSessionIdAction != null && oldSessionId.HasValue)
+            {
+                oldSessionIdAction(oldSessionId.Value);
+            }
+            return result;
+        }
+
+        public async Task<Session> ExtendSession(Guid guid)
+        {
+            var now = DateTime.UtcNow;
+            var prm = new DynamicParameters();
+            prm.Add("@SessionId", guid);
+            prm.Add("@EndTime", now.AddSeconds(WebApiConfig.SessionTimeoutInterval));
+            return (await _connectionWrapper.QueryAsync<Session>("ExtendSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
         public async Task EndSession(Guid guid, bool timeout)

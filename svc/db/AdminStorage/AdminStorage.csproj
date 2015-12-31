@@ -76,6 +76,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
     <Content Include="Procedures\GetLicenseTransactions.sql" />
     <Content Include="Procedures\GetUserSession.sql" />

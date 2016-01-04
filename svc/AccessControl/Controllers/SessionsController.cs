@@ -33,6 +33,38 @@ namespace AccessControl.Controllers
             _log = log;
         }
 
+        internal Task LoadAsync()
+        {
+            return Task.Run(async () =>
+            {
+                try
+                {
+                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service starting...");
+                    var ps = 100;
+                    var pn = 1;
+                    int count;
+                    do
+                    {
+                        count = 0;
+                        var sessions = await _repo.SelectSessions(ps, pn);
+                        foreach (var session in sessions)
+                        {
+                            ++count;
+                            SetSession(Session.Convert(session.SessionId), session);
+                        }
+                        ++pn;
+                    } while (count == ps);
+                    StatusController.Ready.Set();
+                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service started.");
+                }
+                catch (Exception ex)
+                {
+                    await _log.LogError(WebApiConfig.LogSource_Sessions,
+                        new Exception("Error loading sessions from database.", ex));
+                }
+            });
+        }
+
         private string GetHeaderSessionToken()
         {
             if (Request.Headers.Contains("Session-Token") == false)
@@ -218,7 +250,7 @@ namespace AccessControl.Controllers
         {
             _cache.Set(key, session, new CacheItemPolicy
             {
-                SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
+                SlidingExpiration = session.EndTime - DateTime.UtcNow,
                 RemovedCallback = async args =>
                 {
                     switch (args.RemovedReason)

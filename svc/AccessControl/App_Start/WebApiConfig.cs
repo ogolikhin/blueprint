@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Web.Http;
+using AccessControl.Controllers;
 using AccessControl.Helpers;
 
 namespace AccessControl
@@ -12,6 +13,8 @@ namespace AccessControl
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            new SessionsController().LoadAsync();
         }
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;

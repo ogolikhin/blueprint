@@ -11,9 +11,9 @@ namespace ServiceLibrary.Models
         [JsonIgnore] //do not send session id
         public Guid SessionId { get; set; }
         [JsonProperty]
-        public DateTime? BeginTime { get; set; }
+        public DateTime BeginTime { get; set; }
         [JsonProperty]
-        public DateTime? EndTime { get; set; }
+        public DateTime EndTime { get; set; }
         [JsonProperty]
         public string UserName { get; set; }
         [JsonProperty]

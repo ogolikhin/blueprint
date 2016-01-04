@@ -85,12 +85,12 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task GetSession_SessionExists_ReturnsSession()
+        public async Task GetSession_SessionNotExpired_ReturnsSession()
         {
             // Arrange
             int uid = 999;
             var guid = Guid.NewGuid();
-            var session = new Session { SessionId = guid };
+            var session = new Session { EndTime = DateTime.Now.AddDays(1) };
             _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).ReturnsAsync(session);
 
             // Act
@@ -427,13 +427,13 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task PutSession_SessionExists_UpdatesCacheAndReturnsSession()
+        public async Task PutSession_SessionNotExpired_UpdatesCacheAndReturnsSession()
         {
             // Arrange
             var guid = Guid.NewGuid();
             var token = Session.Convert(guid);
             _controller.Request.Headers.Add("Session-Token", token);
-            var session = new Session { SessionId = guid };
+            var session = new Session { EndTime = DateTime.Now.AddDays(1) };
             _sessionsRepoMock.Setup(c => c.ExtendSession(guid)).ReturnsAsync(session);
 
             // Act
@@ -488,6 +488,42 @@ namespace AccessControl.Controllers
         }
 
         #endregion PutSession
+
+        #region LoadAsync
+
+        [TestMethod]
+        public async Task LoadAsync_RepositoryReturnsSessions_ReadyIsSet()
+        {
+            // Arrange
+            var sessions = new List<Session> { new Session() };
+            _sessionsRepoMock
+                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(sessions);
+
+            // Act
+            await _controller.LoadAsync();
+
+            // Assert
+            Assert.IsTrue(StatusController.Ready.IsSet);
+        }
+
+        [TestMethod]
+        public async Task LoadAsync_RepositoryThrowsException_ReadyIsNotSet()
+        {
+            // Arrange
+            StatusController.Ready.Reset();
+            _sessionsRepoMock
+                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            // Act
+            await _controller.LoadAsync();
+
+            // Assert
+            Assert.IsFalse(StatusController.Ready.IsSet);
+        }
+
+        #endregion LoadAsync
 
         private bool VerifyPolicy(CacheItemPolicy policy, string token)
         {

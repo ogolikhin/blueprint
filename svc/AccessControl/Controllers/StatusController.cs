@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -12,6 +13,13 @@ namespace AccessControl.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusRepository StatusRepo;
+
+        public static ManualResetEventSlim Ready { get; }
+
+        static StatusController()
+        {
+            Ready = new ManualResetEventSlim(false);
+        }
 
         public StatusController() : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"))
         {
@@ -29,7 +37,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var result = await StatusRepo.GetStatus();
+                var result = Ready.IsSet && await StatusRepo.GetStatus();
                 if (result)
                 {
                     return Ok();

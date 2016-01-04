@@ -49,6 +49,7 @@ namespace ConfigControl
                     bufferingInterval: TimeSpan.FromSeconds(3),
                     bufferingCount: 200);
                 dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
 
                 localLog.LogInformation("Started logging listener");
             }

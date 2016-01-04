@@ -44,7 +44,10 @@ namespace Logging.Database.Utility
 
             for (int i = 0; i < entry.Payload.Count; i++)
             {
-                XmlWriteProperty(writer, eventSchema.Payload[i], entry.Payload[i]);
+                if (entry.Payload[i] != null)
+                {
+                    XmlWriteProperty(writer, eventSchema.Payload[i], entry.Payload[i]);
+                }
             }
 
             writer.WriteEndElement();
@@ -84,7 +87,7 @@ namespace Logging.Database.Utility
             {
                 if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return entry.Payload[i].ToString();
+                    return entry.Payload[i] == null ? string.Empty : entry.Payload[i].ToString();
                 }
             }
 

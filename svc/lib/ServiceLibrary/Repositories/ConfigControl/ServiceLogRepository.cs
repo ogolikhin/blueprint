@@ -56,14 +56,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    LogEntry logEntry = new LogEntry(
-                        LogLevelEnum.Informational,
-                        source,
-                        message,
-                        methodName,
-                        filePath,
-                        lineNumber,
-                        "");
+                    var logEntry = new LogEntry()
+                    {
+                        LogLevel = LogLevelEnum.Informational,
+                        Source = source,
+                        Message = message,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
@@ -110,14 +112,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    LogEntry logEntry = new LogEntry(
-                        LogLevelEnum.Verbose,
-                        source,
-                        message,
-                        methodName,
-                        filePath,
-                        lineNumber,
-                        "");
+                    var logEntry = new LogEntry()
+                    {
+                        LogLevel = LogLevelEnum.Verbose,
+                        Source = source,
+                        Message = message,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
@@ -164,14 +168,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    LogEntry logEntry = new LogEntry(
-                        LogLevelEnum.Warning,
-                        source,
-                        message,
-                        methodName,
-                        filePath,
-                        lineNumber,
-                        "");
+                    var logEntry = new LogEntry()
+                    {
+                        LogLevel = LogLevelEnum.Warning,
+                        Source = source,
+                        Message = message,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
@@ -218,14 +224,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    LogEntry logEntry = new LogEntry(
-                        LogLevelEnum.Error,
-                        source,
-                        message,
-                        methodName,
-                        filePath,
-                        lineNumber,
-                        "");
+                    var logEntry = new LogEntry()
+                    {
+                        LogLevel = LogLevelEnum.Error,
+                        Source = source,
+                        Message = message,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
@@ -272,14 +280,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    LogEntry logEntry = new LogEntry(
-                        LogLevelEnum.Error,
-                        source,
-                        exception.Message,
-                        methodName,
-                        filePath,
-                        lineNumber,
-                        GetStackTrace(exception));
+                    var logEntry = new LogEntry()
+                    {
+                        LogLevel = LogLevelEnum.Informational,
+                        Source = source,
+                        Message = exception.Message,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = LogHelper.GetStackTrace(exception)
+                    };
 
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
@@ -297,19 +307,31 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        private string GetStackTrace(Exception ex)
+        public async Task LogCLog(CLogEntry logEntry)
         {
-            var stringBuilder = new StringBuilder();
-
-            while (ex != null)
+            try
             {
-                stringBuilder.AppendLine(ex.Message);
-                stringBuilder.AppendLine(ex.StackTrace);
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                ex = ex.InnerException;
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await http.PostAsync(@"log/clog", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
-
-            return stringBuilder.ToString();
+            catch (Exception ex)
+            {
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+            }
         }
     }
 }

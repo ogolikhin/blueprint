@@ -66,12 +66,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
+    <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\ServiceLocator.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
+    <Compile Include="Models\CLogEntry.cs" />
+    <Compile Include="Models\ILogEntry.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
     <Compile Include="Models\LicenseTransaction.cs" />
     <Compile Include="Models\LogEntry.cs" />

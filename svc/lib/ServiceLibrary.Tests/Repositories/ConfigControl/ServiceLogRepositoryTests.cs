@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -69,6 +70,26 @@ namespace ServiceLibrary.Repositories.ConfigControl
 
             // Act
             await servicelog.LogError("ServiceLogRepositoryTests", ex);
+
+            // Assert
+            // Throws an error if it fails
+        }
+
+        [TestMethod]
+        public async Task LogCLog()
+        {
+            // Arrange
+            var servicelog = new ServiceLogRepository();
+            var logEntry = new CLogEntry()
+            {
+                Source = "ServiceLogRepositoryTests",
+                LogLevel = LogLevelEnum.Informational,
+                Message = "Hello World",
+                UserName = "Admin"
+            };
+
+            // Act
+            await servicelog.LogCLog(logEntry);
 
             // Assert
             // Throws an error if it fails

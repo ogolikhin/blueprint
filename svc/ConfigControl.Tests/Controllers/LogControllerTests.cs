@@ -11,15 +11,12 @@ namespace ConfigControl.Controllers
         {
             // Arrange
             var controller = new LogController();
-            var logEntry = new LogEntry(
-                LogLevelEnum.Informational,
-                "Controller source",
-                "Some message",
-                "",
-                "",
-                0,
-                "");
-
+            var logEntry = new LogEntry()
+            {
+                LogLevel = LogLevelEnum.Informational,
+                Source = "Controller source",
+                Message = "Hello",
+            };
             // Act
             var result = controller.Log(logEntry);
 

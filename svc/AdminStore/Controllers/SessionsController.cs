@@ -24,7 +24,7 @@ namespace AdminStore.Controllers
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly IServiceLogRepository _log;
 
-        public SessionsController(): this(new AuthenticationRepository(), new HttpClientProvider(), new ServiceLogRepository())
+        public SessionsController() : this(new AuthenticationRepository(), new HttpClientProvider(), new ServiceLogRepository())
         {
         }
 
@@ -52,7 +52,7 @@ namespace AdminStore.Controllers
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
             catch (ApplicationException)
-            {              
+            {
                 return Conflict();
             }
             catch (ArgumentNullException)
@@ -66,7 +66,8 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                return InternalServerError();
+                //  return InternalServerError(); TODO return back
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message));
             }
         }
 
@@ -121,7 +122,8 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                return InternalServerError();
+                // return InternalServerError(); TODO return back
+                throw new Exception(ex.Message);
             }
         }
 

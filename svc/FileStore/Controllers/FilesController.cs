@@ -49,7 +49,7 @@ namespace FileStore.Controllers
         }
 
         #region Service Methods
-        [HttpHead]
+        [HttpHead, NoCache]
         [Route("{id}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)

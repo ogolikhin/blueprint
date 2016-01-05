@@ -137,7 +137,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpPost, NoCache]
+        [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)

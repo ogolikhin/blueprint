@@ -190,7 +190,7 @@ ALTER TABLE [dbo].[LicenseActivityDetails] CHECK CONSTRAINT [FK_LicenseActivityD
 GO
 
 /******************************************************************************************************************************
-Name:			Traces
+Name:			Logs
 
 Description: 
 			
@@ -198,11 +198,11 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Traces]') AND type in (N'U'))
-DROP TABLE [dbo].[Traces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
+DROP TABLE [dbo].[Logs]
 GO
 
-CREATE TABLE [dbo].[Traces](
+CREATE TABLE [dbo].[Logs](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
@@ -226,14 +226,14 @@ CREATE TABLE [dbo].[Traces](
 	[RelatedActivityId] [uniqueidentifier],
 	[ProcessId] [int],
 	[ThreadId] [int],
-	 CONSTRAINT [PK_Traces] PRIMARY KEY CLUSTERED 
+	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )) ON [PRIMARY]
 GO
 
 /******************************************************************************************************************************
-Name:			TracesType
+Name:			LogsType
 
 Description: 
 			
@@ -241,15 +241,15 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteTraces]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteTraces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[WriteLogs]
 GO
 
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'TracesType' AND ss.name = N'dbo')
-DROP TYPE [dbo].[TracesType]
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'dbo')
+DROP TYPE [dbo].[LogsType]
 GO
 
-CREATE TYPE TracesType AS TABLE
+CREATE TYPE LogsType AS TABLE
 (
 	[InstanceName] [nvarchar](1000),
 	[ProviderId] [uniqueidentifier],
@@ -702,7 +702,7 @@ END
 GO
 
 /******************************************************************************************************************************
-Name:			WriteTraces
+Name:			WriteLogs
 
 Description: 
 			
@@ -710,17 +710,17 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteTraces]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteTraces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[WriteLogs]
 GO
 
-CREATE PROCEDURE [dbo].[WriteTraces]  
+CREATE PROCEDURE [dbo].[WriteLogs]  
 (
-  @InsertTraces TracesType READONLY
+  @InsertLogs LogsType READONLY
 )
 AS
 BEGIN
-  INSERT INTO [Traces] (
+  INSERT INTO [Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],
@@ -744,7 +744,7 @@ BEGIN
 		[LineNumber],
 		[StackTrace]
 	)
-  SELECT * FROM @InsertTraces;
+  SELECT * FROM @InsertLogs;
 END
 
 GO

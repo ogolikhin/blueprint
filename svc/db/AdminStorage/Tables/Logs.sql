@@ -1,5 +1,5 @@
 ﻿/******************************************************************************************************************************
-Name:			Traces
+Name:			Logs
 
 Description: 
 			
@@ -7,11 +7,11 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Traces]') AND type in (N'U'))
-DROP TABLE [dbo].[Traces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
+DROP TABLE [dbo].[Logs]
 GO
 
-CREATE TABLE [dbo].[Traces](
+CREATE TABLE [dbo].[Logs](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
@@ -35,7 +35,7 @@ CREATE TABLE [dbo].[Traces](
 	[RelatedActivityId] [uniqueidentifier],
 	[ProcessId] [int],
 	[ThreadId] [int],
-	 CONSTRAINT [PK_Traces] PRIMARY KEY CLUSTERED 
+	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )) ON [PRIMARY]

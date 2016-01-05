@@ -6,8 +6,8 @@ namespace AccessControlDouble
 {
     public static class WebApiConfig
     {
-        public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
-        public static string AdminStore = ConfigurationManager.AppSettings["AdminStore"];
+        public static readonly string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
+        public static readonly string AdminStore = ConfigurationManager.AppSettings["AdminStore"];
 
         public static void Register(HttpConfiguration config)
         {
@@ -23,12 +23,6 @@ namespace AccessControlDouble
                 routeTemplate: "svc/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
-//            config.Routes.MapHttpRoute(
-//                name: "DefaultApi",
-//                routeTemplate: "api/{controller}/{id}",
-//                defaults: new { id = RouteParameter.Optional }
-//            );
         }
     }
 }

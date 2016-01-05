@@ -11,12 +11,11 @@ namespace AccessControlDouble.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        private const string SVC = "status";
-
         /// <summary>
         /// Method to return current status of AccessControl Web Service.
         /// </summary>
         /// <returns>200 OK if no issue is detected.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         [HttpGet]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]

@@ -51,7 +51,7 @@ namespace AccessControl.Repositories
             return await _connectionWrapper.QueryAsync<Session>("SelectSessions", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Session> BeginSession(int userId, string userName, int licenseLevel, bool isSso, Action<Guid> oldSessionIdAction = null)
+        public async Task<Session> BeginSession(int userId, string userName, int licenseLevel, bool isSso, Action<Guid> oldSessionIdAction)
         {
             var now = DateTime.UtcNow;
             var prm = new DynamicParameters();
@@ -65,7 +65,7 @@ namespace AccessControl.Repositories
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             var result = (await _connectionWrapper.QueryAsync<Session>("BeginSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             var oldSessionId = prm.Get<Guid?>("OldSessionId");
-            if (oldSessionIdAction != null && oldSessionId.HasValue)
+            if (oldSessionId.HasValue)
             {
                 oldSessionIdAction(oldSessionId.Value);
             }

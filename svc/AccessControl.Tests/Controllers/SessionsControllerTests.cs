@@ -90,7 +90,7 @@ namespace AccessControl.Controllers
             // Arrange
             int uid = 999;
             var guid = Guid.NewGuid();
-            var session = new Session { EndTime = DateTime.Now.AddDays(1) };
+            var session = new Session { EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).ReturnsAsync(session);
 
             // Act
@@ -167,7 +167,7 @@ namespace AccessControl.Controllers
             int licenseLevel = 3;
             var newSessionId = Guid.NewGuid();
             var oldSessionId = Guid.NewGuid();
-            var session = new Session { SessionId = newSessionId };
+            var session = new Session { SessionId = newSessionId, EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(r => r.BeginSession(It.IsAny<int>(), userName, licenseLevel, false, It.IsAny<Action<Guid>>()))
                 .Returns((int i, string n, int l, bool s, Action<Guid> a) => { a(oldSessionId); return Task.FromResult(session); });
 
@@ -416,7 +416,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            var session = new Session { EndTime = DateTime.MaxValue };
+            var session = new Session { EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(r => r.GetSession(guid)).ReturnsAsync(session);
 
             // Act
@@ -433,7 +433,7 @@ namespace AccessControl.Controllers
             var guid = Guid.NewGuid();
             var token = Session.Convert(guid);
             _controller.Request.Headers.Add("Session-Token", token);
-            var session = new Session { EndTime = DateTime.Now.AddDays(1) };
+            var session = new Session { EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(c => c.ExtendSession(guid)).ReturnsAsync(session);
 
             // Act
@@ -492,35 +492,35 @@ namespace AccessControl.Controllers
         #region LoadAsync
 
         [TestMethod]
-        public async Task LoadAsync_RepositoryReturnsSessions_ReadyIsSet()
+        public async Task LoadAsync_RepositoryReturnsSessions_CachesOrTimesOutSessions()
         {
             // Arrange
-            var sessions = new List<Session> { new Session() };
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(sessions);
+            var session = new Session { SessionId = Guid.NewGuid(), EndTime = DateTime.UtcNow.AddDays(1) };
+            var expiredSession = new Session { SessionId = Guid.NewGuid(), EndTime = DateTime.UtcNow };
+            var sessions = new List<Session> { session, expiredSession };
+            _sessionsRepoMock.Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(sessions);
 
             // Act
             await _controller.LoadAsync();
 
             // Assert
-            Assert.IsTrue(StatusController.Ready.IsSet);
+            var token = Session.Convert(session.SessionId);
+            _cacheMock.Verify(m => m.Set(token, session, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
+            _sessionsRepoMock.Verify(r => r.EndSession(expiredSession.SessionId, true));
         }
 
         [TestMethod]
-        public async Task LoadAsync_RepositoryThrowsException_ReadyIsNotSet()
+        public async Task LoadAsync_RepositoryThrowsException_LogsError()
         {
             // Arrange
-            StatusController.Ready.Reset();
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Throws(new Exception());
+            _sessionsRepoMock.Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>())).Throws<Exception>();
 
             // Act
             await _controller.LoadAsync();
 
             // Assert
-            Assert.IsFalse(StatusController.Ready.IsSet);
+            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, It.Is<Exception>(e => e.Message == "Error loading sessions from database."),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
         }
 
         #endregion LoadAsync
@@ -528,7 +528,7 @@ namespace AccessControl.Controllers
         private bool VerifyPolicy(CacheItemPolicy policy, string token)
         {
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
-            //_logMock.Verify(l => l.WriteEntry(WebApiConfig.ServiceLogSource, "Not enough memory", LogEntryType.Error));
+            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
             _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token), true));
             return true;

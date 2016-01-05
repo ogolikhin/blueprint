@@ -54,7 +54,6 @@ namespace AccessControl.Controllers
                         }
                         ++pn;
                     } while (count == ps);
-                    StatusController.Ready.Set();
                     await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service started.");
                 }
                 catch (Exception ex)
@@ -248,22 +247,30 @@ namespace AccessControl.Controllers
 
         private void SetSession(string key, Session session)
         {
-            _cache.Set(key, session, new CacheItemPolicy
+            var slidingExpiration = session.EndTime - DateTime.UtcNow;
+            if (slidingExpiration >= TimeSpan.Zero)
             {
-                SlidingExpiration = session.EndTime - DateTime.UtcNow,
-                RemovedCallback = async args =>
+                _cache.Set(key, session, new CacheItemPolicy
                 {
-                    switch (args.RemovedReason)
+                    SlidingExpiration = slidingExpiration,
+                    RemovedCallback = async args =>
                     {
-                        case CacheEntryRemovedReason.Evicted:
-                            await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
-                            break;
-                        case CacheEntryRemovedReason.Expired:
-                            await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
-                            break;
+                        switch (args.RemovedReason)
+                        {
+                            case CacheEntryRemovedReason.Evicted:
+                                await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
+                                break;
+                            case CacheEntryRemovedReason.Expired:
+                                await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
+                                break;
+                        }
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                _repo.EndSession(session.SessionId, true);
+            }
         }
     }
 }

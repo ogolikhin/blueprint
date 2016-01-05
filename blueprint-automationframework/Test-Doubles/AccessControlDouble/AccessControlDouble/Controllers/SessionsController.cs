@@ -19,8 +19,8 @@ namespace AccessControlDouble.Controllers
         /// Method will not extend lifetime of the session by SESSION_TIMEOUT.
         /// This method to be used for sign in sequence only.  Session information is returned back.
         /// </summary>
-        /// <param name="uid"></param>
-        /// <returns></returns>
+        /// <param name="uid">The ID of the User whose session you are retrieving.</param>
+        /// <returns>The session token for the specified user.</returns>
         [HttpGet]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using Logging;
-using Model.Facades;
-using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
 

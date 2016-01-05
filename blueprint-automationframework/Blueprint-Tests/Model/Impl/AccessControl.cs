@@ -157,7 +157,12 @@ namespace Model.Impl
 
         public HttpStatusCode GetStatus()    // GET /status
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = string.Format("{0}/status", SVC_PATH);
+
+            Logger.WriteInfo("Getting AccessControl status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            return response.StatusCode;
         }
 
         #endregion Members inherited from IAccessControl

@@ -148,6 +148,87 @@ bpApp.directive('mxgraph', function() {
 			graph.panningHandler.useLeftButtonForPanning = true;
 			//graph.htmlLabels = true;
 
+			graph.labelChanged = function(cell, newValue, trigger)
+			{
+				var name = (trigger != null) ? trigger.fieldname : null;
+				console.log(cell);
+				console.log(newValue);
+				console.log(trigger);
+
+				mxGraph.prototype.labelChanged.apply(this, arguments);
+				//
+			};
+
+
+
+			graph.getLabel = function(cell)
+			{
+				var label = (this.labelsVisible) ? this.convertValueToString(cell) : '';
+				var geometry = this.model.getGeometry(cell);
+				
+				if (!this.model.isCollapsed(cell) && geometry != null && (geometry.offset == null ||
+					(geometry.offset.x == 0 && geometry.offset.y == 0)) && this.model.isVertex(cell) &&
+					geometry.width >= 2)
+				{
+					var style = this.getCellStyle(cell);
+					var fontSize = style[mxConstants.STYLE_FONTSIZE] || mxConstants.DEFAULT_FONTSIZE;
+					var max = geometry.width / (fontSize * 0.625);
+					
+					if (max < label.length)
+					{
+						return label.substring(0, max) + '...';
+					}
+				}
+				
+				return label;
+			};
+			
+			// Enables wrapping for vertex labels
+			graph.isWrapping = function(cell)
+			{
+				return true;
+			};
+			
+			// Enables clipping of vertex labels if no offset is defined
+			graph.isLabelClipped = function(cell)
+			{
+				var geometry = this.model.getGeometry(cell);
+				
+				return geometry != null && !geometry.relative && (geometry.offset == null ||
+					(geometry.offset.x == 0 && geometry.offset.y == 0));
+			};
+			
+			// Changes fill color to red on mouseover
+			graph.addMouseListener(
+			{
+			    mouseDown: function(sender, me)
+			    {
+			    	console.log("mousedown");
+			    	console.log(me.getCell());
+			    	console.log(me);
+			    },
+			    mouseMove: function(sender, me)
+			    {
+			    	// console.log("mouseMove");
+			    	// console.log(me.getCell());
+			    },
+			    mouseUp: function(sender, me) 
+			    { 
+			    	console.log("mouseUp");
+			    	console.log(me.getCell());
+			    },
+			    dragEnter: function(evt, state)
+			    {
+			    	console.log("dragEnter");
+			    	console.log(me.getCell());
+			    },
+			    dragLeave: function(evt, state)
+			    {
+			    	console.log("dragLeave");
+			    	console.log(me.getCell());
+			    }
+			});
+
 
 
 			// Displays a popupmenu when the user clicks
@@ -167,8 +248,8 @@ bpApp.directive('mxgraph', function() {
 			var style = graph.getStylesheet().getDefaultVertexStyle();
 			style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LABEL;
 			
-			style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-			style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
+			//style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+			//style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_MIDDLE;
 			// style[mxConstants.STYLE_SPACING_LEFT] = 54;
 			
 			style[mxConstants.STYLE_GRADIENTCOLOR] = '#dddddd';
@@ -200,6 +281,7 @@ bpApp.directive('mxgraph', function() {
 			style[mxConstants.STYLE_ENTRY_Y] = 0.5; // center
 			style[mxConstants.STYLE_ENTRY_PERIMETER] = 0; // disabled
 			style[mxConstants.STYLE_STROKECOLOR] = '#999999';
+
 			
 			// Disable the following for straight lines
 			style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;

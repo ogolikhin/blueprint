@@ -192,17 +192,6 @@ END
 GO 
 
 
-/******************************************************************************************************************************
-Name:			BeginSession
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-2015/12/22		Glen Stone				Added inserts to LicenseActivities and LicenseActivityDetails
-******************************************************************************************************************************/
-
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[BeginSession]
 GO
@@ -211,33 +200,35 @@ CREATE PROCEDURE [dbo].[BeginSession]
 (
 	@UserId int,
 	@BeginTime datetime,
+	@EndTime datetime,
 	@UserName nvarchar(max),
 	@LicenseLevel int,
 	@IsSso bit = 0,
-	@NewSessionId uniqueidentifier OUTPUT,
-	@OldSessionId uniqueidentifier OUTPUT,
-	@licenseLockTimeMinutes int
+	@licenseLockTimeMinutes int,
+	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
 BEGIN
+	SET NOCOUNT ON;
 	BEGIN TRY
 		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
 		SELECT @OldSessionId = SessionId FROM [dbo].[Sessions] WHERE UserId = @UserId;
-		SELECT @NewSessionId = NEWID();
+		DECLARE @NewSessionId uniqueidentifier = NEWID();
 		IF @OldSessionId IS NULL
 		BEGIN
-			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, UserName, LicenseLevel, IsSso)
-			VALUES (@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel, @IsSso);
+			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
+			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+			VALUES (@UserId, @NewSessionId, @BeginTime, @EndTime, @UserName, @LicenseLevel, @IsSso);
 		END
 		ELSE
 		BEGIN
-			UPDATE [dbo].[Sessions] 
-			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = NULL, 
-				[UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
-			WHERE [UserId] = @UserId;
+			UPDATE [dbo].[Sessions]
+			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
+			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+			WHERE [SessionId] = @OldSessionId;
 		END
 
 		-- [LicenseActivities]
@@ -273,16 +264,22 @@ BEGIN
 END
 GO
 
-/******************************************************************************************************************************
-Name:			EndSession
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ExtendSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ExtendSession]
+GO
 
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-2015/12/22		Glen Stone				Added inserts to LicenseActivities and LicenseActivityDetails
-******************************************************************************************************************************/
+CREATE PROCEDURE [dbo].[ExtendSession] 
+(
+	@SessionId uniqueidentifier,
+	@EndTime datetime
+)
+AS
+BEGIN
+	UPDATE [dbo].[Sessions] SET EndTime = @EndTime
+	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+	WHERE SessionId = @SessionId AND EndTime <= @EndTime;
+END
+GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[EndSession]
@@ -297,33 +294,38 @@ CREATE PROCEDURE [dbo].[EndSession]
 )
 AS
 BEGIN
+	SET NOCOUNT ON;
 	BEGIN TRY
 		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
-		UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime WHERE SessionId = @SessionId;
+		UPDATE [dbo].[Sessions] SET [EndTime] = @EndTime
+		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+		WHERE [SessionId] = @SessionId AND [EndTime] > @EndTime;
 
-		-- [LicenseActivities]
-		DECLARE @UserId int
-		DECLARE @LicenseLevel int
-		SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [dbo].[Sessions] WHERE [SessionId] = @SessionId;
-		INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
-		VALUES
-			(@UserId
-			,@LicenseLevel
-			,2 -- LicenseTransactionType.Release
-			,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
-			,1 -- LicenseConsumerType.Client
-			,@EndTime)
+		IF @@ROWCOUNT > 0 BEGIN
+			-- [LicenseActivities]
+			DECLARE @UserId int
+			DECLARE @LicenseLevel int
+			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [dbo].[Sessions] WHERE [SessionId] = @SessionId;
+			INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+			VALUES
+				(@UserId
+				,@LicenseLevel
+				,2 -- LicenseTransactionType.Release
+				,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
+				,1 -- LicenseConsumerType.Client
+				,@EndTime)
 
-		-- [LicenseActivityDetails]
-		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
-		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @licenseLockTimeMinutes
-		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
-		SELECT @LicenseActivityId, [LicenseLevel], [Count]
-		FROM @ActiveLicenses
+			-- [LicenseActivityDetails]
+			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
+			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
+			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @licenseLockTimeMinutes
+			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+			SELECT @LicenseActivityId, [LicenseLevel], [Count]
+			FROM @ActiveLicenses
+		END
 
 		COMMIT TRANSACTION;
 	END TRY

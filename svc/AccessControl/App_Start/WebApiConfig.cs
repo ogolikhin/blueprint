@@ -1,9 +1,7 @@
 ﻿using System.Configuration;
-using System.Reflection;
-using System.Runtime.Caching;
 using System.Web.Http;
+using AccessControl.Controllers;
 using AccessControl.Helpers;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl
 {
@@ -16,7 +14,7 @@ namespace AccessControl
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            Controllers.SessionsController.Load(new MemoryCache("SessionsCache"));
+            new SessionsController().LoadAsync();
         }
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;

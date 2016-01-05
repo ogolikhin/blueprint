@@ -15,8 +15,8 @@ GO
 CREATE TABLE [dbo].[Sessions](
 	[UserId] [int] NOT NULL,
 	[SessionId] [uniqueidentifier] NOT NULL,
-	[BeginTime] [datetime] NULL,
-	[EndTime] [datetime] NULL,
+	[BeginTime] [datetime] NOT NULL,
+	[EndTime] [datetime] NOT NULL,
 	[UserName] [nvarchar](max) NOT NULL,
 	[LicenseLevel] [int] NOT NULL,
 	[IsSso] [bit] NOT NULL

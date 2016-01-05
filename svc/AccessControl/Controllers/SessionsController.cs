@@ -16,15 +16,27 @@ namespace AccessControl.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private static ObjectCache _cache;
-        private static ISessionsRepository _repo = new SqlSessionsRepository();
-        private static IServiceLogRepository _log = new ServiceLogRepository();
+        private static readonly ObjectCache Cache = new MemoryCache("SessionsCache");
 
-        internal static void Load(ObjectCache cache)
+        internal ObjectCache _cache;
+        internal ISessionsRepository _repo;
+        internal IServiceLogRepository _log;
+
+        public SessionsController() : this(Cache, new SqlSessionsRepository(), new ServiceLogRepository())
         {
-            Task.Run(async () =>
+        }
+
+        internal SessionsController(ObjectCache cache, ISessionsRepository repo, IServiceLogRepository log)
+        {
+            _cache = cache;
+            _repo = repo;
+            _log = log;
+        }
+
+        internal Task LoadAsync()
+        {
+            return Task.Run(async () =>
             {
-                _cache = cache;
                 try
                 {
                     await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service starting...");
@@ -38,11 +50,10 @@ namespace AccessControl.Controllers
                         foreach (var session in sessions)
                         {
                             ++count;
-                            AddSession(Session.Convert(session.SessionId), session);
+                            SetSession(Session.Convert(session.SessionId), session);
                         }
                         ++pn;
                     } while (count == ps);
-                    StatusController.Ready.Set();
                     await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service started.");
                 }
                 catch (Exception ex)
@@ -51,18 +62,6 @@ namespace AccessControl.Controllers
                         new Exception("Error loading sessions from database.", ex));
                 }
             });
-        }
-
-        public SessionsController()
-            : this(_cache, _repo, _log)
-        {
-        }
-
-        internal SessionsController(ObjectCache cache, ISessionsRepository repo, IServiceLogRepository log)
-        {
-            _cache = cache;
-            _repo = repo;
-            _log = log;
         }
 
         private string GetHeaderSessionToken()
@@ -79,13 +78,8 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var session = await _repo.GetUserSession(uid); // reading from database to avoid extending existing session
-                if (session == null)
-                {
-                    throw new KeyNotFoundException();
-                }
-
-                if (session.EndTime != null)
+                var session = await _repo.GetUserSession(uid);
+                if (session == null || session.IsExpired())
                 {
                     throw new KeyNotFoundException();
                 }
@@ -151,18 +145,13 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var guids = await _repo.BeginSession(uid, userName, licenseLevel, isSso);
-                if (!guids[0].HasValue)
+                var session = await _repo.BeginSession(uid, userName, licenseLevel, isSso, id => _cache.Remove(Session.Convert(id)));
+                if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }
-                var token = Session.Convert(guids[0].Value);
-                if (guids[1].HasValue)
-                {
-                    _cache.Remove(Session.Convert(guids[1].Value));
-                }
-                var session = await _repo.GetUserSession(uid);
-                AddSession(token, session);
+                var token = Session.Convert(session.SessionId);
+                SetSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
@@ -189,16 +178,12 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
-                var session = _cache.Get(token) as Session;
-                if (session == null)
+                var session = await _repo.ExtendSession(guid);
+                if (session == null || session.IsExpired())
                 {
-                    session = await _repo.GetSession(guid);
-                    if (session == null || session.EndTime.HasValue)
-                    {
-                        throw new KeyNotFoundException();
-                    }
-                    AddSession(token, session);
+                    throw new KeyNotFoundException();
                 }
+                SetSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
                 response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
@@ -234,11 +219,11 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
 
-                await _repo.EndSession(guid, false);
-                if (_cache.Remove(token) == null)
+                if (await _repo.EndSession(guid, false) == null)
                 {
                     throw new KeyNotFoundException();
                 }
+                _cache.Remove(token);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -260,24 +245,32 @@ namespace AccessControl.Controllers
             }
         }
 
-        private static void AddSession(string key, Session session)
+        private void SetSession(string key, Session session)
         {
-            _cache.Add(key, session, new CacheItemPolicy
+            var slidingExpiration = session.EndTime - DateTime.UtcNow;
+            if (slidingExpiration >= TimeSpan.Zero)
             {
-                SlidingExpiration = TimeSpan.FromSeconds(WebApiConfig.SessionTimeoutInterval),
-                RemovedCallback = async args =>
+                _cache.Set(key, session, new CacheItemPolicy
                 {
-                    switch (args.RemovedReason)
+                    SlidingExpiration = slidingExpiration,
+                    RemovedCallback = async args =>
                     {
-                        case CacheEntryRemovedReason.Evicted:
-                            await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
-                            break;
-                        case CacheEntryRemovedReason.Expired:
-                            await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
-                            break;
+                        switch (args.RemovedReason)
+                        {
+                            case CacheEntryRemovedReason.Evicted:
+                                await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
+                                break;
+                            case CacheEntryRemovedReason.Expired:
+                                await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
+                                break;
+                        }
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                _repo.EndSession(session.SessionId, true);
+            }
         }
     }
 }

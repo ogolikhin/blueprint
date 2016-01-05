@@ -264,9 +264,9 @@ namespace Logging.Database.Sinks
                         using (var cmd = new SqlCommand(storedProcedureName, conn))
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.Add(new SqlParameter("@InsertTraces", SqlDbType.Structured));
+                            cmd.Parameters.Add(new SqlParameter("@InsertLogs", SqlDbType.Structured));
                             cmd.Parameters[0].Value = reader;
-                            cmd.Parameters[0].TypeName = "dbo.TracesType";
+                            cmd.Parameters[0].TypeName = "dbo.LogsType";
 
                             return await cmd.ExecuteNonQueryAsync(token).ConfigureAwait(false);
                         }

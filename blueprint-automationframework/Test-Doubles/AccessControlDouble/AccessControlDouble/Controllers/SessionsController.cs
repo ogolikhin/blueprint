@@ -21,6 +21,7 @@ namespace AccessControlDouble.Controllers
         /// </summary>
         /// <param name="uid">The ID of the User whose session you are retrieving.</param>
         /// <returns>The session token for the specified user.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "uid")]    // It's used implicitly by the path variable.
         [HttpGet]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -46,6 +47,7 @@ namespace AccessControlDouble.Controllers
         /// <param name="ps">(optional) Page Size.  The size of each page to return.</param>
         /// <param name="pn">(optional) Page Number.  Max number of pages to return.</param>
         /// <returns>A paged list of existing sessions.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters")] // They're used implicitly by the path variable.
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -72,6 +74,7 @@ namespace AccessControlDouble.Controllers
         /// <param name="licenseLevel"></param>
         /// <param name="isSso"></param>
         /// <returns>The session token.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters")]  // They're used implicitly by the path variable.
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
@@ -98,6 +101,7 @@ namespace AccessControlDouble.Controllers
         /// <param name="op">Optional parameter to identify operation user intends to perform.</param>
         /// <param name="aid">Optional parameter to identify artifact operation is requested to be performed on.</param>
         /// <returns>The session token.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters")]    // They're used implicitly by the path variable.
         [HttpPut]
         [Route("{op}/{aid}")]
         [ResponseType(typeof(HttpResponseMessage))]

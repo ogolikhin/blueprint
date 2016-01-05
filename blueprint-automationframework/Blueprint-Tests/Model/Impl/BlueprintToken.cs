@@ -23,6 +23,7 @@ namespace Model.Impl
         /// <summary>
         /// Gets/sets the AccessControl token string.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1820:TestForEmptyStringsUsingStringLength")]   // Ignore this warning.
         public string AccessControlToken
         {
             get { return _accessControlToken; }
@@ -30,6 +31,11 @@ namespace Model.Impl
             {
                 if ((value != null) && !value.StartsWith("BlueprintToken") && (value.Length == 32))
                 {
+                    _accessControlToken = value;
+                }
+                else if (value == string.Empty)
+                {
+                    // This is a hack for cases when you don't have a valid token, but you don't want Model classes to automatically authenticate the user.
                     _accessControlToken = value;
                 }
                 else
@@ -42,6 +48,7 @@ namespace Model.Impl
         /// <summary>
         /// Gets/sets the OpenAPI token string.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1820:TestForEmptyStringsUsingStringLength")]   // Ignore this warning.
         public string OpenApiToken
         {
             get { return _openApiToken; }
@@ -50,6 +57,11 @@ namespace Model.Impl
                 if ((value != null) && value.StartsWith("BlueprintToken"))
                 {
                     _openApiToken = value;
+                }
+                else if (value == string.Empty)
+                {
+                    // This is a hack for cases when you don't have a valid token, but you don't want Model classes to automatically authenticate the user.
+                    _accessControlToken = value;
                 }
                 else
                 {

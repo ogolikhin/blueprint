@@ -82,7 +82,7 @@ namespace Model.Impl
             }
 
             var path = string.Format("{0}/files", SVC_PATH);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName, chunk, file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
 
             file.Id = response.Content.Replace("\"", "");
@@ -146,7 +146,7 @@ namespace Model.Impl
             }
 
             var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
 
             try
             {
@@ -187,7 +187,7 @@ namespace Model.Impl
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
             var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
 
             var response = restApi.SendRequestAndGetResponse(path, webRequestMethod, expectedStatusCodes:expectedStatusCodes);

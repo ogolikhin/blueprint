@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Models;
 using AdminStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using sl = ServiceLibrary.Repositories.ConfigControl;
 
@@ -34,7 +35,7 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("settings")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetConfigSettings()
@@ -51,8 +52,6 @@ namespace AdminStore.Controllers
                     result.EnsureSuccessStatusCode();
                     var response = Request.CreateResponse(HttpStatusCode.OK);
                     response.Content = result.Content;
-                    response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                    response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                     return ResponseMessage(response);
                 }
             }
@@ -63,7 +62,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("config.js")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetConfig()
@@ -87,8 +86,6 @@ namespace AdminStore.Controllers
                 var log = "console.log('Configuration for locale " + locale + " loaded successfully.');";
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Content = new StringContent(config + log, Encoding.UTF8, "text/plain");
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
             catch (Exception ex)

@@ -6,6 +6,7 @@ using System.Web.Http.Description;
 using System.Web.Http.Results;
 using ServiceLibrary.Repositories;
 using ConfigControl.Repositories;
+using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
@@ -23,7 +24,7 @@ namespace ConfigControl.Controllers
             StatusRepo = statusRepo;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()

@@ -8,6 +8,7 @@ using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -71,7 +72,7 @@ namespace AccessControl.Controllers
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetSession(int uid)
@@ -85,8 +86,6 @@ namespace AccessControl.Controllers
                 }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
             catch (KeyNotFoundException)
@@ -100,7 +99,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
@@ -138,7 +137,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, NoCache]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
@@ -153,8 +152,6 @@ namespace AccessControl.Controllers
                 var token = Session.Convert(session.SessionId);
                 SetSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
             }
@@ -185,8 +182,6 @@ namespace AccessControl.Controllers
                 }
                 SetSession(token, session);
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
             }

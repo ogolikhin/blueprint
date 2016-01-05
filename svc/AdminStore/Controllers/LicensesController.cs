@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -33,7 +34,7 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("transactions")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days)
@@ -62,8 +63,6 @@ namespace AdminStore.Controllers
                     }
                     var response = Request.CreateResponse(HttpStatusCode.OK);
                     response.Content = new ObjectContent<IEnumerable<LicenseTransaction>>(transactions, new JsonMediaTypeFormatter());
-                    response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                    response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                     return ResponseMessage(response);
                 }
             }

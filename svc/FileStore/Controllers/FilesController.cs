@@ -13,6 +13,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using ServiceLibrary.Attributes;
 using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
@@ -29,15 +30,10 @@ namespace FileStore.Controllers
         private readonly IConfigRepository _configRepo;
         private readonly sl.IServiceLogRepository _log;
 
-        private const string CacheControl = "Cache-Control";
-        private const string Pragma = "Pragma";
         private const string StoredDate = "Stored-Date";
         private const string FileSize = "File-Size";
         private const string FileChunkCount = "File-Chunk-Count";
         private const string Attachment = "attachment";
-        private const string NoCache = "no-cache";
-        private const string NoStore = "no-store";
-        private const string MustRevalidate = "must-revalidate";
         private const string StoredDateFormat = "o";
 
         public FilesController() : this(new SqlFilesRepository(), new FileStreamRepository(), ConfigRepository.Instance, new sl.ServiceLogRepository())
@@ -109,7 +105,7 @@ namespace FileStore.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("{id}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileContent(string id)
@@ -281,8 +277,6 @@ namespace FileStore.Controllers
 
         private void SetHeaderContent(HttpResponseMessage response, Models.File file)
         {
-            response.Headers.Add(CacheControl, string.Format("{0}, {1}, {2}", NoCache, NoStore, MustRevalidate)); // HTTP 1.1.
-            response.Headers.Add(Pragma, NoCache); // HTTP 1.0.
             response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
             response.Headers.Add(FileSize, file.FileSize.ToString());
             response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());

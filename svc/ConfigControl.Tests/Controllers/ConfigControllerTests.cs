@@ -52,10 +52,8 @@ namespace ConfigControl.Controllers
             // Assert
             configRepo.Verify();
             Assert.IsNotNull(result);
-            Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
-            Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             var actual = await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
-         Assert.AreEqual(expected["Group"]["Key"], actual["Group"]["Key"]);
+            Assert.AreEqual(expected["Group"]["Key"], actual["Group"]["Key"]);
             
         }
 

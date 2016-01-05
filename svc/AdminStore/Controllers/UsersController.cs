@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
 using Newtonsoft.Json;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -33,7 +34,7 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("loginuser")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLoginUser()

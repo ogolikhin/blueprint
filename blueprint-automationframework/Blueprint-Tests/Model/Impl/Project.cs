@@ -2,9 +2,6 @@
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Logging;
-using Model.Facades;
-using System.Net;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -89,31 +86,14 @@ namespace Model.Impl
         /// <returns>a project associated with the projectId provided with the request.</returns>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            Dictionary<string, string> addedHeaders = CommonGetProjects(address, projectId, user);
-            Project project = WebRequestFacade.CreateWebRequestAndGetResponse<Project>(address + SVC_PROJECTS_PATH + "/" + projectId, "GET", addedHeaders);
+            if (user == null) { throw new ArgumentNullException("user"); }
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, user.Token.OpenApiToken);
+            string path = string.Format("{0}/{1}", SVC_PROJECTS_PATH, projectId);
+            Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
+
             return project;
         }
-
-        /// <sumary>
-        /// Internal CommonGetProjects method containing Logger and Header implementation based on passed parameters.
-        /// </sumary>
-        /// <param name="address">The base Uri address of the Blueprint server.</param>
-        /// <param name="projectId">(optional) The ID of the project need to be retrieved.</param>
-        /// <param name="user">(optional) The user to authenticate to the server with. Default to use no authentication. </param>
-        /// <returns> a header containing valid authentication if the optional user parameter is passed.</returns>
-        /// 
-        private static Dictionary<string, string> CommonGetProjects(string address, int projectId = 0, IUser user = null)
-        {
-            Logger.WriteDebug((projectId == 0) ? "Creating HttpWebRequest for " + SVC_PROJECTS_PATH + "." : "Creating HttpWebRequest for /api/v1/projects/{0}.", projectId);
-            Dictionary<string, string> addedHeaders = null;
-            if (user != null)
-            {
-                BlueprintServer.GetUserToken(address, user);
-                addedHeaders = BlueprintServer.GetTokenHeader(user);
-            }
-            return addedHeaders;
-        }
-
 
         /// <summary>
         /// Updates a project on the Blueprint server with the changes that were made to this object.

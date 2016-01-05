@@ -379,6 +379,7 @@ namespace Utilities.Facades
             Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            Logger.WriteTrace("Base URI for REST request is: {0}", _baseUri);
             var client = new RestClient(_baseUri);
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
 

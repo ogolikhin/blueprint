@@ -130,7 +130,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
             var restApi = new RestApiFacade(_address, session?.SessionId);
-            string path = string.Format("{0}/sessions/", SVC_PATH);
+            string path = string.Format("{0}/sessions", SVC_PATH);
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);

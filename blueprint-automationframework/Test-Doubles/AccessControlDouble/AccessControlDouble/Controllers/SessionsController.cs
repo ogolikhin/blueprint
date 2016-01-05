@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -12,7 +13,49 @@ namespace AccessControlDouble.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
+        private const string SVC_PATH = "/svc/accesscontrol/";
         private const string TOKEN_HEADER = "Session-Token";
+
+        #region Private functions
+
+        /// <summary>
+        /// If present, copies the Session-Token from the source headers to dest.
+        /// </summary>
+        /// <param name="source">The HTTP headers to copy from.</param>
+        /// <param name="dest">The HTTP headers to copy to.</param>
+        private static void CopySessionTokenHeader(HttpRequestHeaders source, HttpRequestHeaders dest)
+        {
+            if (source.Contains(TOKEN_HEADER))
+            {
+                var tokens = source.GetValues(TOKEN_HEADER);
+                dest.Add(TOKEN_HEADER, tokens.First());
+            }
+        }
+
+        /// <summary>
+        /// Configures the specified HttpClient with the right BaseAddress and copies the Headers into it.
+        /// </summary>
+        /// <param name="http">The HttpClient to be configured.</param>
+        private void ConfigureHttpClient(HttpClient http)
+        {
+            http.BaseAddress = new Uri(WebApiConfig.AccessControl);
+            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
+            CopySessionTokenHeader(Request.Headers, http.DefaultRequestHeaders);
+        }
+
+        /// <summary>
+        /// Creates a copy of the request Uri that points to the real AccessControl.
+        /// </summary>
+        /// <returns>The new Uri.</returns>
+        private Uri CreateUri()
+        {
+            string path = Request.RequestUri.LocalPath.Replace(SVC_PATH, string.Empty);
+            Uri uri = new Uri(string.Format("{0}/{1}/{2}", WebApiConfig.AccessControl, path.TrimEnd('/'), Request.RequestUri.Query).TrimEnd('/'));
+
+            return uri;
+        }
+
+        #endregion Private functions
 
         /// <summary>
         /// Method to query if session exists, expect to receive session token in header Session-Token to identify user session.
@@ -27,17 +70,14 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(int uid)
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
+            using (HttpClient http = new HttpClient())
+            {
+                ConfigureHttpClient(http);
+                var uri = CreateUri();
+                var result = await http.GetAsync(uri);
 
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path);
-
-            var result = await http.GetAsync(uri);
-
-            return ResponseMessage(result);
+                return ResponseMessage(result);
+            }
         }
 
         /// <summary>
@@ -53,17 +93,14 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(string ps = "100", string pn = "1")
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
+            using (HttpClient http = new HttpClient())
+            {
+                ConfigureHttpClient(http);
+                var uri = CreateUri();
+                var result = await http.GetAsync(uri);
 
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path);
-
-            var result = await http.GetAsync(uri);
-
-            return ResponseMessage(result);
+                return ResponseMessage(result);
+            }
         }
 
         /// <summary>
@@ -80,17 +117,14 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Post(int uid, string userName, int licenseLevel, bool isSso = false)
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
+            using (HttpClient http = new HttpClient())
+            {
+                ConfigureHttpClient(http);
+                var uri = CreateUri();
+                var result = await http.PostAsJsonAsync(uri, uid);
 
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path + Request.RequestUri.Query);
-
-            var result = await http.PostAsJsonAsync(uri, uid);
-
-            return ResponseMessage(result);
+                return ResponseMessage(result);
+            }
         }
 
         /// <summary>
@@ -107,23 +141,14 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Put(string op, int aid)
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
-
-            if (Request.Headers.Contains(TOKEN_HEADER))
+            using (HttpClient http = new HttpClient())
             {
-                var tokens = Request.Headers.GetValues(TOKEN_HEADER);
-                http.DefaultRequestHeaders.Add(TOKEN_HEADER, tokens.First());
+                ConfigureHttpClient(http);
+                var uri = CreateUri();
+                var result = await http.PutAsync(uri, Request.Content);
+
+                return ResponseMessage(result);
             }
-
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path + Request.RequestUri.Query);
-
-            var result = await http.PutAsync(uri, Request.Content);
-
-            return ResponseMessage(result);
         }
 
         /// <summary>
@@ -136,23 +161,14 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Delete()
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
-
-            if (Request.Headers.Contains(TOKEN_HEADER))
+            using (HttpClient http = new HttpClient())
             {
-                var tokens = Request.Headers.GetValues(TOKEN_HEADER);
-                http.DefaultRequestHeaders.Add(TOKEN_HEADER, tokens.First());
+                ConfigureHttpClient(http);
+                var uri = CreateUri();
+                var result = await http.DeleteAsync(uri);
+
+                return ResponseMessage(result);
             }
-
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path);
-
-            var result = await http.DeleteAsync("sessions");
-
-            return ResponseMessage(result);
         }
     }
 }

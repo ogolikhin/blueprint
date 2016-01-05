@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
 
 namespace AccessControl.Controllers
@@ -22,7 +23,7 @@ namespace AccessControl.Controllers
             StatusRepo = statusRepo;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()

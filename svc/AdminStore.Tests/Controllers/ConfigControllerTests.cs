@@ -61,8 +61,6 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
-            Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             Assert.AreEqual(settings, await result.Response.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>());
         }
 
@@ -111,8 +109,6 @@ namespace AdminStore.Controllers
             // Assert
             configRepo.Verify();
             Assert.IsNotNull(result);
-            Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
-            Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'Key':'Text'} };console.log('Configuration for locale en-US loaded successfully.');",
                  await result.Response.Content.ReadAsStringAsync());
         }
@@ -143,8 +139,6 @@ namespace AdminStore.Controllers
             // Assert
             configRepo.Verify();
             Assert.IsNotNull(result);
-            Assert.AreEqual("no-store, must-revalidate, no-cache", result.Response.Headers.GetValues("Cache-Control").FirstOrDefault());
-            Assert.AreEqual("no-cache", result.Response.Headers.GetValues("Pragma").FirstOrDefault());
             Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'KeyCA':'TextCA'} };console.log('Configuration for locale " + locale + @" loaded successfully.');",
                  await result.Response.Content.ReadAsStringAsync());
         }

@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ServiceLibrary.Attributes;
 
 namespace AccessControl.Controllers
 {
@@ -36,7 +37,7 @@ namespace AccessControl.Controllers
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("active")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetActiveLicenses()
@@ -47,8 +48,6 @@ namespace AccessControl.Controllers
                 var licenses = await _repo.GetActiveLicenses(DateTime.UtcNow, WebApiConfig.LicenseHoldTime);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
@@ -62,7 +61,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("locked")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLockedLicenses()
@@ -75,8 +74,6 @@ namespace AccessControl.Controllers
 
                 var response = Request.CreateResponse(HttpStatusCode.OK,
                     new LicenseInfo { LicenseLevel = session.LicenseLevel, Count = licenses });
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
@@ -90,7 +87,7 @@ namespace AccessControl.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("transactions")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days, int consumerType)
@@ -101,8 +98,6 @@ namespace AccessControl.Controllers
                 var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-                response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)

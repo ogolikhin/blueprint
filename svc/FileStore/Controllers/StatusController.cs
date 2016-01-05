@@ -5,6 +5,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
 using FileStore.Repositories;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
 
 namespace FileStore.Controllers
@@ -23,7 +24,7 @@ namespace FileStore.Controllers
             StatusRepo = statusRepo;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()

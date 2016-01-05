@@ -6,8 +6,8 @@ namespace AccessControlDouble
 {
     public static class WebApiConfig
     {
-        public static readonly string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
-        public static readonly string AdminStore = ConfigurationManager.AppSettings["AdminStore"];
+        public static readonly string AccessControl = ConfigurationManager.AppSettings["AccessControl"]?.TrimEnd('/');
+        public static readonly string AdminStore = ConfigurationManager.AppSettings["AdminStore"]?.TrimEnd('/');
 
         public static void Register(HttpConfiguration config)
         {

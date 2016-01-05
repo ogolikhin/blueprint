@@ -172,7 +172,7 @@ namespace AccessControl.Controllers
         [HttpPut]
         [Route("{op}/{aid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PutSession(string op, int aid)
+        public async Task<IHttpActionResult> PutSession(string op = "", int aid = 0)
         {
             try
             {

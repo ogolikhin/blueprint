@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using ServiceLibrary.Helpers;
+﻿using ServiceLibrary.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories.ConfigControl
@@ -18,6 +14,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         private const string AccessControl = "AccessControl";
 
         internal readonly IHttpClientProvider _httpClientProvider;
+
         public ServiceSessionRepository()
             : this(new HttpClientProvider())
         {
@@ -29,7 +26,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         // Wrapper call for Access Control Put method
-        public async Task GetAccessAsync(HttpRequestMessage request)
+        public async Task GetAccessAsync(HttpRequestMessage request, string op, int aid)
         {
             var uri = ConfigurationManager.AppSettings[AccessControl] + op + "/" + aid.ToString();
             using (var http = _httpClientProvider.Create())
@@ -41,6 +38,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 result.EnsureSuccessStatusCode();
             }
         }
+
         private string GetHeaderSessionToken(HttpRequestMessage request)
         {
             if (request.Headers.Contains(BlueprintSessionToken) == false)
@@ -62,3 +60,4 @@ namespace ServiceLibrary.Repositories.ConfigControl
             return request.Headers.GetValues(BlueprintSessionToken).FirstOrDefault();
         }
     }
+}

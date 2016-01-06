@@ -6,6 +6,6 @@ namespace ServiceLibrary.Repositories.ConfigControl
 {
 	public interface ISessionRepository
 	{
-		Task GetAccessAsync(HttpRequestMessage request);
+		Task GetAccessAsync(HttpRequestMessage request, string op, int aid);
 	}
 }

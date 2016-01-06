@@ -75,7 +75,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(HttpResponseException))] //DEBUG
         public async Task GetLicenseTransactions_SessionTokenIsNull_UnauthorizedResult()
         {
             // Arrange

@@ -105,7 +105,7 @@ namespace AccessControl.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
-            //(Bug #176810) Insecurity is the reason to comment the implementation and return internalServerErroe
+            //(Bug #176810) Insecurity is the reason to comment the implementation and return internalServerError
             return await Task.Run(() => InternalServerError());
 
             //try
@@ -171,7 +171,7 @@ namespace AccessControl.Controllers
         }
 
         [HttpPut]
-        [Route("{op}/{aid}")]
+        [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PutSession(string op = "", int aid = 0)
         {

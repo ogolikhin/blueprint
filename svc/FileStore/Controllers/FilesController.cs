@@ -199,9 +199,15 @@ namespace FileStore.Controllers
             try
             {
                 await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Initiate post");
-                if (expired.HasValue && expired.Value < DateTime.UtcNow)
+
+                DateTime? expiredUtc = null;
+                if (expired.HasValue)
                 {
-                    expired = DateTime.UtcNow;
+                    expiredUtc = expired.Value.Kind != DateTimeKind.Utc ? expired.Value.ToUniversalTime() : expired.Value;
+                    if (expiredUtc.Value < DateTime.UtcNow)
+                    {
+                        expiredUtc = DateTime.UtcNow;
+                    }
                 }
                 if (HttpContext.Current == null)
                 {
@@ -211,7 +217,7 @@ namespace FileStore.Controllers
 
                 var httpContextWrapper = new HttpContextWrapper(HttpContext.Current);
 
-                var uploadResult = await PostFileHttpContext(httpContextWrapper, expired);
+                var uploadResult = await PostFileHttpContext(httpContextWrapper, expiredUtc);
                 return ConstructHttpActionResult(uploadResult);
             }
             catch (Exception ex)

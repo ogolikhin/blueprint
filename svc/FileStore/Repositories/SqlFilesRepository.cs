@@ -69,9 +69,13 @@ namespace FileStore.Repositories
 
             var file = (await ConnectionWrapper.QueryAsync<File>("ReadFileHead", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
 
-            if (file != null && file.ExpiredTime.HasValue)
+            if (file != null)
             {
-                file.ExpiredTime = DateTime.SpecifyKind(file.ExpiredTime.Value, DateTimeKind.Utc);
+                if (file.ExpiredTime.HasValue)
+                {
+                    file.ExpiredTime = DateTime.SpecifyKind(file.ExpiredTime.Value, DateTimeKind.Utc);
+                }
+                file.StoredTime = DateTime.SpecifyKind(file.StoredTime, DateTimeKind.Utc);
             }
 
             return file;

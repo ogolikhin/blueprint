@@ -66,7 +66,7 @@ namespace AdminStore.Controllers
             }
         }
 
-        private async Task<Session> RequestPutSessionAsync(string op = "op", int aid = 1)
+        private async Task<Session> RequestPutSessionAsync()
         {
             using (var http = _httpClientProvider.Create())
             {
@@ -78,7 +78,7 @@ namespace AdminStore.Controllers
                     throw new ArgumentNullException();
                 }
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                var result = await http.PutAsync(string.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
+                var result = await http.PutAsync("sessions", new StringContent(""));
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadAsStringAsync();

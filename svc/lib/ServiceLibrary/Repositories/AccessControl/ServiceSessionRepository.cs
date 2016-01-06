@@ -25,9 +25,9 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         // Wrapper call for Access Control Put method
-        public async Task GetAccessAsync(HttpRequestMessage request, string op, int aid)
+        public async Task GetAccessAsync(HttpRequestMessage request)
         {
-            var uri = ConfigurationManager.AppSettings["AccessControl"] + op + "/" + aid.ToString();
+            var uri = ConfigurationManager.AppSettings["AccessControl"];
             using (var http = _httpClientProvider.Create())
             {
                 http.BaseAddress = new Uri(uri);

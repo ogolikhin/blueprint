@@ -200,54 +200,55 @@ namespace AccessControl.Controllers
 
         #region SelectSession
 
-        [TestMethod]
-        public async Task SelectSession_RepositoryThrowsException_KeyNotFound()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Throws(new KeyNotFoundException());
-                //.ReturnsAsync((IEnumerable<Session>)new KeyNotFoundException());
+        //(Bug #176810) Insecurity is the reason to comment the implementation and comment tests
+        //[TestMethod]
+        //public async Task SelectSession_RepositoryThrowsException_KeyNotFound()
+        //{
+        //    // Arrange
+        //    _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+        //    _sessionsRepoMock
+        //        .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+        //        .Throws(new KeyNotFoundException());
+        //        //.ReturnsAsync((IEnumerable<Session>)new KeyNotFoundException());
 
-            // Act
-            var result = await _controller.SelectSessions();
+        //    // Act
+        //    var result = await _controller.SelectSessions();
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
-        }
+        //    // Assert
+        //    Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        //}
 
-        [TestMethod]
-        public async Task SelectSession_CallingWithInvalidArgument_BadRequest()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+        //[TestMethod]
+        //public async Task SelectSession_CallingWithInvalidArgument_BadRequest()
+        //{
+        //    // Arrange
+        //    _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
 
-            // Act
-            var result = await _controller.SelectSessions("0", "-1");
+        //    // Act
+        //    var result = await _controller.SelectSessions("0", "-1");
 
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
-        }
+        //    // Assert
+        //    Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+        //}
 
-        [TestMethod]
-        public async Task SelectSession_RepositoryThrowsException_BadRequest()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .Throws(new ArgumentNullException());
-                //.ReturnsAsync((IEnumerable<Session>)null);
+        //[TestMethod]
+        //public async Task SelectSession_RepositoryThrowsException_BadRequest()
+        //{
+        //    // Arrange
+        //    _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+        //    _sessionsRepoMock
+        //        .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+        //        .Throws(new ArgumentNullException());
+        //        //.ReturnsAsync((IEnumerable<Session>)null);
 
-            // Act
-            var result = await _controller.SelectSessions();
+        //    // Act
+        //    var result = await _controller.SelectSessions();
 
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
+        //    // Assert
+        //    Assert.IsNotNull(result);
+        //    var responseResult = result as BadRequestResult;
+        //    Assert.IsNotNull(responseResult);
+        //}
 
         [TestMethod]
         public async Task SelectSession_RepositoryThrowsException_InternalServerError()
@@ -267,53 +268,54 @@ namespace AccessControl.Controllers
             Assert.IsNotNull(responseResult);
         }
 
-        [TestMethod]
-        public async Task SelectSession_RepositoryReturnsResult_Result()
-        {
-            // Arrange
-            var sessions = new List<Session>() { new Session() };
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
-            _sessionsRepoMock
-                .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(sessions);
+        //(Bug #176810) Insecurity is the reason to comment the implementation and comment tests
+        //[TestMethod]
+        //public async Task SelectSession_RepositoryReturnsResult_Result()
+        //{
+        //    // Arrange
+        //    var sessions = new List<Session>() { new Session() };
+        //    _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+        //    _sessionsRepoMock
+        //        .Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>()))
+        //        .ReturnsAsync(sessions);
 
-            // Act
-            var result = await _controller.SelectSessions();
+        //    // Act
+        //    var result = await _controller.SelectSessions();
 
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as OkNegotiatedContentResult<IEnumerable<Session>>;
-            Assert.IsNotNull(responseResult);
-        }
+        //    // Assert
+        //    Assert.IsNotNull(result);
+        //    var responseResult = result as OkNegotiatedContentResult<IEnumerable<Session>>;
+        //    Assert.IsNotNull(responseResult);
+        //}
 
-        [TestMethod]
-        public async Task SelectSession_TokenNotSet_BadRequest()
-        {
-            // Arrange
+        //[TestMethod]
+        //public async Task SelectSession_TokenNotSet_BadRequest()
+        //{
+        //    // Arrange
 
-            // Act
-            var result = await _controller.SelectSessions();
+        //    // Act
+        //    var result = await _controller.SelectSessions();
 
-            // Assert
-            Assert.IsNotNull(result);
-            var responseResult = result as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
+        //    // Assert
+        //    Assert.IsNotNull(result);
+        //    var responseResult = result as BadRequestResult;
+        //    Assert.IsNotNull(responseResult);
+        //}
 
-        [TestMethod]
-        public async Task SelectSession_TokenIsNull_BadRequest()
-        {
-            // Arrange
-            _controller.Request.Headers.Add("Session-Token", "null");
+        //[TestMethod]
+        //public async Task SelectSession_TokenIsNull_BadRequest()
+        //{
+        //    // Arrange
+        //    _controller.Request.Headers.Add("Session-Token", "null");
 
-            // Act
-            var resultSessions = await _controller.SelectSessions();
+        //    // Act
+        //    var resultSessions = await _controller.SelectSessions();
 
-            // Assert
-            Assert.IsNotNull(resultSessions);
-            var responseResult = resultSessions as BadRequestResult;
-            Assert.IsNotNull(responseResult);
-        }
+        //    // Assert
+        //    Assert.IsNotNull(resultSessions);
+        //    var responseResult = resultSessions as BadRequestResult;
+        //    Assert.IsNotNull(responseResult);
+        //}
 
         #endregion SelectSession
 

@@ -137,52 +137,56 @@ function addOverlays(graph, cell, addDeleteIcon)
 		graph.removeCellOverlays(cell);
 	}
 
-	var overlay = new mxCellOverlay(new mxImage('images/colors-on.png', 25, 25), 'Colors');
-	overlay.align = mxConstants.ALIGN_RIGHT;
-	overlay.verticalAlign = mxConstants.ALIGN_TOP;
-	overlay.offset = new mxPoint(-12, 12);	
-	graph.addCellOverlay(cell, overlay);	
+	var overlayColors = new mxCellOverlay(new mxImage('images/colors-on.png', 25, 25), 'Colors');
+	overlayColors.align = mxConstants.ALIGN_RIGHT;
+	overlayColors.verticalAlign = mxConstants.ALIGN_TOP;
+	overlayColors.offset = new mxPoint(-12, 12);	
+	graph.addCellOverlay(cell, overlayColors);	
 
-	overlay = new mxCellOverlay(new mxImage('images/user-persona-default-icon.png', 25, 25), 'Persona');
-	overlay.align = mxConstants.ALIGN_LEFT;
-	overlay.verticalAlign = mxConstants.ALIGN_TOP;
-	overlay.offset = new mxPoint(13, 13);	
-	graph.addCellOverlay(cell, overlay);		
+	var overlayPersona = new mxCellOverlay(new mxImage('images/defaultuser.svg', 25, 25), 'Persona');
+	overlayPersona.align = mxConstants.ALIGN_LEFT;
+	overlayPersona.verticalAlign = mxConstants.ALIGN_TOP;
+	overlayPersona.offset = new mxPoint(13, 13);	
+	graph.addCellOverlay(cell, overlayPersona);		
 
-
-
-	overlay = new mxCellOverlay(new mxImage('images/trash-on.png', 20, 20), 'Trash');
+	var overlayDelete = new mxCellOverlay(new mxImage('images/delete-hover.svg', 20, 20), 'Trash');
 	if (taskid%2 == 0)
-		overlay = new mxCellOverlay(new mxImage('images/trash-off.png', 20, 20), 'Trash');
-	overlay.align = mxConstants.ALIGN_LEFT;
-	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
-	overlay.offset = new mxPoint(15, -15);	
-	graph.addCellOverlay(cell, overlay);
-	overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)
+		overlayDelete = new mxCellOverlay(new mxImage('images/delete-neutral.svg', 20, 20), 'Trash');
+	overlayDelete.align = mxConstants.ALIGN_LEFT;
+	overlayDelete.verticalAlign = mxConstants.ALIGN_BOTTOM;
+	overlayDelete.offset = new mxPoint(15, -15);	
+	graph.addCellOverlay(cell, overlayDelete);
+	overlayDelete.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)
 	{
 		deleteTask(graph, cell);
 	}));
 
+	var overlayMockup = new mxCellOverlay(new mxImage('images/mockup-neutral.svg', 20, 20), 'Mockup');
+	overlayMockup.align = mxConstants.ALIGN_LEFT;
+	overlayMockup.verticalAlign = mxConstants.ALIGN_BOTTOM;
+	overlayMockup.offset = new mxPoint(39, -15);	
+	graph.addCellOverlay(cell, overlayMockup);	
 
-	overlay = new mxCellOverlay(new mxImage('images/mockup-on.png', 20, 20), 'Mockup');
-	overlay.align = mxConstants.ALIGN_LEFT;
-	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
-	overlay.offset = new mxPoint(45, -15);	
-	graph.addCellOverlay(cell, overlay);	
+	var overlayLink = new mxCellOverlay(new mxImage('images/include-neutral.svg', 20, 20), 'Link');
+	overlayLink.align = mxConstants.ALIGN_LEFT;
+	overlayLink.verticalAlign = mxConstants.ALIGN_BOTTOM;
+	overlayLink.offset = new mxPoint(63, -15);	
+	graph.addCellOverlay(cell, overlayLink);	
 
+	var overlayUserStories = new mxCellOverlay(new mxImage('images/userstories-neutral.svg', 20, 20), 'Link');
+	overlayUserStories.align = mxConstants.ALIGN_LEFT;
+	overlayUserStories.verticalAlign = mxConstants.ALIGN_BOTTOM;
+	overlayUserStories.offset = new mxPoint(87, -15);	
+	graph.addCellOverlay(cell, overlayUserStories);	
 
-	overlay = new mxCellOverlay(new mxImage('images/link-include-on.png', 20, 20), 'Link');
-	overlay.align = mxConstants.ALIGN_LEFT;
-	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
-	overlay.offset = new mxPoint(75, -15);	
-	graph.addCellOverlay(cell, overlay);	
-
-
-	overlay = new mxCellOverlay(new mxImage('images/more-on.png', 20, 20), 'Link');
-	overlay.align = mxConstants.ALIGN_LEFT;
-	overlay.verticalAlign = mxConstants.ALIGN_BOTTOM;
-	overlay.offset = new mxPoint(105, -15);	
-	graph.addCellOverlay(cell, overlay);	
+	var overlayDetails = new mxCellOverlay(new mxImage('images/adddetails-neutral.svg', 20, 20), 'Link');
+	overlayDetails.align = mxConstants.ALIGN_LEFT;
+	overlayDetails.verticalAlign = mxConstants.ALIGN_BOTTOM;
+	overlayDetails.offset = new mxPoint(111, -15);	
+	graph.addCellOverlay(cell, overlayDetails);
+	overlayDetails.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
+		openDialog(graph, cell);
+	}))	
 
 };
 

@@ -49,7 +49,7 @@ namespace AdminStore.Controllers
                     http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     if (!Request.Headers.Contains("Session-Token"))
                     {
-                        throw new ArgumentNullException();
+                        throw new ArgumentNullException("Session-Token", "Session-Token is missing"); //DEBUG
                     }
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
                     var result = await http.GetAsync("licenses/transactions?days=" + days + "&consumerType=1"); // LicenseConsumerType.Client
@@ -66,9 +66,10 @@ namespace AdminStore.Controllers
                     return ResponseMessage(response);
                 }
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Unauthorized();
+                //return Unauthorized();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex)); //DEBUG
             }
             catch (Exception ex)
             {

@@ -66,8 +66,8 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //  return InternalServerError(); TODO return back
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message));
+                //  return InternalServerError(); TODO temporarily added for debug purposes
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
             }
         }
 
@@ -122,8 +122,8 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                // return InternalServerError(); TODO return back
-                throw new Exception(ex.Message);
+                // return InternalServerError(); TODO temporarily added for debug purposes
+                throw new Exception(ex.Message, ex);
             }
         }
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Caching;
+using System.Runtime.Remoting.Messaging;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AccessControl.Repositories;
@@ -104,40 +105,40 @@ namespace AccessControl.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
-            try
-            {
-                //int psIntValue, pnIntValue;
-                //if (int.TryParse(ps, out psIntValue) == false ||
-                //    int.TryParse(pn, out pnIntValue) == false ||
-                //    psIntValue <= 0 ||
-                //    pnIntValue <= 0)
-                //    throw new FormatException("Specified parameter is not valid.");
+            //(Bug #176810) Insecurity is the reason to comment the implementation and return internalServerErroe
+            return await Task.Run(() => InternalServerError());
 
-                //var token = GetHeaderSessionToken();
-                ////Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
-                //var guid = Session.Convert(token);
-                //return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
+            //try
+            //{
+            //    int psIntValue, pnIntValue;
+            //    if (int.TryParse(ps, out psIntValue) == false ||
+            //        int.TryParse(pn, out pnIntValue) == false ||
+            //        psIntValue <= 0 ||
+            //        pnIntValue <= 0)
+            //        throw new FormatException("Specified parameter is not valid.");
 
-                //(Bug #176810) Insecurity is the reason to comment the implementation and throw exception
-                throw new NotImplementedException();
-            }
-            catch (ArgumentNullException)
-            {
-                return BadRequest();
-            }
-            catch (FormatException)
-            {
-                return BadRequest();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                return InternalServerError();
-            }
+            //    var token = GetHeaderSessionToken();
+            //    //Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
+            //    var guid = Session.Convert(token);
+            //    return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
+            //}
+            //catch (ArgumentNullException)
+            //{
+            //    return BadRequest();
+            //}
+            //catch (FormatException)
+            //{
+            //    return BadRequest();
+            //}
+            //catch (KeyNotFoundException)
+            //{
+            //    return NotFound();
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+            //    return InternalServerError();
+            //}
         }
 
         [HttpPost]

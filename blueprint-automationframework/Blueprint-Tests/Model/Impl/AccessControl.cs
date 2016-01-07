@@ -11,7 +11,7 @@ namespace Model.Impl
     public class AccessControl : IAccessControl
     {
         private const string SVC_PATH = "svc/accesscontrol";
-        private const string TOKEN_HEADER = "Session-Token";
+        private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         private static string _address;
 
@@ -130,7 +130,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
             var restApi = new RestApiFacade(_address, session?.SessionId);
-            string path = string.Format("{0}/sessions/", SVC_PATH);
+            string path = string.Format("{0}/sessions", SVC_PATH);
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
@@ -157,7 +157,12 @@ namespace Model.Impl
 
         public HttpStatusCode GetStatus()    // GET /status
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = string.Format("{0}/status", SVC_PATH);
+
+            Logger.WriteInfo("Getting AccessControl status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            return response.StatusCode;
         }
 
         #endregion Members inherited from IAccessControl

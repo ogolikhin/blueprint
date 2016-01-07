@@ -13,13 +13,18 @@ namespace ServiceLibrary.Models
         [JsonProperty]
         public DateTime? BeginTime { get; set; }
         [JsonProperty]
-        public DateTime? EndTime { get; set; }
+        public DateTime EndTime { get; set; }
         [JsonProperty]
         public string UserName { get; set; }
         [JsonProperty]
         public bool IsSso { get; set; }
         [JsonProperty]
         public int LicenseLevel { get; set; }
+
+        public bool IsExpired()
+        {
+            return EndTime <= DateTime.UtcNow;
+        }
 
         public static string Convert(Guid guid)
         {

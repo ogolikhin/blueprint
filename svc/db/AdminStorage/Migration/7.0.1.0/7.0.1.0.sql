@@ -34,7 +34,7 @@ GO
 
 
 /******************************************************************************************************************************
-Name:			TracesType
+Name:			LogsType
 
 Description: 
 			
@@ -42,15 +42,15 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteTraces]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteTraces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[WriteLogs]
 GO
 
-IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'TracesType' AND ss.name = N'dbo')
-DROP TYPE [dbo].[TracesType]
+IF  EXISTS (SELECT * FROM sys.types st JOIN sys.schemas ss ON st.schema_id = ss.schema_id WHERE st.name = N'LogsType' AND ss.name = N'dbo')
+DROP TYPE [dbo].[LogsType]
 GO
 
-CREATE TYPE TracesType AS TABLE
+CREATE TYPE LogsType AS TABLE
 (
 	[InstanceName] [nvarchar](1000),
 	[ProviderId] [uniqueidentifier],
@@ -192,16 +192,6 @@ END
 GO 
 
 
-/******************************************************************************************************************************
-Name:			BeginSession
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-******************************************************************************************************************************/
-
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BeginSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[BeginSession]
 GO
@@ -210,43 +200,86 @@ CREATE PROCEDURE [dbo].[BeginSession]
 (
 	@UserId int,
 	@BeginTime datetime,
+	@EndTime datetime,
 	@UserName nvarchar(max),
 	@LicenseLevel int,
 	@IsSso bit = 0,
-	@NewSessionId uniqueidentifier OUTPUT,
+	@licenseLockTimeMinutes int,
 	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
 BEGIN
-	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-	BEGIN TRANSACTION;
-	SELECT @OldSessionId = SessionId from [dbo].[Sessions] where UserId = @UserId;
-	SELECT @NewSessionId = NEWID();
-	IF @OldSessionId IS NULL
-	BEGIN
-		INSERT [dbo].[Sessions](UserId, SessionId, BeginTime, UserName, LicenseLevel, IsSso) 
-		VALUES(@UserId, @NewSessionId, @BeginTime, @UserName, @LicenseLevel, @IsSso);
-	END
-	ELSE
-	BEGIN
-		UPDATE [dbo].[Sessions] 
-		SET SessionId = @NewSessionId, BeginTime = @BeginTime, EndTime = NULL, 
-			UserName = @UserName, LicenseLevel = @LicenseLevel, IsSso = @IsSso 
-		WHERE UserId = @UserId;
-	END
-	COMMIT TRANSACTION;
+	SET NOCOUNT ON;
+	BEGIN TRY
+		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+		BEGIN TRANSACTION;
+
+		-- [Sessions]
+		SELECT @OldSessionId = SessionId FROM [dbo].[Sessions] WHERE UserId = @UserId;
+		DECLARE @NewSessionId uniqueidentifier = NEWID();
+		IF @OldSessionId IS NULL
+		BEGIN
+			INSERT [dbo].[Sessions] (UserId, SessionId, BeginTime, EndTime, UserName, LicenseLevel, IsSso)
+			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+			VALUES (@UserId, @NewSessionId, @BeginTime, @EndTime, @UserName, @LicenseLevel, @IsSso);
+		END
+		ELSE
+		BEGIN
+			UPDATE [dbo].[Sessions]
+			SET [SessionId] = @NewSessionId, [BeginTime] = @BeginTime, [EndTime] = @EndTime, [UserName] = @UserName, [LicenseLevel] = @LicenseLevel, [IsSso] = @IsSso 
+			OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+			WHERE [SessionId] = @OldSessionId;
+		END
+
+		-- [LicenseActivities]
+		INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+		VALUES
+			(@UserId
+			,@LicenseLevel
+			,1 -- LicenseTransactionType.Acquire
+			,1 -- LicenseActionType.Login
+			,1 -- LicenseConsumerType.Client
+			,@BeginTime)
+
+		-- [LicenseActivityDetails]
+		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
+		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
+		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @licenseLockTimeMinutes
+		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+		SELECT @LicenseActivityId, [LicenseLevel], [Count]
+		FROM @ActiveLicenses
+
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRAN
+
+		DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+		DECLARE @ErrorState INT = ERROR_STATE();
+
+		RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
-/******************************************************************************************************************************
-Name:			EndSession
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ExtendSession]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ExtendSession]
+GO
 
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-******************************************************************************************************************************/
+CREATE PROCEDURE [dbo].[ExtendSession] 
+(
+	@SessionId uniqueidentifier,
+	@EndTime datetime
+)
+AS
+BEGIN
+	UPDATE [dbo].[Sessions] SET EndTime = @EndTime
+	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+	WHERE SessionId = @SessionId AND EndTime <= @EndTime;
+END
+GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EndSession]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[EndSession]
@@ -255,14 +288,57 @@ GO
 CREATE PROCEDURE [dbo].[EndSession] 
 (
 	@SessionId uniqueidentifier,
-	@EndTime datetime
+	@EndTime datetime,
+	@Timeout bit,
+	@licenseLockTimeMinutes int
 )
 AS
 BEGIN
-	SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-	BEGIN TRANSACTION;
-	UPDATE [dbo].[Sessions] SET BeginTime = NULL, EndTime = @EndTime where SessionId = @SessionId;
-	COMMIT TRANSACTION;
+	SET NOCOUNT ON;
+	BEGIN TRY
+		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+		BEGIN TRANSACTION;
+
+		-- [Sessions]
+		UPDATE [dbo].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
+		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
+		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL;
+
+		IF @@ROWCOUNT > 0 BEGIN
+			-- [LicenseActivities]
+			DECLARE @UserId int
+			DECLARE @LicenseLevel int
+			SELECT @UserId = [UserId], @LicenseLevel = [LicenseLevel] FROM [dbo].[Sessions] WHERE [SessionId] = @SessionId;
+			INSERT INTO [dbo].[LicenseActivities] ([UserId], [UserLicenseType], [TransactionType], [ActionType], [ConsumerType], [TimeStamp])
+			VALUES
+				(@UserId
+				,@LicenseLevel
+				,2 -- LicenseTransactionType.Release
+				,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
+				,1 -- LicenseConsumerType.Client
+				,@EndTime)
+
+			-- [LicenseActivityDetails]
+			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
+			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
+			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @licenseLockTimeMinutes
+			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
+			SELECT @LicenseActivityId, [LicenseLevel], [Count]
+			FROM @ActiveLicenses
+		END
+
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRAN
+
+		DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+		DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+		DECLARE @ErrorState INT = ERROR_STATE();
+
+		RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+	END CATCH
 END
 GO
 
@@ -385,25 +461,49 @@ BEGIN
 	ORDER BY BeginTime DESC;
 END
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicensesStatus]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetLicensesStatus]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetActiveLicenses]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetActiveLicenses]
 GO
 
-CREATE PROCEDURE [dbo].[GetLicensesStatus] 
+CREATE PROCEDURE [dbo].[GetActiveLicenses] 
 (
-	@TimeUtc datetime,
-	@TimeDiff int
+	@Now datetime,
+	@LicenseLockTimeMinutes int
 )
 AS
 BEGIN
-	SELECT LicenseLevel, COUNT(*) as [Count]
+	DECLARE @EndTime datetime = DATEADD(MINUTE, -@LicenseLockTimeMinutes, @Now)
+	SELECT [LicenseLevel], COUNT(*) as [Count]
 	FROM [dbo].[Sessions] 
-	WHERE (EndTime IS NULL OR EndTime > DATEADD(MINUTE, @TimeDiff, @TimeUtc))
-	GROUP BY LicenseLevel
+	WHERE [EndTime] IS NULL OR [EndTime] > @EndTime
+	GROUP BY [LicenseLevel]
 END
-GO 
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseTransactions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLicenseTransactions]
+GO
+
+CREATE PROCEDURE [dbo].[GetLicenseTransactions] 
+(
+	@StartTime datetime,
+	@ConsumerType int
+)
+AS
+BEGIN
+	SELECT [UserId], [UserLicenseType] AS [LicenseType], [TransactionType], [ActionType], [TimeStamp] AS [Date],
+		ISNULL(STUFF((SELECT ';' + CAST([LicenseType] AS VARCHAR(10)) + ':' + CAST([Count] AS VARCHAR(10))
+		FROM [dbo].[LicenseActivityDetails] D
+		WHERE D.[LicenseActivityId] = A.[LicenseActivityId]
+		FOR XML PATH('')), 1, 1, ''), '') AS [Details]
+	FROM [dbo].[LicenseActivities] A
+	WHERE [TimeStamp] >= @StartTime
+	AND [ConsumerType] = @ConsumerType
+END
+GO
+
 /******************************************************************************************************************************
-Name:			WriteTraces
+Name:			WriteLogs
 
 Description: 
 			
@@ -411,17 +511,17 @@ Change History:
 Date			Name					Change
 2015/12/17		Chris Dufour			Initial Version
 ******************************************************************************************************************************/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteTraces]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[WriteTraces]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[WriteLogs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[WriteLogs]
 GO
 
-CREATE PROCEDURE [dbo].[WriteTraces]  
+CREATE PROCEDURE [dbo].[WriteLogs]  
 (
-  @InsertTraces TracesType READONLY
+  @InsertLogs LogsType READONLY
 )
 AS
 BEGIN
-  INSERT INTO [Traces] (
+  INSERT INTO [Logs] (
 		[InstanceName],
 		[ProviderId],
 		[ProviderName],
@@ -445,7 +545,7 @@ BEGIN
 		[LineNumber],
 		[StackTrace]
 	)
-  SELECT * FROM @InsertTraces;
+  SELECT * FROM @InsertLogs;
 END
 
 GO

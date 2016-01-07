@@ -76,12 +76,13 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
     <Content Include="Procedures\GetLicenseTransactions.sql" />
     <Content Include="Procedures\GetUserSession.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
-    <Content Include="Procedures\WriteTraces.sql" />
+    <Content Include="Procedures\WriteLogs.sql" />
     <Content Include="RecreateAdminStorage.sql" />
     <Content Include="Procedures\BeginSession.sql" />
     <Content Include="Procedures\EndSession.sql" />
@@ -91,13 +92,13 @@
     <Content Include="Procedures\SelectSessions.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Tables\LicenseActivityDetails.sql" />
-    <Content Include="Tables\Traces.sql" />
+    <Content Include="Tables\Logs.sql" />
     <Content Include="Tables\Sessions.sql" />
     <Content Include="Tables\ConfigSettings.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
     <Content Include="Tables\ApplicationLabels.sql" />
     <Content Include="Tables\LicenseActivities.sql" />
-    <Content Include="Types\TracesType.sql" />
+    <Content Include="Types\LogsType.sql" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

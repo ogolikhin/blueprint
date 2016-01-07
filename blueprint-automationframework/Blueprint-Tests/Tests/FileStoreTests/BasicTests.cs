@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Net;
 using CustomAttributes;
-using Helper.Factories;
 using Model;
+using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 
 namespace FileStoreTests
@@ -15,15 +16,18 @@ namespace FileStoreTests
         private IFileStore _filestore;
         private IUser _user;
 
-        [SetUp]
-        public void SetUp()
+        [TestFixtureSetUp]
+        public void ClassSetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
             _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
+
+            // TODO: Once FileStore is configured to work with Session tokens, call AdminStore to get a token for this user.
+            _user.Token = new BlueprintToken(accessControlToken: string.Empty, openApiToken: string.Empty);
         }
 
-        [TearDown]
-        public void TearDown()
+        [TestFixtureTearDown]
+        public void ClassTearDown()
         {
             if (_user != null)
             {

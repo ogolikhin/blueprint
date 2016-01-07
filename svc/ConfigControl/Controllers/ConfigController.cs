@@ -5,6 +5,7 @@ using System.Web.Http.Description;
 using System.Net;
 using ConfigControl.Repositories;
 using System.Collections.Generic;
+using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
@@ -22,7 +23,7 @@ namespace ConfigControl.Controllers
 			_configRepo = configRepo;
 		}
 
-		[HttpGet]
+		[HttpGet, NoCache]
 		[Route("{allowRestricted}")]
 		[ResponseType(typeof(HttpResponseMessage))]
 		public async Task<IHttpActionResult> GetConfig(bool allowRestricted)
@@ -40,8 +41,6 @@ namespace ConfigControl.Controllers
 					map[s.Group].Add(s.Key, s.Value);
 				}
 				var response = Request.CreateResponse(HttpStatusCode.OK, map);
-				response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-				response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
 				return ResponseMessage(response);
 			}
 			catch

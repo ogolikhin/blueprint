@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using Logging;
-using Model.Facades;
-using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
 
@@ -49,7 +46,7 @@ namespace Model.Impl
         {
             if ((user == null) || (user.Token == null)) { throw new ArgumentException("The user argument is null or has no Token!"); }
 
-            var dict = new Dictionary<string, string>() {{"Authorization", user.Token.TokenString}};
+            var dict = new Dictionary<string, string> {{user.Token.OpenApiTokenHeader, user.Token.OpenApiToken}};
             return dict;
         }
 
@@ -150,12 +147,12 @@ namespace Model.Impl
         {
             string tokenString = null;
 
-            if (response.Headers.ContainsKey("Authorization"))
+            if (response.Headers.ContainsKey(BlueprintToken.OPENAPI_TOKEN_HEADER))
             {
-                tokenString = (string) response.Headers["Authorization"];
+                tokenString = (string) response.Headers[BlueprintToken.OPENAPI_TOKEN_HEADER];
             }
 
-            IBlueprintToken token = new BlueprintToken(tokenString);
+            IBlueprintToken token = new BlueprintToken(openApiToken: tokenString);
             return token;
         }
 

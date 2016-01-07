@@ -8,8 +8,10 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
 using Newtonsoft.Json;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
@@ -17,21 +19,22 @@ namespace AdminStore.Controllers
     public class UsersController : ApiController
     {
         internal readonly IHttpClientProvider _httpClientProvider;
-
         internal readonly ISqlUserRepository _userRepository;
+        internal readonly IServiceLogRepository _log;
 
         public UsersController()
-            : this(new SqlUserRepository(), new HttpClientProvider())
+            : this(new SqlUserRepository(), new HttpClientProvider(), new ServiceLogRepository())
         {
         }
 
-        internal UsersController(ISqlUserRepository userRepository, IHttpClientProvider httpClientProvider)
+        internal UsersController(ISqlUserRepository userRepository, IHttpClientProvider httpClientProvider, IServiceLogRepository log)
         {
             _httpClientProvider = httpClientProvider;
             _userRepository = userRepository;
+            _log = log;
         }
 
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("loginuser")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLoginUser()
@@ -56,13 +59,14 @@ namespace AdminStore.Controllers
             {
                 return BadRequest();
             }
-            catch
+            catch (Exception ex)
             {
+                await _log.LogError(WebApiConfig.LogSource_Users, ex);
                 return InternalServerError();
             }
         }
 
-        private async Task<Session> RequestPutSessionAsync(string op = "op", int aid = 1)
+        private async Task<Session> RequestPutSessionAsync()
         {
             using (var http = _httpClientProvider.Create())
             {
@@ -74,7 +78,7 @@ namespace AdminStore.Controllers
                     throw new ArgumentNullException();
                 }
                 http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                var result = await http.PutAsync(string.Format("sessions/{0}/{1}", op, aid), new StringContent(""));
+                var result = await http.PutAsync("sessions", new StringContent(""));
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadAsStringAsync();

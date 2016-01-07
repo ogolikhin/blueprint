@@ -3,30 +3,8 @@
 namespace ServiceLibrary.Models
 {
     [JsonObject]
-    public class LogEntry
+    public class LogEntry : ILogEntry
     {
-        private LogEntry()
-        {
-            //disable
-        }
-
-        public LogEntry(
-            LogLevelEnum logLevel,
-            string source,
-            string message,
-            string methodName,
-            string filePath,
-            int lineNumber,
-            string stackTrace)
-        {
-            LogLevel = logLevel;
-            Source = source == null ? string.Empty : source;
-            Message = message == null ? string.Empty: message;
-            MethodName = methodName==null ? string.Empty: methodName;
-            FilePath = filePath == null ? string.Empty : filePath;
-            LineNumber = lineNumber;
-            StackTrace = stackTrace == null ? string.Empty : stackTrace;
-        }
 
         [JsonProperty]
         public string Source { get; set; }

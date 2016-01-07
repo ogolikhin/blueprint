@@ -10,7 +10,8 @@ namespace AccessControl.Repositories
         Task<Session> GetSession(Guid guid);
         Task<Session> GetUserSession(int uid);
         Task<IEnumerable<Session>> SelectSessions(int ps, int pn);
-        Task<Guid?[]> BeginSession(int userId, string userName, int licenseLevel, bool isSso);
-        Task EndSession(Guid guid, bool timeout);
+        Task<Session> BeginSession(int userId, string userName, int licenseLevel, bool isSso, Action<Guid> oldSessionIdAction);
+        Task<Session> ExtendSession(Guid guid);
+        Task<Session> EndSession(Guid guid, bool timeout);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Logging.Database;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using ServiceLibrary.EventSources;
+using ServiceLibrary.LocalLog;
 using System;
 using System.Diagnostics.Tracing;
 using System.Web.Http;
@@ -35,14 +36,28 @@ namespace ConfigControl
 
         private void SetupEventTracing()
         {
-            // Log all events to DB 
-            this.dbListener = BlueprintSqlDatabaseLog.CreateListener(
-                "BlueprintSys-Blueprint-Blueprint",
-                WebApiConfig.AdminStorage,
-                bufferingInterval: TimeSpan.FromSeconds(3),
-                bufferingCount: 200);
-            dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
+            ILocalLog localLog = new LocalFileLog();
 
+            try
+            {
+                localLog.LogInformation("Starting logging listener");
+
+                // Log all events to DB 
+                this.dbListener = BlueprintSqlDatabaseLog.CreateListener(
+                    "BlueprintSys-Blueprint-Blueprint",
+                    WebApiConfig.AdminStorage,
+                    bufferingInterval: TimeSpan.FromSeconds(3),
+                    bufferingCount: 200);
+                dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+
+                localLog.LogInformation("Started logging listener");
+            }
+            catch (Exception ex)
+            {
+                localLog.LogError(string.Format("Logging listener failed: {0}", ex.Message));
+                throw;
+            }
         }
 
         private void DisposeEventTracing()

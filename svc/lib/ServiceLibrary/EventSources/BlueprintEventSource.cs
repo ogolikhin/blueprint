@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Web;
+﻿using System.Diagnostics.Tracing;
 
 namespace ServiceLibrary.EventSources
 {
@@ -11,41 +7,54 @@ namespace ServiceLibrary.EventSources
     {
         public static BlueprintEventSource Log = new BlueprintEventSource();
 
-        [Event(100, Level = EventLevel.Error, Message = "{2}")]
-        public void Error(string ipAddress, string source, string message, string methodName, string filePath, int lineNumber, string stackTrace)
+        #region Standard Events
+
+        [Event(100, Level = EventLevel.Critical, Message = "{2}")]
+        public void Critical(string IpAddress, string Source, string Message, string MethodName, string FilePath, int LineNumber, string StackTrace)
+        {
+            if (IsEnabled(EventLevel.Critical, EventKeywords.None))
+            {
+                WriteEvent(100, IpAddress, Source, Message, MethodName, FilePath, LineNumber, StackTrace);
+            }
+        }
+
+        [Event(200, Level = EventLevel.Error, Message = "{2}")]
+        public void Error(string IpAddress, string Source, string Message, string MethodName, string FilePath, int LineNumber, string StackTrace)
         {
             if (IsEnabled(EventLevel.Error, EventKeywords.None))
             {
-                WriteEvent(100, ipAddress, source, message, methodName, filePath, lineNumber, stackTrace);
+                WriteEvent(200, IpAddress, Source, Message, MethodName, FilePath, LineNumber, StackTrace);
             }
         }
 
-        [Event(200, Level = EventLevel.Warning, Message = "{2}")]
-        public void Warning(string ipAddress, string source, string message, string methodName, string filePath, int lineNumber, string stackTrace)
+        [Event(300, Level = EventLevel.Warning, Message = "{2}")]
+        public void Warning(string IpAddress, string Source, string Message, string MethodName, string FilePath, int LineNumber)
         {
             if (IsEnabled(EventLevel.Warning, EventKeywords.None))
             {
-                WriteEvent(200, ipAddress, source, message, methodName, filePath, lineNumber, stackTrace);
+                WriteEvent(300, IpAddress, Source, Message, MethodName, FilePath, LineNumber);
             }
         }
 
-        [Event(300, Level = EventLevel.Informational, Message = "{2}")]
-        public void Informational(string ipAddress, string source, string message, string methodName, string filePath, int lineNumber, string stackTrace)
+        [Event(400, Level = EventLevel.Informational, Message = "{2}")]
+        public void Informational(string IpAddress, string Source, string Message, string MethodName, string FilePath, int LineNumber)
         {
             if (IsEnabled(EventLevel.Informational, EventKeywords.None))
             {
-                WriteEvent(300, ipAddress, source, message, methodName, filePath, lineNumber, stackTrace);
+                WriteEvent(400, IpAddress, Source, Message, MethodName, FilePath, LineNumber);
             }
         }
 
-        [Event(400, Level = EventLevel.Verbose, Message = "{2}")]
-        public void Verbose(string ipAddress, string source, string message, string methodName, string filePath, int lineNumber, string stackTrace)
+        [Event(500, Level = EventLevel.Verbose, Message = "{2}")]
+        public void Verbose(string IpAddress, string Source, string Message, string MethodName, string FilePath, int LineNumber)
         {
             if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
             {
-                WriteEvent(400, ipAddress, source, message, methodName, filePath, lineNumber, stackTrace);
+                WriteEvent(500, IpAddress, Source, Message, MethodName, FilePath, LineNumber);
             }
         }
+
+        #endregion
 
     }
 }

@@ -53,9 +53,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Facades\WebResponseFacade.cs" />
+    <Compile Include="Factories\AccessControlFactory.cs" />
+    <Compile Include="Factories\AdminStoreFactory.cs" />
+    <Compile Include="Factories\ArtifactFactory.cs" />
+    <Compile Include="Factories\ArtifactStoreFactory.cs" />
+    <Compile Include="Factories\BlueprintServerFactory.cs" />
     <Compile Include="Factories\DatabaseFactory.cs" />
-    <Compile Include="Factories\RandomGenerator.cs" />
+    <Compile Include="Factories\FileFactory.cs" />
+    <Compile Include="Factories\FileStoreFactory.cs" />
+    <Compile Include="Factories\ProjectFactory.cs" />
+    <Compile Include="Factories\PropertyFactory.cs" />
+    <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
+    <Compile Include="Factories\SessionFactory.cs" />
+    <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
     <Compile Include="IArtifactResult.cs" />
@@ -129,7 +139,6 @@
     <Compile Include="IUserStory.cs" />
     <Compile Include="LicenseType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Facades\WebRequestFacade.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logging\Logging.csproj">
@@ -155,5 +164,8 @@
   -->
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Facades\" />
   </ItemGroup>
 </Project>

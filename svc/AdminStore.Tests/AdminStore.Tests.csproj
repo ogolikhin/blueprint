@@ -72,6 +72,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\LicensesControllerTests.cs" />
     <Compile Include="Controllers\SessionsControllerTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ConfigControllerTests.cs" />

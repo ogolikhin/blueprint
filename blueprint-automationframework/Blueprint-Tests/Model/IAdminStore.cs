@@ -14,12 +14,12 @@ namespace Model
         /// </summary>
         /// <param name="username">(optional) The user name.</param>
         /// <param name="password">(optional) The user password.</param>
-        /// <param name="isSso">(optional) </param>
+        /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A session object containing the new session token.</returns>
         ISession AddSession(string username = null,
             string password = null,
-            bool? isSso = null,
+            bool? force = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             IServiceErrorMessage expectedServiceErrorMessage = null);
 
@@ -28,9 +28,10 @@ namespace Model
         /// (Runs: POST /sessions/{userId})
         /// </summary>
         /// <param name="session">The session to add to AdminStore.</param>
+        /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A session object containing the new session token.</returns>
-        ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+        ISession AddSession(ISession session, bool? force = null, List < HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Deletes the specified session from AdminStore.

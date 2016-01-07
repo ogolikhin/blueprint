@@ -14,16 +14,15 @@ namespace AccessControl.Repositories
         #region Constuctor
 
         [TestMethod]
-        public void Constructor_ConnectionString_CreatesConnectionWithString()
+        public void Constructor_CreatesConnectionToAdminStorage()
         {
             // Arrange
-            string cxn = "data source=(local)";
 
             // Act
-            var repository = new SqlSessionsRepository(cxn);
+            var repository = new SqlSessionsRepository();
 
             // Assert
-            Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(WebApiConfig.AdminStorage, repository._connectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor
@@ -31,7 +30,7 @@ namespace AccessControl.Repositories
         #region GetSession
 
         [TestMethod]
-        public async Task GetSession_QueryReturnsSession_ReturnsFirst()
+        public async Task GetSession_SessionExists_ReturnsFirst()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -49,7 +48,7 @@ namespace AccessControl.Repositories
         }
 
         [TestMethod]
-        public async Task GetSession_QueryReturnsEmpty_ReturnsNull()
+        public async Task GetSession_SessionDoesNotExist_ReturnsNull()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -71,7 +70,7 @@ namespace AccessControl.Repositories
         #region GetUserSession
 
         [TestMethod]
-        public async Task GetUserSession_QueryReturnsSession_ReturnsFirst()
+        public async Task GetUserSession_SessionExists_ReturnsFirst()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -89,7 +88,7 @@ namespace AccessControl.Repositories
         }
 
         [TestMethod]
-        public async Task GetUserSession_QueryReturnsEmpty_ReturnsNull()
+        public async Task GetUserSession_SessionDoesNotExist_ReturnsNull()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -111,7 +110,7 @@ namespace AccessControl.Repositories
         #region SelectSessions
 
         [TestMethod]
-        public async Task SelectSessions_QueryReturnsSessions_ReturnsAll()
+        public async Task SelectSessions_SessionExistss_ReturnsAll()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -134,7 +133,7 @@ namespace AccessControl.Repositories
         }
 
         [TestMethod]
-        public async Task SelectSessions_QueryReturnsEmpty_ReturnsEmpty()
+        public async Task SelectSessions_SessionDoesNotExist_ReturnsEmpty()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -162,23 +161,26 @@ namespace AccessControl.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
-            int id = 123;
+            int userId = 123;
             string userName = "user";
             int licenseLevel = 3;
-            Guid? newSession = new Guid("12345678901234567890123456789012");
-            Guid? oldSession = new Guid("11111111111111111111111111111111");
-            cxn.SetupExecuteAsync(
+            Guid newSessionId = new Guid("12345678901234567890123456789012");
+            Guid oldSessionId = new Guid("11111111111111111111111111111111");
+            Session[] result = { new Session { SessionId = newSessionId } };
+            cxn.SetupQueryAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false } },
-                1,
-                new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", oldSession } });
+                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false }, { "licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
+                result,
+                new Dictionary<string, object> { { "OldSessionId", oldSessionId } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, false);
+            Guid? resultId = null;
+            Session session = await repository.BeginSession(userId, userName, licenseLevel, false, id => resultId = id);
 
             // Assert
             cxn.Verify();
-            CollectionAssert.AreEqual(new [] { newSession, oldSession }, sessions);
+            Assert.AreEqual(result[0], session);
+            Assert.AreEqual(oldSessionId, resultId);
         }
 
         [TestMethod]
@@ -187,42 +189,105 @@ namespace AccessControl.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
-            int id = 123;
+            int userId = 123;
             string userName = "user";
             int licenseLevel = 3;
-            Guid? newSession = new Guid("12345678901234567890123456789012");
-            cxn.SetupExecuteAsync(
+            Guid newSessionId = new Guid("12345678901234567890123456789012");
+            Session[] result = { new Session { SessionId = newSessionId } };
+            cxn.SetupQueryAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", id }, { "NewSessionId", null }, { "OldSessionId", null }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true } },
-                1,
-                new Dictionary<string, object> { { "NewSessionId", newSession }, { "OldSessionId", null } });
+                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true }, { "licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
+                result,
+                new Dictionary<string, object> { { "OldSessionId", null } });
 
             // Act
-            Guid?[] sessions = await repository.BeginSession(id, userName, licenseLevel, true);
+            Guid? resultId = null;
+            Session session = await repository.BeginSession(userId, userName, licenseLevel, true, id => resultId = id);
 
             // Assert
             cxn.Verify();
-            CollectionAssert.AreEqual(new[] { newSession, null }, sessions);
+            Assert.AreEqual(result[0], session);
+            Assert.IsNull(resultId);
         }
 
         #endregion BeginSession
 
-        #region EndSession
+        #region ExtendSession
 
         [TestMethod]
-        public async Task EndSession_CallsProcedureWithCorrectParameters()
+        public async Task ExtendSession_SessionExists_ReturnsFirst()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
-            cxn.SetupExecuteAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, 1);
+            Session[] result = { new Session { SessionId = guid } };
+            cxn.SetupQueryAsync("ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
 
             // Act
-            await repository.EndSession(guid, true);
+            Session session = await repository.ExtendSession(guid);
 
             // Assert
             cxn.Verify();
+            Assert.AreEqual(result.First(), session);
+        }
+
+        [TestMethod]
+        public async Task ExtendSession_SessionDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("12345678901234567890123456789012");
+            Session[] result = { };
+            cxn.SetupQueryAsync("ExtendSession", new Dictionary<string, object> { { "SessionId", guid } }, result);
+
+            // Act
+            Session session = await repository.ExtendSession(guid);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsNull(session);
+        }
+
+        #endregion ExtendSession
+
+        #region EndSession
+
+        [TestMethod]
+        public async Task EndSession_LogoutSessionExists_ReturnsFirst()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("12345678901234567890123456789012");
+            var sessions = new[] { new Session { SessionId = guid } };
+            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 0 } }, sessions);
+
+            // Act
+            Session result = await repository.EndSession(guid, false);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(sessions[0], result);
+        }
+
+        [TestMethod]
+        public async Task EndSession_TimeoutSessionDoesNotExist_ReturnsNull()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlSessionsRepository(cxn.Object);
+            var guid = new Guid("00000000000000000000000000000000");
+            var sessions = new Session[] {};
+            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, sessions);
+
+            // Act
+            Session result = await repository.EndSession(guid, true);
+
+            // Assert
+            cxn.Verify();
+            Assert.IsNull(result);
         }
 
         #endregion EndSession

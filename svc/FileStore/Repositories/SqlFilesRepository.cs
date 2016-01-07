@@ -30,9 +30,9 @@ namespace FileStore.Repositories
             return ConnectionWrapper.CreateConnection();
         }
 
-        private DateTime GetPostFileHeadExpirationTime(DateTime? dateTime)
+        private DateTime? GetPostFileHeadExpirationTime(DateTime? dateTime)
         {
-            DateTime dateTimeUtc;
+            DateTime? dateTimeUtc= null;
             if (dateTime.HasValue)
             {
                 // Convert to UTC if required
@@ -41,10 +41,6 @@ namespace FileStore.Repositories
                 {
                     dateTimeUtc = DateTime.UtcNow;
                 }
-            }
-            else
-            {
-                dateTimeUtc = DateTime.UtcNow;
             }
 
             return dateTimeUtc;

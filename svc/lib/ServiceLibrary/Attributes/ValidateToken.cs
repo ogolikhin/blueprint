@@ -27,12 +27,10 @@ namespace ServiceLibrary.Attributes
                 return;
             }
 
-            var op = "1";
-            var aid = 1;
             var serviceSessionRepository = new ServiceSessionRepository();
             try
             {
-                await serviceSessionRepository.GetAccessAsync(actionContext.Request, op, aid);
+                await serviceSessionRepository.GetAccessAsync(actionContext.Request);
             }
             catch (ArgumentNullException)
             {

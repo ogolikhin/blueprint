@@ -199,10 +199,7 @@ namespace FileStore.Controllers
             try
             {
                 await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Initiate post");
-                if (expired.HasValue && expired.Value < DateTime.UtcNow)
-                {
-                    expired = DateTime.UtcNow;
-                }
+
                 if (HttpContext.Current == null)
                 {
                     await _log.LogError(WebApiConfig.LogSource_Files, "POST: httpcontext.current is null");
@@ -251,14 +248,13 @@ namespace FileStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
         {
-            var expirationTime = expired.HasValue && expired.Value > DateTime.UtcNow ? expired.Value : DateTime.UtcNow;
             try
             {
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expirationTime}, Deleting file");
-                var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id), expirationTime);
+                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expired}, Deleting file");
+                var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id), expired);
                 if (guid.HasValue)
                 {
-                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expirationTime}, Deleting file success");
+                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expired}, Deleting file success");
                     return Ok(Models.File.ConvertFileId(guid.Value));
                 }
                 return NotFound();

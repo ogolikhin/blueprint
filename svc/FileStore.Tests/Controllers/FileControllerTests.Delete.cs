@@ -55,7 +55,7 @@ namespace FileStore.Controllers
             var moqConfigRepo = new Mock<IConfigRepository>();
             var moqLog = new Mock<sl.IServiceLogRepository>();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Throws(new Exception());
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Throws(new Exception());
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
@@ -89,7 +89,7 @@ namespace FileStore.Controllers
             var moqConfigRepo = new Mock<IConfigRepository>();
             var moqLog = new Mock<sl.IServiceLogRepository>();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)null));
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Returns(Task.FromResult((Guid?)null));
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
@@ -124,7 +124,7 @@ namespace FileStore.Controllers
             var moqLog = new Mock<sl.IServiceLogRepository>();
             var guid = Guid.NewGuid();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Returns(Task.FromResult((Guid?)guid));
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
@@ -162,7 +162,7 @@ namespace FileStore.Controllers
             var moqLog = new Mock<sl.IServiceLogRepository>();
             var guid = Guid.NewGuid();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Returns(Task.FromResult((Guid?)guid));
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
@@ -200,7 +200,7 @@ namespace FileStore.Controllers
             var moqLog = new Mock<sl.IServiceLogRepository>();
             var guid = Guid.NewGuid();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Returns(Task.FromResult((Guid?)guid));
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {
@@ -238,7 +238,7 @@ namespace FileStore.Controllers
             var moqLog = new Mock<sl.IServiceLogRepository>();
             var guid = Guid.NewGuid();
 
-            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime>())).Returns(Task.FromResult((Guid?)guid));
+            moq.Setup(t => t.DeleteFile(It.IsAny<Guid>(), It.IsAny<DateTime?>())).Returns(Task.FromResult((Guid?)guid));
 
             var controller = new FilesController(moq.Object, moqFileStreamRepo.Object, moqConfigRepo.Object, moqLog.Object)
             {

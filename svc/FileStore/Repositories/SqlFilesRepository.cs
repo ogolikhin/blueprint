@@ -30,12 +30,52 @@ namespace FileStore.Repositories
             return ConnectionWrapper.CreateConnection();
         }
 
+        private DateTime GetPostFileHeadExpirationTime(DateTime? dateTime)
+        {
+            DateTime dateTimeUtc;
+            if (dateTime.HasValue)
+            {
+                // Convert to UTC if required
+                dateTimeUtc = dateTime.Value.Kind != DateTimeKind.Utc ? dateTime.Value.ToUniversalTime() : dateTime.Value;
+                if (dateTimeUtc < DateTime.UtcNow)
+                {
+                    dateTimeUtc = DateTime.UtcNow;
+                }
+            }
+            else
+            {
+                dateTimeUtc = DateTime.UtcNow;
+            }
+
+            return dateTimeUtc;
+        }
+
+        private DateTime GetDeleteFileExpirationTime(DateTime? dateTime)
+        {
+            DateTime dateTimeUtc;
+            if (dateTime.HasValue)
+            {
+                // Convert to UTC if required
+                dateTimeUtc = dateTime.Value.Kind != DateTimeKind.Utc ? dateTime.Value.ToUniversalTime() : dateTime.Value;
+                if (dateTimeUtc > DateTime.UtcNow)
+                {
+                    dateTimeUtc = DateTime.UtcNow;
+                }
+            }
+            else
+            {
+                dateTimeUtc = DateTime.UtcNow;
+            }
+
+            return dateTimeUtc;
+        }
+
         public async Task<Guid> PostFileHead(File file)
         {
             var prm = new DynamicParameters();
             prm.Add("@FileName", file.FileName);
             prm.Add("@FileType", file.FileType);
-            prm.Add("@ExpiredTime", file.ExpiredTime);
+            prm.Add("@ExpiredTime", GetPostFileHeadExpirationTime(file.ExpiredTime));
             prm.Add("@ChunkCount", file.ChunkCount);
             prm.Add("@FileSize", file.FileSize);
             prm.Add("@FileId", dbType: DbType.Guid, direction: ParameterDirection.Output);
@@ -89,11 +129,11 @@ namespace FileStore.Repositories
             return (await ConnectionWrapper.QueryAsync<FileChunk>("ReadFileChunk", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<Guid?> DeleteFile(Guid guid, DateTime expired)
+        public async Task<Guid?> DeleteFile(Guid guid, DateTime? expired)
         {
             var prm = new DynamicParameters();
             prm.Add("@FileId", guid);
-            prm.Add("@ExpiredTime", expired);
+            prm.Add("@ExpiredTime", GetDeleteFileExpirationTime(expired));
             return (await ConnectionWrapper.ExecuteScalarAsync<int>("DeleteFile", prm, commandType: CommandType.StoredProcedure)) > 0 ? guid : (Guid?)null;
         }
         public async Task<int> DeleteFileChunk(Guid guid, int chunkNumber)

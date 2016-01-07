@@ -1,5 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Net;
+using System.Net.Http;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.LocalLog;
 
 namespace ServiceLibrary.Repositories.ConfigControl
 {
@@ -10,7 +14,16 @@ namespace ServiceLibrary.Repositories.ConfigControl
         public async Task Status()
         {
             // Arrange
-            var servicelog = new StatusRepository();
+
+            var httpClientProvider = new TestHttpClientProvider(request =>
+            {
+                if (request.Method == HttpMethod.Get)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                }
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            });
+            var servicelog = new StatusRepository(httpClientProvider, new LocalFileLog());
 
             // Act
             var status = await servicelog.GetStatus();

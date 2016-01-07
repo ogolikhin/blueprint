@@ -60,13 +60,15 @@ namespace AccessControlTests
             CreateAndAddSessionToAccessControl();
         }
 
-        [Test]
-        public void PutSessionWithSessionToken_Verify200OK()
+        [TestCase(null, null)]
+        [TestCase(null, 1234)]
+        [TestCase("do_some_action", null)]
+        [TestCase("do_some_action", 1234)]
+        public void PutSessionWithSessionToken_Verify200OK(string operation, int? artifactId)
         {
             ISession createdSession = CreateAndAddSessionToAccessControl();
-            int artifactId = RandomGenerator.RandomNumber();
 
-            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, "do_some_action", artifactId);
+            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, operation, artifactId);
 
             Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }

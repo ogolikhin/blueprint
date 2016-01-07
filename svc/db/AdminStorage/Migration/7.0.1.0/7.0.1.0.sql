@@ -3,7 +3,7 @@
 -- Migration 7.0.1.0
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
-GO
+GOwith SQL
 USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
@@ -492,7 +492,7 @@ CREATE PROCEDURE [dbo].[GetLicenseTransactions]
 AS
 BEGIN
 	SELECT [UserId], [UserLicenseType] AS [LicenseType], [TransactionType], [ActionType], [TimeStamp] AS [Date],
-		ISNULL(STUFF((SELECT CONCAT(';', [LicenseType], ':', [Count])
+		ISNULL(STUFF((SELECT ';' + CAST([LicenseType] AS VARCHAR(10)) + ':' + CAST([Count] AS VARCHAR(10))
 		FROM [dbo].[LicenseActivityDetails] D
 		WHERE D.[LicenseActivityId] = A.[LicenseActivityId]
 		FOR XML PATH('')), 1, 1, ''), '') AS [Details]

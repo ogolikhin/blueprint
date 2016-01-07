@@ -139,8 +139,9 @@
                                          new mxDivResizer(outline);
                                      }
                                      var graph = new mxGraph(container);
-                                     graph.setCellsMovable(true);
+                                     graph.setCellsMovable(false);
                                      graph.setAutoSizeCells(false);
+                                     graph.setCellsSelectable(false);                                   
                                      graph.setPanning(true);
                                      graph.centerZoom = true;
                                      graph.panningHandler.useLeftButtonForPanning = true;
@@ -199,35 +200,35 @@
                                     };
                                     
                                     // Changes fill color to red on mouseover
-                                    graph.addMouseListener(
-                                    {
-                                        mouseDown: function(sender, me)
-                                        {
-                                            console.log("mousedown");
-                                            console.log(me.getCell());
-                                            console.log(me);
-                                        },
-                                        mouseMove: function(sender, me)
-                                        {
-                                            // console.log("mouseMove");
-                                            // console.log(me.getCell());
-                                        },
-                                        mouseUp: function(sender, me) 
-                                        { 
-                                            console.log("mouseUp");
-                                            console.log(me.getCell());
-                                        },
-                                        dragEnter: function(evt, state)
-                                        {
-                                            console.log("dragEnter");
-                                            console.log(me.getCell());
-                                        },
-                                        dragLeave: function(evt, state)
-                                        {
-                                            console.log("dragLeave");
-                                            console.log(me.getCell());
-                                        }
-                                    });                                     
+                                    // graph.addMouseListener(
+                                    // {
+                                    //     mouseDown: function(sender, me)
+                                    //     {
+                                    //         console.log("mousedown");
+                                    //         console.log(me.getCell());
+                                    //         console.log(me);
+                                    //     },
+                                    //     mouseMove: function(sender, me)
+                                    //     {
+                                    //         // console.log("mouseMove");
+                                    //         // console.log(me.getCell());
+                                    //     },
+                                    //     mouseUp: function(sender, me) 
+                                    //     { 
+                                    //         console.log("mouseUp");
+                                    //         console.log(me.getCell());
+                                    //     },
+                                    //     dragEnter: function(evt, state)
+                                    //     {
+                                    //         console.log("dragEnter");
+                                    //         console.log(me.getCell());
+                                    //     },
+                                    //     dragLeave: function(evt, state)
+                                    //     {
+                                    //         console.log("dragLeave");
+                                    //         console.log(me.getCell());
+                                    //     }
+                                    // });                                     
 
                                      var outln = new mxOutline(graph, outline);
                                      graph.setTooltips(!mxClient.IS_TOUCH);
@@ -288,6 +289,69 @@
                                          edgeHandleConnect.apply(this, arguments);
                                          executeLayout();
                                      };
+
+                                    // Open popup menu from overlay
+                                    var mxCellRendererInstallCellOverlayListeners = mxCellRenderer.prototype.installCellOverlayListeners;
+                                    mxCellRenderer.prototype.installCellOverlayListeners = function(state, overlay, shape)
+                                    {
+                                        mxCellRendererInstallCellOverlayListeners.apply(this, arguments);
+
+                                        mxEvent.addGestureListeners(shape.node, function (evt) {
+                                                graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt, state));
+                                                graph.rmbEdge = state.cell;
+                                        });
+                                    };
+
+                                    // Create edge styles
+                                    mxEdgeStyle.DownRight = function(state, source, target, points, result)
+                                    {
+                                        if (source != null && target != null)
+                                        {
+                                            var pt = new mxPoint(source.getCenterX(), target.getCenterY());
+
+                                            if (mxUtils.contains(source, pt.x, pt.y))
+                                            {
+                                                pt.x = source.x + source.width;
+                                            }
+
+                                            result.push(pt);
+                                        }
+                                    };
+
+
+                                    mxEdgeStyle.RightUp = function(state, source, target, points, result)
+                                    {
+                                        if (source != null && target != null)
+                                        {
+                                            var pt = new mxPoint(target.getCenterX() - 10, source.getCenterY());
+
+                                            if (mxUtils.contains(source, pt.x, pt.y))
+                                            {
+                                                pt.y = source.y + source.height;
+                                            }
+
+                                            result.push(pt);
+                                        }
+                                    };
+
+                                    mxEdgeStyle.DownRightUp = function(state, source, target, points, result)
+                                    {
+                                        if (source != null && target != null)
+                                        {
+                                            var yShift =  (source.cell.edges) ? source.cell.edges.length * BRANCH_HEIGHT : BRANCH_HEIGHT;
+                                            var pt = new mxPoint(source.getCenterX(), target.getCenterY() + yShift);
+                                            result.push(pt);
+                                            
+                                            pt = new mxPoint(target.getCenterX() - 10, target.getCenterY() + yShift);
+                                            result.push(pt);
+                                        }
+                                    };
+
+                                    // Register edge styles
+                                    mxStyleRegistry.putValue('DownRight', mxEdgeStyle.DownRight);
+                                    mxStyleRegistry.putValue('RightUp', mxEdgeStyle.RightUp);
+                                    mxStyleRegistry.putValue('DownRightUp', mxEdgeStyle.DownRightUp);
+
 
 
                                      layout.useBoundingBox = false;
@@ -353,25 +417,12 @@
                                      // is normally the first child of the root (ie. layer 0).
                                      var parent = graph.getDefaultParent();
                                      var v1;
+                                     graph.bpStart = addStart1(graph);
+                                     graph.bpStop = addStop1(graph);
+                                     v1 = addTask1(graph, null);
 
-
-                                    graph.getModel().beginUpdate();         
-                                    try
-                                    {
-                                        v1 = addTask(graph,null)
-
-                                    }
-                                    finally
-                                    {
-                                        // Updates the display
-                                        graph.getModel().endUpdate();
-                                    }
-
-                                    graph.bpStop = addStop(graph, v1);
-                                    addStart(graph, v1);
-
-                                 }
-                             );
+                                         }
+                                     );
 
 
                          });
@@ -453,8 +504,9 @@
 
                              // Enables automatic sizing for vertices after editing and
                              // panning by using the left mouse button.
-                             graph.setCellsMovable(true);
+                             graph.setCellsMovable(false);
                              graph.setAutoSizeCells(false);
+                             graph.setCellsSelectable(false);
                              graph.setPanning(true);
                              graph.centerZoom = true;
                              graph.panningHandler.useLeftButtonForPanning = true;
@@ -514,35 +566,35 @@
                                     };
                                     
                                     // Changes fill color to red on mouseover
-                                    graph.addMouseListener(
-                                    {
-                                        mouseDown: function(sender, me)
-                                        {
-                                            console.log("mousedown");
-                                            console.log(me.getCell());
-                                            console.log(me);
-                                        },
-                                        mouseMove: function(sender, me)
-                                        {
-                                            // console.log("mouseMove");
-                                            // console.log(me.getCell());
-                                        },
-                                        mouseUp: function(sender, me) 
-                                        { 
-                                            console.log("mouseUp");
-                                            console.log(me.getCell());
-                                        },
-                                        dragEnter: function(evt, state)
-                                        {
-                                            console.log("dragEnter");
-                                            console.log(me.getCell());
-                                        },
-                                        dragLeave: function(evt, state)
-                                        {
-                                            console.log("dragLeave");
-                                            console.log(me.getCell());
-                                        }
-                                    });                                     
+                                    // graph.addMouseListener(
+                                    // {
+                                    //     mouseDown: function(sender, me)
+                                    //     {
+                                    //         console.log("mousedown");
+                                    //         console.log(me.getCell());
+                                    //         console.log(me);
+                                    //     },
+                                    //     mouseMove: function(sender, me)
+                                    //     {
+                                    //         // console.log("mouseMove");
+                                    //         // console.log(me.getCell());
+                                    //     },
+                                    //     mouseUp: function(sender, me) 
+                                    //     { 
+                                    //         console.log("mouseUp");
+                                    //         console.log(me.getCell());
+                                    //     },
+                                    //     dragEnter: function(evt, state)
+                                    //     {
+                                    //         console.log("dragEnter");
+                                    //         console.log(me.getCell());
+                                    //     },
+                                    //     dragLeave: function(evt, state)
+                                    //     {
+                                    //         console.log("dragLeave");
+                                    //         console.log(me.getCell());
+                                    //     }
+                                    // });                                     
 
 
                              // Displays a popupmenu when the user clicks
@@ -644,12 +696,68 @@
                                  edgeHandleConnect.apply(this, arguments);
                                  executeLayout();
                              };
+                            // Open popup menu from overlay
+                            var mxCellRendererInstallCellOverlayListeners = mxCellRenderer.prototype.installCellOverlayListeners;
+                            mxCellRenderer.prototype.installCellOverlayListeners = function(state, overlay, shape)
+                            {
+                                mxCellRendererInstallCellOverlayListeners.apply(this, arguments);
+
+                                mxEvent.addGestureListeners(shape.node, function (evt) {
+                                        graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt, state));
+                                        graph.rmbEdge = state.cell;
+                                });
+                            };
+
+                            // Create edge styles
+                            mxEdgeStyle.DownRight = function(state, source, target, points, result)
+                            {
+                                if (source != null && target != null)
+                                {
+                                    var pt = new mxPoint(source.getCenterX(), target.getCenterY());
+
+                                    if (mxUtils.contains(source, pt.x, pt.y))
+                                    {
+                                        pt.x = source.x + source.width;
+                                    }
+
+                                    result.push(pt);
+                                }
+                            };
 
 
+                            mxEdgeStyle.RightUp = function(state, source, target, points, result)
+                            {
+                                if (source != null && target != null)
+                                {
+                                    var pt = new mxPoint(target.getCenterX() - 10, source.getCenterY());
 
-                             //
+                                    if (mxUtils.contains(source, pt.x, pt.y))
+                                    {
+                                        pt.y = source.y + source.height;
+                                    }
 
-                             //
+                                    result.push(pt);
+                                }
+                            };
+
+                            mxEdgeStyle.DownRightUp = function(state, source, target, points, result)
+                            {
+                                if (source != null && target != null)
+                                {
+                                    var yShift =  (source.cell.edges) ? source.cell.edges.length * BRANCH_HEIGHT : BRANCH_HEIGHT;
+                                    var pt = new mxPoint(source.getCenterX(), target.getCenterY() + yShift);
+                                    result.push(pt);
+                                    
+                                    pt = new mxPoint(target.getCenterX() - 10, target.getCenterY() + yShift);
+                                    result.push(pt);
+                                }
+                            };
+
+                            // Register edge styles
+                            mxStyleRegistry.putValue('DownRight', mxEdgeStyle.DownRight);
+                            mxStyleRegistry.putValue('RightUp', mxEdgeStyle.RightUp);
+                            mxStyleRegistry.putValue('DownRightUp', mxEdgeStyle.DownRightUp);
+
 
                              layout.useBoundingBox = false;
                              layout.edgeRouting = false;
@@ -717,20 +825,9 @@
 
 
                              // Adds the root vertex of the tree
-                            graph.getModel().beginUpdate();         
-                            try
-                            {
-                                v1 = addTask(graph,null)
-
-                            }
-                            finally
-                            {
-                                // Updates the display
-                                graph.getModel().endUpdate();
-                            }
-
-                            graph.bpStop = addStop(graph, v1);
-                            addStart(graph, v1);
+                                     graph.bpStart = addStart1(graph);
+                                     graph.bpStop = addStop1(graph);
+                                     v1 = addTask1(graph, null);
 
 
                              /*

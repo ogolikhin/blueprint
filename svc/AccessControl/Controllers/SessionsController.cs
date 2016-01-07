@@ -106,20 +106,17 @@ namespace AccessControl.Controllers
         {
             try
             {
-                //int psIntValue, pnIntValue;
-                //if (int.TryParse(ps, out psIntValue) == false ||
-                //    int.TryParse(pn, out pnIntValue) == false ||
-                //    psIntValue <= 0 ||
-                //    pnIntValue <= 0)
-                //    throw new FormatException("Specified parameter is not valid.");
+                int psIntValue, pnIntValue;
+                if (int.TryParse(ps, out psIntValue) == false ||
+                    int.TryParse(pn, out pnIntValue) == false ||
+                    psIntValue <= 0 ||
+                    pnIntValue <= 0)
+                    throw new FormatException("Specified parameter is not valid.");
 
-                //var token = GetHeaderSessionToken();
-                ////Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
-                //var guid = Session.Convert(token);
-                //return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
-
-                //(Bug #176810) Insecurity is the reason to comment the implementation and throw exception
-                throw new NotImplementedException();
+                var token = GetHeaderSessionToken();
+                //Todo: We need to use this guid in future to check validity of token for other calls rather than AdminStore
+                var guid = Session.Convert(token);
+                return Ok(await _repo.SelectSessions(psIntValue, pnIntValue)); // reading from database to avoid extending existing session
             }
             catch (ArgumentNullException)
             {

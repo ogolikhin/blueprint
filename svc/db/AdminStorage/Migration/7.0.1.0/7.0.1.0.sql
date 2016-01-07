@@ -3,7 +3,7 @@
 -- Migration 7.0.1.0
 -- --------------------------------------------------
 SET QUOTED_IDENTIFIER ON;
-GOwith SQL
+GO
 USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;

@@ -19,8 +19,12 @@ namespace AccessControlTests
         public void TearDown()
         {
             Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
+
             // Delete all sessions created by the tests.
-            _accessControl.Sessions.ForEach(s => _accessControl.DeleteSession(s));
+            foreach (var session in _accessControl.Sessions.ToArray())
+            {
+                _accessControl.DeleteSession(session);
+            }
         }
 
         /// <summary>

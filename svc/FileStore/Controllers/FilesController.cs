@@ -49,7 +49,7 @@ namespace FileStore.Controllers
         }
 
         #region Service Methods
-        [HttpHead, NoCache]
+        [HttpHead, NoCache, ValidateToken]
         [Route("{id}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)
@@ -105,7 +105,7 @@ namespace FileStore.Controllers
         }
 
 
-        [HttpGet, NoCache]
+        [HttpGet, NoCache, ValidateToken]
         [Route("{id}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileContent(string id)
@@ -191,7 +191,7 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, ValidateToken]
         [Route("")]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
@@ -218,7 +218,7 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut, ValidateToken]
         [Route("{id}")]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PutFile(string id)
@@ -243,7 +243,7 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete, ValidateToken]
         [Route("{id}")]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)

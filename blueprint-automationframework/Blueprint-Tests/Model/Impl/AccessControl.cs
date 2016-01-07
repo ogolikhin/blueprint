@@ -50,27 +50,26 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public ISession AuthorizeOperation(ISession session) // PUT /sessions
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISession AuthorizeOperation(ISession session, string operation) // PUT /sessions/{op}
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISession AuthorizeOperation(ISession session, string operation, int artifactId)    // PUT /sessions/{op}/{artifactId}
+        public ISession AuthorizeOperation(ISession session, string operation = null, int? artifactId = null)    // PUT /sessions?op={op}&aid={artifactId}
         {
             if (session == null) { throw new ArgumentNullException(nameof(session)); }
-            if (operation == null) { throw new ArgumentNullException(nameof(operation)); }
 
             var restApi = new RestApiFacade(_address, session.SessionId);
-            string path = string.Format("{0}/sessions/{1}/{2}", SVC_PATH, operation, artifactId);
+            string path = string.Format("{0}/sessions", SVC_PATH);
+            Dictionary<string, string> queryParameters = null;
+
+            if ((operation != null) || artifactId.HasValue)
+            {
+                queryParameters = new Dictionary<string, string>();
+
+                if (operation != null) { queryParameters.Add("op", operation); }
+
+                if (artifactId.HasValue) { queryParameters.Add("aid", artifactId.ToString());}
+            }
 
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Put Session for User ID: {0}.", session.UserId);
-            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT);
+            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.PUT, queryParameters: queryParameters);
 
             return returnedSession;
         }

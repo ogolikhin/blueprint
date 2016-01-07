@@ -29,7 +29,7 @@ namespace Model.Impl
             get { return _accessControlToken; }
             set
             {
-                if ((value != null) && !value.StartsWith("BlueprintToken") && (value.Length == 32))
+                if ((value != null) && !value.StartsWith("BlueprintToken", StringComparison.Ordinal) && (value.Length == 32))
                 {
                     _accessControlToken = value;
                 }
@@ -54,7 +54,7 @@ namespace Model.Impl
             get { return _openApiToken; }
             set
             {
-                if ((value != null) && value.StartsWith("BlueprintToken"))
+                if ((value != null) && value.StartsWith("BlueprintToken", StringComparison.Ordinal))
                 {
                     _openApiToken = value;
                 }

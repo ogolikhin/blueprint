@@ -136,13 +136,13 @@ namespace FileStore
             string receivedFileName = contentDispositionHeaderValue.FileName.Replace("\"", " ").Trim();
 
             Assert.IsTrue(String.Equals(thisTest.FileName, receivedFileName,
-                StringComparison.InvariantCultureIgnoreCase),
+                StringComparison.OrdinalIgnoreCase),
                 String.Format("Content disposition header file name is different. " +
                 "Expecting file name to be {0} but got {1}.",
                 thisTest.FileName, contentDispositionHeaderValue.FileName));
 
             Assert.IsTrue(String.Equals(thisTest.ContentType, response.ContentType,
-                StringComparison.InvariantCultureIgnoreCase),
+                StringComparison.OrdinalIgnoreCase),
                 String.Format("ContentType does not match. Expected {0} but got {1}", thisTest.ContentType,
                 response.ContentType));
 
@@ -189,7 +189,7 @@ namespace FileStore
         {
             using (var md5 = MD5.Create())
             {
-                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToUpperInvariant();
             }
         }
 

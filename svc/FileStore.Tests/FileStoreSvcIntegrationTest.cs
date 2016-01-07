@@ -594,7 +594,7 @@ namespace FileStore
         {
             using (var md5 = MD5.Create())
             {
-                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToUpperInvariant();
             }
         }
         private TestData GetTestData()

@@ -85,7 +85,7 @@ namespace Logging.Database.Utility
 
             for (int i = 0; i < entry.Payload.Count; i++)
             {
-                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
+                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.OrdinalIgnoreCase))
                 {
                     return entry.Payload[i] == null ? string.Empty : entry.Payload[i].ToString();
                 }

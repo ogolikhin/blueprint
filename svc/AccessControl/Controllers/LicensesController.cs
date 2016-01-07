@@ -100,10 +100,9 @@ namespace AccessControl.Controllers
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
                 return ResponseMessage(response);
             }
-            catch (ArgumentNullException ex)
+            catch (ArgumentNullException)
             {
-                //return Unauthorized();
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex)); //DEBUG
+                return Unauthorized();
             }
             catch (Exception ex)
             {

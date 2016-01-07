@@ -103,7 +103,9 @@ namespace AdminStore.Controllers
                     var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                     if (!result.IsSuccessStatusCode)
                     {
-                        throw new ServerException();
+                        //TODO temporarily added for debug purposes
+                        var errorMessage = await result.Content.ReadAsStringAsync();
+                        throw new ServerException(errorMessage);
                     }
                     var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                     var response = new HttpResponseMessage(HttpStatusCode.OK)

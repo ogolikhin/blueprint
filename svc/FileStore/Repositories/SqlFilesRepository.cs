@@ -48,12 +48,18 @@ namespace FileStore.Repositories
 
         private DateTime GetDeleteFileExpirationTime(DateTime? dateTime)
         {
+            // if the expiry time is null make the expiry time equal to today 
+            // if the expiry time is before today make the expiry time equal to today 
+            // if the expiry time is in the future leave it as a future expiration time
+
             DateTime dateTimeUtc;
+
             if (dateTime.HasValue)
             {
                 // Convert to UTC if required
                 dateTimeUtc = dateTime.Value.Kind != DateTimeKind.Utc ? dateTime.Value.ToUniversalTime() : dateTime.Value;
-                if (dateTimeUtc > DateTime.UtcNow)
+                
+                if (dateTimeUtc < DateTime.UtcNow)
                 {
                     dateTimeUtc = DateTime.UtcNow;
                 }
@@ -153,7 +159,7 @@ namespace FileStore.Repositories
             // stored file is large. It will reuse the open database connection that is passed 
             // in as a parameter.
 
-            // Note: After all the read operations are finsihed the dbConnection object must be closed
+            // Note: After all the read operations are finished the dbConnection object must be closed
             // and disposed by the calling procedure.
 
             var prm = new DynamicParameters();

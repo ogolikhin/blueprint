@@ -137,9 +137,9 @@ namespace AccessControlDouble.Controllers
         /// <returns>The session token.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters")]    // They're used implicitly by the path variable.
         [HttpPut]
-        [Route("{op}/{aid}")]
+        [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Put(string op, int aid)
+        public async Task<IHttpActionResult> Put(string op = "", int aid = 0)
         {
             using (HttpClient http = new HttpClient())
             {

@@ -142,7 +142,7 @@ namespace Logging.Database.Sinks
             }
             catch (ArgumentException e)
             {
-                throw new ArgumentException(Properties.Resources.InvalidConnectionStringError, argumentName, e);
+                throw new ArgumentException("The value does not represent a connection string", argumentName, e);
             }
         }
 
@@ -211,7 +211,7 @@ namespace Logging.Database.Sinks
             //If still pending events after all retries, discard batch and log.
             if (initialCount != collection.Count)
             {
-                SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(string.Format(Properties.Resources.EventEntriesDiscarded, collection.Count));
+                SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(string.Format("{0} EventData entries are discarded due to too many failed retries", collection.Count));
             }
         }
 

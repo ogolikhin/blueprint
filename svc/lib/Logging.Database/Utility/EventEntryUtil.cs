@@ -32,7 +32,7 @@ namespace Logging.Database.Utility
             {
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
-                return string.Format("<Error>{0}</Error>", string.Format(CultureInfo.CurrentCulture, Properties.Resources.XmlSerializationError, e.Message));
+                return string.Format("<Error>{0}</Error>", string.Format(CultureInfo.CurrentCulture, "Cannot serialize to XML format the payload: {0}", e.Message));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Logging.Database.Utility
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
                 // We are in Error state so abort the write operation
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Properties.Resources.XmlSerializationError, e.Message), e);
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize to XML format the payload: {0}", e.Message), e);
             }
         }
 

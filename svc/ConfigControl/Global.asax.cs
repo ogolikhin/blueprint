@@ -10,6 +10,10 @@ namespace ConfigControl
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
+        private const string StartingLoggingListener = "Starting logging listener";
+        private const string StartedLoggingListener = "Started logging listener";
+        private const string LoggingListenerFailed = "Logging listener failed: {0}";
+
         private EventListener dbListener;
 
         protected void Application_Start()
@@ -40,7 +44,7 @@ namespace ConfigControl
 
             try
             {
-                localLog.LogInformation("Starting logging listener");
+                localLog.LogInformation(StartingLoggingListener);
 
                 // Log all events to DB 
                 this.dbListener = BlueprintSqlDatabaseLog.CreateListener(
@@ -51,11 +55,11 @@ namespace ConfigControl
                 dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
                 dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
 
-                localLog.LogInformation("Started logging listener");
+                localLog.LogInformation(StartedLoggingListener);
             }
             catch (Exception ex)
             {
-                localLog.LogError(string.Format("Logging listener failed: {0}", ex.Message));
+                localLog.LogError(string.Format(LoggingListenerFailed, ex.Message));
                 throw;
             }
         }

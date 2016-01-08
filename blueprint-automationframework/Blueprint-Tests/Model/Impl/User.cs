@@ -82,7 +82,9 @@ namespace Model.Impl
         /// <exception cref="ArgumentException">If the specified token is invalid.</exception>
         public void SetToken(string token)
         {
-            Token = new BlueprintToken(openApiToken: token);
+            if (Token == null) { Token = new BlueprintToken(); }
+
+            Token.SetToken(token);
         }
 
         /// <summary>

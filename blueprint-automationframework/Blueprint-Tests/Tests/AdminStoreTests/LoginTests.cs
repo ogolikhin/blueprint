@@ -1,4 +1,6 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using System.Net;
+using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -22,6 +24,17 @@ namespace AdminStoreTests
         [TearDown]
         public void TearDown()
         {
+            if (_adminStore != null)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in _adminStore.Sessions.ToArray())
+                {
+                    // AdminStore removes and adds a new session in some cases, so we should expect a 404 error in some cases.
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
+                    _adminStore.DeleteSession(session, expectedStatusCodes);
+                }
+            }
+
             if (_user != null)
             {
                 _user.DeleteUser(deleteFromDatabase: true);

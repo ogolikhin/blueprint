@@ -41,7 +41,6 @@ namespace AdminStore.Controllers
         {
             try
             {
-                await _log.LogInformation(WebApiConfig.LogSource_Licenses, "hey");
                 using (var http = _httpClientProvider.Create())
                 {
                     http.BaseAddress = new Uri(WebApiConfig.AccessControl);

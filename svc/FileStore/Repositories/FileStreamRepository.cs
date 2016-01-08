@@ -37,8 +37,6 @@ namespace FileStore.Repositories
 
         public bool FileExists(Guid fileId)
         {
-            long fileSize = 0;
-
             // check if the legacy database is configured 
             // if it is not available then return false 
 
@@ -56,12 +54,9 @@ namespace FileStore.Repositories
             using (var sqlConnection = CreateConnection())
             {
                 sqlConnection.Open();
-                fileSize = GetFileSize((SqlConnection) sqlConnection, fileId);
+
+                return FileExists((SqlConnection) sqlConnection, fileId);
             }
-
-            // if there is no file content assume that the file does not exist in the legacy db
-            return fileSize == 0 ? false : true;
-
         }
         public File GetFileHead(Guid fileId)
         {
@@ -92,7 +87,7 @@ namespace FileStore.Repositories
             file.IsLegacyFile = true;
 
             // if there is no file content assume that the file does not exist in the legacy db
-            return file.FileSize == 0 ? null : file;
+            return file;
 
         }
 
@@ -107,6 +102,23 @@ namespace FileStore.Repositories
             }
             return fileName;
         }
+
+        private bool FileExists(SqlConnection sqlConnection, Guid fileId)
+        {
+            using (SqlCommand cmd = sqlConnection.CreateCommand())
+            {
+                cmd.Parameters.Clear();
+                // get file size by checking the file content
+                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT Top 1 1 FROM [dbo].[Files] WHERE ([FileGuid] = @pFileGuid);";
+                cmd.Parameters.AddWithValue("@pFileGuid", fileId);
+                var result = cmd.ExecuteScalar();
+                
+                return result != null;
+            }
+        }
+
         private long GetFileSize(SqlConnection sqlConnection, Guid fileId)
         {
             using (SqlCommand cmd = sqlConnection.CreateCommand())

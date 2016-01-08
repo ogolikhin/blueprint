@@ -13,6 +13,7 @@ namespace ServiceLibrary.Attributes
     {
         private const string UnauthorizedExceptionMessage = "You are not authorzied. Please provide token.";
         private const string InternalServerError = "An error occured.";
+        private const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
@@ -22,7 +23,7 @@ namespace ServiceLibrary.Attributes
 
         private async Task Validate(HttpActionContext actionContext)
         {
-            if (actionContext.Request.Headers.Contains("DoNotValidate"))
+            if (actionContext.Request.Headers.Contains(BlueprintSessionTokenIgnore))
             {
                 return;
             }

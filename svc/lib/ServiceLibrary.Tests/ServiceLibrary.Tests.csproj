@@ -71,7 +71,7 @@
   <ItemGroup>
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
     <Compile Include="Attributes\ValidateTokenTests.cs" />
-    <Compile Include="Helpers\AttributeHelper.cs" />
+    <Compile Include="Helpers\AttributeReflectionHelper.cs" />
     <Compile Include="Helpers\ContextUtil.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

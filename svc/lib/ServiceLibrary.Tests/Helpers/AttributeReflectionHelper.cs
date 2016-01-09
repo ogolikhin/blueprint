@@ -5,7 +5,7 @@ using System.Reflection;
 namespace ServiceLibrary.Helpers
 {
     // http://stackoverflow.com/questions/3476757/c-sharp-extension-method-for-checking-attributes/3477106#3477106
-    public static class AttributeHelper
+    public static class AttributeReflectionHelper
     {
         public static MethodInfo GetMethod<T>(this T instance, Expression<Func<T, object>> methodSelector)
         {

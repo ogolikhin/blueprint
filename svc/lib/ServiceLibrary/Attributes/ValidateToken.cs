@@ -17,18 +17,18 @@ namespace ServiceLibrary.Attributes
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
-            await Validate(actionContext);
+            var serviceSessionRepository = new ServiceSessionRepository();
+            await Validate(actionContext, serviceSessionRepository);
             await base.OnActionExecutingAsync(actionContext, cancellationToken);
         }
 
-        private async Task Validate(HttpActionContext actionContext)
+        internal async Task Validate(HttpActionContext actionContext, ISessionRepository serviceSessionRepository)
         {
             if (actionContext.Request.Headers.Contains(BlueprintSessionTokenIgnore))
             {
                 return;
             }
 
-            var serviceSessionRepository = new ServiceSessionRepository();
             try
             {
                 await serviceSessionRepository.GetAccessAsync(actionContext.Request);

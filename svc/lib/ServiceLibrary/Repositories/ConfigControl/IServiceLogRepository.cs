@@ -1,4 +1,8 @@
-﻿using ServiceLibrary.Models;
+﻿/// *************************************************************************************
+/// ***** Any changes to this file need to be replicated in the                     *****
+/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+/// *************************************************************************************
+using ServiceLibrary.Models;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -13,5 +17,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
         Task LogVerbose(string source, string message, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0);
         Task LogWarning(string source, string message, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0);
         Task LogCLog(CLogEntry logEntry);
+        Task LogStandardLog(StandardLogEntry logEntry);
+        Task LogPerformanceLog(PerformanceLogEntry logEntry);
+        Task LogSQLTraceLog(SQLTraceLogEntry logEntry);
     }
 }

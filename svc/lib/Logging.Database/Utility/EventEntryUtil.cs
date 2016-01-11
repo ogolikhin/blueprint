@@ -93,5 +93,20 @@ namespace Logging.Database.Utility
 
             return "";
         }
+
+        internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
+        {
+            var eventSchema = entry.Schema;
+
+            for (int i = 0; i < entry.Payload.Count; i++)
+            {
+                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return entry.Payload[i] == null ? entry.Timestamp : DateTimeOffset.Parse(entry.Payload[i].ToString());
+                }
+            }
+
+            return entry.Timestamp;
+        }
     }
 }

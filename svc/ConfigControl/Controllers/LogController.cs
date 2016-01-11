@@ -22,17 +22,9 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route("")]
-        public IHttpActionResult Log([FromBody]LogEntry logEntry)
+        public IHttpActionResult Log([FromBody]ServiceLogEntry logEntry)
         {
-            var ipAdress = "";
-            if (this.Request != null && this.Request.Properties.ContainsKey("MS_HttpContext"))
-            {
-                var ctx = Request.Properties["MS_HttpContext"] as HttpContextWrapper;
-                if (ctx != null)
-                {
-                    ipAdress = ctx.Request.UserHostAddress;
-                }
-            }
+            string ipAdress = GetIpAddress();
 
             switch (logEntry.LogLevel)
             {
@@ -41,6 +33,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
+                        logEntry.DateTime,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber,
@@ -51,6 +44,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
+                        logEntry.DateTime,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -60,6 +54,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
+                        logEntry.DateTime,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -69,6 +64,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
+                        logEntry.DateTime,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -84,15 +80,7 @@ namespace ConfigControl.Controllers
         [Route("CLog")]
         public IHttpActionResult Log([FromBody]CLogEntry logEntry)
         {
-            var ipAdress = "";
-            if (this.Request != null && this.Request.Properties.ContainsKey("MS_HttpContext"))
-            {
-                var ctx = Request.Properties["MS_HttpContext"] as HttpContextWrapper;
-                if (ctx != null)
-                {
-                    ipAdress = ctx.Request.UserHostAddress;
-                }
-            }
+            string ipAdress = GetIpAddress();
 
             if (string.IsNullOrEmpty(logEntry.ActionName))
             {
@@ -164,7 +152,7 @@ namespace ConfigControl.Controllers
                             logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
-                            logEntry.TotalDuration);
+                            logEntry.Duration);
                         break;
                     case LogLevelEnum.Warning:
                         CLogEventSource.Log.WarningPerf(
@@ -175,7 +163,7 @@ namespace ConfigControl.Controllers
                             logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
-                            logEntry.TotalDuration);
+                            logEntry.Duration);
                         break;
                     case LogLevelEnum.Informational:
                         CLogEventSource.Log.InformationalPerf(
@@ -186,7 +174,7 @@ namespace ConfigControl.Controllers
                             logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
-                            logEntry.TotalDuration);
+                            logEntry.Duration);
                         break;
                     case LogLevelEnum.Verbose:
                         CLogEventSource.Log.VerbosePerf(
@@ -197,7 +185,7 @@ namespace ConfigControl.Controllers
                             logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
-                            logEntry.TotalDuration);
+                            logEntry.Duration);
                         break;
                     case LogLevelEnum.Critical:
                         CLogEventSource.Log.CriticalPerf(
@@ -209,7 +197,7 @@ namespace ConfigControl.Controllers
                             logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
-                            logEntry.TotalDuration);
+                            logEntry.Duration);
                         break;
                     default:
                         break;
@@ -217,6 +205,144 @@ namespace ConfigControl.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("StandardLog")]
+        public IHttpActionResult Log([FromBody]StandardLogEntry logEntry)
+        {
+            string ipAdress = GetIpAddress();
+
+            switch (logEntry.LogLevel)
+            {
+                case LogLevelEnum.Error:
+                    StandardLogEventSource.Log.Error(
+                        ipAdress,
+                        logEntry.Source,
+                        logEntry.Message,
+                        logEntry.StackTrace,
+                        logEntry.DateTime,
+                        logEntry.SessionId,
+                        logEntry.UserName,
+                        logEntry.TimeZoneOffset,
+                        logEntry.ThreadId);
+                    break;
+                case LogLevelEnum.Warning:
+                    StandardLogEventSource.Log.Warning(
+                        ipAdress,
+                        logEntry.Source,
+                        logEntry.Message,
+                        logEntry.DateTime,
+                        logEntry.SessionId,
+                        logEntry.UserName,
+                        logEntry.TimeZoneOffset,
+                        logEntry.ThreadId);
+                    break;
+                case LogLevelEnum.Informational:
+                    StandardLogEventSource.Log.Informational(
+                        ipAdress,
+                        logEntry.Source,
+                        logEntry.Message,
+                        logEntry.DateTime,
+                        logEntry.SessionId,
+                        logEntry.UserName,
+                        logEntry.TimeZoneOffset,
+                        logEntry.ThreadId);
+                    break;
+                case LogLevelEnum.Verbose:
+                    StandardLogEventSource.Log.Verbose(
+                        ipAdress,
+                        logEntry.Source,
+                        logEntry.Message,
+                        logEntry.DateTime,
+                        logEntry.SessionId,
+                        logEntry.UserName,
+                        logEntry.TimeZoneOffset,
+                        logEntry.ThreadId);
+                    break;
+                case LogLevelEnum.Critical:
+                    StandardLogEventSource.Log.Critical(
+                        ipAdress,
+                        logEntry.Source,
+                        logEntry.Message,
+                        logEntry.StackTrace,
+                        logEntry.DateTime,
+                        logEntry.SessionId,
+                        logEntry.UserName,
+                        logEntry.TimeZoneOffset,
+                        logEntry.ThreadId);
+                    break;
+                default:
+                    break;
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("PerformanceLog")]
+        public IHttpActionResult Log([FromBody]PerformanceLogEntry logEntry)
+        {
+            string ipAdress = GetIpAddress();
+
+            PerformanceLogEventSource.Log.Verbose(
+                ipAdress,
+                logEntry.Source,
+                logEntry.Message,
+                logEntry.DateTime,
+                logEntry.SessionId,
+                logEntry.UserName,
+                logEntry.ThreadID,
+                logEntry.ActionName,
+                logEntry.CorrelationId,
+                logEntry.Duration,
+                logEntry.Namespace,
+                logEntry.Class,
+                logEntry.Test);
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("SQLTraceLog")]
+        public IHttpActionResult Log([FromBody]SQLTraceLogEntry logEntry)
+        {
+            string ipAdress = GetIpAddress();
+
+            SQLTraceLogEventSource.Log.Verbose(
+                ipAdress,
+                logEntry.Source,
+                logEntry.Message,
+                logEntry.DateTime,
+                logEntry.SessionId,
+                logEntry.UserName,
+                logEntry.ThreadID,
+                logEntry.ActionName,
+                logEntry.CorrelationId,
+                logEntry.Duration,
+                logEntry.Namespace,
+                logEntry.Class,
+                logEntry.Test,
+                logEntry.TextData,
+                logEntry.SPID,
+                logEntry.Database);
+
+            return Ok();
+        }
+
+        private string GetIpAddress()
+        {
+            string ipAdress = "";
+            if (this.Request != null && this.Request.Properties.ContainsKey("MS_HttpContext"))
+            {
+                var ctx = Request.Properties["MS_HttpContext"] as HttpContextWrapper;
+                if (ctx != null)
+                {
+                    ipAdress = ctx.Request.UserHostAddress;
+                }
+            }
+
+            return ipAdress;
         }
 
     }

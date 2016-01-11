@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Functions\ValidateExpiryTime.sql" />
     <Content Include="Tables\MigrationLog.sql" />
   </ItemGroup>
   <ItemGroup>

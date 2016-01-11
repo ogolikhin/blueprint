@@ -1,4 +1,8 @@
-﻿using System.Diagnostics;
+﻿/// *************************************************************************************
+/// ***** Any changes to this file need to be replicated in the                     *****
+/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+/// *************************************************************************************
+using System.Diagnostics;
 
 namespace ServiceLibrary.LocalLog
 {

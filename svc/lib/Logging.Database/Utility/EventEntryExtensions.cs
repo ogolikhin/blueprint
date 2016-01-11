@@ -64,7 +64,7 @@ namespace Logging.Database.Utility
             sqlDataRecord.SetValue(5, (int)record.Schema.Level);
             sqlDataRecord.SetValue(6, (int)record.Schema.Opcode);
             sqlDataRecord.SetValue(7, (int)record.Schema.Task);
-            sqlDataRecord.SetValue(8, record.Timestamp);
+            sqlDataRecord.SetValue(8, EventEntryUtil.GetTimestamp(record, "DateTime"));
             sqlDataRecord.SetValue(9, record.Schema.Version);
             sqlDataRecord.SetValue(10, (object)record.FormattedMessage ?? DBNull.Value);
             sqlDataRecord.SetValue(11, (object)EventEntryUtil.XmlSerializePayload(record) ?? DBNull.Value);

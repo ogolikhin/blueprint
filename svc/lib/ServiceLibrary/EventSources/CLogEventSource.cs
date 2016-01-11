@@ -45,33 +45,33 @@ namespace ServiceLibrary.EventSources
         #region Performance Events
 
         [Event(101, Level = EventLevel.Critical, Message = "{7}, [PROFILING], {8}, {2}")]
-        public void CriticalPerf(string IpAddress, string Source, string Message, string StackTrace, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double TotalDuration)
+        public void CriticalPerf(string IpAddress, string Source, string Message, string StackTrace, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double Duration)
         {
-            WriteEvent(101, IpAddress, Source, Message, StackTrace, OccuredAt, TimeZoneOffset, UserName, ActionName, TotalDuration);
+            WriteEvent(101, IpAddress, Source, Message, StackTrace, OccuredAt, TimeZoneOffset, UserName, ActionName, Duration);
         }
 
         [Event(201, Level = EventLevel.Error, Message = "{7}, [PROFILING], {8}, {2}")]
-        public void ErrorPerf(string IpAddress, string Source, string Message, string StackTrace, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double TotalDuration)
+        public void ErrorPerf(string IpAddress, string Source, string Message, string StackTrace, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double Duration)
         {
-            WriteEvent(201, IpAddress, Source, Message, StackTrace, OccuredAt, TimeZoneOffset, UserName, ActionName, TotalDuration);
+            WriteEvent(201, IpAddress, Source, Message, StackTrace, OccuredAt, TimeZoneOffset, UserName, ActionName, Duration);
         }
 
         [Event(301, Level = EventLevel.Warning, Message = "{6}, [PROFILING], {7}, {2}")]
-        public void WarningPerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double TotalDuration)
+        public void WarningPerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double Duration)
         {
-            WriteEvent(301, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, TotalDuration);
+            WriteEvent(301, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, Duration);
         }
 
         [Event(401, Level = EventLevel.Informational, Message = "{6}, [PROFILING], {7}, {2}")]
-        public void InformationalPerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double TotalDuration)
+        public void InformationalPerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double Duration)
         {
-            WriteEvent(401, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, TotalDuration);
+            WriteEvent(401, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, Duration);
         }
 
         [Event(501, Level = EventLevel.Verbose, Message = "{6}, [PROFILING], {7}, {2}")]
-        public void VerbosePerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double TotalDuration)
+        public void VerbosePerf(string IpAddress, string Source, string Message, DateTime OccuredAt, string TimeZoneOffset, string UserName, string ActionName, double Duration)
         {
-            WriteEvent(501, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, TotalDuration);
+            WriteEvent(501, IpAddress, Source, Message, OccuredAt, TimeZoneOffset, UserName, ActionName, Duration);
         }
 
         #endregion

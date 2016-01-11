@@ -89,6 +89,35 @@ THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END;
 END
 
 GO
+/******************************************************************************************************************************
+Name:			ValidateExpiryTime
+
+Description: 
+			
+Change History:
+Date			Name					Change
+
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ValidateExpiryTime]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [dbo].[ValidateExpiryTime]
+GO
+
+CREATE FUNCTION [dbo].[ValidateExpiryTime]
+(
+	@storedTime AS datetime,
+	@expiredTime AS datetime
+)
+RETURNS datetime
+AS
+BEGIN
+	IF @expiredTime < @storedTime
+	begin
+		SET @expiredTime = @storedTime;
+	end
+	return @expiredTime;
+END
+
+GO
 
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
@@ -148,6 +177,13 @@ CREATE PROCEDURE [dbo].[DeleteFile]
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
+	SET NOCOUNT ON
+	
+	DECLARE @StoredTime datetime;
+
+	SELECT @StoredTime = Storedtime FROM [dbo].[Files]  WHERE [FileId] = @FileId;
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+
 	SET NOCOUNT ON
 
     UPDATE [dbo].[Files] SET ExpiredTime = @ExpiredTime
@@ -306,6 +342,10 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
+	DECLARE @StoredTime datetime;
+	SET @StoredTime = GETUTCDATE();
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
     INSERT INTO [dbo].[Files]  
            ([StoredTime]
@@ -316,7 +356,7 @@ BEGIN
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
-           (GETUTCDATE()
+           (@StoredTime
            ,@FileName
            ,@FileType
            ,@ExpiredTime

@@ -14,33 +14,15 @@ namespace Model
         List<ISession> Sessions { get; }
 
         /// <summary>
-        /// Checks if the specified session is not expired.  If the session is valid, its timeout value is extended.
-        /// (Runs: PUT /sessions)
-        /// </summary>
-        /// <param name="session">A session containing a session token to check for authorization.</param>
-        /// <returns>The session that we just authorized.</returns>
-        ISession AuthorizeOperation(ISession session);
-
-        /// <summary>
         /// Checks if the specified session is not expired and if the user is authorized to perform the specified operation on the specified artifact.
         /// If the session is valid, its timeout value is extended.
-        /// (Runs: PUT /sessions/{op})
-        /// </summary>
-        /// <param name="session">A session containing a session token to check for authorization.</param>
-        /// <param name="operation">(optional) The operation to authorize.</param>
-        /// <returns>The session that we just authorized.</returns>
-        ISession AuthorizeOperation(ISession session, string operation);
-
-        /// <summary>
-        /// Checks if the specified session is not expired and if the user is authorized to perform the specified operation on the specified artifact.
-        /// If the session is valid, its timeout value is extended.
-        /// (Runs: PUT /sessions/{op}/{artifactId})
+        /// (Runs: PUT /sessions?op={op}&aid={artifactId})
         /// </summary>
         /// <param name="session">A session containing a session token to check for authorization.</param>
         /// <param name="operation">(optional) The operation to authorize.</param>
         /// <param name="artifactId">(optional) The artifact to authorize.</param>
         /// <returns>The session that we just authorized.</returns>
-        ISession AuthorizeOperation(ISession session, string operation, int artifactId);
+        ISession AuthorizeOperation(ISession session, string operation = null, int? artifactId = null);
 
         /// <summary>
         /// Adds a new session in AccessControl for the specified user and returns the session object containing the new session token.

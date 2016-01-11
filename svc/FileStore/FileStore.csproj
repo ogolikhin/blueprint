@@ -113,7 +113,6 @@
     <Compile Include="Repositories\FileStreamRepository.cs" />
     <Compile Include="Helpers\FileUploadBufferPolicySelector.cs" />
     <Compile Include="Repositories\IConfigRepository.cs" />
-    <Compile Include="Repositories\IContentReadStream.cs" />
     <Compile Include="Repositories\IFilesRepository.cs" />
     <Compile Include="Repositories\IFileStreamRepository.cs" />
     <Compile Include="Repositories\IPushStream.cs" />

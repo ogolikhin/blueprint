@@ -19,8 +19,12 @@ namespace AccessControlTests
         public void TearDown()
         {
             Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
+
             // Delete all sessions created by the tests.
-            _accessControl.Sessions.ForEach(s => _accessControl.DeleteSession(s));
+            foreach (var session in _accessControl.Sessions.ToArray())
+            {
+                _accessControl.DeleteSession(session);
+            }
         }
 
         /// <summary>
@@ -60,13 +64,15 @@ namespace AccessControlTests
             CreateAndAddSessionToAccessControl();
         }
 
-        [Test]
-        public void PutSessionWithSessionToken_Verify200OK()
+        [TestCase(null, null)]
+        [TestCase(null, 1234)]
+        [TestCase("do_some_action", null)]
+        [TestCase("do_some_action", 1234)]
+        public void PutSessionWithSessionToken_Verify200OK(string operation, int? artifactId)
         {
             ISession createdSession = CreateAndAddSessionToAccessControl();
-            int artifactId = RandomGenerator.RandomNumber();
 
-            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, "do_some_action", artifactId);
+            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, operation, artifactId);
 
             Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }

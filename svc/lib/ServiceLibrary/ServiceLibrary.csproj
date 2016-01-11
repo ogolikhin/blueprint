@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\NoCacheAttribute.cs" />
+    <Compile Include="Attributes\ValidateToken.cs" />
     <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />

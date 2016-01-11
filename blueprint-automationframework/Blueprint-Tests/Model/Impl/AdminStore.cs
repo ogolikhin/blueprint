@@ -66,6 +66,7 @@ namespace Model.Impl
             string encodedPassword = HashingUtilities.EncodeTo64UTF8(password);
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "login", encodedUsername } };
+
             if (force != null)
             {
                 queryParameters.Add("force", force.ToString());
@@ -73,6 +74,7 @@ namespace Model.Impl
             
             try
             {
+                Logger.WriteInfo("Adding session for user '{0}'...", username);
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
                     encodedPassword, expectedStatusCodes);
 
@@ -104,7 +106,18 @@ namespace Model.Impl
 
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = string.Format("{0}/sessions", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Deleting session '{0}'...", session?.SessionId);
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
 
         public ISession GetSession(int? userId)

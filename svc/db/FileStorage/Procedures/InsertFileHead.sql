@@ -26,6 +26,10 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 
+	DECLARE @StoredTime datetime;
+	SET @StoredTime = GETUTCDATE();
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
     INSERT INTO [dbo].[Files]  
            ([StoredTime]
@@ -36,7 +40,7 @@ BEGIN
            ,[FileSize])
 	OUTPUT INSERTED.FileId INTO @op
     VALUES
-           (GETUTCDATE()
+           (@StoredTime
            ,@FileName
            ,@FileType
            ,@ExpiredTime

@@ -13,22 +13,36 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     public class BasicTests
     {
+        private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
 
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
+            _user = UserFactory.CreateUserAndAddToDatabase();
 
-            // TODO: Once FileStore is configured to work with Session tokens, call AdminStore to get a token for this user.
-            _user.Token = new BlueprintToken(accessControlToken: string.Empty, openApiToken: string.Empty);
+            // Get a valid token for the user.
+            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            _user.SetToken(session.SessionId);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
+            if (_adminStore != null)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in _adminStore.Sessions.ToArray())
+                {
+                    _adminStore.DeleteSession(session);
+                }
+            }
+
             if (_user != null)
             {
                 _user.DeleteUser(deleteFromDatabase: true);

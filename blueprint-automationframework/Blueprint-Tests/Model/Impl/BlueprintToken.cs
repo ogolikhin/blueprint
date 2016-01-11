@@ -1,4 +1,5 @@
 ﻿using System;
+using Logging;
 
 namespace Model.Impl
 {
@@ -31,6 +32,7 @@ namespace Model.Impl
             {
                 if ((value != null) && !value.StartsWith("BlueprintToken", StringComparison.Ordinal) && (value.Length == 32))
                 {
+                    Logger.WriteDebug("Setting AccessControlToken to: {0}", value);
                     _accessControlToken = value;
                 }
                 else if (value == string.Empty)
@@ -56,6 +58,7 @@ namespace Model.Impl
             {
                 if ((value != null) && value.StartsWith("BlueprintToken", StringComparison.Ordinal))
                 {
+                    Logger.WriteDebug("Setting OpenApiToken to: {0}", value);
                     _openApiToken = value;
                 }
                 else if (value == string.Empty)
@@ -67,6 +70,29 @@ namespace Model.Impl
                 {
                     throw new ArgumentException("The specified token is not a valid OpenAPI token!");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sets the token (either for AccessControl or OpenAPI, depending on the token format).
+        /// </summary>
+        /// <param name="token">A token string from AccessControl/AdminStore or OpenAPI.</param>
+        /// <exception cref="ArgumentException">If an invalid token string was passed.</exception>
+        public void SetToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) { throw new ArgumentNullException(token); }
+
+            if (token.StartsWith("BlueprintToken"))
+            {
+                OpenApiToken = token;
+            }
+            else if (token.Length == 32)
+            {
+                AccessControlToken = token;
+            }
+            else
+            {
+                throw new ArgumentException("'{0}' is not a recognized Blueprint token!", token);
             }
         }
 

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
+using ServiceLibrary.Helpers;
 
 namespace FileStore
 {
@@ -20,19 +21,19 @@ namespace FileStore
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
             {
-                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+                filesUriCall = I18NHelper.ToStringInvariant(TestContext.DataRow["FilesUriCall"]);
             }
 
             var attachmentFileName = "";
             if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
             {
-                attachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+                attachmentFileName = I18NHelper.ToStringInvariant(TestContext.DataRow["AttachmentFileName"]);
             }
 
             var statusCallUri = "";
             if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
             {
-                statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+                statusCallUri = I18NHelper.ToStringInvariant(TestContext.DataRow["StatusUriCall"]);
             }
 
             //Get status of Web service
@@ -71,19 +72,19 @@ namespace FileStore
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
             {
-                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+                filesUriCall = I18NHelper.ToStringInvariant(TestContext.DataRow["FilesUriCall"]);
             }
 
             var attachmentFileName = "";
             if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
             {
-                attachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+                attachmentFileName = I18NHelper.ToStringInvariant(TestContext.DataRow["AttachmentFileName"]);
             }
 
             var statusCallUri = "";
             if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
             {
-                statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+                statusCallUri = I18NHelper.ToStringInvariant(TestContext.DataRow["StatusUriCall"]);
             }
 
             //Get status of Web service
@@ -122,19 +123,19 @@ namespace FileStore
             var filesUriCall = "";
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
             {
-                filesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+                filesUriCall = I18NHelper.ToStringInvariant(TestContext.DataRow["FilesUriCall"]);
             }
 
             var attachmentFileName = "";
             if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
             {
-                attachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+                attachmentFileName = I18NHelper.ToStringInvariant(TestContext.DataRow["AttachmentFileName"]);
             }
 
             var statusCallUri = "";
             if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
             {
-                statusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+                statusCallUri = I18NHelper.ToStringInvariant(TestContext.DataRow["StatusUriCall"]);
             }
 
             //Get status of Web service
@@ -232,7 +233,7 @@ namespace FileStore
             fetchRequest.Method = "POST";
             fetchRequest.KeepAlive = true;
             fetchRequest.Credentials = CredentialCache.DefaultCredentials;
-            string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+            string boundary = "---------------------------" + DateTime.Now.Ticks.ToStringInvariant("x");
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes(boundary);
 
             fetchRequest.ContentType = "multipart/form-data; boundary=" + boundary;
@@ -241,7 +242,7 @@ namespace FileStore
             {
                 rs.Write(boundarybytes, 0, boundarybytes.Length);
                 string headerTemplate = "\r\nContent-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-                string header = string.Format(headerTemplate, "attachment", attachmentFileName, "image/bmp");
+                string header = I18NHelper.FormatInvariant(headerTemplate, "attachment", attachmentFileName, "image/bmp");
                 byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
                 rs.Write(headerbytes, 0, headerbytes.Length);
 
@@ -295,12 +296,12 @@ namespace FileStore
             {
                 string headerTemplate =
                     "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-                string header = string.Format(headerTemplate, "attachment", attachmentFileName, "image/bmp");
+                string header = I18NHelper.FormatInvariant(headerTemplate, "attachment", attachmentFileName, "image/bmp");
                 fetchRequest.ContentType = "image/bmp";
                 var headers = new WebHeaderCollection();
                 var nameValueCollection = new NameValueCollection
                 {
-                    {"content-disposition", string.Format("attachment;filename=\"{0}\"", attachmentFileName)}
+                    {"content-disposition", I18NHelper.FormatInvariant("attachment;filename=\"{0}\"", attachmentFileName)}
                 };
                 headers.Add(nameValueCollection);
                 fetchRequest.Headers.Add(headers);
@@ -404,7 +405,7 @@ namespace FileStore
         }
         private void PutFile(string putCallUri, string fileGuid, string attachmentFileName, int putSize, int offset, bool expectedToFail = false)
         {
-            string uri = string.Format("{0}{1}", putCallUri, fileGuid);
+            string uri = I18NHelper.FormatInvariant("{0}{1}", putCallUri, fileGuid);
             for(int bytesRead = PutRequest(uri, attachmentFileName, offset, putSize);
                 bytesRead > 0; 
                 bytesRead = PutRequest(uri, attachmentFileName, offset, putSize))
@@ -415,7 +416,7 @@ namespace FileStore
 
         private void CheckGetHead(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false, int sentChunkSize = _chunkSize)
         {
-            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            string uri = I18NHelper.FormatInvariant("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
             fetchRequest.Method = "Head";
             fetchRequest.Accept = "application/json";
@@ -445,7 +446,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode, "Service returned invalid Head for file which is expected to exist");
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
+            Assert.AreEqual(I18NHelper.FormatInvariant("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -467,7 +468,7 @@ namespace FileStore
 
         private void DownloadUploadedFile(string filesUriCall, string fileGuid, string originalFileName, bool expectedToFail = false)
         {
-            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            string uri = I18NHelper.FormatInvariant("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
             fetchRequest.Method = "Get";
             fetchRequest.Accept = "application/json";
@@ -497,7 +498,7 @@ namespace FileStore
             Assert.AreEqual(HttpStatusCode.OK, objResponse.StatusCode);
 
             var contentDispositionHeader = objResponse.Headers["Content-Disposition"];
-            Assert.AreEqual(string.Format("attachment; filename={0}", originalFileName), contentDispositionHeader,
+            Assert.AreEqual(I18NHelper.FormatInvariant("attachment; filename={0}", originalFileName), contentDispositionHeader,
                 "Service content displosition header value is different");
 
             var contentType = objResponse.Headers["Content-Type"];
@@ -529,7 +530,7 @@ namespace FileStore
 
         private void DeleteFile(string filesUriCall, string fileGuid, bool expectedToFail = false)
         {
-            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            string uri = I18NHelper.FormatInvariant("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
             fetchRequest.Method = "Delete";
             fetchRequest.Accept = "application/json";
@@ -602,17 +603,17 @@ namespace FileStore
             TestData testData = new TestData();
             if (TestContext.DataRow.Table.Columns.Contains("FilesUriCall"))
             {
-                testData.FilesUriCall = Convert.ToString(TestContext.DataRow["FilesUriCall"]);
+                testData.FilesUriCall = I18NHelper.ToStringInvariant(TestContext.DataRow["FilesUriCall"]);
             }
 
             if (TestContext.DataRow.Table.Columns.Contains("AttachmentFileName"))
             {
-                testData.AttachmentFileName = Convert.ToString(TestContext.DataRow["AttachmentFileName"]);
+                testData.AttachmentFileName = I18NHelper.ToStringInvariant(TestContext.DataRow["AttachmentFileName"]);
         }
 
             if (TestContext.DataRow.Table.Columns.Contains("StatusUriCall"))
             {
-                testData.StatusCallUri = Convert.ToString(TestContext.DataRow["StatusUriCall"]);
+                testData.StatusCallUri = I18NHelper.ToStringInvariant(TestContext.DataRow["StatusUriCall"]);
             }
             return testData;
         }

@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore
 {
@@ -39,7 +40,7 @@ namespace AdminStore
 
         public static int ConfigValue(string configValue, int defaultValue)
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? int.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.IntParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
 
         internal static string LogSource_Config = "AdminStore.Config";

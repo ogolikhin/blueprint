@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
@@ -11,6 +10,7 @@ using Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Sinks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Utility;
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 using Logging.Database.Utility;
+using ServiceLibrary.Helpers;
 
 namespace Logging.Database.Sinks
 {
@@ -54,7 +54,7 @@ namespace Logging.Database.Sinks
             this.storedProcedureName = storedProcedureName;
             this.onCompletedTimeout = onCompletedTimeout;
             retryPolicy.Retrying += Retrying;
-            var sinkId = string.Format(CultureInfo.InvariantCulture, "BlueprintSqlDatabaseSink ({0})", instanceName);
+            var sinkId = I18NHelper.FormatInvariant("BlueprintSqlDatabaseSink ({0})", instanceName);
             bufferedPublisher = BufferedEventPublisher<EventEntry>.CreateAndStart(sinkId, PublishEventsAsync, bufferingInterval, bufferingCount, maxBufferSize, cancellationTokenSource.Token);
         }
 

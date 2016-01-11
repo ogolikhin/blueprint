@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,6 +7,7 @@ using System.Web.Http;
 using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Helpers;
 using File = FileStore.Models.File;
 using sl = ServiceLibrary.Repositories.ConfigControl;
 
@@ -32,7 +32,7 @@ namespace FileStore.Controllers
             {
                 FileId = new Guid("33333333-3333-3333-3333-333333333333"),
                 FileName = "Test3.txt",
-                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                StoredTime = I18NHelper.DateTimeParseExactInvariant("2015-09-05T22:57:31.7824054-04:00", "o"),
                 FileType = "text/html",
                 ChunkCount = 1
             };
@@ -85,7 +85,7 @@ namespace FileStore.Controllers
             {
                 FileId = new Guid("33333333-3333-3333-3333-333333333333"),
                 FileName = "Test3.txt",
-                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                StoredTime = I18NHelper.DateTimeParseExactInvariant("2015-09-05T22:57:31.7824054-04:00", "o"),
                 FileType = "text/html",
                 ChunkCount = 1,
                 IsLegacyFile = true

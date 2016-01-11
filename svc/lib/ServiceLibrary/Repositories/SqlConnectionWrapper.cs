@@ -2,9 +2,9 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Threading.Tasks;
 using Dapper;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Repositories
 {
@@ -92,7 +92,7 @@ namespace ServiceLibrary.Repositories
         public static DataTable ToDataTable<T>(IEnumerable<T> values, string typeName, string columnName)
             where T : struct
         {
-            var table = new DataTable() { Locale = CultureInfo.InvariantCulture };
+            var table = I18NHelper.CreateDataTableInvariant();
             table.SetTypeName(typeName);
             table.Columns.Add(columnName, typeof(int));
             foreach (var value in values)

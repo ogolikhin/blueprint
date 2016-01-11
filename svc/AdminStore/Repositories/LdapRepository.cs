@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -128,7 +129,7 @@ namespace AdminStore.Repositories
         private bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
         {
             var userName = loginInfo.UserName != null ? loginInfo.UserName.Trim() : loginInfo.Login;
-            var filter = string.Format("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
+            var filter = I18NHelper.FormatInvariant("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
             try
             {
                 bool found = _authenticator.SearchLdap(ldapSettings, filter);

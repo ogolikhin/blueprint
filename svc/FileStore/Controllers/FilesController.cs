@@ -14,6 +14,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
 using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
@@ -273,9 +274,9 @@ namespace FileStore.Controllers
 
         private void SetHeaderContent(HttpResponseMessage response, Models.File file)
         {
-            response.Headers.Add(StoredDate, file.StoredTime.ToString(StoredDateFormat));
-            response.Headers.Add(FileSize, file.FileSize.ToString());
-            response.Headers.Add(FileChunkCount, file.ChunkCount.ToString());
+            response.Headers.Add(StoredDate, file.StoredTime.ToStringInvariant(StoredDateFormat));
+            response.Headers.Add(FileSize, file.FileSize.ToStringInvariant());
+            response.Headers.Add(FileChunkCount, file.ChunkCount.ToStringInvariant());
         }
 
         #endregion
@@ -519,7 +520,7 @@ namespace FileStore.Controllers
             }
             if (uploadResult.Status == HttpStatusCode.Created)
             {
-                var uri = new Uri(string.Format("{0}/{1}", Request.RequestUri.LocalPath, uploadResult.FileId.Value), UriKind.Relative);
+                var uri = new Uri(I18NHelper.FormatInvariant("{0}/{1}", Request.RequestUri.LocalPath, uploadResult.FileId.Value), UriKind.Relative);
                 return Created(uri, uploadResult.FileId.Value);
             }
             if (uploadResult.Status == HttpStatusCode.OK)

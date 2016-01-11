@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using File = FileStore.Models.File;
 
@@ -170,7 +170,7 @@ namespace FileStore.Repositories
             {
                 FileId = new Guid("22222222-2222-2222-2222-222222222222"),
                 FileName = "Test2.txt",
-                StoredTime = DateTime.ParseExact("2015-09-05T22:57:31.7824054-04:00", "o", CultureInfo.InvariantCulture),
+                StoredTime = I18NHelper.DateTimeParseExactInvariant("2015-09-05T22:57:31.7824054-04:00", "o"),
                 FileType = "application/octet-stream",
                 FileSize = fileStreamContent.Length,
                 ChunkCount = 2

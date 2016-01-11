@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 
 using System;
-using System.Globalization;
 using System.Text;
 using System.Xml;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
+using ServiceLibrary.Helpers;
 
 namespace Logging.Database.Utility
 {
@@ -32,7 +32,7 @@ namespace Logging.Database.Utility
             {
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
-                return string.Format("<Error>{0}</Error>", string.Format(CultureInfo.CurrentCulture, "Cannot serialize to XML format the payload: {0}", e.Message));
+                return I18NHelper.FormatInvariant("<Error>{0}</Error>", I18NHelper.FormatInvariant("Cannot serialize to XML format the payload: {0}", e.Message));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Logging.Database.Utility
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
                 // We are in Error state so abort the write operation
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize to XML format the payload: {0}", e.Message), e);
+                throw new InvalidOperationException(I18NHelper.FormatInvariant("Cannot serialize to XML format the payload: {0}", e.Message), e);
             }
         }
 

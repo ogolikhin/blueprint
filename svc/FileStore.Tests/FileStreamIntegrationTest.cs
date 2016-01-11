@@ -136,14 +136,12 @@ namespace FileStore
 
             string receivedFileName = contentDispositionHeaderValue.FileName.Replace("\"", " ").Trim();
 
-            Assert.IsTrue(String.Equals(thisTest.FileName, receivedFileName,
-                StringComparison.OrdinalIgnoreCase),
+            Assert.AreEqual(thisTest.FileName, receivedFileName,
                 I18NHelper.FormatInvariant("Content disposition header file name is different. " +
                 "Expecting file name to be {0} but got {1}.",
                 thisTest.FileName, contentDispositionHeaderValue.FileName));
 
-            Assert.IsTrue(String.Equals(thisTest.ContentType, response.ContentType,
-                StringComparison.OrdinalIgnoreCase),
+            Assert.AreEqual(thisTest.ContentType, response.ContentType,
                 I18NHelper.FormatInvariant("ContentType does not match. Expected {0} but got {1}", thisTest.ContentType,
                 response.ContentType));
 

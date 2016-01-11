@@ -122,8 +122,7 @@ namespace AdminStore.Controllers
         {
             var content = new ObjectContent<IEnumerable<LicenseTransaction>>(transactions, new JsonMediaTypeFormatter());
             var httpClientProvider = new TestHttpClientProvider(request =>
-                request.RequestUri.PathAndQuery.Equals("/svc/accesscontrol/licenses/transactions?days=1&consumerType=1",
-                    StringComparison.OrdinalIgnoreCase)
+                request.RequestUri.PathAndQuery.EqualsOrdinalIgnoreCase("/svc/accesscontrol/licenses/transactions?days=1&consumerType=1")
                     ? new HttpResponseMessage(HttpStatusCode.OK) { Content = content }
                     : null);
             return httpClientProvider;

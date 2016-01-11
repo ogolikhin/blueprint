@@ -107,7 +107,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
 

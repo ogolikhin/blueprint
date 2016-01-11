@@ -41,6 +41,28 @@ namespace Common
 
         #endregion Parse methods
 
+        #region Compare methods
+
+        public static bool StartsWithOrdinal(this string s, string value)
+        {
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
+            return s.StartsWith(value, StringComparison.Ordinal);
+        }
+
+        public static bool EqualsOrdinalIgnoreCase(this string s, string value)
+        {
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
+            return s.Equals(value, StringComparison.OrdinalIgnoreCase);
+        }
+
+        #endregion Compare methods
+
         #region Convert methods
 
         public static string ToStringInvariant(this IFormattable value, string format = null)

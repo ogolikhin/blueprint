@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿/// *************************************************************************************
+/// ***** Any changes to this file need to be replicated in the                     *****
+/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+/// *************************************************************************************
+using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers
 {

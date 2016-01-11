@@ -18,6 +18,7 @@ namespace FileStoreTests
         private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
+        private IUser _userForAuthorizationTests;
 
         [SetUp]
         public void TestSetUp()
@@ -25,17 +26,33 @@ namespace FileStoreTests
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
+            _userForAuthorizationTests = UserFactory.CreateUserAndAddToDatabase();
 
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Get a valid token for the user for authorization tests.
+            session = _adminStore.AddSession(_userForAuthorizationTests.Username, _userForAuthorizationTests.Password);
+            _userForAuthorizationTests.SetToken(session.SessionId);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_userForAuthorizationTests.Token.AccessControlToken), "The user for authorization tests didn't get an Access Control token!");
         }
 
         [TearDown]
         public void TestTearDown()
         {
+            if (_filestore != null)
+            {
+                // Delete all the files that were added.
+                foreach (var file in _filestore.Files.ToArray())
+                {
+                    _filestore.DeleteFile(file.Id, _user);
+                }
+            }
+
             if (_adminStore != null)
             {
                 // Delete all the sessions that were created.
@@ -50,29 +67,48 @@ namespace FileStoreTests
                 _user.DeleteUser(deleteFromDatabase: true);
                 _user = null;
             }
+
+            if (_userForAuthorizationTests != null)
+            {
+                _userForAuthorizationTests.DeleteUser(deleteFromDatabase: true);
+                _userForAuthorizationTests = null;
+            }
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void PostWithInvalidSessionToken_VerifyUnauthorized(uint fileSize, string fakeFileName, string fileType, string accessControlToken)
+        public void PostWithInvalidSessionToken_VerifyUnauthorized(
+            uint fileSize, 
+            string fakeFileName, 
+            string fileType, 
+            string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Replace token with invalid token
-            _user.Token.AccessControlToken = accessControlToken;
+            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() => { _filestore.AddFile(file, _user, useMultiPartMime: true); }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _filestore.AddFile(file, _userForAuthorizationTests);
+            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "")]
-        public void PutWithInvalidSessionToken_VerifyUnauthorized(uint fileSize, string fakeFileName, string fileType, uint chunkSize, string accessControlToken)
+        public void PutWithInvalidSessionToken_VerifyUnauthorized(
+            uint fileSize, 
+            string fakeFileName, 
+            string fileType, 
+            uint chunkSize, 
+            string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
+            // Create and execute initial POST request for file
             var queryParameters = new Dictionary<string, string>();
             var additionalHeaders = new Dictionary<string, string>();
 
@@ -92,7 +128,15 @@ namespace FileStoreTests
             var restApi = new RestApiFacade(address, _user.Username, _user.Password, _user.Token?.AccessControlToken);
 
             var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var response = restApi.SendRequestAndGetResponse("svc/filestore/files", RestRequestMethod.POST, file.FileName, chunk, file.FileType, useMultiPartMime: true, additionalHeaders: additionalHeaders, queryParameters:queryParameters, expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse(
+                "svc/filestore/files", 
+                RestRequestMethod.POST, 
+                file.FileName, chunk, 
+                file.FileType, 
+                useMultiPartMime: true, 
+                additionalHeaders: additionalHeaders, 
+                queryParameters:queryParameters, 
+                expectedStatusCodes: expectedStatusCodes);
 
             file.Id = response.Content.Replace("\"", "");
 
@@ -103,70 +147,89 @@ namespace FileStoreTests
             chunk = rem.Take((int)chunkSize).ToArray();
 
             // Replace token with invalid token
-            _user.Token.AccessControlToken = accessControlToken;
+            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
 
             // Create new rest api instance to allow for a changed session token
-            restApi = new RestApiFacade(address, _user.Username, _user.Password, _user.Token?.AccessControlToken);
+            restApi = new RestApiFacade(address, _userForAuthorizationTests.Username, _userForAuthorizationTests.Password, _userForAuthorizationTests.Token?.AccessControlToken);
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() => {
+            // Assert that unauthorized exception is thrown for subsequent PUT request with invalid token
+            Assert.Throws<Http401UnauthorizedException>(() => 
+            {
                 restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
                 file.FileType, useMultiPartMime: true, additionalHeaders: additionalHeaders, queryParameters: queryParameters);
-                }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void GetWithInvalidSessionToken_VerifyUnauthorized(uint fileSize, string fakeFileName, string fileType, string accessControlToken)
+        public void GetWithInvalidSessionToken_VerifyUnauthorized(
+            uint fileSize, 
+            string fakeFileName, 
+            string fileType, 
+            string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, expectedStatusCodes: expectedStatusCodes);
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _user.Token.AccessControlToken = accessControlToken;
+            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() => { _filestore.GetFile(storedFile.Id, _user); }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _filestore.GetFile(storedFile.Id, _userForAuthorizationTests); 
+            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void GetHeadWithInvalidSessionToken_VerifyUnauthorized(uint fileSize, string fakeFileName, string fileType, string accessControlToken)
+        public void GetHeadWithInvalidSessionToken_VerifyUnauthorized(
+            uint fileSize, 
+            string fakeFileName, 
+            string fileType, 
+            string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, expectedStatusCodes: expectedStatusCodes);
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _user.Token.AccessControlToken = accessControlToken;
+            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() => { _filestore.GetFileMetadata(storedFile.Id, _user); }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _filestore.GetFileMetadata(storedFile.Id, _userForAuthorizationTests); 
+            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void DeleteFileWithInvalidToken_VerifyUnauthorized(uint fileSize, string fakeFileName, string fileType, string accessControlToken)
+        public void DeleteFileWithInvalidToken_VerifyUnauthorized(
+            uint fileSize, 
+            string fakeFileName, 
+            string fileType, 
+            string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, expectedStatusCodes: expectedStatusCodes);
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _user.Token.AccessControlToken = accessControlToken;
+            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() => { _filestore.DeleteFile(storedFile.Id, _user); }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _filestore.DeleteFile(storedFile.Id, _userForAuthorizationTests); 
+            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
     }
 }

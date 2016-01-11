@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Logging;
+using Common;
 
 namespace Utilities.Factories
 {

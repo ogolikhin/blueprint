@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using Logging;
+using Common;
 using Model.Impl;
 using TestConfig;
 

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace Logging
+namespace Common
 {
     /// <summary>
     /// Thread-safe logging function

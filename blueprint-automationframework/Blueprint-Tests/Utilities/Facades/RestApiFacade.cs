@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Logging;
+using Common;
 using RestSharp;
 using RestSharp.Authenticators;
 using RestSharp.Extensions;

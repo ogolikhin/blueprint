@@ -2,7 +2,7 @@
 using System.Data;
 using Model.Impl;
 using TestConfig;
-using Logging;
+using Common;
 
 namespace Model.Factories
 {

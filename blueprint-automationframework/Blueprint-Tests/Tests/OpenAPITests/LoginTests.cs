@@ -6,7 +6,7 @@ using Model;
 using System.Collections.Generic;
 using System.Threading;
 using CustomAttributes;
-using Logging;
+using Common;
 using Model.Factories;
 using TestConfig;
 using Utilities;

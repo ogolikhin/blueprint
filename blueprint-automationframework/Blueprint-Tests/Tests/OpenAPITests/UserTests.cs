@@ -3,7 +3,7 @@ using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
-using Logger = Logging.Logger;
+using Logger = Common.Logger;
 
 namespace OpenAPITests
 {

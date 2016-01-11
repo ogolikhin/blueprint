@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -84,7 +85,7 @@ namespace FileStoreTests
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Replace token with invalid token
             _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
@@ -106,7 +107,7 @@ namespace FileStoreTests
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Create and execute initial POST request for file
             var queryParameters = new Dictionary<string, string>();
@@ -169,7 +170,7 @@ namespace FileStoreTests
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
@@ -193,7 +194,7 @@ namespace FileStoreTests
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
@@ -217,7 +218,7 @@ namespace FileStoreTests
             string accessControlToken)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);

@@ -481,7 +481,7 @@ function addEdge(graph, parent, id, label, prevCell, nextCell, style) {
 	var model = graph.getModel();
 	var edge = graph.insertEdge(parent, id, label, prevCell, nextCell, style);
 	edge.geometry.offset = new mxPoint(0, 30);
-	var overlay = new mxCellOverlay(new mxImage('images/add128.png', 16, 16), 'Add Task/Condition');
+	var overlay = new mxCellOverlay(new mxImage('images/add-neutral.svg', 20, 20), 'Add Task/Condition');
 	overlay.cursor = 'hand';
 	//overlay.align = mxConstants.ALIGN_RIGHT;
 	//overlay.offset.x = - 20;
@@ -510,6 +510,49 @@ function addEdge(graph, parent, id, label, prevCell, nextCell, style) {
 
 	  return bounds;
 	};
+
+
+	overlay.addListener(mxEvent.CLICK, function(sender, evt)
+	{
+		var cell = evt.getProperty('cell');
+		graph.setSelectionCell(cell);
+		cell.overlays[0].image = new mxImage('images/add-click.svg', 20, 20);
+		graph.removeCellOverlays(cell);
+		
+		overlay = new mxCellOverlay(new mxImage('images/add-click.svg', 20, 20), 'Add Task/Condition');
+
+		overlay.getBounds = function(state)
+		{
+		  var bounds = mxCellOverlay.prototype.getBounds.apply(this, arguments);
+
+		  if (state.view.graph.getModel().isEdge(state.cell))
+		  {
+		    var pt = state.view.getPoint(state, {x: offset, y: 0, relative: true});
+
+		    bounds.x = pt.x - bounds.width / 2;
+		    bounds.y = pt.y - bounds.height / 2;
+		  }
+
+		  return bounds;
+		};		
+
+		graph.addCellOverlay(edge, overlay);
+ 	});
+
+	//overlay.addGestureListeners
+
+	var highlight = new mxCellTracker(graph, '#0092D9'); /*, function(me) {
+		if (me.getCell() == null) return;
+		if (me.getCell().overlays && me.getCell().overlays.length == 1) {
+			me.getCell().overlays.image.src = "images/add-hover.svg";
+		}
+		console.log(me.getCell());
+		return me;
+	});
+*/
+//mxCellHighlight.prototype.keepOnTop = true;
+
+
 
 	graph.addCellOverlay(edge, overlay);
 	return edge;

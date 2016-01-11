@@ -74,6 +74,7 @@
     <Compile Include="Helpers\AttributeReflectionHelper.cs" />
     <Compile Include="Helpers\ContextUtil.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
+    <Compile Include="LocalLog\LocalLogTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigControl\StatusRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
@@ -92,6 +93,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

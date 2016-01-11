@@ -1,4 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿/// *************************************************************************************
+/// ***** Any changes to this file need to be replicated in the                     *****
+/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+/// *************************************************************************************
+using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Models;
@@ -11,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLibrary.Repositories.ConfigControl
 {
-    public class ServiceLogRepository : IServiceLogRepository
+    public partial class ServiceLogRepository : IServiceLogRepository
     {
         internal readonly IHttpClientProvider _httpClientProvider;
         private readonly ILocalLog _localLog;
@@ -56,11 +60,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new LogEntry()
+                    var logEntry = new ServiceLogEntry()
                     {
                         LogLevel = LogLevelEnum.Informational,
                         Source = source,
                         Message = message,
+                        DateTime = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -112,11 +117,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new LogEntry()
+                    var logEntry = new ServiceLogEntry()
                     {
                         LogLevel = LogLevelEnum.Verbose,
                         Source = source,
                         Message = message,
+                        DateTime = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -168,11 +174,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new LogEntry()
+                    var logEntry = new ServiceLogEntry()
                     {
                         LogLevel = LogLevelEnum.Warning,
                         Source = source,
                         Message = message,
+                        DateTime = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -224,11 +231,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new LogEntry()
+                    var logEntry = new ServiceLogEntry()
                     {
                         LogLevel = LogLevelEnum.Error,
                         Source = source,
                         Message = message,
+                        DateTime = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -280,11 +288,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new LogEntry()
+                    var logEntry = new ServiceLogEntry()
                     {
                         LogLevel = LogLevelEnum.Informational,
                         Source = source,
                         Message = exception.Message,
+                        DateTime = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -333,7 +342,87 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
             }
         }
+
+        public async Task LogStandardLog(StandardLogEntry logEntry)
+        {
+            try
+            {
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
+
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await http.PostAsync(@"log/standardlog", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+            }
+        }
+
+        public async Task LogPerformanceLog(PerformanceLogEntry logEntry)
+        {
+            try
+            {
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
+
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await http.PostAsync(@"log/performancelog", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+            }
+        }
+
+        public async Task LogSQLTraceLog(SQLTraceLogEntry logEntry)
+        {
+            try
+            {
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
+
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await http.PostAsync(@"log/sqltracelog", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+            }
+        }
+
     }
 }
-
-

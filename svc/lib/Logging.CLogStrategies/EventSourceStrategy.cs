@@ -38,9 +38,9 @@ namespace Logging.CLogStrategies
             if (logEntry.Properties.ContainsKey("actionName"))
             {
                 logInfo.ActionName = logEntry.Properties["actionName"] == null ? null : logEntry.Properties["actionName"].ToString();
-                double totalDuration = 0;
-                double.TryParse(logEntry.Properties["totalDuration"].ToString(), out totalDuration);
-                logInfo.TotalDuration = totalDuration;
+                double duration = 0;
+                double.TryParse(logEntry.Properties["totalDuration"].ToString(), out duration);
+                logInfo.Duration = duration;
             }
 
             logInfo.StackTrace = LogHelper.GetStackTrace(logEntry.Exception);
@@ -63,9 +63,9 @@ namespace Logging.CLogStrategies
             if (logEntry.Properties.ContainsKey("actionName"))
             {
                 logInfo.ActionName = logEntry.Properties["actionName"] == null ? null : logEntry.Properties["actionName"].ToString();
-                double totalDuration = 0;
-                double.TryParse(logEntry.Properties["totalDuration"].ToString(), out totalDuration);
-                logInfo.TotalDuration = totalDuration;
+                double duration = 0;
+                double.TryParse(logEntry.Properties["totalDuration"].ToString(), out duration);
+                logInfo.Duration = duration;
             }
 
             if (logEntry.ExceptionMemento != null)

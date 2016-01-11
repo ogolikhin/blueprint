@@ -147,12 +147,12 @@ namespace AdminStore.Repositories
                 {
                     return true;
                 }
-                _log.LogInformation(LogSourceLdap, $"User '{userName}' is not found in LDAP directory {ldapSettings.LdapAuthenticationUrl}");
+                _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("User '{0}' is not found in LDAP directory {1}", userName, ldapSettings.LdapAuthenticationUrl));
                     return false;
                 }
             catch (Exception ex)
             {
-                _log.LogInformation(LogSourceLdap, $"Error while searching a user in LDAP directory {ldapSettings.LdapAuthenticationUrl}");
+                _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("Error while searching a user in LDAP directory {0}", ldapSettings.LdapAuthenticationUrl));
                 _log.LogError(LogSourceLdap, ex);
                 return false;
             }

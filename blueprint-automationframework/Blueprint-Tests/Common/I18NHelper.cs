@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Globalization;
 using System.IO;
 
@@ -17,11 +16,6 @@ namespace Common
             return new StringWriter(CultureInfo.InvariantCulture);
         }
 
-        public static DataTable CreateDataTableInvariant()
-        {
-            return new DataTable { Locale = CultureInfo.InvariantCulture };
-        }
-
         #endregion Object creation
 
         #region Format methods
@@ -35,7 +29,7 @@ namespace Common
 
         #region Parse methods
 
-        public static int IntParseInvariant(string s)
+        public static int Int32ParseInvariant(string s)
         {
             return int.Parse(s, CultureInfo.InvariantCulture);
         }
@@ -51,6 +45,10 @@ namespace Common
 
         public static string ToStringInvariant(this IFormattable value, string format = null)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.ToString(format, CultureInfo.InvariantCulture);
         }
 

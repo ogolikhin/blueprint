@@ -42,8 +42,8 @@ namespace Common
         {
             if (((int)LogLevel & (int)level) == (int)level)
             {
-                string datetime = DateTime.Now.ToString("u");   // The 'u' formats like this:  2008-06-15 21:15:07Z
-                format = string.Format("{0} {1}: {2}", datetime, level.ToString(), format);
+                string datetime = DateTime.Now.ToStringInvariant("u");   // The 'u' formats like this:  2008-06-15 21:15:07Z
+                format = I18NHelper.FormatInvariant("{0} {1}: {2}", datetime, level.ToString(), format);
 
                 lock (_lock)
                 {

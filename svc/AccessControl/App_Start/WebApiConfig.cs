@@ -20,7 +20,7 @@ namespace AccessControl
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-        public static int SessionTimeoutInterval = I18NHelper.IntParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+        public static int SessionTimeoutInterval = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
 
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);

@@ -40,7 +40,7 @@ namespace Model.Impl
         {
             if (artifact == null) { throw new ArgumentNullException("artifact"); }
             if (user == null) { throw new ArgumentNullException("user"); }
-            string path = string.Format(SVC_PATH + "/{0}/" + URL_ARTIFACTS, artifact.ProjectId);
+            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS, artifact.ProjectId);
             if (expectedStatusCodes == null)
             {
                 expectedStatusCodes = new List<HttpStatusCode>();
@@ -50,7 +50,7 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
             ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult,Artifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
-            Logger.WriteDebug(string.Format("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
+            Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
             return artifact;
         }

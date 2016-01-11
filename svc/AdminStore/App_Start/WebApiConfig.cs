@@ -40,7 +40,7 @@ namespace AdminStore
 
         public static int ConfigValue(string configValue, int defaultValue)
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.IntParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
 
         internal static string LogSource_Config = "AdminStore.Config";

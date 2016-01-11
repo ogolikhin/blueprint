@@ -74,17 +74,17 @@ namespace Model.Factories
             }
             else
             {
-                throw new ArgumentException(string.Format("source cannot be set to '{0}'", source.ToString()));
+                throw new ArgumentException(I18NHelper.FormatInvariant("source cannot be set to '{0}'", source.ToString()));
             }
 
             // Generate random data for the rest of the user properties.
             user.Department = RandomGenerator.RandomAlphaNumeric(10);
-            user.Email = string.Format("{0}.{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
+            user.Email = I18NHelper.FormatInvariant("{0}.{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
             user.Enabled = true;
             user.FirstName = RandomGenerator.RandomAlphaNumeric(10);
             user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;
             user.LastName = RandomGenerator.RandomAlphaNumeric(10);
-            user.DisplayName = string.Format("{0} {1}", user.FirstName, user.LastName);
+            user.DisplayName = I18NHelper.FormatInvariant("{0} {1}", user.FirstName, user.LastName);
             user.License = LicenseType.Author;
             user.Title = RandomGenerator.RandomAlphaNumeric(10);
 
@@ -126,11 +126,11 @@ namespace Model.Factories
                 // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
                 // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
 
-                string query = string.Format("SELECT {0} FROM {1}", User.ALL_USER_FIELDS, User.USERS_TABLE);
+                string query = I18NHelper.FormatInvariant("SELECT {0} FROM {1}", User.ALL_USER_FIELDS, User.USERS_TABLE);
 
                 if (!includeDeletedUsers)
                 {
-                    query += string.Format(" WHERE EndTimestamp is NULL");
+                    query += " WHERE EndTimestamp is NULL";
                 }
 
                 Logger.WriteDebug("Running: {0}", query);

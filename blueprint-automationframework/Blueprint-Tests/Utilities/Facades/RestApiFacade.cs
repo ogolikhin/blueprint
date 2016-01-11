@@ -144,7 +144,7 @@ namespace Utilities.Facades
                     return Method.PUT;
             }
 
-            throw new ArgumentException(string.Format("Invalid request method '{0}' was passed!", requestMethod.ToString()));
+            throw new ArgumentException(I18NHelper.FormatInvariant("Invalid request method '{0}' was passed!", requestMethod.ToString()));
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace Utilities.Facades
 
             Logger.WriteDebug("GetUserToken() got Status Code '{0}' for user '{1}'.", response.StatusCode, username);
 
-            ThrowIfUnexpectedStatusCode(string.Format("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
+            ThrowIfUnexpectedStatusCode(I18NHelper.FormatInvariant("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
 
             // If there is no "Authorization" header, param will be null.
             var param = response.Headers.FirstOrDefault(p => p.Name == "Authorization");

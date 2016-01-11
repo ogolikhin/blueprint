@@ -85,7 +85,7 @@ namespace FileStore.Repositories
 
         public static int GetConfigValue(string configValue, int defaultValue)
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.IntParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
     }
 }

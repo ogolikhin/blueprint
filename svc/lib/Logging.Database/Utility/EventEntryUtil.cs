@@ -100,9 +100,9 @@ namespace Logging.Database.Utility
 
             for (int i = 0; i < entry.Payload.Count; i++)
             {
-                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
+                if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
                 {
-                    return entry.Payload[i] == null ? entry.Timestamp : DateTimeOffset.Parse(entry.Payload[i].ToString());
+                    return entry.Payload[i] == null ? entry.Timestamp : I18NHelper.DateTimeOffsetParseInvariant(entry.Payload[i].ToString());
                 }
             }
 

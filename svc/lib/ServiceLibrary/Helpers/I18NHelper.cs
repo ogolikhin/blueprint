@@ -39,6 +39,11 @@ namespace ServiceLibrary.Helpers
             return DateTime.ParseExact(s, format, CultureInfo.InvariantCulture);
         }
 
+        public static DateTimeOffset DateTimeOffsetParseInvariant(string s)
+        {
+            return DateTimeOffset.Parse(s, CultureInfo.InvariantCulture);
+        }
+
         #endregion Parse methods
 
         #region Compare methods

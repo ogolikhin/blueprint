@@ -50,6 +50,9 @@ namespace ConfigControl
                     bufferingCount: 200);
                 dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
                 dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                dbListener.EnableEvents(StandardLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                dbListener.EnableEvents(PerformanceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                dbListener.EnableEvents(SQLTraceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
 
                 localLog.LogInformation("Started logging listener");
             }

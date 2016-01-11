@@ -1,4 +1,8 @@
-﻿using System.Net.Http;
+﻿/// *************************************************************************************
+/// ***** Any changes to this file need to be replicated in the                     *****
+/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+/// *************************************************************************************
+using System.Net.Http;
 
 namespace ServiceLibrary.Helpers
 {

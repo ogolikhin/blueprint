@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 
 namespace ServiceLibrary.LocalLog
@@ -32,6 +33,11 @@ namespace ServiceLibrary.LocalLog
             }
         }
 
+        public void LogErrorFormat(string format, params object[] args)
+        {
+            LogError(string.Format(CultureInfo.InvariantCulture, format, args));
+        }
+
         public async void LogInformation(string message)
         {
             try
@@ -46,6 +52,11 @@ namespace ServiceLibrary.LocalLog
             {
                 // Do Nothing
             }
+        }
+
+        public void LogInformationFormat(string format, params object[] args)
+        {
+            LogInformation(string.Format(CultureInfo.InvariantCulture, format, args));
         }
 
         public async void LogWarning(string message)
@@ -64,9 +75,14 @@ namespace ServiceLibrary.LocalLog
             }
         }
 
+        public void LogWarningFormat(string format, params object[] args)
+        {
+            LogWarning(string.Format(CultureInfo.InvariantCulture, format, args));
+        }
+
         private string FormatMessage(string level, string message)
         {
-            return string.Format("[{0}] [{1}] {2}", level, DateTime.Now, message);
+            return string.Format(CultureInfo.InvariantCulture, "[{0}] [{1}] {2}", level, DateTime.Now, message);
         }
 
     }

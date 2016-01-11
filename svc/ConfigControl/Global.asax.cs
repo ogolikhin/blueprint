@@ -59,7 +59,7 @@ namespace ConfigControl
             }
             catch (Exception ex)
             {
-                localLog.LogError(string.Format(LoggingListenerFailed, ex.Message));
+                localLog.LogErrorFormat(LoggingListenerFailed, ex.Message);
                 throw;
             }
         }

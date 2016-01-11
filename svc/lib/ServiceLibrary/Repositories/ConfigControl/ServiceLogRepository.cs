@@ -79,7 +79,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
 
@@ -135,7 +135,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
 
@@ -191,7 +191,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
 
@@ -247,7 +247,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
 
@@ -303,7 +303,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
 
@@ -330,7 +330,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Log service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
             }
         }
     }

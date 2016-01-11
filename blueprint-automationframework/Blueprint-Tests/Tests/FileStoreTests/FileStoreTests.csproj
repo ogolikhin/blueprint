@@ -62,7 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicTests.cs" />
+    <Compile Include="DeleteTests.cs" />
+    <Compile Include="HeadTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScenarioTests.cs" />
+    <Compile Include="StatusTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
@@ -84,6 +88,10 @@
     <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
       <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
       <Name>TestConfig</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
+      <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
+      <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

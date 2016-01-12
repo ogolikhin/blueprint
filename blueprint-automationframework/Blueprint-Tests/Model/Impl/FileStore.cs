@@ -12,6 +12,7 @@ namespace Model.Impl
     public class FileStore : IFileStore
     {
         private const string SVC_PATH = "svc/filestore";
+        private const string BlueprintSessionToken = "BLUEPRINT_SESSION_TOKEN";
 
         private static string _address;
 
@@ -69,7 +70,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 string tokenValue = user.Token.AccessControlToken;
-                cookies.Add("BLUEPRINT_SESSION_TOKEN", tokenValue);
+                cookies.Add(BlueprintSessionToken, tokenValue);
                 user.Token.AccessControlToken = "";
             }
 
@@ -176,7 +177,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 string tokenValue = user.Token.AccessControlToken;
-                cookies.Add("BLUEPRINT_SESSION_TOKEN", tokenValue);
+                cookies.Add(BlueprintSessionToken, tokenValue);
                 user.Token.AccessControlToken = "";
             }
 
@@ -238,7 +239,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 string tokenValue = user.Token.AccessControlToken;
-                cookies.Add("BLUEPRINT_SESSION_TOKEN", tokenValue);
+                cookies.Add(BlueprintSessionToken, tokenValue);
                 user.Token.AccessControlToken = "";
             }
 

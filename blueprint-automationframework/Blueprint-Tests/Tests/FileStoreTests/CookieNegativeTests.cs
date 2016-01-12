@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Common;
 using CustomAttributes;
 using Model;
 using Model.Factories;
@@ -15,6 +16,8 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     public class CookieNegativeTests
     {
+        private const string BlueprintSessionToken = "BLUEPRINT_SESSION_TOKEN";
+
         private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
@@ -113,7 +116,7 @@ namespace FileStoreTests
             var additionalHeaders = new Dictionary<string, string>();
 
             additionalHeaders.Add("Content-Type", file.FileType);
-            additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+            additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name ={0}; filename={1}", "attachment", file.FileName));
 
             byte[] fileBytes = file.Content;
             byte[] chunk = fileBytes;
@@ -142,7 +145,7 @@ namespace FileStoreTests
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
-            string path = string.Format("svc/filestore/files/{0}", file.Id);
+            string path = I18NHelper.FormatInvariant("svc/filestore/files/{0}", file.Id);
 
             chunk = rem.Take((int)chunkSize).ToArray();
 
@@ -151,7 +154,7 @@ namespace FileStoreTests
 
             var cookies = new Dictionary<string, string>();
             string tokenValue = _userForCookieTests.Token.AccessControlToken;
-            cookies.Add("BLUEPRINT_SESSION_TOKEN", tokenValue);
+            cookies.Add(BlueprintSessionToken, tokenValue);
             _userForCookieTests.Token.AccessControlToken = "";
 
             // Create new rest api instance to allow for a changed session token

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Common;
 using CustomAttributes;
 using Model;
 using Model.Factories;
@@ -15,6 +16,8 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     public class CookiePositiveTests
     {
+        private const string BlueprintSessionToken = "BLUEPRINT_SESSION_TOKEN";
+
         private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
@@ -67,6 +70,12 @@ namespace FileStoreTests
                 _user.DeleteUser(deleteFromDatabase: true);
                 _user = null;
             }
+
+            if (_userForCookieTests != null)
+            {
+                _userForCookieTests.DeleteUser(deleteFromDatabase: true);
+                _userForCookieTests = null;
+            }
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
@@ -82,7 +91,7 @@ namespace FileStoreTests
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 _filestore.AddFile(file, _userForCookieTests, sendAuthorizationAsCookie: true);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 401 (Unauthorized Exception) was expected because POST does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
@@ -100,7 +109,7 @@ namespace FileStoreTests
             var additionalHeaders = new Dictionary<string, string>();
 
             additionalHeaders.Add("Content-Type", file.FileType);
-            additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+            additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name ={0}; filename={1}", "attachment", file.FileName));
 
             byte[] fileBytes = file.Content;
             byte[] chunk = fileBytes;
@@ -129,13 +138,13 @@ namespace FileStoreTests
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
-            string path = string.Format("svc/filestore/files/{0}", file.Id);
+            string path = I18NHelper.FormatInvariant("svc/filestore/files/{0}", file.Id);
 
             chunk = rem.Take((int)chunkSize).ToArray();
 
             var cookies = new Dictionary<string, string>();
             string tokenValue = _userForCookieTests.Token.AccessControlToken;
-            cookies.Add("BLUEPRINT_SESSION_TOKEN", tokenValue);
+            cookies.Add(BlueprintSessionToken, tokenValue);
             _userForCookieTests.Token.AccessControlToken = "";
 
             // Create new rest api instance to allow for a changed session token
@@ -146,7 +155,7 @@ namespace FileStoreTests
             {
                 restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
                 file.FileType, useMultiPartMime: true, additionalHeaders: additionalHeaders, queryParameters: queryParameters, cookies: cookies);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 401 (Unauthorized Exception) was expected because PUT does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
@@ -161,14 +170,13 @@ namespace FileStoreTests
             // Add the file to Filestore.
             var storedFile = _filestore.AddFile(file, _userForCookieTests, useMultiPartMime: true);
 
-            // Assert that unauthorized exception is thrown
+            // Assert that an exception is not thrown
             Assert.DoesNotThrow(() =>
             {
                 _filestore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
-            }, "Threw an unexpected exception!");
+            }, "GET supports authentication cookies but threw an exception!");
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void GetHeadWithValidCookieSessionToken_VerifyUnauthorized(
             uint fileSize, 
@@ -185,7 +193,7 @@ namespace FileStoreTests
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 _filestore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 401 (Unauthorized Exception) was expected because HEAD does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
@@ -204,7 +212,7 @@ namespace FileStoreTests
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 _filestore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 401 (Unauthorized Exception) was expected because DELETE does not support authorization cookies!");
         }
     }
 }

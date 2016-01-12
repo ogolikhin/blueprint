@@ -19,7 +19,7 @@ namespace Model
         /// <param name="expireTime">(optional) The file expiry date/time; The time after which the file can be deleted</param>
         /// <param name="useMultiPartMime">(optional) Flag to use multi-part mime or not</param>
         /// <param name="chunkSize">(optional) The chunk size used for POST/PUT requests</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.Created.</param>
         /// <returns>The file that was added (including the file ID that FileStore gave it)</returns>
         IFile AddFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             uint chunkSize = 0, List<HttpStatusCode> expectedStatusCodes = null);
@@ -57,5 +57,29 @@ namespace Model
         /// <returns>Status of File Store service.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
         HttpStatusCode GetStatus();
+
+        /// <summary>
+        /// Adds a file to the file store with a POST command only.
+        /// </summary>
+        /// <param name="file">The file being added.</param>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="expireTime">(optional) The file expiry date/time; The time after which the file can be deleted.</param>
+        /// <param name="useMultiPartMime">(optional) Flag to use multi-part mime or not.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.Created.</param>
+        /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
+        IFile PostFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Appends a file to the file store with the PUT command only.
+        /// </summary>
+        /// <param name="file">The file being appended.</param>
+        /// <param name="chunk">The file data chunk to PUT into FileStore.</param>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="useMultiPartMime">(optional) Flag to use multi-part mime or not.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  Defaults to HttpStatusCode.OK.</param>
+        /// <returns>The file that was added (including the file ID that FileStore gave it).</returns>
+        IFile PutFile(IFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
+            List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

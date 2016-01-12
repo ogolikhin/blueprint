@@ -120,8 +120,7 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize, expectedStatusCodes: expectedStatusCodes);
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize);
 
             // Verify that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = _filestore.GetFile(storedFile.Id, _user);
@@ -135,7 +134,7 @@ namespace FileStoreTests
 
             _filestore.DeleteFile(storedFile.Id, _user);
 
-            expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.NotFound };
+            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.NotFound };
             var deletedFile = _filestore.GetFile(storedFile.Id, _user, expectedStatusCodes);
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }
@@ -150,8 +149,7 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelpers.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var storedFile = _filestore.AddFile(file, _user, chunkSize: chunkSize, expectedStatusCodes: expectedStatusCodes);
+            var storedFile = _filestore.AddFile(file, _user, chunkSize: chunkSize);
 
             // Verify that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = _filestore.GetFile(storedFile.Id, _user);
@@ -165,7 +163,7 @@ namespace FileStoreTests
 
             _filestore.DeleteFile(storedFile.Id, _user);
 
-            expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.NotFound };
+            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.NotFound };
             var deletedFile = _filestore.GetFile(storedFile.Id, _user, expectedStatusCodes);
             Assert.IsNull(deletedFile, "The file was not deleted!");
         }

@@ -1,4 +1,4 @@
-﻿using Logging;
+﻿using Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -159,14 +159,14 @@ namespace TestConfig
         /// <returns>A string representation of this object.</returns>
         public override string ToString()
         {
-            string thisObject = string.Format("[TestConfiguration]: BlueprintServerAddress='{0}', Username='{1}', Password='{2}', LogLevel='{3}'", BlueprintServerAddress, Username, Password, LogLevel.ToString());
+            string thisObject = I18NHelper.FormatInvariant("[TestConfiguration]: BlueprintServerAddress='{0}', Username='{1}', Password='{2}', LogLevel='{3}'", BlueprintServerAddress, Username, Password, LogLevel.ToString());
 
             if (Databases.Count > 0)
             {
                 thisObject += "\n    [Databases]:";
                 foreach (var database in Databases)
                 {
-                    thisObject += string.Format("\n      -> Name: '{0}', ConnectionString: '{1}'", database.Key, database.Value.ConnectionString);
+                    thisObject += I18NHelper.FormatInvariant("\n      -> Name: '{0}', ConnectionString: '{1}'", database.Key, database.Value.ConnectionString);
                 }
             }
 

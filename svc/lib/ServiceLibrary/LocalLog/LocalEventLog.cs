@@ -3,6 +3,7 @@
 /// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
 /// *************************************************************************************
 using System.Diagnostics;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.LocalLog
 {
@@ -29,14 +30,29 @@ namespace ServiceLibrary.LocalLog
             EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Error);
         }
 
+        public void LogErrorFormat(string format, params object[] args)
+        {
+            LogError(I18NHelper.FormatInvariant(format, args));
+        }
+
         public void LogWarning(string message)
         {
             EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Warning);
         }
 
+        public void LogWarningFormat(string format, params object[] args)
+        {
+            LogWarning(I18NHelper.FormatInvariant(format, args));
+        }
+
         public void LogInformation(string message)
         {
             EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Information);
+        }
+
+        public void LogInformationFormat(string format, params object[] args)
+        {
+            LogInformation(I18NHelper.FormatInvariant(format, args));
         }
     }
 }

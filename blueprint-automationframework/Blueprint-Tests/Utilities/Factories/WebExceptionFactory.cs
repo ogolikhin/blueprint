@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Logging;
+using Common;
 
 namespace Utilities.Factories
 {
@@ -16,7 +16,7 @@ namespace Utilities.Factories
         public static WebException Create(int statusCode)
         {
             WebException ex = null;
-            string message = string.Format("Received status code: {0}.", statusCode);
+            string message = I18NHelper.FormatInvariant("Received status code: {0}.", statusCode);
 
             switch (statusCode)
             {
@@ -48,7 +48,7 @@ namespace Utilities.Factories
                     ex = new Http503ServiceUnavailableException(message);
                     break;
                 default:
-                    return new WebException(string.Format("Unrecognized status code {0} recieved!", statusCode));
+                    return new WebException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!", statusCode));
             }
 
             Logger.WriteDebug(message);

@@ -5,6 +5,7 @@
 using System;
 using System.Configuration;
 using System.IO;
+using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.LocalLog
 {
@@ -26,14 +27,29 @@ namespace ServiceLibrary.LocalLog
             WriteMessage("Error", message);
         }
 
+        public void LogErrorFormat(string format, params object[] args)
+        {
+            LogError(I18NHelper.FormatInvariant(format, args));
+        }
+
         public void LogInformation(string message)
         {
             WriteMessage("Information", message);
         }
 
+        public void LogInformationFormat(string format, params object[] args)
+        {
+            LogInformation(I18NHelper.FormatInvariant(format, args));
+        }
+
         public void LogWarning(string message)
         {
             WriteMessage("Warning", message);
+        }
+
+        public void LogWarningFormat(string format, params object[] args)
+        {
+            LogWarning(I18NHelper.FormatInvariant(format, args));
         }
 
         private void WriteMessage(string level, string message)
@@ -44,7 +60,7 @@ namespace ServiceLibrary.LocalLog
                 {
                     using (var writer = new StreamWriter(_file.Open(FileMode.Append, FileAccess.Write, FileShare.Read)))
                     {
-                        writer.WriteLine($"[{level}] [{DateTime.Now}] {message}");
+                        writer.WriteLine(I18NHelper.FormatInvariant("[{0}] [{1}] {2}", level, DateTime.Now, message));
                         writer.Flush();
                     }
                 }

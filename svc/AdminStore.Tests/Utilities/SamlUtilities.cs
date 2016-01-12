@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
-using System.IO;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Utilities
 {
@@ -92,7 +92,7 @@ namespace AdminStore.Utilities
         public static string Serialize(Saml2SecurityToken token)
         {
             var handler = new Saml2SecurityTokenHandler();
-            var sw = new StringWriter();
+            var sw = I18NHelper.CreateStringWriterInvariant();
             using (var textWriter = new XmlTextWriter(sw))
             {
                 handler.WriteToken(textWriter, token);

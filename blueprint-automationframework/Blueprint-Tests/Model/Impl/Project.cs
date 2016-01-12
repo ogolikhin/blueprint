@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Common;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -89,7 +90,7 @@ namespace Model.Impl
             if (user == null) { throw new ArgumentNullException("user"); }
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, user.Token.OpenApiToken);
-            string path = string.Format("{0}/{1}", SVC_PROJECTS_PATH, projectId);
+            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
             return project;
@@ -109,7 +110,7 @@ namespace Model.Impl
         /// <returns>A string representation of this object.</returns>
         public override string ToString()
         {
-            return string.Format("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
+            return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
         #endregion Methods

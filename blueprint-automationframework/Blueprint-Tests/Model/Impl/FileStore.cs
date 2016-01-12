@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using Common;
 using NUnit.Framework;
 using Utilities.Facades;
 
@@ -53,7 +54,7 @@ namespace Model.Impl
 
             if (expireTime.HasValue)
             {
-                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+                queryParameters.Add("expired", expireTime.Value.ToStringInvariant("o"));
             }
 
             var additionalHeaders = new Dictionary<string, string>();
@@ -75,7 +76,7 @@ namespace Model.Impl
             if (!string.IsNullOrEmpty(file.FileName))
             {
 
-                additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+                additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name ={0}; filename={1}", "attachment", file.FileName));
             }
 
             if (expectedStatusCodes == null)
@@ -91,7 +92,7 @@ namespace Model.Impl
                 chunk = fileBytes.Take((int)chunkSize).ToArray();
             }
 
-            var path = string.Format("{0}/files", SVC_PATH);
+            var path = I18NHelper.FormatInvariant("{0}/files", SVC_PATH);
             var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
             var response = restApi.SendRequestAndGetResponse(
                 path, 
@@ -112,7 +113,7 @@ namespace Model.Impl
                 byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-                path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
+                path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
 
                 do
                 {
@@ -167,7 +168,7 @@ namespace Model.Impl
 
             if (expireTime.HasValue)
             {
-                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+                queryParameters.Add("expired", expireTime.Value.ToStringInvariant("o"));
             }
 
             var cookies = new Dictionary<string, string>();
@@ -184,7 +185,7 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
+            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
             var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
 
             try
@@ -208,7 +209,7 @@ namespace Model.Impl
         public HttpStatusCode GetStatus()
         {
             var restApi = new RestApiFacade(_address, token:string.Empty);
-            var path = string.Format("{0}/status", SVC_PATH);
+            var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
 
@@ -242,7 +243,7 @@ namespace Model.Impl
             }
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
-            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
+            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
 
             var response = restApi.SendRequestAndGetResponse(
                 path, 

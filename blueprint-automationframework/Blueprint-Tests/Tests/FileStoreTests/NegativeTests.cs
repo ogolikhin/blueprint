@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Common;
 using CustomAttributes;
 using Model;
 using Model.Factories;
@@ -113,7 +114,7 @@ namespace FileStoreTests
             var additionalHeaders = new Dictionary<string, string>();
 
             additionalHeaders.Add("Content-Type", file.FileType);
-            additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+            additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name ={0}; filename={1}", "attachment", file.FileName));
 
             byte[] fileBytes = file.Content;
             byte[] chunk = fileBytes;
@@ -142,7 +143,7 @@ namespace FileStoreTests
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
-            string path = string.Format("svc/filestore/files/{0}", file.Id);
+            string path = I18NHelper.FormatInvariant("svc/filestore/files/{0}", file.Id);
 
             chunk = rem.Take((int)chunkSize).ToArray();
 

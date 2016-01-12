@@ -8,6 +8,7 @@ using AdminStore.Helpers;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
 {
@@ -40,8 +41,10 @@ namespace AdminStore.Repositories
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
+            authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new Exception());
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(true).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
@@ -59,8 +62,10 @@ namespace AdminStore.Repositories
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
+            authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new Exception());
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(false).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
@@ -78,8 +83,10 @@ namespace AdminStore.Repositories
             string incorrectPassword = "incorrect";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
+            authenticator.Setup(a => a.Bind(loginInfo, incorrectPassword, AuthenticationTypes.Secure)).Throws(new Exception());
             authenticator.Setup(a => a.SearchDirectory(loginInfo, incorrectPassword)).Throws(new COMException(null, LdapRepository.ActiveDirectoryInvalidCredentialsErrorCode)).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, incorrectPassword, true);
@@ -98,8 +105,10 @@ namespace AdminStore.Repositories
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
+            authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new Exception());
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Throws(new COMException()).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
@@ -118,8 +127,10 @@ namespace AdminStore.Repositories
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
+            authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new Exception());
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Throws(new Exception()).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, true);
@@ -140,9 +151,10 @@ namespace AdminStore.Repositories
             LdapSettings[] settings = { };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new LdapException(LdapRepository.LdapInvalidCredentialsErrorCode)).Verifiable();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(true).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -164,9 +176,10 @@ namespace AdminStore.Repositories
             LdapSettings[] settings = { };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new LdapException()).Verifiable();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(true).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -191,7 +204,8 @@ namespace AdminStore.Repositories
             }; // Covers LdapHelper.MatchesDomain()
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var logMock = new Mock<IServiceLogRepository>();
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -211,9 +225,10 @@ namespace AdminStore.Repositories
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.SearchLdap(settings[0], "(&(objectCategory=user)(samaccountname=" + loginInfo.UserName + "))")).Returns(true).Verifiable();
             authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Encryption)).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -234,10 +249,11 @@ namespace AdminStore.Repositories
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.SearchLdap(settings[0], "(&(objectCategory=user)(samaccountname=" + loginInfo.UserName + "))")).Returns(true).Verifiable();
             authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Encryption)).Throws<Exception>().Verifiable();
             authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(false).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -258,8 +274,9 @@ namespace AdminStore.Repositories
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC= domain ", EnableCustomSettings = true, AccountNameAttribute = "account" } }; // Covers LdapHelper.GetEffectiveAccountNameAttribute()
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.SearchLdap(settings[0], @"(&(objectCategory=user)(account=login\5c\2a\28\29\00\2f))")).Returns(false).Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);
@@ -280,8 +297,9 @@ namespace AdminStore.Repositories
             var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=", EnableCustomSettings = true } }; // Covers LdapHelper.GetEffectiveAccountNameAttribute()
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
+            var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.SearchLdap(settings[0], @"(&(objectCategory=user)(samaccountname=" + loginInfo.UserName + "))")).Throws<Exception>().Verifiable();
-            var repository = new LdapRepository(settingsRepository.Object, authenticator.Object);
+            var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
             AuthenticationStatus status = await repository.AuthenticateLdapUserAsync(loginInfo.Login, password, false);

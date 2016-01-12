@@ -59,9 +59,9 @@
     <Compile Include="Facades\RestApiFacade.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logging\Logging.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
-      <Name>Logging</Name>
+      <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

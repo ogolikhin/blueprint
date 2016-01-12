@@ -2,7 +2,7 @@
 // Modified to exclude uneeded methods
 
 using System;
-using System.Globalization;
+using ServiceLibrary.Helpers;
 
 namespace Logging.Database.Utility
 {
@@ -38,7 +38,7 @@ namespace Logging.Database.Utility
 
             if (argumentValue.Length == 0)
             {
-                throw new ArgumentException(Properties.Resources.ArgumentIsEmptyError, argumentName);
+                throw new ArgumentException("Argument is empty", argumentName);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Logging.Database.Utility
                 long totalMilliseconds = (long)argumentValue.Value.TotalMilliseconds;
                 if (totalMilliseconds < (long)-1 || totalMilliseconds > (long)2147483647)
                 {
-                    throw new ArgumentOutOfRangeException(string.Format(CultureInfo.CurrentCulture, Properties.Resources.TimeSpanOutOfRangeError, argumentName));
+                    throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The valid range for '{0}' is from 0 to 24.20:31:23.647", argumentName));
                 }
             }
         }

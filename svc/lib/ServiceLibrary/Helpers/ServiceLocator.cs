@@ -18,7 +18,7 @@ namespace ServiceLibrary.Helpers
         public static void Init(TService controller)
         {
             Debug.Assert(controller != null, "IService controller cannot be null");
-            Debug.Assert(Current == null, string.Format("{0} can be initialized only once during the current user session", typeof(TService).FullName));
+            Debug.Assert(Current == null, I18NHelper.FormatInvariant("{0} can be initialized only once during the current user session", typeof(TService).FullName));
 
             Current = controller;
         }

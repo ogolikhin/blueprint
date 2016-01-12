@@ -229,14 +229,15 @@ GO
 CREATE FUNCTION [dbo].[ValidateExpiryTime]
 (
 	@storedTime AS datetime,
-	@expiredTime AS datetime
+	@expiredTime AS datetime,
+	@fallbackTime AS datetime
 )
 RETURNS datetime
 AS
 BEGIN
-	IF @expiredTime < @storedTime
+	IF @expiredTime IS NOT NULL AND @expiredTime < @storedTime
 	begin
-		SET @expiredTime = @storedTime;
+		SET @expiredTime = @fallbackTime;
 	end
 	return @expiredTime;
 END
@@ -306,7 +307,7 @@ BEGIN
 	DECLARE @StoredTime datetime;
 
 	SELECT @StoredTime = Storedtime FROM [dbo].[Files]  WHERE [FileId] = @FileId;
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime, GETUTCDATE());
 
 	SET NOCOUNT ON
 
@@ -468,7 +469,7 @@ BEGIN
 
 	DECLARE @StoredTime datetime;
 	SET @StoredTime = GETUTCDATE();
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime, @StoredTime);
 
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
     INSERT INTO [dbo].[Files]  

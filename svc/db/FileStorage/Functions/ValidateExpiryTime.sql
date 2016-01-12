@@ -14,14 +14,15 @@ GO
 CREATE FUNCTION [dbo].[ValidateExpiryTime]
 (
 	@storedTime AS datetime,
-	@expiredTime AS datetime
+	@expiredTime AS datetime,
+	@fallbackTime AS datetime
 )
 RETURNS datetime
 AS
 BEGIN
-	IF @expiredTime < @storedTime
+	IF @expiredTime IS NOT NULL AND @expiredTime < @storedTime
 	begin
-		SET @expiredTime = @storedTime;
+		SET @expiredTime = @fallbackTime;
 	end
 	return @expiredTime;
 END

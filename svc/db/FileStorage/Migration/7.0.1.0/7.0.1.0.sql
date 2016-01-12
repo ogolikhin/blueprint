@@ -180,8 +180,7 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 	
-	DECLARE @StoredTime datetime;
-
+	DECLARE @CurrentTime datetime;
 	SELECT @CurrentTime = GETUTCDATE();
 	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 

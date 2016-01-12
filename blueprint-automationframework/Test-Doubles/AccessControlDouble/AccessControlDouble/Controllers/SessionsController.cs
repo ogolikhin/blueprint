@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using Common;
 using CommonUtilities;
 
 namespace AccessControlDouble.Controllers
@@ -50,7 +50,7 @@ namespace AccessControlDouble.Controllers
         private Uri CreateUri()
         {
             string path = Request.RequestUri.LocalPath.Replace(SVC_PATH, string.Empty);
-            Uri uri = new Uri(string.Format("{0}/{1}/{2}", WebApiConfig.AccessControl, path.TrimEnd('/'), Request.RequestUri.Query).TrimEnd('/'));
+            Uri uri = new Uri(I18NHelper.FormatInvariant("{0}/{1}/{2}", WebApiConfig.AccessControl, path.TrimEnd('/'), Request.RequestUri.Query).TrimEnd('/'));
 
             return uri;
         }

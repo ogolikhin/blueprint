@@ -61,6 +61,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CookiePositiveTests.cs" />
+    <Compile Include="CookieNegativeTests.cs" />
     <Compile Include="NegativeTests.cs" />
     <Compile Include="BasicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

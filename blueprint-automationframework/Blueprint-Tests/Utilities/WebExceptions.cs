@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Runtime.Serialization;
-using Logging;
+using Common;
 
 namespace Utilities
 {

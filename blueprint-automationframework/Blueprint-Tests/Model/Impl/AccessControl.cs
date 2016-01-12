@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Logging;
+using Common;
 using Utilities.Facades;
 
 
@@ -55,7 +55,7 @@ namespace Model.Impl
             if (session == null) { throw new ArgumentNullException(nameof(session)); }
 
             var restApi = new RestApiFacade(_address, session.SessionId);
-            string path = string.Format("{0}/sessions", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
             Dictionary<string, string> queryParameters = null;
 
             if ((operation != null) || artifactId.HasValue)
@@ -83,21 +83,21 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
             var restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions/{1}", SVC_PATH, userId);
+            string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, userId);
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
             // Add all the query parameters for the POST call.
-            queryParameters.Add("UserId", userId.ToString());
+            queryParameters.Add("UserId", userId.ToStringInvariant());
 
             if (username != null) { queryParameters.Add("UserName", username); }
 
-            if (beginTime != null) { queryParameters.Add("BeginTime", beginTime.Value.ToString("o")); }
+            if (beginTime != null) { queryParameters.Add("BeginTime", beginTime.Value.ToStringInvariant("o")); }
 
-            if (endTime != null) { queryParameters.Add("EndTime", endTime.Value.ToString("o")); }
+            if (endTime != null) { queryParameters.Add("EndTime", endTime.Value.ToStringInvariant("o")); }
 
             if (isSso != null) { queryParameters.Add("IsSso", isSso.Value.ToString());}
 
-            if (licenseLevel != null) { queryParameters.Add("LicenseLevel", licenseLevel.Value.ToString());}
+            if (licenseLevel != null) { queryParameters.Add("LicenseLevel", licenseLevel.Value.ToStringInvariant());}
 
             // Execute POST and get session token from the response.
             Logger.WriteInfo("Creating session for User ID: {0}.", userId);
@@ -129,7 +129,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
             var restApi = new RestApiFacade(_address, session?.SessionId);
-            string path = string.Format("{0}/sessions", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
@@ -141,7 +141,7 @@ namespace Model.Impl
         public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
             var restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToString() : string.Empty));
+            string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
 
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Getting Session for User ID: {0}.", userId);
@@ -157,7 +157,7 @@ namespace Model.Impl
         public HttpStatusCode GetStatus()    // GET /status
         {
             var restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/status", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             Logger.WriteInfo("Getting AccessControl status...");
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);

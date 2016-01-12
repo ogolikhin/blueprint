@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
 using System.Data.Common;
+using ServiceLibrary.Helpers;
 
 namespace FileStore.Repositories
 {
@@ -31,7 +32,7 @@ namespace FileStore.Repositories
             if (_file == null)
             {
                 throw new InvalidOperationException(
-                   String.Format("Fatal. File '{0}' not found in FileStore", fileId.ToString()));
+                   I18NHelper.FormatInvariant("Fatal. File '{0}' not found in FileStore", fileId));
             }
         }
 

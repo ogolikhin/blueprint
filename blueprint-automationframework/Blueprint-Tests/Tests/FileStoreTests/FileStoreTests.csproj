@@ -74,9 +74,9 @@
       <Project>{23c53dc5-1245-4877-9487-a05a46914fe3}</Project>
       <Name>Helper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Logging\Logging.csproj">
+    <ProjectReference Include="..\..\Common\Common.csproj">
       <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
-      <Name>Logging</Name>
+      <Name>Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Model\Model.csproj">
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>

@@ -1,4 +1,5 @@
 ﻿using System.DirectoryServices;
+using AdminStore.Helpers;
 
 namespace AdminStore.Models
 {
@@ -21,5 +22,10 @@ namespace AdminStore.Models
         public string DomainAttribute { get; set; }
 
         public string AccountNameAttribute { get; set; }
+
+        internal string GetDecodedBindPassword()
+        {
+            return SystemEncryptions.Decrypt(BindPassword);
+        }
     }
 }

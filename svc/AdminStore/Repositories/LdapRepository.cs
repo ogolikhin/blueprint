@@ -148,8 +148,8 @@ namespace AdminStore.Repositories
                     return true;
                 }
                 _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("User '{0}' is not found in LDAP directory {1}", userName, ldapSettings.LdapAuthenticationUrl));
-                    return false;
-                }
+                return false;
+            }
             catch (Exception ex)
             {
                 _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("Error while searching a user in LDAP directory {0}", ldapSettings.LdapAuthenticationUrl));
@@ -162,7 +162,7 @@ namespace AdminStore.Repositories
 
         public bool SearchLdap(LdapSettings settings, string filter)
         {
-            using (var searchRoot = new DirectoryEntry(settings.LdapAuthenticationUrl, settings.BindUser, settings.BindPassword, settings.AuthenticationType))
+            using (var searchRoot = new DirectoryEntry(settings.LdapAuthenticationUrl, settings.BindUser, settings.GetDecodedBindPassword(), settings.AuthenticationType))
             {
                 using (var searcher = new DirectorySearcher(searchRoot, filter) { PropertyNamesOnly = false, ReferralChasing = ReferralChasingOption.None })
                 {

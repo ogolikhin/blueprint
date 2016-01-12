@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
@@ -137,7 +138,7 @@ namespace AdminStore.Repositories
         private bool UserExistsInLdapDirectory(LdapSettings ldapSettings, LoginInfo loginInfo)
         {
             var userName = loginInfo.UserName != null ? loginInfo.UserName.Trim() : loginInfo.Login;
-            var filter = $"(&(objectCategory=user)({ldapSettings.GetEffectiveAccountNameAttribute()}={LdapHelper.EscapeLdapSearchFilter(userName)}))";
+            var filter = I18NHelper.FormatInvariant("(&(objectCategory=user)({0}={1}))", ldapSettings.GetEffectiveAccountNameAttribute(), LdapHelper.EscapeLdapSearchFilter(userName));
             try
             {
                 var found = _authenticator.SearchLdap(ldapSettings, filter);
@@ -146,12 +147,12 @@ namespace AdminStore.Repositories
                 {
                     return true;
                 }
-                _log.LogInformation(LogSourceLdap, $"User '{userName}' is not found in LDAP directory {ldapSettings.LdapAuthenticationUrl}");
-                return false;
-            }
+                _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("User '{0}' is not found in LDAP directory {1}", userName, ldapSettings.LdapAuthenticationUrl));
+                    return false;
+                }
             catch (Exception ex)
             {
-                _log.LogInformation(LogSourceLdap, $"Error while searching a user in LDAP directory {ldapSettings.LdapAuthenticationUrl}");
+                _log.LogInformation(LogSourceLdap, I18NHelper.FormatInvariant("Error while searching a user in LDAP directory {0}", ldapSettings.LdapAuthenticationUrl));
                 _log.LogError(LogSourceLdap, ex);
                 return false;
             }

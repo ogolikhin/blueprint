@@ -4,6 +4,7 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography;
 using System.Net.Mime;
+using ServiceLibrary.Helpers;
 
 namespace FileStore
 {
@@ -90,11 +91,11 @@ namespace FileStore
         {
             var testSetup = new TestSetup
             {
-                ContentType = Convert.ToString(TestContext.DataRow["ContentType"]),
-                FileGuid = Convert.ToString(TestContext.DataRow["FileGuid"]),
-                FileName = Convert.ToString(TestContext.DataRow["FileName"]),
-                FileSize = Convert.ToInt32(TestContext.DataRow["FileSize"]),
-                FileStoreSvcUri = Convert.ToString(TestContext.DataRow["FilesUriCall"])
+                ContentType = I18NHelper.ToStringInvariant(TestContext.DataRow["ContentType"]),
+                FileGuid = I18NHelper.ToStringInvariant(TestContext.DataRow["FileGuid"]),
+                FileName = I18NHelper.ToStringInvariant(TestContext.DataRow["FileName"]),
+                FileSize = I18NHelper.ToInt32Invariant(TestContext.DataRow["FileSize"]),
+                FileStoreSvcUri = I18NHelper.ToStringInvariant(TestContext.DataRow["FilesUriCall"])
             };
 
             return testSetup;
@@ -103,7 +104,7 @@ namespace FileStore
 
         private HttpWebResponse GetResponse(string filesUriCall, string fileGuid, string method)
         {
-            string uri = string.Format("{0}{1}", filesUriCall, fileGuid);
+            string uri = I18NHelper.FormatInvariant("{0}{1}", filesUriCall, fileGuid);
             var fetchRequest = (HttpWebRequest)WebRequest.Create(uri);
             fetchRequest.Method = method;
             fetchRequest.Accept = "application/json";
@@ -135,15 +136,13 @@ namespace FileStore
 
             string receivedFileName = contentDispositionHeaderValue.FileName.Replace("\"", " ").Trim();
 
-            Assert.IsTrue(String.Equals(thisTest.FileName, receivedFileName,
-                StringComparison.InvariantCultureIgnoreCase),
-                String.Format("Content disposition header file name is different. " +
+            Assert.AreEqual(thisTest.FileName, receivedFileName,
+                I18NHelper.FormatInvariant("Content disposition header file name is different. " +
                 "Expecting file name to be {0} but got {1}.",
                 thisTest.FileName, contentDispositionHeaderValue.FileName));
 
-            Assert.IsTrue(String.Equals(thisTest.ContentType, response.ContentType,
-                StringComparison.InvariantCultureIgnoreCase),
-                String.Format("ContentType does not match. Expected {0} but got {1}", thisTest.ContentType,
+            Assert.AreEqual(thisTest.ContentType, response.ContentType,
+                I18NHelper.FormatInvariant("ContentType does not match. Expected {0} but got {1}", thisTest.ContentType,
                 response.ContentType));
 
             var contentLength = response.Headers["File-Size"];
@@ -159,11 +158,11 @@ namespace FileStore
             using (var stream = response.GetResponseStream())
             {
                 var md5 = GetMD5ForFileStream(stream);
-                Assert.IsNotNull(md5, String.Format("File content is null. Expected {0} bytes got 0 bytes", thisTest.FileSize));
+                Assert.IsNotNull(md5, I18NHelper.FormatInvariant("File content is null. Expected {0} bytes got 0 bytes", thisTest.FileSize));
             }
 
             Assert.AreEqual(response.ContentLength, thisTest.FileSize,
-                String.Format("File download failed. Expected {0} bytes got {1} bytes",
+                I18NHelper.FormatInvariant("File download failed. Expected {0} bytes got {1} bytes",
                 thisTest.FileSize, response.ContentLength));
 
         }
@@ -172,7 +171,7 @@ namespace FileStore
         {
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode,
-                String.Format("Expecting status code 404 (Not Found) but got {0} instead.", response.StatusCode));
+                I18NHelper.FormatInvariant("Expecting status code 404 (Not Found) but got {0} instead.", response.StatusCode));
 
         }
 
@@ -180,7 +179,7 @@ namespace FileStore
         private void AssertFileContentIsEmpty(HttpWebResponse response)
         {
             Assert.AreEqual(response.ContentLength, 0,
-                String.Format("Request for file info returned content as well. Expected 0 bytes got {0} bytes",
+                I18NHelper.FormatInvariant("Request for file info returned content as well. Expected 0 bytes got {0} bytes",
                 response.ContentLength));
 
         }
@@ -189,7 +188,7 @@ namespace FileStore
         {
             using (var md5 = MD5.Create())
             {
-                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
+                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToUpperInvariant();
             }
         }
 

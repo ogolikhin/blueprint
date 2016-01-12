@@ -49,7 +49,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
             catch (Exception ex)
             {
-                _localLog.LogError(string.Format("Problem with ConfigControl Status service: {0}", ex.Message));
+                _localLog.LogErrorFormat("Problem with ConfigControl Status service: {0}", ex.Message);
             }
 
             return status;

@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using CustomAttributes;
 using Model.Factories;
-using Logging;
+using Common;
 using Model;
 using Utilities;
 using Utilities.Factories;

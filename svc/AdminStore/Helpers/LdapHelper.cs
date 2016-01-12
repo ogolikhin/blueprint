@@ -1,7 +1,7 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using AdminStore.Models;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Helpers
 {
@@ -67,7 +67,7 @@ namespace AdminStore.Helpers
 
             var dc = match.Groups[1].Value.Trim();
 
-            return string.Compare(domain == null ? "" : domain.Trim(), dc, StringComparison.OrdinalIgnoreCase) == 0;
+            return dc.EqualsOrdinalIgnoreCase(domain == null ? "" : domain.Trim());
         }
     }
 }

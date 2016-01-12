@@ -141,9 +141,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logging\Logging.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
-      <Name>Logging</Name>
+      <Name>Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestConfiguration\TestConfig.csproj">
       <Project>{28AB2F4A-233B-4B44-914F-C0F0FA5A30B8}</Project>

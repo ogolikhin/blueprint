@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-using Logging;
+using Common;
 using Model.Impl;
 using TestConfig;
 
@@ -32,7 +32,7 @@ namespace Model.Factories
 
             if (!testConfig.Services.ContainsKey(keyName))
             {
-                string msg = string.Format("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
+                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
                 Logger.WriteError(msg);
                 throw new DataException(msg);
             }

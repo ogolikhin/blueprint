@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
-using Logging;
+using Common;
 using Model;
 using Model.Factories;
 using NUnit.Framework;

@@ -24,8 +24,8 @@ BEGIN
 	
 	DECLARE @StoredTime datetime;
 
-	SELECT @StoredTime = Storedtime FROM [dbo].[Files]  WHERE [FileId] = @FileId;
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	SELECT @CurrentTime = GETUTCDATE();
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 

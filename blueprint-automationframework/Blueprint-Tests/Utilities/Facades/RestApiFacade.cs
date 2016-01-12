@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Logging;
+using Common;
 using RestSharp;
 using RestSharp.Authenticators;
 using RestSharp.Extensions;
@@ -79,12 +79,15 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) List of query parameters to add to the request.</param>
+        /// <param name="cookies">(optional) List of cookies to add to the request.</param>
         /// <returns>An IRestRequest object.</returns>
         private IRestRequest CreateRequest(RestClient client,
             string resourcePath,
             RestRequestMethod method,
             Dictionary<string, string> additionalHeaders = null,
-            Dictionary<string, string> queryParameters = null)
+            Dictionary<string, string> queryParameters = null,
+            Dictionary<string, string> cookies = null
+            )
         {
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
 
@@ -118,6 +121,15 @@ namespace Utilities.Facades
                 }
             }
 
+            if (cookies != null)
+            {
+                foreach (var cookie in cookies)
+                {
+                    Logger.WriteTrace("**** Adding cookie '{0}'.", cookie.Key);
+                    request.AddParameter(cookie.Key, cookie.Value, ParameterType.Cookie);
+                }
+            }
+
             return request;
         }
 
@@ -144,7 +156,7 @@ namespace Utilities.Facades
                     return Method.PUT;
             }
 
-            throw new ArgumentException(string.Format("Invalid request method '{0}' was passed!", requestMethod.ToString()));
+            throw new ArgumentException(I18NHelper.FormatInvariant("Invalid request method '{0}' was passed!", requestMethod.ToString()));
         }
 
         /// <summary>
@@ -194,7 +206,7 @@ namespace Utilities.Facades
 
             Logger.WriteDebug("GetUserToken() got Status Code '{0}' for user '{1}'.", response.StatusCode, username);
 
-            ThrowIfUnexpectedStatusCode(string.Format("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
+            ThrowIfUnexpectedStatusCode(I18NHelper.FormatInvariant("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
 
             // If there is no "Authorization" header, param will be null.
             var param = response.Headers.FirstOrDefault(p => p.Name == "Authorization");
@@ -365,6 +377,7 @@ namespace Utilities.Facades
         /// <param name="useMultiPartMime">(optional) Use multi-part mime for the request</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="cookies">(optional) Add cookies</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
@@ -377,11 +390,12 @@ namespace Utilities.Facades
             bool useMultiPartMime = false,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            Dictionary<string, string> cookies = null)
         {
             Logger.WriteTrace("Base URI for REST request is: {0}", _baseUri);
             var client = new RestClient(_baseUri);
-            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
 
             if (fileName != null && (fileContent != null))
             {
@@ -422,6 +436,7 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="cookies">Add cookies</param>
         /// <param name="bodyObject">(optional) An object to send in the HTTP body of the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <returns>The RestResponse object.</returns>
@@ -432,10 +447,11 @@ namespace Utilities.Facades
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
             T bodyObject = null,
-            List<HttpStatusCode> expectedStatusCodes = null) where T : class
+            List<HttpStatusCode> expectedStatusCodes = null,
+            Dictionary<string, string> cookies = null) where T : class
         {
             var client = new RestClient(_baseUri);
-            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
             request.AddJsonBody(bodyObject);
 
             try

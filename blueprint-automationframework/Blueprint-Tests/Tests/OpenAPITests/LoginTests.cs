@@ -6,7 +6,7 @@ using Model;
 using System.Collections.Generic;
 using System.Threading;
 using CustomAttributes;
-using Logging;
+using Common;
 using Model.Factories;
 using TestConfig;
 using Utilities;
@@ -113,7 +113,7 @@ namespace OpenAPITests
 
             Assert.Throws<Http401UnauthorizedException>(
                 () => { _server.LoginUsingBasicAuthorization(invalidUser, noToken); },
-                string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
+                I18NHelper.FormatInvariant("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
                     _server.Address, username, badPassword));
         }
 
@@ -170,7 +170,7 @@ namespace OpenAPITests
             for (int i = 0; i < 4; i++)
             {
                 Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
-                    string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'. <Iteration: {3}>",
+                    I18NHelper.FormatInvariant("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'. <Iteration: {3}>",
                         _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password, i+1));
             }
 
@@ -181,7 +181,7 @@ namespace OpenAPITests
 
             // Invalid login to see if it gets locked.
             Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
-                string.Format("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
+                I18NHelper.FormatInvariant("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
                     _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password));
 
             // Valid login should reset InvalidLogonAttemptsNumber.

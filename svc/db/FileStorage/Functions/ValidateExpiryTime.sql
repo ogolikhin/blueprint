@@ -13,15 +13,16 @@ GO
 
 CREATE FUNCTION [dbo].[ValidateExpiryTime]
 (
-	@storedTime AS datetime,
+	--CurrentTime needs to be a parameter for InsertFileHead usage, to have stored time and expire time equal if set to expire now.	
+	@currentTime AS datetime,
 	@expiredTime AS datetime
 )
 RETURNS datetime
 AS
 BEGIN
-	IF @expiredTime < @storedTime
+	IF @expiredTime IS NOT NULL AND @expiredTime < @currentTime
 	begin
-		SET @expiredTime = @storedTime;
+		SET @expiredTime = @currentTime;
 	end
 	return @expiredTime;
 END

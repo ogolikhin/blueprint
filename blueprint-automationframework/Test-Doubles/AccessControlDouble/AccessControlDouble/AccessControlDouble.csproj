@@ -115,6 +115,10 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Blueprint-Tests\Common\Common.csproj">
+      <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\CommonUtilities\CommonUtilities.csproj">
       <Project>{0fba9b8a-73a5-40c6-a3d9-15c38b99372d}</Project>
       <Name>CommonUtilities</Name>

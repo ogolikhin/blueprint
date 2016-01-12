@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 
 using System;
-using System.Globalization;
 using System.Text;
 using System.Xml;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
+using ServiceLibrary.Helpers;
 
 namespace Logging.Database.Utility
 {
@@ -32,7 +32,7 @@ namespace Logging.Database.Utility
             {
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
-                return string.Format("<Error>{0}</Error>", string.Format(CultureInfo.CurrentCulture, Properties.Resources.XmlSerializationError, e.Message));
+                return I18NHelper.FormatInvariant("<Error>{0}</Error>", I18NHelper.FormatInvariant("Cannot serialize to XML format the payload: {0}", e.Message));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Logging.Database.Utility
                 SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(e.ToString());
 
                 // We are in Error state so abort the write operation
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Properties.Resources.XmlSerializationError, e.Message), e);
+                throw new InvalidOperationException(I18NHelper.FormatInvariant("Cannot serialize to XML format the payload: {0}", e.Message), e);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Logging.Database.Utility
 
             for (int i = 0; i < entry.Payload.Count; i++)
             {
-                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
+                if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
                 {
                     return entry.Payload[i] == null ? string.Empty : entry.Payload[i].ToString();
                 }
@@ -100,9 +100,9 @@ namespace Logging.Database.Utility
 
             for (int i = 0; i < entry.Payload.Count; i++)
             {
-                if (eventSchema.Payload[i].Equals(payloadItem, StringComparison.InvariantCultureIgnoreCase))
+                if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
                 {
-                    return entry.Payload[i] == null ? entry.Timestamp : DateTimeOffset.Parse(entry.Payload[i].ToString());
+                    return entry.Payload[i] == null ? entry.Timestamp : I18NHelper.DateTimeOffsetParseInvariant(entry.Payload[i].ToString());
                 }
             }
 

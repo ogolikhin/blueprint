@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControlDouble", "Acce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonUtilities", "..\CommonUtilities\CommonUtilities.csproj", "{0FBA9B8A-73A5-40C6-A3D9-15C38B99372D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\Blueprint-Tests\Common\Common.csproj", "{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0FBA9B8A-73A5-40C6-A3D9-15C38B99372D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FBA9B8A-73A5-40C6-A3D9-15C38B99372D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FBA9B8A-73A5-40C6-A3D9-15C38B99372D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

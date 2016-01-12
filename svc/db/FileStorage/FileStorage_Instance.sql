@@ -307,7 +307,7 @@ BEGIN
 	DECLARE @StoredTime datetime;
 
 	SELECT @CurrentTime = GETUTCDATE();
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime, @CurrentTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 
@@ -469,7 +469,7 @@ BEGIN
 
 	DECLARE @StoredTime datetime;
 	SET @StoredTime = GETUTCDATE();
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime, @StoredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
 
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
     INSERT INTO [dbo].[Files]  

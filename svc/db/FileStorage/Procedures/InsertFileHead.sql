@@ -28,7 +28,7 @@ BEGIN
 
 	DECLARE @StoredTime datetime;
 	SET @StoredTime = GETUTCDATE();
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime, @StoredTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
 
 	DECLARE @op TABLE (ColGuid uniqueidentifier)
     INSERT INTO [dbo].[Files]  

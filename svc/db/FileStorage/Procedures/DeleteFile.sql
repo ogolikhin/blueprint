@@ -25,7 +25,7 @@ BEGIN
 	DECLARE @StoredTime datetime;
 
 	SELECT @CurrentTime = GETUTCDATE();
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime, @CurrentTime);
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 

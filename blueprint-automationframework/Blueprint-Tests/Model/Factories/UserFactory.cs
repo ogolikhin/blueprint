@@ -196,8 +196,8 @@ namespace Model.Factories
         /// <returns>The field value or the default value for the specified type.</returns>
         private static T GetValueOrDefault<T>(SqlDataReader reader, string name)
         {
-            if (reader == null) { throw new ArgumentNullException("reader"); }
-            if (name == null) { throw new ArgumentNullException("name"); }
+            ThrowIf.ArgumentNull(reader, nameof(reader));
+            ThrowIf.ArgumentNull(name, nameof(name));
 
             try
             {
@@ -226,8 +226,8 @@ namespace Model.Factories
         /// <returns>The field value or null.</returns>
         private static Nullable<T> GetValueOrNull<T>(SqlDataReader reader, string name) where T : struct
         {
-            if (reader == null) { throw new ArgumentNullException("reader"); }
-            if (name == null) { throw new ArgumentNullException("name"); }
+            ThrowIf.ArgumentNull(reader, nameof(reader));
+            ThrowIf.ArgumentNull(name, nameof(name));
 
             try
             {

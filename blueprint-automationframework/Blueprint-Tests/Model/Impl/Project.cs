@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Common;
+using Utilities;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -69,7 +70,7 @@ namespace Model.Impl
         /// <returns>A list of all projects on the Blueprint server.</returns>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            if (user == null) { throw new ArgumentNullException("user"); }
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password);
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
@@ -87,7 +88,7 @@ namespace Model.Impl
         /// <returns>a project associated with the projectId provided with the request.</returns>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            if (user == null) { throw new ArgumentNullException("user"); }
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, user.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);

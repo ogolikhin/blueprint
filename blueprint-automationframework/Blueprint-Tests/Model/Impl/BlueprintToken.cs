@@ -1,5 +1,6 @@
 ﻿using System;
 using Common;
+using Utilities;
 
 namespace Model.Impl
 {
@@ -80,7 +81,7 @@ namespace Model.Impl
         /// <exception cref="ArgumentException">If an invalid token string was passed.</exception>
         public void SetToken(string token)
         {
-            if (string.IsNullOrWhiteSpace(token)) { throw new ArgumentNullException(token); }
+            ThrowIf.IsNullOrWhiteSpace(token, nameof(token));
 
             if (token.StartsWithOrdinal("BlueprintToken"))
             {

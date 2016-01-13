@@ -166,7 +166,7 @@ namespace Utilities.Facades
         /// <returns>A RestResponse object.</returns>
         private static RestResponse ConvertToRestResponse(IRestResponse restResponse)
         {
-            if (restResponse == null) { throw new ArgumentNullException(nameof(restResponse)); }
+            ThrowIf.ArgumentNull(restResponse, nameof(restResponse));
 
             var response = new RestResponse
             {

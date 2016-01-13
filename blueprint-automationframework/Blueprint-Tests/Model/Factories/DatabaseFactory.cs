@@ -1,6 +1,6 @@
-﻿using System;
-using Model.Impl;
+﻿using Model.Impl;
 using TestConfig;
+using Utilities;
 
 namespace Model.Factories
 {
@@ -13,7 +13,7 @@ namespace Model.Factories
         /// <returns>The database object.</returns>
         public static IDatabase CreateDatabase(string databaseName = "Blueprint")
         {
-            if (databaseName == null) { throw new ArgumentNullException("databaseName"); }
+            ThrowIf.ArgumentNull(databaseName, nameof(databaseName));
 
             TestConfiguration testConfig = TestConfiguration.GetInstance();
 

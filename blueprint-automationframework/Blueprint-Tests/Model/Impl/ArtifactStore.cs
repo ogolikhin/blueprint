@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Utilities;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -23,7 +24,7 @@ namespace Model.Impl
         /// <param name="address">The URI address of the ArtifactStore.</param>
         public ArtifactStore(string address)
         {
-            if (address == null) { throw new ArgumentNullException("address"); }
+            ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
         }
@@ -38,23 +39,26 @@ namespace Model.Impl
         /// <exception cref="WebException">A WebException sub-class if ArtifactStore returned an unexpected HTTP status code.</exception>
         public IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (artifact == null) { throw new ArgumentNullException("artifact"); }
-            if (user == null) { throw new ArgumentNullException("user"); }
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
             string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS, artifact.ProjectId);
+
             if (expectedStatusCodes == null)
             {
                 expectedStatusCodes = new List<HttpStatusCode>();
                 expectedStatusCodes.Add(HttpStatusCode.Created);
             }
+
             Artifact artractObject = (Artifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
             ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult,Artifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
+
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+
             return artifact;
         }
-
     }
-
 }

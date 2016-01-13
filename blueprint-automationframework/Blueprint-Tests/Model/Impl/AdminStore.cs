@@ -22,10 +22,7 @@ namespace Model.Impl
         /// <param name="address">The base URI of the AdminStore service.</param>
         public AdminStore(string address)
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
+            ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
         }

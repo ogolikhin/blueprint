@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Common;
+﻿using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
-using TestConfig;
 using Utilities;
-using Utilities.Facades;
 
 namespace FileStoreTests
 {
@@ -20,7 +15,7 @@ namespace FileStoreTests
         private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
-        private IUser _userForAuthorizationTests;
+        private IUser _userWithInvalidToken;
 
         [SetUp]
         public void TestSetUp()
@@ -28,19 +23,14 @@ namespace FileStoreTests
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _userForAuthorizationTests = UserFactory.CreateUserAndAddToDatabase();
+            _userWithInvalidToken = UserFactory.CreateUserAndAddToDatabase();
 
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
+            _userWithInvalidToken.SetToken(session.SessionId);  // This is needed to initialize the Token object, but tests will overwrite the token.
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid token for the user for authorization tests.
-            session = _adminStore.AddSession(_userForAuthorizationTests.Username, _userForAuthorizationTests.Password);
-            _userForAuthorizationTests.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_userForAuthorizationTests.Token.AccessControlToken), "The user for authorization tests didn't get an Access Control token!");
         }
 
         [TearDown]
@@ -70,10 +60,10 @@ namespace FileStoreTests
                 _user = null;
             }
 
-            if (_userForAuthorizationTests != null)
+            if (_userWithInvalidToken != null)
             {
-                _userForAuthorizationTests.DeleteUser(deleteFromDatabase: true);
-                _userForAuthorizationTests = null;
+                _userWithInvalidToken.DeleteUser(deleteFromDatabase: true);
+                _userWithInvalidToken = null;
             }
         }
 
@@ -89,12 +79,12 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Replace token with invalid token
-            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
+            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _filestore.AddFile(file, _userForAuthorizationTests);
+                _filestore.AddFile(file, _userWithInvalidToken);
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
@@ -107,58 +97,28 @@ namespace FileStoreTests
             uint chunkSize, 
             string accessControlToken)
         {
+            Assert.That((chunkSize > 0) && (fileSize > chunkSize), "Invalid TestCase detected!  chunkSize must be > 0 and < fileSize.");
+
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Create and execute initial POST request for file
-            var queryParameters = new Dictionary<string, string>();
-            var additionalHeaders = new Dictionary<string, string>();
-
-            additionalHeaders.Add("Content-Type", file.FileType);
-            additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name ={0}; filename={1}", "attachment", file.FileName));
-
             byte[] fileBytes = file.Content;
-            byte[] chunk = fileBytes;
+            byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
 
-            if (chunkSize > 0 && fileBytes.Length > chunkSize)
-            {
-                chunk = fileBytes.Take((int)chunkSize).ToArray();
-            }
-
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-            string address = testConfig.Services["FileStore"].Address;
-            var restApi = new RestApiFacade(address, _user.Username, _user.Password, _user.Token?.AccessControlToken);
-
-            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            var response = restApi.SendRequestAndGetResponse(
-                "svc/filestore/files", 
-                RestRequestMethod.POST, 
-                file.FileName, chunk, 
-                file.FileType, 
-                useMultiPartMime: true, 
-                additionalHeaders: additionalHeaders, 
-                queryParameters:queryParameters, 
-                expectedStatusCodes: expectedStatusCodes);
-
-            file.Id = response.Content.Replace("\"", "");
+            // First POST the first chunk with a valid token.
+            file.Content = chunk;
+            IFile postedFile = _filestore.PostFile(file, _user);
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
-
-            string path = I18NHelper.FormatInvariant("svc/filestore/files/{0}", file.Id);
-
             chunk = rem.Take((int)chunkSize).ToArray();
 
             // Replace token with invalid token
-            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
-
-            // Create new rest api instance to allow for a changed session token
-            restApi = new RestApiFacade(address, _userForAuthorizationTests.Username, _userForAuthorizationTests.Password, _userForAuthorizationTests.Token?.AccessControlToken);
+            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown for subsequent PUT request with invalid token
-            Assert.Throws<Http401UnauthorizedException>(() => 
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
-                file.FileType, useMultiPartMime: true, additionalHeaders: additionalHeaders, queryParameters: queryParameters);
+                _filestore.PutFile(postedFile, chunk, _userWithInvalidToken);
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
@@ -177,12 +137,12 @@ namespace FileStoreTests
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
+            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _filestore.GetFile(storedFile.Id, _userForAuthorizationTests); 
+                _filestore.GetFile(storedFile.Id, _userWithInvalidToken); 
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
@@ -201,12 +161,12 @@ namespace FileStoreTests
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
+            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _filestore.GetFileMetadata(storedFile.Id, _userForAuthorizationTests); 
+                _filestore.GetFileMetadata(storedFile.Id, _userWithInvalidToken); 
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
 
@@ -225,12 +185,12 @@ namespace FileStoreTests
             var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
-            _userForAuthorizationTests.Token.AccessControlToken = accessControlToken;
+            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _filestore.DeleteFile(storedFile.Id, _userForAuthorizationTests); 
+                _filestore.DeleteFile(storedFile.Id, _userWithInvalidToken); 
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
     }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Mime;
 using Common;
 using NUnit.Framework;
+using Utilities;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -12,7 +13,7 @@ namespace Model.Impl
     public class FileStore : IFileStore
     {
         private const string SVC_PATH = "svc/filestore";
-        private const string BLUEPRINT_SESSION_TOKEN = "BLUEPRINT_SESSION_TOKEN";
+        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         private static string _address;
 
@@ -121,7 +122,7 @@ namespace Model.Impl
 
             if (sendAuthorizationAsCookie)
             {
-                cookies.Add(BLUEPRINT_SESSION_TOKEN, tokenValue);
+                cookies.Add(SessionTokenCookieName, tokenValue);
                 tokenValue = string.Empty;
             }
 
@@ -182,7 +183,7 @@ namespace Model.Impl
 
             if (sendAuthorizationAsCookie)
             {
-                cookies.Add(BLUEPRINT_SESSION_TOKEN, tokenValue);
+                cookies.Add(SessionTokenCookieName, tokenValue);
                 tokenValue = string.Empty;
             }
 
@@ -229,16 +230,15 @@ namespace Model.Impl
         public IFile PutFile(IFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            if (file == null) { throw new ArgumentNullException(nameof(file)); }
-
-            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();
 
             if (sendAuthorizationAsCookie)
             {
-                cookies.Add(BLUEPRINT_SESSION_TOKEN, tokenValue);
+                cookies.Add(SessionTokenCookieName, tokenValue);
                 tokenValue = string.Empty;
             }
 
@@ -292,7 +292,7 @@ namespace Model.Impl
 
             if (sendAuthorizationAsCookie)
             {
-                cookies.Add(BLUEPRINT_SESSION_TOKEN, tokenValue);
+                cookies.Add(SessionTokenCookieName, tokenValue);
                 tokenValue = string.Empty;
             }
 

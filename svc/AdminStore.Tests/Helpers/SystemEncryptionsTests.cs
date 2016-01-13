@@ -29,7 +29,7 @@ namespace AdminStore.Helpers
             string result = SystemEncryptions.Encrypt(input);
 
             // Assert
-            Assert.AreEqual("0vhy8lC3RZxzjPEyoAm1Dw==", result);
+            Assert.AreEqual("AyziEDAP1KDcBevH2skTdQ==", result);
         }
 
         #endregion Encrypt
@@ -52,7 +52,7 @@ namespace AdminStore.Helpers
         public void Decrypt_NonEmpty_ReturnsResult()
         {
             // Arrange
-            string input = "fb0caYSrKYtfjm/+Hy4D2w==";
+            string input = "syXE1v5RHe6bNf8wzYDw6w==";
 
             // Act
             string result = SystemEncryptions.Decrypt(input);

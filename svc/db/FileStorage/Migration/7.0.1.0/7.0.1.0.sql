@@ -104,15 +104,16 @@ GO
 
 CREATE FUNCTION [dbo].[ValidateExpiryTime]
 (
-	@storedTime AS datetime,
+	--CurrentTime needs to be a parameter for InsertFileHead usage, to have stored time and expire time equal if set to expire now.	
+	@currentTime AS datetime,
 	@expiredTime AS datetime
 )
 RETURNS datetime
 AS
 BEGIN
-	IF @expiredTime < @storedTime
+	IF @expiredTime IS NOT NULL AND @expiredTime < @currentTime
 	begin
-		SET @expiredTime = @storedTime;
+		SET @expiredTime = @currentTime;
 	end
 	return @expiredTime;
 END
@@ -179,10 +180,9 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from interfering with SELECT statements.
 	SET NOCOUNT ON
 	
-	DECLARE @StoredTime datetime;
-
-	SELECT @StoredTime = Storedtime FROM [dbo].[Files]  WHERE [FileId] = @FileId;
-	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@StoredTime, @ExpiredTime);
+	DECLARE @CurrentTime datetime;
+	SELECT @CurrentTime = GETUTCDATE();
+	SET @ExpiredTime = [dbo].[ValidateExpiryTime](@CurrentTime, @ExpiredTime);
 
 	SET NOCOUNT ON
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Logging;
+using Common;
 using Model.Factories;
 using TestConfig;
 
@@ -93,7 +93,7 @@ namespace Model.Impl
         /// <returns>A string representation of this object.</returns>
         public override string ToString()
         {
-            string str = string.Format("[User: Username = '{0}', Department = '{1}', DisplayName = '{2}', Email = '{3}', Enabled = '{4}', FirstName = '{5}', " +
+            string str = I18NHelper.FormatInvariant("[User: Username = '{0}', Department = '{1}', DisplayName = '{2}', Email = '{3}', Enabled = '{4}', FirstName = '{5}', " +
                 "InstanceAdminRole = '{6}', LastName = '{7}', License = '{8}', Password = '{9}', Picture = '{10}', Source = '{11}', Title = '{12}']",
                 Username, toStringOrNull(Department), toStringOrNull(DisplayName), toStringOrNull(Email), Enabled, FirstName,
                  InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Length > 0), Source, toStringOrNull(Title));
@@ -139,7 +139,7 @@ namespace Model.Impl
         /// <returns>A string version of the date.</returns>
         private static string dateTimeToString(DateTime date)
         {
-            string dateString = date.ToString("yyyy-MM-dd HH:mm:ss");
+            string dateString = date.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
             return dateString;
         }
 
@@ -190,7 +190,7 @@ namespace Model.Impl
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
 
-                string query = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", USERS_TABLE, fields, values);
+                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", USERS_TABLE, fields, values);
                 int rowsAffected = 0;
 
                 Logger.WriteDebug("Running: {0}", query);
@@ -202,7 +202,7 @@ namespace Model.Impl
 
                 if (rowsAffected <= 0)
                 {
-                    throw new SqlQueryFailedException(string.Format("No rows were inserted when running: {0}", query));
+                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
                 }
             }
         }
@@ -225,12 +225,12 @@ namespace Model.Impl
 
                 if (deleteFromDatabase)
                 {
-                    query = string.Format("DELETE FROM {0} WHERE Login='{1}'", USERS_TABLE, Username);
+                    query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE Login='{1}'", USERS_TABLE, Username);
                 }
                 else
                 {
                     EndTimestamp = DateTime.Now;
-                    query = string.Format("UPDATE {0} SET EndTimestamp='{1}' WHERE Login='{2}' and EndTimestamp is NULL", USERS_TABLE, dateTimeToString(EndTimestamp.Value), Username);
+                    query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE Login='{2}' and EndTimestamp is NULL", USERS_TABLE, dateTimeToString(EndTimestamp.Value), Username);
                 }
 
                 Logger.WriteDebug("Running: {0}", query);
@@ -244,7 +244,7 @@ namespace Model.Impl
 
                     if (rowsAffected <= 0)
                     {
-                        string msg = string.Format("No rows were affected when running: {0}", query);
+                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
                         throw new SqlQueryFailedException(msg);
                     }
@@ -264,7 +264,7 @@ namespace Model.Impl
         public override string ToString()
         {
             string str = base.ToString();
-            str += string.Format(" + [AllowFallback = '{0}', CurrentVersion = '{1}', EndTimestamp = '{2}', EULAccepted = '{3}', ExpirePassword = '{4}', Guest = '{5}', " +
+            str += I18NHelper.FormatInvariant(" + [AllowFallback = '{0}', CurrentVersion = '{1}', EndTimestamp = '{2}', EULAccepted = '{3}', ExpirePassword = '{4}', Guest = '{5}', " +
                 "InvalidLogonAttemptsNumber = '{6}', LastInvalidLogonTimeStamp = '{7}', LastPasswordChangeTimestamp = '{8}', StartTimestamp = '{9}', UserSALT = '{10}']",
                 toStringOrNull(AllowFallback), CurrentVersion, toStringOrNull(EndTimestamp), EULAccepted, toStringOrNull(ExpirePassword), Guest, InvalidLogonAttemptsNumber, toStringOrNull(LastInvalidLogonTimeStamp),
                 toStringOrNull(LastPasswordChangeTimestamp), StartTimestamp, UserSALT);

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using Common;
 using NUnit.Framework;
+using Utilities;
 using Utilities.Facades;
 
 namespace Model.Impl
@@ -11,6 +13,7 @@ namespace Model.Impl
     public class FileStore : IFileStore
     {
         private const string SVC_PATH = "svc/filestore";
+        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         private static string _address;
 
@@ -24,24 +27,79 @@ namespace Model.Impl
         /// <param name="address">The URI address of the FileStore.</param>
         public FileStore(string address)
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
+            ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
         }
 
+        /// <seealso cref="IFileStore.AddFile"/>
         public IFile AddFile(IFile file,
             IUser user,
             DateTime? expireTime = null,
             bool useMultiPartMime = false,
             uint chunkSize = 0,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
-            if (file == null)
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            byte[] fileBytes = file.Content;
+            byte[] chunk = fileBytes;
+
+            // If we are chunking the file, get the first chunk ready.
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                throw new ArgumentNullException(nameof(file));
+                chunk = fileBytes.Take((int)chunkSize).ToArray();
+                file.Content = chunk;
+            }
+
+            // Post the first chunk of the file.
+            IFile postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+
+            if (chunkSize > 0 && fileBytes.Length > chunkSize)
+            {
+                List<byte> fileChunkList = new List<byte>(postedFile.Content);
+                byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
+
+                do
+                {
+                    chunk = rem.Take((int)chunkSize).ToArray();
+                    rem = rem.Skip((int)chunkSize).ToArray();
+
+                    // Put each subsequent chunk of the file.
+                    PutFile(file, chunk, user, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+                    fileChunkList.AddRange(chunk);
+                } while (rem.Length > 0);
+
+                postedFile.Content = fileChunkList.ToArray();
+            }
+
+            return postedFile;
+        }
+
+        /// <seealso cref="IFileStore.GetFile"/>
+        public IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            return GetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes, sendAuthorizationAsCookie);
+        }
+
+        /// <seealso cref="IFileStore.GetFileMetadata"/>
+        public IFileMetadata GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes, sendAuthorizationAsCookie);
+        }
+
+        /// <seealso cref="IFileStore.DeleteFile"/>
+        public void DeleteFile(string fileId,
+            IUser user,
+            DateTime? expireTime = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (fileId == null)
+            {
+                throw new ArgumentNullException(nameof(fileId));
             }
             if (user == null)
             {
@@ -52,7 +110,76 @@ namespace Model.Impl
 
             if (expireTime.HasValue)
             {
-                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+                queryParameters.Add("expired", expireTime.Value.ToStringInvariant("o"));
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            try
+            {
+                restApi.SendRequestAndGetResponse(
+                    path, 
+                    RestRequestMethod.DELETE, 
+                    queryParameters: queryParameters, 
+                    expectedStatusCodes: expectedStatusCodes, 
+                    cookies: cookies);
+            }
+            finally
+            {
+                if (expireTime == null || expireTime <= DateTime.Now)
+                {
+                    Files.Remove(Files.First(i => i.Id == fileId));
+                }
+            }
+        }
+
+        /// <seealso cref="IFileStore.GetStatus"/>
+        public HttpStatusCode GetStatus()
+        {
+            var restApi = new RestApiFacade(_address, token:string.Empty);
+            var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+
+            return response.StatusCode;
+        }
+
+        /// <seealso cref="IFileStore.PostFile"/>
+        public IFile PostFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
+            List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (expireTime.HasValue)
+            {
+                queryParameters.Add("expired", expireTime.Value.ToStringInvariant("o"));
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
             }
 
             var additionalHeaders = new Dictionary<string, string>();
@@ -64,8 +191,7 @@ namespace Model.Impl
 
             if (!string.IsNullOrEmpty(file.FileName))
             {
-
-                additionalHeaders.Add("Content-Disposition", string.Format("form-data; name ={0}; filename={1}", "attachment", file.FileName));
+                additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name=attachment; filename={0}", file.FileName));
             }
 
             if (expectedStatusCodes == null)
@@ -73,124 +199,100 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
-            byte[] fileBytes = file.Content;
-            byte[] chunk = fileBytes;
+            var path = I18NHelper.FormatInvariant("{0}/files", SVC_PATH);
 
-            if (chunkSize > 0 && fileBytes.Length > chunkSize)
-            {
-                chunk = fileBytes.Take((int)chunkSize).ToArray();
-            }
-
-            var path = string.Format("{0}/files", SVC_PATH);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, file.FileName, chunk, file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                file.FileName,
+                file.Content,
+                file.FileType,
+                useMultiPartMime,
+                additionalHeaders,
+                queryParameters,
+                expectedStatusCodes,
+                cookies);
 
             file.Id = response.Content.Replace("\"", "");
-
-            if (chunkSize > 0 && fileBytes.Length > chunkSize)
-            {
-                byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
-
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-                path = string.Format("{0}/files/{1}", SVC_PATH, file.Id);
-
-                do
-                {
-                    chunk = rem.Take((int)chunkSize).ToArray();
-                    rem = rem.Skip((int)chunkSize).ToArray();
-
-                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.PUT, file.FileName, chunk,
-                        file.FileType, useMultiPartMime, additionalHeaders, queryParameters, expectedStatusCodes);
-                } while (rem.Length > 0 && expectedStatusCodes.Contains(response.StatusCode));
-            }
 
             Files.Add(file);
 
             return file;
         }
 
-        public IFile GetFile(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IFileStore.PutFile"/>
+        public IFile PutFile(IFile file, byte[] chunk, IUser user, bool useMultiPartMime = false,
+            List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            return GetFile(fileId, user, RestRequestMethod.GET, expectedStatusCodes);
-        }
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-        public IFileMetadata GetFileMetadata(string fileId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return GetFile(fileId, user, RestRequestMethod.HEAD, expectedStatusCodes);
-        }
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
 
-        public void DeleteFile(string fileId,
-            IUser user,
-            DateTime? expireTime = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            if (fileId == null)
+            if (sendAuthorizationAsCookie)
             {
-                throw new ArgumentNullException(nameof(fileId));
-            }
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
             }
 
-            var queryParameters = new Dictionary<string, string>();
+            var additionalHeaders = new Dictionary<string, string>();
 
-            if (expireTime.HasValue)
+            if (!string.IsNullOrEmpty(file.FileType))
             {
-                queryParameters.Add("expired", expireTime.Value.ToString("o"));
+                additionalHeaders.Add("Content-Type", file.FileType);
             }
 
-            if (expectedStatusCodes == null)
+            if (!string.IsNullOrEmpty(file.FileName))
             {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+                additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name=attachment; filename={0}", file.FileName));
             }
 
-            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
+            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.PUT,
+                file.FileName,
+                chunk,
+                file.FileType,
+                useMultiPartMime,
+                additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
 
-            try
-            {
-                restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            }
-            finally
-            {
-                if (expireTime == null || expireTime <= DateTime.Now)
-                {
-                    Files.Remove(Files.First(i => i.Id == fileId));
-                }
-            }
-        }
-
-        public HttpStatusCode GetStatus()
-        {
-            var restApi = new RestApiFacade(_address, token:string.Empty);
-            var path = string.Format("{0}/status", SVC_PATH);
-
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
-
-            return response.StatusCode;
+            return file;
         }
 
         private static IFile GetFile(string fileId,
             IUser user,
             RestRequestMethod webRequestMethod,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
+            ThrowIf.ArgumentNull(fileId, nameof(fileId));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
             File file = null;
 
-            if (fileId == null)
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
             {
-                throw new ArgumentNullException(nameof(fileId));
-            }
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
             }
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.AccessControlToken);
-            var path = string.Format("{0}/files/{1}", SVC_PATH, fileId);
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
 
-            var response = restApi.SendRequestAndGetResponse(path, webRequestMethod, expectedStatusCodes:expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse(
+                path, 
+                webRequestMethod, 
+                expectedStatusCodes:expectedStatusCodes, 
+                cookies: cookies);
 
             if (webRequestMethod == RestRequestMethod.HEAD)
             {

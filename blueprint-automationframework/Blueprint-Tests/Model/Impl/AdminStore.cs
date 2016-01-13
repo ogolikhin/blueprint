@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Logging;
+using Common;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -60,7 +60,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             string encodedUsername = HashingUtilities.EncodeTo64UTF8(username);
             string encodedPassword = HashingUtilities.EncodeTo64UTF8(password);
@@ -107,7 +107,7 @@ namespace Model.Impl
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
-            string path = string.Format("{0}/sessions", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
 

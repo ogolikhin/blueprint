@@ -1,5 +1,5 @@
 ﻿using System;
-using Logging;
+using Common;
 
 namespace Model.Impl
 {
@@ -30,7 +30,7 @@ namespace Model.Impl
             get { return _accessControlToken; }
             set
             {
-                if ((value != null) && !value.StartsWith("BlueprintToken") && (value.Length == 32))
+                if ((value != null) && !value.StartsWithOrdinal("BlueprintToken") && (value.Length == 32))
                 {
                     Logger.WriteDebug("Setting AccessControlToken to: {0}", value);
                     _accessControlToken = value;
@@ -56,7 +56,7 @@ namespace Model.Impl
             get { return _openApiToken; }
             set
             {
-                if ((value != null) && value.StartsWith("BlueprintToken"))
+                if ((value != null) && value.StartsWithOrdinal("BlueprintToken"))
                 {
                     Logger.WriteDebug("Setting OpenApiToken to: {0}", value);
                     _openApiToken = value;
@@ -82,7 +82,7 @@ namespace Model.Impl
         {
             if (string.IsNullOrWhiteSpace(token)) { throw new ArgumentNullException(token); }
 
-            if (token.StartsWith("BlueprintToken"))
+            if (token.StartsWithOrdinal("BlueprintToken"))
             {
                 OpenApiToken = token;
             }

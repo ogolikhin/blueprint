@@ -2,6 +2,7 @@
 using System.Web.Http;
 using AccessControl.Controllers;
 using AccessControl.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AccessControl
 {
@@ -19,7 +20,7 @@ namespace AccessControl
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-        public static int SessionTimeoutInterval = int.Parse(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+        public static int SessionTimeoutInterval = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
 
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);

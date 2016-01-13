@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore
 {
@@ -34,12 +35,12 @@ namespace AdminStore
 
         public static bool ConfigValue(string configValue, bool defaultValue)
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? bool.Parse(ConfigurationManager.AppSettings[configValue].ToLower()) : defaultValue);
+            return (ConfigurationManager.AppSettings[configValue] != null ? bool.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
 
         public static int ConfigValue(string configValue, int defaultValue)
         {
-            return (ConfigurationManager.AppSettings[configValue] != null ? int.Parse(ConfigurationManager.AppSettings[configValue]) : defaultValue);
+            return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
 
         internal static string LogSource_Config = "AdminStore.Config";

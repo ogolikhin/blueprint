@@ -49,9 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logging\Logging.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
-      <Name>Logging</Name>
+      <Name>Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>

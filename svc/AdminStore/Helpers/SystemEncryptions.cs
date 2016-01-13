@@ -11,7 +11,7 @@ namespace AdminStore.Helpers
     /// </summary>
     public static class SystemEncryptions
     {
-        private const string Utf8EncodingSaltString = "UTF8EncodingSalt-RaptorRocks";
+        private const string Utf8EncodingSaltString = "UTF8EncodingSalt-RaptorRocks-Backend";
 
         public static string Encrypt(string input)
         {

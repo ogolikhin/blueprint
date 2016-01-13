@@ -27,10 +27,7 @@ namespace Model.Impl
         /// <param name="address">The URI address of the FileStore.</param>
         public FileStore(string address)
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
+            ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
         }
@@ -44,9 +41,8 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            if (file == null) { throw new ArgumentNullException(nameof(file)); }
-
-            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             byte[] fileBytes = file.Content;
             byte[] chunk = fileBytes;
@@ -167,9 +163,8 @@ namespace Model.Impl
         public IFile PostFile(IFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            if (file == null) { throw new ArgumentNullException(nameof(file)); }
-
-            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             var queryParameters = new Dictionary<string, string>();
 
@@ -276,16 +271,10 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            File file = null;
+            ThrowIf.ArgumentNull(fileId, nameof(fileId));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-            if (fileId == null)
-            {
-                throw new ArgumentNullException(nameof(fileId));
-            }
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            File file = null;
 
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();

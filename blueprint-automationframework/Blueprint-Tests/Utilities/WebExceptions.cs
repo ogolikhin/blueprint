@@ -330,7 +330,7 @@ namespace Utilities
         /// <exception cref="ArgumentNullException">If a null argument was passed in.</exception>
         public static WebException Convert(WebException ex)
         {
-            if (ex == null) { throw new ArgumentNullException ("ex"); }
+            ThrowIf.ArgumentNull(ex, nameof(ex));
 
             if (ex.Message.Contains(Http400BadRequestException.ERROR))
             {

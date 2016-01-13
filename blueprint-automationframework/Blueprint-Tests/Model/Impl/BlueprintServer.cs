@@ -59,7 +59,7 @@ namespace Model.Impl
         /// <returns>The user's token.</returns>
         public static IBlueprintToken GetUserToken(string address, IUser user, bool forceNew = false)
         {
-            if (user == null) { throw new ArgumentNullException("user"); }
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             if (forceNew || (user.Token == null))
             {
@@ -95,7 +95,7 @@ namespace Model.Impl
         /// <returns>The RestResponse received from the server.</returns>
         public static RestResponse LoginUsingBasicAuthorization(string address, IUser user, string token = null, uint maxRetries = 1)
         {
-            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             RestResponse response = null;
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, token);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Utilities;
 using Utilities.Facades;
 
 
@@ -21,10 +22,7 @@ namespace Model.Impl
         /// <param name="address">The URI address of the AccessControl service.</param>
         public AccessControl(string address)
         {
-            if (address == null)
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
+            ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
         }
@@ -52,7 +50,7 @@ namespace Model.Impl
 
         public ISession AuthorizeOperation(ISession session, string operation = null, int? artifactId = null)    // PUT /sessions?op={op}&aid={artifactId}
         {
-            if (session == null) { throw new ArgumentNullException(nameof(session)); }
+            ThrowIf.ArgumentNull(session, nameof(session));
 
             var restApi = new RestApiFacade(_address, session.SessionId);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
@@ -115,7 +113,7 @@ namespace Model.Impl
 
         public ISession AddSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)   // POST /sessions/{userId}
         {
-            if (session == null) { throw new ArgumentNullException(nameof(session)); }
+            ThrowIf.ArgumentNull(session, nameof(session));
 
             return AddSession(session.UserId,
                 session.UserName,

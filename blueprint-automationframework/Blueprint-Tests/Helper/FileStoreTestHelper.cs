@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Text;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
+using Utilities;
 using Utilities.Factories;
 
 namespace Helper
@@ -21,9 +20,8 @@ namespace Helper
         /// <exception cref="AssertionException">If file1 is not identical to file2.</exception>
         public static void AssertFilesAreIdentical(IFile file1, IFile file2, bool compareIds = true, bool compareContent = true)
         {
-            if (file1 == null) { throw new ArgumentNullException(nameof(file1)); }
-
-            if (file2 == null) { throw new ArgumentNullException(nameof(file2)); }
+            ThrowIf.ArgumentNull(file1, nameof(file1));
+            ThrowIf.ArgumentNull(file2, nameof(file2));
 
             Assert.AreEqual(file1.FileName, file2.FileName,
                 "The file name of the files don't match!");
@@ -50,11 +48,10 @@ namespace Helper
         /// <param name="file2">Second file's meta-data to compare.</param>
         /// <param name="compareIds">(optional) Pass false if you don't want to include the File IDs in the comparisons.</param>
         /// <exception cref="AssertionException">If file1 is not identical to file2.</exception>
-        public static void AssertFileMetadatasAreIdentical(IFileMetadata file1, IFileMetadata file2, bool compareIds = true)
+        public static void AssertFilesMetadataAreIdentical(IFileMetadata file1, IFileMetadata file2, bool compareIds = true)
         {
-            if (file1 == null) { throw new ArgumentNullException(nameof(file1)); }
-
-            if (file2 == null) { throw new ArgumentNullException(nameof(file2)); }
+            ThrowIf.ArgumentNull(file1, nameof(file1));
+            ThrowIf.ArgumentNull(file2, nameof(file2));
 
             Assert.AreEqual(file1.FileName, file2.FileName,
                 "The file name of the files don't match!");
@@ -80,7 +77,7 @@ namespace Helper
         /// <exception cref="AssertionException">If the file was not added to FileStore.</exception>
         public static IFile CreateAndAddFile(uint fileSize, string fileName, string fileType, IFileStore filestore, IUser user)
         {
-            if (filestore == null) { throw new ArgumentNullException(nameof(filestore)); }
+            ThrowIf.ArgumentNull(filestore, nameof(filestore));
 
             // Create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fileName, fileType);

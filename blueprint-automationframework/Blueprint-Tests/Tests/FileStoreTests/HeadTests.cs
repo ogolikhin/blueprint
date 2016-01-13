@@ -74,7 +74,7 @@ namespace FileStoreTests
             var returnedFile = _filestore.GetFileMetadata(storedFile.Id, _user);
 
             // Verify meta-data is the same as the file we added.
-            FileStoreTestHelper.AssertFileMetadatasAreIdentical(storedFile, returnedFile);
+            FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);
         }
     }
 }

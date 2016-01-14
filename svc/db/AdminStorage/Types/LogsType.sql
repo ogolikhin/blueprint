@@ -35,9 +35,11 @@ CREATE TYPE LogsType AS TABLE
 	[ThreadId] [int],
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
-	[MethodName] [nvarchar](100),
-	[FilePath] [nvarchar](1000),
-	[LineNumber] [int],
-	[StackTrace] [nvarchar](4000)
+	[UserName] [nvarchar](Max),
+	[SessionId] [nvarchar](40),
+	[DateTime] [datetimeoffset](7) NOT NULL,
+	[ActionName] [nvarchar](200),
+	[CorrelationId] [uniqueidentifier],
+	[Duration] [float]
 );
 GO

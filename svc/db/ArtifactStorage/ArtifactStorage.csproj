@@ -78,7 +78,9 @@
     </Content>
     <Content Include="Procedures\SetSchemaVersion.sql" />
     <Content Include="RecreateArtifactStorage.sql" />
+    <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
+    <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\DbVersionInfo.sql" />
   </ItemGroup>
   <ItemGroup>

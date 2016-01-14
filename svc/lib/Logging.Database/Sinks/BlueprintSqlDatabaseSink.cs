@@ -240,10 +240,12 @@ namespace Logging.Database.Sinks
                 sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
                 sqlBulkCopy.ColumnMappings.Add("IpAddress", "IpAddress");
                 sqlBulkCopy.ColumnMappings.Add("Source", "Source");
-                sqlBulkCopy.ColumnMappings.Add("MethodName", "MethodName");
-                sqlBulkCopy.ColumnMappings.Add("FilePath", "FilePath");
-                sqlBulkCopy.ColumnMappings.Add("LineNumber", "LineNumber");
-                sqlBulkCopy.ColumnMappings.Add("StackTrace", "StackTrace");
+                sqlBulkCopy.ColumnMappings.Add("UserName", "UserName");
+                sqlBulkCopy.ColumnMappings.Add("SessionId", "SessionId");
+                sqlBulkCopy.ColumnMappings.Add("DateTime", "DateTime");
+                sqlBulkCopy.ColumnMappings.Add("ActionName", "ActionName");
+                sqlBulkCopy.ColumnMappings.Add("CorrelationId", "CorrelationId");
+                sqlBulkCopy.ColumnMappings.Add("Duration", "Duration");
 
                 await retryPolicy.ExecuteAsync(() => sqlBulkCopy.WriteToServerAsync(reader, token), token).ConfigureAwait(false);
             }

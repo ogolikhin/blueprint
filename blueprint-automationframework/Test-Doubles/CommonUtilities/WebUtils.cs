@@ -1,4 +1,9 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Common;
 
 namespace CommonUtilities
 {
@@ -19,6 +24,17 @@ namespace CommonUtilities
             {
                 dest.Add(value);
             }
+        }
+
+        /// <summary>
+        /// Configures the specified HttpClient with the right BaseAddress and copies the Headers into it.
+        /// </summary>
+        /// <param name="http">The HttpClient to be configured.</param>
+        public static void ConfigureHttpClient(HttpClient http, HttpRequestMessage request, string uri)
+        {
+            http.BaseAddress = new Uri(uri);
+            CopyHttpRequestHeaders(request.Headers, http.DefaultRequestHeaders);
+            CopySessionTokenHeader(request.Headers, http.DefaultRequestHeaders);
         }
 
         /// <summary>
@@ -60,6 +76,50 @@ namespace CommonUtilities
             dest.Range = source.Range;
             dest.Referrer = source.Referrer;
             dest.TransferEncodingChunked = source.TransferEncodingChunked;
+        }
+
+        /// <summary>
+        /// If present, copies the Session-Token from the source headers to dest.
+        /// </summary>
+        /// <param name="source">The HTTP headers to copy from.</param>
+        /// <param name="dest">The HTTP headers to copy to.</param>
+        public static void CopySessionTokenHeader(HttpRequestHeaders source, HttpRequestHeaders dest)
+        {
+            const string TOKEN_HEADER = "Session-Token";
+
+            if (source.Contains(TOKEN_HEADER))
+            {
+                var tokens = source.GetValues(TOKEN_HEADER);
+                dest.Add(TOKEN_HEADER, tokens.First());
+            }
+        }
+
+        /// <summary>
+        /// Creates a copy of the request Uri that points to the real AccessControl.
+        /// </summary>
+        /// <returns>The new Uri.</returns>
+        public static Uri CreateUri(Uri requestUri, string svcBaseUri, string svcPath)
+        {
+            string path = requestUri.LocalPath.Replace(svcPath, string.Empty);
+            Uri uri = new Uri(I18NHelper.FormatInvariant("{0}/{1}/{2}", svcBaseUri, path.TrimEnd('/'), requestUri.Query).TrimEnd('/'));
+
+            return uri;
+        }
+
+        /// <summary>
+        /// Writes the REST response to the log file.
+        /// </summary>
+        /// <param name="logFile">The open log file to write to.</param>
+        /// <param name="response">The response we got from a REST API call.</param>
+        public static void LogRestResponse(LogFile logFile, HttpResponseMessage response)
+        {
+            logFile.WriteLine("    --> Got back: StatusCode = {0}", response.StatusCode);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                logFile.WriteLine("    --> ReasonPhrase = {0}", response.ReasonPhrase);
+                logFile.WriteLine("    --> Content = {0}", response.Content);
+            }
         }
     }
 }

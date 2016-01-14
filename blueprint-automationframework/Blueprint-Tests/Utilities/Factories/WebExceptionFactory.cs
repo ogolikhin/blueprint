@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Common;
 
 namespace Utilities.Factories
@@ -12,8 +13,9 @@ namespace Utilities.Factories
         /// Create the appropriate WebException object based on the specified status code.
         /// </summary>
         /// <param name="statusCode">The HTTP status code number.</param>
+        /// <param name="innerExceptionMsg">The inner exception message.</param>
         /// <returns>A WebException or a child of WebException appropriate for the specified status code.</returns>
-        public static WebException Create(int statusCode)
+        public static WebException Create(int statusCode, string innerExceptionMsg)
         {
             WebException ex = null;
             string message = I18NHelper.FormatInvariant("Received status code: {0}.", statusCode);
@@ -48,7 +50,12 @@ namespace Utilities.Factories
                     ex = new Http503ServiceUnavailableException(message);
                     break;
                 default:
-                    return new WebException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!", statusCode));
+                    if (innerExceptionMsg == null)
+                    {
+                        innerExceptionMsg = String.Empty;
+                    }
+
+                    return new WebException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!  Inner Exception = '{1}'", statusCode, innerExceptionMsg));
             }
 
             Logger.WriteDebug(message);

@@ -30,6 +30,8 @@ namespace CommonUtilities
         /// Configures the specified HttpClient with the right BaseAddress and copies the Headers into it.
         /// </summary>
         /// <param name="http">The HttpClient to be configured.</param>
+        /// <param name="request">The Request to copy settings from.</param>
+        /// <param name="uri">The base URI for the service you want to call.</param>
         public static void ConfigureHttpClient(HttpClient http, HttpRequestMessage request, string uri)
         {
             http.BaseAddress = new Uri(uri);
@@ -97,6 +99,9 @@ namespace CommonUtilities
         /// <summary>
         /// Creates a copy of the request Uri that points to the real AccessControl.
         /// </summary>
+        /// <param name="requestUri">The Request Uri to copy from.</param>
+        /// <param name="svcBaseUri">The base Uri of the service.</param>
+        /// <param name="svcPath">The service path for the Uri.</param>
         /// <returns>The new Uri.</returns>
         public static Uri CreateUri(Uri requestUri, string svcBaseUri, string svcPath)
         {

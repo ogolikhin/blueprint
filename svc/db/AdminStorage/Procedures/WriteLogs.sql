@@ -36,10 +36,12 @@ BEGIN
 		[ThreadId],
 		[IpAddress],
 		[Source],
-		[MethodName],
-		[FilePath],
-		[LineNumber],
-		[StackTrace]
+		[UserName],
+		[SessionId],
+		[DateTime],
+		[ActionName],
+		[CorrelationId],
+		[Duration]
 	)
   SELECT * FROM @InsertLogs;
 END

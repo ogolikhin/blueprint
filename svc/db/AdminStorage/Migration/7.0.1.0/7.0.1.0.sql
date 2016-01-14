@@ -32,6 +32,34 @@ End
 GO
 
 
+DECLARE @db_id AS int = DB_ID();
+DECLARE @kills AS nvarchar(max) = N'';
+SELECT @kills = @kills+N'KILL '+CAST([spid] AS nvarchar(16))+N'; ' FROM [sys].[sysprocesses] WHERE ([dbid] = @db_id) AND ([spid] <> @@SPID);
+IF(LEN(@kills) > 0)
+	BEGIN TRY
+		EXEC(@kills);
+	END TRY
+	BEGIN CATCH
+	END CATCH
+GO
+
+DECLARE @db_id AS int = DB_ID();
+DECLARE @db_name AS nvarchar(128) = DB_NAME();
+IF NOT EXISTS(SELECT * FROM [sys].[sysprocesses] WHERE ([dbid] = @db_id) AND ([spid] <> @@SPID))
+	AND EXISTS(SELECT * FROM [sys].[databases] WHERE ([database_id] = @db_id) AND ([is_read_committed_snapshot_on] = 0))
+	BEGIN TRY
+		EXEC(N'ALTER DATABASE [' + @db_name + N'] SET ALLOW_SNAPSHOT_ISOLATION ON');
+		EXEC(N'ALTER DATABASE [' + @db_name + N'] SET READ_COMMITTED_SNAPSHOT ON');
+	END TRY
+	BEGIN CATCH
+	END CATCH
+GO
+
+DECLARE @db_name AS nvarchar(128) = DB_NAME();
+DECLARE @sql AS nvarchar(max);
+
+SET @sql = N'ALTER DATABASE [' + @db_name + N'] SET COMPATIBILITY_LEVEL = 110'; -- SQL Server 2012
+EXEC(@sql);
 
 /******************************************************************************************************************************
 Name:			LogsType
@@ -70,10 +98,12 @@ CREATE TYPE LogsType AS TABLE
 	[ThreadId] [int],
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
-	[MethodName] [nvarchar](100),
-	[FilePath] [nvarchar](1000),
-	[LineNumber] [int],
-	[StackTrace] [nvarchar](4000)
+	[UserName] [nvarchar](Max),
+	[SessionId] [nvarchar](40),
+	[DateTime] [datetimeoffset](7) NOT NULL,
+	[ActionName] [nvarchar](200),
+	[CorrelationId] [uniqueidentifier],
+	[Duration] [float]
 );
 GO
 
@@ -211,7 +241,6 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
-		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
@@ -296,7 +325,6 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRY
-		SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 		BEGIN TRANSACTION;
 
 		-- [Sessions]
@@ -530,10 +558,12 @@ BEGIN
 		[ThreadId],
 		[IpAddress],
 		[Source],
-		[MethodName],
-		[FilePath],
-		[LineNumber],
-		[StackTrace]
+		[UserName],
+		[SessionId],
+		[DateTime],
+		[ActionName],
+		[CorrelationId],
+		[Duration]
 	)
   SELECT * FROM @InsertLogs;
 END

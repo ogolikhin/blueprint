@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.SqlServer.Server;
+using ServiceLibrary.Helpers;
 
 namespace Logging.Database.Utility
 {
@@ -43,10 +44,12 @@ namespace Logging.Database.Utility
                 new SqlMetaData("ThreadId", SqlDbType.Int),
                 new SqlMetaData("IpAddress", SqlDbType.NVarChar, 45),
                 new SqlMetaData("Source", SqlDbType.NVarChar, 100),
-                new SqlMetaData("MethodName", SqlDbType.NVarChar, 100),
-                new SqlMetaData("FilePath", SqlDbType.NVarChar, 1000),
-                new SqlMetaData("LineNumber", SqlDbType.Int),
-                new SqlMetaData("StackTrace", SqlDbType.NVarChar, 4000)
+                new SqlMetaData("UserName", SqlDbType.NVarChar, -1),
+                new SqlMetaData("SessionId", SqlDbType.NVarChar, 40),
+                new SqlMetaData("DateTime", SqlDbType.DateTimeOffset),
+                new SqlMetaData("ActionName", SqlDbType.NVarChar, 200),
+                new SqlMetaData("CorrelationId", SqlDbType.UniqueIdentifier),
+                new SqlMetaData("Duration", SqlDbType.Float)
             };
 
             Fields = SqlMetaData.Select(x => x.Name).ToArray();
@@ -64,7 +67,7 @@ namespace Logging.Database.Utility
             sqlDataRecord.SetValue(5, (int)record.Schema.Level);
             sqlDataRecord.SetValue(6, (int)record.Schema.Opcode);
             sqlDataRecord.SetValue(7, (int)record.Schema.Task);
-            sqlDataRecord.SetValue(8, EventEntryUtil.GetTimestamp(record, "DateTime"));
+            sqlDataRecord.SetValue(8, record.Timestamp);
             sqlDataRecord.SetValue(9, record.Schema.Version);
             sqlDataRecord.SetValue(10, (object)record.FormattedMessage ?? DBNull.Value);
             sqlDataRecord.SetValue(11, (object)EventEntryUtil.XmlSerializePayload(record) ?? DBNull.Value);
@@ -74,12 +77,20 @@ namespace Logging.Database.Utility
             sqlDataRecord.SetValue(15, record.ThreadId);
             sqlDataRecord.SetValue(16, EventEntryUtil.GetPayloadValue(record, "IpAddress"));
             sqlDataRecord.SetValue(17, EventEntryUtil.GetPayloadValue(record, "Source"));
-            sqlDataRecord.SetValue(18, EventEntryUtil.GetPayloadValue(record, "MethodName"));
-            sqlDataRecord.SetValue(19, EventEntryUtil.GetPayloadValue(record, "FilePath"));
-            int lineNumber = 0;
-            int.TryParse(EventEntryUtil.GetPayloadValue(record, "LineNumber"), out lineNumber);
-            sqlDataRecord.SetValue(20, lineNumber);
-            sqlDataRecord.SetValue(21, EventEntryUtil.GetPayloadValue(record, "StackTrace"));
+            sqlDataRecord.SetValue(18, EventEntryUtil.GetPayloadValue(record, "UserName"));
+            sqlDataRecord.SetValue(19, EventEntryUtil.GetPayloadValue(record, "SessionId"));
+            sqlDataRecord.SetValue(20, I18NHelper.DateTimeOffsetParseInvariant(EventEntryUtil.GetPayloadValue(record, "DateTime")));
+            var actionName = EventEntryUtil.GetPayloadValue(record, "ActionName");
+            sqlDataRecord.SetValue(21, actionName);
+            //if (!string.IsNullOrWhiteSpace(actionName))
+            //{
+            Guid correlationId;
+            Guid.TryParse(EventEntryUtil.GetPayloadValue(record, "CorrelationId"), out correlationId);
+            sqlDataRecord.SetValue(22, correlationId);
+            double duration = 0;
+            double.TryParse(EventEntryUtil.GetPayloadValue(record, "Duration"), out duration);
+            sqlDataRecord.SetValue(23, duration);
+            //}
 
             return sqlDataRecord;
         }

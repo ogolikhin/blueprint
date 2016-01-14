@@ -6,8 +6,11 @@ namespace AccessControlDouble
 {
     public static class WebApiConfig
     {
+        public const string SVC_PATH = "/svc/accesscontrol/";
+
         public static readonly string AccessControl = ConfigurationManager.AppSettings["AccessControl"]?.TrimEnd('/');
         public static readonly string AdminStore = ConfigurationManager.AppSettings["AdminStore"]?.TrimEnd('/');
+        public static readonly string LogFile = ConfigurationManager.AppSettings["LogFile"]?.TrimEnd('\\');
 
         public static void Register(HttpConfiguration config)
         {

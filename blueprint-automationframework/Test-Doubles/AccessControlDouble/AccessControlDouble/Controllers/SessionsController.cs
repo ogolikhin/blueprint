@@ -13,35 +13,7 @@ namespace AccessControlDouble.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private const string SVC_PATH = "/svc/accesscontrol/";
-        private const string TOKEN_HEADER = "Session-Token";
-
         #region Private functions
-
-        /// <summary>
-        /// If present, copies the Session-Token from the source headers to dest.
-        /// </summary>
-        /// <param name="source">The HTTP headers to copy from.</param>
-        /// <param name="dest">The HTTP headers to copy to.</param>
-        private static void CopySessionTokenHeader(HttpRequestHeaders source, HttpRequestHeaders dest)
-        {
-            if (source.Contains(TOKEN_HEADER))
-            {
-                var tokens = source.GetValues(TOKEN_HEADER);
-                dest.Add(TOKEN_HEADER, tokens.First());
-            }
-        }
-
-        /// <summary>
-        /// Configures the specified HttpClient with the right BaseAddress and copies the Headers into it.
-        /// </summary>
-        /// <param name="http">The HttpClient to be configured.</param>
-        private void ConfigureHttpClient(HttpClient http)
-        {
-            http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
-            CopySessionTokenHeader(Request.Headers, http.DefaultRequestHeaders);
-        }
 
         /// <summary>
         /// Creates a copy of the request Uri that points to the real AccessControl.
@@ -49,10 +21,7 @@ namespace AccessControlDouble.Controllers
         /// <returns>The new Uri.</returns>
         private Uri CreateUri()
         {
-            string path = Request.RequestUri.LocalPath.Replace(SVC_PATH, string.Empty);
-            Uri uri = new Uri(I18NHelper.FormatInvariant("{0}/{1}/{2}", WebApiConfig.AccessControl, path.TrimEnd('/'), Request.RequestUri.Query).TrimEnd('/'));
-
-            return uri;
+            return WebUtils.CreateUri(Request.RequestUri, WebApiConfig.AccessControl, WebApiConfig.SVC_PATH);
         }
 
         #endregion Private functions
@@ -70,11 +39,17 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(int uid)
         {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                ConfigureHttpClient(http);
+                logFile.WriteLine("Called AccessControlDouble.SessionsController.Get({0})", uid);
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
+
+                logFile.WriteLine("Calling http.GetAsync({0})", uid);
                 var result = await http.GetAsync(uri);
+                WebUtils.LogRestResponse(logFile, result);
 
                 return ResponseMessage(result);
             }
@@ -93,11 +68,17 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(string ps = "100", string pn = "1")
         {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                ConfigureHttpClient(http);
+                logFile.WriteLine("Called AccessControlDouble.SessionsController.Get('{0}', '{1}')", ps, pn);
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
+
+                logFile.WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
                 var result = await http.GetAsync(uri);
+                WebUtils.LogRestResponse(logFile, result);
 
                 return ResponseMessage(result);
             }
@@ -117,11 +98,18 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Post(int uid, string userName, int licenseLevel, bool isSso = false)
         {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                ConfigureHttpClient(http);
+                logFile.WriteLine("Called AccessControlDouble.SessionsController.Post({0}, '{1}', {2}, {3})",
+                    uid, userName, licenseLevel, isSso);
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
+
+                logFile.WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
                 var result = await http.PostAsJsonAsync(uri, uid);
+                WebUtils.LogRestResponse(logFile, result);
 
                 return ResponseMessage(result);
             }
@@ -141,11 +129,17 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Put(string op = "", int aid = 0)
         {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                ConfigureHttpClient(http);
+                logFile.WriteLine("Called AccessControlDouble.SessionsController.Put('{0}', {1})", op, aid);
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
+
+                logFile.WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
                 var result = await http.PutAsync(uri, Request.Content);
+                WebUtils.LogRestResponse(logFile, result);
 
                 return ResponseMessage(result);
             }
@@ -161,11 +155,17 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Delete()
         {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                ConfigureHttpClient(http);
+                logFile.WriteLine("Called AccessControlDouble.SessionsController.Delete()");
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
+
+                logFile.WriteLine("Calling http.DeleteAsync()");
                 var result = await http.DeleteAsync(uri);
+                WebUtils.LogRestResponse(logFile, result);
 
                 return ResponseMessage(result);
             }

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using Common;
 using CommonUtilities;
 
 namespace AccessControlDouble.Controllers
@@ -21,17 +22,21 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            HttpClient http = new HttpClient();
-            string accessControl = ConfigurationManager.AppSettings["AccessControl"];
-            http.BaseAddress = new Uri(accessControl);
-            WebUtils.CopyHttpRequestHeaders(Request.Headers, http.DefaultRequestHeaders);
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            using (HttpClient http = new HttpClient())
+            {
+                logFile.WriteLine("Called AccessControlDouble.StatusController.GetStatus()");
 
-            string path = Request.RequestUri.LocalPath.Replace("/svc/accesscontrol/", string.Empty);
-            Uri uri = new Uri(accessControl + path);
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
 
-            var result = await http.GetAsync(uri);
+                var uri = WebUtils.CreateUri(Request.RequestUri, WebApiConfig.AccessControl, WebApiConfig.SVC_PATH);
 
-            return ResponseMessage(result);
+                logFile.WriteLine("Calling http.GetAsync()");
+                var result = await http.GetAsync(uri);
+                WebUtils.LogRestResponse(logFile, result);
+
+                return ResponseMessage(result);
+            }
         }
     }
 }

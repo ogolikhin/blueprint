@@ -206,7 +206,8 @@ namespace Utilities.Facades
 
             Logger.WriteDebug("GetUserToken() got Status Code '{0}' for user '{1}'.", response.StatusCode, username);
 
-            ThrowIfUnexpectedStatusCode(I18NHelper.FormatInvariant("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource), RestRequestMethod.GET, response.StatusCode);
+            string fullAddress = I18NHelper.FormatInvariant("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource);
+            ThrowIfUnexpectedStatusCode(fullAddress, RestRequestMethod.GET, response.StatusCode, response.ErrorMessage);
 
             // If there is no "Authorization" header, param will be null.
             var param = response.Headers.FirstOrDefault(p => p.Name == "Authorization");
@@ -232,9 +233,10 @@ namespace Utilities.Facades
         /// <param name="fullAddress">The full address of the REST request.</param>
         /// <param name="method">The method type used.</param>
         /// <param name="statusCode">The status code received.</param>
+        /// <param name="exceptionMsg">The exception message.</param>
         /// <param name="expectedStatusCodes">(optional) The expected list of status codes.  By default, only 200 OK is expected.</param>
         /// <exception cref="WebException">An exception derived from WebException.</exception>
-        private static void ThrowIfUnexpectedStatusCode(string fullAddress, RestRequestMethod method, HttpStatusCode statusCode, List<HttpStatusCode> expectedStatusCodes = null)
+        private static void ThrowIfUnexpectedStatusCode(string fullAddress, RestRequestMethod method, HttpStatusCode statusCode, string exceptionMsg, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteDebug("'{0} {1}' got back Status Code: {2}", method.ToString(), fullAddress, statusCode.ToString());
 
@@ -242,7 +244,7 @@ namespace Utilities.Facades
 
             if (!expectedStatusCodes.Contains(statusCode))
             {
-                throw WebExceptionFactory.Create((int)statusCode);
+                throw WebExceptionFactory.Create((int)statusCode, exceptionMsg);
             }
         }
 
@@ -336,7 +338,7 @@ namespace Utilities.Facades
                 Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
                 Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
                 _restResponse = ConvertToRestResponse(response);
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
                 return result;   // This will deserialize the data for us.
             }
             catch (WebException e)
@@ -419,7 +421,7 @@ namespace Utilities.Facades
 
                 _restResponse = ConvertToRestResponse(response);
 
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
 
                 return _restResponse;
             }
@@ -462,7 +464,7 @@ namespace Utilities.Facades
 
                 _restResponse = ConvertToRestResponse(response);
 
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
 
                 return _restResponse;
             }

@@ -80,7 +80,6 @@ namespace FileStoreTests
             var returnedFile = _filestore.GetFile(storedFile.Id, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
-            FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);
         }
 
         [TestCase((uint)1024, "1KB_File.csv", "text/csv")]
@@ -101,7 +100,6 @@ namespace FileStoreTests
             var returnedFile = _filestore.GetFile(storedFile.Id, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
-            FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);
         }
     }
 }

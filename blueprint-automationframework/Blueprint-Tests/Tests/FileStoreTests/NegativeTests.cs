@@ -193,5 +193,37 @@ namespace FileStoreTests
                 _filestore.DeleteFile(storedFile.Id, _userWithInvalidToken); 
             }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
         }
+
+        [TestCase((uint)1024, "1KB_File.txt", "")]
+        public void PostWithNoContentTypeHeader_VerifyBadRequest(
+                uint fileSize,
+                string fakeFileName,
+                string fileType)
+        {
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // Assert that unauthorized exception is thrown
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                _filestore.AddFile(file, _user);
+            }, "Did not throw HTTP Status Code 400 (Bad Request) as expected");
+        }
+
+        [TestCase((uint)1024, "", "text/plain")]
+        public void PostWithNoFileName_VerifyBadRequest(
+                uint fileSize,
+                string fakeFileName,
+                string fileType)
+        {
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // Assert that unauthorized exception is thrown
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                _filestore.AddFile(file, _user);
+            }, "Did not throw HTTP Status Code 400 (Bad Request) as expected");
+        }
     }
 }

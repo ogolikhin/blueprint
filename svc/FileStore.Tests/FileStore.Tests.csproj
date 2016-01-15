@@ -76,12 +76,10 @@
     <Compile Include="Controllers\FileControllerTests.Post.cs" />
     <Compile Include="Controllers\FileControllerTests.Put.cs" />
     <Compile Include="Controllers\FilesControllerTests.Get.cs" />
-    <Compile Include="FileStreamIntegrationTest.cs" />
     <Compile Include="Controllers\FilesControllerTests.cs" />
     <Compile Include="Helpers\FileUploadBufferPolicySelectorTests.cs" />
     <Compile Include="Models\FileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FileStoreSvcIntegrationTest.cs" />
     <Compile Include="Repositories\FileStreamRepositoryTests.cs" />
     <Compile Include="Repositories\SqlFilesRepositoryTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
@@ -106,20 +104,6 @@
     </None>
     <Compile Include="Controllers\FileControllerTests.Delete.cs" />
     <None Include="packages.config" />
-    <None Include="TestFileStreamIntegration.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestUploadAndDeleteFiles.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="BitmapAttachment.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Sandisk_Test.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

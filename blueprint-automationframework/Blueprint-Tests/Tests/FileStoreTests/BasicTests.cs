@@ -62,10 +62,13 @@ namespace FileStoreTests
 
         #endregion Setup and Cleanup
 
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        [TestCase((uint)1048576, "1MB_File.txt", "text/plain")]
+        [TestCase((uint)1048577, "1MB_Plus1Byte_File.txt", "text/plain")]
         public void PostFileWithMultiPartMime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
@@ -82,10 +85,13 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
 
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
         [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
+        [TestCase((uint)1048576, "1MB_File.txt", "text/plain")]
+        [TestCase((uint)1048577, "1MB_Plus1Byte_File.txt", "text/plain")]
         public void PostFileWithoutMultiPartMime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
@@ -102,10 +108,52 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
 
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)1048576, "1MB_File.txt", "text/plain", (uint)10240)]
+        [TestCase((uint)1048577, "1MB_Plus1Byte_File.txt", "text/plain", (uint)10240)]
+        public void PostFileInChunksWithMultiPartMime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        {
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // Add the file to Filestore.
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
+
+            // Verify that the file was stored properly by getting it back and comparing it with original.
+            var returnedFile = _filestore.GetFile(storedFile.Id, _user);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
+        }
+
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512)]
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)4096, "4KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)8192, "8KB_File.txt", "text/plain", (uint)1024)]
+        [TestCase((uint)1048576, "1MB_File.txt", "text/plain", (uint)10240)]
+        [TestCase((uint)1048577, "1MB_Plus1Byte_File.txt", "text/plain", (uint)10240)]
+        public void PostFileInChunksWithoutMultiPartMime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
+        {
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // Add the file to Filestore.
+            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
+
+            // Verify that the file was stored properly by getting it back and comparing it with original.
+            var returnedFile = _filestore.GetFile(storedFile.Id, _user);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
+        }
+
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
-        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
-        [TestCase((uint)4096, "4KB_File.txt", "text/plain")]
-        [TestCase((uint)8192, "8KB_File.txt", "text/plain")]
         public void PostFileWithFutureExpireTime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
@@ -122,6 +170,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
 
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void PostFileWithNoExpireTime_VerifyFileExists(uint fileSize, string fakeFileName, string fileType)
         {
@@ -139,6 +188,7 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
 
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         public void PostFileWithExpireTimeInPast_VerifyFileNotFound(uint fileSize, string fakeFileName, string fileType)
         { 

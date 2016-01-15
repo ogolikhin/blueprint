@@ -1,6 +1,0 @@
-FileGuid, FileName, FileSize, ContentType, FilesUriCall
-"b1689e35-17da-46fa-8361-5bd2ea85153e","BP Airways.docx",3882868,"application/octet-stream",http://localhost:9180/files/
-"91967806-9751-4115-a1cb-25f41392f450","Document - BP Airways 2.zip",401989,"application/octet-stream",http://localhost:9180/files/
-"adec7155-5f64-42fe-8d4c-35fac2cfe213","Visio Integration - RC2010 vs. 5.1.xlsx",12048,"application/octet-stream",http://localhost:9180/files/
-"4b60d52a-e450-4365-8234-391c8780ea97","Browsers.pdf",687024, "application/octet-stream",http://localhost:9180/files/
-"e33f1d74-e7cf-47a6-8ed3-7d6b3cb89067","page one 1.png",16709, "image/png",http://localhost:9180/files/

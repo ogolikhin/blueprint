@@ -158,14 +158,13 @@ namespace OpenAPITests
         }
 
         [Test]
-        [Explicit(IgnoreReasons.ProductBug)]
         public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
         {
             RestResponse response = null;
 
             // Creating the user with invalid password.
             IUser invalidUser = UserFactory.CreateUserOnly(_user.Username, "bad-password");
-
+            
             // Invalid login attempt 4 times.
             for (int i = 0; i < 4; i++)
             {
@@ -173,11 +172,9 @@ namespace OpenAPITests
                     I18NHelper.FormatInvariant("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'. <Iteration: {3}>",
                         _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password, i+1));
             }
-
+            
             // Valid login should reset InvalidLogonAttemptsNumber value to 0.
-            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
-            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
-                response.StatusCode);
+            Assert.DoesNotThrow(() => { LoginWithValidCredentials(_user); }, "Login with valid credentials should succeed!");
 
             // Invalid login to see if it gets locked.
             Assert.Throws<Http401UnauthorizedException>(() => { response = _server.LoginUsingBasicAuthorization(invalidUser); },
@@ -185,9 +182,7 @@ namespace OpenAPITests
                     _testConfig.BlueprintServerAddress, _testConfig.Username, _testConfig.Password));
 
             // Valid login should reset InvalidLogonAttemptsNumber.
-            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(_user); });
-            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK, "We expected '200 OK', but got '{0}' instead!",
-                response.StatusCode);
+            Assert.DoesNotThrow(() => { LoginWithValidCredentials(_user); }, "Login with valid credentials should succeed!");
         }
 
         [TestCase(10, (uint)1)]

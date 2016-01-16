@@ -242,7 +242,7 @@ namespace FileStore.Controllers
         {
             var controller = new FilesController();
 
-            var hasAttribute = controller.GetMethod(c => c.GetFileContent(null)).HasAttribute<ValidateToken>();
+            var hasAttribute = controller.GetMethod(c => c.GetFileContent(null)).HasAttribute<ValidateTokenAttribute>();
             Assert.IsTrue(hasAttribute);
         }
         [TestCategory("FileStoreTests.Attributes")]
@@ -251,7 +251,7 @@ namespace FileStore.Controllers
         {
             var controller = new FilesController();
 
-            var hasAttribute = controller.GetMethod(c => c.PostFile(null)).HasAttribute<ValidateToken>();
+            var hasAttribute = controller.GetMethod(c => c.PostFile(null)).HasAttribute<ValidateTokenAttribute>();
             Assert.IsTrue(hasAttribute);
         }
         [TestCategory("FileStoreTests.Attributes")]
@@ -260,7 +260,7 @@ namespace FileStore.Controllers
         {
             var controller = new FilesController();
 
-            var hasAttribute = controller.GetMethod(c => c.PutFile(null)).HasAttribute<ValidateToken>();
+            var hasAttribute = controller.GetMethod(c => c.PutFile(null)).HasAttribute<ValidateTokenAttribute>();
             Assert.IsTrue(hasAttribute);
         }
         [TestCategory("FileStoreTests.Attributes")]
@@ -269,7 +269,7 @@ namespace FileStore.Controllers
         {
             var controller = new FilesController();
 
-            var hasAttribute = controller.GetMethod(c => c.DeleteFile(null, null)).HasAttribute<ValidateToken>();
+            var hasAttribute = controller.GetMethod(c => c.DeleteFile(null, null)).HasAttribute<ValidateTokenAttribute>();
             Assert.IsTrue(hasAttribute);
         }
     }

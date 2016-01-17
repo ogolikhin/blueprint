@@ -100,7 +100,7 @@ CREATE TYPE LogsType AS TABLE
 	[Source] [nvarchar](100),
 	[UserName] [nvarchar](Max),
 	[SessionId] [nvarchar](40),
-	[DateTime] [datetimeoffset](7) NOT NULL,
+	[OccuredAt] [datetimeoffset](7) NOT NULL,
 	[ActionName] [nvarchar](200),
 	[CorrelationId] [uniqueidentifier],
 	[Duration] [float]
@@ -560,7 +560,7 @@ BEGIN
 		[Source],
 		[UserName],
 		[SessionId],
-		[DateTime],
+		[OccuredAt],
 		[ActionName],
 		[CorrelationId],
 		[Duration]

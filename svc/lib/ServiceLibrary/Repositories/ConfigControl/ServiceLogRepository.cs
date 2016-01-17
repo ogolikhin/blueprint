@@ -18,7 +18,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
     public partial class ServiceLogRepository : IServiceLogRepository
     {
         internal readonly IHttpClientProvider _httpClientProvider;
-        private readonly ILocalLog _localLog;
+        internal readonly ILocalLog _localLog;
 
         public ServiceLogRepository()
             : this(new HttpClientProvider(), new LocalFileLog())
@@ -60,12 +60,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new ServiceLogEntry()
+                    var logEntry = new ServiceLogModel()
                     {
                         LogLevel = LogLevelEnum.Informational,
                         Source = source,
                         Message = message,
-                        DateTime = DateTime.Now,
+                        OccuredAt = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -117,12 +117,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new ServiceLogEntry()
+                    var logEntry = new ServiceLogModel()
                     {
                         LogLevel = LogLevelEnum.Verbose,
                         Source = source,
                         Message = message,
-                        DateTime = DateTime.Now,
+                        OccuredAt = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -174,12 +174,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new ServiceLogEntry()
+                    var logEntry = new ServiceLogModel()
                     {
                         LogLevel = LogLevelEnum.Warning,
                         Source = source,
                         Message = message,
-                        DateTime = DateTime.Now,
+                        OccuredAt = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -231,12 +231,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new ServiceLogEntry()
+                    var logEntry = new ServiceLogModel()
                     {
                         LogLevel = LogLevelEnum.Error,
                         Source = source,
                         Message = message,
-                        DateTime = DateTime.Now,
+                        OccuredAt = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -288,12 +288,12 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     http.DefaultRequestHeaders.Accept.Clear();
 
                     //create the log entry
-                    var logEntry = new ServiceLogEntry()
+                    var logEntry = new ServiceLogModel()
                     {
-                        LogLevel = LogLevelEnum.Informational,
+                        LogLevel = LogLevelEnum.Error,
                         Source = source,
                         Message = exception.Message,
-                        DateTime = DateTime.Now,
+                        OccuredAt = DateTime.Now,
                         MethodName = methodName,
                         FilePath = filePath,
                         LineNumber = lineNumber,
@@ -316,7 +316,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogCLog(CLogEntry logEntry)
+        public async Task LogCLog(CLogModel logEntry)
         {
             try
             {
@@ -343,7 +343,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogStandardLog(StandardLogEntry logEntry)
+        public async Task LogStandardLog(StandardLogModel logEntry)
         {
             try
             {
@@ -370,7 +370,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogPerformanceLog(PerformanceLogEntry logEntry)
+        public async Task LogPerformanceLog(PerformanceLogModel logEntry)
         {
             try
             {
@@ -397,7 +397,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             }
         }
 
-        public async Task LogSQLTraceLog(SQLTraceLogEntry logEntry)
+        public async Task LogSQLTraceLog(SQLTraceLogModel logEntry)
         {
             try
             {

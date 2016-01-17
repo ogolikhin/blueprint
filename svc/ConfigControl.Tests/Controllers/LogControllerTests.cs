@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.LocalLog;
 using Moq;
 using ServiceLibrary.Helpers;
+using System;
 
 namespace ConfigControl.Controllers
 {
@@ -15,11 +16,12 @@ namespace ConfigControl.Controllers
             // Arrange
             var httpClientProvider = new Mock<IHttpClientProvider>().Object;
             var controller = new LogController(httpClientProvider);
-            var logEntry = new ServiceLogEntry()
+            var logEntry = new ServiceLogModel()
             {
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
                 Message = "Hello",
+                OccuredAt = DateTime.Now
             };
 
             // Act

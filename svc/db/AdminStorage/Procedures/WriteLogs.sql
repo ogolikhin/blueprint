@@ -38,7 +38,7 @@ BEGIN
 		[Source],
 		[UserName],
 		[SessionId],
-		[DateTime],
+		[OccuredAt],
 		[ActionName],
 		[CorrelationId],
 		[Duration]

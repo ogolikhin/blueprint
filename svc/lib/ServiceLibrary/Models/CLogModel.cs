@@ -6,14 +6,10 @@ using System;
 
 namespace ServiceLibrary.Models
 {
-    public class BPLogEntry : IBPLogEntry
+    public class CLogModel : ServiceLogModel
     {
-        public string Source { get; set; }
-        public LogLevelEnum LogLevel { get; set; }
-        public string Message { get; set; }
-        public DateTime DateTime { get; set; }
-        public string SessionId { get; set; }
-        public string UserName { get; set; }
-        public string StackTrace { get; set; }
+        public string TimeZoneOffset { get; set; }
+        public string ActionName { get; set; }
+        public double Duration { get; set; }
     }
 }

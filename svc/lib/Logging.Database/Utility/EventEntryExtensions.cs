@@ -46,7 +46,7 @@ namespace Logging.Database.Utility
                 new SqlMetaData("Source", SqlDbType.NVarChar, 100),
                 new SqlMetaData("UserName", SqlDbType.NVarChar, -1),
                 new SqlMetaData("SessionId", SqlDbType.NVarChar, 40),
-                new SqlMetaData("DateTime", SqlDbType.DateTimeOffset),
+                new SqlMetaData("OccuredAt", SqlDbType.DateTimeOffset),
                 new SqlMetaData("ActionName", SqlDbType.NVarChar, 200),
                 new SqlMetaData("CorrelationId", SqlDbType.UniqueIdentifier),
                 new SqlMetaData("Duration", SqlDbType.Float)
@@ -79,7 +79,7 @@ namespace Logging.Database.Utility
             sqlDataRecord.SetValue(17, EventEntryUtil.GetPayloadValue(record, "Source"));
             sqlDataRecord.SetValue(18, EventEntryUtil.GetPayloadValue(record, "UserName"));
             sqlDataRecord.SetValue(19, EventEntryUtil.GetPayloadValue(record, "SessionId"));
-            sqlDataRecord.SetValue(20, I18NHelper.DateTimeOffsetParseInvariant(EventEntryUtil.GetPayloadValue(record, "DateTime")));
+            sqlDataRecord.SetValue(20, I18NHelper.DateTimeOffsetParseInvariant(EventEntryUtil.GetPayloadValue(record, "OccuredAt")));
             var actionName = EventEntryUtil.GetPayloadValue(record, "ActionName");
             sqlDataRecord.SetValue(21, actionName);
             //if (!string.IsNullOrWhiteSpace(actionName))

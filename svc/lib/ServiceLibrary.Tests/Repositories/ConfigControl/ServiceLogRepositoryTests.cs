@@ -96,7 +96,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
             var httpClientProvider = new TestHttpClientProvider(null);
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
-            var logEntry = new CLogEntry()
+            var logEntry = new CLogModel()
             {
                 Source = "ServiceLogRepositoryTests",
                 LogLevel = LogLevelEnum.Informational,

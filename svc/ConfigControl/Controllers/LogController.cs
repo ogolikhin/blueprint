@@ -23,7 +23,7 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route(""), NoSessionRequired]
-        public IHttpActionResult Log([FromBody]ServiceLogEntry logEntry)
+        public IHttpActionResult Log([FromBody]ServiceLogModel logEntry)
         {
             string ipAdress = GetIpAddress();
 
@@ -34,7 +34,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber,
@@ -45,7 +45,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -55,7 +55,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -65,7 +65,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -79,7 +79,7 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route("CLog"), NoSessionRequired]
-        public IHttpActionResult Log([FromBody]CLogEntry logEntry)
+        public IHttpActionResult Log([FromBody]CLogModel logEntry)
         {
             string ipAdress = GetIpAddress();
 
@@ -210,7 +210,7 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route("StandardLog"), NoSessionRequired]
-        public IHttpActionResult Log([FromBody]StandardLogEntry logEntry)
+        public IHttpActionResult Log([FromBody]StandardLogModel logEntry)
         {
             string ipAdress = GetIpAddress();
 
@@ -222,7 +222,7 @@ namespace ConfigControl.Controllers
                         logEntry.Source,
                         logEntry.Message,
                         logEntry.StackTrace,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.SessionId,
                         logEntry.UserName,
                         logEntry.TimeZoneOffset,
@@ -233,7 +233,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.SessionId,
                         logEntry.UserName,
                         logEntry.TimeZoneOffset,
@@ -244,7 +244,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.SessionId,
                         logEntry.UserName,
                         logEntry.TimeZoneOffset,
@@ -255,7 +255,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.SessionId,
                         logEntry.UserName,
                         logEntry.TimeZoneOffset,
@@ -267,7 +267,7 @@ namespace ConfigControl.Controllers
                         logEntry.Source,
                         logEntry.Message,
                         logEntry.StackTrace,
-                        logEntry.DateTime,
+                        logEntry.OccuredAt,
                         logEntry.SessionId,
                         logEntry.UserName,
                         logEntry.TimeZoneOffset,
@@ -282,7 +282,7 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route("PerformanceLog"), NoSessionRequired]
-        public IHttpActionResult Log([FromBody]PerformanceLogEntry logEntry)
+        public IHttpActionResult Log([FromBody]PerformanceLogModel logEntry)
         {
             string ipAdress = GetIpAddress();
 
@@ -290,7 +290,7 @@ namespace ConfigControl.Controllers
                 ipAdress,
                 logEntry.Source,
                 logEntry.Message,
-                logEntry.DateTime,
+                logEntry.OccuredAt,
                 logEntry.SessionId,
                 logEntry.UserName,
                 logEntry.ThreadID,
@@ -306,7 +306,7 @@ namespace ConfigControl.Controllers
 
         [HttpPost]
         [Route("SQLTraceLog"), NoSessionRequired]
-        public IHttpActionResult Log([FromBody]SQLTraceLogEntry logEntry)
+        public IHttpActionResult Log([FromBody]SQLTraceLogModel logEntry)
         {
             string ipAdress = GetIpAddress();
 
@@ -314,7 +314,7 @@ namespace ConfigControl.Controllers
                 ipAdress,
                 logEntry.Source,
                 logEntry.Message,
-                logEntry.DateTime,
+                logEntry.OccuredAt,
                 logEntry.SessionId,
                 logEntry.UserName,
                 logEntry.ThreadID,

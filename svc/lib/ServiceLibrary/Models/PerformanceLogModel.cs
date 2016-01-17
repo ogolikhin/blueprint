@@ -6,15 +6,14 @@ using System;
 
 namespace ServiceLibrary.Models
 {
-    public interface IServiceLogEntry
+    public class PerformanceLogModel : ServiceLogModel
     {
-        string Source { get; set; }
-        LogLevelEnum LogLevel { get; set; }
-        string Message { get; set; }
-        DateTime DateTime { get; set; }
-        string MethodName { get; set; }
-        string FilePath { get; set; }
-        int LineNumber { get; set; }
-        string StackTrace { get; set; }
+        public string ThreadID { get; set; }
+        public string ActionName { get; set; }
+        public Guid CorrelationId { get; set; }
+        public double Duration { get; set; }
+        public string Namespace { get; set; }
+        public string Class { get; set; }
+        public string Test { get; set; }
     }
 }

@@ -7,7 +7,6 @@ using System.Web.Http;
 using FileStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using File = FileStore.Models.File;
 using sl = ServiceLibrary.Repositories.ConfigControl;
@@ -233,44 +232,6 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsTrue(response.StatusCode == HttpStatusCode.InternalServerError);
-        }
-
-
-        [TestCategory("FileStoreTests.Attributes")]
-        [TestMethod]
-        public void GetMethod_HasValidateAttribute()
-        {
-            var controller = new FilesController();
-
-            var hasAttribute = controller.GetMethod(c => c.GetFileContent(null)).HasAttribute<ValidateToken>();
-            Assert.IsTrue(hasAttribute);
-        }
-        [TestCategory("FileStoreTests.Attributes")]
-        [TestMethod]
-        public void PostMethod_HasValidateAttribute()
-        {
-            var controller = new FilesController();
-
-            var hasAttribute = controller.GetMethod(c => c.PostFile(null)).HasAttribute<ValidateToken>();
-            Assert.IsTrue(hasAttribute);
-        }
-        [TestCategory("FileStoreTests.Attributes")]
-        [TestMethod]
-        public void PutMethod_HasValidateAttribute()
-        {
-            var controller = new FilesController();
-
-            var hasAttribute = controller.GetMethod(c => c.PutFile(null)).HasAttribute<ValidateToken>();
-            Assert.IsTrue(hasAttribute);
-        }
-        [TestCategory("FileStoreTests.Attributes")]
-        [TestMethod]
-        public void DeleteMethod_HasValidateAttribute()
-        {
-            var controller = new FilesController();
-
-            var hasAttribute = controller.GetMethod(c => c.DeleteFile(null, null)).HasAttribute<ValidateToken>();
-            Assert.IsTrue(hasAttribute);
         }
     }
 }

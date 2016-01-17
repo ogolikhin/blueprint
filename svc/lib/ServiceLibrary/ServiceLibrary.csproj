@@ -67,7 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\NoCacheAttribute.cs" />
-    <Compile Include="Attributes\ValidateToken.cs" />
+    <Compile Include="Attributes\SessionRequiredAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
     <Compile Include="EventSources\PerformanceLogEventSource.cs" />
     <Compile Include="EventSources\StandardLogEventSource.cs" />
@@ -94,10 +94,8 @@
     <Compile Include="Models\Session.cs" />
     <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
-    <Compile Include="Repositories\AccessControl\ISessionRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
-    <Compile Include="Repositories\AccessControl\ServiceSessionRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
@@ -110,10 +108,6 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>cd "%25temp%25/7D2611AE-6432-4639-8B91-3E46EB56CADF"
-del BlueprintSys*.*</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

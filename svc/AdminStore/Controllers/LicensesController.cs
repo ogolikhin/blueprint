@@ -35,7 +35,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("transactions")]
+        [Route("transactions"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days)
         {

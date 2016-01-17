@@ -57,6 +57,15 @@ namespace ServiceLibrary.Helpers
             return s.StartsWith(value, StringComparison.Ordinal);
         }
 
+        public static bool EndsWithOrdinal(this string s, string value)
+        {
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
+            return s.EndsWith(value, StringComparison.Ordinal);
+        }
+
         public static bool EqualsOrdinalIgnoreCase(this string s, string value)
         {
             if (s == null)

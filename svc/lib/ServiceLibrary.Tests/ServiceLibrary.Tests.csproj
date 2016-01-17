@@ -70,10 +70,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\NoCacheAttributeTests.cs" />
-    <Compile Include="Attributes\ValidateTokenTests.cs" />
-    <Compile Include="Helpers\AttributeReflectionHelper.cs" />
-    <Compile Include="Helpers\ContextUtil.cs" />
+    <Compile Include="Attributes\SessionRequiredAttributeTests.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
+    <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigControl\StatusRepositoryTests.cs" />

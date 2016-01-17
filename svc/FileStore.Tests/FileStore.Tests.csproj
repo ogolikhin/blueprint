@@ -73,6 +73,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="Controllers\FileControllerTests.Post.cs" />
     <Compile Include="Controllers\FileControllerTests.Put.cs" />
     <Compile Include="Controllers\FilesControllerTests.Get.cs" />

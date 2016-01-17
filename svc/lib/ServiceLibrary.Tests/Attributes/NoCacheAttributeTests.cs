@@ -12,7 +12,7 @@ namespace ServiceLibrary.Attributes
         #region OnActionExecuted
 
         [TestMethod]
-        public void OnActionExecuted()
+        public void OnActionExecuted_Always_AddsResponseHeaders()
         {
             // Arrange
             var attribute = new NoCacheAttribute();

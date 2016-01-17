@@ -3,6 +3,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Web;
 using System.Web.Http;
+using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
@@ -21,7 +22,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpPost]
-        [Route("")]
+        [Route(""), NoSessionRequired]
         public IHttpActionResult Log([FromBody]ServiceLogEntry logEntry)
         {
             string ipAdress = GetIpAddress();
@@ -77,7 +78,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpPost]
-        [Route("CLog")]
+        [Route("CLog"), NoSessionRequired]
         public IHttpActionResult Log([FromBody]CLogEntry logEntry)
         {
             string ipAdress = GetIpAddress();
@@ -208,7 +209,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpPost]
-        [Route("StandardLog")]
+        [Route("StandardLog"), NoSessionRequired]
         public IHttpActionResult Log([FromBody]StandardLogEntry logEntry)
         {
             string ipAdress = GetIpAddress();
@@ -280,7 +281,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpPost]
-        [Route("PerformanceLog")]
+        [Route("PerformanceLog"), NoSessionRequired]
         public IHttpActionResult Log([FromBody]PerformanceLogEntry logEntry)
         {
             string ipAdress = GetIpAddress();
@@ -304,7 +305,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpPost]
-        [Route("SQLTraceLog")]
+        [Route("SQLTraceLog"), NoSessionRequired]
         public IHttpActionResult Log([FromBody]SQLTraceLogEntry logEntry)
         {
             string ipAdress = GetIpAddress();
@@ -344,7 +345,5 @@ namespace ConfigControl.Controllers
 
             return ipAdress;
         }
-
     }
-
 }

@@ -36,7 +36,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("settings")]
+        [Route("settings"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetConfigSettings()
         {
@@ -63,7 +63,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("config.js")]
+        [Route("config.js"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetConfig()
         {

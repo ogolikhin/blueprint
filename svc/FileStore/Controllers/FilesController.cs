@@ -50,8 +50,8 @@ namespace FileStore.Controllers
         }
 
         #region Service Methods
-        [HttpHead, NoCache, ValidateToken]
-        [Route("{id}")]
+        [HttpHead, NoCache]
+        [Route("{id}"), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)
         {
@@ -106,8 +106,8 @@ namespace FileStore.Controllers
         }
 
 
-        [HttpGet, NoCache, ValidateToken]
-        [Route("{id}")]
+        [HttpGet, NoCache]
+        [Route("{id}"), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileContent(string id)
         {
@@ -192,8 +192,8 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpPost, ValidateToken]
-        [Route("")]
+        [HttpPost]
+        [Route(""), SessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PostFile(DateTime? expired = null)
         {
@@ -219,8 +219,8 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpPut, ValidateToken]
-        [Route("{id}")]
+        [HttpPut]
+        [Route("{id}"), SessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PutFile(string id)
         {
@@ -244,8 +244,8 @@ namespace FileStore.Controllers
             }
         }
 
-        [HttpDelete, ValidateToken]
-        [Route("{id}")]
+        [HttpDelete]
+        [Route("{id}"), SessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> DeleteFile(string id, DateTime? expired = null)
         {

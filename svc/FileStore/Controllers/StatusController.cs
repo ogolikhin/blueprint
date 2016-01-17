@@ -25,7 +25,7 @@ namespace FileStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("")]
+        [Route(""), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()
         {

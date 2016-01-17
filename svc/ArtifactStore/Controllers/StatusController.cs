@@ -7,20 +7,20 @@ using System.Web.Http.Results;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
 
-namespace AccessControl.Controllers
+namespace ArtifactStore.Controllers
 {
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusRepository StatusRepo;
+        internal readonly IStatusRepository _statusRepo;
 
-        public StatusController() : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"))
+        public StatusController() : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "GetStatus"))
         {
         }
 
         internal StatusController(IStatusRepository statusRepo)
         {
-            StatusRepo = statusRepo;
+            _statusRepo = statusRepo;
         }
 
         [HttpGet, NoCache]
@@ -30,7 +30,7 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var result = await StatusRepo.GetStatus();
+                var result = await _statusRepo.GetStatus();
                 if (result)
                 {
                     return Ok();

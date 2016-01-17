@@ -8,7 +8,6 @@ using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -26,22 +25,14 @@ namespace AdminStore.Controllers
         public void Initialize()
         {
             var session = new Session { UserId = 1 };
-            var httpClientProvider = new TestHttpClientProvider(request =>
-            {
-                var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(session))
-                };
-                return httpResponseMessage;
-            });
             _usersRepoMock = new Mock<ISqlUserRepository>();
             _logMock = new Mock<IServiceLogRepository>();
-            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider, _logMock.Object)
+            _controller = new UsersController(_usersRepoMock.Object, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
+            _controller.Request.Properties["Session"] = session;
         }
 
         #region Constuctor
@@ -56,7 +47,6 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
-            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
             Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
         }
 
@@ -65,7 +55,7 @@ namespace AdminStore.Controllers
         #region GetLoginUser
 
         [TestMethod]
-        public async Task GetLoginUser_RepositoryReturnsUser_REturnsUser()
+        public async Task GetLoginUser_RepositoryReturnsUser_ReturnsUser()
         {
             // Arrange
             var loginUser = new LoginUser();
@@ -94,40 +84,6 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
-        }
-
-        [TestMethod]
-        public async Task GetLoginUser_SessionNotFound_UnauthorizedResult()
-        {
-            // Arrange
-            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
-            _usersRepoMock = new Mock<ISqlUserRepository>();
-            _logMock = new Mock<IServiceLogRepository>();
-            _controller = new UsersController(_usersRepoMock.Object, httpClientProvider, _logMock.Object)
-            {
-                Request = new HttpRequestMessage(),
-                Configuration = new HttpConfiguration()
-            };
-            _controller.Request.Headers.Add("Session-Token", Session.Convert(Guid.NewGuid()));
-
-            // Act
-            IHttpActionResult result = await _controller.GetLoginUser();
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
-        }
-
-        [TestMethod]
-        public async Task GetLoginUser_SessionTokenIsNull_BadRequestResult()
-        {
-            // Arrange
-            _controller.Request.Headers.Remove("Session-Token");
-
-            // Act
-            IHttpActionResult result = await _controller.GetLoginUser();
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
         }
 
         [TestMethod]

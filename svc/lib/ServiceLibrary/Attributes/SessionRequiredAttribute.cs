@@ -7,11 +7,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace ServiceLibrary.Attributes
 {
-    public class ValidateTokenAttribute : ActionFilterAttribute
+    public class NoSessionRequiredAttribute : Attribute
+    {
+    }
+
+    public class SessionRequiredAttribute : ActionFilterAttribute
     {
         private const string BlueprintSessionToken = "Session-Token";
         private const string BlueprintSessionCookie = "BLUEPRINT_SESSION_TOKEN";
@@ -22,11 +28,11 @@ namespace ServiceLibrary.Attributes
 
         internal readonly IHttpClientProvider _httpClientProvider;
 
-        public ValidateTokenAttribute() : this(new HttpClientProvider())
+        public SessionRequiredAttribute(bool validate = true) : this(new HttpClientProvider(), validate)
         {
         }
 
-        internal ValidateTokenAttribute(IHttpClientProvider httpClientProvider)
+        internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider, bool validate = true)
         {
             _httpClientProvider = httpClientProvider;
         }
@@ -40,7 +46,7 @@ namespace ServiceLibrary.Attributes
 
             try
             {
-                await GetAccessAsync(actionContext.Request);
+                actionContext.Request.Properties["Session"] = await GetAccessAsync(actionContext.Request);
             }
             catch (ArgumentNullException)
             {
@@ -52,7 +58,7 @@ namespace ServiceLibrary.Attributes
                 actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized,
                     UnauthorizedExceptionMessage);
             }
-            catch 
+            catch
             {
                 actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.InternalServerError,
                     InternalServerError);
@@ -61,7 +67,7 @@ namespace ServiceLibrary.Attributes
             await base.OnActionExecutingAsync(actionContext, cancellationToken);
         }
 
-        private async Task GetAccessAsync(HttpRequestMessage request)
+        private async Task<Session> GetAccessAsync(HttpRequestMessage request)
         {
             var uri = ConfigurationManager.AppSettings[AccessControl];
             using (var http = _httpClientProvider.Create())
@@ -71,10 +77,12 @@ namespace ServiceLibrary.Attributes
                 http.DefaultRequestHeaders.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
                 var result = await http.PutAsync("sessions", null);
                 result.EnsureSuccessStatusCode();
+                var content = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Session>(content);
             }
         }
 
-        private string GetHeaderSessionToken(HttpRequestMessage request)
+        private static string GetHeaderSessionToken(HttpRequestMessage request)
         {
             if (request.Headers.Contains(BlueprintSessionToken))
             {

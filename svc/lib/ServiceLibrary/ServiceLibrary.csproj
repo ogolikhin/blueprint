@@ -67,7 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\NoCacheAttribute.cs" />
-    <Compile Include="Attributes\ValidateTokenAttribute.cs" />
+    <Compile Include="Attributes\SessionRequiredAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
     <Compile Include="EventSources\PerformanceLogEventSource.cs" />
     <Compile Include="EventSources\StandardLogEventSource.cs" />

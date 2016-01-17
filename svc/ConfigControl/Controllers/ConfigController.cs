@@ -9,44 +9,44 @@ using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
-	[RoutePrefix("settings")]
-	public class ConfigController : ApiController
-	{
-		internal readonly IConfigRepository _configRepo;
+    [RoutePrefix("settings")]
+    public class ConfigController : ApiController
+    {
+        internal readonly IConfigRepository _configRepo;
 
-		public ConfigController() : this(new SqlConfigRepository())
-		{
-		}
+        public ConfigController() : this(new SqlConfigRepository())
+        {
+        }
 
-		internal ConfigController(IConfigRepository configRepo)
-		{
-			_configRepo = configRepo;
-		}
+        internal ConfigController(IConfigRepository configRepo)
+        {
+            _configRepo = configRepo;
+        }
 
-		[HttpGet, NoCache]
-		[Route("{allowRestricted}")]
-		[ResponseType(typeof(HttpResponseMessage))]
-		public async Task<IHttpActionResult> GetConfig(bool allowRestricted)
-		{
-			try
-			{
-				var settings = await _configRepo.GetSettings(allowRestricted);
-				var map = new Dictionary<string, Dictionary<string, string>>();
-				foreach(var s in settings)
-				{
-					if (!map.ContainsKey(s.Group))
-					{
-						map.Add(s.Group, new Dictionary<string, string>());
-					}
-					map[s.Group].Add(s.Key, s.Value);
-				}
-				var response = Request.CreateResponse(HttpStatusCode.OK, map);
-				return ResponseMessage(response);
-			}
-			catch
-			{
-				return InternalServerError();
-			}
-		}
-	}
+        [HttpGet, NoCache]
+        [Route("{allowRestricted}"), SessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetConfig(bool allowRestricted)
+        {
+            try
+            {
+                var settings = await _configRepo.GetSettings(allowRestricted);
+                var map = new Dictionary<string, Dictionary<string, string>>();
+                foreach(var s in settings)
+                {
+                    if (!map.ContainsKey(s.Group))
+                    {
+                        map.Add(s.Group, new Dictionary<string, string>());
+                    }
+                    map[s.Group].Add(s.Key, s.Value);
+                }
+                var response = Request.CreateResponse(HttpStatusCode.OK, map);
+                return ResponseMessage(response);
+            }
+            catch
+            {
+                return InternalServerError();
+            }
+        }
+    }
 }

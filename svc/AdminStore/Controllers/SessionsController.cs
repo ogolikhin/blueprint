@@ -12,6 +12,7 @@ using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using AdminStore.Saml;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -36,7 +37,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpPost]
-        [Route("")]
+        [Route(""), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSession(string login, [FromBody]string password, bool force = false)
         {
@@ -130,7 +131,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpPost]
-        [Route("sso")]
+        [Route("sso"), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
         {
@@ -163,7 +164,7 @@ namespace AdminStore.Controllers
         }
 
         [HttpDelete]
-        [Route("")]
+        [Route(""), SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> DeleteSession()
         {

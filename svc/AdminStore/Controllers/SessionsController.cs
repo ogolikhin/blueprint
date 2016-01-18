@@ -67,8 +67,7 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //  return InternalServerError(); TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                return InternalServerError();
             }
         }
 
@@ -104,9 +103,7 @@ namespace AdminStore.Controllers
                     var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                     if (!result.IsSuccessStatusCode)
                     {
-                        //TODO temporarily added for debug purposes
-                        var errorMessage = await result.Content.ReadAsStringAsync();
-                        throw new ServerException(errorMessage);
+                        throw new ServerException();
                     }
                     var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                     var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -125,8 +122,7 @@ namespace AdminStore.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                // return InternalServerError(); TODO temporarily added for debug purposes
-                throw new Exception(ex.Message, ex);
+                return InternalServerError();
             }
         }
 

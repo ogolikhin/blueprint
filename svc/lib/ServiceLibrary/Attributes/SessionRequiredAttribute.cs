@@ -28,11 +28,11 @@ namespace ServiceLibrary.Attributes
 
         internal readonly IHttpClientProvider _httpClientProvider;
 
-        public SessionRequiredAttribute(bool validate = true) : this(new HttpClientProvider(), validate)
+        public SessionRequiredAttribute() : this(new HttpClientProvider())
         {
         }
 
-        internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider, bool validate = true)
+        internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider)
         {
             _httpClientProvider = httpClientProvider;
         }

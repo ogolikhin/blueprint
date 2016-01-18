@@ -24,7 +24,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("{allowRestricted}"), SessionRequired]
+        [Route("{allowRestricted}")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetConfig(bool allowRestricted)
         {

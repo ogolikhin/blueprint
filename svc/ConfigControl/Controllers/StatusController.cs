@@ -25,7 +25,7 @@ namespace ConfigControl.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route(""), NoSessionRequired]
+        [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatus()
         {

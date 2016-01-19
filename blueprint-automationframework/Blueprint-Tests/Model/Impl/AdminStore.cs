@@ -117,6 +117,25 @@ namespace Model.Impl
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
 
+        public AdminStoreUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, token: token);
+            string path = I18NHelper.FormatInvariant("{0}/users/loginuser", SVC_PATH);
+
+            try
+            {
+                Logger.WriteInfo("Getting loged in user's info...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+                Logger.WriteInfo("Deserializing user object...");
+                return JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+            }
+            catch (WebException)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+                throw;
+            }
+        }
         public ISession GetSession(int? userId)
         {
             throw new NotImplementedException();

@@ -60,6 +60,14 @@ namespace Model
         List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber);
 
         /// <summary>
+        /// Gets login user for specified token.
+        /// (Runs: GET /users/loginuser)
+        /// </summary>
+        /// <param name="token">A token to identify a user.</param>
+        /// <returns>A user object.</returns>
+        AdminStoreUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null);
+        
+        /// <summary>
         /// Checks if the AdminStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>

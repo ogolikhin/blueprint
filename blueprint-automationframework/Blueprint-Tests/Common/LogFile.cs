@@ -33,7 +33,7 @@ namespace Common
                 }
             }
 
-            _writer = new StreamWriter(File.Open(_filename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+            OpenFile();
         }
 
         /// <summary>
@@ -67,7 +67,6 @@ namespace Common
                 {
                     if (_writer != null)
                     {
-                        Logger.WriteDebug("Disposing the StreamWriter...");
                         _writer.Dispose();
                     }
                 }
@@ -86,7 +85,7 @@ namespace Common
         /// <param name="line">The string to write.</param>
         public void WriteLine(string line)
         {
-            WriteLine(line, null);
+            WriteLineImpl(line, null);
         }
 
         /// <summary>
@@ -96,21 +95,54 @@ namespace Common
         /// <param name="args">The arguments for the formatted string.</param>
         public void WriteLine(string format, params Object[] args)
         {
+            WriteLineImpl(format, args);
+        }
+
+        /// <summary>
+        /// Opens the file.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]    // Don't dispose the file we just opened!
+        private void OpenFile()
+        {
+            _writer = new StreamWriter(File.Open(_filename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+        }
+
+        /// <summary>
+        /// Writes a formatted string to the log file followed by a new line.
+        /// </summary>
+        /// <param name="format">The string format.</param>
+        /// <param name="args">The arguments for the formatted string.</param>
+        private void WriteLineImpl(string format, params Object[] args)
+        {
             lock (_locks[_filename])
             {
-                string datetime = DateTime.Now.ToStringInvariant("u");   // The 'u' formats like this:  2008-06-15 21:15:07Z
-                format = I18NHelper.FormatInvariant("{0}: {1}", datetime, format);
-
-                if (args != null)
+                if (_writer != null)
                 {
-                    _writer.WriteLine(format, args);
-                }
-                else
-                {
-                    _writer.WriteLine(format);
-                }
+                    string datetime = DateTime.Now.ToStringInvariant("u");
+                    // The 'u' formats like this:  2008-06-15 21:15:07Z
+                    format = I18NHelper.FormatInvariant("{0}: {1}", datetime, format);
 
-                _writer.Flush();
+                    try
+                    {
+                        // Try flushing the file to see if it got disposed, then re-open it.
+                        _writer.Flush();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        OpenFile();
+                    }
+
+                    if (args != null)
+                    {
+                        _writer.WriteLine(format, args);
+                    }
+                    else
+                    {
+                        _writer.WriteLine(format);
+                    }
+
+                    _writer.Flush();
+                }
             }
         }
     }

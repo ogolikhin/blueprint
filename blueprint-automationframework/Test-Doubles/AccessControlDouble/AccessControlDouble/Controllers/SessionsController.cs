@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -42,12 +40,24 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.SessionsController.Get({0})", uid);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Get({0})", uid);
+                });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
-                logFile.WriteLine("Calling http.GetAsync({0})", uid);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.GetAsync({0})", uid);
+                });
                 var result = await http.GetAsync(uri);
                 WebUtils.LogRestResponse(logFile, result);
 
@@ -71,12 +81,19 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.SessionsController.Get('{0}', '{1}')", ps, pn);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine(
+                        "Called AccessControlDouble.SessionsController.Get('{0}', '{1}')", ps, pn);
+                });
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
-                logFile.WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
+                });
                 var result = await http.GetAsync(uri);
                 WebUtils.LogRestResponse(logFile, result);
 
@@ -101,13 +118,19 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.SessionsController.Post({0}, '{1}', {2}, {3})",
-                    uid, userName, licenseLevel, isSso);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Post({0}, '{1}', {2}, {3})",
+                        uid, userName, licenseLevel, isSso);
+                });
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
-                logFile.WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
+                });
                 var result = await http.PostAsJsonAsync(uri, uid);
                 WebUtils.LogRestResponse(logFile, result);
 
@@ -132,12 +155,19 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.SessionsController.Put('{0}', {1})", op, aid);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine(
+                        "Called AccessControlDouble.SessionsController.Put('{0}', {1})", op, aid);
+                });
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
-                logFile.WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
+                });
                 var result = await http.PutAsync(uri, Request.Content);
                 WebUtils.LogRestResponse(logFile, result);
 
@@ -158,12 +188,18 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.SessionsController.Delete()");
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Delete()");
+                });
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
-                logFile.WriteLine("Calling http.DeleteAsync()");
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.DeleteAsync()");
+                });
                 var result = await http.DeleteAsync(uri);
                 WebUtils.LogRestResponse(logFile, result);
 

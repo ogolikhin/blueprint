@@ -25,13 +25,25 @@ namespace AccessControlDouble.Controllers
             using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
             using (HttpClient http = new HttpClient())
             {
-                logFile.WriteLine("Called AccessControlDouble.StatusController.GetStatus()");
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Called AccessControlDouble.StatusController.GetStatus()");
+                });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
 
                 var uri = WebUtils.CreateUri(Request.RequestUri, WebApiConfig.AccessControl, WebApiConfig.SVC_PATH);
 
-                logFile.WriteLine("Calling http.GetAsync()");
+                await Task.Run(() =>
+                {
+                    logFile.WriteLine("Calling http.GetAsync()");
+                });
                 var result = await http.GetAsync(uri);
                 WebUtils.LogRestResponse(logFile, result);
 

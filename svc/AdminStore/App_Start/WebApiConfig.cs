@@ -43,9 +43,10 @@ namespace AdminStore
             return (ConfigurationManager.AppSettings[configValue] != null ? I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings[configValue]) : defaultValue);
         }
 
-        internal static string LogSource_Config = "AdminStore.Config";
-        internal static string LogSource_Licenses = "AdminStore.Licenses";
-        internal static string LogSource_Sessions = "AdminStore.Sessions";
-        internal static string LogSource_Users = "AdminStore.Users";
+        internal static string LogSourceConfig = "AdminStore.Config";
+        internal static string LogSourceLicenses = "AdminStore.Licenses";
+        internal static string LogSourceSessions = "AdminStore.Sessions";
+        internal static string LogSourceStatus = "AdminStore.Status";
+        internal static string LogSourceUsers = "AdminStore.Users";
     }
 }

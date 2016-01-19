@@ -7,6 +7,7 @@ using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Controllers
 {
@@ -16,7 +17,7 @@ namespace AccessControl.Controllers
         #region Constructor
 
         [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
+        public void Constructor_Always_CreatesDefaultDependencies()
         {
             // Arrange
 
@@ -25,6 +26,7 @@ namespace AccessControl.Controllers
 
             // Assert
             Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
+            Assert.IsInstanceOfType(controller.Log, typeof(ServiceLogRepository));
         }
 
         #endregion Constructor
@@ -37,7 +39,8 @@ namespace AccessControl.Controllers
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var log = new Mock<IServiceLogRepository>();
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
@@ -52,7 +55,8 @@ namespace AccessControl.Controllers
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var log = new Mock<IServiceLogRepository>();
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             var result = await controller.GetStatus() as StatusCodeResult;
@@ -63,17 +67,20 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task GetStatus_RepositoryThrowsException_ReturnsInternalServerError()
+        public async Task GetStatus_RepositoryThrowsException_LogsAndReturnsInternalServerError()
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Throws(new Exception());
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var exception = new Exception();
+            statusRepo.Setup(r => r.GetStatus()).Throws(exception);
+            var log = new Mock<IServiceLogRepository>();
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
 
             // Assert
+            log.Verify(l => l.LogError(WebApiConfig.LogSourceStatus, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 

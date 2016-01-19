@@ -519,7 +519,7 @@ namespace AccessControl.Controllers
             await _controller.LoadAsync();
 
             // Assert
-            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, It.Is<Exception>(e => e.Message == "Error loading sessions from database."),
+            _logMock.Verify(l => l.LogError(WebApiConfig.LogSourceSessions, It.Is<Exception>(e => e.Message == "Error loading sessions from database."),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
         }
 
@@ -528,7 +528,7 @@ namespace AccessControl.Controllers
         private bool VerifyPolicy(CacheItemPolicy policy, string token)
         {
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
-            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+            _logMock.Verify(l => l.LogError(WebApiConfig.LogSourceSessions, "Not enough memory", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
             policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
             _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token), true));
             return true;

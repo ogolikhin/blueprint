@@ -1,26 +1,30 @@
-﻿using System.Net;
-using System.Net.Http;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusRepository _statusRepo;
+        internal readonly IStatusRepository StatusRepo;
+        internal readonly IServiceLogRepository Log;
 
-        public StatusController() : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "GetStatus"))
+        public StatusController()
+            : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "GetStatus"), new ServiceLogRepository())
         {
         }
 
-        internal StatusController(IStatusRepository statusRepo)
+        internal StatusController(IStatusRepository statusRepo, IServiceLogRepository log)
         {
-            _statusRepo = statusRepo;
+            StatusRepo = statusRepo;
+            Log = log;
         }
 
         /// <summary>
@@ -39,15 +43,16 @@ namespace ArtifactStore.Controllers
         {
             try
             {
-                var result = await _statusRepo.GetStatus();
+                var result = await StatusRepo.GetStatus();
                 if (result)
                 {
                     return Ok();
                 }
                 return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
-            catch
+            catch (Exception ex)
             {
+                await Log.LogError(WebApiConfig.LogSourceStatus, ex);
                 return InternalServerError();
             }
         }

@@ -55,7 +55,7 @@ namespace FileStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileHead(string id)
         {
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"HEAD:{id}, Getting file head");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"HEAD:{id}, Getting file head");
             Models.File file;
 
             try
@@ -69,7 +69,7 @@ namespace FileStore.Controllers
                     // if the file is not found in the FileStore check the
                     // legacy database for the file 
 
-                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"HEAD:{id}, Getting file head in filestream (legacy)");
+                    await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"HEAD:{id}, Getting file head in filestream (legacy)");
                     file = _fileStreamRepo.GetFileHead(fileId);
                 }
 
@@ -95,12 +95,12 @@ namespace FileStore.Controllers
             }
             catch (FormatException ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"HEAD:{id}, bad request", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"HEAD:{id}, bad request", ex));
                 return BadRequest();
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"HEAD:{id}, Exception:{ex.Message}", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"HEAD:{id}, Exception:{ex.Message}", ex));
                 return InternalServerError();
             }
         }
@@ -111,7 +111,7 @@ namespace FileStore.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> GetFileContent(string id)
         {
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, Getting file");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Getting file");
 
             Models.File file;
 
@@ -126,7 +126,7 @@ namespace FileStore.Controllers
                     // if the file is not found in the FileStore check the
                     // legacy database for the file
 
-                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, Getting file from the filestream (legacy file)");
+                    await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Getting file from the filestream (legacy file)");
                     file = _fileStreamRepo.GetFileHead(fileId);
                 }
 
@@ -138,14 +138,14 @@ namespace FileStore.Controllers
 
                 if (file.ExpiredTime.HasValue && file.ExpiredTime.Value <= DateTime.UtcNow)
                 {
-                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, File has expired, returning not found");
+                    await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, File has expired, returning not found");
                     return NotFound();
                 }
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
                 IPushStream pushStream;
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, Initializing push stream");
+                await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Initializing push stream");
                 if (file.IsLegacyFile)
                 {
                     // retrieve file content from legacy database 
@@ -161,7 +161,7 @@ namespace FileStore.Controllers
                     ((SqlPushStream)pushStream).Initialize(_filesRepo, fileId);
                 }
 
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, Adding content to the response");
+                await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Adding content to the response");
                 //Please do not remove the redundant casting
                 response.Content = new PushStreamContent((Func<Stream, HttpContent, TransportContext, Task>)pushStream.WriteToStream, new MediaTypeHeaderValue(file.ContentType));
 
@@ -177,17 +177,17 @@ namespace FileStore.Controllers
 
                 SetHeaderContent(response, file);
 
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"GET:{id}, Returning file \'{file.FileName}\'");
+                await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"GET:{id}, Returning file \'{file.FileName}\'");
                 return ResponseMessage(response);
             }
             catch (FormatException)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, $"GET:{id}, bad request");
+                await _log.LogError(WebApiConfig.LogSourceFiles, $"GET:{id}, bad request");
                 return BadRequest();
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"GET:{id}, Exception:{ex.Message}", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"GET:{id}, Exception:{ex.Message}", ex));
                 return InternalServerError(ex);
             }
         }
@@ -199,11 +199,11 @@ namespace FileStore.Controllers
         {
             try
             {
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Initiate post");
+                await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Initiate post");
 
                 if (HttpContext.Current == null)
                 {
-                    await _log.LogError(WebApiConfig.LogSource_Files, "POST: httpcontext.current is null");
+                    await _log.LogError(WebApiConfig.LogSourceFiles, "POST: httpcontext.current is null");
                     return InternalServerError();
                 }
 
@@ -214,7 +214,7 @@ namespace FileStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"POST: Exception:{ex.Message}", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"POST: Exception:{ex.Message}", ex));
                 return InternalServerError(ex);
             }
         }
@@ -224,7 +224,7 @@ namespace FileStore.Controllers
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> PutFile(string id)
         {
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"PUT:{id}, Initiate PUT");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"PUT:{id}, Initiate PUT");
             try
             {
                 if (HttpContext.Current == null)
@@ -239,7 +239,7 @@ namespace FileStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"PUT:{id}, Exception{ex.Message}", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"PUT:{id}, Exception{ex.Message}", ex));
                 return InternalServerError(ex);
             }
         }
@@ -251,23 +251,23 @@ namespace FileStore.Controllers
         {
             try
             {
-                await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expired}, Deleting file");
+                await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"DELETE:{id}, {expired}, Deleting file");
                 var guid = await _filesRepo.DeleteFile(Models.File.ConvertToStoreId(id), expired);
                 if (guid.HasValue)
                 {
-                    await _log.LogVerbose(WebApiConfig.LogSource_Files, $"DELETE:{id}, {expired}, Deleting file success");
+                    await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"DELETE:{id}, {expired}, Deleting file success");
                     return Ok(Models.File.ConvertFileId(guid.Value));
                 }
                 return NotFound();
             }
             catch (FormatException)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, $"DELETE:{id}, bad request");
+                await _log.LogError(WebApiConfig.LogSourceFiles, $"DELETE:{id}, bad request");
                 return BadRequest();
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Files, new Exception($"DELETE:{id}, Exception:{ex.Message}", ex));
+                await _log.LogError(WebApiConfig.LogSourceFiles, new Exception($"DELETE:{id}, Exception:{ex.Message}", ex));
                 return InternalServerError(ex);
             }
         }
@@ -362,9 +362,9 @@ namespace FileStore.Controllers
             // Grabs all available information from the header
             var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Posting non-multi-part file {fileName}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Posting non-multi-part file {fileName}");
             var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Chunks posted {chunk.ChunkNum - 0}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Chunks posted {chunk.ChunkNum - 0}");
 
             return new UploadResult
             {
@@ -470,7 +470,7 @@ namespace FileStore.Controllers
                 throw;
             }
 
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"PUT:{id}, Chunks were added in PUT. Total chunks in file:{chunk.ChunkNum - 1}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"PUT:{id}, Chunks were added in PUT. Total chunks in file:{chunk.ChunkNum - 1}");
             return new UploadResult
             {
                 FileId = chunk.FileId,

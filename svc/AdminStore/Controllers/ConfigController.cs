@@ -69,7 +69,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Config, ex);
+                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
                 return InternalServerError();
             }
         }
@@ -114,7 +114,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Config, ex);
+                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
                 return InternalServerError();
             }
         }

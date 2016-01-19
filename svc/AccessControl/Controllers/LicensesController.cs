@@ -56,7 +56,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Licenses, ex);
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
                 return InternalServerError();
             }
         }
@@ -82,7 +82,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Licenses, ex);
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
                 return InternalServerError();
             }
         }
@@ -106,7 +106,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Licenses, ex);
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
                 return InternalServerError();
             }
         }

@@ -86,7 +86,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -141,7 +141,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -189,7 +189,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -235,7 +235,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }

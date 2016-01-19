@@ -32,9 +32,9 @@ namespace FileStore.Helpers
             var fileName = MultipartPartParser.Filename.Replace("\"", string.Empty).Replace("%20", " ");
             var fileType = MultipartPartParser.ContentType;
 
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Posting first multi-part file {fileName}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Posting first multi-part file {fileName}");
             _fileChunk = await _function(fileName, fileType, MultipartPartParser, _expired);
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"POST: Chunks posted {_fileChunk.ChunkNum - 1}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Chunks posted {_fileChunk.ChunkNum - 1}");
         }
 
         public Guid? GetFileId()

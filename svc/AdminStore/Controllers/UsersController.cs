@@ -60,7 +60,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Users, ex);
+                await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
             }
         }

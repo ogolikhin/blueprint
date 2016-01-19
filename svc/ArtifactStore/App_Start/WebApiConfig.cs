@@ -14,5 +14,7 @@ namespace ArtifactStore
         }
 
         public static string ArtifactStorage = ConfigurationManager.ConnectionStrings["ArtifactStorage"].ConnectionString;
+
+        internal static string LogSourceStatus = "ArtifactStore.Status";
     }
 }

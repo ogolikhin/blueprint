@@ -14,5 +14,7 @@ namespace ConfigControl
         }
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
+
+        internal static string LogSourceStatus = "ConfigControl.Status";
     }
 }

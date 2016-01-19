@@ -1,5 +1,5 @@
-﻿using System.Net;
-using System.Net.Http;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -7,6 +7,7 @@ using System.Web.Http.Results;
 using FileStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
@@ -14,14 +15,17 @@ namespace FileStore.Controllers
     public class StatusController : ApiController
     {
         internal readonly IStatusRepository StatusRepo;
+        internal readonly IServiceLogRepository Log;
 
-        public StatusController() : this(new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "GetStatus"))
+        public StatusController()
+            : this(new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "GetStatus"), new ServiceLogRepository())
         {
         }
 
-        internal StatusController(IStatusRepository statusRepo)
+        internal StatusController(IStatusRepository statusRepo, IServiceLogRepository log)
         {
             StatusRepo = statusRepo;
+            Log = log;
         }
 
         /// <summary>
@@ -47,8 +51,9 @@ namespace FileStore.Controllers
                 }
                 return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
-            catch
+            catch (Exception ex)
             {
+                await Log.LogError(WebApiConfig.LogSourceStatus, ex);
                 return InternalServerError();
             }
         }

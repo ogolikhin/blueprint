@@ -46,21 +46,5 @@ namespace ConfigControl
             config.AssertMethodAttributes(attr => attr.Any(a => a is HttpGetAttribute || a is HttpHeadAttribute) == attr.Any(a => a is NoCacheAttribute),
                 "{0} is missing NoCacheAttribute.");
         }
-
-
-        [TestMethod]
-        public void Register_AllHttpMethods_HaveSessionRequiredOrNoSessionRequiredAttribute()
-        {
-            // Arrange
-            var config = new HttpConfiguration();
-
-            // Act
-            WebApiConfig.Register(config);
-            config.EnsureInitialized();
-
-            // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is SessionRequiredAttribute || a is NoSessionRequiredAttribute),
-                "{0} is missing SessionRequiredAttribute or NoSessionRequiredAttribute.");
-        }
     }
 }

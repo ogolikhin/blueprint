@@ -40,7 +40,7 @@ namespace AccessControl.Controllers
             {
                 try
                 {
-                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service starting...");
+                    await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service starting...");
                     var ps = 100;
                     var pn = 1;
                     int count;
@@ -55,11 +55,11 @@ namespace AccessControl.Controllers
                         }
                         ++pn;
                     } while (count == ps);
-                    await _log.LogInformation(WebApiConfig.LogSource_Sessions, "Service started.");
+                    await _log.LogInformation(WebApiConfig.LogSourceSessions, "Service started.");
                 }
                 catch (Exception ex)
                 {
-                    await _log.LogError(WebApiConfig.LogSource_Sessions,
+                    await _log.LogError(WebApiConfig.LogSourceSessions,
                         new Exception("Error loading sessions from database.", ex));
                 }
             });
@@ -94,7 +94,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -132,7 +132,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -161,9 +161,8 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //return InternalServerError();//TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+                return InternalServerError();
             }
         }
 
@@ -177,7 +176,7 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
                 var session = await _repo.ExtendSession(guid);
-                if (session == null || session.IsExpired())
+                if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }
@@ -200,7 +199,7 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
@@ -236,9 +235,8 @@ namespace AccessControl.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //  return InternalServerError(); TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+                return InternalServerError();
             }
         }
 
@@ -255,7 +253,7 @@ namespace AccessControl.Controllers
                         switch (args.RemovedReason)
                         {
                             case CacheEntryRemovedReason.Evicted:
-                                await _log.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory");
+                                await _log.LogError(WebApiConfig.LogSourceSessions, "Not enough memory");
                                 break;
                             case CacheEntryRemovedReason.Expired:
                                 await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);

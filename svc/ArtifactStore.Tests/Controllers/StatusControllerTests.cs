@@ -9,7 +9,7 @@ using Moq;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
-namespace FileStore.Controllers
+namespace ArtifactStore.Controllers
 {
     [TestClass]
     public class StatusControllerTests
@@ -38,8 +38,8 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
+            var log = new Mock<IServiceLogRepository>();
             var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
@@ -54,8 +54,8 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
+            var log = new Mock<IServiceLogRepository>();
             var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
@@ -64,7 +64,6 @@ namespace FileStore.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
-            Assert.AreEqual(controller.Request, result.Request);
         }
 
         [TestMethod]
@@ -72,9 +71,9 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
             var exception = new Exception();
             statusRepo.Setup(r => r.GetStatus()).Throws(exception);
+            var log = new Mock<IServiceLogRepository>();
             var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act

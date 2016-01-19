@@ -136,28 +136,28 @@ namespace AdminStore.Controllers
             Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
-        //[TestMethod]
-        //public async Task PostSession_ServerError_InternalServerErrorResult()
-        //{
-        //    // Arrange
-        //    const string login = "admin";
-        //    const string password = "changeme";
-        //    var loginUser = new AuthenticationUser { Id = 1, Login = login };
+        [TestMethod]
+        public async Task PostSession_ServerError_InternalServerErrorResult()
+        {
+            // Arrange
+            const string login = "admin";
+            const string password = "changeme";
+            var loginUser = new AuthenticationUser { Id = 1, Login = login };
 
-        //    var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
-        //    var logMock = new Mock<IServiceLogRepository>().Object;
-        //    authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
+            var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
+            var logMock = new Mock<IServiceLogRepository>().Object;
+            authenticationRepositoryMock.Setup(m => m.AuthenticateUserAsync(login, password)).ReturnsAsync(loginUser);
 
-        //    var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-        //    var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock);
+            var controller = new SessionsController(authenticationRepositoryMock.Object, httpClientProvider, logMock);
 
-        //    // Act
-        //    IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
+            // Act
+            IHttpActionResult result = await controller.PostSession(SystemEncryptions.EncodeTo64UTF8(login), SystemEncryptions.EncodeTo64UTF8(password), true);
 
-        //    // Assert
-        //    Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
-        //}
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+        }
 
         [TestMethod]
         [ExpectedException(typeof(HttpResponseException))]

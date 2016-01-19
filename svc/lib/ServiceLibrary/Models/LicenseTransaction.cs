@@ -8,18 +8,68 @@ namespace ServiceLibrary.Models
     [JsonObject]
     public class LicenseTransaction
     {
-        // Populated from LicenseActivities table
-
+        /// <summary>
+        /// The ID of this license transaction
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int LicenseActivityId { get; set; }
+
+        /// <summary>
+        /// The ID of the user for this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// The type of license of the user for this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int LicenseType { get; set; }
+
+        /// <summary>
+        /// The type of license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int TransactionType { get; set; }
+
+        /// <summary>
+        /// The action that prompted this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int ActionType { get; set; }
+
+        /// <summary>
+        /// The type of the consumer of this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public int ConsumerType { get; set; }
+
+        /// <summary>
+        /// The time in UTC that this transaction occurred.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivities Table.
+        /// </remarks>
         public DateTime Date { get; set; }
 
-        // Populated from LicenseActivitiyDetails Table
-
+        /// <summary>
+        /// The current active licenses after this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Populated from LicenseActivitiyDetails Table.
+        /// </remarks>
         public IDictionary<int, int> ActiveLicenses { get; set; }
 
         /// <summary>
@@ -38,9 +88,19 @@ namespace ServiceLibrary.Models
             }
         }
 
-        // Added by LicenseController
-
+        /// <summary>
+        /// The name of the user for this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Added by LicenseController.
+        /// </remarks>
         public string Username { get; set; }
+        /// <summary>
+        /// The department of the user for this license transaction.
+        /// </summary>
+        /// <remarks>
+        /// Added by LicenseController.
+        /// </remarks>
         public string Department { get; set; }
     }
 }

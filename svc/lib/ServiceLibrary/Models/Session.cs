@@ -3,22 +3,42 @@ using System;
 
 namespace ServiceLibrary.Models
 {
-    [JsonObject]
     public class Session
     {
-        [JsonProperty]
+        /// <summary>
+        /// The ID of the user of this Session.
+        /// </summary>
         public int UserId { get; set; }
+
+        /// <summary>
+        /// The ID of this Session.
+        /// </summary>
         [JsonIgnore] //do not send session id
         public Guid SessionId { get; set; }
-        [JsonProperty]
+
+        /// <summary>
+        /// The time in UTC that this Session began, or Null if this Session is no longer valid.
+        /// </summary>
         public DateTime? BeginTime { get; set; }
-        [JsonProperty]
+
+        /// <summary>
+        /// The time in UTC that this Session ended, or will expire.
+        /// </summary>
         public DateTime EndTime { get; set; }
-        [JsonProperty]
+
+        /// <summary>
+        /// UserName
+        /// </summary>
         public string UserName { get; set; }
-        [JsonProperty]
+
+        /// <summary>
+        /// The name of the user of this Session.
+        /// </summary>
         public bool IsSso { get; set; }
-        [JsonProperty]
+
+        /// <summary>
+        /// The level of license of the user of this Session.
+        /// </summary>
         public int LicenseLevel { get; set; }
 
         public bool IsExpired()

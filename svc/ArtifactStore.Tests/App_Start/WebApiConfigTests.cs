@@ -41,7 +41,6 @@ namespace ArtifactStore
                 "{0} is missing NoCacheAttribute.");
         }
 
-
         [TestMethod]
         public void Register_AllHttpMethods_HaveSessionRequiredOrNoSessionRequiredAttribute()
         {

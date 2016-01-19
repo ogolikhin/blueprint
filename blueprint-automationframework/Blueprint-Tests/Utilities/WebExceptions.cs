@@ -218,7 +218,7 @@ namespace Utilities
     [Serializable]
     public class Http503ServiceUnavailableException : WebException
     {
-        public const string ERROR = "Received status code: 500";
+        public const string ERROR = "Received status code: 503";
 
         public Http503ServiceUnavailableException()
         {}

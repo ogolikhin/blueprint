@@ -14,10 +14,14 @@ using AdminStore.Repositories;
 using AdminStore.Saml;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
+    /// <summary>
+    /// SessionsController
+    /// </summary>
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
@@ -36,9 +40,25 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
+        /// <summary>
+        /// PostSession
+        /// </summary>
+        /// <remarks>
+        /// Authenticates a Database or Windows user with the given <paramref name="login" /> and <paramref name="password" />
+        /// and returns a new session. If a session already exists for the user, returns an error unless the <paramref name="force"/>
+        /// parameter is true.
+        /// </remarks>
+        /// <param name="login">The encrypted user login.</param>
+        /// <param name="password">The encrypted password.</param>
+        /// <param name="force">True to override the existing session, if any.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="409">Conflict. A session already exists for this user and <paramref name="force" /> is false.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(Session))]
         public async Task<IHttpActionResult> PostSession(string login, [FromBody]string password, bool force = false)
         {
             try
@@ -66,9 +86,8 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //  return InternalServerError(); TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+                return InternalServerError();
             }
         }
 
@@ -104,9 +123,7 @@ namespace AdminStore.Controllers
                     var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
                     if (!result.IsSuccessStatusCode)
                     {
-                        //TODO temporarily added for debug purposes
-                        var errorMessage = await result.Content.ReadAsStringAsync();
-                        throw new ServerException(errorMessage);
+                        throw new ServerException();
                     }
                     var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
                     var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -124,15 +141,29 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                // return InternalServerError(); TODO temporarily added for debug purposes
-                throw new Exception(ex.Message, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+                return InternalServerError();
             }
         }
 
+        /// <summary>
+        /// PostSessionSingleSignOn
+        /// </summary>
+        /// <remarks>
+        /// Processes the SAML response from an Identity Provider and returns a new session.
+        /// If a session already exists for the user, returns an error unless the <paramref name="force"/>
+        /// parameter is true.
+        /// </remarks>
+        /// <param name="samlResponse">The SAML response from the Identity Provider.</param>
+        /// <param name="force">True to override the existing session, if any.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="409">Conflict. A session already exists for this user and <paramref name="force" /> is false.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("sso"), NoSessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(Session))]
         public async Task<IHttpActionResult> PostSessionSingleSignOn([FromBody]string samlResponse, bool force = false)
         {
             try
@@ -158,14 +189,24 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }
 
+        /// <summary>
+        /// DeleteSession
+        /// </summary>
+        /// <remarks>
+        /// Terminates the current session, releasing the associated license.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpDelete]
         [Route(""), SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> DeleteSession()
         {
             try
@@ -194,7 +235,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
                 return InternalServerError();
             }
         }

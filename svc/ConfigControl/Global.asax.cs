@@ -21,6 +21,9 @@ namespace ConfigControl
             this.SetupEventTracing();
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
+#if DEBUG
+            GlobalConfiguration.Configure(SwaggerConfig.Register);
+#endif
         }
 
         public sealed override void Dispose()

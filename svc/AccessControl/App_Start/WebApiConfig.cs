@@ -25,8 +25,8 @@ namespace AccessControl
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);
 
-        internal static string LogSource_Sessions= "AccessControl.Sessions";
-
-        internal static string LogSource_Licenses = "AccessControl.Licenses";
+        internal static string LogSourceSessions= "AccessControl.Sessions";
+        internal static string LogSourceStatus = "AccessControl.Status";
+        internal static string LogSourceLicenses = "AccessControl.Licenses";
     }
 }

@@ -8,9 +8,9 @@ USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 GO
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
-	set noexec on
-Print 'Migrating 7.0.1.0 ...'
+-- IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
+-- 	set noexec on
+-- Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
 -- Create Blueprint Roles
@@ -60,6 +60,51 @@ DECLARE @sql AS nvarchar(max);
 
 SET @sql = N'ALTER DATABASE [' + @db_name + N'] SET COMPATIBILITY_LEVEL = 110'; -- SQL Server 2012
 EXEC(@sql);
+
+/******************************************************************************************************************************
+Name:			Logs
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/12/17		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
+DROP TABLE [dbo].[Logs]
+GO
+
+CREATE TABLE [dbo].[Logs](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IpAddress] [nvarchar](45),
+	[Source] [nvarchar](100),
+	[FormattedMessage] [nvarchar](4000) NULL,
+	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[UserName] [nvarchar](max),
+	[SessionId] [nvarchar](40),
+	[ActionName] [nvarchar](200),
+	[CorrelationId] [uniqueidentifier],
+	[Duration] [float],
+	[InstanceName] [nvarchar](1000) NOT NULL,
+	[ProviderId] [uniqueidentifier] NOT NULL,
+	[ProviderName] [nvarchar](500) NOT NULL,
+	[EventId] [int] NOT NULL,
+	[EventKeywords] [bigint] NOT NULL,
+	[Level] [int] NOT NULL,
+	[Opcode] [int] NOT NULL,
+	[Task] [int] NOT NULL,
+	[Timestamp] [datetimeoffset](7) NOT NULL,
+	[Version] [int] NOT NULL,
+	[Payload] [xml] NULL,
+	[ActivityId] [uniqueidentifier],
+	[RelatedActivityId] [uniqueidentifier],
+	[ProcessId] [int],
+	[ThreadId] [int],
+	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)) ON [PRIMARY]
+GO
 
 /******************************************************************************************************************************
 Name:			LogsType
@@ -306,7 +351,7 @@ AS
 BEGIN
 	UPDATE [dbo].[Sessions] SET EndTime = @EndTime
 	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-	WHERE SessionId = @SessionId AND EndTime <= @EndTime;
+	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL;
 END
 GO
 
@@ -574,8 +619,8 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
-GO
+-- IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
+-- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+-- GO
 set noexec off
 -- --------------------------------------------------

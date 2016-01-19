@@ -34,9 +34,20 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
+        /// <summary>
+        /// GetLicenseTransactions
+        /// </summary>
+        /// <remarks>
+        /// Returns license transactions for the past <paramref name="days" /> days.
+        /// </remarks>
+        /// <param name="days">The number of past days for which to return transactions.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("transactions"), SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(IEnumerable<LicenseTransaction>))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days)
         {
             try

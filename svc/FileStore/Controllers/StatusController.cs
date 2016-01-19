@@ -24,9 +24,18 @@ namespace FileStore.Controllers
             StatusRepo = statusRepo;
         }
 
+        /// <summary>
+        /// GetStatus
+        /// </summary>
+        /// <remarks>
+        /// Returns the current status of FileStore service.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
             try

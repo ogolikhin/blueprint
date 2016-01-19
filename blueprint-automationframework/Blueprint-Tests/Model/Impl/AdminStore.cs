@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
+using Model.Factories;
 
 namespace Model.Impl
 {
@@ -117,22 +118,33 @@ namespace Model.Impl
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
 
-        public AdminStoreUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
+        public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, token: token);
             string path = I18NHelper.FormatInvariant("{0}/users/loginuser", SVC_PATH);
 
             try
             {
-                Logger.WriteInfo("Getting loged in user's info...");
+                Logger.WriteInfo("Getting logged in user's info...");
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
                 Logger.WriteInfo("Deserializing user object...");
-                return JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+                AdminStoreUser adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+                IUser user = UserFactory.CreateUserOnly();
+                user.Department = adminStoreUser.Department;
+                user.DisplayName = adminStoreUser.DisplayName;
+                user.Email = adminStoreUser.Email;
+                user.FirstName = adminStoreUser.FirstName;
+                user.LastName = adminStoreUser.LastName;
+                user.License = adminStoreUser.License;
+                user.Username = adminStoreUser.Username;
+                user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                return user;
             }
-            catch (WebException)
+            catch (WebException ex)
             {
-                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
                 throw;
             }
         }

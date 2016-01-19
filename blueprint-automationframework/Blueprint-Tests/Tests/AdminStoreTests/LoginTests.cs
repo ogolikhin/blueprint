@@ -95,8 +95,8 @@ namespace AdminStoreTests
         public void GetLogedinUser_200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            AdminStoreUser loggedinUser = _adminStore.GetLoginUser(session.SessionId);
-            Assert.IsTrue(loggedinUser.Equals(_user));
+            IUser loggedinUser = _adminStore.GetLoginUser(session.SessionId);
+            Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
         }
     }
 }

@@ -18,6 +18,7 @@ namespace FileStore.Helpers
         /// <param name="stream"></param>
         /// <param name="expired"></param>
         /// <param name="function">Function to be executed</param>
+        /// <param name="log"></param>
         public PostMultipartReader(Stream stream, DateTime? expired, Func<string, string, Stream, DateTime?, Task<FileChunk>> function, IServiceLogRepository log)
             : base(stream, log)
         {

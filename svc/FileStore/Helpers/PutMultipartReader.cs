@@ -18,6 +18,7 @@ namespace FileStore.Helpers
         /// <param name="stream"></param>
         /// <param name="fileChunk"></param>
         /// <param name="function">Function to be executed</param>
+        /// <param name="log"></param>
         public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function, IServiceLogRepository log) 
             : base(stream, log)
         {

@@ -1,7 +1,7 @@
-﻿/// *************************************************************************************
-/// ***** Any changes to this file need to be replicated in the                     *****
-/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
-/// *************************************************************************************
+﻿// *************************************************************************************
+// ***** Any changes to this file need to be replicated in the                     *****
+// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+// *************************************************************************************
 using Newtonsoft.Json;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
@@ -263,7 +263,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// LogError
         /// </summary>
         /// <param name="source">source</param>
-        /// <param name="ex">Exception</param>
+        /// <param name="exception">Exception</param>
         /// <param name="methodName">Do not pass a value - compiler will fill this in</param>
         /// <param name="filePath">Do not pass a value - compiler will fill this in</param>
         /// <param name="lineNumber">Do not pass a value - compiler will fill this in</param>

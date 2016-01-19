@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -23,9 +22,18 @@ namespace AdminStore.Controllers
             _statusRepo = statusRepo;
         }
 
+        /// <summary>
+        /// GetStatus
+        /// </summary>
+        /// <remarks>
+        /// Returns the current status of AdminStore service.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
             try

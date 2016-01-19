@@ -162,8 +162,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //return InternalServerError();//TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                return InternalServerError();
             }
         }
 
@@ -237,8 +236,7 @@ namespace AccessControl.Controllers
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSource_Sessions, ex);
-                //  return InternalServerError(); TODO temporarily added for debug purposes
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex));
+                return InternalServerError();
             }
         }
 

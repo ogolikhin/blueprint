@@ -96,6 +96,10 @@ namespace AccessControlDouble.Controllers
                 {
                     string msg = I18NHelper.FormatInvariant("Cannot parse '{0}' to a valid HttpStatusCode!",
                         httpStatusCode);
+                    await Task.Run(() =>
+                    {
+                        WriteLine(msg);
+                    });
                     var response = Request.CreateErrorResponse(HttpStatusCode.BadRequest, msg);
 
                     return ResponseMessage(response);

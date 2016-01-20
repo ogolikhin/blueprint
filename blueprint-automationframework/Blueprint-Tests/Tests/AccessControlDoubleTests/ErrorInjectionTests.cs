@@ -68,7 +68,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodesAndExceptions")]
+        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
         public void AddSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
@@ -82,7 +82,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodesAndExceptions")]
+        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
         public void AuthorizeOperation_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
@@ -97,7 +97,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodesAndExceptions")]
+        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
         public void DeleteSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
@@ -112,7 +112,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodesAndExceptions")]
+        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
         public void GetSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
@@ -127,7 +127,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodesAndExceptions")]
+        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
         public void GetStatus_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -139,7 +139,7 @@ namespace AccessControlDoubleTests
             }
         }
 
-        [Test, TestCaseSource("StatusCodes")]
+        [Test, TestCaseSource(nameof(StatusCodes))]
         public static void InjectErrorsForInvalidRequestType_VerifyAccessControlDoubleReturns404(HttpStatusCode statusCode)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())

@@ -12,9 +12,10 @@ namespace AccessControlDoubleTests
 {
     [TestFixture]
     [Category(Categories.AccessControlDouble)]
+    [Category(Categories.InjectsErrorsIntoAccessControl)]
     public class ErrorInjectionTests
     {
-        private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
+        private readonly IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
 
 
         [TestCase(HttpStatusCode.BadRequest,            typeof(Http400BadRequestException))]

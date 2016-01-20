@@ -139,6 +139,7 @@ namespace Model.Impl
                 user.License = adminStoreUser.License;
                 user.Username = adminStoreUser.Username;
                 user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                user.SetToken(token: token);
                 return user;
             }
             catch (WebException ex)

@@ -13,6 +13,7 @@ namespace AccessControlDoubleTests
     [TestFixture]
     [Category(Categories.AccessControlDouble)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
+    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class ErrorInjectionTests
     {
         private readonly IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();

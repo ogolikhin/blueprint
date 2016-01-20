@@ -22,8 +22,9 @@ namespace ServiceLibrary.Attributes
         private const string BlueprintSessionToken = "Session-Token";
         private const string BlueprintSessionCookie = "BLUEPRINT_SESSION_TOKEN";
         private const string AccessControl = "AccessControl";
-        private const string UnauthorizedExceptionMessage = "You are not authorized. Please provide token.";
-        private const string InternalServerError = "An error occured.";
+        private const string BadRequestMessage = "Token is missing or malformed.";
+        private const string UnauthorizedMessage = "Token is invalid.";
+        private const string InternalServerErrorMessage = "An error occured.";
         private const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
 
         internal readonly IHttpClientProvider _httpClientProvider;
@@ -50,18 +51,18 @@ namespace ServiceLibrary.Attributes
             }
             catch (ArgumentNullException)
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized,
-                    UnauthorizedExceptionMessage);
+                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest,
+                    BadRequestMessage);
             }
             catch (HttpRequestException)
             {
                 actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized,
-                    UnauthorizedExceptionMessage);
+                    UnauthorizedMessage);
             }
             catch
             {
                 actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.InternalServerError,
-                    InternalServerError);
+                    InternalServerErrorMessage);
             }
 
             await base.OnActionExecutingAsync(actionContext, cancellationToken);

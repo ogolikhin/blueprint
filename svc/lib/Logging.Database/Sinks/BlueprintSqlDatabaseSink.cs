@@ -242,7 +242,7 @@ namespace Logging.Database.Sinks
                 sqlBulkCopy.ColumnMappings.Add("Source", "Source");
                 sqlBulkCopy.ColumnMappings.Add("UserName", "UserName");
                 sqlBulkCopy.ColumnMappings.Add("SessionId", "SessionId");
-                sqlBulkCopy.ColumnMappings.Add("OccuredAt", "OccuredAt");
+                sqlBulkCopy.ColumnMappings.Add("OccurredAt", "OccurredAt");
                 sqlBulkCopy.ColumnMappings.Add("ActionName", "ActionName");
                 sqlBulkCopy.ColumnMappings.Add("CorrelationId", "CorrelationId");
                 sqlBulkCopy.ColumnMappings.Add("Duration", "Duration");

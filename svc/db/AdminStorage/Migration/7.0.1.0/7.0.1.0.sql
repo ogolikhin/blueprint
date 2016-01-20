@@ -8,9 +8,9 @@ USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 GO
--- IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
--- 	set noexec on
--- Print 'Migrating 7.0.1.0 ...'
+IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
+	set noexec on
+Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
 -- Create Blueprint Roles
@@ -79,7 +79,7 @@ CREATE TABLE [dbo].[Logs](
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
 	[FormattedMessage] [nvarchar](4000) NULL,
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[UserName] [nvarchar](max),
 	[SessionId] [nvarchar](40),
 	[ActionName] [nvarchar](200),
@@ -145,7 +145,7 @@ CREATE TYPE LogsType AS TABLE
 	[Source] [nvarchar](100),
 	[UserName] [nvarchar](Max),
 	[SessionId] [nvarchar](40),
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[ActionName] [nvarchar](200),
 	[CorrelationId] [uniqueidentifier],
 	[Duration] [float]
@@ -605,7 +605,7 @@ BEGIN
 		[Source],
 		[UserName],
 		[SessionId],
-		[OccuredAt],
+		[OccurredAt],
 		[ActionName],
 		[CorrelationId],
 		[Duration]
@@ -619,8 +619,8 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
--- IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
--- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
--- GO
+IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
+	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+GO
 set noexec off
 -- --------------------------------------------------

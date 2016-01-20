@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Factories\AccessControlFactory.cs" />
     <Compile Include="Factories\AdminStoreFactory.cs" />
     <Compile Include="Factories\ArtifactFactory.cs" />

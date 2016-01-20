@@ -235,7 +235,7 @@ CREATE TABLE [dbo].[Logs](
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
 	[FormattedMessage] [nvarchar](4000) NULL,
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[UserName] [nvarchar](max),
 	[SessionId] [nvarchar](40),
 	[ActionName] [nvarchar](200),
@@ -301,7 +301,7 @@ CREATE TYPE LogsType AS TABLE
 	[Source] [nvarchar](100),
 	[UserName] [nvarchar](Max),
 	[SessionId] [nvarchar](40),
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[ActionName] [nvarchar](200),
 	[CorrelationId] [uniqueidentifier],
 	[Duration] [float]
@@ -761,7 +761,7 @@ BEGIN
 		[Source],
 		[UserName],
 		[SessionId],
-		[OccuredAt],
+		[OccurredAt],
 		[ActionName],
 		[CorrelationId],
 		[Duration]

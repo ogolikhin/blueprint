@@ -8,9 +8,9 @@ USE [Blueprint_ArtifactStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 GO
--- IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
--- 	set noexec on
--- Print 'Migrating 7.0.1.0 ...'
+IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
+	set noexec on
+Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
 -- Create Blueprint Roles
@@ -157,8 +157,8 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
--- IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
--- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
--- GO
+IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
+	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+GO
 set noexec off
 -- --------------------------------------------------

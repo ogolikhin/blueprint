@@ -46,14 +46,17 @@ namespace AccessControlDouble.Controllers
         /// </summary>
         /// <param name="requestMethodType">The method you want to start returning errors for (i.e. DELETE, GET, HEAD, POST, PUT).</param>
         /// <param name="httpStatusCode">The status code that you want the method to start returning.</param>
-        /// <returns>200 OK if the error was successfully injected, 404 if an invalid Request Method was passed, or 500 for any other errors.</returns>
+        /// <returns>200 OK if the error was successfully injected, 400 if an invalid httpStatusCode was passed,
+        /// 404 if an invalid Request Method was passed, or 500 for any other errors.</returns>
         /// <example>POST: /svc/accesscontrol/InjectErrors/{requestMethodType}/{httpStatusCode}</example>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         [HttpPost]
         [Route("{requestMethodType}/{httpStatusCode}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Post(string requestMethodType, string httpStatusCode)
+        public async Task<IHttpActionResult> StartInjectingErrors(string requestMethodType, string httpStatusCode)
         {
+            string thisClassName = nameof(InjectErrorsController);
+            string thisMethodName = nameof(StartInjectingErrors);
+
             try
             {
                 if (string.IsNullOrWhiteSpace(requestMethodType))
@@ -102,7 +105,7 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("InjectErrorsController.Post() caught an exception!  {0}", e.Message);
+                    WriteLine("{0}.{1}() caught an exception!  {2}", thisClassName, thisMethodName, e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.NotFound, e);
@@ -113,7 +116,7 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("InjectErrorsController.Post() caught an exception!  {0}", e.Message);
+                    WriteLine("{0}.{1}() caught an exception!  {2}", thisClassName, thisMethodName, e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
@@ -131,8 +134,11 @@ namespace AccessControlDouble.Controllers
         [HttpDelete]
         [Route("{requestMethodType}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Delete(string requestMethodType)
+        public async Task<IHttpActionResult> StopInjectingErrors(string requestMethodType)
         {
+            string thisClassName = nameof(InjectErrorsController);
+            string thisMethodName = nameof(StopInjectingErrors);
+
             try
             {
                 if (string.IsNullOrWhiteSpace(requestMethodType))
@@ -163,7 +169,7 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("InjectErrorsController.Delete() caught an exception!  {0}", e.Message);
+                    WriteLine("{0}.{1}() caught an exception!  {2}", thisClassName, thisMethodName, e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.NotFound, e);
@@ -174,7 +180,7 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("InjectErrorsController.Delete() caught an exception!  {0}", e.Message);
+                    WriteLine("{0}.{1}() caught an exception!  {2}", thisClassName, thisMethodName, e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);

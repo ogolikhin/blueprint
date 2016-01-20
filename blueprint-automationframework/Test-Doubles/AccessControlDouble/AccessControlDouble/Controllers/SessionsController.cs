@@ -22,6 +22,31 @@ namespace AccessControlDouble.Controllers
             return WebUtils.CreateUri(Request.RequestUri, WebApiConfig.AccessControl, WebApiConfig.SVC_PATH);
         }
 
+        /// <summary>
+        /// Writes a line into the log file.
+        /// </summary>
+        /// <param name="line">The line to write.</param>
+        private static void WriteLine(string line)
+        {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            {
+                logFile.WriteLine(line);
+            }
+        }
+
+        /// <summary>
+        /// Writes a formatted line into the log file.
+        /// </summary>
+        /// <param name="format">The format string to write.</param>
+        /// <param name="args">The format arguments.</param>
+        private static void WriteLine(string format, params Object[] args)
+        {
+            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            {
+                logFile.WriteLine(format, args);
+            }
+        }
+
         #endregion Private functions
 
         /// <summary>
@@ -37,12 +62,15 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(int uid)
         {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(Get);
+
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Get({0})", uid);
+                    WriteLine("Called {0}.{1}.{2}({3})", thisNamespace, thisClassName, thisMethodName, uid);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -56,10 +84,13 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Calling http.GetAsync({0})", uid);
+                    WriteLine("Calling http.GetAsync({0})", uid);
                 });
                 var result = await http.GetAsync(uri);
-                WebUtils.LogRestResponse(logFile, result);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
 
                 return ResponseMessage(result);
             }
@@ -78,13 +109,15 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(string ps = "100", string pn = "1")
         {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(Get);
+
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine(
-                        "Called AccessControlDouble.SessionsController.Get('{0}', '{1}')", ps, pn);
+                    WriteLine("Called {0}.{1}.{2}('{3}', '{4}')", thisNamespace, thisClassName, thisMethodName, ps, pn);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -98,10 +131,13 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
+                    WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
                 });
                 var result = await http.GetAsync(uri);
-                WebUtils.LogRestResponse(logFile, result);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
 
                 return ResponseMessage(result);
             }
@@ -121,13 +157,16 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Post(int uid, string userName, int licenseLevel, bool isSso = false)
         {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(Post);
+
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Post({0}, '{1}', {2}, {3})",
-                        uid, userName, licenseLevel, isSso);
+                    WriteLine("Called {0}.{1}.{2}({3}, '{4}', {5}, {6})",
+                        thisNamespace, thisClassName, thisMethodName, uid, userName, licenseLevel, isSso);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -141,10 +180,13 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
+                    WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
                 });
                 var result = await http.PostAsJsonAsync(uri, uid);
-                WebUtils.LogRestResponse(logFile, result);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
 
                 return ResponseMessage(result);
             }
@@ -164,13 +206,15 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Put(string op = "", int aid = 0)
         {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(Put);
+
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine(
-                        "Called AccessControlDouble.SessionsController.Put('{0}', {1})", op, aid);
+                    WriteLine("Called {0}.{1}.{2}('{3}', {4})", thisNamespace, thisClassName, thisMethodName, op, aid);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -184,10 +228,13 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
+                    WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
                 });
                 var result = await http.PutAsync(uri, Request.Content);
-                WebUtils.LogRestResponse(logFile, result);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
 
                 return ResponseMessage(result);
             }
@@ -203,12 +250,15 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Delete()
         {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(Delete);
+
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Called AccessControlDouble.SessionsController.Delete()");
+                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -222,10 +272,13 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    logFile.WriteLine("Calling http.DeleteAsync()");
+                    WriteLine("Calling http.DeleteAsync()");
                 });
                 var result = await http.DeleteAsync(uri);
-                WebUtils.LogRestResponse(logFile, result);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
 
                 return ResponseMessage(result);
             }

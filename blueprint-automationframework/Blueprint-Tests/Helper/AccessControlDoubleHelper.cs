@@ -47,6 +47,14 @@ namespace Helper
             _address = address;
         }
 
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~AccessControlDoubleHelper()
+        {
+            Dispose(false);
+        }
+
         #region IDisposable members
 
         /// <summary>

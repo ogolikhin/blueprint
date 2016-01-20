@@ -30,7 +30,7 @@ namespace AdminStoreTests
                 foreach (var session in _adminStore.Sessions.ToArray())
                 {
                     // AdminStore removes and adds a new session in some cases, so we should expect a 404 error in some cases.
-                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
                     _adminStore.DeleteSession(session, expectedStatusCodes);
                 }
             }

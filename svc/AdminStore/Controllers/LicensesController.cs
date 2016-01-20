@@ -65,7 +65,7 @@ namespace AdminStore.Controllers
                     var result = await http.GetAsync("licenses/transactions?days=" + days + "&consumerType=1"); // LicenseConsumerType.Client
                     var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
                     var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
-                    foreach (var transaction in transactions)
+                    foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))
                     {
                         var user = users[transaction.UserId];
                         transaction.Username = user.Login;

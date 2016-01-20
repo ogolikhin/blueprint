@@ -81,14 +81,14 @@ namespace FileStore.Controllers
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
-                response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(""));
+                response.Content = new ByteArrayContent(Encoding.UTF8.GetBytes("0"));
 
                 // return file info in headers
 
 
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(Attachment) { FileName = file.FileName };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                response.Content.Headers.ContentLength = 0; // there is no content
+                response.Content.Headers.ContentLength = file.FileSize;
 
                 SetHeaderContent(response, file);
                 return ResponseMessage(response);

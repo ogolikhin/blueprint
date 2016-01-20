@@ -176,7 +176,7 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
                 var session = await _repo.ExtendSession(guid);
-                if (session == null || session.IsExpired())
+                if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }

@@ -6,10 +6,10 @@ namespace ServiceLibrary.Models
     [JsonObject]
     public class Session
     {
-        [JsonProperty]
         /// <summary>
         /// The ID of the user of this Session.
         /// </summary>
+        [JsonProperty]
         public int UserId { get; set; }
 
         /// <summary>

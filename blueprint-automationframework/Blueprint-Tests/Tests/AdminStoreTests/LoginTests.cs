@@ -90,5 +90,13 @@ namespace AdminStoreTests
                 _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
             });
         }
+
+        [Test]
+        public void GetLogedinUser_200OK()
+        {
+            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            IUser loggedinUser = _adminStore.GetLoginUser(session.SessionId);
+            Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
+        }
     }
 }

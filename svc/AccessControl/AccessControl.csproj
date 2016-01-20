@@ -121,6 +121,8 @@
     <Content Include="doc\AccessControl Web Service Design.docx" />
     <Content Include="doc\ref\Cookies vs Tokens. Getting auth right with Angular.JS.url" />
     <Content Include="doc\ref\draft-ietf-oauth-json-web-token-32 - JSON Web Token %28JWT%29.url" />
+    <Content Include="doc\AccessControl Web Service API - Swagger.URL" />
+    <Content Include="doc\AccessControl Web Service API.docx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

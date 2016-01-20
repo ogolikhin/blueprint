@@ -18,6 +18,7 @@ namespace FileStore.Helpers
         /// <param name="stream"></param>
         /// <param name="fileChunk"></param>
         /// <param name="function">Function to be executed</param>
+        /// <param name="log"></param>
         public PutMultipartReader(Stream stream, FileChunk fileChunk, Func<Stream, FileChunk, Task<long>> function, IServiceLogRepository log) 
             : base(stream, log)
         {
@@ -27,9 +28,9 @@ namespace FileStore.Helpers
         
         protected override async Task ExecuteFunctionAsync(Stream stream)
         {
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, "PUT: Posting first multi-part file chunk");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, "PUT: Posting first multi-part file chunk");
             _fileSize = await _function(stream, _fileChunk);
-            await _log.LogVerbose(WebApiConfig.LogSource_Files, $"PUT: Chunks posted {_fileChunk.ChunkNum - 1}");
+            await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"PUT: Chunks posted {_fileChunk.ChunkNum - 1}");
         }
 
         public long? GetFileSize()

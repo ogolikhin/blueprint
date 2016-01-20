@@ -10,14 +10,16 @@ USE [Blueprint_AdminStorage]; -- REPLACE --
 GO
 SET NOCOUNT ON;
 GO
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
-	set noexec on
-Print 'Migrating 7.0.1.0 ...'
+-- IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
+-- 	set noexec on
+-- Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Scripts\DatabaseRoles.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Scripts\IsolationLevel.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Scripts\CompatibilityLevel.sql" ) ) #>
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Tables\Logs.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"..\..\Types\LogsType.sql" ) ) #>
 
@@ -40,8 +42,8 @@ Print 'Migrating 7.0.1.0 ...'
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
-GO
+-- IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
+-- 	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+-- GO
 set noexec off
 -- --------------------------------------------------

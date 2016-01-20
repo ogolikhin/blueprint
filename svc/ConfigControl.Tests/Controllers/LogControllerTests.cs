@@ -21,7 +21,7 @@ namespace ConfigControl.Controllers
                 LogLevel = LogLevelEnum.Informational,
                 Source = "Controller source",
                 Message = "Hello",
-                OccuredAt = DateTime.Now
+                OccurredAt = DateTime.Now
             };
 
             // Act

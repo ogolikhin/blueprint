@@ -87,6 +87,12 @@ namespace AccessControlDouble.Controllers
                         "Called AccessControlDouble.SessionsController.Get('{0}', '{1}')", ps, pn);
                 });
 
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
+
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
@@ -123,6 +129,12 @@ namespace AccessControlDouble.Controllers
                     logFile.WriteLine("Called AccessControlDouble.SessionsController.Post({0}, '{1}', {2}, {3})",
                         uid, userName, licenseLevel, isSso);
                 });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["POST"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["POST"].Value));
+                }
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
@@ -161,6 +173,12 @@ namespace AccessControlDouble.Controllers
                         "Called AccessControlDouble.SessionsController.Put('{0}', {1})", op, aid);
                 });
 
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["PUT"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["PUT"].Value));
+                }
+
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();
 
@@ -192,6 +210,12 @@ namespace AccessControlDouble.Controllers
                 {
                     logFile.WriteLine("Called AccessControlDouble.SessionsController.Delete()");
                 });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["DELETE"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["DELETE"].Value));
+                }
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
                 var uri = CreateUri();

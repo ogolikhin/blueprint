@@ -41,18 +41,24 @@ namespace AccessControlDouble.Controllers
 
         #endregion Private functions
 
-        // POST: /svc/accesscontrol/InjectErrors/{requestType}/{httpStatusCode}
+        /// <summary>
+        /// This will turn on error injection for the specified request method.
+        /// </summary>
+        /// <param name="requestMethodType">The method you want to start returning errors for (i.e. DELETE, GET, HEAD, POST, PUT).</param>
+        /// <param name="httpStatusCode">The status code that you want the method to start returning.</param>
+        /// <returns>200 OK if the error was successfully injected, 404 if an invalid Request Method was passed, or 500 for any other errors.</returns>
+        /// <example>POST: /svc/accesscontrol/InjectErrors/{requestMethodType}/{httpStatusCode}</example>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         [HttpPost]
-        [Route("{requestType}/{httpStatusCode}")]
+        [Route("{requestMethodType}/{httpStatusCode}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Post(string requestType, string httpStatusCode)
+        public async Task<IHttpActionResult> Post(string requestMethodType, string httpStatusCode)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(requestType))
+                if (string.IsNullOrWhiteSpace(requestMethodType))
                 {
-                    throw new ArgumentNullException(nameof(requestType));
+                    throw new ArgumentNullException(nameof(requestMethodType));
                 }
 
                 if (string.IsNullOrWhiteSpace(httpStatusCode))
@@ -60,10 +66,12 @@ namespace AccessControlDouble.Controllers
                     throw new ArgumentNullException(nameof(httpStatusCode));
                 }
 
-                if (!WebApiConfig.StatusCodeToReturn.Keys.Contains(requestType))
+                if (!WebApiConfig.StatusCodeToReturn.Keys.Contains(requestMethodType))
                 {
+                    var keys = WebApiConfig.StatusCodeToReturn.Keys;
                     string msg = I18NHelper.FormatInvariant("The requestType must be one of the following: {0}",
-                        WebApiConfig.StatusCodeToReturn.Keys.ToString());
+                        string.Join(", ", keys));
+
                     throw new ArgumentException(msg);
                 }
 
@@ -76,41 +84,69 @@ namespace AccessControlDouble.Controllers
                         WriteLine("Setting StatusCodeToReturn to:  {0}", statusCode);
                     });
 
-                    WebApiConfig.StatusCodeToReturn[requestType] = statusCode;
+                    WebApiConfig.StatusCodeToReturn[requestMethodType] = statusCode;
                     var response = Request.CreateResponse(HttpStatusCode.OK);
+
                     return ResponseMessage(response);
                 }
                 else
                 {
-                    string msg = I18NHelper.FormatInvariant("Cannot parse '{0}' to a valid HttpStatusCode!", httpStatusCode);
+                    string msg = I18NHelper.FormatInvariant("Cannot parse '{0}' to a valid HttpStatusCode!",
+                        httpStatusCode);
                     var response = Request.CreateErrorResponse(HttpStatusCode.BadRequest, msg);
+
                     return ResponseMessage(response);
                 }
+            }
+            catch (ArgumentException e)
+            {
+                await Task.Run(() =>
+                {
+                    WriteLine("InjectErrorsController.Post() caught an exception!  {0}", e.Message);
+                });
+
+                var response = Request.CreateErrorResponse(HttpStatusCode.NotFound, e);
+
+                throw new HttpResponseException(response);
             }
             catch (Exception e)
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("Caught an exception!  {0}", e.Message);
+                    WriteLine("InjectErrorsController.Post() caught an exception!  {0}", e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-                return ResponseMessage(response);
+
+                throw new HttpResponseException(response);
             }
         }
 
-        // DELETE: /svc/accesscontrol/InjectErrors/{requestType}
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// This will turn off error injection for the specified request method.
+        /// </summary>
+        /// <param name="requestMethodType">The method you want to start returning errors for (i.e. DELETE, GET, HEAD, POST, PUT).</param>
+        /// <returns>200 OK if the error was successfully injected, 404 if an invalid Request Method was passed, or 500 for any other errors.</returns>
+        /// <example>DELETE: /svc/accesscontrol/InjectErrors/{requestMethodType}</example>
         [HttpDelete]
-        [Route("{requestType}")]
+        [Route("{requestMethodType}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Delete(string requestType)
+        public async Task<IHttpActionResult> Delete(string requestMethodType)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(requestType))
+                if (string.IsNullOrWhiteSpace(requestMethodType))
                 {
-                    throw new ArgumentNullException(nameof(requestType));
+                    throw new ArgumentNullException(nameof(requestMethodType));
+                }
+
+                if (!WebApiConfig.StatusCodeToReturn.Keys.Contains(requestMethodType))
+                {
+                    var keys = WebApiConfig.StatusCodeToReturn.Keys;
+                    string msg = I18NHelper.FormatInvariant("The requestType must be one of the following: {0}",
+                        string.Join(", ", keys));
+
+                    throw new ArgumentException(msg);
                 }
 
                 await Task.Run(() =>
@@ -118,19 +154,32 @@ namespace AccessControlDouble.Controllers
                     WriteLine("Resetting StatusCodeToReturn to default");
                 });
 
-                WebApiConfig.StatusCodeToReturn[requestType] = null;
+                WebApiConfig.StatusCodeToReturn[requestMethodType] = null;
                 var response = Request.CreateResponse(HttpStatusCode.OK);
+
                 return ResponseMessage(response);
+            }
+            catch (ArgumentException e)
+            {
+                await Task.Run(() =>
+                {
+                    WriteLine("InjectErrorsController.Delete() caught an exception!  {0}", e.Message);
+                });
+
+                var response = Request.CreateErrorResponse(HttpStatusCode.NotFound, e);
+
+                throw new HttpResponseException(response);
             }
             catch (Exception e)
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("Caught an exception!  {0}", e.Message);
+                    WriteLine("InjectErrorsController.Delete() caught an exception!  {0}", e.Message);
                 });
 
                 var response = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e);
-                return ResponseMessage(response);
+
+                throw new HttpResponseException(response);
             }
         }
 

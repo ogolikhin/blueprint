@@ -14,6 +14,13 @@ namespace AdminStoreTests
     {
         private IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
         private IUser _user = null;
+        private IServiceErrorMessage _expectedServiceMessage2000 = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000,
+            "Invalid username or password");
+        static private IServiceErrorMessage expectedServiceMessage2001(IUser user)
+        {
+            return ServiceErrorMessageFactory.CreateServiceErrorMessage(2001,
+                "User account is locked out for the login: " + user.Username);
+        }
 
         [SetUp]
         public void SetUp()
@@ -37,7 +44,7 @@ namespace AdminStoreTests
 
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: true);
+                _user.DeleteUser(deleteFromDatabase: false);
                 _user = null;
             }
         }
@@ -68,11 +75,9 @@ namespace AdminStoreTests
         [Test]
         public void Login_ValidUserBadPassword_Verify401Error()
         {
-            IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000, "Invalid username or password");
-
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.AddSession(_user.Username, "bad-password", expectedServiceErrorMessage: expectedServiceErrorMessage);
+                _adminStore.AddSession(_user.Username, "bad-password", expectedServiceErrorMessage: _expectedServiceMessage2000);
             });
         }
 
@@ -83,11 +88,9 @@ namespace AdminStoreTests
             _user = UserFactory.CreateUserOnly();
             _user.Enabled = false;
             _user.CreateUser();
-            IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2001, 
-                "User account is locked out for the login: " + _user.Username);
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
+                _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceMessage2001(_user));
             });
         }
 
@@ -97,6 +100,54 @@ namespace AdminStoreTests
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             IUser loggedinUser = _adminStore.GetLoginUser(session.SessionId);
             Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
+        }
+
+        [Test]
+        public void Login_DeletedUser_Verify401Error()
+        {
+            IUser deletedUser = UserFactory.CreateUserAndAddToDatabase();
+            deletedUser.DeleteUser(deleteFromDatabase: false);
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.AddSession(deletedUser.Username, deletedUser.Password, expectedServiceErrorMessage: _expectedServiceMessage2000);
+            });
+        }
+
+        [Test]
+        public void Login_LockedUserAfter5Attempts_Verify401Error()
+        {
+            string invalidPassword = "badpassword";
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.Throws<Http401UnauthorizedException>(() =>
+                {
+                _adminStore.AddSession(_user.Username, invalidPassword, expectedServiceErrorMessage: _expectedServiceMessage2000);
+                });
+            }
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceMessage2001(_user));
+            });
+        }
+
+        [Test]
+        public void Delete_ValidSession_Verify200OK()
+        {
+            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            _adminStore.DeleteSession(session, expectedStatusCodes);
+        }
+
+        [Test]
+        public void Delete_ValidDeletedSession_Verify401Error()
+        {
+            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            _adminStore.DeleteSession(session, expectedStatusCodes);
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.DeleteSession(session, expectedStatusCodes);
+            });
         }
     }
 }

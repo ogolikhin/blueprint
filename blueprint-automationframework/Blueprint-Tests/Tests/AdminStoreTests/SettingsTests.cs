@@ -47,5 +47,12 @@ namespace AdminStoreTests
             List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             _adminStore.GetSettings(_adminStore.AddSession(_user.Username, _user.Password), expectedStatusCodes: expectedStatusCodes);
         }
+
+        [Test]
+        public void GetConfigJS_OK()///TODO: add check for returned content
+        {
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            _adminStore.GetConfigJs(_adminStore.AddSession(_user.Username, _user.Password), expectedStatusCodes: expectedStatusCodes);
+        }
     }
 }

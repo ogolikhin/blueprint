@@ -80,7 +80,18 @@ namespace Model
         /// Gets setting from ConfigControl.
         /// (Runs: GET /config/settings)
         /// </summary>
+        /// <param name="session">A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
         /// <returns>A 200 OK code if there are no problems.</returns>
         void GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets config.js from ConfigControl.
+        /// (Runs: GET /config/config.js)
+        /// </summary>
+        /// <param name="session">A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>A 200 OK code if there are no problems.</returns>
+        void GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

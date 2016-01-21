@@ -184,6 +184,22 @@ namespace Model.Impl
             Logger.WriteInfo("Getting settings...");
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
+
+        public void GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting config.js...");
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+        }
         #endregion Members inherited from IAdminStore
     }
 }

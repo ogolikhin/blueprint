@@ -129,7 +129,7 @@ namespace AdminStore.Controllers
                     str.AppendFormat("'{0}':{{'{1}', '{2}'}},", setting.Key, setting.Value, group.Key);
                 }
             }
-            return str.ToString(0, str.Length - 1);
+            return str.Length == 0 ? string.Empty : str.ToString(0, str.Length - 1);
         }
 
         private string SerializeLabels(IEnumerable<ApplicationLabel> labels)
@@ -139,7 +139,7 @@ namespace AdminStore.Controllers
             {
                 str.AppendFormat("'{0}':'{1}',", l.Key, l.Text);
             }
-            return str.ToString(0, str.Length - 1);
+            return str.Length == 0 ? string.Empty : str.ToString(0, str.Length - 1);
         }
     }
 }

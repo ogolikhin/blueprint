@@ -110,6 +110,26 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Tests whether the specified IUser is equal to this one.
+        /// </summary>
+        /// <param name="user">The User to compare.</param>
+        /// <returns>True if the sessions are equal, otherwise false.</returns>
+        public bool Equals(IUser user)///TODO: add compare for license
+        {
+            if (user == null)
+            {
+                return false;
+            }
+            else
+            {
+                return ((this.Username == user.Username) & (this.DisplayName == user.DisplayName) &&
+                      (this.Email == user.Email) && (this.FirstName == user.FirstName) &&
+                      (this.InstanceAdminRole == user.InstanceAdminRole) && (this.LastName == user.LastName)
+                      && (this.Source == user.Source));
+            }
+        }
+
+        /// <summary>
         /// Returns the string version of the object or "NULL" if it's null.
         /// </summary>
         /// <param name="value">The object to convert to a string.</param>

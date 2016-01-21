@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[Logs](
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
 	[FormattedMessage] [nvarchar](4000) NULL,
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[UserName] [nvarchar](max),
 	[SessionId] [nvarchar](40),
 	[ActionName] [nvarchar](200),

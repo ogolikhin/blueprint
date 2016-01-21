@@ -62,6 +62,13 @@ namespace Model
         /// </summary>
         void UpdateUser();
 
+        /// <summary>
+        /// Tests whether the specified IUser is equal to this one.
+        /// </summary>
+        /// <param name="user">The User to compare.</param>
+        /// <returns>True if the sessions are equal, otherwise false.</returns>
+        bool Equals(IUser user);
+
         #endregion Methods
     }
 

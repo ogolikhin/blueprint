@@ -30,7 +30,7 @@ namespace AdminStoreTests
                 foreach (var session in _adminStore.Sessions.ToArray())
                 {
                     // AdminStore removes and adds a new session in some cases, so we should expect a 404 error in some cases.
-                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
                     _adminStore.DeleteSession(session, expectedStatusCodes);
                 }
             }
@@ -89,6 +89,14 @@ namespace AdminStoreTests
             {
                 _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: expectedServiceErrorMessage);
             });
+        }
+
+        [Test]
+        public void GetLogedinUser_200OK()
+        {
+            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            IUser loggedinUser = _adminStore.GetLoginUser(session.SessionId);
+            Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
         }
     }
 }

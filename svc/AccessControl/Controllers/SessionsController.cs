@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AccessControl.Helpers;
 using AccessControl.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Models;
@@ -17,19 +17,19 @@ namespace AccessControl.Controllers
     [RoutePrefix("sessions")]
     public class SessionsController : ApiController
     {
-        private static readonly ObjectCache Cache = new MemoryCache("SessionsCache");
+        private static readonly ITimeoutManager<Guid> Sessions = new TimeoutManager<Guid>();
 
-        internal ObjectCache _cache;
-        internal ISessionsRepository _repo;
-        internal IServiceLogRepository _log;
+        internal readonly ITimeoutManager<Guid> _sessions;
+        internal readonly ISessionsRepository _repo;
+        internal readonly IServiceLogRepository _log;
 
-        public SessionsController() : this(Cache, new SqlSessionsRepository(), new ServiceLogRepository())
+        public SessionsController() : this(Sessions, new SqlSessionsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal SessionsController(ObjectCache cache, ISessionsRepository repo, IServiceLogRepository log)
+        internal SessionsController(ITimeoutManager<Guid> sessions, ISessionsRepository repo, IServiceLogRepository log)
         {
-            _cache = cache;
+            _sessions = sessions;
             _repo = repo;
             _log = log;
         }
@@ -51,7 +51,7 @@ namespace AccessControl.Controllers
                         foreach (var session in sessions)
                         {
                             ++count;
-                            SetSession(Session.Convert(session.SessionId), session);
+                            InsertSession(session);
                         }
                         ++pn;
                     } while (count == ps);
@@ -144,13 +144,13 @@ namespace AccessControl.Controllers
         {
             try
             {
-                var session = await _repo.BeginSession(uid, userName, licenseLevel, isSso, id => _cache.Remove(Session.Convert(id)));
+                var session = await _repo.BeginSession(uid, userName, licenseLevel, isSso, id => _sessions.Remove(id));
                 if (session == null)
                 {
                     throw new KeyNotFoundException();
                 }
                 var token = Session.Convert(session.SessionId);
-                SetSession(token, session);
+                InsertSession(session);
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
@@ -180,7 +180,7 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                SetSession(token, session);
+                InsertSession(session);
                 var response = Request.CreateResponse(HttpStatusCode.OK, session);
                 response.Headers.Add("Session-Token", token);
                 return ResponseMessage(response);
@@ -218,7 +218,7 @@ namespace AccessControl.Controllers
                 {
                     throw new KeyNotFoundException();
                 }
-                _cache.Remove(token);
+                _sessions.Remove(guid);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -240,32 +240,13 @@ namespace AccessControl.Controllers
             }
         }
 
-        private void SetSession(string key, Session session)
+        private void InsertSession(Session session)
         {
-            var slidingExpiration = session.EndTime - DateTime.UtcNow;
-            if (slidingExpiration >= TimeSpan.Zero)
+            _sessions.Insert(session.SessionId, session.EndTime, async () =>
             {
-                _cache.Set(key, session, new CacheItemPolicy
-                {
-                    SlidingExpiration = slidingExpiration,
-                    RemovedCallback = async args =>
-                    {
-                        switch (args.RemovedReason)
-                        {
-                            case CacheEntryRemovedReason.Evicted:
-                                await _log.LogError(WebApiConfig.LogSourceSessions, "Not enough memory");
-                                break;
-                            case CacheEntryRemovedReason.Expired:
-                                await _repo.EndSession(Session.Convert(args.CacheItem.Key), true);
-                                break;
-                        }
-                    }
-                });
-            }
-            else
-            {
-                _repo.EndSession(session.SessionId, true);
-            }
+                _sessions.Remove(session.SessionId);
+                await _repo.EndSession(session.SessionId, true);
+            });
         }
     }
 }

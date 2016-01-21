@@ -107,7 +107,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ITimeoutManager.cs" />
     <Compile Include="Helpers\LicenseHelper.cs" />
+    <Compile Include="Helpers\TimeoutManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ILicensesRepository.cs" />
     <Compile Include="Repositories\ISessionsRepository.cs" />

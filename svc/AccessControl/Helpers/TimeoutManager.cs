@@ -28,7 +28,11 @@ namespace AccessControl.Helpers
         {
             lock (_lock)
             {
-                Items.Remove(timeout);
+                DateTime oldTimeout;
+                if (TimeoutsByItem.TryGetValue(item, out oldTimeout))
+                {
+                    Items.Remove(oldTimeout);
+                }
                 TimeoutsByItem.Remove(item);
                 Items.Add(timeout, new Tuple<T, Action>(item, () =>
                 {

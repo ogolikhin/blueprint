@@ -45,6 +45,27 @@ namespace AccessControl.Helpers
         }
 
         [TestMethod]
+        public void Insert_SameItemWithNewTimeout_UpdatesDictionariesAndTimer()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
+            var timer = CreateTimer(now);
+            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            DateTime timeout = now.AddMinutes(20.0);
+            timeoutManager.Insert(1, timeout, null);
+            timeout = now.AddMinutes(10.0);
+
+            // Act
+            timeoutManager.Insert(1, timeout, null);
+
+            // Assert
+            Assert.AreEqual(1, timeoutManager.Items.Count);
+            Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
+            Assert.AreEqual((timeout - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.IsTrue(timer.Object.Enabled);
+        }
+
+        [TestMethod]
         public void Insert_SecondItem_UpdatesDictionariesAndTimer()
         {
             // Arrange
@@ -228,11 +249,5 @@ namespace AccessControl.Helpers
             timer.SetupProperty(t => t.Enabled);
             return timer;
         }
-    }
-
-    [TestClass]
-    public class TimerWrapperTests
-    {
-        
     }
 }

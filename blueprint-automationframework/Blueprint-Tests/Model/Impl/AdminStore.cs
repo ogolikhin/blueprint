@@ -161,9 +161,29 @@ namespace Model.Impl
 
         public HttpStatusCode GetStatus()
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            Logger.WriteInfo("Getting AdminStore status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            return response.StatusCode;
         }
 
+        public void GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting settings...");
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+        }
         #endregion Members inherited from IAdminStore
     }
 }

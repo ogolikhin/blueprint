@@ -75,5 +75,12 @@ namespace Model
         /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         HttpStatusCode GetStatus();
+
+        /// <summary>
+        /// Gets setting from ConfigControl.
+        /// (Runs: GET /config/settings)
+        /// </summary>
+        /// <returns>A 200 OK code if there are no problems.</returns>
+        void GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

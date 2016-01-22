@@ -232,7 +232,6 @@ namespace Model.Impl
         /// </summary>
         /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
         ///     Pass true to really delete the user from the database.</param>
-        /// <exception cref="SqlQueryFailedException">If no rows were affected.</exception>
         public override void DeleteUser(bool deleteFromDatabase = false)
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -266,7 +265,6 @@ namespace Model.Impl
                     {
                         string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
-                        throw new SqlQueryFailedException(msg);
                     }
                 }
                 catch

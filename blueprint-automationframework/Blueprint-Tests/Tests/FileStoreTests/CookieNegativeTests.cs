@@ -73,8 +73,9 @@ namespace FileStoreTests
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void PostWithInvalidCookieSessionToken_VerifyUnauthorized(
+        public void PostWithInvalidCookieSessionToken_VerifyBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
@@ -86,16 +87,17 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that bad request exception is thrown
+            Assert.Throws<Http400BadRequestException>(() =>
             {
                 _filestore.AddFile(file, _userForCookieTests, sendAuthorizationAsCookie: true);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 400 (Bad Request) was expected because POST does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "")]
-        public void PutWithInvalidCookieSessionToken_VerifyUnauthorized(
+        public void PutWithInvalidCookieSessionToken_VerifyBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
@@ -120,14 +122,15 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown for subsequent PUT request with invalid token
-            Assert.Throws<Http401UnauthorizedException>(() => 
+            // Assert that bad request exception is thrown for subsequent PUT request with invalid token
+            Assert.Throws<Http400BadRequestException>(() => 
             {
                 _filestore.PutFile(postedFile, chunk, _userForCookieTests, sendAuthorizationAsCookie: true);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 400 (Bad Request) was expected because PUT does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
         public void GetWithInvalidCookieSessionToken_VerifyUnauthorized(
             uint fileSize, 
@@ -145,15 +148,18 @@ namespace FileStoreTests
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
             // Assert that unauthorized exception is thrown
+            // Note: Empty authorization cookie returns 401 Unauthorized
+            //       Empty authorization session header returns 400 Bad Request
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 _filestore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "Did not throw HTTP Status Code 401 (Unauthorized) as expected");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void GetHeadWithInvalidCookieSessionToken_VerifyUnauthorized(
+        public void GetHeadWithInvalidCookieSessionToken_VerifyBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
@@ -168,16 +174,17 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that bad request exception is thrown
+            Assert.Throws<Http400BadRequestException>(() =>
             {
                 _filestore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 400 (Bad Request) was expected because HEAD does not support authorization cookies!");
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void DeleteFileWithInvalidCookieToken_VerifyUnauthorized(
+        public void DeleteFileWithInvalidCookieToken_VerifyBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
@@ -192,11 +199,11 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that bad request exception is thrown
+            Assert.Throws<Http400BadRequestException>(() =>
             {
                 _filestore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, "HTTP Status Code 400 (Bad Request) was expected because DELETE does not support authorization cookies!");
         }
     }
 }

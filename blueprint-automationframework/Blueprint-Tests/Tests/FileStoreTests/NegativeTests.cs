@@ -80,7 +80,7 @@ namespace FileStoreTests
             string accessControlToken,
             Type exceptionType)
         {
-            exceptionType.ArgumentNull(nameof(exceptionType));
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -107,7 +107,7 @@ namespace FileStoreTests
             string accessControlToken,
             Type exceptionType)
         {
-            exceptionType.ArgumentNull(nameof(exceptionType));
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
 
             Assert.That((chunkSize > 0) && (fileSize > chunkSize), "Invalid TestCase detected!  chunkSize must be > 0 and < fileSize.");
 
@@ -145,7 +145,7 @@ namespace FileStoreTests
             string accessControlToken,
             Type exceptionType)
         {
-            exceptionType.ArgumentNull(nameof(exceptionType));
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -176,7 +176,7 @@ namespace FileStoreTests
             string accessControlToken,
             Type exceptionType)
         {
-            exceptionType.ArgumentNull(nameof(exceptionType));
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
@@ -205,7 +205,7 @@ namespace FileStoreTests
             string accessControlToken,
             Type exceptionType)
         {
-            exceptionType.ArgumentNull(nameof(exceptionType));
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);

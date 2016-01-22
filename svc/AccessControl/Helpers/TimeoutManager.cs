@@ -2,25 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Helpers
 {
     internal class TimeoutManager<T> : ITimeoutManager<T>
+        where T : IComparable<T>
     {
         private readonly object _lock = new object();
-        internal readonly IDictionary<DateTime, Tuple<T, Action>> Items = new SortedDictionary<DateTime, Tuple<T, Action>>();
+        internal readonly IDictionary<Key, Action> Items = new SortedDictionary<Key, Action>();
         internal readonly IDictionary<T, DateTime> TimeoutsByItem = new Dictionary<T, DateTime>();
         internal ITimer Timer;
-        private DateTime _nextTimeout;
+        internal readonly IServiceLogRepository Log;
+        private DateTime? _nextTimeout;
 
         public TimeoutManager()
-            : this(new TimerWrapper())
+            : this(new TimerWrapper(), new ServiceLogRepository())
         {
         }
 
-        internal TimeoutManager(ITimer timer)
+        internal TimeoutManager(ITimer timer, IServiceLogRepository log)
         {
             Timer = timer;
+            Log = log;
+            timer.AutoReset = false;
             Timer.Elapsed += TimerOnElapsed;
         }
 
@@ -31,14 +36,14 @@ namespace AccessControl.Helpers
                 DateTime oldTimeout;
                 if (TimeoutsByItem.TryGetValue(item, out oldTimeout))
                 {
-                    Items.Remove(oldTimeout);
+                    Items.Remove(new Key(oldTimeout, item));
                 }
                 TimeoutsByItem.Remove(item);
-                Items.Add(timeout, new Tuple<T, Action>(item, () =>
+                Items.Add(new Key(timeout, item), () =>
                 {
                     Remove(item);
                     callback();
-                }));
+                });
                 TimeoutsByItem.Add(item, timeout);
                 UpdateTimer();
             }
@@ -51,7 +56,7 @@ namespace AccessControl.Helpers
                 DateTime timeout;
                 if (TimeoutsByItem.TryGetValue(item, out timeout))
                 {
-                    Items.Remove(timeout);
+                    Items.Remove(new Key(timeout, item));
                     TimeoutsByItem.Remove(item);
                     UpdateTimer();
                 }
@@ -60,7 +65,7 @@ namespace AccessControl.Helpers
 
         private void UpdateTimer()
         {
-            var nextTimeout = Items.FirstOrDefault().Key;
+            var nextTimeout = Items.Any() ? Items.First().Key.Timeout : (DateTime?)null;
             if (_nextTimeout != nextTimeout)
             {
                 _nextTimeout = nextTimeout;
@@ -70,34 +75,48 @@ namespace AccessControl.Helpers
                     throw new ObjectDisposedException("TimeoutManager has been disposed.");
                 }
                 Timer.Enabled = false;
-                var interval = (_nextTimeout - Timer.Now()).TotalMilliseconds;
-                if (interval <= 0)
+                if (_nextTimeout.HasValue)
                 {
-                    TimeoutItems();
+                    var interval = (_nextTimeout.Value - Timer.Now()).TotalMilliseconds;
+                    if (interval <= 0)
+                    {
+                        TimeoutItems();
+                    }
+                    else
+                    {
+                        Timer.Interval = interval;
+                        Timer.Enabled = true;
+                    }
                 }
                 else
                 {
-                    Timer.Interval = interval;
-                    Timer.Enabled = true;
+                    Timer.Enabled = false;
                 }
             }
         }
 
         private void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            TimeoutItems();
+            try
+            {
+                TimeoutItems();
+            }
+            catch (Exception ex)
+            {
+                Log.LogError(WebApiConfig.LogSourceSessions, ex);
+            }
         }
 
         private void TimeoutItems()
         {
             lock (_lock)
             {
-                var timeouts = Items.TakeWhile(e => e.Key <= Timer.Now()).ToList();
+                var timeouts = Items.TakeWhile(e => e.Key.Timeout <= Timer.Now()).ToList();
                 foreach (var entry in timeouts)
                 {
                     Items.Remove(entry.Key);
-                    TimeoutsByItem.Remove(entry.Value.Item1);
-                    entry.Value.Item2();
+                    TimeoutsByItem.Remove(entry.Key.Item);
+                    entry.Value();
                 }
                 UpdateTimer();
             }
@@ -122,6 +141,28 @@ namespace AccessControl.Helpers
         }
 
         #endregion IDisposable
+
+        internal struct Key : IComparable<Key>
+        {
+            public DateTime Timeout { get; }
+            public T Item { get; }
+
+            public Key(DateTime timeout, T item)
+            {
+                Timeout = timeout;
+                Item = item;
+            }
+
+            public int CompareTo(Key other)
+            {
+                int result = Timeout.CompareTo(other.Timeout);
+                if (result == 0)
+                {
+                    result = Item.CompareTo(other.Item);
+                }
+                return result;
+            }
+        }
     }
 
     /// <summary>
@@ -132,6 +173,12 @@ namespace AccessControl.Helpers
         private readonly Timer _timer = new Timer();
 
         public DateTime Now() { return DateTime.UtcNow; }
+
+        public bool AutoReset
+        {
+            get { return _timer.AutoReset; }
+            set { _timer.AutoReset = value; }
+        }
 
         public bool Enabled
         {

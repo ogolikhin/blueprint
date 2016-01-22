@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AccessControl.Helpers
 {
@@ -26,21 +27,24 @@ namespace AccessControl.Helpers
         #region Insert
 
         [TestMethod]
-        public void Insert_FirstItem_UpdatesDictionariesAndTimer()
+        public void Insert_InOrder_UpdatesDictionariesAndTimer()
         {
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
-            DateTime timeout = now.AddMinutes(20.0);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
+            DateTime timeout1 = now.AddMinutes(10.0);
+            DateTime timeout2 = now.AddMinutes(20.0);
 
             // Act
-            timeoutManager.Insert(1, timeout, null);
+            timeoutManager.Insert(1, timeout1, null);
+            timeoutManager.Insert(2, timeout2, null);
 
             // Assert
-            Assert.AreEqual(1, timeoutManager.Items.Count);
-            Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual(2, timeoutManager.Items.Count);
+            Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
+            Assert.AreEqual((timeout1 - now).TotalMilliseconds, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -50,7 +54,8 @@ namespace AccessControl.Helpers
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout = now.AddMinutes(20.0);
             timeoutManager.Insert(1, timeout, null);
             timeout = now.AddMinutes(10.0);
@@ -66,14 +71,37 @@ namespace AccessControl.Helpers
         }
 
         [TestMethod]
-        public void Insert_SecondItem_UpdatesDictionariesAndTimer()
+        public void Insert_InReverseOrder_UpdatesDictionariesAndTimer()
         {
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout1 = now.AddMinutes(20.0);
             DateTime timeout2 = now.AddMinutes(10.0);
+
+            // Act
+            timeoutManager.Insert(1, timeout1, null);
+            timeoutManager.Insert(2, timeout2, null);
+
+            // Assert
+            Assert.AreEqual(2, timeoutManager.Items.Count);
+            Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
+            Assert.AreEqual((timeout2 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.IsTrue(timer.Object.Enabled);
+        }
+
+        [TestMethod]
+        public void Insert_TwoDifferentItemsWithSameTimeout_UpdatesDictionariesAndTimer()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
+            var timer = CreateTimer(now);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
+            DateTime timeout1 = now.AddMinutes(20.0);
+            DateTime timeout2 = now.AddMinutes(20.0);
 
             // Act
             timeoutManager.Insert(1, timeout1, null);
@@ -92,7 +120,8 @@ namespace AccessControl.Helpers
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout1 = now.AddMinutes(20.0);
             DateTime timeout2 = now.AddMinutes(-20.0);
             bool callbackInvoked = false;
@@ -111,12 +140,35 @@ namespace AccessControl.Helpers
         }
 
         [TestMethod]
-        public void Insert_NonExpiredItem_OnTimerElapsedInvokesCallbackAndUpdatesDictionariesAndTimer()
+        [ExpectedException(typeof(ObjectDisposedException))]
+        public void Insert_AfterDisposed_ThrowsObjectDisposedException()
         {
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
+            timeoutManager.Dispose();
+            DateTime timeout = now.AddMinutes(20.0);
+
+            // Act
+            timeoutManager.Insert(1, timeout, null);
+
+            // Assert
+        }
+
+        #endregion Insert
+
+        #region TimerOnElapsed
+
+        [TestMethod]
+        public void TimerOnElapsed_Always_InvokesCallbackAndUpdatesDictionariesAndTimer()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
+            var timer = CreateTimer(now);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout = now.AddMinutes(20.0);
             bool callbackInvoked = false;
             Action callback = () => { callbackInvoked = true; };
@@ -134,23 +186,29 @@ namespace AccessControl.Helpers
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ObjectDisposedException))]
-        public void Insert_FirstItemAfterDisposed_ThrowsObjectDisposedException()
+        public void TimerOnElapsed_Exception_CaughtAndLogged()
         {
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
-            timeoutManager.Dispose();
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout = now.AddMinutes(20.0);
+            Action callback = () => { };
+            timeoutManager.Insert(1, timeout, callback);
+            Exception ex = new Exception();
 
             // Act
-            timeoutManager.Insert(1, timeout, null);
+            timer.Setup(t => t.Now()).Returns(timeout);
+            timer.SetupSet(t => t.Enabled = It.IsAny<bool>()).Throws(ex);
+            timer.Raise(t => t.Elapsed += null, (EventArgs)null);
 
             // Assert
+            log.Verify(l => l.LogError(WebApiConfig.LogSourceSessions, ex,
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
         }
 
-        #endregion Insert
+        #endregion TimerOnElapsed
 
         #region Remove
 
@@ -160,7 +218,8 @@ namespace AccessControl.Helpers
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout1 = now.AddMinutes(20.0);
             DateTime timeout2 = now.AddMinutes(10.0);
             timeoutManager.Insert(1, timeout1, null);
@@ -182,7 +241,8 @@ namespace AccessControl.Helpers
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout1 = now.AddMinutes(20.0);
             DateTime timeout2 = now.AddMinutes(10.0);
             timeoutManager.Insert(1, timeout1, null);
@@ -204,7 +264,8 @@ namespace AccessControl.Helpers
             // Arrange
             var now = DateTime.UtcNow;
             var timer = CreateTimer(now);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
             DateTime timeout1 = now.AddMinutes(20.0);
             DateTime timeout2 = now.AddMinutes(10.0);
             timeoutManager.Insert(1, timeout1, null);
@@ -229,7 +290,8 @@ namespace AccessControl.Helpers
         {
             // Arrange
             var timer = CreateTimer(DateTime.UtcNow);
-            var timeoutManager = new TimeoutManager<int>(timer.Object);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
 
             // Act
             timeoutManager.Dispose();

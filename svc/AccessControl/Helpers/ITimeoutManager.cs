@@ -15,8 +15,9 @@ namespace AccessControl.Helpers
     public interface ITimer : IDisposable
     {
         DateTime Now();
-        double Interval { get; set; }
+        bool AutoReset { get; set; }
         bool Enabled { get; set; }
+        double Interval { get; set; }
         event ElapsedEventHandler Elapsed;
     }
 }

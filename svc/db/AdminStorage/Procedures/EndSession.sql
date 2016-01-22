@@ -31,7 +31,7 @@ BEGIN
 				(@UserId
 				,@LicenseLevel
 				,2 -- LicenseTransactionType.Release
-				,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
+				,IIF(@timeoutTime IS NULL, 2, 3) -- LicenseActionType.LogOut or LicenseActionType.Timeout
 				,1 -- LicenseConsumerType.Client
 				,@EndTime)
 

@@ -33,10 +33,6 @@ CREATE TABLE [dbo].[Logs](
 	[Timestamp] [datetimeoffset](7) NOT NULL,
 	[Version] [int] NOT NULL,
 	[Payload] [xml] NULL,
-	[ActivityId] [uniqueidentifier],
-	[RelatedActivityId] [uniqueidentifier],
-	[ProcessId] [int],
-	[ThreadId] [int],
 	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using ServiceLibrary.Helpers;
+using System.Collections.Generic;
 
 namespace Logging.Database.Utility
 {
@@ -57,7 +58,12 @@ namespace Logging.Database.Utility
         {
             try
             {
-                writer.WriteElementString(propertyName, SanitizeXml(value));
+                // skip these columns as they are written to their own column in the DB
+                var skip = new List<string>() { "IpAddress", "Source", "Message", "UserName", "SessionId", "OccurredAt", "ActionName", "CorrelationId", "Duration" };
+                if (!skip.Contains(propertyName))
+                {
+                    writer.WriteElementString(propertyName, SanitizeXml(value));
+                }
             }
             catch (Exception e)
             {

@@ -7,7 +7,5 @@ namespace ServiceLibrary.Models
 {
     public class StandardLogModel : ServiceLogModel
     {
-        public string TimeZoneOffset { get; set; }
-        public string ThreadId { get; set; }
     }
 }

@@ -16,8 +16,10 @@ namespace AdminStoreTests
         [Test]
         public void GetStatus_OK()
         {
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            _adminStore.GetStatus(expectedStatusCodes: expectedStatusCodes);
+            Assert.DoesNotThrow(() =>
+            {
+                _adminStore.GetStatus();
+            });
         }
     }
 }

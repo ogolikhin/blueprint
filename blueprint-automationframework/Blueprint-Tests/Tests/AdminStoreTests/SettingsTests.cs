@@ -13,11 +13,13 @@ namespace AdminStoreTests
     {
         private IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
         private IUser _user = null;
+        private ISession _session = null;
 
         [SetUp]
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
+            _session = _adminStore.AddSession(_user.Username, _user.Password);
         }
 
         [TearDown]
@@ -46,7 +48,7 @@ namespace AdminStoreTests
         {
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.GetSettings(_adminStore.AddSession(_user.Username, _user.Password));
+                _adminStore.GetSettings(_session);
             });
         }
 
@@ -55,7 +57,7 @@ namespace AdminStoreTests
         {
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.GetConfigJs(_adminStore.AddSession(_user.Username, _user.Password));
+                _adminStore.GetConfigJs(_session);
             });
         }
     }

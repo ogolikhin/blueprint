@@ -252,10 +252,6 @@ CREATE TABLE [dbo].[Logs](
 	[Timestamp] [datetimeoffset](7) NOT NULL,
 	[Version] [int] NOT NULL,
 	[Payload] [xml] NULL,
-	[ActivityId] [uniqueidentifier],
-	[RelatedActivityId] [uniqueidentifier],
-	[ProcessId] [int],
-	[ThreadId] [int],
 	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -293,10 +289,6 @@ CREATE TYPE LogsType AS TABLE
 	[Version] [int],
 	[FormattedMessage] [nvarchar](4000),
 	[Payload] [xml],
-	[ActivityId] [uniqueidentifier], 
-	[RelatedActivityId] [uniqueidentifier],
-	[ProcessId] [int],
-	[ThreadId] [int],
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
 	[UserName] [nvarchar](Max),
@@ -753,10 +745,6 @@ BEGIN
 		[Version],
 		[FormattedMessage],
 		[Payload],
-		[ActivityId],
-		[RelatedActivityId],
-		[ProcessId],
-		[ThreadId],
 		[IpAddress],
 		[Source],
 		[UserName],

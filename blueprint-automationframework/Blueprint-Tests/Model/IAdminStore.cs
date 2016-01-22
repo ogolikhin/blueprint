@@ -67,13 +67,30 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A user object.</returns>
         IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null);
-        
+
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>
-        /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        HttpStatusCode GetStatus();
+        void GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets setting from ConfigControl .
+        /// (Runs: GET /config/settings)
+        /// </summary>
+        /// <param name="session">A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>Settings dictionary. Now it is empty.</returns>
+        Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets config.js from ConfigControl.
+        /// (Runs: GET /config/config.js)
+        /// </summary>
+        /// <param name="session">A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>config.js file.</returns>
+        string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

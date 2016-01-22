@@ -159,11 +159,48 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus()
+        public void GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            Logger.WriteInfo("Getting AdminStore status...");
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
         }
 
+        public Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting settings...");
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
+        }
+
+        public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting config.js...");
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return response.Content;
+        }
         #endregion Members inherited from IAdminStore
     }
 }

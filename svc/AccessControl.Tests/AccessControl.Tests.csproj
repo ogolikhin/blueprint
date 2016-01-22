@@ -79,6 +79,7 @@
     <Compile Include="Controllers\SessionsControllerTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Helpers\LicenceHelperTests.cs" />
+    <Compile Include="Helpers\TimeoutManagerTests.cs" />
     <Compile Include="Models\SessionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SqlLicensesRepositoryTests.cs" />

@@ -93,7 +93,6 @@ namespace ConfigControl.Controllers
                             logEntry.Message,
                             logEntry.StackTrace,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Warning:
@@ -102,7 +101,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Informational:
@@ -111,7 +109,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Verbose:
@@ -120,7 +117,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Critical:
@@ -130,7 +126,6 @@ namespace ConfigControl.Controllers
                             logEntry.Message,
                             logEntry.StackTrace,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName);
                         break;
                     default:
@@ -149,7 +144,6 @@ namespace ConfigControl.Controllers
                             logEntry.Message,
                             logEntry.StackTrace,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -160,7 +154,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -171,7 +164,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -182,7 +174,6 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -194,7 +185,6 @@ namespace ConfigControl.Controllers
                             logEntry.Message,
                             logEntry.StackTrace,
                             logEntry.OccurredAt,
-                            logEntry.TimeZoneOffset,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -223,9 +213,7 @@ namespace ConfigControl.Controllers
                         logEntry.StackTrace,
                         logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Warning:
                     StandardLogEventSource.Log.Warning(
@@ -234,9 +222,7 @@ namespace ConfigControl.Controllers
                         logEntry.Message,
                         logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Informational:
                     StandardLogEventSource.Log.Informational(
@@ -245,9 +231,7 @@ namespace ConfigControl.Controllers
                         logEntry.Message,
                         logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Verbose:
                     StandardLogEventSource.Log.Verbose(
@@ -256,9 +240,7 @@ namespace ConfigControl.Controllers
                         logEntry.Message,
                         logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Critical:
                     StandardLogEventSource.Log.Critical(
@@ -268,9 +250,7 @@ namespace ConfigControl.Controllers
                         logEntry.StackTrace,
                         logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 default:
                     break;

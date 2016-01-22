@@ -31,7 +31,7 @@ namespace Model.Impl
             get { return _accessControlToken; }
             set
             {
-                if ((value != null) && !value.StartsWithOrdinal("BlueprintToken") && (value.Length == 32))
+                if ((value != null) && !value.StartsWithOrdinal("BlueprintToken"))
                 {
                     Logger.WriteDebug("Setting AccessControlToken to: {0}", value);
                     _accessControlToken = value;
@@ -87,13 +87,9 @@ namespace Model.Impl
             {
                 OpenApiToken = token;
             }
-            else if (token.Length == 32)
-            {
-                AccessControlToken = token;
-            }
             else
             {
-                throw new ArgumentException("'{0}' is not a recognized Blueprint token!", token);
+                AccessControlToken = token;
             }
         }
 

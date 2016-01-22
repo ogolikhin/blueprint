@@ -38,10 +38,10 @@ namespace Logging.Database.Utility
                 new SqlMetaData("Version", SqlDbType.Int),
                 new SqlMetaData("FormattedMessage", SqlDbType.NVarChar, 4000),
                 new SqlMetaData("Payload", SqlDbType.Xml),
-                new SqlMetaData("ActivityId", SqlDbType.UniqueIdentifier),
-                new SqlMetaData("RelatedActivityId", SqlDbType.UniqueIdentifier),
-                new SqlMetaData("ProcessId", SqlDbType.Int),
-                new SqlMetaData("ThreadId", SqlDbType.Int),
+                //new SqlMetaData("ActivityId", SqlDbType.UniqueIdentifier),
+                //new SqlMetaData("RelatedActivityId", SqlDbType.UniqueIdentifier),
+                //new SqlMetaData("ProcessId", SqlDbType.Int),
+                //new SqlMetaData("ThreadId", SqlDbType.Int),
                 new SqlMetaData("IpAddress", SqlDbType.NVarChar, 45),
                 new SqlMetaData("Source", SqlDbType.NVarChar, 100),
                 new SqlMetaData("UserName", SqlDbType.NVarChar, -1),
@@ -71,25 +71,25 @@ namespace Logging.Database.Utility
             sqlDataRecord.SetValue(9, record.Schema.Version);
             sqlDataRecord.SetValue(10, (object)record.FormattedMessage ?? DBNull.Value);
             sqlDataRecord.SetValue(11, (object)EventEntryUtil.XmlSerializePayload(record) ?? DBNull.Value);
-            sqlDataRecord.SetValue(12, record.ActivityId);
-            sqlDataRecord.SetValue(13, record.RelatedActivityId);
-            sqlDataRecord.SetValue(14, record.ProcessId);
-            sqlDataRecord.SetValue(15, record.ThreadId);
-            sqlDataRecord.SetValue(16, EventEntryUtil.GetPayloadValue(record, "IpAddress"));
-            sqlDataRecord.SetValue(17, EventEntryUtil.GetPayloadValue(record, "Source"));
-            sqlDataRecord.SetValue(18, EventEntryUtil.GetPayloadValue(record, "UserName"));
-            sqlDataRecord.SetValue(19, EventEntryUtil.GetPayloadValue(record, "SessionId"));
-            sqlDataRecord.SetValue(20, I18NHelper.DateTimeOffsetParseInvariant(EventEntryUtil.GetPayloadValue(record, "OccurredAt")));
+            //sqlDataRecord.SetValue(12, record.ActivityId);
+            //sqlDataRecord.SetValue(13, record.RelatedActivityId);
+            //sqlDataRecord.SetValue(14, record.ProcessId);
+            //sqlDataRecord.SetValue(15, record.ThreadId);
+            sqlDataRecord.SetValue(12, EventEntryUtil.GetPayloadValue(record, "IpAddress"));
+            sqlDataRecord.SetValue(13, EventEntryUtil.GetPayloadValue(record, "Source"));
+            sqlDataRecord.SetValue(14, EventEntryUtil.GetPayloadValue(record, "UserName"));
+            sqlDataRecord.SetValue(15, EventEntryUtil.GetPayloadValue(record, "SessionId"));
+            sqlDataRecord.SetValue(16, I18NHelper.DateTimeOffsetParseInvariant(EventEntryUtil.GetPayloadValue(record, "OccurredAt")));
             var actionName = EventEntryUtil.GetPayloadValue(record, "ActionName");
-            sqlDataRecord.SetValue(21, actionName);
+            sqlDataRecord.SetValue(17, actionName);
             //if (!string.IsNullOrWhiteSpace(actionName))
             //{
             Guid correlationId;
             Guid.TryParse(EventEntryUtil.GetPayloadValue(record, "CorrelationId"), out correlationId);
-            sqlDataRecord.SetValue(22, correlationId);
+            sqlDataRecord.SetValue(18, correlationId);
             double duration = 0;
             double.TryParse(EventEntryUtil.GetPayloadValue(record, "Duration"), out duration);
-            sqlDataRecord.SetValue(23, duration);
+            sqlDataRecord.SetValue(19, duration);
             //}
 
             return sqlDataRecord;

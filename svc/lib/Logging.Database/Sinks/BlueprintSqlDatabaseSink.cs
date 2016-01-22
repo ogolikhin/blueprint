@@ -234,10 +234,10 @@ namespace Logging.Database.Sinks
                 sqlBulkCopy.ColumnMappings.Add("Version", "Version");
                 sqlBulkCopy.ColumnMappings.Add("FormattedMessage", "FormattedMessage");
                 sqlBulkCopy.ColumnMappings.Add("Payload", "Payload");
-                sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
-                sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
-                sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
-                sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
+                //sqlBulkCopy.ColumnMappings.Add("ActivityId", "ActivityId");
+                //sqlBulkCopy.ColumnMappings.Add("RelatedActivityId", "RelatedActivityId");
+                //sqlBulkCopy.ColumnMappings.Add("ProcessId", "ProcessId");
+                //sqlBulkCopy.ColumnMappings.Add("ThreadId", "ThreadId");
                 sqlBulkCopy.ColumnMappings.Add("IpAddress", "IpAddress");
                 sqlBulkCopy.ColumnMappings.Add("Source", "Source");
                 sqlBulkCopy.ColumnMappings.Add("UserName", "UserName");

@@ -65,8 +65,8 @@ namespace Model
         /// Gets a session for the specified user.
         /// (Runs: GET /sessions/{userId})
         /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
+        /// <param name="userId">The ID of the user whose session you want to get.</param>
+        /// <returns>The session for the specified user.</returns>
         ISession GetSession(int? userId);
 
         /// <summary>
@@ -83,8 +83,9 @@ namespace Model
         /// Checks if the AccessControl service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        HttpStatusCode GetStatus();
+        HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -6,7 +6,7 @@ CREATE PROCEDURE [dbo].[EndSession]
 (
 	@SessionId uniqueidentifier,
 	@EndTime datetime,
-	@Timeout bit,
+	@TimeoutTime datetime,
 	@licenseLockTimeMinutes int
 )
 AS
@@ -18,7 +18,8 @@ BEGIN
 		-- [Sessions]
 		UPDATE [dbo].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
 		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL;
+		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL
+		AND (@TimeoutTime IS NULL OR @TimeoutTime = [EndTime]);
 
 		IF @@ROWCOUNT > 0 BEGIN
 			-- [LicenseActivities]

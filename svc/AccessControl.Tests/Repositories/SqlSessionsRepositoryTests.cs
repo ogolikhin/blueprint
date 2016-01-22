@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -262,10 +263,10 @@ namespace AccessControl.Repositories
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("12345678901234567890123456789012");
             var sessions = new[] { new Session { SessionId = guid } };
-            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 0 } }, sessions);
+            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", null } }, sessions);
 
             // Act
-            Session result = await repository.EndSession(guid, false);
+            Session result = await repository.EndSession(guid);
 
             // Assert
             cxn.Verify();
@@ -279,11 +280,12 @@ namespace AccessControl.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSessionsRepository(cxn.Object);
             var guid = new Guid("00000000000000000000000000000000");
+            DateTime? timeoutTime = DateTime.UtcNow;
             var sessions = new Session[] {};
-            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "Timeout", 1 } }, sessions);
+            cxn.SetupQueryAsync("EndSession", new Dictionary<string, object> { { "SessionId", guid }, { "TimeoutTime", timeoutTime } }, sessions);
 
             // Act
-            Session result = await repository.EndSession(guid, true);
+            Session result = await repository.EndSession(guid, timeoutTime);
 
             // Assert
             cxn.Verify();

@@ -214,7 +214,7 @@ namespace AccessControl.Controllers
                 var token = GetHeaderSessionToken();
                 var guid = Session.Convert(token);
 
-                if (await _repo.EndSession(guid, false) == null)
+                if (await _repo.EndSession(guid) == null)
                 {
                     throw new KeyNotFoundException();
                 }
@@ -245,7 +245,7 @@ namespace AccessControl.Controllers
             _sessions.Insert(session.SessionId, session.EndTime, async () =>
             {
                 _sessions.Remove(session.SessionId);
-                await _repo.EndSession(session.SessionId, true);
+                await _repo.EndSession(session.SessionId, session.EndTime);
             });
         }
     }

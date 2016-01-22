@@ -81,12 +81,12 @@ namespace AccessControl.Repositories
             return (await _connectionWrapper.QueryAsync<Session>("ExtendSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
-        public async Task<Session> EndSession(Guid guid, bool timeout)
+        public async Task<Session> EndSession(Guid guid, DateTime? timeoutTime = null)
         {
             var prm = new DynamicParameters();
             prm.Add("@SessionId", guid);
             prm.Add("@EndTime", DateTime.UtcNow);
-            prm.Add("@Timeout", timeout ? 1 : 0);
+            prm.Add("@TimeoutTime", timeoutTime);
             prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
             return (await _connectionWrapper.QueryAsync<Session>("EndSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }

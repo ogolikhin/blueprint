@@ -175,7 +175,7 @@ namespace AccessControl.Controllers
 
             // Assert
             _cacheMock.Verify(m => m.Remove(oldSessionId));
-            _cacheMock.Verify(m => m.Insert(newSessionId, session.EndTime, It.Is<Action>(a => VerifyCallback(a, newSessionId))));
+            _cacheMock.Verify(m => m.Insert(newSessionId, session.EndTime, It.Is<Action>(a => VerifyCallback(a, session))));
         }
 
         [TestMethod]
@@ -323,7 +323,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = new Guid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync(null);
 
             // Act
             var result = await _controller.DeleteSession();
@@ -338,7 +338,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).Throws<Exception>();
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).Throws<Exception>();
 
             // Act
             var result = await _controller.DeleteSession();
@@ -366,7 +366,7 @@ namespace AccessControl.Controllers
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
             var session = new Session { SessionId = guid };
-            _sessionsRepoMock.Setup(r => r.EndSession(guid, false)).ReturnsAsync(session);
+            _sessionsRepoMock.Setup(r => r.EndSession(guid, null)).ReturnsAsync(session);
 
             // Act
             var result = await _controller.DeleteSession();
@@ -442,7 +442,7 @@ namespace AccessControl.Controllers
             Assert.IsTrue(result.Response.IsSuccessStatusCode);
             Assert.AreEqual(session, await result.Response.Content.ReadAsAsync<Session>());
             Assert.AreEqual(token, result.Response.Headers.GetValues("Session-Token").Single());
-            _cacheMock.Verify(c => c.Insert(guid, session.EndTime, It.Is<Action>(a => VerifyCallback(a, guid))));
+            _cacheMock.Verify(c => c.Insert(guid, session.EndTime, It.Is<Action>(a => VerifyCallback(a, session))));
         }
 
         [TestMethod]
@@ -501,7 +501,7 @@ namespace AccessControl.Controllers
             await _controller.LoadAsync();
 
             // Assert
-            _cacheMock.Verify(m => m.Insert(session.SessionId, session.EndTime, It.Is<Action>(p => VerifyCallback(p, session.SessionId))));
+            _cacheMock.Verify(m => m.Insert(session.SessionId, session.EndTime, It.Is<Action>(p => VerifyCallback(p, session))));
         }
 
         [TestMethod]
@@ -520,10 +520,10 @@ namespace AccessControl.Controllers
 
         #endregion LoadAsync
 
-        private bool VerifyCallback(Action callback, Guid guid)
+        private bool VerifyCallback(Action callback, Session session)
         {
             callback();
-            _sessionsRepoMock.Verify(r => r.EndSession(guid, true));
+            _sessionsRepoMock.Verify(r => r.EndSession(session.SessionId, session.EndTime));
             return true;
         }
     }

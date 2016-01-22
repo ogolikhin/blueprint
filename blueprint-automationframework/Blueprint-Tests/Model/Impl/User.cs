@@ -266,7 +266,6 @@ namespace Model.Impl
                     {
                         string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
-                        throw new SqlQueryFailedException(msg);
                     }
                 }
                 catch

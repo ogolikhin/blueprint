@@ -159,17 +159,16 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus()
+        public void GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             Logger.WriteInfo("Getting AdminStore status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
-            return response.StatusCode;
+            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
         }
 
-        public void GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
@@ -182,10 +181,11 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Getting settings...");
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
         }
 
-        public void GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
@@ -198,7 +198,8 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Getting config.js...");
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return response.Content;
         }
         #endregion Members inherited from IAdminStore
     }

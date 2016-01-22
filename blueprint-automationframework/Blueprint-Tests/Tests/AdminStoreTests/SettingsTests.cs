@@ -28,7 +28,7 @@ namespace AdminStoreTests
                 // Delete all the sessions that were created.
                 foreach (var session in _adminStore.Sessions.ToArray())
                 {
-                    // AdminStore removes and adds a new session in some cases, so we should expect a 404 error in some cases.
+                    // AdminStore removes and adds a new session in some cases, so we should expect a 401 error in some cases.
                     List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
                     _adminStore.DeleteSession(session, expectedStatusCodes);
                 }
@@ -36,23 +36,27 @@ namespace AdminStoreTests
 
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: false);
+                _user.DeleteUser();
                 _user = null;
             }
         }
 
-        [Test]
+        [Test]//currently method returns empty dictionary
         public void GetSettings_OK()
         {
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            _adminStore.GetSettings(_adminStore.AddSession(_user.Username, _user.Password), expectedStatusCodes: expectedStatusCodes);
+            Assert.DoesNotThrow(() =>
+            {
+                _adminStore.GetSettings(_adminStore.AddSession(_user.Username, _user.Password));
+            });
         }
 
-        [Test]
+        [Test]//currently method is under development
         public void GetConfigJS_OK()///TODO: add check for returned content
         {
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            _adminStore.GetConfigJs(_adminStore.AddSession(_user.Username, _user.Password), expectedStatusCodes: expectedStatusCodes);
+            Assert.DoesNotThrow(() =>
+            {
+                _adminStore.GetConfigJs(_adminStore.AddSession(_user.Username, _user.Password));
+            });
         }
     }
 }

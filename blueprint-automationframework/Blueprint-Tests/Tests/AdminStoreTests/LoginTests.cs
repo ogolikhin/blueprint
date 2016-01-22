@@ -16,6 +16,7 @@ namespace AdminStoreTests
         private IUser _user = null;
         private IServiceErrorMessage _expectedServiceMessage2000 = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000,
             "Invalid username or password");
+
         static private IServiceErrorMessage expectedServiceMessage2001(IUser user)
         {
             return ServiceErrorMessageFactory.CreateServiceErrorMessage(2001,
@@ -44,7 +45,7 @@ namespace AdminStoreTests
 
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: false);
+                _user.DeleteUser();
                 _user = null;
             }
         }
@@ -105,16 +106,15 @@ namespace AdminStoreTests
         [Test]
         public void Login_DeletedUser_Verify401Error()
         {
-            IUser deletedUser = UserFactory.CreateUserAndAddToDatabase();
-            deletedUser.DeleteUser(deleteFromDatabase: false);
+            _user.DeleteUser();
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.AddSession(deletedUser.Username, deletedUser.Password, expectedServiceErrorMessage: _expectedServiceMessage2000);
+                _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: _expectedServiceMessage2000);
             });
         }
 
         [Test]
-        public void Login_LockedUserAfter5Attempts_Verify401Error()
+        public void Login_5TimesWithBadPassword_VerifyAccountGetsLocked()
         {
             string invalidPassword = "badpassword";
             for (int i = 0; i < 5; i++)
@@ -134,19 +134,20 @@ namespace AdminStoreTests
         public void Delete_ValidSession_Verify200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            _adminStore.DeleteSession(session, expectedStatusCodes);
+            Assert.DoesNotThrow(() =>
+            {
+                _adminStore.DeleteSession(session);
+            });
         }
 
         [Test]
         public void Delete_ValidDeletedSession_Verify401Error()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            _adminStore.DeleteSession(session, expectedStatusCodes);
+            _adminStore.DeleteSession(session);
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.DeleteSession(session, expectedStatusCodes);
+                _adminStore.DeleteSession(session);
             });
         }
     }

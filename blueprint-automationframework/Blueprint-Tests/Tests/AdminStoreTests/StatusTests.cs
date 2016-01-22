@@ -3,6 +3,7 @@ using NUnit.Framework;
 using CustomAttributes;
 using Model;
 using Model.Factories;
+using System.Collections.Generic;
 
 namespace AdminStoreTests
 {
@@ -15,8 +16,8 @@ namespace AdminStoreTests
         [Test]
         public void GetStatus_OK()
         {
-            var statusCode = _adminStore.GetStatus();
-            Assert.AreEqual(statusCode, HttpStatusCode.OK, "'GET /status' should return 200 OK, but failed with {0}", statusCode);
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            _adminStore.GetStatus(expectedStatusCodes: expectedStatusCodes);
         }
     }
 }

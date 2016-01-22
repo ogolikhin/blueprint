@@ -8,7 +8,7 @@ using Logger = Common.Logger;
 namespace OpenAPITests
 {
     [TestFixture]
-    [Category(Categories.OpenAPI)]
+    [Category(Categories.OpenApi)]
     public class UserTests
     {
         private IUser _user = null;

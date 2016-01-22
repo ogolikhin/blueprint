@@ -7,7 +7,7 @@ namespace OpenAPITests
 {
 
     [TestFixture]
-    [Category(Categories.OpenAPI)]
+    [Category(Categories.OpenApi)]
     public class ArtifactTests
     {
         //private static TestConfiguration _testConfig = TestConfiguration.GetInstance();

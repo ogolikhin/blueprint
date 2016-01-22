@@ -126,5 +126,14 @@ namespace CommonUtilities
                 logFile.WriteLine("    --> Content = {0}", response.Content);
             }
         }
+
+        public static void LogRestResponse(string logFileName, HttpResponseMessage response)
+        {
+            using (LogFile logFile = new LogFile(logFileName))
+            {
+                LogRestResponse(logFile, response);
+            }
+        }
+
     }
 }

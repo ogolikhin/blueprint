@@ -9,7 +9,7 @@ using Model.Impl;
 namespace OpenAPITests
 {
     [TestFixture]
-    [Category(Categories.OpenAPI)]
+    [Category(Categories.OpenApi)]
     public class ProjectTests
     {
         private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();

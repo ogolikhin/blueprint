@@ -2,6 +2,7 @@
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,7 +18,7 @@ namespace AccessControl.Controllers
     {
         internal readonly ILicensesRepository _repo;
         internal readonly ISessionsRepository _sessions;
-        private static IServiceLogRepository _log;
+        internal readonly IServiceLogRepository _log;
 
         public LicensesController() : this(new SqlLicensesRepository(), new SqlSessionsRepository(), new ServiceLogRepository())
         {
@@ -37,22 +38,25 @@ namespace AccessControl.Controllers
             return Request.Headers.GetValues("Session-Token").FirstOrDefault();
         }
 
+        /// <summary>
+        /// GetActiveLicenses
+        /// </summary>
+        /// <remarks>
+        /// Returns information about the number of active licenses for each license level.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("active")]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(IEnumerable<LicenseInfo>))]
         public async Task<IHttpActionResult> GetActiveLicenses()
         {
             try
             {
-                GetHeaderSessionToken();
                 var licenses = await _repo.GetActiveLicenses(DateTime.UtcNow, WebApiConfig.LicenseHoldTime);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
                 return ResponseMessage(response);
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
             }
             catch (Exception ex)
             {
@@ -61,9 +65,19 @@ namespace AccessControl.Controllers
             }
         }
 
+        /// <summary>
+        /// GetLockedLicenses
+        /// </summary>
+        /// <remarks>
+        /// Returns information about the number of active licenses for the current user's license level,
+        /// excluding any active license for the current user.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("locked")]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(LicenseInfo))]
         public async Task<IHttpActionResult> GetLockedLicenses()
         {
             try
@@ -87,22 +101,27 @@ namespace AccessControl.Controllers
             }
         }
 
+        /// <summary>
+        /// GetLicenseTransactions
+        /// </summary>
+        /// <remarks>
+        /// Returns license transactions for the given <paramref name="consumerType" />, for the past <paramref name="days" /> days.
+        /// </remarks>
+        /// <param name="days">The number of past days for which to return transactions.</param>
+        /// <param name="consumerType">TODO</param>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("transactions")]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(IEnumerable<LicenseTransaction>))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days, int consumerType)
         {
             try
             {
-                GetHeaderSessionToken();
                 var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
                 return ResponseMessage(response);
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
             }
             catch (Exception ex)
             {

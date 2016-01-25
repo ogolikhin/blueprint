@@ -12,7 +12,7 @@ namespace Model.Impl
         private const string SVC_PATH = "Storyteller/api";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-        private static string _address;
+        private readonly string _address;
 
         /// <summary>
         /// Constructor
@@ -27,12 +27,9 @@ namespace Model.Impl
 
         #region Inherited from IStoryteller
 
-        public List<IProcess> Processes { get; } = new List<IProcess>();
-
-        public IProcess GetProcess(IUser user, int Id, int? versionIndex = default(int?), List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(Id, nameof(Id));
 
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();
@@ -43,7 +40,16 @@ namespace Model.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("/processes/{id}/{versionId}", SVC_PATH, Id);
+            var path = I18NHelper.FormatInvariant("/processes/{0}", SVC_PATH, id);
+            if (versionIndex == null)
+            {
+                
+            }
+            else
+            {
+                
+            }
+
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<Process>(
@@ -55,7 +61,7 @@ namespace Model.Impl
             return response;
         }
 
-        public void UpdateProcess(IUser user, Process Process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public void UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             throw new NotImplementedException();
         }

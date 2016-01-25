@@ -15,7 +15,7 @@ namespace Model.Impl
         private const string SVC_PATH = "svc/filestore";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-        private static string _address;
+        private readonly string _address;
 
         #region Inherited from IFileStore
 
@@ -259,7 +259,7 @@ namespace Model.Impl
             return file;
         }
 
-        private static IFile GetFile(string fileId,
+        private IFile GetFile(string fileId,
             IUser user,
             RestRequestMethod webRequestMethod,
             List<HttpStatusCode> expectedStatusCodes = null,

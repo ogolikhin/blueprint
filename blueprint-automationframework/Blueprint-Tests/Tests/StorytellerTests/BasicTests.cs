@@ -46,15 +46,15 @@ namespace StorytellerTests
 
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: true);
+                _user.DeleteUser();
                 _user = null;
             }
         }
 
         #endregion Setup and Cleanup
 
-        [Explicit]
-        [TestCase(2, 1)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase(7, 1)]
         public void GetProcess(int id, int? versionIndex = null)
         {
             _storyteller.GetProcess(_user, id, versionIndex);

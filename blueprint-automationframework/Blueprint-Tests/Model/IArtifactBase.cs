@@ -21,6 +21,7 @@ namespace Model
         Folder,
         GenericDiagram,
         Glossary,
+        Process,
         Project,
         Review,
         Storyboard,

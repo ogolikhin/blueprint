@@ -13,21 +13,6 @@
         #region Properties
 
         /// <summary>
-        /// The artifact Id of the Process
-        /// </summary>
-        int Id { get; set; }
-
-        /// <summary>
-        /// The name of the Process
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// The parent Id of the Process
-        /// </summary>
-        int ParentId { get; set; }
-
-        /// <summary>
         /// The order index of the Process
         /// </summary>
         int OrderIndex { get; set; }

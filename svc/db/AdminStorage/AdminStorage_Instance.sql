@@ -427,7 +427,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@UserName nvarchar(max),
 	@LicenseLevel int,
 	@IsSso bit = 0,
-	@licenseLockTimeMinutes int,
+	@LicenseLockTimeMinutes int,
 	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
@@ -466,7 +466,7 @@ BEGIN
 		-- [LicenseActivityDetails]
 		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @licenseLockTimeMinutes
+		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
 		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 		SELECT @LicenseActivityId, [LicenseLevel], [Count]
 		FROM @ActiveLicenses
@@ -512,7 +512,7 @@ CREATE PROCEDURE [dbo].[EndSession]
 	@SessionId uniqueidentifier,
 	@EndTime datetime,
 	@TimeoutTime datetime,
-	@licenseLockTimeMinutes int
+	@LicenseLockTimeMinutes int
 )
 AS
 BEGIN
@@ -536,14 +536,14 @@ BEGIN
 				(@UserId
 				,@LicenseLevel
 				,2 -- LicenseTransactionType.Release
-				,IIF(@timeoutTime IS NULL, 2, 3) -- LicenseActionType.LogOut or LicenseActionType.Timeout
+				,IIF(@TimeoutTime IS NULL, 2, 3) -- LicenseActionType.LogOut or LicenseActionType.Timeout
 				,1 -- LicenseConsumerType.Client
 				,@EndTime)
 
 			-- [LicenseActivityDetails]
 			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @licenseLockTimeMinutes
+			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
 			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 			SELECT @LicenseActivityId, [LicenseLevel], [Count]
 			FROM @ActiveLicenses

@@ -170,7 +170,7 @@ namespace AccessControl.Repositories
             Session[] result = { new Session { SessionId = newSessionId } };
             cxn.SetupQueryAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false }, { "licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", false }, { "LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
                 result,
                 new Dictionary<string, object> { { "OldSessionId", oldSessionId } });
 
@@ -197,7 +197,7 @@ namespace AccessControl.Repositories
             Session[] result = { new Session { SessionId = newSessionId } };
             cxn.SetupQueryAsync(
                 "BeginSession",
-                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true }, { "licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
+                new Dictionary<string, object> { { "UserId", userId }, { "UserName", userName }, { "LicenseLevel", licenseLevel }, { "IsSso", true }, { "LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime }, { "OldSessionId", null } },
                 result,
                 new Dictionary<string, object> { { "OldSessionId", null } });
 

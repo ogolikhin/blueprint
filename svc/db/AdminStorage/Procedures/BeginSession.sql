@@ -10,7 +10,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@UserName nvarchar(max),
 	@LicenseLevel int,
 	@IsSso bit = 0,
-	@licenseLockTimeMinutes int,
+	@LicenseLockTimeMinutes int,
 	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
@@ -49,7 +49,7 @@ BEGIN
 		-- [LicenseActivityDetails]
 		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @licenseLockTimeMinutes
+		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
 		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 		SELECT @LicenseActivityId, [LicenseLevel], [Count]
 		FROM @ActiveLicenses

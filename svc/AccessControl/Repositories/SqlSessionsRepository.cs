@@ -61,7 +61,7 @@ namespace AccessControl.Repositories
             prm.Add("@UserName", userName);
             prm.Add("@LicenseLevel", licenseLevel);
             prm.Add("@IsSso", isSso);
-            prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
+            prm.Add("@LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
             prm.Add("@OldSessionId", dbType: DbType.Guid, direction: ParameterDirection.Output);
             var result = (await _connectionWrapper.QueryAsync<Session>("BeginSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
             var oldSessionId = prm.Get<Guid?>("OldSessionId");
@@ -87,7 +87,7 @@ namespace AccessControl.Repositories
             prm.Add("@SessionId", guid);
             prm.Add("@EndTime", DateTime.UtcNow);
             prm.Add("@TimeoutTime", timeoutTime);
-            prm.Add("@licenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
+            prm.Add("@LicenseLockTimeMinutes", WebApiConfig.LicenseHoldTime);
             return (await _connectionWrapper.QueryAsync<Session>("EndSession", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }

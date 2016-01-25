@@ -152,13 +152,13 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus()    // GET /status
+        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             Logger.WriteInfo("Getting AccessControl status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
             return response.StatusCode;
         }
 

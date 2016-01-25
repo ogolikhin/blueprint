@@ -16,6 +16,7 @@ namespace Model
         /// <param name="password">(optional) The user password.</param>
         /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedServiceErrorMessage">If an WebException is thrown, we will assert that it contains this expected error message.</param>
         /// <returns>A session object containing the new session token.</returns>
         ISession AddSession(string username = null,
             string password = null,
@@ -72,15 +73,17 @@ namespace Model
         /// Checks if the AdminStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The status code returned by AdminStore.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        void GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+        HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets setting from ConfigControl .
         /// (Runs: GET /config/settings)
         /// </summary>
         /// <param name="session">A session to identify a user.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Settings dictionary. Now it is empty.</returns>
         Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -89,7 +92,7 @@ namespace Model
         /// (Runs: GET /config/config.js)
         /// </summary>
         /// <param name="session">A session to identify a user.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>config.js file.</returns>
         string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 

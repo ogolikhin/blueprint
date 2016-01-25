@@ -128,5 +128,43 @@ namespace AccessControlTests
             // Call the DELETE RestAPI without a session token which should return a 400 error.
             Assert.Throws<Http400BadRequestException>(() => { _accessControl.DeleteSession(null); });
         }
+
+        [Test]
+        public void GetActiveLicensesInfo_200OK()
+        {
+            // Setup: Create a session for test.
+            ISession session = CreateAndAddSessionToAccessControl();
+            ///TODO: add expected results
+            Assert.DoesNotThrow(() =>
+            {
+                _accessControl.GetLicensesInfo(LicenseState.active, session);
+            });
+        }
+
+        [Test]
+        public void GetLockedLicensesInfo_200OK()
+        {
+            // Setup: Create a session for test.
+            ISession session = CreateAndAddSessionToAccessControl();
+            ///TODO: add expected results
+            Assert.DoesNotThrow(() =>
+            {
+                _accessControl.GetLicensesInfo(LicenseState.locked, session);
+            });
+        }
+
+        [Test]
+        public void GetLicenseTransactionsInfo_200OK()
+        {
+            // Setup: Create a session for test.
+            ISession session = CreateAndAddSessionToAccessControl();
+            int numberOfDays = 1;
+            int consumerType = 1;
+            ///TODO: add expected results
+            Assert.DoesNotThrow(() =>
+            {
+                _accessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
+            });
+        }
     }
 }

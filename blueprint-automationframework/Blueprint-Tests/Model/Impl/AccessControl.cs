@@ -4,6 +4,7 @@ using System.Net;
 using Common;
 using Utilities;
 using Utilities.Facades;
+using Newtonsoft.Json;
 
 
 namespace Model.Impl
@@ -162,6 +163,66 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
+        public List<ACLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path;
+            switch (state)
+            {
+                case LicenseState.active:
+                    {
+                        path = I18NHelper.FormatInvariant("{0}/licenses/active", SVC_PATH);
+                        break;
+                    }
+                case LicenseState.locked:
+                    {
+                        path = I18NHelper.FormatInvariant("{0}/licenses/locked", SVC_PATH);
+                        break;
+                    }
+                default:
+                    {
+                        throw new ArgumentException("state must be in LicenseState enum");
+                    }
+            }
+            try
+            {
+                Logger.WriteInfo("Getting license information...");
+                var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return JsonConvert.DeserializeObject<List<ACLicensesInfo>>(response.Content);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteDebug("Unexpected exception while trying to get license information - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        public List<LicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            queryParameters.Add("consumerType", consumerType.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of License Transactions...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters);
+                return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
+                throw;
+            }
+        }
         #endregion Members inherited from IAccessControl
     }
 }

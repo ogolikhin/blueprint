@@ -53,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IACLicensesInfo.cs" />
+    <Compile Include="Impl\ACLicensesInfo.cs" />
     <Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Factories\AccessControlFactory.cs" />

@@ -1,10 +1,16 @@
-﻿
+﻿using Model.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
 
 namespace Model
 {
+    public enum LicenseState
+    {
+        active,
+        locked
+    }
+
     public interface IAccessControl
     {
         /// <summary>
@@ -87,5 +93,25 @@ namespace Model
         /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets number of active/locked licenses.
+        /// (Runs: GET /licenses/active[locked])
+        /// </summary>
+        /// <param name="state">License state active or locked.</param>
+        /// <param name="session">Valid session</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>License level and number of licenses in this state.</returns>
+        List<ACLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets list of license transactions.
+        /// (Runs: GET /licenses/transactions?days=numberOfDays&consumerType=type)
+        /// </summary>
+        /// <param name="numberOfDays">Number of days.</param>
+        /// <param name="consumerType">Now it works for ConsumerType = 1.</param>
+        /// <param name="session">(optional) A session to identify a user.</param>
+        /// <returns>List of LicenseActivity.</returns>
+        List<LicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null);
     }
 }

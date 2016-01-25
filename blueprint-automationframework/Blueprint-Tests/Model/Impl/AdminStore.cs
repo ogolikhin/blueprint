@@ -159,13 +159,14 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public void GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
+        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             Logger.WriteInfo("Getting AdminStore status...");
-            restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return response.StatusCode;
         }
 
         public Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)

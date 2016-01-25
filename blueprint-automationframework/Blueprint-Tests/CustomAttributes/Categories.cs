@@ -10,6 +10,7 @@ namespace CustomAttributes
         public const string AdminStore = "AdminStore";
         public const string ConcurrentTest = "ConcurrentTest";
         public const string Filestore = "Filestore";
+        public const string Storyteller = "Storyteller";
 
         /// <summary>
         /// This test Injects errors into the AccessControlDouble and therefore cannot be run concurrently with other tests.

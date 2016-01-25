@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Factories\AccessControlFactory.cs" />
     <Compile Include="Factories\AdminStoreFactory.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Impl\Comment.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
+    <Compile Include="Impl\LicenseActivity.cs" />
     <Compile Include="Impl\MsSqlDatabase.cs" />
     <Compile Include="Impl\Property.cs" />
     <Compile Include="Impl\Project.cs" />

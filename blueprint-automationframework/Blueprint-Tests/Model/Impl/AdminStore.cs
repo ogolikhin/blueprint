@@ -201,6 +201,32 @@ namespace Model.Impl
             RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
             return response.Content;
         }
+
+        public List<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture)} };
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of License Transactions...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters);
+                return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
+                throw;
+            }
+        }
         #endregion Members inherited from IAdminStore
     }
 }

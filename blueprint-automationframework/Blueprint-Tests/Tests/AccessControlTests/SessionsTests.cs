@@ -13,7 +13,13 @@ namespace AccessControlTests
     public class SessionsTests
     {
         private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
+        private IUser _user = null;
 
+        [SetUp]
+        public void SetUp()
+        {
+            _user = UserFactory.CreateUserAndAddToDatabase();
+        }
 
         [TearDown]
         public void TearDown()
@@ -24,6 +30,11 @@ namespace AccessControlTests
             foreach (var session in _accessControl.Sessions.ToArray())
             {
                 _accessControl.DeleteSession(session);
+            }
+            if (_user != null)
+            {
+                _user.DeleteUser();
+                _user = null;
             }
         }
 
@@ -51,10 +62,10 @@ namespace AccessControlTests
         /// <returns>The session that was added including the session token.</returns>
         private ISession CreateAndAddSessionToAccessControl()
         {
-            ISession randomSession = SessionFactory.CreateRandomSession();
+            ISession session = SessionFactory.CreateSession(_user);
 
             // POST the new session.
-            return AddSessionToAccessControl(randomSession);
+            return AddSessionToAccessControl(session);
         }
 
         [Test]
@@ -80,7 +91,7 @@ namespace AccessControlTests
         [Test]
         public void PutSessionWithoutSessionToken_Verify400BadRequest()
         {
-            ISession session = SessionFactory.CreateRandomSession();
+            ISession session = SessionFactory.CreateSession(_user);
             int artifactId = RandomGenerator.RandomNumber();
 
             Assert.Throws<Http400BadRequestException>(() =>
@@ -106,10 +117,10 @@ namespace AccessControlTests
             CreateAndAddSessionToAccessControl();
 
             // Now create another session, but don't add it to AccessControl.
-            ISession randomSession = SessionFactory.CreateRandomSession();
+            ISession session = SessionFactory.CreateRandomSession();
 
             // Try to get the session without the session token, which should give a 404 error.
-            Assert.Throws<Http404NotFoundException>(() => { _accessControl.GetSession(randomSession.UserId); });
+            Assert.Throws<Http404NotFoundException>(() => { _accessControl.GetSession(session.UserId); });
         }
 
         [Test]

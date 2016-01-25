@@ -210,19 +210,27 @@ namespace Model.Impl
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
 
-                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", USERS_TABLE, fields, values);
-                int rowsAffected = 0;
+                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.UserId VALUES ({2})", USERS_TABLE, fields, values);
+                //int rowsAffected = 0;
 
                 Logger.WriteDebug("Running: {0}", query);
 
                 using (SqlCommand cmd = database.CreateSqlCommand(query))
                 {
-                    rowsAffected = cmd.ExecuteNonQuery();
-                }
-
-                if (rowsAffected <= 0)
-                {
-                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    //rowsAffected = cmd.ExecuteNonQuery();
+                    var sqlDataReader = cmd.ExecuteReader();
+                    if (sqlDataReader.HasRows)
+                    {
+                        while (sqlDataReader.Read())
+                        {
+                            UserId = (int)(sqlDataReader.GetSqlInt32(0));
+                        }
+                    }
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
+                    sqlDataReader.Close();
                 }
             }
         }

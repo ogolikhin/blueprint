@@ -112,7 +112,6 @@
     <Compile Include="Impl\AccessControl.cs" />
 	<Compile Include="Impl\AccessControlLicensesInfo.cs" />
     <Compile Include="Impl\AdminStore.cs" />
-	<Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
@@ -141,7 +140,6 @@
     <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
     <Compile Include="IStoryboard.cs" />
-	<Compile Include="IStoryteller.cs" />
     <Compile Include="ITextualRequirement.cs" />
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />

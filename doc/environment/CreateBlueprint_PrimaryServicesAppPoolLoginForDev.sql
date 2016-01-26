@@ -14,7 +14,7 @@ DECLARE @DB_FileStorage			as nvarchar(50)	= N'Blueprint_FileStorage'
 ---------------------------------------------------------------------------------------
 -- Define the Windows Application Pool Login
 ---------------------------------------------------------------------------------------
-DECLARE @LoginIdentity AS nvarchar(100) = 'IIS APPPOOL\Blueprint_Services'
+DECLARE @LoginIdentity AS nvarchar(100) = 'IIS APPPOOL\Blueprint_PrimaryServices'
 ---------------------------------------------------------------------------------------
 
 -- Delete login

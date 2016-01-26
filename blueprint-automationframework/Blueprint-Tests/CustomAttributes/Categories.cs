@@ -17,5 +17,6 @@ namespace CustomAttributes
         public const string InjectsErrorsIntoAccessControl = "InjectsErrorsIntoAccessControl";
 
         public const string OpenApi = "OpenApi";
+        public const string Storyteller = "Storyteller";
     }
 }

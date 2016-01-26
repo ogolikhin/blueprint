@@ -68,12 +68,12 @@ namespace FileStore.Helpers
         /// <summary>
         /// The boundary between parts prependned with the newline element
         /// </summary>
-        protected byte[] BoundaryWithNewLinePrepend { get; private set; }
+        protected byte[] BoundaryWithNewLinePrepend;
 
         /// <summary>
         /// The bytes that represnt a new line character
         /// </summary>
-        protected byte[] NewLine { get; private set; }
+        protected byte[] NewLine;
 
 
         public MultipartPartParser(Stream multipartStream, IServiceLogRepository log)

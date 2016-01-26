@@ -85,11 +85,15 @@ namespace Logging.Database.Utility
             //if (!string.IsNullOrWhiteSpace(actionName))
             //{
             Guid correlationId;
-            Guid.TryParse(EventEntryUtil.GetPayloadValue(record, "CorrelationId"), out correlationId);
-            sqlDataRecord.SetValue(18, correlationId);
+            if (Guid.TryParse(EventEntryUtil.GetPayloadValue(record, "CorrelationId"), out correlationId))
+            {
+                sqlDataRecord.SetValue(18, correlationId);
+            }
             double duration = 0;
-            double.TryParse(EventEntryUtil.GetPayloadValue(record, "Duration"), out duration);
-            sqlDataRecord.SetValue(19, duration);
+            if (double.TryParse(EventEntryUtil.GetPayloadValue(record, "Duration"), out duration))
+            {
+                sqlDataRecord.SetValue(19, duration);
+            }
             //}
 
             return sqlDataRecord;

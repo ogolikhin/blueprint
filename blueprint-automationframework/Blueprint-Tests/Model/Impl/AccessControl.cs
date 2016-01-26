@@ -229,6 +229,48 @@ namespace Model.Impl
                 throw;
             }
         }
+
+        public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/sessions/select", SVC_PATH);
+
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            if (pageSize != null)
+            {
+                queryParameters.Add("ps", pageSize.ToString());
+            }
+            if (pageNumber != null)
+            {
+                queryParameters.Add("pn", pageNumber.ToString());
+            }
+
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of active sessions...");
+                RestResponse response = null;
+                if (queryParameters.Count == 0)
+                {
+                    queryParameters = null;
+                }
+                response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                var sessions = JsonConvert.DeserializeObject<List<Session>>(response.Content);
+                return sessions.ConvertAll(o => (ISession)o);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting list of active sessions - {0}", ex.Message);
+                throw;
+            }
+        }
         #endregion Members inherited from IAccessControl
     }
 }

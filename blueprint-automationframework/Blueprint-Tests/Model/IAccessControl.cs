@@ -1,10 +1,21 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 
 namespace Model
 {
+    public enum LicenseState
+    {
+        active,
+        locked
+    }
+
+    public interface IAccessControlLicensesInfo
+    {
+        int LicenseLevel { get; set; }
+        int Count { get; set; }
+    }
+
     public interface IAccessControl
     {
         /// <summary>
@@ -87,5 +98,25 @@ namespace Model
         /// <returns>A 200 OK code if there are no problems.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets number of active/locked licenses.
+        /// (Runs: GET /licenses/active[locked])
+        /// </summary>
+        /// <param name="state">License state active or locked.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>License level and number of licenses in this state.</returns>
+        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets list of license transactions.
+        /// (Runs: GET /licenses/transactions?days=numberOfDays&consumerType=type)
+        /// </summary>
+        /// <param name="numberOfDays">Number of days of license transactions history.</param>
+        /// <param name="consumerType">Application which created request. (ConsumerType - Client=1, Analytics=2).</param>
+        /// <param name="session">(optional) A session to identify a user.</param>
+        /// /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of LicenseActivity.</returns>
+        IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

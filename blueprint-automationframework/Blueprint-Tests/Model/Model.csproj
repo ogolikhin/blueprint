@@ -53,12 +53,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\StorytellerFactory.cs" />
-    <Compile Include="Impl\Storyteller.cs" />
-    <Compile Include="Impl\Process.cs" />
-    <Compile Include="IProcess.cs" />
-    <Compile Include="IStoryteller.cs" />
-    <Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Factories\AccessControlFactory.cs" />
     <Compile Include="Factories\AdminStoreFactory.cs" />
     <Compile Include="Factories\ArtifactFactory.cs" />
@@ -71,6 +65,7 @@
     <Compile Include="Factories\PropertyFactory.cs" />
     <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
     <Compile Include="Factories\SessionFactory.cs" />
+	<Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
@@ -106,8 +101,11 @@
     <Compile Include="IGenericDiagram.cs" />
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
+	<Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AccessControl.cs" />
+	<Compile Include="Impl\AccessControlLicensesInfo.cs" />
     <Compile Include="Impl\AdminStore.cs" />
+	<Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
@@ -117,15 +115,19 @@
     <Compile Include="Impl\Comment.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
+    <Compile Include="Impl\LicenseActivity.cs" />
     <Compile Include="Impl\MsSqlDatabase.cs" />
+	<Compile Include="Impl\Process.cs" />
     <Compile Include="Impl\Property.cs" />
     <Compile Include="Impl\Project.cs" />
     <Compile Include="Impl\ServiceErrorMessage.cs" />
     <Compile Include="Impl\Session.cs" />
+	<Compile Include="Impl\Storyteller.cs" />
     <Compile Include="Impl\Trace.cs" />
     <Compile Include="Impl\User.cs" />
     <Compile Include="InstanceAdminRole.cs" />
     <Compile Include="IPaginable.cs" />
+	<Compile Include="IProcess.cs" />
     <Compile Include="IProject.cs" />
     <Compile Include="IProperty.cs" />
     <Compile Include="IRelationship.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
     <Compile Include="IStoryboard.cs" />
+	<Compile Include="IStoryteller.cs" />
     <Compile Include="ITextualRequirement.cs" />
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />

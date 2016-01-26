@@ -106,7 +106,7 @@ namespace Model
         /// <param name="state">License state active or locked.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>License level and number of licenses in this state.</returns>
-        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null);
+        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of license transactions.

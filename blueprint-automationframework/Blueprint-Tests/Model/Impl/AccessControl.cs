@@ -255,16 +255,12 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting list of active sessions...");
                 RestResponse response = null;
-                if (queryParameters.Count > 0)
+                if (queryParameters.Count == 0)
                 {
-                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                    queryParameters = null;
                 }
-                else
-                {
-                    response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                        expectedStatusCodes: expectedStatusCodes);
-                }
+                response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
                 var sessions = JsonConvert.DeserializeObject<List<Session>>(response.Content);
                 return sessions.ConvertAll(o => (ISession)o);
             }

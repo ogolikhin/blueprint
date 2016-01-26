@@ -123,8 +123,8 @@ namespace Model
         /// Gets list of active sessions.
         /// (Runs: GET /sessions/select?ps=PageSize&pn=PageNumber)
         /// </summary>
-        /// <param name="pageSize">Number of sessions per page.</param>
-        /// <param name="pageNumber">Number of page to display.</param>
+        /// <param name="pageSize">(optional) Number of sessions per page.</param>
+        /// <param name="pageNumber">(optional) Number of page to display.</param>
         /// <param name="session">(optional) A session for authentication.</param>
         /// /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of sessions.</returns>

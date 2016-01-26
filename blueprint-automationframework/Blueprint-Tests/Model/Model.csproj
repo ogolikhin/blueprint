@@ -56,6 +56,8 @@
     <Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="Impl\Storyteller.cs" />
     <Compile Include="Impl\Process.cs" />
+    <Compile Include="IProcessLink.cs" />
+    <Compile Include="IProcessShape.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="IStoryteller.cs" />
     <Compile Include="Impl\AdminStoreUser.cs" />

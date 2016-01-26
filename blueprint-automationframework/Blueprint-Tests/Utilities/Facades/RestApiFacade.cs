@@ -325,6 +325,14 @@ namespace Utilities.Facades
             where T2 : new()
         {
             var client = new RestClient(_baseUri);
+
+            if (additionalHeaders == null)
+            {
+                additionalHeaders = new Dictionary<string, string>();
+            }
+
+            additionalHeaders.Add("Accept", "application/json");
+
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
 
             if (jsonObject != null)
@@ -442,7 +450,6 @@ namespace Utilities.Facades
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
-        /// <param name="cookies">Add cookies</param>
         /// <param name="bodyObject">(optional) An object to send in the HTTP body of the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
         /// <param name="cookies">(optional) Add cookies</param>

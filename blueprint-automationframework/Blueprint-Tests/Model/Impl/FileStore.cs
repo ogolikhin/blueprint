@@ -44,7 +44,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            byte[] fileBytes = file.Content;
+            byte[] fileBytes = file.Content.ToArray();
             byte[] chunk = fileBytes;
 
             // If we are chunking the file, get the first chunk ready.
@@ -200,7 +200,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.POST,
                 file.FileName,
-                file.Content,
+                file.Content.ToArray(),
                 file.FileType,
                 useMultiPartMime,
                 additionalHeaders,
@@ -290,14 +290,14 @@ namespace Model.Impl
 
             if (webRequestMethod == RestRequestMethod.HEAD)
             {
-                Assert.That(response.RawBytes.Length == 0, "Content returned for a HEAD request!");
+                Assert.That(!response.RawBytes.Any(), "Content returned for a HEAD request!");
             }
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 file = new File
                 {
-                    Content = response.RawBytes,
+                    Content = response.RawBytes.ToArray(),
                     Id = fileId,
                     LastModifiedDate =
                         DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",

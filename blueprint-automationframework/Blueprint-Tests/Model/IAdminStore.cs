@@ -95,5 +95,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>config.js file.</returns>
         string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets list of license transactions.
+        /// (Runs: GET /licenses/transactions?days=numberOfDays)
+        /// </summary>
+        /// <param name="numberOfDays">Number of days of license transactions history.</param>
+        /// <param name="session">(optional) A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of LicenseActivity.</returns>
+        IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

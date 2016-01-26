@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -16,6 +17,6 @@ namespace Model
         /// <summary>
         /// The file data.
         /// </summary>
-        byte[] Content { get; set; }
+        IEnumerable<byte> Content { get; set; }
     }
 }

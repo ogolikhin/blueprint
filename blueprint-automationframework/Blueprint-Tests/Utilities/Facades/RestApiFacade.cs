@@ -38,7 +38,7 @@ namespace Utilities.Facades
         public string ErrorMessage { get; set; }
         public Dictionary<string, object> Headers { get; } = new Dictionary<string, object>();
         public HttpStatusCode StatusCode { get; set; }
-        public byte[] RawBytes { get; set; }
+        public IEnumerable<byte> RawBytes { get; set; }
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Utilities.Facades
         public string ContentType => _restResponse.ContentType;
         public Exception ErrorException => _restResponse.ErrorException;
         public string ErrorMessage => _restResponse.ErrorMessage;
-        public byte[] RawBytes => _restResponse.RawBytes;
+        public IEnumerable<byte> RawBytes => _restResponse.RawBytes;
         public HttpStatusCode StatusCode => _restResponse.StatusCode;
 
         #endregion Properties

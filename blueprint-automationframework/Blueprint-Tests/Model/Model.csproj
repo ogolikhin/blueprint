@@ -108,8 +108,11 @@
     <Compile Include="IGenericDiagram.cs" />
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
+	<Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AccessControl.cs" />
+	<Compile Include="Impl\AccessControlLicensesInfo.cs" />
     <Compile Include="Impl\AdminStore.cs" />
+	<Compile Include="Impl\AdminStoreUser.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
@@ -119,6 +122,7 @@
     <Compile Include="Impl\Comment.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
+    <Compile Include="Impl\LicenseActivity.cs" />
     <Compile Include="Impl\MsSqlDatabase.cs" />
     <Compile Include="Impl\Property.cs" />
     <Compile Include="Impl\Project.cs" />
@@ -137,6 +141,7 @@
     <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
     <Compile Include="IStoryboard.cs" />
+	<Compile Include="IStoryteller.cs" />
     <Compile Include="ITextualRequirement.cs" />
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />

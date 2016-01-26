@@ -114,7 +114,7 @@ namespace FileStoreTests
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            byte[] fileBytes = file.Content;
+            byte[] fileBytes = file.Content.ToArray();
             byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
 
             // First POST the first chunk with a valid token.

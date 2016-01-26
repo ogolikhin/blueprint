@@ -163,10 +163,16 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
-        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null)
+        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path;
+
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
 
             switch (state)
             {
@@ -181,9 +187,19 @@ namespace Model.Impl
             }
 
             Logger.WriteInfo("Getting license information...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            var licenseInfoList = JsonConvert.DeserializeObject<List<AccessControlLicensesInfo>>(response.Content);
-            return licenseInfoList.ConvertAll(o => (IAccessControlLicensesInfo)o);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            switch (state)
+            {
+                case LicenseState.active:
+                    var licenseInfoList = JsonConvert.DeserializeObject<List<AccessControlLicensesInfo>>(response.Content);
+                    return licenseInfoList.ConvertAll(o => (IAccessControlLicensesInfo)o);
+                case LicenseState.locked:
+                    var licenseInfo = JsonConvert.DeserializeObject<AccessControlLicensesInfo>(response.Content);
+                    return new List<IAccessControlLicensesInfo> { licenseInfo };
+                default:
+                    throw new ArgumentException("state must be in LicenseState enum");
+            }
+            
         }
 
         public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)

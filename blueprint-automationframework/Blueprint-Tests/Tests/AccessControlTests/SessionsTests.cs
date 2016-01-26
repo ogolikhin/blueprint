@@ -153,10 +153,11 @@ namespace AccessControlTests
         [Test]
         public void GetLockedLicensesInfo_200OK()
         {
+            ISession session = CreateAndAddSessionToAccessControl();
             ///TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicensesInfo(LicenseState.locked);
+                _accessControl.GetLicensesInfo(LicenseState.locked, session: session);
             });
         }
 

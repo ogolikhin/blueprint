@@ -175,5 +175,17 @@ namespace AccessControlTests
                 _accessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
             });
         }
+
+        [Test]
+        public void GetActiveSessions_200OK()
+        {
+            // Setup: Create a session for test.
+            ISession session = CreateAndAddSessionToAccessControl();
+            ///TODO: add expected results
+            Assert.DoesNotThrow(() =>
+            {
+                _accessControl.GetActiveSessions(session: session);
+            });
+        }
     }
 }

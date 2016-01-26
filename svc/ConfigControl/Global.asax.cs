@@ -3,6 +3,7 @@ using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using ServiceLibrary.EventSources;
 using ServiceLibrary.LocalLog;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Web.Http;
 
@@ -26,6 +27,7 @@ namespace ConfigControl
 #endif
         }
 
+        [SuppressMessage("Microsoft.Usage", "CA2215:Dispose methods should call base class dispose", Justification = "base.Dispose() is called from Dispose(bool)")]
         public sealed override void Dispose()
         {
             Dispose(true);

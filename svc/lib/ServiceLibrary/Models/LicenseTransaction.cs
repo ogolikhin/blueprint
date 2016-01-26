@@ -70,7 +70,7 @@ namespace ServiceLibrary.Models
         /// <remarks>
         /// Populated from LicenseActivitiyDetails Table.
         /// </remarks>
-        public IDictionary<int, int> ActiveLicenses { get; set; }
+        public IDictionary<int, int> ActiveLicenses { get; private set; }
 
         /// <summary>
         /// Sets ActiveLicenses from a string of the form "a:x;b:y;c:z" where a, b, c are license levels

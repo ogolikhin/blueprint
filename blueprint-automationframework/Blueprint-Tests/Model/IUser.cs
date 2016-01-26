@@ -25,7 +25,7 @@ namespace Model
         string LastName { get; set; }
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
         string Password { get; set; }                       // (NULLABLE)
-        byte[] Picture { get; set; }                        // (NULLABLE) "Image_ImageId" in database.
+        IEnumerable<byte> Picture { get; set; }                        // (NULLABLE) "Image_ImageId" in database.
         UserSource Source { get; }
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.

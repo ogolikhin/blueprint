@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using Common;
 using Model.Factories;
 using TestConfig;
@@ -36,7 +37,7 @@ namespace Model.Impl
         public string LastName { get; set; }
         public LicenseType License { get; set; }
         public string Password { get; set; }
-        public byte[] Picture { get; set; }
+        public IEnumerable<byte> Picture { get; set; }
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
         public IBlueprintToken Token { get; set; }
@@ -96,7 +97,7 @@ namespace Model.Impl
             string str = I18NHelper.FormatInvariant("[User: Username = '{0}', Department = '{1}', DisplayName = '{2}', Email = '{3}', Enabled = '{4}', FirstName = '{5}', " +
                 "InstanceAdminRole = '{6}', LastName = '{7}', License = '{8}', Password = '{9}', Picture = '{10}', Source = '{11}', Title = '{12}']",
                 Username, toStringOrNull(Department), toStringOrNull(DisplayName), toStringOrNull(Email), Enabled, FirstName,
-                 InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Length > 0), Source, toStringOrNull(Title));
+                 InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Any()), Source, toStringOrNull(Title));
 
             return str;
         }

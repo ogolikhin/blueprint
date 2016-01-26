@@ -166,6 +166,7 @@ namespace AccessControlTests
             // Setup: Create a session for test.
             ISession session = CreateAndAddSessionToAccessControl();
             int numberOfDays = 1;
+            //in our test environment we have only transactions related to consumerType = 1 - regular client
             int consumerType = 1;
             ///TODO: add expected results
             Assert.DoesNotThrow(() =>

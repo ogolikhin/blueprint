@@ -163,7 +163,7 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
-        public List<AccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null)
+        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path;
@@ -182,10 +182,11 @@ namespace Model.Impl
 
             Logger.WriteInfo("Getting license information...");
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            return JsonConvert.DeserializeObject<List<AccessControlLicensesInfo>>(response.Content);
+            var licenseInfoList = JsonConvert.DeserializeObject<List<AccessControlLicensesInfo>>(response.Content);
+            return licenseInfoList.ConvertAll(o => (IAccessControlLicensesInfo)o);
         }
 
-        public List<LicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
@@ -202,7 +203,8 @@ namespace Model.Impl
                 Logger.WriteInfo("Getting list of License Transactions...");
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-                return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+                var licenseTransactions = JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+                return licenseTransactions.ConvertAll(o => (ILicenseActivity)o);
             }
             catch (WebException ex)
             {

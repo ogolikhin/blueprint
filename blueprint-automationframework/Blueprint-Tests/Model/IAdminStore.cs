@@ -100,7 +100,7 @@ namespace Model
         /// Gets list of license transactions.
         /// (Runs: GET /licenses/transactions?days=numberOfDays)
         /// </summary>
-        /// <param name="numberOfDays">Period in days back from today.</param>
+        /// <param name="numberOfDays">Number of days of license transactions history.</param>
         /// <param name="session">(optional) A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>

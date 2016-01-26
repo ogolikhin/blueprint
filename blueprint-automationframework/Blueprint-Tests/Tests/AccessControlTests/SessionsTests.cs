@@ -175,5 +175,15 @@ namespace AccessControlTests
                 _accessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
             });
         }
+
+        [Test]
+        public void GetActiveSessions_VerifySessionsWereFound()
+        {
+            // Setup: Create a session for test.
+            ISession session = CreateAndAddSessionToAccessControl();
+            ///TODO: add expected results
+            var sessionsList = _accessControl.GetActiveSessions(session: session);
+            Assert.That(sessionsList.Count > 0, "GetActiveSessions should find at least 1 active session, but found none.");
+        }
     }
 }

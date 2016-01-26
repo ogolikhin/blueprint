@@ -100,9 +100,10 @@ namespace Model
         /// Gets list of license transactions.
         /// (Runs: GET /licenses/transactions?days=numberOfDays)
         /// </summary>
-        /// <param name="numberOfDays">Number of days.</param>
+        /// <param name="numberOfDays">Period in days back from today.</param>
         /// <param name="session">(optional) A session to identify a user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
-        List<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null);
+        IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

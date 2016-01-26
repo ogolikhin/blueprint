@@ -143,24 +143,20 @@ namespace AccessControlTests
         [Test]
         public void GetActiveLicensesInfo_200OK()
         {
-            // Setup: Create a session for test.
-            ISession session = CreateAndAddSessionToAccessControl();
             ///TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicensesInfo(LicenseState.active, session);
+                _accessControl.GetLicensesInfo(LicenseState.active);
             });
         }
 
         [Test]
         public void GetLockedLicensesInfo_200OK()
         {
-            // Setup: Create a session for test.
-            ISession session = CreateAndAddSessionToAccessControl();
             ///TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicensesInfo(LicenseState.locked, session);
+                _accessControl.GetLicensesInfo(LicenseState.locked);
             });
         }
 

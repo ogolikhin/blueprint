@@ -7,14 +7,14 @@ using Newtonsoft.Json;
 
 namespace Model
 {
-    public class ACLicensesInfo
+    public class AccessControlLicensesInfo : IAccessControlLicensesInfo
     {
         [JsonProperty("LicenseLevel")]
         public int LicenseLevel { get; set; }
         [JsonProperty("Count")]
         public int Count { get; set; }
 
-        public ACLicensesInfo(int licenseLevel, int count)
+        public AccessControlLicensesInfo(int licenseLevel, int count)
         {
             LicenseLevel = licenseLevel;
             Count = count;

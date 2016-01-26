@@ -1,5 +1,4 @@
-﻿using Model.Impl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -9,6 +8,12 @@ namespace Model
     {
         active,
         locked
+    }
+
+    public interface IAccessControlLicensesInfo
+    {
+        int LicenseLevel { get; set; }
+        int Count { get; set; }
     }
 
     public interface IAccessControl
@@ -99,19 +104,19 @@ namespace Model
         /// (Runs: GET /licenses/active[locked])
         /// </summary>
         /// <param name="state">License state active or locked.</param>
-        /// <param name="session">Valid session</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>License level and number of licenses in this state.</returns>
-        List<ACLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<AccessControlLicensesInfo> GetLicensesInfo(LicenseState state, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of license transactions.
         /// (Runs: GET /licenses/transactions?days=numberOfDays&consumerType=type)
         /// </summary>
-        /// <param name="numberOfDays">Number of days.</param>
-        /// <param name="consumerType">Now it works for ConsumerType = 1.</param>
+        /// <param name="numberOfDays">Period in days back from today.</param>
+        /// <param name="consumerType">Now it works for ConsumerType = 1(ConsumerType - Client, Analytics).</param>
         /// <param name="session">(optional) A session to identify a user.</param>
+        /// /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
-        List<LicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null);
+        List<LicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

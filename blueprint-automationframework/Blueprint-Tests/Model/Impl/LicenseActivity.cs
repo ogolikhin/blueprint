@@ -1,28 +1,35 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model
 {
     public class LicenseActivity: ILicenseActivity
     {
         #region Properties
         [JsonProperty("LicenseActivityId")]
         public int LicenseActivityId { get; set; }
+
         [JsonProperty("UserId")]
         public int UserId { get; set; }
+
         [JsonProperty("LicenseType")]
         public int LicenseType { get; set; }
+
         [JsonProperty("TransactionType")]
         public int TransactionType { get; set; }
+
         [JsonProperty("ActionType")]
         public int ActionType { get; set; }
+
         [JsonProperty("ConsumerType")]
         public int ConsumerType { get; set; }
+
         [JsonProperty("Date")]
         public DateTime Date { get; set; }
         /// TODO: add ActiveLicenses
         [JsonProperty("Username")]
         public string Username { get; set; }
+
         [JsonProperty("Department")]
         public string Department { get; set; }
         #endregion Properties

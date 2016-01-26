@@ -203,7 +203,7 @@ namespace Model.Impl
             return response.Content;
         }
 
-        public List<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null)
+        public IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
@@ -218,13 +218,13 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting list of License Transactions...");
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                queryParameters: queryParameters);
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
                 return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
             }
             catch (WebException ex)
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
+                Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
                 throw;
             }
         }

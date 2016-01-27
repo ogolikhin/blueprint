@@ -20,6 +20,14 @@ namespace ConfigControl.Controllers
             _httpClientProvider = httpClientProvider;
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Services to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("")]
         public IHttpActionResult Log([FromBody]ServiceLogModel logEntry)
@@ -76,6 +84,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Silverlight client to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("CLog")]
         public IHttpActionResult Log([FromBody]CLogModel logEntry)
@@ -197,6 +213,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("StandardLog")]
         public IHttpActionResult Log([FromBody]StandardLogModel logEntry)
@@ -259,6 +283,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Performance Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("PerformanceLog")]
         public IHttpActionResult Log([FromBody]PerformanceLogModel logEntry)
@@ -283,6 +315,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Performance Trace Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("SQLTraceLog")]
         public IHttpActionResult Log([FromBody]SQLTraceLogModel logEntry)

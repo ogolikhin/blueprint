@@ -34,9 +34,20 @@ namespace AdminStore.Controllers
             _log = log;
         }
 
+        /// <summary>
+        /// GetLicenseTransactions
+        /// </summary>
+        /// <remarks>
+        /// Returns license transactions for the past <paramref name="days" /> days.
+        /// </remarks>
+        /// <param name="days">The number of past days for which to return transactions.</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("transactions"), SessionRequired]
-        [ResponseType(typeof(HttpResponseMessage))]
+        [ResponseType(typeof(IEnumerable<LicenseTransaction>))]
         public async Task<IHttpActionResult> GetLicenseTransactions(int days)
         {
             try
@@ -54,7 +65,7 @@ namespace AdminStore.Controllers
                     var result = await http.GetAsync("licenses/transactions?days=" + days + "&consumerType=1"); // LicenseConsumerType.Client
                     var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
                     var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
-                    foreach (var transaction in transactions)
+                    foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))
                     {
                         var user = users[transaction.UserId];
                         transaction.Username = user.Login;
@@ -71,7 +82,7 @@ namespace AdminStore.Controllers
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSource_Licenses, ex);
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
                 return InternalServerError();
             }
         }

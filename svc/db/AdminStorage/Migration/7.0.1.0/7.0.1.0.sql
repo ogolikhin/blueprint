@@ -62,6 +62,47 @@ SET @sql = N'ALTER DATABASE [' + @db_name + N'] SET COMPATIBILITY_LEVEL = 110'; 
 EXEC(@sql);
 
 /******************************************************************************************************************************
+Name:			Logs
+
+Description: 
+			
+Change History:
+Date			Name					Change
+2015/12/17		Chris Dufour			Initial Version
+******************************************************************************************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Logs]') AND type in (N'U'))
+DROP TABLE [dbo].[Logs]
+GO
+
+CREATE TABLE [dbo].[Logs](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IpAddress] [nvarchar](45),
+	[Source] [nvarchar](100),
+	[FormattedMessage] [nvarchar](4000) NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
+	[UserName] [nvarchar](max),
+	[SessionId] [nvarchar](40),
+	[ActionName] [nvarchar](200),
+	[CorrelationId] [uniqueidentifier],
+	[Duration] [float],
+	[InstanceName] [nvarchar](1000) NOT NULL,
+	[ProviderId] [uniqueidentifier] NOT NULL,
+	[ProviderName] [nvarchar](500) NOT NULL,
+	[EventId] [int] NOT NULL,
+	[EventKeywords] [bigint] NOT NULL,
+	[Level] [int] NOT NULL,
+	[Opcode] [int] NOT NULL,
+	[Task] [int] NOT NULL,
+	[Timestamp] [datetimeoffset](7) NOT NULL,
+	[Version] [int] NOT NULL,
+	[Payload] [xml] NULL,
+	 CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)) ON [PRIMARY]
+GO
+
+/******************************************************************************************************************************
 Name:			LogsType
 
 Description: 
@@ -92,15 +133,11 @@ CREATE TYPE LogsType AS TABLE
 	[Version] [int],
 	[FormattedMessage] [nvarchar](4000),
 	[Payload] [xml],
-	[ActivityId] [uniqueidentifier], 
-	[RelatedActivityId] [uniqueidentifier],
-	[ProcessId] [int],
-	[ThreadId] [int],
 	[IpAddress] [nvarchar](45),
 	[Source] [nvarchar](100),
 	[UserName] [nvarchar](Max),
 	[SessionId] [nvarchar](40),
-	[OccuredAt] [datetimeoffset](7) NOT NULL,
+	[OccurredAt] [datetimeoffset](7) NOT NULL,
 	[ActionName] [nvarchar](200),
 	[CorrelationId] [uniqueidentifier],
 	[Duration] [float]
@@ -234,7 +271,7 @@ CREATE PROCEDURE [dbo].[BeginSession]
 	@UserName nvarchar(max),
 	@LicenseLevel int,
 	@IsSso bit = 0,
-	@licenseLockTimeMinutes int,
+	@LicenseLockTimeMinutes int,
 	@OldSessionId uniqueidentifier OUTPUT
 )
 AS
@@ -273,7 +310,7 @@ BEGIN
 		-- [LicenseActivityDetails]
 		DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 		DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @licenseLockTimeMinutes
+		INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @BeginTime, @LicenseLockTimeMinutes
 		INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 		SELECT @LicenseActivityId, [LicenseLevel], [Count]
 		FROM @ActiveLicenses
@@ -306,7 +343,7 @@ AS
 BEGIN
 	UPDATE [dbo].[Sessions] SET EndTime = @EndTime
 	OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-	WHERE SessionId = @SessionId AND EndTime <= @EndTime;
+	WHERE SessionId = @SessionId AND BeginTime IS NOT NULL;
 END
 GO
 
@@ -318,8 +355,8 @@ CREATE PROCEDURE [dbo].[EndSession]
 (
 	@SessionId uniqueidentifier,
 	@EndTime datetime,
-	@Timeout bit,
-	@licenseLockTimeMinutes int
+	@TimeoutTime datetime,
+	@LicenseLockTimeMinutes int
 )
 AS
 BEGIN
@@ -330,7 +367,8 @@ BEGIN
 		-- [Sessions]
 		UPDATE [dbo].[Sessions] SET [BeginTime] = NULL, [EndTime] = @EndTime
 		OUTPUT Inserted.[UserId], Inserted.[SessionId], Inserted.[BeginTime], Inserted.[EndTime], Inserted.[UserName], Inserted.[LicenseLevel], Inserted.[IsSso]
-		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL;
+		WHERE [SessionId] = @SessionId AND [BeginTime] IS NOT NULL
+		AND (@TimeoutTime IS NULL OR @TimeoutTime = [EndTime]);
 
 		IF @@ROWCOUNT > 0 BEGIN
 			-- [LicenseActivities]
@@ -342,14 +380,14 @@ BEGIN
 				(@UserId
 				,@LicenseLevel
 				,2 -- LicenseTransactionType.Release
-				,2 + @timeout -- LicenseActionType.LogOut or LicenseActionType.Timeout
+				,IIF(@TimeoutTime IS NULL, 2, 3) -- LicenseActionType.LogOut or LicenseActionType.Timeout
 				,1 -- LicenseConsumerType.Client
 				,@EndTime)
 
 			-- [LicenseActivityDetails]
 			DECLARE @LicenseActivityId int = SCOPE_IDENTITY()
 			DECLARE @ActiveLicenses table ( LicenseLevel int, Count int )
-			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @licenseLockTimeMinutes
+			INSERT INTO @ActiveLicenses EXEC [dbo].[GetActiveLicenses] @EndTime, @LicenseLockTimeMinutes
 			INSERT INTO [dbo].[LicenseActivityDetails] ([LicenseActivityId], [LicenseType], [Count])
 			SELECT @LicenseActivityId, [LicenseLevel], [Count]
 			FROM @ActiveLicenses
@@ -552,15 +590,11 @@ BEGIN
 		[Version],
 		[FormattedMessage],
 		[Payload],
-		[ActivityId],
-		[RelatedActivityId],
-		[ProcessId],
-		[ThreadId],
 		[IpAddress],
 		[Source],
 		[UserName],
 		[SessionId],
-		[OccuredAt],
+		[OccurredAt],
 		[ActionName],
 		[CorrelationId],
 		[Duration]

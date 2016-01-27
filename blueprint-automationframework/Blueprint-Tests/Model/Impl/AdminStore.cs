@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
+using Model.Factories;
 
 namespace Model.Impl
 {
@@ -117,6 +118,37 @@ namespace Model.Impl
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
         }
 
+        public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, token: token);
+            string path = I18NHelper.FormatInvariant("{0}/users/loginuser", SVC_PATH);
+
+            try
+            {
+                Logger.WriteInfo("Getting logged in user's info...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+                Logger.WriteInfo("Deserializing user object...");
+                AdminStoreUser adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+                IUser user = UserFactory.CreateUserOnly();
+                user.Department = adminStoreUser.Department;
+                user.DisplayName = adminStoreUser.DisplayName;
+                user.Email = adminStoreUser.Email;
+                user.FirstName = adminStoreUser.FirstName;
+                user.LastName = adminStoreUser.LastName;
+                user.License = adminStoreUser.License;
+                user.Username = adminStoreUser.Username;
+                user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                user.SetToken(token: token);
+                return user;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
+                throw;
+            }
+        }
         public ISession GetSession(int? userId)
         {
             throw new NotImplementedException();
@@ -127,11 +159,75 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus()
+        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            Logger.WriteInfo("Getting AdminStore status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return response.StatusCode;
         }
 
+        public Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting settings...");
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
+        }
+
+        public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            Logger.WriteInfo("Getting config.js...");
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return response.Content;
+        }
+
+        public IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture)} };
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of License Transactions...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
+                throw;
+            }
+        }
         #endregion Members inherited from IAdminStore
     }
 }

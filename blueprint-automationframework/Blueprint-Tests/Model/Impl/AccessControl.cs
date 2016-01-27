@@ -4,6 +4,7 @@ using System.Net;
 using Common;
 using Utilities;
 using Utilities.Facades;
+using Newtonsoft.Json;
 
 
 namespace Model.Impl
@@ -11,7 +12,7 @@ namespace Model.Impl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
     public class AccessControl : IAccessControl
     {
-        private const string SVC_PATH = "svc/accesscontrol";
+        private const string SVC_PATH = "accesscontrol";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         private static string _address;
@@ -152,16 +153,124 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus()    // GET /status
+        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             Logger.WriteInfo("Getting AccessControl status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
             return response.StatusCode;
         }
 
+        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path;
+
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+
+            switch (state)
+            {
+                case LicenseState.active:
+                    path = I18NHelper.FormatInvariant("{0}/licenses/active", SVC_PATH);
+                    break;
+                case LicenseState.locked:
+                    path = I18NHelper.FormatInvariant("{0}/licenses/locked", SVC_PATH);
+                    break;
+                default:
+                    throw new ArgumentException("state must be in LicenseState enum");
+            }
+
+            Logger.WriteInfo("Getting license information...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            switch (state)
+            {
+                case LicenseState.active:
+                    var licenseInfoList = JsonConvert.DeserializeObject<List<AccessControlLicensesInfo>>(response.Content);
+                    return licenseInfoList.ConvertAll(o => (IAccessControlLicensesInfo)o);
+                case LicenseState.locked:
+                    var licenseInfo = JsonConvert.DeserializeObject<AccessControlLicensesInfo>(response.Content);
+                    return new List<IAccessControlLicensesInfo> { licenseInfo };
+                default:
+                    throw new ArgumentException("state must be in LicenseState enum");
+            }
+            
+        }
+
+        public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            queryParameters.Add("consumerType", consumerType.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of License Transactions...");
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                var licenseTransactions = JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
+                return licenseTransactions.ConvertAll(o => (ILicenseActivity)o);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/sessions/select", SVC_PATH);
+
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            if (pageSize != null)
+            {
+                queryParameters.Add("ps", pageSize.ToString());
+            }
+            if (pageNumber != null)
+            {
+                queryParameters.Add("pn", pageNumber.ToString());
+            }
+
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            }
+            try
+            {
+                Logger.WriteInfo("Getting list of active sessions...");
+                RestResponse response = null;
+                if (queryParameters.Count == 0)
+                {
+                    queryParameters = null;
+                }
+                response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                    queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                var sessions = JsonConvert.DeserializeObject<List<Session>>(response.Content);
+                return sessions.ConvertAll(o => (ISession)o);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting list of active sessions - {0}", ex.Message);
+                throw;
+            }
+        }
         #endregion Members inherited from IAccessControl
     }
 }

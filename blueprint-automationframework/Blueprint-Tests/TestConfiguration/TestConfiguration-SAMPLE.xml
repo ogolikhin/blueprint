@@ -9,6 +9,7 @@
     <Service name="AdminStore"    address="http://localhost:8080/" />
     <Service name="AccessControl" address="http://localhost:8082/" />
     <Service name="FileStore"     address="http://localhost:8080/" />
+    <Service name="Storyteller"   address="http://localhost:8080/" />
   </BlueprintServices>
   
   <!-- This is where you add the databases used by the tests. -->

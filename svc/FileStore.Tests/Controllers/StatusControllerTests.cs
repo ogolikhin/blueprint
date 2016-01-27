@@ -7,6 +7,7 @@ using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
@@ -16,7 +17,7 @@ namespace FileStore.Controllers
         #region Constructor
 
         [TestMethod]
-        public void Constructor_CreatesDefaultDependencies()
+        public void Constructor_Always_CreatesDefaultDependencies()
         {
             // Arrange
 
@@ -25,6 +26,7 @@ namespace FileStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
+            Assert.IsInstanceOfType(controller.Log, typeof(ServiceLogRepository));
         }
 
         #endregion Constructor
@@ -36,14 +38,14 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true).Verifiable();
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var log = new Mock<IServiceLogRepository>();
+            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
 
             // Assert
-            statusRepo.Verify();
             Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
@@ -52,32 +54,34 @@ namespace FileStore.Controllers
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false).Verifiable();
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var log = new Mock<IServiceLogRepository>();
+            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             var result = await controller.GetStatus() as StatusCodeResult;
 
             // Assert
-            statusRepo.Verify();
             Assert.IsNotNull(result);
             Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
             Assert.AreEqual(controller.Request, result.Request);
         }
 
         [TestMethod]
-        public async Task GetStatus_RepositoryThrowsException_ReturnsInternalServerError()
+        public async Task GetStatus_RepositoryThrowsException_LogsAndReturnsInternalServerError()
         {
             // Arrange
             var statusRepo = new Mock<IStatusRepository>();
-            statusRepo.Setup(r => r.GetStatus()).Throws(new Exception()).Verifiable();
-            var controller = new StatusController(statusRepo.Object) { Request = new HttpRequestMessage() };
+            var log = new Mock<IServiceLogRepository>();
+            var exception = new Exception();
+            statusRepo.Setup(r => r.GetStatus()).Throws(exception);
+            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
 
             // Assert
-            statusRepo.Verify();
+            log.Verify(l => l.LogError(WebApiConfig.LogSourceStatus, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 

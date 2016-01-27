@@ -1,7 +1,7 @@
-﻿/// *************************************************************************************
-/// ***** Any changes to this file need to be replicated in the                     *****
-/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
-/// *************************************************************************************
+﻿// *************************************************************************************
+// ***** Any changes to this file need to be replicated in the                     *****
+// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+// *************************************************************************************
 
 namespace ServiceLibrary.Models
 {
@@ -10,7 +10,7 @@ namespace ServiceLibrary.Models
         public string Source { get; set; }
         public LogLevelEnum LogLevel { get; set; }
         public string Message { get; set; }
-        public System.DateTime OccuredAt { get; set; }
+        public System.DateTime OccurredAt { get; set; }
         public string SessionId { get; set; }
         public string UserName { get; set; }
         public string MethodName { get; set; }

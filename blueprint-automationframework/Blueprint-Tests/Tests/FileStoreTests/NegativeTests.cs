@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -67,42 +69,52 @@ namespace FileStoreTests
             }
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void PostWithInvalidSessionToken_VerifyUnauthorized(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        public void PostWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
-            string accessControlToken)
+            string accessControlToken,
+            Type exceptionType)
         {
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
+
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Replace token with invalid token
             _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that exception is thrown
+            Assert.Throws(exceptionType, () =>
             {
                 _filestore.AddFile(file, _userWithInvalidToken);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "")]
-        public void PutWithInvalidSessionToken_VerifyUnauthorized(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http400BadRequestException))]
+        public void PutWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
             uint chunkSize, 
-            string accessControlToken)
+            string accessControlToken,
+            Type exceptionType)
         {
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
+
             Assert.That((chunkSize > 0) && (fileSize > chunkSize), "Invalid TestCase detected!  chunkSize must be > 0 and < fileSize.");
 
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            byte[] fileBytes = file.Content;
+            byte[] fileBytes = file.Content.ToArray();
             byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
 
             // First POST the first chunk with a valid token.
@@ -115,21 +127,26 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown for subsequent PUT request with invalid token
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that exception is thrown for subsequent PUT request with invalid token
+            Assert.Throws(exceptionType, () =>
             {
                 _filestore.PutFile(postedFile, chunk, _userWithInvalidToken);
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void GetWithInvalidSessionToken_VerifyUnauthorized(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        public void GetWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
-            string accessControlToken)
+            string accessControlToken,
+            Type exceptionType)
         {
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
+
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
@@ -139,21 +156,28 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that exception is thrown
+            // Note: Empty authorization cookie returns 401 Unauthorized
+            //       Empty authorization session header returns 400 Bad Request
+            Assert.Throws(exceptionType, () =>
             {
                 _filestore.GetFile(storedFile.Id, _userWithInvalidToken); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void GetHeadWithInvalidSessionToken_VerifyUnauthorized(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        public void GetHeadWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
-            string accessControlToken)
+            string accessControlToken,
+            Type exceptionType)
         {
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
+
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
@@ -163,21 +187,26 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that exception is thrown
+            Assert.Throws(exceptionType, () =>
             {
                 _filestore.GetFileMetadata(storedFile.Id, _userWithInvalidToken); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "")]
-        public void DeleteFileWithInvalidToken_VerifyUnauthorized(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        public void DeleteFileWithInvalidToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
             string fileType, 
-            string accessControlToken)
+            string accessControlToken,
+            Type exceptionType)
         {
+            ThrowIf.ArgumentNull(exceptionType, nameof(exceptionType));
+
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
@@ -187,11 +216,11 @@ namespace FileStoreTests
             // Replace token with invalid token
             _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
 
-            // Assert that unauthorized exception is thrown
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Assert that exception is thrown
+            Assert.Throws(exceptionType, () =>
             {
                 _filestore.DeleteFile(storedFile.Id, _userWithInvalidToken); 
-            }, "Did not throw HTTP Status Code 401 (Unauthorized Exception) as expected");
+            }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "")]
@@ -203,7 +232,7 @@ namespace FileStoreTests
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Assert that unauthorized exception is thrown
+            // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 _filestore.AddFile(file, _user);
@@ -219,7 +248,7 @@ namespace FileStoreTests
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Assert that unauthorized exception is thrown
+            // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 _filestore.AddFile(file, _user);

@@ -58,9 +58,10 @@ namespace Model
         /// <summary>
         /// Gets the current status of the File Store service.
         /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Status of File Store service.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
-        HttpStatusCode GetStatus();
+        HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Adds a file to the file store with a POST command only.

@@ -38,7 +38,7 @@ namespace Utilities.Facades
         public string ErrorMessage { get; set; }
         public Dictionary<string, object> Headers { get; } = new Dictionary<string, object>();
         public HttpStatusCode StatusCode { get; set; }
-        public byte[] RawBytes { get; set; }
+        public IEnumerable<byte> RawBytes { get; set; }
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Utilities.Facades
         public string ContentType => _restResponse.ContentType;
         public Exception ErrorException => _restResponse.ErrorException;
         public string ErrorMessage => _restResponse.ErrorMessage;
-        public byte[] RawBytes => _restResponse.RawBytes;
+        public IEnumerable<byte> RawBytes => _restResponse.RawBytes;
         public HttpStatusCode StatusCode => _restResponse.StatusCode;
 
         #endregion Properties
@@ -310,6 +310,7 @@ namespace Utilities.Facades
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public T1 SendRequestAndDeserializeObject<T1,T2>(
@@ -318,12 +319,13 @@ namespace Utilities.Facades
             T2 jsonObject,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            Dictionary<string, string> cookies = null)
             where T1 : new()
             where T2 : new()
         {
             var client = new RestClient(_baseUri);
-            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
 
             if (jsonObject != null)
             {
@@ -356,6 +358,7 @@ namespace Utilities.Facades
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public T SendRequestAndDeserializeObject<T>(
@@ -363,9 +366,10 @@ namespace Utilities.Facades
            RestRequestMethod method,
            Dictionary<string, string> additionalHeaders = null,
            Dictionary<string, string> queryParameters = null,
-           List<HttpStatusCode> expectedStatusCodes = null) where T : new()
+           List<HttpStatusCode> expectedStatusCodes = null,
+           Dictionary<string, string> cookies = null) where T : new()
         {
-            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes);
+            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath, method, null, additionalHeaders, queryParameters, expectedStatusCodes, cookies);
         }
 
         /// <summary>
@@ -379,8 +383,8 @@ namespace Utilities.Facades
         /// <param name="useMultiPartMime">(optional) Use multi-part mime for the request</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
         /// <param name="queryParameters">(optional) Add query parameters</param>
-        /// <param name="cookies">(optional) Add cookies</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
         /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public RestResponse SendRequestAndGetResponse(
@@ -441,6 +445,7 @@ namespace Utilities.Facades
         /// <param name="cookies">Add cookies</param>
         /// <param name="bodyObject">(optional) An object to send in the HTTP body of the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
         /// <returns>The RestResponse object.</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         public RestResponse SendRequestAndGetResponse<T>(

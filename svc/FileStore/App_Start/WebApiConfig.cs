@@ -14,7 +14,7 @@ namespace FileStore
             config.MapHttpAttributeRoutes();
         }
 
-        internal static string LogSource_Files = "FileStore.Files";
-
+        internal static string LogSourceFiles = "FileStore.Files";
+        internal static string LogSourceStatus = "FileStore.Status";
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using Common;
 using Model.Factories;
 using TestConfig;
@@ -36,7 +37,7 @@ namespace Model.Impl
         public string LastName { get; set; }
         public LicenseType License { get; set; }
         public string Password { get; set; }
-        public byte[] Picture { get; set; }
+        public IEnumerable<byte> Picture { get; set; }
         public virtual UserSource Source { get { return UserSource.Unknown; } }
         public string Title { get; set; }
         public IBlueprintToken Token { get; set; }
@@ -96,7 +97,7 @@ namespace Model.Impl
             string str = I18NHelper.FormatInvariant("[User: Username = '{0}', Department = '{1}', DisplayName = '{2}', Email = '{3}', Enabled = '{4}', FirstName = '{5}', " +
                 "InstanceAdminRole = '{6}', LastName = '{7}', License = '{8}', Password = '{9}', Picture = '{10}', Source = '{11}', Title = '{12}']",
                 Username, toStringOrNull(Department), toStringOrNull(DisplayName), toStringOrNull(Email), Enabled, FirstName,
-                 InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Length > 0), Source, toStringOrNull(Title));
+                 InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Any()), Source, toStringOrNull(Title));
 
             return str;
         }
@@ -107,6 +108,26 @@ namespace Model.Impl
         public void UpdateUser()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Tests whether the specified IUser is equal to this one.
+        /// </summary>
+        /// <param name="user">The User to compare.</param>
+        /// <returns>True if the sessions are equal, otherwise false.</returns>
+        public bool Equals(IUser user)///TODO: add compare for license
+        {
+            if (user == null)
+            {
+                return false;
+            }
+            else
+            {
+                return ((this.Username == user.Username) & (this.DisplayName == user.DisplayName) &&
+                      (this.Email == user.Email) && (this.FirstName == user.FirstName) &&
+                      (this.InstanceAdminRole == user.InstanceAdminRole) && (this.LastName == user.LastName)
+                      && (this.Source == user.Source));
+            }
         }
 
         /// <summary>
@@ -190,19 +211,26 @@ namespace Model.Impl
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
 
-                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", USERS_TABLE, fields, values);
-                int rowsAffected = 0;
+                string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.UserId VALUES ({2})", USERS_TABLE, fields, values);
 
                 Logger.WriteDebug("Running: {0}", query);
 
                 using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
                 {
-                    rowsAffected = cmd.ExecuteNonQuery();
-                }
-
-                if (rowsAffected <= 0)
-                {
-                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    if (sqlDataReader.HasRows)
+                    {
+                        while (sqlDataReader.Read())
+                        {
+                            int userIdOrdinal = sqlDataReader.GetOrdinal("UserId");
+                            UserId = (int)(sqlDataReader.GetSqlInt32(userIdOrdinal));
+                            //UserId = (int)(sqlDataReader.GetSqlInt32(0));
+                        }
+                    }
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
                 }
             }
         }
@@ -212,7 +240,6 @@ namespace Model.Impl
         /// </summary>
         /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
         ///     Pass true to really delete the user from the database.</param>
-        /// <exception cref="SqlQueryFailedException">If no rows were affected.</exception>
         public override void DeleteUser(bool deleteFromDatabase = false)
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())
@@ -246,7 +273,6 @@ namespace Model.Impl
                     {
                         string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
                         Logger.WriteError(msg);
-                        throw new SqlQueryFailedException(msg);
                     }
                 }
                 catch

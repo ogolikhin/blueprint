@@ -81,6 +81,7 @@ namespace AdminStore.Repositories
                     {
                         throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
                     }
+                    await ResetInvalidLogonAttemptsNumber(user);
                     break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
@@ -196,6 +197,16 @@ namespace AdminStore.Repositories
 
             user.LastInvalidLogonTimeStamp = DateTime.UtcNow;
             await _userRepository.UpdateUserOnInvalidLoginAsync(user);
+        }
+
+        private async Task ResetInvalidLogonAttemptsNumber(AuthenticationUser user)
+        {            
+            if (user.InvalidLogonAttemptsNumber > 0)
+            {                                
+                user.InvalidLogonAttemptsNumber = 0;
+                user.LastInvalidLogonTimeStamp = null;
+                await _userRepository.UpdateUserOnInvalidLoginAsync(user);
+            }                        
         }
     }
 }

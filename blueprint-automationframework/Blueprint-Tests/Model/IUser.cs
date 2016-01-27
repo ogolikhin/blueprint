@@ -25,7 +25,7 @@ namespace Model
         string LastName { get; set; }
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
         string Password { get; set; }                       // (NULLABLE)
-        byte[] Picture { get; set; }                        // (NULLABLE) "Image_ImageId" in database.
+        IEnumerable<byte> Picture { get; set; }                        // (NULLABLE) "Image_ImageId" in database.
         UserSource Source { get; }
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.
@@ -61,6 +61,13 @@ namespace Model
         /// Updates the user on the Blueprint server with any changes that were made to this object.
         /// </summary>
         void UpdateUser();
+
+        /// <summary>
+        /// Tests whether the specified IUser is equal to this one.
+        /// </summary>
+        /// <param name="user">The User to compare.</param>
+        /// <returns>True if the sessions are equal, otherwise false.</returns>
+        bool Equals(IUser user);
 
         #endregion Methods
     }

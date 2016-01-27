@@ -15,7 +15,7 @@ namespace Model.Impl
         private const string SVC_PATH = "svc/filestore";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-        private static string _address;
+        private readonly string _address;
 
         #region Inherited from IFileStore
 
@@ -44,7 +44,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            byte[] fileBytes = file.Content;
+            byte[] fileBytes = file.Content.ToArray();
             byte[] chunk = fileBytes;
 
             // If we are chunking the file, get the first chunk ready.
@@ -143,12 +143,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IFileStore.GetStatus"/>
-        public HttpStatusCode GetStatus()
+        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, token:string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET);
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             return response.StatusCode;
         }
@@ -200,7 +200,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.POST,
                 file.FileName,
-                file.Content,
+                file.Content.ToArray(),
                 file.FileType,
                 useMultiPartMime,
                 additionalHeaders,
@@ -259,7 +259,7 @@ namespace Model.Impl
             return file;
         }
 
-        private static IFile GetFile(string fileId,
+        private IFile GetFile(string fileId,
             IUser user,
             RestRequestMethod webRequestMethod,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -290,14 +290,14 @@ namespace Model.Impl
 
             if (webRequestMethod == RestRequestMethod.HEAD)
             {
-                Assert.That(response.RawBytes.Length == 0, "Content returned for a HEAD request!");
+                Assert.That(!response.RawBytes.Any(), "Content returned for a HEAD request!");
             }
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 file = new File
                 {
-                    Content = response.RawBytes,
+                    Content = response.RawBytes.ToArray(),
                     Id = fileId,
                     LastModifiedDate =
                         DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",

@@ -16,7 +16,7 @@ using Utilities.Facades;
 namespace OpenAPITests
 {
     [TestFixture]
-    [Category(Categories.OpenAPI)]
+    [Category(Categories.OpenApi)]
     public class LoginTests
     {
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();

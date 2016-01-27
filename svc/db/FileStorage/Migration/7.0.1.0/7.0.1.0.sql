@@ -538,7 +538,7 @@ GO
 -- Always add your code just above this comment block
 -- --------------------------------------------------
 IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
+ 	EXEC [dbo].[SetSchemaVersion] @value = N'7.0.1';
 GO
 set noexec off
 -- --------------------------------------------------

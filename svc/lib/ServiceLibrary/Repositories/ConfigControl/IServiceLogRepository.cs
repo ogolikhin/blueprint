@@ -1,7 +1,7 @@
-﻿/// *************************************************************************************
-/// ***** Any changes to this file need to be replicated in the                     *****
-/// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
-/// *************************************************************************************
+﻿// *************************************************************************************
+// ***** Any changes to this file need to be replicated in the                     *****
+// ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
+// *************************************************************************************
 using ServiceLibrary.Models;
 using System;
 using System.Runtime.CompilerServices;

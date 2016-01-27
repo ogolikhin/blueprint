@@ -103,7 +103,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public async Task OnActionExecutingAsync_GetWithNoSessionTokenOrCookie_Unauthorized()
+        public async Task OnActionExecutingAsync_GetWithNoSessionTokenOrCookie_BadRequest()
         {
             // Arrange
             var attribute = new SessionRequiredAttribute();
@@ -114,11 +114,11 @@ namespace ServiceLibrary.Attributes
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.Unauthorized, actionContext.Response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.BadRequest, actionContext.Response.StatusCode);
         }
 
         [TestMethod]
-        public async Task OnActionExecutingAsync_PutWithNoSessionToken_Unauthorized()
+        public async Task OnActionExecutingAsync_PutWithNoSessionToken_BadRequest()
         {
             // Arrange
             var attribute = new SessionRequiredAttribute();
@@ -129,7 +129,7 @@ namespace ServiceLibrary.Attributes
             await attribute.OnActionExecutingAsync(actionContext, new CancellationToken());
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.Unauthorized, actionContext.Response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.BadRequest, actionContext.Response.StatusCode);
         }
 
         [TestMethod]

@@ -29,6 +29,7 @@ namespace AccessControl.Controllers
             // Assert
             Assert.IsInstanceOfType(controller._repo, typeof(SqlLicensesRepository));
             Assert.IsInstanceOfType(controller._sessions, typeof(SqlSessionsRepository));
+            Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
         }
 
         #endregion Constructor
@@ -41,15 +42,13 @@ namespace AccessControl.Controllers
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
             var repo = new Mock<ILicensesRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
             var licenses = new[]
             {
                 new LicenseInfo { LicenseLevel = 1, Count = 1 },
                 new LicenseInfo { LicenseLevel = 3, Count = 2 }
             };
             repo.Setup(r => r.GetActiveLicenses(It.IsAny<DateTime>(), It.IsAny<int>())).ReturnsAsync(licenses);
-            var token = new Guid("44444444444444444444444444444444");
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object);
 
             // Act
             var result = await controller.GetActiveLicenses() as ResponseMessageResult;
@@ -61,31 +60,13 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task GetActiveLicenses_NoSessionToken_Unauthorised()
-        {
-            // Arrange
-            var sessions = new Mock<ISessionsRepository>();
-            var repo = new Mock<ILicensesRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            var controller = CreateController(repo.Object, sessions.Object, null, logMock.Object);
-
-            // Act
-            var result = await controller.GetActiveLicenses();
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
-        }
-
-        [TestMethod]
         public async Task GetActiveLicenses_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
             var repo = new Mock<ILicensesRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
             repo.Setup(r => r.GetActiveLicenses(It.IsAny<DateTime>(), It.IsAny<int>())).Throws<Exception>();
-            var token = new Guid("33333333333333333333333333333333");
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object);
 
             // Act
             var result = await controller.GetActiveLicenses();
@@ -103,14 +84,13 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
             var token = new Guid("11111111111111111111111111111111");
             var session = new Session { UserId = 1234, LicenseLevel = 3 };
             sessions.Setup(s => s.GetSession(token)).ReturnsAsync(session);
             var repo = new Mock<ILicensesRepository>();
             int lockedLicenses = 42;
             repo.Setup(r => r.GetLockedLicenses(session.UserId, session.LicenseLevel, It.IsAny<int>())).ReturnsAsync(lockedLicenses);
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object, token);
 
             // Act
             var result = await controller.GetLockedLicenses() as ResponseMessageResult;
@@ -128,8 +108,7 @@ namespace AccessControl.Controllers
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
             var repo = new Mock<ILicensesRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            var controller = CreateController(repo.Object, sessions.Object, null, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object);
 
             // Act
             var result = await controller.GetLockedLicenses();
@@ -143,13 +122,12 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
             var token = new Guid("22222222222222222222222222222222");
             var session = new Session { UserId = 1234, LicenseLevel = 3 };
             sessions.Setup(s => s.GetSession(token)).ReturnsAsync(session);
             var repo = new Mock<ILicensesRepository>();
             repo.Setup(r => r.GetLockedLicenses(session.UserId, session.LicenseLevel, It.IsAny<int>())).Throws<Exception>();
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object, token);
 
             // Act
             var result = await controller.GetLockedLicenses();
@@ -167,8 +145,6 @@ namespace AccessControl.Controllers
         {
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            var token = new Guid("11111111111111111111111111111111");
             var repo = new Mock<ILicensesRepository>();
             int consumerType = 1;
             var transactions = new[]
@@ -178,7 +154,7 @@ namespace AccessControl.Controllers
                 new LicenseTransaction { LicenseActivityId = 3, UserId = 1, LicenseType = 1, TransactionType = 2, ActionType = 2, ConsumerType = 1 },
             };
             repo.Setup(r => r.GetLicenseTransactions(It.IsAny<DateTime>(), consumerType)).ReturnsAsync(transactions);
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object);
             int days = 1;
 
             // Act
@@ -191,34 +167,14 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        public async Task GetLicenseTransactions_NoSessionToken_Unauthorised()
-        {
-            // Arrange
-            var sessions = new Mock<ISessionsRepository>();
-            var repo = new Mock<ILicensesRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            int consumerType = 1;
-            var controller = CreateController(repo.Object, sessions.Object, null, logMock.Object);
-            int days = 5;
-
-            // Act
-            var result = await controller.GetLicenseTransactions(days, consumerType);
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
-        }
-
-        [TestMethod]
         public async Task GetLicenseTransactions_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             var sessions = new Mock<ISessionsRepository>();
-            var logMock = new Mock<IServiceLogRepository>();
-            var token = new Guid("22222222222222222222222222222222");
             var repo = new Mock<ILicensesRepository>();
             int consumerType = 2;
             repo.Setup(r => r.GetLicenseTransactions(It.IsAny<DateTime>(), consumerType)).Throws<Exception>();
-            var controller = CreateController(repo.Object, sessions.Object, token, logMock.Object);
+            var controller = CreateController(repo.Object, sessions.Object);
             int days = 1;
 
             // Act
@@ -230,9 +186,10 @@ namespace AccessControl.Controllers
 
         #endregion GetLicenseTransactions
 
-        private static LicensesController CreateController(ILicensesRepository repo, ISessionsRepository sessions, Guid? token, IServiceLogRepository log)
+        private static LicensesController CreateController(ILicensesRepository repo, ISessionsRepository sessions, Guid? token = null)
         {
-            var controller = new LicensesController(repo, sessions, log)
+            var logMock = new Mock<IServiceLogRepository>();
+            var controller = new LicensesController(repo, sessions, logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

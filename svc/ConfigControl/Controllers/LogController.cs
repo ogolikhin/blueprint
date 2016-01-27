@@ -20,6 +20,14 @@ namespace ConfigControl.Controllers
             _httpClientProvider = httpClientProvider;
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Services to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("")]
         public IHttpActionResult Log([FromBody]ServiceLogModel logEntry)
@@ -33,7 +41,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber,
@@ -44,7 +52,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -54,7 +62,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -64,7 +72,7 @@ namespace ConfigControl.Controllers
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.MethodName,
                         logEntry.FilePath,
                         logEntry.LineNumber);
@@ -76,6 +84,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Silverlight client to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("CLog")]
         public IHttpActionResult Log([FromBody]CLogModel logEntry)
@@ -92,8 +108,7 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.StackTrace,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Warning:
@@ -101,8 +116,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Informational:
@@ -110,8 +124,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Verbose:
@@ -119,8 +132,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName);
                         break;
                     case LogLevelEnum.Critical:
@@ -129,8 +141,7 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.StackTrace,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName);
                         break;
                     default:
@@ -148,8 +159,7 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.StackTrace,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -159,8 +169,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -170,8 +179,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -181,8 +189,7 @@ namespace ConfigControl.Controllers
                             ipAdress,
                             logEntry.Source,
                             logEntry.Message,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -193,8 +200,7 @@ namespace ConfigControl.Controllers
                             logEntry.Source,
                             logEntry.Message,
                             logEntry.StackTrace,
-                            logEntry.OccuredAt,
-                            logEntry.TimeZoneOffset,
+                            logEntry.OccurredAt,
                             logEntry.UserName,
                             logEntry.ActionName,
                             logEntry.Duration);
@@ -207,6 +213,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("StandardLog")]
         public IHttpActionResult Log([FromBody]StandardLogModel logEntry)
@@ -221,44 +235,36 @@ namespace ConfigControl.Controllers
                         logEntry.Source,
                         logEntry.Message,
                         logEntry.StackTrace,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Warning:
                     StandardLogEventSource.Log.Warning(
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Informational:
                     StandardLogEventSource.Log.Informational(
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Verbose:
                     StandardLogEventSource.Log.Verbose(
                         ipAdress,
                         logEntry.Source,
                         logEntry.Message,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 case LogLevelEnum.Critical:
                     StandardLogEventSource.Log.Critical(
@@ -266,11 +272,9 @@ namespace ConfigControl.Controllers
                         logEntry.Source,
                         logEntry.Message,
                         logEntry.StackTrace,
-                        logEntry.OccuredAt,
+                        logEntry.OccurredAt,
                         logEntry.SessionId,
-                        logEntry.UserName,
-                        logEntry.TimeZoneOffset,
-                        logEntry.ThreadId);
+                        logEntry.UserName);
                     break;
                 default:
                     break;
@@ -279,6 +283,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Performance Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("PerformanceLog")]
         public IHttpActionResult Log([FromBody]PerformanceLogModel logEntry)
@@ -289,7 +301,7 @@ namespace ConfigControl.Controllers
                 ipAdress,
                 logEntry.Source,
                 logEntry.Message,
-                logEntry.OccuredAt,
+                logEntry.OccurredAt,
                 logEntry.SessionId,
                 logEntry.UserName,
                 logEntry.ThreadID,
@@ -303,6 +315,14 @@ namespace ConfigControl.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Log
+        /// </summary>
+        /// <remarks>
+        /// Sends a <paramref name="logEntry" /> coming from Blueprint Server Performance Trace Logger to the logging service
+        /// </remarks>
+        /// <param name="logEntry">Log entry</param>
+        /// <response code="200">OK.</response>
         [HttpPost]
         [Route("SQLTraceLog")]
         public IHttpActionResult Log([FromBody]SQLTraceLogModel logEntry)
@@ -313,7 +333,7 @@ namespace ConfigControl.Controllers
                 ipAdress,
                 logEntry.Source,
                 logEntry.Message,
-                logEntry.OccuredAt,
+                logEntry.OccurredAt,
                 logEntry.SessionId,
                 logEntry.UserName,
                 logEntry.ThreadID,

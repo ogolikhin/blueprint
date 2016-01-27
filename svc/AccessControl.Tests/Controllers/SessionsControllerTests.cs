@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AccessControl.Helpers;
 using AccessControl.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,14 +19,14 @@ namespace AccessControl.Controllers
     {
         private Mock<IServiceLogRepository> _logMock;
         private Mock<ISessionsRepository> _sessionsRepoMock;
-        private Mock<ObjectCache> _cacheMock;
+        private Mock<ITimeoutManager<Guid>> _cacheMock;
         private SessionsController _controller;
 
         [TestInitialize]
         public void Initialize()
         {
             _sessionsRepoMock = new Mock<ISessionsRepository>();
-            _cacheMock = new Mock<ObjectCache>();
+            _cacheMock = new Mock<ITimeoutManager<Guid>>();
             _logMock = new Mock<IServiceLogRepository>();
 
             _controller = new SessionsController(_cacheMock.Object, _sessionsRepoMock.Object, _logMock.Object)
@@ -47,7 +47,7 @@ namespace AccessControl.Controllers
             var controller = new SessionsController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._cache, typeof(MemoryCache));
+            Assert.IsInstanceOfType(controller._sessions, typeof(TimeoutManager<Guid>));
             Assert.IsInstanceOfType(controller._repo, typeof(SqlSessionsRepository));
             Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
         }
@@ -89,7 +89,6 @@ namespace AccessControl.Controllers
         {
             // Arrange
             int uid = 999;
-            var guid = Guid.NewGuid();
             var session = new Session { EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(r => r.GetUserSession(uid)).ReturnsAsync(session);
 
@@ -175,13 +174,11 @@ namespace AccessControl.Controllers
             await _controller.PostSession(uid, userName, licenseLevel);
 
             // Assert
-            var token = Session.Convert(newSessionId);
-            _cacheMock.Verify(m => m.Remove(Session.Convert(oldSessionId), null));
-            _cacheMock.Verify(m => m.Set(token, session, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
+            _cacheMock.Verify(m => m.Remove(oldSessionId));
+            _cacheMock.Verify(m => m.Insert(newSessionId, session.EndTime, It.Is<Action>(a => VerifyCallback(a, session))));
         }
 
         [TestMethod]
-        [Ignore]//TODO temporarily added for debug purposes
         public async Task PostSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
@@ -326,7 +323,7 @@ namespace AccessControl.Controllers
             // Arrange
             var guid = new Guid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).ReturnsAsync(null);
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync(null);
 
             // Act
             var result = await _controller.DeleteSession();
@@ -336,13 +333,12 @@ namespace AccessControl.Controllers
         }
 
         [TestMethod]
-        [Ignore]//TODO temporarily added for debug purposes
         public async Task DeleteSession_RepositoryThrowsException_InternalServerError()
         {
             // Arrange
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
-            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, false)).Throws<Exception>();
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).Throws<Exception>();
 
             // Act
             var result = await _controller.DeleteSession();
@@ -370,13 +366,13 @@ namespace AccessControl.Controllers
             var guid = Guid.NewGuid();
             _controller.Request.Headers.Add("Session-Token", Session.Convert(guid));
             var session = new Session { SessionId = guid };
-            _sessionsRepoMock.Setup(r => r.EndSession(guid, false)).ReturnsAsync(session);
-            _cacheMock.Setup(c => c.Remove(It.IsAny<string>(), null)).Returns(new object());
+            _sessionsRepoMock.Setup(r => r.EndSession(guid, null)).ReturnsAsync(session);
 
             // Act
             var result = await _controller.DeleteSession();
 
             // Assert
+            _cacheMock.Verify(c => c.Remove(guid));
             Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
@@ -435,7 +431,7 @@ namespace AccessControl.Controllers
             var guid = Guid.NewGuid();
             var token = Session.Convert(guid);
             _controller.Request.Headers.Add("Session-Token", token);
-            var session = new Session { EndTime = DateTime.UtcNow.AddDays(1) };
+            var session = new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) };
             _sessionsRepoMock.Setup(c => c.ExtendSession(guid)).ReturnsAsync(session);
 
             // Act
@@ -446,7 +442,7 @@ namespace AccessControl.Controllers
             Assert.IsTrue(result.Response.IsSuccessStatusCode);
             Assert.AreEqual(session, await result.Response.Content.ReadAsAsync<Session>());
             Assert.AreEqual(token, result.Response.Headers.GetValues("Session-Token").Single());
-            _cacheMock.Verify(c => c.Set(token, session, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
+            _cacheMock.Verify(c => c.Insert(guid, session.EndTime, It.Is<Action>(a => VerifyCallback(a, session))));
         }
 
         [TestMethod]
@@ -494,21 +490,18 @@ namespace AccessControl.Controllers
         #region LoadAsync
 
         [TestMethod]
-        public async Task LoadAsync_RepositoryReturnsSessions_CachesOrTimesOutSessions()
+        public async Task LoadAsync_RepositoryReturnsSessions_CachesSessions()
         {
             // Arrange
             var session = new Session { SessionId = Guid.NewGuid(), EndTime = DateTime.UtcNow.AddDays(1) };
-            var expiredSession = new Session { SessionId = Guid.NewGuid(), EndTime = DateTime.UtcNow };
-            var sessions = new List<Session> { session, expiredSession };
+            var sessions = new List<Session> { session };
             _sessionsRepoMock.Setup(repo => repo.SelectSessions(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(sessions);
 
             // Act
             await _controller.LoadAsync();
 
             // Assert
-            var token = Session.Convert(session.SessionId);
-            _cacheMock.Verify(m => m.Set(token, session, It.Is<CacheItemPolicy>(p => VerifyPolicy(p, token)), null));
-            _sessionsRepoMock.Verify(r => r.EndSession(expiredSession.SessionId, true));
+            _cacheMock.Verify(m => m.Insert(session.SessionId, session.EndTime, It.Is<Action>(p => VerifyCallback(p, session))));
         }
 
         [TestMethod]
@@ -521,18 +514,16 @@ namespace AccessControl.Controllers
             await _controller.LoadAsync();
 
             // Assert
-            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, It.Is<Exception>(e => e.Message == "Error loading sessions from database."),
+            _logMock.Verify(l => l.LogError(WebApiConfig.LogSourceSessions, It.Is<Exception>(e => e.Message == "Error loading sessions from database."),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
         }
 
         #endregion LoadAsync
 
-        private bool VerifyPolicy(CacheItemPolicy policy, string token)
+        private bool VerifyCallback(Action callback, Session session)
         {
-            policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Evicted, new CacheItem(token)));
-            _logMock.Verify(l => l.LogError(WebApiConfig.LogSource_Sessions, "Not enough memory", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-            policy.RemovedCallback(new CacheEntryRemovedArguments(_cacheMock.Object, CacheEntryRemovedReason.Expired, new CacheItem(token)));
-            _sessionsRepoMock.Verify(r => r.EndSession(Session.Convert(token), true));
+            callback();
+            _sessionsRepoMock.Verify(r => r.EndSession(session.SessionId, session.EndTime));
             return true;
         }
     }

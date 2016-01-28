@@ -68,7 +68,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AdminStorage_Migration.sql</LastGenOutput>
     </Content>
-    <Content Include="Jobs\Blueprint_Maintenance.sql" />
+    <Content Include="Jobs\Blueprint_AdminStorage_Maintenance.sql" />
     <Content Include="Migration\7.0.1.0\7.0.1.0.sql">
       <DependentUpon>7.0.1.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -85,7 +85,6 @@
     <Content Include="Procedures\GetUserSession.sql" />
     <Content Include="Procedures\GetStatus.sql" />
     <Content Include="Procedures\SetSchemaVersion.sql" />
-    <Content Include="Procedures\WriteDBLog.sql" />
     <Content Include="Procedures\WriteLogs.sql" />
     <Content Include="RecreateAdminStorage.sql" />
     <Content Include="Procedures\BeginSession.sql" />

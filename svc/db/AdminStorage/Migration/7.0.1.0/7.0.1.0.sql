@@ -583,11 +583,10 @@ GO
 
 
 
-DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME, @owner_login_name SYSNAME
+DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)
 
-SET @blueprintDB = N'Blueprint_AdminStorage' -- REPLACE --
-SET @owner_login_name = N'sa' -- REPLACE --
+SET @blueprintDB = DB_NAME()
 SET @jobname = @blueprintDB+N'_Maintenance'
 SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
 
@@ -610,7 +609,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 		@notify_level_page=0, 
 		@delete_level=0, 
 		@description=N'Blueprint admin storage maintenance', 
-		@owner_login_name=@owner_login_name, @job_id = @jobId OUTPUT
+		@job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage

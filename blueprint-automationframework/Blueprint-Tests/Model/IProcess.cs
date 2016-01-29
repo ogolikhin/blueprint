@@ -93,16 +93,19 @@ namespace Model
         /// <summary>
         /// Byte array for the process thumbnail
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         byte[] Thumbnail { get; set; }
 
         /// <summary>
         /// Sub-artifact shapes for the process
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         IProcessShape[] Shapes { get; set; }
 
         /// <summary>
         /// Sub-artifact links for the process
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         IProcessLink[] Links { get; set; }
 
         #endregion Properties

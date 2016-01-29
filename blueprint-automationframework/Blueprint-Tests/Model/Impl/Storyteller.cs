@@ -41,7 +41,7 @@ namespace Model.Impl
             }
 
             var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, id);
-            if (versionIndex != null)
+            if (versionIndex.HasValue)
             {
                 path = I18NHelper.FormatInvariant(path + "/{0}", versionIndex);
             }

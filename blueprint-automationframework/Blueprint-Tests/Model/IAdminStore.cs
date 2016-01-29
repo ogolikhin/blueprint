@@ -85,7 +85,7 @@ namespace Model
         /// <param name="session">A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Settings dictionary. Now it is empty.</returns>
-        Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+        Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets config.js from ConfigControl.

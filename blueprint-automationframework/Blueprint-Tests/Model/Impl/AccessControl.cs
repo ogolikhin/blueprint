@@ -12,7 +12,7 @@ namespace Model.Impl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
     public class AccessControl : IAccessControl
     {
-        private const string SVC_PATH = "accesscontrol";
+        private const string SVC_PATH = "svc/accesscontrol";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         private static string _address;

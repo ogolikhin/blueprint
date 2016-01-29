@@ -169,7 +169,7 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
-        public Dictionary<string, string> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
@@ -183,7 +183,7 @@ namespace Model.Impl
 
             Logger.WriteInfo("Getting settings...");
             RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Content);
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
         }
 
         public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)

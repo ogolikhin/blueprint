@@ -40,14 +40,10 @@ namespace Model.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("/processes/{0}", SVC_PATH, id);
-            if (versionIndex == null)
+            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, id);
+            if (versionIndex.HasValue)
             {
-                
-            }
-            else
-            {
-                
+                path = I18NHelper.FormatInvariant(path + "/{0}", versionIndex);
             }
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);

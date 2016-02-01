@@ -25,5 +25,21 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         void UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <summary>
+        /// Creates a Process type artifact
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="processName"></param>
+        /// <param name="projectId"></param>
+        /// <param name="expectedStatusCodes"></param>
+        /// <returns></returns>
+        IArtifact CreateProcessArtifact(IUser user, string processName, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <summary>
+        /// Deletes the process artifact
+        /// </summary>
+        /// <param name="artifact"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        IArtifactResult DeleteProcessArtifact(IArtifact artifact, IUser user);
     }
 }

@@ -58,7 +58,24 @@ namespace Model.Impl
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-            return artifact;
+            return artifactResult.Artifact;
+        }
+
+        public IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS + "/{1}/", artifact.ProjectId, artifact.Id);
+            
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult>(path, RestRequestMethod.DELETE,  expectedStatusCodes: expectedStatusCodes);
+
+            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
+            Logger.WriteDebug(I18NHelper.FormatInvariant("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
+            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+
+            return artifactResult;
         }
     }
 }

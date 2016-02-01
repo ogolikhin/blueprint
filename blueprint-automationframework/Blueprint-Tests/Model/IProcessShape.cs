@@ -8,7 +8,8 @@ namespace Model
         Start = 1,
         UserTask = 2,
         End = 3,
-        SystemTask = 4
+        SystemTask = 4,
+        PreconditionSystemTask = 5
     }
 
     public interface IProcessShape

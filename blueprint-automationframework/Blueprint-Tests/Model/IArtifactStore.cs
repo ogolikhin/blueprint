@@ -18,5 +18,13 @@ namespace Model
         /// <returns>The artifact that was created (including the artifact ID that ArtifactStore gave it).</returns>
         /// <exception cref="WebException">A WebException sub-class if ArtifactStore returned an unexpected HTTP status code.</exception>
         IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <summary>
+        /// Deletes the specified artifact from the ArtifactStore.
+        /// </summary>
+        /// <param name="artifact"> Artifact to be deleted</param>
+        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <returns></returns>
+        IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

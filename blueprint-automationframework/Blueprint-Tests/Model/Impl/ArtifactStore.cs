@@ -67,12 +67,6 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS + "/{1}/", artifact.ProjectId, artifact.Id);
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode>();
-                expectedStatusCodes.Add(HttpStatusCode.Created);
-            }
             
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
             ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult>(path, RestRequestMethod.DELETE,  expectedStatusCodes: expectedStatusCodes);

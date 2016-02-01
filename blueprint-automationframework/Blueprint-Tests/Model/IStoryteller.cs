@@ -28,18 +28,17 @@ namespace Model
         /// <summary>
         /// Creates a Process type artifact
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="processName"></param>
-        /// <param name="projectId"></param>
-        /// <param name="expectedStatusCodes"></param>
+        /// <param name="process">The artifact to be added.</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">Expected status code for this call. By default, only '201 Success' is expected.</param>
         /// <returns></returns>
-        IArtifact CreateProcessArtifact(IUser user, string processName, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifact AddProcessArtifact(IArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
         /// <summary>
         /// Deletes the process artifact
         /// </summary>
-        /// <param name="artifact"></param>
-        /// <param name="user"></param>
+        /// <param name="process">The artifact to be deleted.</param>
+        /// <param name="user">The user credentials for the request</param>
         /// <returns></returns>
-        IArtifactResult DeleteProcessArtifact(IArtifact artifact, IUser user);
+        IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user);
     }
 }

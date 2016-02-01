@@ -29,22 +29,14 @@ namespace Model.Impl
 
         #region Inherited from IStoryteller
 
-        public IArtifact CreateProcessArtifact(IUser user, string processName, int projectId, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifact AddProcessArtifact(IArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var artifactToCreate = new Artifact()
-            {
-                Id = 0,
-                Name = processName,
-                ParentId = projectId,
-                ProjectId = projectId,
-                ArtifactTypeId = 77 // Need to find a way to determine the artifact type id from server-side
-            };
-            return _artifactStore.AddArtifact(artifactToCreate, user);
+            return _artifactStore.AddArtifact(process, user);
         }
 
-        public IArtifactResult DeleteProcessArtifact(IArtifact artifact, IUser user)
+        public IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user)
         {
-            return _artifactStore.DeleteArtifact(artifact, user);
+            return _artifactStore.DeleteArtifact(process, user);
         }
         public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {

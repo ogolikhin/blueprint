@@ -24,17 +24,17 @@ namespace FileStoreTests
         #region TestCaseSource data
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]   // It is used through reflection.
-        private readonly object[] StatusCodesAndExceptions =
+        private readonly object[] StatusCodes =
         {
-            new object[] {HttpStatusCode.BadRequest,             typeof(Http400BadRequestException)},
-            new object[] {HttpStatusCode.Unauthorized,           typeof(Http401UnauthorizedException)},
-            new object[] {HttpStatusCode.Forbidden,              typeof(Http403ForbiddenException)},
-            new object[] {HttpStatusCode.NotFound,               typeof(Http404NotFoundException)},
-            new object[] {HttpStatusCode.MethodNotAllowed,       typeof(Http405MethodNotAllowedException)},
-            new object[] {HttpStatusCode.NotAcceptable,          typeof(Http406NotAcceptableException)},
-            new object[] {HttpStatusCode.Conflict,               typeof(Http409ConflictException)},
-            new object[] {HttpStatusCode.InternalServerError,    typeof(Http500InternalServerErrorException)},
-            new object[] {HttpStatusCode.ServiceUnavailable,     typeof(Http503ServiceUnavailableException)}
+            new object[] {HttpStatusCode.BadRequest},
+            new object[] {HttpStatusCode.Unauthorized},
+            new object[] {HttpStatusCode.Forbidden},
+            new object[] {HttpStatusCode.NotFound},
+            new object[] {HttpStatusCode.MethodNotAllowed},
+            new object[] {HttpStatusCode.NotAcceptable},
+            new object[] {HttpStatusCode.Conflict},
+            new object[] {HttpStatusCode.InternalServerError},
+            new object[] {HttpStatusCode.ServiceUnavailable}
         };
 
         #endregion TestCaseSource data
@@ -107,78 +107,68 @@ namespace FileStoreTests
 
         #endregion Private helper functions
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void PostFile_AccessControlError_ExpectException(
-            HttpStatusCode accessControlError,
-            Type expectedException)
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void PostFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateFileWithRandomByteArray();
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
-                Assert.Throws(expectedException, () => { _filestore.PostFile(file, _user); },
-                    "PostFile should return a {0} error!", accessControlError);
+                Assert.DoesNotThrow(() => { _filestore.PostFile(file, _user); },
+                    "PostFile should not check AccessControl and therefore should not throw an exception!");
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void PutFile_AccessControlError_ExpectException(
-            HttpStatusCode accessControlError,
-            Type expectedException)
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void PutFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
-                Assert.Throws(expectedException, () => { _filestore.PutFile(file, file.Content.ToArray(), _user); },
+                Assert.Throws< Http401UnauthorizedException>(() => { _filestore.PutFile(file, file.Content.ToArray(), _user); },
                     "PutFile should return a {0} error!", accessControlError);
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void GetFile_AccessControlError_ExpectException(
-            HttpStatusCode accessControlError,
-            Type expectedException)
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void GetFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
 
-                Assert.Throws(expectedException, () => { _filestore.GetFile(file.Id, _user); },
-                    "GetFile should return a {0} error!", accessControlError);
+                Assert.DoesNotThrow(() => { _filestore.GetFile(file.Id, _user); },
+                    "GetFile should not check AccessControl and therefore should not throw an exception!");
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void DeleteFile_AccessControlError_ExpectException(
-            HttpStatusCode accessControlError,
-            Type expectedException)
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void DeleteFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
 
-                Assert.Throws(expectedException, () => { _filestore.DeleteFile(file.Id, _user); },
-                    "DeleteFile should return a {0} error!", accessControlError);
+                Assert.DoesNotThrow(() => { _filestore.DeleteFile(file.Id, _user); },
+                    "DeleteFile should not check AccessControl and therefore should not throw an exception!");
             }
         }
 
-        [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void GetFileMetadata_AccessControlError_ExpectException(
-            HttpStatusCode accessControlError,
-            Type expectedException)
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void GetFileMetadata_AccessControlError_ExpectException(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
 
-                Assert.Throws(expectedException, () => { _filestore.GetFileMetadata(file.Id, _user); },
-                    "GetFileMetadata should return a {0} error!", accessControlError);
+                Assert.DoesNotThrow(() => { _filestore.GetFileMetadata(file.Id, _user); },
+                    "GetFileMetadata should not check AccessControl and therefore should not throw an exception!");
             }
         }
 

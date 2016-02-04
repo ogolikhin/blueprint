@@ -4,6 +4,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using ServiceLibrary.Models;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -12,11 +13,27 @@ namespace ServiceLibrary.Repositories.ConfigControl
     [TestClass]
     public class ServiceLogRepositoryTests
     {
+        #region Constructor
+
         [TestMethod]
-        public async Task LogInformation()
+        public void Constructor_Always_CreatesDefaultDependencies()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+
+            // Act
+            var controller = new ServiceLogRepository();
+
+            // Assert
+            Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
+        }
+
+        #endregion
+
+        [TestMethod]
+        public async Task LogInformation_Success()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
 
@@ -28,10 +45,10 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         [TestMethod]
-        public async Task LogVerbose()
+        public async Task LogVerbose_Success()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
 
@@ -43,10 +60,10 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         [TestMethod]
-        public async Task LogWarning()
+        public async Task LogWarning_Success()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
 
@@ -58,10 +75,10 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         [TestMethod]
-        public async Task LogError()
+        public async Task LogError_Success()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
 
@@ -73,10 +90,10 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         [TestMethod]
-        public async Task LogErrorWithException()
+        public async Task LogErrorWithException_Success()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
             var innerEx = new ApplicationException("Inner application exception");
@@ -90,10 +107,10 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         [TestMethod]
-        public async Task LogCLog()
+        public async Task LogCLog_Success()
         {
             // Arrange
-            var httpClientProvider = new TestHttpClientProvider(null);
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
             var localLog = new Mock<ILocalLog>().Object;
             var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
             var logEntry = new CLogModel()
@@ -106,6 +123,72 @@ namespace ServiceLibrary.Repositories.ConfigControl
 
             // Act
             await servicelog.LogCLog(logEntry);
+
+            // Assert
+            // Doesn't return anything
+        }
+
+        [TestMethod]
+        public async Task LogPerformanceLog_Success()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+            var localLog = new Mock<ILocalLog>().Object;
+            var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
+            var logEntry = new PerformanceLogModel()
+            {
+                Source = "ServiceLogRepositoryTests",
+                LogLevel = LogLevelEnum.Informational,
+                Message = "Hello World",
+                UserName = "Admin"
+            };
+
+            // Act
+            await servicelog.LogPerformanceLog(logEntry);
+
+            // Assert
+            // Doesn't return anything
+        }
+
+        [TestMethod]
+        public async Task LogSQLTraceLog_Success()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+            var localLog = new Mock<ILocalLog>().Object;
+            var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
+            var logEntry = new SQLTraceLogModel()
+            {
+                Source = "ServiceLogRepositoryTests",
+                LogLevel = LogLevelEnum.Informational,
+                Message = "Hello World",
+                UserName = "Admin"
+            };
+
+            // Act
+            await servicelog.LogSQLTraceLog(logEntry);
+
+            // Assert
+            // Doesn't return anything
+        }
+
+        [TestMethod]
+        public async Task LogStandardLog_Success()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+            var localLog = new Mock<ILocalLog>().Object;
+            var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
+            var logEntry = new StandardLogModel()
+            {
+                Source = "ServiceLogRepositoryTests",
+                LogLevel = LogLevelEnum.Informational,
+                Message = "Hello World",
+                UserName = "Admin"
+            };
+
+            // Act
+            await servicelog.LogStandardLog(logEntry);
 
             // Assert
             // Doesn't return anything

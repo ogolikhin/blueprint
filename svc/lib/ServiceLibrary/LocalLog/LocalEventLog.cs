@@ -19,15 +19,19 @@ namespace ServiceLibrary.LocalLog
 
         private void CreateLogs()
         {
+            if (IsTest) return;
+
             if (!EventLog.SourceExists(LOGSOURCE))
             {
                 EventLog.CreateEventSource(LOGSOURCE, LOGNAME);
             }
         }
 
+        public bool IsTest { get; set; }
+
         public void LogError(string message)
         {
-            EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Error);
+            WriteMessage(message, EventLogEntryType.Error);
         }
 
         public void LogErrorFormat(string format, params object[] args)
@@ -37,7 +41,7 @@ namespace ServiceLibrary.LocalLog
 
         public void LogWarning(string message)
         {
-            EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Warning);
+            WriteMessage(message, EventLogEntryType.Warning);
         }
 
         public void LogWarningFormat(string format, params object[] args)
@@ -47,12 +51,19 @@ namespace ServiceLibrary.LocalLog
 
         public void LogInformation(string message)
         {
-            EventLog.WriteEntry(LOGSOURCE, message, EventLogEntryType.Information);
+            WriteMessage(message, EventLogEntryType.Information);
         }
 
         public void LogInformationFormat(string format, params object[] args)
         {
             LogInformation(I18NHelper.FormatInvariant(format, args));
+        }
+
+        private void WriteMessage(string message, EventLogEntryType type)
+        {
+            if (IsTest) return;
+
+            EventLog.WriteEntry(LOGSOURCE, message, type);
         }
     }
 }

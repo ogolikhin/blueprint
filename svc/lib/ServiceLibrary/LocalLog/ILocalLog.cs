@@ -6,6 +6,7 @@ namespace ServiceLibrary.LocalLog
 {
     public interface ILocalLog
     {
+        bool IsTest { get; set; }
         void LogError(string message);
         void LogErrorFormat(string format, params object[] args);
         void LogWarning(string message);

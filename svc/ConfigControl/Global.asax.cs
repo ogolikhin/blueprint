@@ -15,7 +15,7 @@ namespace ConfigControl
         private const string StartedLoggingListener = "Started logging listener";
         private const string LoggingListenerFailed = "Logging listener failed: {0}";
 
-        private EventListener dbListener;
+        private EventListener _dbListener;
 
         protected void Application_Start()
         {
@@ -52,16 +52,16 @@ namespace ConfigControl
                 localLog.LogInformation(StartingLoggingListener);
 
                 // Log all events to DB 
-                this.dbListener = BlueprintSqlDatabaseLog.CreateListener(
+                _dbListener = BlueprintSqlDatabaseLog.CreateListener(
                     "BlueprintSys-Blueprint-Blueprint",
                     WebApiConfig.AdminStorage,
                     bufferingInterval: TimeSpan.FromSeconds(3),
                     bufferingCount: 200);
-                dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
-                dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
-                dbListener.EnableEvents(StandardLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
-                dbListener.EnableEvents(PerformanceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
-                dbListener.EnableEvents(SQLTraceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                _dbListener.EnableEvents(BlueprintEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                _dbListener.EnableEvents(CLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                _dbListener.EnableEvents(StandardLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                _dbListener.EnableEvents(PerformanceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
+                _dbListener.EnableEvents(SQLTraceLogEventSource.Log, EventLevel.LogAlways, Keywords.All);
 
                 localLog.LogInformation(StartedLoggingListener);
             }
@@ -74,10 +74,14 @@ namespace ConfigControl
 
         private void DisposeEventTracing()
         {
-            if (dbListener != null)
+            if (_dbListener != null)
             {
-                this.dbListener.DisableEvents(BlueprintEventSource.Log);
-                this.dbListener.Dispose();
+                _dbListener.DisableEvents(BlueprintEventSource.Log);
+                _dbListener.DisableEvents(CLogEventSource.Log);
+                _dbListener.DisableEvents(StandardLogEventSource.Log);
+                _dbListener.DisableEvents(PerformanceLogEventSource.Log);
+                _dbListener.DisableEvents(SQLTraceLogEventSource.Log);
+                _dbListener.Dispose();
             }
         }
 

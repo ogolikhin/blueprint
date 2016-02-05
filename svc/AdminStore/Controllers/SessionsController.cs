@@ -179,6 +179,10 @@ namespace AdminStore.Controllers
                 }
                 return Unauthorized();
             }
+            catch (AuthenticationException ex)
+            {
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
+            }
             catch (ApplicationException)
             {
                 return Conflict();

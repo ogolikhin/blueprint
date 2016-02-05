@@ -117,11 +117,11 @@ namespace AdminStore.Repositories
 
             if (user == null) // cannot find user in the DB
             {
-                throw new AuthenticationException("Invalid user name or password");
+                throw new AuthenticationException("Invalid user name or password", ErrorCodes.InvalidCredentials);
             }
             if (!user.IsEnabled)
             {
-                throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
+                throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
             }
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);

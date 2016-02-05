@@ -121,7 +121,7 @@ namespace AdminStore.Repositories
             }
             if (!user.IsEnabled)
             {
-                throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login), ErrorCodes.AccountIsLocked);
+                throw new AuthenticationException("Your account has been locked out, please contact your Blueprint Instance Administrator.", ErrorCodes.AccountIsLocked);
             }
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);

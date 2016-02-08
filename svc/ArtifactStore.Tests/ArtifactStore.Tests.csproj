@@ -67,6 +67,12 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

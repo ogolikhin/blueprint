@@ -32,7 +32,8 @@ namespace AccessControl
                 {
                     try
                     {
-                        _sessionTimeoutInterval = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+                        var timeout = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+                        _sessionTimeoutInterval = timeout > 0 ? timeout : DefaultSessionTimeoutInterval;
                     }
                     catch (Exception)
                     {

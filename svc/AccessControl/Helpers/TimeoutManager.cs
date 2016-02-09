@@ -63,10 +63,10 @@ namespace AccessControl.Helpers
             }
         }
 
-        private void UpdateTimer()
+        private void UpdateTimer(bool force = false)
         {
             var nextTimeout = Items.Any() ? Items.First().Key.Timeout : (DateTime?)null;
-            if (_nextTimeout != nextTimeout)
+            if (force || _nextTimeout != nextTimeout)
             {
                 _nextTimeout = nextTimeout;
 
@@ -118,7 +118,7 @@ namespace AccessControl.Helpers
                     TimeoutsByItem.Remove(entry.Key.Item);
                     entry.Value();
                 }
-                UpdateTimer();
+                UpdateTimer(true);
             }
         }
 

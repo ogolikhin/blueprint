@@ -162,7 +162,7 @@ namespace AccessControl.Helpers
         #region TimerOnElapsed
 
         [TestMethod]
-        public void TimerOnElapsed_Always_InvokesCallbackAndUpdatesDictionariesAndTimer()
+        public void TimerOnElapsed_Timeout_InvokesCallbackAndUpdatesDictionariesAndTimer()
         {
             // Arrange
             var now = DateTime.UtcNow;
@@ -175,14 +175,39 @@ namespace AccessControl.Helpers
             timeoutManager.Insert(1, timeout, callback);
 
             // Act
-            timer.Setup(t => t.Now()).Returns(timeout);
+            timer.Setup(t => t.Now()).Returns(now.AddMinutes(20.0));
             timer.Raise(t => t.Elapsed += null, (EventArgs)null);
 
             // Assert
+            Assert.IsTrue(callbackInvoked);
             Assert.AreEqual(0, timeoutManager.Items.Count);
             Assert.AreEqual(0, timeoutManager.TimeoutsByItem.Count);
-            Assert.IsTrue(callbackInvoked);
             Assert.IsFalse(timer.Object.Enabled);
+        }
+
+        [TestMethod]
+        public void TimerOnElapsed_NoTimeout_DoesNotInvokeCallbackAndUpdatesDictionariesAndTimer()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
+            var timer = CreateTimer(now);
+            var log = new Mock<IServiceLogRepository>();
+            var timeoutManager = new TimeoutManager<int>(timer.Object, log.Object);
+            DateTime timeout = now.AddMinutes(20.0);
+            bool callbackInvoked = false;
+            Action callback = () => { callbackInvoked = true; };
+            timeoutManager.Insert(1, timeout, callback);
+
+            // Act
+            timer.Setup(t => t.Now()).Returns(now = now.AddMinutes(19.0));
+            timer.Raise(t => t.Elapsed += null, (EventArgs)null);
+
+            // Assert
+            Assert.IsFalse(callbackInvoked);
+            Assert.AreEqual(1, timeoutManager.Items.Count);
+            Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
+            Assert.AreEqual((timeout - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.IsTrue(timer.Object.Enabled);
         }
 
         [TestMethod]

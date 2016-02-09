@@ -77,7 +77,7 @@ namespace AccessControl.Helpers
                 Timer.Enabled = false;
                 if (_nextTimeout.HasValue)
                 {
-                    var interval = (_nextTimeout.Value - Timer.Now()).TotalMilliseconds;
+                    var interval = (_nextTimeout.Value - Timer.Now()).TotalMilliseconds + TimerWrapper.ExtraInterval;
                     if (interval <= 0)
                     {
                         TimeoutItems();
@@ -170,6 +170,7 @@ namespace AccessControl.Helpers
     /// </summary>
     internal class TimerWrapper : ITimer
     {
+        internal const double ExtraInterval = 20.0;
         private readonly Timer _timer = new Timer();
 
         public DateTime Now() { return DateTime.UtcNow; }

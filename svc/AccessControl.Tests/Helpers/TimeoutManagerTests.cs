@@ -44,7 +44,7 @@ namespace AccessControl.Helpers
             // Assert
             Assert.AreEqual(2, timeoutManager.Items.Count);
             Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout1 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout1 - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -66,7 +66,7 @@ namespace AccessControl.Helpers
             // Assert
             Assert.AreEqual(1, timeoutManager.Items.Count);
             Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -88,7 +88,7 @@ namespace AccessControl.Helpers
             // Assert
             Assert.AreEqual(2, timeoutManager.Items.Count);
             Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout2 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout2 - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -110,7 +110,7 @@ namespace AccessControl.Helpers
             // Assert
             Assert.AreEqual(2, timeoutManager.Items.Count);
             Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout2 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout2 - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -135,7 +135,7 @@ namespace AccessControl.Helpers
             Assert.AreEqual(1, timeoutManager.Items.Count);
             Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
             Assert.IsTrue(callbackInvoked);
-            Assert.AreEqual((timeout1 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout1 - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -206,7 +206,7 @@ namespace AccessControl.Helpers
             Assert.IsFalse(callbackInvoked);
             Assert.AreEqual(1, timeoutManager.Items.Count);
             Assert.AreEqual(1, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 
@@ -302,7 +302,7 @@ namespace AccessControl.Helpers
             // Assert
             Assert.AreEqual(2, timeoutManager.Items.Count);
             Assert.AreEqual(2, timeoutManager.TimeoutsByItem.Count);
-            Assert.AreEqual((timeout2 - now).TotalMilliseconds, timer.Object.Interval);
+            Assert.AreEqual((timeout2 - now).TotalMilliseconds + TimerWrapper.ExtraInterval, timer.Object.Interval);
             Assert.IsTrue(timer.Object.Enabled);
         }
 

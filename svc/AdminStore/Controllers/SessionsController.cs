@@ -70,18 +70,22 @@ namespace AdminStore.Controllers
             }
             catch (AuthenticationException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
-            catch (ApplicationException)
+            catch (ApplicationException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 return Conflict();
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 return BadRequest();
             }
             catch (FormatException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.Message));
             }
             catch (Exception ex)
@@ -171,9 +175,10 @@ namespace AdminStore.Controllers
                 var user = await _authenticationRepository.AuthenticateSamlUserAsync(samlResponse);
                 return await RequestSessionTokenAsync(user, force, true);
             }
-            catch (FederatedAuthenticationException e)
+            catch (FederatedAuthenticationException ex)
             {
-                if (e.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
+                if (ex.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
                 {
                     return BadRequest();
                 }
@@ -181,14 +186,17 @@ namespace AdminStore.Controllers
             }
             catch (AuthenticationException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
             }
-            catch (ApplicationException)
+            catch (ApplicationException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 return Conflict();
             }
-            catch (FormatException)
+            catch (FormatException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 return BadRequest();
             }
             catch (Exception ex)
@@ -233,8 +241,9 @@ namespace AdminStore.Controllers
                     return ResponseMessage(result);
                 }
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 return BadRequest();
             }
             catch (Exception ex)

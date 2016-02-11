@@ -9,7 +9,7 @@ namespace Model.Impl
 {
     public class Storyteller : IStoryteller
     {
-        private const string SVC_PATH = "Storyteller/api";
+        private const string SVC_PATH = "svc/components/storyteller";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         private IArtifactStore _artifactStore;

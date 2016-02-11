@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Saml;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
 {
@@ -16,17 +18,20 @@ namespace AdminStore.Repositories
 
         private readonly ISamlRepository _samlRepository;
 
+        private readonly IServiceLogRepository _log;
+
         public AuthenticationRepository()
-            : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository())
+            : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository(), new ServiceLogRepository())
         {
         }
 
-        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository)
+        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository, IServiceLogRepository logRepository)
         {
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
             _ldapRepository = ldapRepository;
             _samlRepository = samlRepository;
+            _log = logRepository;
         }
 
         public async Task<AuthenticationUser> AuthenticateUserAsync(string login, string password)
@@ -38,6 +43,7 @@ namespace AdminStore.Repositories
             var user = await _userRepository.GetUserByLoginAsync(login);
             if (user == null)
             {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", login));
                 throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
             }
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
@@ -85,6 +91,7 @@ namespace AdminStore.Repositories
                     break;
                 case AuthenticationStatus.InvalidCredentials:
                     await LockUserIfApplicable(user, instanceSettings);
+                    await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Invalid password for user '{0}'", user.Login));
                     throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
                 case AuthenticationStatus.PasswordExpired:
                     throw new AuthenticationException(string.Format("User password expired for the login: {0}", user.Login), ErrorCodes.PasswordExpired);
@@ -117,11 +124,12 @@ namespace AdminStore.Repositories
 
             if (user == null) // cannot find user in the DB
             {
-                throw new AuthenticationException("Invalid user name or password");
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", principal.Identity.Name));
+                throw new AuthenticationException("Invalid user name or password", ErrorCodes.InvalidCredentials);
             }
             if (!user.IsEnabled)
             {
-                throw new AuthenticationException(string.Format("User account is locked out for the login: {0}", user.Login));
+                throw new AuthenticationException("Your account has been locked out, please contact your Blueprint Instance Administrator.", ErrorCodes.AccountIsLocked);
             }
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);

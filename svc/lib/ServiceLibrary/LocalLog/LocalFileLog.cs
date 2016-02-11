@@ -22,6 +22,8 @@ namespace ServiceLibrary.LocalLog
             _file = new FileInfo(fileName);
         }
 
+        public bool IsTest { get; set; }    
+
         public void LogError(string message)
         {
             WriteMessage("Error", message);
@@ -54,11 +56,15 @@ namespace ServiceLibrary.LocalLog
 
         private void WriteMessage(string level, string message)
         {
+            if (IsTest) return;
+
             try
             {
                 lock (this.lockObject)
                 {
-                    using (var writer = new StreamWriter(_file.Open(FileMode.Append, FileAccess.Write, FileShare.Read)))
+                    using (
+                        var writer = new StreamWriter(_file.Open(FileMode.Append, FileAccess.Write, FileShare.Read))
+                        )
                     {
                         writer.WriteLine(I18NHelper.FormatInvariant("[{0}] [{1}] {2}", level, DateTime.Now, message));
                         writer.Flush();

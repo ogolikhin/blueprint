@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using CustomAttributes;
 using Helper;
@@ -107,70 +106,167 @@ namespace FileStoreTests
 
         #endregion Private helper functions
 
+        #region Success tests
+
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void PostFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
+        public void PostFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateFileWithRandomByteArray();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { _filestore.PostFile(file, _user); },
-                    "PostFile should not check AccessControl and therefore should not throw an exception!");
+                    "PostFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
             }
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void PutFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
+        public void PutFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
+
+                Assert.DoesNotThrow(() => { _filestore.PutFile(file, file.Content.ToArray(), _user); },
+                    "PutFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void GetFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                IFile file = CreateAndAddFile();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
+
+                Assert.DoesNotThrow(() => { _filestore.GetFile(file.Id, _user); },
+                    "GetFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void DeleteFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                IFile file = CreateAndAddFile();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
+
+                Assert.DoesNotThrow(() => { _filestore.DeleteFile(file.Id, _user); },
+                    "DeleteFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void GetFileMetadata_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                IFile file = CreateAndAddFile();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
+
+                Assert.DoesNotThrow(() => { _filestore.GetFileMetadata(file.Id, _user); },
+                    "GetFileMetadata should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+            }
+        }
+
+        #endregion Success tests
+
+        #region Error tests
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void PostFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                IFile file = CreateFileWithRandomByteArray();
+
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
+
+                Assert.Throws<Http401UnauthorizedException>(() => { _filestore.PostFile(file, _user); },
+                    "PostFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        public void PutFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                IFile file = CreateAndAddFile();
+
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
                 Assert.Throws< Http401UnauthorizedException>(() => { _filestore.PutFile(file, file.Content.ToArray(), _user); },
-                    "PutFile should return a {0} error!", accessControlError);
+                    "PutFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void GetFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
+        public void GetFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
-                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
 
-                Assert.DoesNotThrow(() => { _filestore.GetFile(file.Id, _user); },
-                    "GetFile should not check AccessControl and therefore should not throw an exception!");
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
+
+                Assert.Throws<Http401UnauthorizedException>(() => { _filestore.GetFile(file.Id, _user); },
+                    "GetFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void DeleteFile_AccessControlError_ExpectException(HttpStatusCode accessControlError)
+        public void DeleteFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
-                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
 
-                Assert.DoesNotThrow(() => { _filestore.DeleteFile(file.Id, _user); },
-                    "DeleteFile should not check AccessControl and therefore should not throw an exception!");
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
+
+                Assert.Throws<Http401UnauthorizedException>(() => { _filestore.DeleteFile(file.Id, _user); },
+                    "DeleteFile should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void GetFileMetadata_AccessControlError_ExpectException(HttpStatusCode accessControlError)
+        public void GetFileMetadata_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 IFile file = CreateAndAddFile();
-                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
 
-                Assert.DoesNotThrow(() => { _filestore.GetFileMetadata(file.Id, _user); },
-                    "GetFileMetadata should not check AccessControl and therefore should not throw an exception!");
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
+
+                Assert.Throws<Http401UnauthorizedException>(() => { _filestore.GetFileMetadata(file.Id, _user); },
+                    "GetFileMetadata should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
 
+        #endregion Error tests
     }
 }

@@ -4,6 +4,10 @@ namespace Model.Impl
 {
     public class Trace : ITrace
     {
+
+    }
+    public class OpenApiTrace : Trace, IOpenApiTrace
+    {
         public string Type { get; set; }
         public string Direction { get; set; }
         public int ProjectId { get; set; }

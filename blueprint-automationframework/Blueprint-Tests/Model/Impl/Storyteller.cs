@@ -34,7 +34,7 @@ namespace Model.Impl
             return _artifactStore.AddArtifact(process, user);
         }
 
-        public IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user)
+        public IArtifactResultBase DeleteProcessArtifact(IArtifact process, IUser user)
         {
             return _artifactStore.DeleteArtifact(process, user);
         }

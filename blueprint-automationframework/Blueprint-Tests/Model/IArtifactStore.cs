@@ -25,6 +25,6 @@ namespace Model
         /// <param name="user">The user to authenticate to the ArtifactStore.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.</param>
         /// <returns></returns>
-        IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifactResultBase DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -10,4 +10,12 @@ namespace Model.Impl
         public string Message { get; set; }
         public string ResultCode { get; set; }
     }
+
+    public class OpenApiArtifactResult : IOpenApiArtifactResult
+    {
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
+        public IOpenApiArtifact Artifact { get; set; }
+        public string Message { get; set; }
+        public string ResultCode { get; set; }
+    }
 }

@@ -10,14 +10,16 @@ namespace OpenAPITests
     [Category(Categories.OpenApi)]
     public class ArtifactTests
     {
-        //private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
         private IUser _user = null;
-        private IArtifactStore _artifactStore = ArtifactStoreFactory.CreateArtifactStore("http://bpakvmsys08:8080/");
+        private IProject _project = null;
+        private IOpenApiArtifact _artifact = null;
 
         [SetUp]
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
+            _project = ProjectFactory.GetProject();
+            _artifact = ArtifactFactory.CreateArtifactFromTestConfig();
         }
 
         [TearDown]
@@ -32,21 +34,20 @@ namespace OpenAPITests
 
         [Test]
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        public void ArtifactCreation()
-        {
-            ArtifactCreation(1, 90);
-        }
-
         /// <summary>
-        /// Create an artifact under the existing project .
+        /// Create an "Actor" type artifact under the existing project .
         /// </summary>
-        /// <param name="projectId">(Optional) The ID of the existing project Id.</param>
-        /// <param name="artifactTypeId">(Optional) The ID of artifactTypeId</param>
+        /// <param name="_project">the existing project</param>
+        /// <param name="_artifact">artifact object that contain artifactType information belong to property</param>
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
-        private void ArtifactCreation(int projectId = 0, int artifactTypeId = 0)
+        public void AddArtifact_Actor()
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(projectId, artifactTypeId);
-            _artifactStore.AddArtifact(artifact,_user);
+            //Set artifact Type with an actor type
+            _artifact.ArtifactTypeName = "Actor";
+            //update the artifact object for the target project 
+            _artifact = _artifact.UpdateArtifact(_project, _artifact, "Description", "DescriptionValue");
+            //add the created artifact object into BP using OpenAPI call
+            _artifact.AddArtifact(_artifact, _user);
         }
     }
 }

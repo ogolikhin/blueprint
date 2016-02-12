@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Model.Impl
+﻿namespace Model.Impl
 {
     public class Comment : IComment
+    {
+
+    }
+
+    public class OpenApiComment : Comment, IOpenApiComment
     {
         public string LastModified { get; set; }
         public bool IsClosed { get; set; }

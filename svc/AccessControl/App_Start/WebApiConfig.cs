@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Web.Http;
 using AccessControl.Controllers;
 using AccessControl.Helpers;
@@ -18,9 +19,31 @@ namespace AccessControl
             new SessionsController().LoadAsync();
         }
 
+        private const int DefaultSessionTimeoutInterval = 1200;
+
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-        public static int SessionTimeoutInterval = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+        private static int? _sessionTimeoutInterval;
+        public static int SessionTimeoutInterval
+        {
+            get
+            {
+                if (!_sessionTimeoutInterval.HasValue)
+                {
+                    try
+                    {
+                        var timeout = I18NHelper.Int32ParseInvariant(ConfigurationManager.AppSettings["SessionTimeoutInterval"]);
+                        _sessionTimeoutInterval = timeout > 0 ? timeout : DefaultSessionTimeoutInterval;
+                    }
+                    catch (Exception)
+                    {
+                        _sessionTimeoutInterval = DefaultSessionTimeoutInterval;
+                    }
+                }
+
+                return _sessionTimeoutInterval.Value;
+            }
+        }
 
         public static int LicenseHoldTime = LicenceHelper.GetLicenseHoldTime(
             ConfigurationManager.AppSettings["LHTSetting"], 1440);

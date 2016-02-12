@@ -6,6 +6,7 @@ using AdminStore.Models;
 using AdminStore.Saml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Repositories
 {
@@ -16,6 +17,7 @@ namespace AdminStore.Repositories
         private static Mock<ISqlSettingsRepository> _sqlSettingsRepositoryMock;
         private static Mock<ILdapRepository> _ldapRepositoryMock;
         private static Mock<ISamlRepository> _samlRepositoryMock;
+        private static Mock<IServiceLogRepository> _logRepositoryMock;
         private const string Login = "admin";
         private const string Password = "changeme";
         private const string HashedPassword = "ALqCo8odf0FtFQBndSz1dH8P2bSIDmSqjGjTj4fj+Ao=";
@@ -39,6 +41,7 @@ namespace AdminStore.Repositories
 
             _ldapRepositoryMock = new Mock<ILdapRepository>();
             _samlRepositoryMock = new Mock<ISamlRepository>();
+            _logRepositoryMock = new Mock<IServiceLogRepository>();
         }
 
         #region AuthenticateUserAsync
@@ -51,7 +54,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync("", Password);
 
@@ -67,7 +71,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, "");
 
@@ -85,7 +90,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(fakeLogin, Password);
 
@@ -104,7 +110,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -126,7 +133,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -146,7 +154,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -167,7 +176,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -189,7 +199,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             try
             {
@@ -213,7 +224,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -231,7 +243,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, dummyPassword);
 
@@ -249,7 +262,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -270,7 +284,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -290,7 +305,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -309,7 +325,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -329,7 +346,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -351,7 +369,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateUserAsync(Login, Password);
 
@@ -370,7 +389,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act & Assert
             try
             {
@@ -393,7 +413,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act & Assert
             try
             {
@@ -418,7 +439,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act & Assert
             try
             {
@@ -442,7 +464,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateSamlUserAsync("fakeSamlResponce");
 
@@ -458,7 +481,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateSamlUserAsync(null);
 
@@ -478,7 +502,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateSamlUserAsync("fakeSamlResponce");
 
@@ -510,7 +535,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             var result = await authenticationRepository.AuthenticateSamlUserAsync(samlEncodedResponse);
 
@@ -542,7 +568,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateSamlUserAsync(samlEncodedResponse);
 
@@ -571,7 +598,8 @@ namespace AdminStore.Repositories
             var authenticationRepository = new AuthenticationRepository(_sqlUserRepositoryMock.Object,
                                                                         _sqlSettingsRepositoryMock.Object,
                                                                         _ldapRepositoryMock.Object,
-                                                                        _samlRepositoryMock.Object);
+                                                                        _samlRepositoryMock.Object,
+                                                                        _logRepositoryMock.Object);
             // Act
             await authenticationRepository.AuthenticateSamlUserAsync(samlEncodedResponse);
 

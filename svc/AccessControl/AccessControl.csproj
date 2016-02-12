@@ -99,6 +99,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\LicensesController.cs" />

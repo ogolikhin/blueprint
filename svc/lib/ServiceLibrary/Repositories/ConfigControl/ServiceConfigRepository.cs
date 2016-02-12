@@ -20,17 +20,17 @@ namespace ServiceLibrary.Repositories.ConfigControl
             _httpClientProvider = hcp;
         }
 
-        public async Task<Dictionary<string, Dictionary<string, string>>> GetConfig()
-        {
-            var uri = ConfigurationManager.AppSettings["ConfigControl"] + "true";
-            using (var http = _httpClientProvider.Create())
-            {
-                http.BaseAddress = new Uri(uri);
-                http.DefaultRequestHeaders.Accept.Clear();
-                var result = await http.GetAsync("settings");
-                result.EnsureSuccessStatusCode();
-                return JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(await result.Content.ReadAsStringAsync());
-            }
-        }
+        //public async Task<Dictionary<string, Dictionary<string, string>>> GetConfig()
+        //{
+        //    var uri = ConfigurationManager.AppSettings["ConfigControl"] + "true";
+        //    using (var http = _httpClientProvider.Create())
+        //    {
+        //        http.BaseAddress = new Uri(uri);
+        //        http.DefaultRequestHeaders.Accept.Clear();
+        //        var result = await http.GetAsync("settings");
+        //        result.EnsureSuccessStatusCode();
+        //        return JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(await result.Content.ReadAsStringAsync());
+        //    }
+        //}
     }
 }

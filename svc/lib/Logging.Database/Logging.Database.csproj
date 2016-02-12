@@ -59,6 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\SolutionAssemblyInfo.cs">
+      <Link>Properties\SolutionAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SolutionAssemblyVersion.cs">
+      <Link>Properties\SolutionAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="Configuration\BlueprintSqlDatabaseSinkElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\DbConnectionExtensions.cs" />

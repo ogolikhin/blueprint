@@ -38,7 +38,7 @@ namespace Model
         List<IOpenApiAttachment> Attachments { get; }
         void SetProperties(List<IOpenApiProperty> properties);
         void UpdateArtifactType(int projectId, IOpenApiArtifact artifact);
-        IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IOpenApiArtifactResult AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
         IOpenApiArtifact UpdateArtifact(IProject project, IOpenApiArtifact artifact, string propertyName = null, string propertyValue = null);
     }
 }

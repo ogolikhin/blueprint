@@ -213,15 +213,15 @@ namespace Model.Impl
             artifact.ArtifactTypeId = query_artifactTypeId;
         }
 
-                /// <summary>
+        /// <summary>
         /// Adds the specified artifact to ArtifactStore.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
         /// <param name="user">The user to authenticate to the ArtifactStore.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact that was created (including the artifact ID that ArtifactStore gave it).</returns>
+        /// <returns>The artifact result after adding artifact.</returns>
         /// <exception cref="WebException">A WebException sub-class if ArtifactStore returned an unexpected HTTP status code.</exception>
-        public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IOpenApiArtifactResult AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -242,7 +242,7 @@ namespace Model.Impl
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-            return artifact;
+            return artifactResult;
         }
 
         /// <summary>

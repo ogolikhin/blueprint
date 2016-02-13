@@ -13,6 +13,9 @@ namespace AdminStore
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            // Init shared HttpClients
+            ConfigControlHttpClientLocator.InitDefaultInstance();
         }
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;

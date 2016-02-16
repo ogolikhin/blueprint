@@ -2,9 +2,10 @@
 using CustomAttributes;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Net;
 
 namespace OpenAPITests
@@ -49,39 +50,51 @@ namespace OpenAPITests
             //Set artifact Type with an actor type
             _artifact.ArtifactTypeName = "Actor";
 
-            //update the artifact object for the target project 
-            _artifact.UpdateArtifact(_project, _artifact, "Description", "DescriptionValue");
+            //Update artifact with artifactTypeId and artifactTypeName based on the target project
+            _artifact.UpdateArtifactType(_project.Id, _artifact);
 
-            //add the created artifact object into BP using OpenAPI call
-            var artifactResult = _artifact.AddArtifact(_artifact, _user);
+            //create Description property
+            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
+            IOpenApiProperty property = new OpenApiProperty();
+            properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
 
-            //TODO Assertion to check ResultCode
-            Assert.That(artifactResult.Message == "Success", I18NHelper.FormatInvariant("The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, "Success"));
-            
-            //Assertion to check ResultCode
-            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture), I18NHelper.FormatInvariant("The returned ResultCode was '{0}' but '{1}' was expected", artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture)));
+            //update the artifact attributes 
+            _artifact.UpdateArtifactAttributes(_artifact, properties);
+
+            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            _artifact.AddArtifact(_artifact, _user);
+            // TODO more assertion?
         }
 
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_01.txt")]
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_02.txt")]
         [Explicit(IgnoreReasons.UnderDevelopment)]
+        /// <summary>
+        /// Create an "Actor" type artifact under the existing project, adding RTF value in RTF supported property field
+        /// </summary>
+        /// <param name="_project">the existing project</param>
+        /// <param name="_artifact">artifact object that contain artifactType information belong to property</param>
+        /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
         public void AddArtifact_Actor_With(string sampleTextPath)
         {
-            var text = File.ReadAllText(sampleTextPath);
+            var text = System.IO.File.ReadAllText(sampleTextPath);
             //Set artifact Type with an actor type
             _artifact.ArtifactTypeName = "Actor";
 
-            //update the artifact object for the target project 
-            _artifact.UpdateArtifact(_project, _artifact, "Description", text);
+            //Update artifact with artifactTypeId and artifactTypeName based on the target project
+            _artifact.UpdateArtifactType(_project.Id, _artifact);
 
-            //add the created artifact object into BP using OpenAPI call
-            IOpenApiArtifactResult artifactResult = _artifact.AddArtifact(_artifact, _user);
+            //create Description property
+            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
+            IOpenApiProperty property = new OpenApiProperty();
+            properties.Add(property.GetProperty(_project, "Description", text));
 
-            //TODO Assertion to check ResultCode
-            Assert.That(artifactResult.Message == "Success", I18NHelper.FormatInvariant("The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, "Success"));
-            
-            //Assertion to check ResultCode
-            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture), I18NHelper.FormatInvariant("The returned ResultCode was '{0}' but '{1}' was expected", artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture)));
+            //update the artifact attributes  
+            _artifact.UpdateArtifactAttributes(_artifact, properties);
+
+            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            _artifact.AddArtifact(_artifact, _user);
+            // TODO more assertion?
         }
     }
 }

@@ -3,7 +3,7 @@
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces")] // Ignore this warning.
     public interface IAttachment
     {
-
+        // TODO Future development
     }
 
     public interface IOpenApiAttachment : IAttachment

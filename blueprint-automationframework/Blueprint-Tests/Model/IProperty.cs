@@ -5,7 +5,7 @@ namespace Model
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces")] // Ignore this warning.
     public interface IProperty
     {
-
+        // TODO Future development
     }
 
     public interface IOpenApiProperty : IProperty
@@ -19,6 +19,13 @@ namespace Model
         List<object> UsersAndGroups { get; }
         List<object> Choices { get; }
         string DateValue { get; set; }
-        IOpenApiProperty CreatePropertyBasedonDB(IProject project, string propertyName, string propertyValue = null);
+
+        /// TODO: need to be updated for future script update
+        /// <summary>
+        /// Create a property object based on the information from DB
+        /// <param name="projectId">project Id</param>
+        /// <param name="propertyName">property Name</param>
+        /// <param name="propertyValue">(optional) property Name</param>
+        IOpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null);
     }
 }

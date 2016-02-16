@@ -38,7 +38,13 @@ namespace Model
         List<IOpenApiAttachment> Attachments { get; }
         void SetProperties(List<IOpenApiProperty> properties);
         void UpdateArtifactType(int projectId, IOpenApiArtifact artifact);
-        IOpenApiArtifactResult AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-        IOpenApiArtifact UpdateArtifact(IProject project, IOpenApiArtifact artifact, string propertyName = null, string propertyValue = null);
+        IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <summary>
+        /// populate artifact attributes with required values
+        /// </summary>
+        /// <param name="artifact">The artifact object that contains artifactType information.</param>
+        /// <param name="properties">The properties that will be added to target artifact.</param>
+        /// <returns>The updated artifact object with auto-generated name and a required assigned property</returns>
+        IOpenApiArtifact UpdateArtifactAttributes(IOpenApiArtifact artifact, List<IOpenApiProperty> properties);
     }
 }

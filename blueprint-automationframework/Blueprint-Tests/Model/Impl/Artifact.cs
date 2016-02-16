@@ -10,12 +10,13 @@ using Utilities.Facades;
 using Utilities.Factories;
 using System.Data.SqlClient;
 using System.Globalization;
+using NUnit.Framework;
 
 namespace Model.Impl
 {
     public class Artifact : IArtifact
     {
-
+        // TODO update the const strings based on new api artifact specification
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
         private const string URL_PUBLISH = "api/v1/vc/publish";
@@ -45,7 +46,7 @@ namespace Model.Impl
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="address">The URI address of the Artifact REST API</param>
+        /// <param name="address">(optional) The URI address of the Artifact REST API</param>
         public Artifact(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -53,13 +54,13 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Adds the specified artifact to ArtifactStore.
+        /// Adds the specified artifact to blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate to blueprint.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact that was created (including the artifact ID that ArtifactStore gave it).</returns>
-        /// <exception cref="WebException">A WebException sub-class if ArtifactStore returned an unexpected HTTP status code.</exception>
+        /// <returns>The artifact that was created.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -73,15 +74,15 @@ namespace Model.Impl
                 expectedStatusCodes.Add(HttpStatusCode.Created);
             }
 
-            Artifact artractObject = (Artifact)artifact;
+            Artifact artifactObject = (Artifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, Artifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
+            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, Artifact>(path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-            return artifact;
+            return artifactResult.Artifact;
         }
 
         public IArtifactResultBase DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
@@ -168,13 +169,14 @@ namespace Model.Impl
             }
             Properties = properties;
         }
-        
+
         /// <summary>
         /// Update an artifact object with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
         /// </summary>
         /// <param name="project">The target project.</param>
         /// <param name="artifact">The artifact object that contains artifactType information.</param>
-        /// 
+        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
+        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
         public void UpdateArtifactType(int projectId, IOpenApiArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -196,32 +198,41 @@ namespace Model.Impl
                     cmd.Parameters.Add("@Project_ItemId", SqlDbType.Int).Value = projectId;
                     cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = artifact.ArtifactTypeName;
                     cmd.CommandType = CommandType.Text;
-                    using (reader = cmd.ExecuteReader())
+
+                    try
                     {
-                        if (reader.HasRows)
+                        using (reader = cmd.ExecuteReader())
                         {
-                            reader.Read();
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+                            }
+                            query_projectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
+                            query_artifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
+                            query_artifactTypeName = reader["Name"].ToString();
+
+                            artifact.ArtifactTypeName = query_artifactTypeName;
+                            artifact.ProjectId = query_projectId;
+                            artifact.ArtifactTypeId = query_artifactTypeId;
                         }
-                        query_projectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
-                        query_artifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
-                        query_artifactTypeName = reader["Name"].ToString();
+                    }
+                    catch(System.InvalidOperationException ex)
+                    {
+                        Logger.WriteError("No artifact type is available which matches with condition. Exception details - {0}", ex);
                     }
                 }
             }
-            artifact.ArtifactTypeName = query_artifactTypeName;
-            artifact.ProjectId = query_projectId;
-            artifact.ArtifactTypeId = query_artifactTypeId;
         }
 
         /// <summary>
-        /// Adds the specified artifact to ArtifactStore.
+        /// Adds the specified artifact to blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate to blueprint.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
         /// <returns>The artifact result after adding artifact.</returns>
-        /// <exception cref="WebException">A WebException sub-class if ArtifactStore returned an unexpected HTTP status code.</exception>
-        public IOpenApiArtifactResult AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -234,46 +245,35 @@ namespace Model.Impl
                 expectedStatusCodes.Add(HttpStatusCode.Created);
             }
 
-            OpenApiArtifact artractObject = (OpenApiArtifact)artifact;
+            OpenApiArtifact artifactObject = (OpenApiArtifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            OpenApiArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(path, RestRequestMethod.POST, artractObject, expectedStatusCodes: expectedStatusCodes);
+            OpenApiArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-            return artifactResult;
+            //TODO Assertion to check Message
+            Assert.That(artifactResult.Message == "Success", I18NHelper.FormatInvariant("The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, "Success"));
+
+            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture), I18NHelper.FormatInvariant("The returned ResultCode was '{0}' but '{1}' was expected", artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture)));
+
+            return artifactResult.Artifact;
         }
 
         /// <summary>
-        /// Update an artifact object for the target project.
+        /// populate artifact attributes with required values
         /// </summary>
-        /// <param name="project">The target project.</param>
         /// <param name="artifact">The artifact object that contains artifactType information.</param>
-        /// <param name="propertyName">(optional) The property name that will be added for the artifact.</param>
-        /// <param name="propertyValue">(optional) The property value that will be added for the artifact.</param>
+        /// <param name="properties">The properties that will be added to target artifact.</param>
         /// <returns>The updated artifact object with auto-generated name and a required assigned property</returns>
-        /// 
-        public IOpenApiArtifact UpdateArtifact(IProject project, IOpenApiArtifact artifact, string propertyName = null, string propertyValue = null)
+        public IOpenApiArtifact UpdateArtifactAttributes(IOpenApiArtifact artifact, List<IOpenApiProperty> properties)
         {
-            ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(properties, nameof(properties));
             artifact.Name = "REST_Artifact_" + RandomGenerator.RandomAlphaNumeric(5);
-            if (propertyName == null)
-            {
-                propertyName = "Description";
-            }
-            if (propertyValue == null)
-            {
-                propertyValue = "DescriptionValue";
-            }
-            UpdateArtifactType(project.Id, artifact);
-            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
-            IOpenApiProperty property = new OpenApiProperty();
-            properties.Add(property.CreatePropertyBasedonDB(project, propertyName, propertyValue));
             artifact.SetProperties(properties);
             return artifact;
         }
-
     }
 }

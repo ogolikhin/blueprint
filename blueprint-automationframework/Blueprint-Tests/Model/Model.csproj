@@ -70,7 +70,6 @@
     <Compile Include="Factories\FileFactory.cs" />
     <Compile Include="Factories\FileStoreFactory.cs" />
     <Compile Include="Factories\ProjectFactory.cs" />
-    <Compile Include="Factories\PropertyFactory.cs" />
     <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
     <Compile Include="Factories\SessionFactory.cs" />
     <Compile Include="Factories\UserFactory.cs" />
@@ -108,14 +107,14 @@
     <Compile Include="IGenericDiagram.cs" />
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
-	<Compile Include="ILicenseActivity.cs" />
+    <Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AccessControl.cs" />
-	<Compile Include="Impl\AccessControlLicensesInfo.cs" />
+    <Compile Include="Impl\AccessControlLicensesInfo.cs" />
     <Compile Include="Impl\AdminStore.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
-    <Compile Include="Impl\Attachement.cs" />
+    <Compile Include="Impl\Attachment.cs" />
     <Compile Include="Impl\BlueprintServer.cs" />
     <Compile Include="Impl\BlueprintToken.cs" />
     <Compile Include="Impl\Comment.cs" />

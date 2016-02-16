@@ -73,8 +73,6 @@ namespace ServiceLibrary.Attributes
             var uri = ConfigurationManager.AppSettings[AccessControl];
             using (var http = _httpClientProvider.Create(new Uri(uri)))
             {
-                http.BaseAddress = new Uri(uri);
-                http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
                 var result = await http.PutAsync("sessions", null);
                 result.EnsureSuccessStatusCode();

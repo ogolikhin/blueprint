@@ -34,15 +34,13 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create(new Uri(uri)))
-                {
-                    HttpResponseMessage response = await http.GetAsync("status");
+                var http = _httpClientProvider.Create(new Uri(uri));
 
-                    response.EnsureSuccessStatusCode();
+                HttpResponseMessage response = await http.GetAsync("status");
 
-                    status = true;
-                }
+                response.EnsureSuccessStatusCode();
 
+                status = true;
             }
             catch (Exception ex)
             {

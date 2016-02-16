@@ -54,16 +54,15 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
-                {
-                    var request = new HttpRequestMessage { RequestUri = new Uri("settings/false"), Method = HttpMethod.Get };
-                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                    var result = await http.SendAsync(request);
-                    result.EnsureSuccessStatusCode();
-                    var response = Request.CreateResponse(HttpStatusCode.OK);
-                    response.Content = result.Content;
-                    return ResponseMessage(response);
-                }
+                var uri = new Uri(WebApiConfig.ConfigControl);
+                var http = _httpClientProvider.Create(uri);
+                var request = new HttpRequestMessage { RequestUri = new Uri(uri, "settings/false"), Method = HttpMethod.Get };
+                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                var result = await http.SendAsync(request);
+                result.EnsureSuccessStatusCode();
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                response.Content = result.Content;
+                return ResponseMessage(response);
             }
             catch (Exception ex)
             {
@@ -92,14 +91,13 @@ namespace AdminStore.Controllers
             try
             {
                 Dictionary<string, Dictionary<string, string>> settings;
-                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
-                {
-                    var request = new HttpRequestMessage { RequestUri = new Uri("settings/false"), Method = HttpMethod.Get };
-                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                    var result = await http.SendAsync(request);
-                    result.EnsureSuccessStatusCode();
-                    settings = await result.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
-                }
+                var uri = new Uri(WebApiConfig.ConfigControl);
+                var http = _httpClientProvider.Create(uri);
+                var request = new HttpRequestMessage { RequestUri = new Uri(uri, "settings/false"), Method = HttpMethod.Get };
+                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                var result = await http.SendAsync(request);
+                result.EnsureSuccessStatusCode();
+                settings = await result.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
                 var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
                 var labels = await _configRepo.GetLabels(locale);
                 var config = "window.config = { settings: {" + SerializeSettings(settings) + "}, labels: {" + SerializeLabels(labels) + "} };";

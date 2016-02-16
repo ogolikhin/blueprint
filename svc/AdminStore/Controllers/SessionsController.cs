@@ -98,38 +98,33 @@ namespace AdminStore.Controllers
         {
             try
             {
+                var http = _httpClientProvider.Create(new Uri(WebApiConfig.AccessControl));
                 if (!force)
                 {
-                    using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.AccessControl)))
+                    var result2 = await http.GetAsync("sessions/" + user.Id);
+                    if (result2.IsSuccessStatusCode) // session exists
                     {
-                        var result = await http.GetAsync("sessions/" + user.Id);
-                        if (result.IsSuccessStatusCode) // session exists
-                        {
-                            throw new ApplicationException("Conflict");
-                        }
+                        throw new ApplicationException("Conflict");
                     }
                 }
-                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.AccessControl)))
-                {
-                    var queryParams = HttpUtility.ParseQueryString(string.Empty);
-                    queryParams.Add("userName", user.Login);
-                    queryParams.Add("licenseLevel", user.LicenseType.ToString());
-                    queryParams.Add("isSso", isSso.ToString());
+                var queryParams = HttpUtility.ParseQueryString(string.Empty);
+                queryParams.Add("userName", user.Login);
+                queryParams.Add("licenseLevel", user.LicenseType.ToString());
+                queryParams.Add("isSso", isSso.ToString());
 
-                    var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
-                    if (!result.IsSuccessStatusCode)
-                    {
-                        throw new ServerException();
-                    }
-                    var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
-                    var response = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new StringContent(token),
-                        StatusCode = HttpStatusCode.OK
-                    };
-                    response.Headers.Add("Session-Token", token);
-                    return ResponseMessage(response);
+                var result = await http.PostAsJsonAsync("sessions/" + user.Id + "?" + queryParams, user.Id);
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new ServerException();
                 }
+                var token = result.Headers.GetValues("Session-Token").FirstOrDefault();
+                var response = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(token),
+                    StatusCode = HttpStatusCode.OK
+                };
+                response.Headers.Add("Session-Token", token);
+                return ResponseMessage(response);
             }
             catch (ApplicationException)
             {
@@ -215,21 +210,20 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.AccessControl)))
+                var uri = new Uri(WebApiConfig.AccessControl);
+                var http = _httpClientProvider.Create(uri);
+                if (!Request.Headers.Contains("Session-Token"))
                 {
-                    if (!Request.Headers.Contains("Session-Token"))
-                    {
-                        throw new ArgumentNullException();
-                    }
-                    var request = new HttpRequestMessage { RequestUri = new Uri("sessions"), Method = HttpMethod.Delete };
-                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                    var result = await http.SendAsync(request);
-                    if (result.IsSuccessStatusCode)
-                    {
-                        return Ok();
-                    }
-                    return ResponseMessage(result);
+                    throw new ArgumentNullException();
                 }
+                var request = new HttpRequestMessage { RequestUri = new Uri(uri, "sessions"), Method = HttpMethod.Delete };
+                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
+                var result = await http.SendAsync(request);
+                if (result.IsSuccessStatusCode)
+                {
+                    return Ok();
+                }
+                return ResponseMessage(result);
             }
             catch (ArgumentNullException ex)
             {

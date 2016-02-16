@@ -22,7 +22,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
                     return new HttpResponseMessage(HttpStatusCode.OK);
                 }
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }, ConfigControlHttpClientLocator.InitFromConfig);
+            });
             var servicelog = new StatusRepository(httpClientProvider, new LocalFileLog());
 
             // Act

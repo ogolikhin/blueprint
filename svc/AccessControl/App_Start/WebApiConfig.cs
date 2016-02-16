@@ -16,9 +16,6 @@ namespace AccessControl
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            // Init shared HttpClients
-            ConfigControlHttpClientLocator.InitDefaultInstance();
-
             new SessionsController().LoadAsync();
         }
 

@@ -1,6 +1,7 @@
 ﻿using ServiceLibrary.Helpers;
 using ServiceLibrary.LocalLog;
 using System;
+using System.Configuration;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -14,7 +15,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         private readonly ILocalLog _localLog;
 
         public StatusRepository()
-            : this(ConfigControlHttpClientLocator.Current, new LocalFileLog())
+            : this(new HttpClientProvider(), new LocalFileLog())
         {
         }
 
@@ -31,13 +32,20 @@ namespace ServiceLibrary.Repositories.ConfigControl
 
             try
             {
-                var http = _httpClientProvider.Create();
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                HttpResponseMessage response = await http.GetAsync("status");
+                    HttpResponseMessage response = await http.GetAsync("status");
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
 
-                status = true;
+                    status = true;
+                }
+
             }
             catch (Exception ex)
             {

@@ -2,8 +2,6 @@
 // ***** Any changes to this file need to be replicated in the                     *****
 // ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
 // *************************************************************************************
-
-using System;
 using System.Net.Http;
 
 namespace ServiceLibrary.Helpers
@@ -36,32 +34,6 @@ namespace ServiceLibrary.Helpers
         public HttpClient Create()
         {
             return new HttpClient();
-        }
-    }
-
-    public class SharedHttpClient : IHttpClientProvider
-    {
-        private readonly Lazy<HttpClient> _lazyHttpClient; 
-
-        public SharedHttpClient(IHttpClientProvider creator, Func<HttpClient, HttpClient> init = null)
-        {
-            if (init == null)
-            {
-                _lazyHttpClient = new Lazy<HttpClient>(creator.Create, true);
-            }
-            else
-            {
-                _lazyHttpClient = new Lazy<HttpClient>(() =>
-                {
-                    var client = creator.Create();
-                    return init(client);
-                }, true);
-            }
-        }
-
-        public HttpClient Create()
-        {
-            return _lazyHttpClient.Value;
         }
     }
 }

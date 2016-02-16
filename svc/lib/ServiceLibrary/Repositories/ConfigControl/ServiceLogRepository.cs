@@ -21,7 +21,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         internal readonly ILocalLog _localLog;
 
         public ServiceLogRepository()
-            : this(ConfigControlHttpClientLocator.Current, new LocalFileLog())
+            : this(new HttpClientProvider(), new LocalFileLog())
         {
         }
 
@@ -52,28 +52,35 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
-                
-                //create the log entry
-                var logEntry = new ServiceLogModel()
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
                 {
-                    LogLevel = LogLevelEnum.Informational,
-                    Source = source,
-                    Message = message,
-                    OccurredAt = DateTime.Now,
-                    MethodName = methodName,
-                    FilePath = filePath,
-                    LineNumber = lineNumber,
-                    StackTrace = ""
-                };
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    //create the log entry
+                    var logEntry = new ServiceLogModel()
+                    {
+                        LogLevel = LogLevelEnum.Informational,
+                        Source = source,
+                        Message = message,
+                        OccurredAt = DateTime.Now,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
-                HttpResponseMessage response = await http.PostAsync("log", content);
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
+                    HttpResponseMessage response = await http.PostAsync("log", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -102,28 +109,35 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
-                
-                //create the log entry
-                var logEntry = new ServiceLogModel()
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
                 {
-                    LogLevel = LogLevelEnum.Verbose,
-                    Source = source,
-                    Message = message,
-                    OccurredAt = DateTime.Now,
-                    MethodName = methodName,
-                    FilePath = filePath,
-                    LineNumber = lineNumber,
-                    StackTrace = ""
-                };
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    //create the log entry
+                    var logEntry = new ServiceLogModel()
+                    {
+                        LogLevel = LogLevelEnum.Verbose,
+                        Source = source,
+                        Message = message,
+                        OccurredAt = DateTime.Now,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
-                HttpResponseMessage response = await http.PostAsync("log", content);
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
+                    HttpResponseMessage response = await http.PostAsync("log", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -152,28 +166,35 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
-
-                //create the log entry
-                var logEntry = new ServiceLogModel()
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
                 {
-                    LogLevel = LogLevelEnum.Warning,
-                    Source = source,
-                    Message = message,
-                    OccurredAt = DateTime.Now,
-                    MethodName = methodName,
-                    FilePath = filePath,
-                    LineNumber = lineNumber,
-                    StackTrace = ""
-                };
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    //create the log entry
+                    var logEntry = new ServiceLogModel()
+                    {
+                        LogLevel = LogLevelEnum.Warning,
+                        Source = source,
+                        Message = message,
+                        OccurredAt = DateTime.Now,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
-                HttpResponseMessage response = await http.PostAsync("log", content);
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
+                    HttpResponseMessage response = await http.PostAsync("log", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -202,28 +223,35 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
-
-                //create the log entry
-                var logEntry = new ServiceLogModel()
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
                 {
-                    LogLevel = LogLevelEnum.Error,
-                    Source = source,
-                    Message = message,
-                    OccurredAt = DateTime.Now,
-                    MethodName = methodName,
-                    FilePath = filePath,
-                    LineNumber = lineNumber,
-                    StackTrace = ""
-                };
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    //create the log entry
+                    var logEntry = new ServiceLogModel()
+                    {
+                        LogLevel = LogLevelEnum.Error,
+                        Source = source,
+                        Message = message,
+                        OccurredAt = DateTime.Now,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = ""
+                    };
 
-                HttpResponseMessage response = await http.PostAsync("log", content);
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
+                    HttpResponseMessage response = await http.PostAsync("log", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -252,28 +280,35 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
-
-                //create the log entry
-                var logEntry = new ServiceLogModel()
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
                 {
-                    LogLevel = LogLevelEnum.Error,
-                    Source = source,
-                    Message = exception.Message,
-                    OccurredAt = DateTime.Now,
-                    MethodName = methodName,
-                    FilePath = filePath,
-                    LineNumber = lineNumber,
-                    StackTrace = LogHelper.GetStackTrace(exception)
-                };
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    //create the log entry
+                    var logEntry = new ServiceLogModel()
+                    {
+                        LogLevel = LogLevelEnum.Error,
+                        Source = source,
+                        Message = exception.Message,
+                        OccurredAt = DateTime.Now,
+                        MethodName = methodName,
+                        FilePath = filePath,
+                        LineNumber = lineNumber,
+                        StackTrace = LogHelper.GetStackTrace(exception)
+                    };
 
-                HttpResponseMessage response = await http.PostAsync("log", content);
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                response.EnsureSuccessStatusCode();
+                    HttpResponseMessage response = await http.PostAsync("log", content);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -285,15 +320,22 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await http.PostAsync(@"log/clog", content);
+                    HttpResponseMessage response = await http.PostAsync(@"log/clog", content);
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -305,15 +347,22 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await http.PostAsync(@"log/standardlog", content);
+                    HttpResponseMessage response = await http.PostAsync(@"log/standardlog", content);
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -325,15 +374,22 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await http.PostAsync(@"log/performancelog", content);
+                    HttpResponseMessage response = await http.PostAsync(@"log/performancelog", content);
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {
@@ -345,15 +401,22 @@ namespace ServiceLibrary.Repositories.ConfigControl
         {
             try
             {
-                var http = _httpClientProvider.Create();
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                using (var http = _httpClientProvider.Create())
+                {
+                    http.BaseAddress = new Uri(uri);
+                    http.DefaultRequestHeaders.Accept.Clear();
 
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(logEntry);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+                    // Convert Object to JSON
+                    var requestMessage = JsonConvert.SerializeObject(logEntry);
+                    var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await http.PostAsync(@"log/sqltracelog", content);
+                    HttpResponseMessage response = await http.PostAsync(@"log/sqltracelog", content);
 
-                response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
+                }
+
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@
 // *************************************************************************************
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -35,18 +35,18 @@ namespace ServiceLibrary.Helpers
 
     public class HttpClientProvider : IHttpClientProvider
     {
-        private static readonly IDictionary<Uri, HttpClient> HttpClients = new Dictionary<Uri, HttpClient>();
+        private static readonly ConcurrentDictionary<Uri, HttpClient> HttpClients = new ConcurrentDictionary<Uri, HttpClient>();
 
         public HttpClient Create(Uri baseAddress)
         {
-            HttpClient result;
-            if (!HttpClients.TryGetValue(baseAddress, out result))
-            {
-                result = new HttpClient { BaseAddress = baseAddress };
-                result.DefaultRequestHeaders.Accept.Clear();
-                result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpClients[baseAddress] = result;
-            }
+            return HttpClients.GetOrAdd(baseAddress, CreateInternal);
+        }
+
+        private HttpClient CreateInternal(Uri baseAddress)
+        {
+            var result = new HttpClient { BaseAddress = baseAddress };
+            result.DefaultRequestHeaders.Accept.Clear();
+            result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             return result;
         }
     }

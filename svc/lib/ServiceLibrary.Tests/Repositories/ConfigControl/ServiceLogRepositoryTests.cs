@@ -19,6 +19,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         public void Constructor_Always_CreatesDefaultDependencies()
         {
             // Arrange
+            ConfigControlHttpClientLocator.Init(new HttpClientProvider());
 
             // Act
             var controller = new ServiceLogRepository();

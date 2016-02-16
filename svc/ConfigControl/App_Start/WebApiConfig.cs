@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Web.Http;
+using ServiceLibrary.Helpers;
 
 namespace ConfigControl
 {
@@ -11,6 +12,9 @@ namespace ConfigControl
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            // Init shared HttpClients
+            ConfigControlHttpClientLocator.InitDefaultInstance();
         }
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;

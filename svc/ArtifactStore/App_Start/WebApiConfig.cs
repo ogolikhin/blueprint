@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Web.Http;
+using ServiceLibrary.Helpers;
 
 namespace ArtifactStore
 {
@@ -11,6 +12,9 @@ namespace ArtifactStore
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            // Init shared HttpClients
+            ConfigControlHttpClientLocator.InitDefaultInstance();
         }
 
         public static string ArtifactStorage = ConfigurationManager.ConnectionStrings["ArtifactStorage"].ConnectionString;

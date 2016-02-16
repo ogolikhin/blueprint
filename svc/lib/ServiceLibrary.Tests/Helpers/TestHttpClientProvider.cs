@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers
@@ -13,12 +14,15 @@ namespace ServiceLibrary.Helpers
             _handler = handler;
         }
 
-        public HttpClient Create()
+        public HttpClient Create(Uri baseAddress)
         {
-            return new HttpClient(this);
+            var result = new HttpClient(this) { BaseAddress = baseAddress };
+            result.DefaultRequestHeaders.Accept.Clear();
+            result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return result;
         }
 
-        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
             return await Task.Run(() => _handler(request), cancellationToken);
         }

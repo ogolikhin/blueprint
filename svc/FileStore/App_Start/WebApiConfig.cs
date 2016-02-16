@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Hosting;
+using ServiceLibrary.Helpers;
 
 namespace FileStore
 {
@@ -12,6 +13,9 @@ namespace FileStore
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            // Init shared HttpClients
+            ConfigControlHttpClientLocator.InitDefaultInstance();
         }
 
         internal static string LogSourceFiles = "FileStore.Files";

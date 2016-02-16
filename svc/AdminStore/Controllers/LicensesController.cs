@@ -52,11 +52,8 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.AccessControl)))
                 {
-                    http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-                    http.DefaultRequestHeaders.Accept.Clear();
-                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     if (!Request.Headers.Contains("Session-Token"))
                     {
                         throw new ArgumentNullException();

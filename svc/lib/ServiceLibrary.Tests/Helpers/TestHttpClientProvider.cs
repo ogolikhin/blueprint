@@ -13,12 +13,12 @@ namespace ServiceLibrary.Helpers
             _handler = handler;
         }
 
-        public HttpClient Create()
+        public HttpClient Create(Uri baseAddress)
         {
             return new HttpClient(this);
         }
 
-        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
             return await Task.Run(() => _handler(request), cancellationToken);
         }

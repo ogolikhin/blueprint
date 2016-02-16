@@ -54,11 +54,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     //create the log entry
                     var logEntry = new ServiceLogModel()
                     {
@@ -111,11 +108,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     //create the log entry
                     var logEntry = new ServiceLogModel()
                     {
@@ -168,11 +162,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     //create the log entry
                     var logEntry = new ServiceLogModel()
                     {
@@ -225,11 +216,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     //create the log entry
                     var logEntry = new ServiceLogModel()
                     {
@@ -282,11 +270,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     //create the log entry
                     var logEntry = new ServiceLogModel()
                     {
@@ -322,11 +307,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
                     var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
@@ -349,11 +331,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
                     var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
@@ -376,11 +355,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
                     var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
@@ -403,11 +379,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
             {
                 var uri = ConfigurationManager.AppSettings["ConfigControl"];
                 if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(uri)))
                 {
-                    http.BaseAddress = new Uri(uri);
-                    http.DefaultRequestHeaders.Accept.Clear();
-
                     // Convert Object to JSON
                     var requestMessage = JsonConvert.SerializeObject(logEntry);
                     var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");

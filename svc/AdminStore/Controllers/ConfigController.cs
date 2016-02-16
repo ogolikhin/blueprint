@@ -54,11 +54,8 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
                 {
-                    http.BaseAddress = new Uri(WebApiConfig.ConfigControl);
-                    http.DefaultRequestHeaders.Accept.Clear();
-                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
                     var result = await http.GetAsync("settings/false");
                     result.EnsureSuccessStatusCode();
@@ -94,11 +91,8 @@ namespace AdminStore.Controllers
             try
             {
                 Dictionary<string, Dictionary<string, string>> settings;
-                using (var http = _httpClientProvider.Create())
+                using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
                 {
-                    http.BaseAddress = new Uri(WebApiConfig.ConfigControl);
-                    http.DefaultRequestHeaders.Accept.Clear();
-                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
                     var result = await http.GetAsync("settings/false");
                     result.EnsureSuccessStatusCode();

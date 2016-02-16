@@ -2,7 +2,11 @@
 // ***** Any changes to this file need to be replicated in the                     *****
 // ***** ServiceLibrary project in the Bluprint and BluePrint-Current repositories *****
 // *************************************************************************************
+
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace ServiceLibrary.Helpers
 {
@@ -25,15 +29,25 @@ namespace ServiceLibrary.Helpers
         /// <summary>
         /// Creates HttpClient object
         /// </summary>
-
-        HttpClient Create();
+        /// <param name="baseAddress"></param>
+        HttpClient Create(Uri baseAddress);
     }
 
     public class HttpClientProvider : IHttpClientProvider
     {
-        public HttpClient Create()
+        private static readonly IDictionary<Uri, HttpClient> HttpClients = new Dictionary<Uri, HttpClient>();
+
+        public HttpClient Create(Uri baseAddress)
         {
-            return new HttpClient();
+            HttpClient result;
+            if (!HttpClients.TryGetValue(baseAddress, out result))
+            {
+                result = new HttpClient { BaseAddress = baseAddress };
+                result.DefaultRequestHeaders.Accept.Clear();
+                result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpClients[baseAddress] = result;
+            }
+            return result;
         }
     }
 }

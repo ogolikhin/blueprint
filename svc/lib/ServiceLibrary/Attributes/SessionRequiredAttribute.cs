@@ -71,7 +71,7 @@ namespace ServiceLibrary.Attributes
         private async Task<Session> GetAccessAsync(HttpRequestMessage request)
         {
             var uri = ConfigurationManager.AppSettings[AccessControl];
-            using (var http = _httpClientProvider.Create())
+            using (var http = _httpClientProvider.Create(new Uri(uri)))
             {
                 http.BaseAddress = new Uri(uri);
                 http.DefaultRequestHeaders.Accept.Clear();

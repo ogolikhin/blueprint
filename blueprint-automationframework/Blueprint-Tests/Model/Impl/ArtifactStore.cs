@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net;
 using Common;
@@ -16,6 +17,7 @@ namespace Model.Impl
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
+        private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
         private string _address = null;
 
         /// <summary>
@@ -76,6 +78,22 @@ namespace Model.Impl
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
             return artifactResult;
+        }
+
+        public int GetArtifactTypeId(int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(projectId, nameof(projectId));
+            ThrowIf.ArgumentNull(baseArtifactTypeName, nameof(baseArtifactTypeName));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTTYPES, projectId);
+
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            ArtifactType artifactType = artifactTypes.First(t => (t.BaseArtifactType == baseArtifactTypeName));
+
+            return artifactType.Id;
         }
     }
 }

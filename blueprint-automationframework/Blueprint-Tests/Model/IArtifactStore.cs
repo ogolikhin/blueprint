@@ -26,5 +26,16 @@ namespace Model
         /// <param name="expectedStatusCodes">A list of expected status codes.</param>
         /// <returns></returns>
         IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the id of the specified artifact type from the specified project.
+        /// Runs api/v1/projects/projectId/metadata/artifactTypes
+        /// </summary>
+        /// <param name="projectId"> Id of the project</param>
+        /// <param name="baseArtifactTypeName"> Name of the base artifact type (Actor, Process, Storyboard)</param>
+        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <returns>Id of the specified artifact type from the specified project.</returns>
+        int GetArtifactTypeId(int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -54,8 +54,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\StorytellerFactory.cs" />
+    <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\Storyteller.cs" />
     <Compile Include="Impl\Process.cs" />
+    <Compile Include="IArtifactType.cs" />
     <Compile Include="IProcessLink.cs" />
     <Compile Include="IProcessShape.cs" />
     <Compile Include="IProcess.cs" />
@@ -108,9 +110,9 @@
     <Compile Include="IGenericDiagram.cs" />
     <Compile Include="IGlossary.cs" />
     <Compile Include="IGroup.cs" />
-	<Compile Include="ILicenseActivity.cs" />
+    <Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AccessControl.cs" />
-	<Compile Include="Impl\AccessControlLicensesInfo.cs" />
+    <Compile Include="Impl\AccessControlLicensesInfo.cs" />
     <Compile Include="Impl\AdminStore.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />

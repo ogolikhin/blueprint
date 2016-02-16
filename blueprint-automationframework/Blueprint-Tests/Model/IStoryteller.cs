@@ -40,5 +40,25 @@ namespace Model
         /// <param name="user">The user credentials for the request</param>
         /// <returns></returns>
         IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user);
+
+        /// <summary>
+        /// Gets list of processes for the specified projectId
+        /// Runs /projects/id/processes
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="id">Id of the Project</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The list of processes</returns>
+        IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets Id of the specified type from the specified project
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="projectId">Id of the Project</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The list of processes</returns>
+        int GetProcessTypeId(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

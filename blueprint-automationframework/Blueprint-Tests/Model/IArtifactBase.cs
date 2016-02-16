@@ -31,12 +31,9 @@ namespace Model
         UseCaseDiagram
     }
 
-
     public interface IArtifactBase
     {
-        ArtifactType ArtifactType { get; set; }
-        string Description { get; set; }
-        string Id { get; }
+        int Id { get; set; }
         string Name { get; set; }
     }
 }

@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Model.Impl;
-
-namespace Model
+﻿namespace Model
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces")] // Ignore this warning.
     public interface IComment
+    {
+        // TODO Future development
+    }
+
+    public interface IOpenApiComment : IComment
     {
         string LastModified { get; set; }
         bool IsClosed { get; set; }

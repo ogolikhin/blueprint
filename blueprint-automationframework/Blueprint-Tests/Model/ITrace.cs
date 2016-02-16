@@ -2,7 +2,13 @@
 
 namespace Model
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces")] // Ignore this warning.
     public interface ITrace
+    {
+        // TODO Future development
+    }
+
+    public interface IOpenApiTrace : ITrace
     {
         string Type { get; set; }
         string Direction { get; set; }

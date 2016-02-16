@@ -56,8 +56,9 @@ namespace AdminStore.Controllers
             {
                 using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
                 {
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                    var result = await http.GetAsync("settings/false");
+                    var request = new HttpRequestMessage { RequestUri = new Uri("settings/false"), Method = HttpMethod.Get };
+                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                    var result = await http.SendAsync(request);
                     result.EnsureSuccessStatusCode();
                     var response = Request.CreateResponse(HttpStatusCode.OK);
                     response.Content = result.Content;
@@ -93,8 +94,9 @@ namespace AdminStore.Controllers
                 Dictionary<string, Dictionary<string, string>> settings;
                 using (var http = _httpClientProvider.Create(new Uri(WebApiConfig.ConfigControl)))
                 {
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                    var result = await http.GetAsync("settings/false");
+                    var request = new HttpRequestMessage { RequestUri = new Uri("settings/false"), Method = HttpMethod.Get };
+                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
+                    var result = await http.SendAsync(request);
                     result.EnsureSuccessStatusCode();
                     settings = await result.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
                 }

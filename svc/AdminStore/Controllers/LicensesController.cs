@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
@@ -58,8 +57,13 @@ namespace AdminStore.Controllers
                     {
                         throw new ArgumentNullException();
                     }
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                    var result = await http.GetAsync("licenses/transactions?days=" + days + "&consumerType=1"); // LicenseConsumerType.Client
+                    var request = new HttpRequestMessage
+                    {
+                        RequestUri = new Uri("licenses/transactions?days=" + days + "&consumerType=1"), // LicenseConsumerType.Client
+                        Method = HttpMethod.Get
+                    };
+                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
+                    var result = await http.SendAsync(request);
                     var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
                     var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
                     foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))

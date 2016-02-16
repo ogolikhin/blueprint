@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.Remoting;
 using System.Threading.Tasks;
 using System.Web;
@@ -222,8 +221,9 @@ namespace AdminStore.Controllers
                     {
                         throw new ArgumentNullException();
                     }
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                    var result = await http.DeleteAsync("sessions");
+                    var request = new HttpRequestMessage { RequestUri = new Uri("sessions"), Method = HttpMethod.Delete };
+                    request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
+                    var result = await http.SendAsync(request);
                     if (result.IsSuccessStatusCode)
                     {
                         return Ok();

@@ -23,10 +23,8 @@ namespace ServiceLibrary.Repositories.ConfigControl
         //public async Task<Dictionary<string, Dictionary<string, string>>> GetConfig()
         //{
         //    var uri = ConfigurationManager.AppSettings["ConfigControl"] + "true";
-        //    using (var http = _httpClientProvider.Create())
+        //    using (var http = _httpClientProvider.Create(new Uri(uri)))
         //    {
-        //        http.BaseAddress = new Uri(uri);
-        //        http.DefaultRequestHeaders.Accept.Clear();
         //        var result = await http.GetAsync("settings");
         //        result.EnsureSuccessStatusCode();
         //        return JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(await result.Content.ReadAsStringAsync());

@@ -73,8 +73,9 @@ namespace ServiceLibrary.Attributes
             var uri = ConfigurationManager.AppSettings[AccessControl];
             using (var http = _httpClientProvider.Create(new Uri(uri)))
             {
-                http.DefaultRequestHeaders.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
-                var result = await http.PutAsync("sessions", null);
+                var request2 = new HttpRequestMessage { RequestUri = new Uri("sessions"), Method = HttpMethod.Put };
+                request.Headers.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
+                var result = await http.SendAsync(request2);
                 result.EnsureSuccessStatusCode();
                 var content = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<Session>(content);

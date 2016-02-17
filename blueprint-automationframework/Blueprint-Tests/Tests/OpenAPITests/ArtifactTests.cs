@@ -1,12 +1,10 @@
-﻿using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Net;
+
 
 namespace OpenAPITests
 {
@@ -24,7 +22,6 @@ namespace OpenAPITests
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject();
-            _artifact = ArtifactFactory.CreateArtifactFromTestConfig();
         }
 
         [TearDown]
@@ -47,19 +44,19 @@ namespace OpenAPITests
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
         public void AddArtifact_Actor()
         {
-            //Set artifact Type with an actor type
-            _artifact.ArtifactTypeName = "Actor";
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateArtifact(_project, ArtifactType.Actor);
 
-            //Update artifact with artifactTypeId and artifactTypeName based on the target project
-            _artifact.UpdateArtifactType(_project.Id, _artifact);
-
-            //create Description property
+            //Create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
             properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
 
-            //update the artifact attributes 
-            _artifact.UpdateArtifactAttributes(_artifact, properties);
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Set the artifact properties 
+            _artifact.SetProperties(properties);
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             _artifact.AddArtifact(_artifact, _user);
@@ -78,19 +75,19 @@ namespace OpenAPITests
         public void AddArtifact_Actor_With(string sampleTextPath)
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);
-            //Set artifact Type with an actor type
-            _artifact.ArtifactTypeName = "Actor";
-
-            //Update artifact with artifactTypeId and artifactTypeName based on the target project
-            _artifact.UpdateArtifactType(_project.Id, _artifact);
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateArtifact(_project, ArtifactType.Actor);
 
             //create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
             properties.Add(property.GetProperty(_project, "Description", text));
 
-            //update the artifact attributes  
-            _artifact.UpdateArtifactAttributes(_artifact, properties);
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Set the artifact properties
+            _artifact.SetProperties(properties);
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             _artifact.AddArtifact(_artifact, _user);

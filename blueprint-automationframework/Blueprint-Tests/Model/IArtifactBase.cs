@@ -1,5 +1,4 @@
-﻿
-namespace Model
+﻿namespace Model
 {
     public enum ArtifactType
     {
@@ -33,6 +32,7 @@ namespace Model
 
     public interface IArtifactBase
     {
+        ArtifactType ArtifactType { get; set; }
         int Id { get; set; }
         string Name { get; set; }
     }

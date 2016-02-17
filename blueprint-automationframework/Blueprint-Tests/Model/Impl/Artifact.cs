@@ -26,6 +26,7 @@ namespace Model.Impl
         private string _address = null;
 
         #region Properties
+        public ArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -36,11 +37,11 @@ namespace Model.Impl
         #endregion Properties
 
         /// <summary>
-        /// Constructor
+        /// Constructor in order to use it as a generic type
         /// </summary>
         public Artifact()
         {
-
+            //Required for deserializing Artifact
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace Model.Impl
             return artifactResult.Artifact;
         }
 
-        public IArtifactResultBase DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -115,6 +116,7 @@ namespace Model.Impl
         private string _address = null;
 
         #region Properties
+        public ArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -142,7 +144,7 @@ namespace Model.Impl
         /// </summary>
         public OpenApiArtifact()
         {
-
+            //Required for deserializing OpenApiArtifact
         }
 
         /// <summary>
@@ -152,7 +154,6 @@ namespace Model.Impl
         public OpenApiArtifact(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-
             _address = address;
         }
 
@@ -171,61 +172,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Update an artifact object with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
-        /// </summary>
-        /// <param name="project">The target project.</param>
-        /// <param name="artifact">The artifact object that contains artifactType information.</param>
-        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
-        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public void UpdateArtifactType(int projectId, IOpenApiArtifact artifact)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            string query = null;
-            SqlDataReader reader;
-
-            //variables
-            int query_projectId;
-            int query_artifactTypeId;
-            string query_artifactTypeName;
-
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
-            {
-                query = "SELECT Project_ItemId, ItemTypeId, Name FROM dbo.TipItemTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-                    cmd.Parameters.Add("@Project_ItemId", SqlDbType.Int).Value = projectId;
-                    cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = artifact.ArtifactTypeName;
-                    cmd.CommandType = CommandType.Text;
-
-                    try
-                    {
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Read();
-                            }
-                            query_projectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
-                            query_artifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
-                            query_artifactTypeName = reader["Name"].ToString();
-
-                            artifact.ArtifactTypeName = query_artifactTypeName;
-                            artifact.ProjectId = query_projectId;
-                            artifact.ArtifactTypeId = query_artifactTypeId;
-                        }
-                    }
-                    catch(System.InvalidOperationException ex)
-                    {
-                        Logger.WriteError("No artifact type is available which matches with condition. Exception details - {0}", ex);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adds the specified artifact to blueprint.
+        /// Adds the specified artifact to Blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
         /// <param name="user">The user to authenticate to blueprint.</param>
@@ -259,21 +206,6 @@ namespace Model.Impl
             Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture), I18NHelper.FormatInvariant("The returned ResultCode was '{0}' but '{1}' was expected", artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture)));
 
             return artifactResult.Artifact;
-        }
-
-        /// <summary>
-        /// populate artifact attributes with required values
-        /// </summary>
-        /// <param name="artifact">The artifact object that contains artifactType information.</param>
-        /// <param name="properties">The properties that will be added to target artifact.</param>
-        /// <returns>The updated artifact object with auto-generated name and a required assigned property</returns>
-        public IOpenApiArtifact UpdateArtifactAttributes(IOpenApiArtifact artifact, List<IOpenApiProperty> properties)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(properties, nameof(properties));
-            artifact.Name = "REST_Artifact_" + RandomGenerator.RandomAlphaNumeric(5);
-            artifact.SetProperties(properties);
-            return artifact;
         }
     }
 }

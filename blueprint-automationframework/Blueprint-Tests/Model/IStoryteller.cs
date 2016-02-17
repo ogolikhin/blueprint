@@ -39,7 +39,7 @@ namespace Model
         /// <param name="process">The artifact to be deleted.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <returns></returns>
-        IArtifactResultBase DeleteProcessArtifact(IArtifact process, IUser user);
+        IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user);
 
         /// <summary>
         /// Gets list of processes for the specified projectId

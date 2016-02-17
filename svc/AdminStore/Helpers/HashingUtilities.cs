@@ -6,8 +6,6 @@ namespace AdminStore.Helpers
 {
     public class HashingUtilities
     {
-        private static readonly HashAlgorithm Algorithm = new SHA256Managed();
-
         public static string GenerateSaltedHash(string plainText, string salt)
         {
             byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
@@ -16,7 +14,7 @@ namespace AdminStore.Helpers
             var plainTextWithSaltBytes = new byte[plainTextBytes.Length + saltBytes.Length];
             Buffer.BlockCopy(plainTextBytes, 0, plainTextWithSaltBytes, 0, plainTextBytes.Length);
             Buffer.BlockCopy(saltBytes, 0, plainTextWithSaltBytes, plainTextBytes.Length, saltBytes.Length);
-            var hash = Algorithm.ComputeHash(plainTextWithSaltBytes);
+            var hash = new SHA256Managed().ComputeHash(plainTextWithSaltBytes); // Use a new instance each time for thread safety
 
             return Convert.ToBase64String(hash);
         }

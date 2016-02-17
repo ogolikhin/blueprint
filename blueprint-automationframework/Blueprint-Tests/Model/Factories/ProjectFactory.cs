@@ -84,7 +84,6 @@ namespace Model.Factories
                     {
                         Logger.WriteError("No project is available which matches with condition. Exception details - {0}", ex);
                     }
-
                 }
             }
             project = new Project { Name = query_projectName, Description = query_projectDescription, Id = query_projectId };

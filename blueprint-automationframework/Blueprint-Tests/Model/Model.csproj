@@ -66,7 +66,6 @@
     <Compile Include="Factories\AccessControlFactory.cs" />
     <Compile Include="Factories\AdminStoreFactory.cs" />
     <Compile Include="Factories\ArtifactFactory.cs" />
-    <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="Factories\BlueprintServerFactory.cs" />
     <Compile Include="Factories\DatabaseFactory.cs" />
     <Compile Include="Factories\FileFactory.cs" />
@@ -78,7 +77,6 @@
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
     <Compile Include="IArtifactResult.cs" />
-    <Compile Include="IArtifactStore.cs" />
     <Compile Include="IAttachment.cs" />
     <Compile Include="IAuthor.cs" />
     <Compile Include="IActor.cs" />
@@ -115,7 +113,6 @@
     <Compile Include="Impl\AdminStore.cs" />
     <Compile Include="Impl\Artifact.cs" />
     <Compile Include="Impl\ArtifactResult.cs" />
-    <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\Attachment.cs" />
     <Compile Include="Impl\BlueprintServer.cs" />
     <Compile Include="Impl\BlueprintToken.cs" />

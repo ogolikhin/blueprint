@@ -79,21 +79,5 @@ namespace Model.Impl
 
             return artifactResult;
         }
-
-        public int GetArtifactTypeId(int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(projectId, nameof(projectId));
-            ThrowIf.ArgumentNull(baseArtifactTypeName, nameof(baseArtifactTypeName));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTTYPES, projectId);
-
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-
-            ArtifactType artifactType = artifactTypes.First(t => (t.BaseArtifactType == baseArtifactTypeName));
-
-            return artifactType.Id;
-        }
     }
 }

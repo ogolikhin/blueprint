@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Model
 {
@@ -17,7 +17,7 @@ namespace Model
         Uri BlueprintUrl { get; set; }
         int ArtifactTypeId { get; set; }
         IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-        IArtifactResultBase DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 
     public interface IOpenApiArtifact : IArtifactBase
@@ -37,14 +37,15 @@ namespace Model
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
         void SetProperties(List<IOpenApiProperty> properties);
-        void UpdateArtifactType(int projectId, IOpenApiArtifact artifact);
-        IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
         /// <summary>
-        /// populate artifact attributes with required values
+        /// Adds the specified artifact to Blueprint.
         /// </summary>
-        /// <param name="artifact">The artifact object that contains artifactType information.</param>
-        /// <param name="properties">The properties that will be added to target artifact.</param>
-        /// <returns>The updated artifact object with auto-generated name and a required assigned property</returns>
-        IOpenApiArtifact UpdateArtifactAttributes(IOpenApiArtifact artifact, List<IOpenApiProperty> properties);
+        /// <param name="artifact">The artifact to add.</param>
+        /// <param name="user">The user to authenticate to blueprint.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
+        /// <returns>The artifact result after adding artifact.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

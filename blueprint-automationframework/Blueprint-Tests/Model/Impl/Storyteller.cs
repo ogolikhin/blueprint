@@ -12,7 +12,7 @@ namespace Model.Impl
         private const string SVC_PATH = "svc/components/storyteller";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-        private IArtifactStore _artifactStore;
+        private IArtifact _artifact;
         private readonly string _address;
 
         /// <summary>
@@ -24,19 +24,19 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
-            _artifactStore = new ArtifactStore(_address);
+            _artifact = new Artifact(_address);
         }
 
         #region Inherited from IStoryteller
 
         public IArtifact AddProcessArtifact(IArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifactStore.AddArtifact(process, user);
+            return _artifact.AddArtifact(process, user);
         }
 
-        public IArtifactResultBase DeleteProcessArtifact(IArtifact process, IUser user)
+        public IArtifactResult DeleteProcessArtifact(IArtifact process, IUser user)
         {
-            return _artifactStore.DeleteArtifact(process, user);
+            return _artifact.DeleteArtifact(process, user);
         }
         public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {

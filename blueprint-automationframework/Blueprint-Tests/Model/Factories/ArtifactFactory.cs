@@ -1,25 +1,86 @@
-﻿using Model.Impl;
+﻿using Common;
+using Model.Impl;
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Globalization;
 using TestConfig;
+using Utilities;
+using Utilities.Factories;
 
 namespace Model.Factories
 {
     public static class ArtifactFactory
     {
         /// <summary>
-        /// Create an artifact object.
+        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
         /// </summary>
-        /// <returns>new artifact object</returns>
-        public static IOpenApiArtifact CreateArtifact(string address)
+        /// <param name="address">address for Blueprint application server</param>
+        /// <param name="project">The target project</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object for the target project with selected artifactType</returns>
+        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
+        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
+        public static IOpenApiArtifact CreateArtifact(string address, IProject project, ArtifactType artifactType)
         {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            string query = null;
+            SqlDataReader reader;
+            
+            //variables
+            int query_projectId;
+            int query_artifactTypeId;
+            string query_artifactTypeName;
+
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
+            artifact.ArtifactTypeName = artifactType.ToString();
+            artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
+
+            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            {
+                query = "SELECT Project_ItemId, ItemTypeId, Name FROM dbo.TipItemTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
+                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                {
+                    database.Open();
+                    cmd.Parameters.Add("@Project_ItemId", SqlDbType.Int).Value = project.Id;
+                    cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = artifact.ArtifactTypeName;
+                    cmd.CommandType = CommandType.Text;
+
+                    try
+                    {
+                        using (reader = cmd.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+                            }
+                            query_projectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
+                            query_artifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
+                            query_artifactTypeName = reader["Name"].ToString();
+
+                            artifact.ArtifactTypeName = query_artifactTypeName;
+                            artifact.ProjectId = query_projectId;
+                            artifact.ArtifactTypeId = query_artifactTypeId;
+                        }
+                    }
+                    catch (System.InvalidOperationException ex)
+                    {
+                        Logger.WriteError("No artifact type is available which matches with condition. Exception details - {0}", ex);
+                    }
+                }
+            }
             return artifact;
         }
 
+        /// <summary>
+        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// </summary>
+        /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IOpenApiArtifact CreateArtifactFromTestConfig()
+        public static IOpenApiArtifact CreateArtifact(IProject project, ArtifactType artifactType)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            return CreateArtifact(testConfig.BlueprintServerAddress);
+            return CreateArtifact(testConfig.BlueprintServerAddress, project, artifactType);
         }
     }
 }

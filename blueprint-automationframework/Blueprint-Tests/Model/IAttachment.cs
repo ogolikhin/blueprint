@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Model
+﻿namespace Model
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1040:AvoidEmptyInterfaces")] // Ignore this warning.
     public interface IAttachment
+    {
+        // TODO Future development
+    }
+
+    public interface IOpenApiAttachment : IAttachment
     {
         int Id { get; set; }
         string FileName { get; set; }

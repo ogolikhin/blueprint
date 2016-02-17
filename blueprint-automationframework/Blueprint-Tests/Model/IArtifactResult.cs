@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Model
+﻿namespace Model
 {
-    public interface IArtifactResult
+    public interface IArtifactResultBase
     {
-        IArtifact Artifact { get; set; }
         string Message { get; set; }
         string ResultCode { get; set; }
+    }
+
+    public interface IArtifactResult : IArtifactResultBase
+    {
+        IArtifact Artifact { get; set; }
+    }
+
+    public interface IOpenApiArtifactResult : IArtifactResultBase
+    {
+        IOpenApiArtifact Artifact { get; set; }
     }
 }

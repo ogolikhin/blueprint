@@ -40,6 +40,7 @@ namespace StorytellerTests
                 ArtifactTypeId = _storyteller.GetProcessTypeId(user: _user, projectId: projectId)
                 //ArtifactTypeId = 369 // Need to find a way to determine the artifact type id from server-side
             };
+            
 
             _artifact = _storyteller.AddProcessArtifact(process, _user);
 

@@ -4,7 +4,9 @@
 // *************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace ServiceLibrary.Helpers
 {
@@ -27,41 +29,25 @@ namespace ServiceLibrary.Helpers
         /// <summary>
         /// Creates HttpClient object
         /// </summary>
-
-        HttpClient Create();
+        /// <param name="baseAddress"></param>
+        HttpClient Create(Uri baseAddress);
     }
 
     public class HttpClientProvider : IHttpClientProvider
     {
-        public HttpClient Create()
-        {
-            return new HttpClient();
-        }
-    }
+        private static readonly ConcurrentDictionary<Uri, HttpClient> HttpClients = new ConcurrentDictionary<Uri, HttpClient>();
 
-    public class SharedHttpClient : IHttpClientProvider
-    {
-        private readonly Lazy<HttpClient> _lazyHttpClient; 
-
-        public SharedHttpClient(IHttpClientProvider creator, Func<HttpClient, HttpClient> init = null)
+        public HttpClient Create(Uri baseAddress)
         {
-            if (init == null)
-            {
-                _lazyHttpClient = new Lazy<HttpClient>(creator.Create, true);
-            }
-            else
-            {
-                _lazyHttpClient = new Lazy<HttpClient>(() =>
-                {
-                    var client = creator.Create();
-                    return init(client);
-                }, true);
-            }
+            return HttpClients.GetOrAdd(baseAddress, CreateInternal);
         }
 
-        public HttpClient Create()
+        private HttpClient CreateInternal(Uri baseAddress)
         {
-            return _lazyHttpClient.Value;
+            var result = new HttpClient { BaseAddress = baseAddress };
+            result.DefaultRequestHeaders.Accept.Clear();
+            result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return result;
         }
     }
 }

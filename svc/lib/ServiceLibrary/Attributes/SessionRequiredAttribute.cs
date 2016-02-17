@@ -70,17 +70,14 @@ namespace ServiceLibrary.Attributes
 
         private async Task<Session> GetAccessAsync(HttpRequestMessage request)
         {
-            var uri = ConfigurationManager.AppSettings[AccessControl];
-            using (var http = _httpClientProvider.Create())
-            {
-                http.BaseAddress = new Uri(uri);
-                http.DefaultRequestHeaders.Accept.Clear();
-                http.DefaultRequestHeaders.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
-                var result = await http.PutAsync("sessions", null);
-                result.EnsureSuccessStatusCode();
-                var content = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<Session>(content);
-            }
+            var uri = new Uri(ConfigurationManager.AppSettings[AccessControl]);
+            var http = _httpClientProvider.Create(uri);
+            var request2 = new HttpRequestMessage { RequestUri = new Uri(uri, "sessions"), Method = HttpMethod.Put };
+            request2.Headers.Add(BlueprintSessionToken, GetHeaderSessionToken(request));
+            var result = await http.SendAsync(request2);
+            result.EnsureSuccessStatusCode();
+            var content = await result.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Session>(content);
         }
 
         private static string GetHeaderSessionToken(HttpRequestMessage request)

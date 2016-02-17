@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
@@ -52,29 +51,30 @@ namespace AdminStore.Controllers
         {
             try
             {
-                using (var http = _httpClientProvider.Create())
+                var uri = new Uri(WebApiConfig.AccessControl);
+                var http = _httpClientProvider.Create(uri);
+                if (!Request.Headers.Contains("Session-Token"))
                 {
-                    http.BaseAddress = new Uri(WebApiConfig.AccessControl);
-                    http.DefaultRequestHeaders.Accept.Clear();
-                    http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    if (!Request.Headers.Contains("Session-Token"))
-                    {
-                        throw new ArgumentNullException();
-                    }
-                    http.DefaultRequestHeaders.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
-                    var result = await http.GetAsync("licenses/transactions?days=" + days + "&consumerType=1"); // LicenseConsumerType.Client
-                    var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
-                    var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
-                    foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))
-                    {
-                        var user = users[transaction.UserId];
-                        transaction.Username = user.Login;
-                        transaction.Department = user.Department;
-                    }
-                    var response = Request.CreateResponse(HttpStatusCode.OK);
-                    response.Content = new ObjectContent<IEnumerable<LicenseTransaction>>(transactions, new JsonMediaTypeFormatter());
-                    return ResponseMessage(response);
+                    throw new ArgumentNullException();
                 }
+                var request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri(uri, "licenses/transactions?days=" + days + "&consumerType=1"), // LicenseConsumerType.Client
+                    Method = HttpMethod.Get
+                };
+                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").First());
+                var result = await http.SendAsync(request);
+                var transactions = (await result.Content.ReadAsAsync<IEnumerable<LicenseTransaction>>()).ToArray();
+                var users = (await _userRepository.GetLicenseTransactionUserInfoAsync(transactions.Select(t => t.UserId).Distinct())).ToDictionary(u => u.Id);
+                foreach (var transaction in transactions.Where(t => users.ContainsKey(t.UserId)))
+                {
+                    var user = users[transaction.UserId];
+                    transaction.Username = user.Login;
+                    transaction.Department = user.Department;
+                }
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                response.Content = new ObjectContent<IEnumerable<LicenseTransaction>>(transactions, new JsonMediaTypeFormatter());
+                return ResponseMessage(response);
             }
             catch (ArgumentNullException)
             {

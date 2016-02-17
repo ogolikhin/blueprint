@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers
@@ -7,28 +8,21 @@ namespace ServiceLibrary.Helpers
     public class TestHttpClientProvider : HttpClientHandler, IHttpClientProvider
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;
-        private readonly Func<HttpClient, HttpClient> _initHttpClient;
 
-        public TestHttpClientProvider(Func<HttpRequestMessage, HttpResponseMessage> handler,
-            Func<HttpClient, HttpClient> initHttpClient = null)
+        public TestHttpClientProvider(Func<HttpRequestMessage, HttpResponseMessage> handler)
         {
             _handler = handler;
-            _initHttpClient = initHttpClient;
         }
 
-        public HttpClient Create()
+        public HttpClient Create(Uri baseAddress)
         {
-            var http = new HttpClient(this);
-
-            if (_initHttpClient != null)
-            {
-                _initHttpClient(http);
-            }
-
-            return http;
+            var result = new HttpClient(this) { BaseAddress = baseAddress };
+            result.DefaultRequestHeaders.Accept.Clear();
+            result.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return result;
         }
 
-        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
             return await Task.Run(() => _handler(request), cancellationToken);
         }

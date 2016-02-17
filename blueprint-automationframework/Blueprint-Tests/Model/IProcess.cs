@@ -16,6 +16,11 @@ namespace Model
         #region Properties
 
         /// <summary>
+        /// Project containing the Process
+        /// </summary>
+        int ProjectId { get; set; }
+
+        /// <summary>
         /// Artifact Id for the process
         /// </summary>
         int Id { get; set; }
@@ -49,6 +54,11 @@ namespace Model
         /// Prefix of the process type
         /// </summary>
         string TypePreffix { get; set; }
+
+        /// <summary>
+        /// Base item type for the process artifact
+        /// </summary>
+        int BaseItemTypePredefined { get; set; }
 
         /// <summary>
         /// Version Id of the process
@@ -108,6 +118,16 @@ namespace Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
         IProcessLink[] Links { get; set; }
 
+        /// <summary>
+        /// Artifact path links for the Process.  This supports breadcrumb navigation
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
+        IArtifactReference[] ArtifactPathLinks { get; set; }
+
+        /// <summary>
+        /// The property values for the Process artifact
+        /// </summary>
+        IDictionary<string, IPropertyValueInformation> PropertyValues { get; } 
         #endregion Properties
     }
 }

@@ -26,7 +26,7 @@ namespace Model.Impl
         private string _address = null;
 
         #region Properties
-        public ArtifactType ArtifactType { get; set; }
+        public BaseArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -116,7 +116,7 @@ namespace Model.Impl
         private string _address = null;
 
         #region Properties
-        public ArtifactType ArtifactType { get; set; }
+        public BaseArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }

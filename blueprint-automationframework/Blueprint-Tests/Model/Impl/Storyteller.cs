@@ -99,11 +99,11 @@ namespace Model.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
-        public int GetProcessTypeId(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null)
+        public int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string processTypeName = "Process";
-            return _artifactStore.GetArtifactTypeId(user: user, baseArtifactTypeName: processTypeName,
-                projectId: projectId, expectedStatusCodes: expectedStatusCodes);
+            string processTypeName = "Process";//replace with enum
+            return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
+                projectId: project.Id, expectedStatusCodes: expectedStatusCodes);
         }
 
         #endregion Inherited from IStoryteller

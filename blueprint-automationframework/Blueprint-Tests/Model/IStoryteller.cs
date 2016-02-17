@@ -53,12 +53,12 @@ namespace Model
         IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets Id of the specified type from the specified project
+        /// Gets Id of the process artifact type for the specified project
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="projectId">Id of the Project</param>
+        /// <param name="project">specified project</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <returns>The list of processes</returns>
-        int GetProcessTypeId(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>The id of process artifact type</returns>
+        int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Model
 {
-    public enum ArtifactType
+    public enum BaseArtifactType
     {
         Actor,
         AgilePackEpic,
@@ -32,7 +32,7 @@
 
     public interface IArtifactBase
     {
-        ArtifactType ArtifactType { get; set; }
+        BaseArtifactType ArtifactType { get; set; }
         int Id { get; set; }
         string Name { get; set; }
     }

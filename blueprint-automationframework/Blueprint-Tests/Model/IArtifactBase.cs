@@ -32,6 +32,8 @@
 
     public interface IArtifactBase
     {
+        // TODO Find the way or wait for the API implementation which retrieve descrption
+        // string Description { get; set; }
         BaseArtifactType ArtifactType { get; set; }
         int Id { get; set; }
         string Name { get; set; }

@@ -18,7 +18,7 @@ namespace StorytellerTests
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
         private IUser _user;
-        private IArtifact _artifact;
+        private IOpenApiArtifact _artifact;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -37,7 +37,7 @@ namespace StorytellerTests
             _user.SetToken(session.SessionId);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
-            var process = new Artifact()
+            var process = new OpenApiArtifact()
             {
                 Id = 0,
                 Name = "Test Process",
@@ -48,7 +48,7 @@ namespace StorytellerTests
             };
             
 
-            _artifact = _storyteller.AddProcessArtifact(process, _user);
+            _artifact = _storyteller.AddProcessArtifact(process, _user); 
         }
 
         [TestFixtureTearDown]

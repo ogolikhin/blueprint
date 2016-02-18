@@ -1,16 +1,12 @@
 ﻿using Common;
+using Newtonsoft.Json;
+using NUnit.Framework;
 using System;
 using System.Net;
-using System.Data;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Model.Factories;
+using System.Globalization;
 using Utilities;
 using Utilities.Facades;
-using Utilities.Factories;
-using System.Data.SqlClient;
-using System.Globalization;
-using NUnit.Framework;
 
 namespace Model.Impl
 {
@@ -23,7 +19,6 @@ namespace Model.Impl
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
-        private string _address = null;
 
         #region Properties
         public BaseArtifactType ArtifactType { get; set; }
@@ -35,78 +30,12 @@ namespace Model.Impl
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
         #endregion Properties
-
-        /// <summary>
-        /// Constructor in order to use it as a generic type
-        /// </summary>
-        public Artifact()
-        {
-            //Required for deserializing Artifact
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="address">(optional) The URI address of the Artifact REST API</param>
-        public Artifact(string address)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            _address = address;
-        }
-
-        /// <summary>
-        /// Adds the specified artifact to blueprint.
-        /// </summary>
-        /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to blueprint.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact that was created.</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS, artifact.ProjectId);
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode>();
-                expectedStatusCodes.Add(HttpStatusCode.Created);
-            }
-
-            Artifact artifactObject = (Artifact)artifact;
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, Artifact>(path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
-
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
-            Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            return artifactResult.Artifact;
-        }
-
-        public IArtifactResult DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS + "/{1}/", artifact.ProjectId, artifact.Id);
-
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            ArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
-
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
-            Logger.WriteDebug(I18NHelper.FormatInvariant("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            return artifactResult;
-        }
     }
 
     public class OpenApiArtifact : IOpenApiArtifact
     {
 
+        #region Constants
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
         private const string URL_PUBLISH = "api/v1/vc/publish";
@@ -114,6 +43,7 @@ namespace Model.Impl
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
         private string _address = null;
+        #endregion Constants
 
         #region Properties
         public BaseArtifactType ArtifactType { get; set; }
@@ -139,6 +69,7 @@ namespace Model.Impl
         public List<IOpenApiAttachment> Attachments { get; }
         #endregion Properties
 
+        #region Constructors
         /// <summary>
         /// Constructor in order to use it as generic type
         /// </summary>
@@ -156,7 +87,9 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             _address = address;
         }
+        #endregion Constructors
 
+        #region Methods
         /// <summary>
         /// Set Properties for the artifact object
         /// </summary>
@@ -172,7 +105,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Adds the specified artifact to Blueprint.
+        /// Adds the artifact to Blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
         /// <param name="user">The user to authenticate to blueprint.</param>
@@ -207,5 +140,31 @@ namespace Model.Impl
 
             return artifactResult.Artifact;
         }
+
+        /// <summary>
+        /// Delete the artifact to Blueprint.
+        /// </summary>
+        /// <param name="artifact">The artifact to delete.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <returns>The artifactResult after delete artifact call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public IOpenApiArtifactResult DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS + "/{1}/", artifact.ProjectId, artifact.Id);
+
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            OpenApiArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+
+            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
+            Logger.WriteDebug(I18NHelper.FormatInvariant("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
+            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+
+            return artifactResult;
+        }
+        #endregion Methods
     }
 }

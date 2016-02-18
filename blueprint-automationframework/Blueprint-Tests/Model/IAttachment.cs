@@ -6,7 +6,7 @@
         // TODO Future development
     }
 
-    public interface IOpenApiAttachment : IAttachment
+    public interface IOpenApiAttachment
     {
         int Id { get; set; }
         string FileName { get; set; }

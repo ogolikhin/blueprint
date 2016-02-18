@@ -14,7 +14,7 @@ namespace StorytellerTests
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
         private IUser _user;
-        private IArtifact _artifact;
+        private IOpenApiArtifact _artifact;
 
         #region Setup and Cleanup
 
@@ -29,7 +29,7 @@ namespace StorytellerTests
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
-            var process = new Artifact()
+            var process = new OpenApiArtifact()
             {
                 Id = 0,
                 Name = "Test Process",

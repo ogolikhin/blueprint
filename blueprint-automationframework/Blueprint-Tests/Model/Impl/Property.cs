@@ -9,12 +9,7 @@ using Utilities;
 
 namespace Model.Impl
 {
-    public class Property : IProperty
-    {
-        // TODO Future development
-    }
-
-        public class OpenApiProperty : Property, IOpenApiProperty
+        public class OpenApiProperty : IOpenApiProperty
     {
         public int PropertyTypeId { get; set; }
         public string Name { get; set; }

@@ -8,7 +8,7 @@ namespace Model
         // TODO Future development
     }
 
-    public interface IOpenApiTrace : ITrace
+    public interface IOpenApiTrace
     {
         string Type { get; set; }
         string Direction { get; set; }

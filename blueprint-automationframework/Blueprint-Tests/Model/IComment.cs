@@ -6,13 +6,13 @@
         // TODO Future development
     }
 
-    public interface IOpenApiComment : IComment
+    public interface IOpenApiComment
     {
         string LastModified { get; set; }
         bool IsClosed { get; set; }
         string Status { get; set; }
         int Id { get; set; }
-        IAuthor Author { get; set; }
+        IOpenApiAuthor Author { get; set; }
         int Version { get; set; }
         string Description { get; set; }
     }

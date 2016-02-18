@@ -28,8 +28,8 @@ namespace Model.Impl
 
         /// TODO: need to be updated for future script update
         /// <summary>
-        /// Create a property object based on the information from DB
-        /// <param name="projectId">project Id</param>
+        /// Create a property object based on the information from DB</summary>
+        /// <param name="project">project Id</param>
         /// <param name="propertyName">property Name</param>
         /// <param name="propertyValue">(optional) property Name</param>
         /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>

@@ -9,7 +9,9 @@ namespace Model
         UserTask = 2,
         End = 3,
         SystemTask = 4,
-        PreconditionSystemTask = 5
+        PreconditionSystemTask = 5,
+        UserDecision = 6,
+        SystemDecision = 7
     }
 
     public interface IProcessShape

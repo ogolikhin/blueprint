@@ -21,16 +21,9 @@ namespace Model.Factories
         /// <returns>new artifact object for the target project with selected artifactType</returns>
         /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
         /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public static IOpenApiArtifact CreateArtifact(string address, IProject project, ArtifactType artifactType)
+        public static IOpenApiArtifact CreateOpenApiArtifact(string address, IProject project, BaseArtifactType artifactType)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
-            string query = null;
-            SqlDataReader reader;
-            
-            //variables
-            int query_projectId;
-            int query_artifactTypeId;
-            string query_artifactTypeName;
 
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
             artifact.ArtifactTypeName = artifactType.ToString();
@@ -38,7 +31,7 @@ namespace Model.Factories
 
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
-                query = "SELECT Project_ItemId, ItemTypeId, Name FROM dbo.TipItemTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
+                string query = "SELECT Project_ItemId, ItemTypeId, Name FROM dbo.TipItemTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
                 using (SqlCommand cmd = database.CreateSqlCommand(query))
                 {
                     database.Open();
@@ -48,22 +41,23 @@ namespace Model.Factories
 
                     try
                     {
+                        SqlDataReader reader;
                         using (reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 reader.Read();
                             }
-                            query_projectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
-                            query_artifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
-                            query_artifactTypeName = reader["Name"].ToString();
+                            int queryProjectId = Int32.Parse(reader["Project_ItemId"].ToString(), CultureInfo.InvariantCulture);
+                            int queryArtifactTypeId = Int32.Parse(reader["ItemTypeId"].ToString(), CultureInfo.InvariantCulture);
+                            string queryArtifactTypeName = reader["Name"].ToString();
 
-                            artifact.ArtifactTypeName = query_artifactTypeName;
-                            artifact.ProjectId = query_projectId;
-                            artifact.ArtifactTypeId = query_artifactTypeId;
+                            artifact.ArtifactTypeName = queryArtifactTypeName;
+                            artifact.ProjectId = queryProjectId;
+                            artifact.ArtifactTypeId = queryArtifactTypeId;
                         }
                     }
-                    catch (System.InvalidOperationException ex)
+                    catch (InvalidOperationException ex)
                     {
                         Logger.WriteError("No artifact type is available which matches with condition. Exception details - {0}", ex);
                     }
@@ -77,10 +71,10 @@ namespace Model.Factories
         /// </summary>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IOpenApiArtifact CreateArtifact(IProject project, ArtifactType artifactType)
+        public static IOpenApiArtifact CreateOpenApiArtifact(IProject project, BaseArtifactType artifactType)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            return CreateArtifact(testConfig.BlueprintServerAddress, project, artifactType);
+            return CreateOpenApiArtifact(testConfig.BlueprintServerAddress, project, artifactType);
         }
     }
 }

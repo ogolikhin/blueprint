@@ -6,7 +6,7 @@ namespace Model.Impl
 {
     public class Process: IProcess
     {
-        public const string DefaulPreconditionName = "Precondition";
+        public const string DefaultPreconditionName = "Precondition";
         public const string DefaultUserTaskName = "User Task 1";
         public const string DefaultSystemTaskName = "System Task 1";
 
@@ -18,7 +18,7 @@ namespace Model.Impl
         public double OrderIndex { get; set; }
         public int TypeId { get; set; }
         public string TypePreffix { get; set; }
-        public int BaseItemTypePredefined { get; set; }
+        public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public int VersionId { get; set; }
         public string Description { get; set; }
         public ProcessType Type { get; set; }
@@ -35,7 +35,7 @@ namespace Model.Impl
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ArtifactReference[]>))]
         public IArtifactReference[] ArtifactPathLinks { get; set; }
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; }
+        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; set; }
     }
 
     public class ProcessShape: IProcessShape

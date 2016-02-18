@@ -58,7 +58,7 @@ namespace Model
         /// <summary>
         /// Base item type for the process artifact
         /// </summary>
-        int BaseItemTypePredefined { get; set; }
+        ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         /// <summary>
         /// Version Id of the process
@@ -127,7 +127,7 @@ namespace Model
         /// <summary>
         /// The property values for the Process artifact
         /// </summary>
-        IDictionary<string, IPropertyValueInformation> PropertyValues { get; } 
+        IDictionary<string, IPropertyValueInformation> PropertyValues { get; set; } 
         #endregion Properties
     }
 }

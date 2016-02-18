@@ -45,7 +45,7 @@ namespace OpenAPITests
         public void AddArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateArtifact(_project, ArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, ArtifactType.Actor);
 
             //Create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
@@ -76,7 +76,7 @@ namespace OpenAPITests
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateArtifact(_project, ArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, ArtifactType.Actor);
 
             //create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();

@@ -34,18 +34,16 @@ namespace OpenAPITests
             }
         }
 
-        [Test]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         /// <summary>
         /// Create an "Actor" type artifact under the existing project.
         /// </summary>
-        /// <param name="_project">the existing project</param>
-        /// <param name="_artifact">artifact object that contain artifactType information belong to property</param>
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         public void AddArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateArtifact(_project, BaseArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, BaseArtifactType.Actor);
 
             //Create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
@@ -63,20 +61,20 @@ namespace OpenAPITests
             // TODO more assertion?
         }
 
-        [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_01.txt")]
-        [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_02.txt")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+
         /// <summary>
         /// Create an "Actor" type artifact under the existing project, adding RTF value in RTF supported property field
         /// </summary>
-        /// <param name="_project">the existing project</param>
-        /// <param name="_artifact">artifact object that contain artifactType information belong to property</param>
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
+        [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_01.txt")]
+        [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_02.txt")]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+
         public void AddArtifact_Actor_With(string sampleTextPath)
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateArtifact(_project, BaseArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, BaseArtifactType.Actor);
 
             //create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.Factories;
 using Utilities;
 using Utilities.Facades;
 
@@ -27,17 +28,28 @@ namespace Model.Impl
             _artifact = new OpenApiArtifact(_address);
         }
 
-        #region Inherited from IStoryteller
+        #region Implemented from IStoryteller
 
-        public IOpenApiArtifact AddProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IOpenApiArtifact CreateProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifact.AddArtifact(process, user);
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, project, artifactType);
+
+            //Create Description property
+            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
+            IOpenApiProperty property = new OpenApiProperty();
+            properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
+
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Set the artifact properties 
+            _artifact.SetProperties(properties);
+
+            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            return _artifact.AddArtifact(_artifact, user);
         }
 
-        public IOpenApiArtifactResult DeleteProcessArtifact(IOpenApiArtifact process, IUser user)
-        {
-            return _artifact.DeleteArtifact(process, user);
-        }
         public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -105,6 +117,11 @@ namespace Model.Impl
             string processTypeName = nameof(BaseArtifactType.Process);
             return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
                 projectId: project.Id, expectedStatusCodes: expectedStatusCodes);
+        }
+
+        public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return _artifact.DeleteArtifact(process, user);
         }
 
         #endregion Inherited from IStoryteller

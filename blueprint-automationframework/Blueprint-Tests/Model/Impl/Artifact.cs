@@ -10,18 +10,11 @@ using Utilities.Facades;
 
 namespace Model.Impl
 {
-    public class Artifact : IArtifact
+    public class ArtifactBase : IArtifactBase
     {
-        // TODO update the const strings based on new api artifact specification
-        private const string SVC_PATH = "api/v1/projects";
-        private const string URL_ARTIFACTS = "artifacts";
-        private const string URL_PUBLISH = "api/v1/vc/publish";
-        private const string URL_DISCARD = "api/v1/vc/discard";
-        private const string URL_COMMENTS = "comments";
-        private const string URL_REPLIES = "replies";
-
         #region Properties
-        public BaseArtifactType ArtifactType { get; set; }
+        public BaseArtifactType BaseArtifactType { get; set; }
+        public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -29,12 +22,28 @@ namespace Model.Impl
         public int ParentId { get; set; }
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
+        public string ArtifactTypeName { get; set; }
+        public bool AreTracesReadOnly { get; set; }
+        public bool AreAttachmentsReadOnly { get; set; }
+        public bool AreDocumentReferencesReadOnly { get; set; }
         #endregion Properties
     }
 
-    public class OpenApiArtifact : IOpenApiArtifact
+    public class Artifact : ArtifactBase, IArtifact
     {
+        public IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            throw new NotImplementedException();
+        }
 
+        public IArtifactResult<IArtifact> DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
+    {
         #region Constants
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
@@ -45,29 +54,14 @@ namespace Model.Impl
         private string _address = null;
         #endregion Constants
 
-        #region Properties
-        public BaseArtifactType ArtifactType { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int ProjectId { get; set; }
-        public int Version { get; set; }
-        public int ParentId { get; set; }
-        public Uri BlueprintUrl { get; set; }
-        public int ArtifactTypeId { get; set; }
-        public string ArtifactTypeName { get; set; }
-        public string BaseArtifactType { get; set; }
-        public bool AreTracesReadOnly { get; set; }
-        public bool AreAttachmentsReadOnly { get; set; }
-        public bool AreDocumentReferencesReadOnly { get; set; }
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; private set; }
+        public List<IOpenApiProperty> Properties { get; set; }
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiComment>))]
         public List<IOpenApiComment> Comments { get; }
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiTrace>))]
         public List<IOpenApiTrace> Traces { get; }
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiAttachment>))]
         public List<IOpenApiAttachment> Attachments { get; }
-        #endregion Properties
 
         #region Constructors
         /// <summary>
@@ -89,7 +83,6 @@ namespace Model.Impl
         }
         #endregion Constructors
 
-        #region Methods
         /// <summary>
         /// Set Properties for the artifact object
         /// </summary>
@@ -97,7 +90,7 @@ namespace Model.Impl
         /// 
         public void SetProperties(List<IOpenApiProperty> properties)
         {
-            if (this.Properties == null)
+            if (Properties == null)
             {
                 Properties = new List<IOpenApiProperty>();
             }
@@ -121,13 +114,12 @@ namespace Model.Impl
 
             if (expectedStatusCodes == null)
             {
-                expectedStatusCodes = new List<HttpStatusCode>();
-                expectedStatusCodes.Add(HttpStatusCode.Created);
+                expectedStatusCodes = new List<HttpStatusCode> {HttpStatusCode.Created};
             }
 
             OpenApiArtifact artifactObject = (OpenApiArtifact)artifact;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            OpenApiArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
+            IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug(I18NHelper.FormatInvariant("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
@@ -141,15 +133,7 @@ namespace Model.Impl
             return artifactResult.Artifact;
         }
 
-        /// <summary>
-        /// Delete the artifact to Blueprint.
-        /// </summary>
-        /// <param name="artifact">The artifact to delete.</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
-        /// <returns>The artifactResult after delete artifact call</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public IOpenApiArtifactResult DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -157,7 +141,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS + "/{1}/", artifact.ProjectId, artifact.Id);
 
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
-            OpenApiArtifactResult artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug(I18NHelper.FormatInvariant("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode));
@@ -165,6 +149,5 @@ namespace Model.Impl
 
             return artifactResult;
         }
-        #endregion Methods
     }
 }

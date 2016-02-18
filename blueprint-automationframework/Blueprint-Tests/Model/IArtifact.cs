@@ -7,30 +7,22 @@ namespace Model
 
     public interface IArtifact : IArtifactBase
     {
-        // TODO Discuss with team how to update class referring IArtifact
-        int ProjectId { get; set; }
-        int Version { get; set; }
-        int ParentId { get; set; }
-        Uri BlueprintUrl { get; set; }
-        int ArtifactTypeId { get; set; }
+        // TODO Find the way or wait for the API implementation which retrieves ArtifactType
+        //ArtifactType ArtifactType { get; set; }
+        // TODO Find the way or wait for the API implementation which retrieve descrption
+        //string Description { get; set; }
+
+        IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifactResult<IArtifact> DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 
     public interface IOpenApiArtifact : IArtifactBase
     {
-        int ProjectId { get; set; }
-        int Version { get; set; }
-        int ParentId { get; set; }
-        Uri BlueprintUrl { get; set; }
-        int ArtifactTypeId { get; set; }
-        string ArtifactTypeName { get; set; }
-        string BaseArtifactType { get; set; }
-        bool AreTracesReadOnly { get; set; }
-        bool AreAttachmentsReadOnly { get; set; }
-        bool AreDocumentReferencesReadOnly { get; set; }
-        List<IOpenApiProperty> Properties { get; }
+        List<IOpenApiProperty> Properties { get; set; }
         List<IOpenApiComment> Comments { get; }
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
+
         void SetProperties(List<IOpenApiProperty> properties);
 
         /// <summary>
@@ -51,7 +43,6 @@ namespace Model
         /// <param name="expectedStatusCodes">A list of expected status codes.</param>
         /// <returns>The artifactResult after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        IOpenApiArtifactResult DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-
+        IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

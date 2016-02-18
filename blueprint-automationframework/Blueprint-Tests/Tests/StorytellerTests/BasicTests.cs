@@ -18,7 +18,7 @@ namespace StorytellerTests
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
         private IUser _user;
-        private IArtifact _artifact;
+        private IOpenApiArtifact _artifact;
         private IProject _project;
 
         #region Setup and Cleanup

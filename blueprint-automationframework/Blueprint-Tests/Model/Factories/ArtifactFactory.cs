@@ -21,7 +21,7 @@ namespace Model.Factories
         /// <returns>new artifact object for the target project with selected artifactType</returns>
         /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
         /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public static IOpenApiArtifact CreateArtifact(string address, IProject project, ArtifactType artifactType)
+        public static IOpenApiArtifact CreateArtifact(string address, IProject project, BaseArtifactType artifactType)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             string query = null;
@@ -77,7 +77,7 @@ namespace Model.Factories
         /// </summary>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
-        public static IOpenApiArtifact CreateArtifact(IProject project, ArtifactType artifactType)
+        public static IOpenApiArtifact CreateArtifact(IProject project, BaseArtifactType artifactType)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
             return CreateArtifact(testConfig.BlueprintServerAddress, project, artifactType);

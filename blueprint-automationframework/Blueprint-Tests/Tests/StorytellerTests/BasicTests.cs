@@ -1,20 +1,25 @@
 ﻿using Common;
+using System.Linq;
+using System.Collections;
 using CustomAttributes;
 using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
+    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BasicTests
     {
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
         private IUser _user;
         private IArtifact _artifact;
+        private IProject _project;
 
         #region Setup and Cleanup
 
@@ -24,24 +29,26 @@ namespace StorytellerTests
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
+            int projectId = 1; // using default project id: 1
+            _project = ProjectFactory.CreateProject(id: projectId);
 
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
             var process = new Artifact()
             {
                 Id = 0,
                 Name = "Test Process",
-                ParentId = 1,
-                ProjectId = 1, // using default project id: 1
-                ArtifactTypeId = 77 // Need to find a way to determine the artifact type id from server-side
+                ParentId = projectId, //we can use Project as a parent
+                ProjectId = _project.Id,
+                ArtifactTypeId = _storyteller.GetProcessTypeId(user: _user, project: _project)
+                //ArtifactTypeId = 369 // Need to find a way to determine the artifact type id from server-side
             };
             
 
-            _artifact = _storyteller.AddProcessArtifact(process, _user); 
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            _artifact = _storyteller.AddProcessArtifact(process, _user);
         }
 
         [TestFixtureTearDown]
@@ -74,7 +81,6 @@ namespace StorytellerTests
         public void GetDefaultProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
         {
             var process = _storyteller.GetProcess(_user, _artifact.Id);
-
             Assert.IsNotNull(process, "The returned process was null.");
             Assert.That(process.Id == _artifact.Id, I18NHelper.FormatInvariant("The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, _artifact.Id));
             Assert.That(process.Shapes.Length == defaultShapesLength, I18NHelper.FormatInvariant("The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Length));
@@ -90,6 +96,18 @@ namespace StorytellerTests
             Assert.That(process.Shapes[3].ShapeType == ProcessShapeType.SystemTask, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[3].ShapeType.ToString(), ProcessShapeType.SystemTask.ToString()));
             Assert.That(process.Shapes[4].Name == ProcessShapeType.End.ToString(), I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[4].Name, ProcessShapeType.End.ToString()));
             Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
+        }
+
+        [Test]
+        public void GetProcesses_ReturnedListContainsCreatedProcess()
+        {
+            IList<IProcess> processList = null;
+            Assert.DoesNotThrow(() =>
+            {
+                processList = _storyteller.GetProcesses(_user, 1);
+            }, "GetProcesses must not return an error.");
+            var results = processList.Where(p => (p.Name == _artifact.Name && p.TypePreffix == "SP")).ToList();
+            Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }
     }
 }

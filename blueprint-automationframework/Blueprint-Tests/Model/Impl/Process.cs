@@ -9,12 +9,15 @@ namespace Model.Impl
         public const string DefaultUserTaskName = "User Task 1";
         public const string DefaultSystemTaskName = "System Task 1";
 
+        [JsonProperty("id")]
         public int Id { get; set; }
+        [JsonProperty("name")]
         public string Name { get; set; }
         public int ParentId { get; set; }
         public uint ConnectionsAndStates { get; set; }
         public double OrderIndex { get; set; }
         public int TypeId { get; set; }
+        [JsonProperty("typePreffix")]
         public string TypePreffix { get; set; }
         public int VersionId { get; set; }
         public string Description { get; set; }

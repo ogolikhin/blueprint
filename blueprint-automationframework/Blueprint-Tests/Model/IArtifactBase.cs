@@ -1,6 +1,6 @@
 ﻿namespace Model
 {
-    public enum ArtifactType
+    public enum BaseArtifactType
     {
         Actor,
         AgilePackEpic,
@@ -34,7 +34,7 @@
     {
         // TODO Find the way or wait for the API implementation which retrieve descrption
         // string Description { get; set; }
-        ArtifactType ArtifactType { get; set; }
+        BaseArtifactType ArtifactType { get; set; }
         int Id { get; set; }
         string Name { get; set; }
     }

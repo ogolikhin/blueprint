@@ -21,7 +21,7 @@ namespace Model.Impl
         private const string URL_REPLIES = "replies";
 
         #region Properties
-        public ArtifactType ArtifactType { get; set; }
+        public BaseArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }
@@ -46,7 +46,7 @@ namespace Model.Impl
         #endregion Constants
 
         #region Properties
-        public ArtifactType ArtifactType { get; set; }
+        public BaseArtifactType ArtifactType { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public int ProjectId { get; set; }

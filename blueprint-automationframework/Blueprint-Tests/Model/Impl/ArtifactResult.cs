@@ -3,7 +3,7 @@ using Utilities;
 
 namespace Model.Impl
 {
-    public class ArtifactResult : IArtifactResult
+    public class ArtifactResult : IArtifactResult<IArtifact>
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
         public IArtifact Artifact { get; set; }
@@ -11,7 +11,7 @@ namespace Model.Impl
         public string ResultCode { get; set; }
     }
 
-    public class OpenApiArtifactResult : IOpenApiArtifactResult
+    public class OpenApiArtifactResult : IArtifactResult<IOpenApiArtifact>
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
         public IOpenApiArtifact Artifact { get; set; }

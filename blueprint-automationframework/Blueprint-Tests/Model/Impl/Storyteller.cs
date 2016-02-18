@@ -36,15 +36,11 @@ namespace Model.Impl
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, project, artifactType);
 
             //Create Description property
-            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
-            properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
+            _artifact.Properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
-
-            //Set the artifact properties 
-            _artifact.SetProperties(properties);
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             return _artifact.AddArtifact(_artifact, user);

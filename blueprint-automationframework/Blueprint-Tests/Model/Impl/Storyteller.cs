@@ -101,6 +101,7 @@ namespace Model.Impl
 
         public int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(project, nameof(project));
             string processTypeName = nameof(BaseArtifactType.Process);
             return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
                 projectId: project.Id, expectedStatusCodes: expectedStatusCodes);

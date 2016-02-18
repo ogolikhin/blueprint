@@ -24,7 +24,7 @@ namespace Model.Factories
         public static IOpenApiArtifact CreateOpenApiArtifact(string address, IProject project, BaseArtifactType artifactType)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
-
+            
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
             artifact.ArtifactTypeName = artifactType.ToString();
             artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);

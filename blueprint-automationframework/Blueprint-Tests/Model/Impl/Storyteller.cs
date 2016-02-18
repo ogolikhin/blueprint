@@ -85,6 +85,40 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
+        public IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return response.ConvertAll(o => (IProcess)o);
+        }
+
+        public int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            string processTypeName = nameof(BaseArtifactType.Process);
+            return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
+                projectId: project.Id, expectedStatusCodes: expectedStatusCodes);
+        }
+
         public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return _artifact.DeleteArtifact(process, user);

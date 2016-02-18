@@ -1,16 +1,12 @@
 ﻿using Common;
+using Newtonsoft.Json;
+using NUnit.Framework;
 using System;
 using System.Net;
-using System.Data;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Model.Factories;
+using System.Globalization;
 using Utilities;
 using Utilities.Facades;
-using Utilities.Factories;
-using System.Data.SqlClient;
-using System.Globalization;
-using NUnit.Framework;
 
 namespace Model.Impl
 {
@@ -48,6 +44,7 @@ namespace Model.Impl
 
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
+        #region Constants
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
         private const string URL_PUBLISH = "api/v1/vc/publish";
@@ -55,12 +52,18 @@ namespace Model.Impl
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
         private string _address = null;
+        #endregion Constants
 
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiProperty>))]
         public List<IOpenApiProperty> Properties { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiComment>))]
         public List<IOpenApiComment> Comments { get; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiTrace>))]
         public List<IOpenApiTrace> Traces { get; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiAttachment>))]
         public List<IOpenApiAttachment> Attachments { get; }
 
+        #region Constructors
         /// <summary>
         /// Constructor in order to use it as generic type
         /// </summary>
@@ -78,6 +81,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             _address = address;
         }
+        #endregion Constructors
 
         /// <summary>
         /// Set Properties for the artifact object
@@ -94,7 +98,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Adds the specified artifact to Blueprint.
+        /// Adds the artifact to Blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
         /// <param name="user">The user to authenticate to blueprint.</param>

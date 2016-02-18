@@ -1,14 +1,18 @@
 ﻿using Common;
+using System.Linq;
+using System.Collections;
 using CustomAttributes;
 using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
+    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BasicTests
     {
         private IAdminStore _adminStore;
@@ -30,6 +34,7 @@ namespace StorytellerTests
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
         }
@@ -66,7 +71,7 @@ namespace StorytellerTests
         {
             _artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
-            var process = _storyteller.GetProcessArtifact(_user, _artifact.Id);
+            var process = _storyteller.GetProcess(_user, _artifact.Id);
 
             Assert.IsNotNull(process, "The returned process was null.");
             Assert.That(process.Id == _artifact.Id, I18NHelper.FormatInvariant("The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, _artifact.Id));
@@ -83,6 +88,18 @@ namespace StorytellerTests
             Assert.That(process.Shapes[3].ShapeType == ProcessShapeType.SystemTask, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[3].ShapeType.ToString(), ProcessShapeType.SystemTask.ToString()));
             Assert.That(process.Shapes[4].Name == ProcessShapeType.End.ToString(), I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[4].Name, ProcessShapeType.End.ToString()));
             Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
+        }
+
+        [Test]
+        public void GetProcesses_ReturnedListContainsCreatedProcess()
+        {
+            IList<IProcess> processList = null;
+            Assert.DoesNotThrow(() =>
+            {
+                processList = _storyteller.GetProcesses(_user, 1);
+            }, "GetProcesses must not return an error.");
+            var results = processList.Where(p => (p.Name == _artifact.Name && p.TypePreffix == "SP")).ToList();
+            Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }
     }
 }

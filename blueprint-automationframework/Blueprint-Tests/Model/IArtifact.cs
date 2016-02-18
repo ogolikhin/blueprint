@@ -26,14 +26,23 @@ namespace Model
         void SetProperties(List<IOpenApiProperty> properties);
 
         /// <summary>
-        /// Adds the specified artifact to Blueprint.
+        /// Adds the artifact to Blueprint
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to blueprint.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact result after adding artifact.</returns>
+        /// <returns>The artifact added to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Delete the artifact to Blueprint.
+        /// </summary>
+        /// <param name="artifact">The artifact to delete.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <returns>The artifactResult after delete artifact call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

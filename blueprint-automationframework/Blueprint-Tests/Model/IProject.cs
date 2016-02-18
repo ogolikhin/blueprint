@@ -64,6 +64,18 @@ namespace Model
         /// </summary>
         void UpdateProject();
 
+        /// <summary>
+        /// Gets the id of the specified artifact type from the specified project.
+        /// Runs api/v1/projects/projectId/metadata/artifactTypes
+        /// </summary>
+        /// <param name="address">The base Uri address of the Blueprint server.</param>
+        /// <param name="projectId">Id of the project</param>
+        /// <param name="baseArtifactTypeName">Name of the base artifact type (Actor, Process, Storyboard)</param>
+        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <returns>Id of the specified artifact type from the specified project.</returns>
+        int GetArtifactTypeId(string address, int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion Methods
     }
 }

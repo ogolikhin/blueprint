@@ -2,12 +2,7 @@
 
 namespace Model.Impl
 {
-    public class Attachment : IAttachment
-    {
-        // TODO Future development
-    }
-
-    public class OpenApiAttachment : Attachment, IOpenApiAttachment
+    public class OpenApiAttachment : IOpenApiAttachment
     {
         public int Id { get; set; }
         public string FileName { get; set; }

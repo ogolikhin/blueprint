@@ -54,9 +54,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\StorytellerFactory.cs" />
+    <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="IPropertyValueInformation.cs" />
     <Compile Include="Impl\Storyteller.cs" />
     <Compile Include="Impl\Process.cs" />
+    <Compile Include="IArtifactType.cs" />
     <Compile Include="IArtifactReference.cs" />
     <Compile Include="IProcessLink.cs" />
     <Compile Include="IProcessShape.cs" />

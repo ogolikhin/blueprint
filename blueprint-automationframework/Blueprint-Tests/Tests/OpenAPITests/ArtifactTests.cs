@@ -21,7 +21,7 @@ namespace OpenAPITests
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject();
+            _project = ProjectFactory.GetProject(_user);
         }
 
         [TearDown]
@@ -43,7 +43,7 @@ namespace OpenAPITests
         public void AddArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, BaseArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty();
@@ -70,7 +70,7 @@ namespace OpenAPITests
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, BaseArtifactType.Actor);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
             IOpenApiProperty property = new OpenApiProperty();

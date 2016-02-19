@@ -74,7 +74,7 @@ namespace Model
         /// <param name="user">The user to authenticate to the ArtifactStore.</param>
         /// <param name="expectedStatusCodes">A list of expected status codes.</param>
         /// <returns>Id of the specified artifact type from the specified project.</returns>
-        int GetArtifactTypeId(string address, int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user);
 
         #endregion Methods
     }

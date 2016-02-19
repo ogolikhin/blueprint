@@ -29,7 +29,7 @@ namespace StorytellerTests
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject();
+            _project = ProjectFactory.GetProject(_user);
 
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -93,12 +93,13 @@ namespace StorytellerTests
         [Test]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
+            _artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             IList<IProcess> processList = null;
             Assert.DoesNotThrow(() =>
             {
                 processList = _storyteller.GetProcesses(_user, 1);
             }, "GetProcesses must not return an error.");
-            var results = processList.Where(p => (p.Name == _artifact.Name && p.TypePreffix == "SP")).ToList();
+            var results = processList.Where(p => (p.Name == _artifact.Name)).ToList();
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }
     }

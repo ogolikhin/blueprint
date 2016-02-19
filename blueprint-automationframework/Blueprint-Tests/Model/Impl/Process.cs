@@ -104,8 +104,18 @@ namespace Model.Impl
         public List<string> InputParameters { get; } = new List<string>();
         public List<string> OutputParameters { get; } = new List<string>();
         public Uri AssociatedImageUrl { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
-        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; } = new Dictionary<string, IPropertyValueInformation>();
+        public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
+
+        public void SetPropertyValues(Dictionary<string, PropertyValueInformation> propertyValues)
+        {
+            if (PropertyValues == null)
+            {
+                PropertyValues = new Dictionary<string, PropertyValueInformation>();
+            }
+            PropertyValues = propertyValues;
+        }
     }
 
     public class ProcessLink: IProcessLink
@@ -129,7 +139,7 @@ namespace Model.Impl
     public class PropertyValueInformation : IPropertyValueInformation
     {
         public string PropertyName { get; set; }
-        public PropertyTypePredefined PropertyTypePredefined { get; set; }
+        public PropertyTypePredefined TypePredefined { get; set; }
         public int? TypeId { get; set; }
         public bool IsVirtual { get; set; }
         public object Value { get; set; }

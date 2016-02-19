@@ -67,7 +67,7 @@ namespace Model
         /// <summary>
         /// The predefined property type
         /// </summary>
-        PropertyTypePredefined PropertyTypePredefined { get; set; }
+        PropertyTypePredefined TypePredefined { get; set; }
 
         /// <summary>
         /// Property Type Id as defined in the blueprint project metadata

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Model.Impl;
 
 namespace Model
 {
@@ -63,7 +64,7 @@ namespace Model
         /// <summary>
         /// The property values for the Process shape
         /// </summary>
-        IDictionary<string, IPropertyValueInformation> PropertyValues { get; }
+        Dictionary<string, PropertyValueInformation> PropertyValues { get; }
 
         #endregion Properties
     }

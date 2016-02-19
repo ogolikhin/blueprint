@@ -5,11 +5,36 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using Utilities.Factories;
+using System.Linq;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using Utilities;
+using Utilities.Facades;
+using TestConfig;
 
 namespace Model.Factories
 {
     public static class ProjectFactory
     {
+        private static string _address = getOpenApiUrl();
+
+        private static string getOpenApiUrl()
+        {
+            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            const string keyName = "Storyteller";
+
+            if (!testConfig.Services.ContainsKey(keyName))
+            {
+                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
+                Logger.WriteError(msg);
+                throw new DataException(msg);
+            }
+
+            return testConfig.Services[keyName].Address;
+        }
+
+        private const string SVC_PROJECTS_PATH = "/api/v1/projects";
+
         /// <summary>
         /// Creates a new project object with the values specified, or with random values for any unspecified parameters.
         /// </summary>
@@ -32,61 +57,33 @@ namespace Model.Factories
         /// Get the project object with the name specified, or the first project from BP database.
         /// </summary>
         /// <param name="projectName">(optional) The name of the project.</param>
-        /// <returns>The first valid project object that retrieved from DB or valid project object with the project name specified </returns>
-        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
-        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public static IProject GetProject(string projectName = null)
+        /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
+        public static IProject GetProject(IUser user, string projectName = null)
         {
-            IProject project;
-            string query = null;
-            SqlDataReader reader;
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-            int query_projectId = 0;
-            string query_projectName = "";
-            string query_projectDescription = "";
+            string path = I18NHelper.FormatInvariant("{0}", SVC_PROJECTS_PATH);
 
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
+
+            if (projects.Count == 0)
             {
-                query = "SELECT ItemId, Parent_InstanceFolderId, Name, Description FROM dbo.Items_Project WHERE Parent_InstanceFolderId is not null";
-
-                if (projectName == null)
-                {
-                    query += " and ItemId != 0 order by ItemId asc";
-                }
-                else
-                {
-                    query += " and Name = @Name";
-                }
-                Logger.WriteDebug("Running: {0}", query);
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-                    if (projectName != null)
-                    {
-                        cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = projectName;
-                    }
-                    cmd.CommandType = CommandType.Text;
-                    try
-                    {
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Read();
-                            }
-
-                            query_projectId = Int32.Parse(reader["ItemId"].ToString(), CultureInfo.InvariantCulture);
-                            query_projectName = reader["Name"].ToString();
-                            query_projectDescription = reader["Description"].ToString();
-                        }
-                    }
-                    catch(System.InvalidOperationException ex)
-                    {
-                        Logger.WriteError("No project is available which matches with condition. Exception details - {0}", ex);
-                    }
-                }
+                Logger.WriteError("No project available on the test server {0}", _address);
+                throw new DataException("No project available on the test server");
             }
-            project = new Project { Name = query_projectName, Description = query_projectDescription, Id = query_projectId };
+            Project prj;
+            if (projectName == null)
+            {
+                prj = projects.First();
+            }
+            else
+            {
+                prj = projects.First(t => (t.Name == projectName));
+            }
+            
+
+            IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};
             return project;
         }
     }

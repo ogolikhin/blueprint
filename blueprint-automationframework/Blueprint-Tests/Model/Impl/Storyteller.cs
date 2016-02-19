@@ -33,7 +33,7 @@ namespace Model.Impl
         public IOpenApiArtifact CreateProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, project, artifactType);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
 
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty();
@@ -107,13 +107,12 @@ namespace Model.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
-        public int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null)
+        public int GetProcessTypeId(IUser user, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
-
-            string processTypeName = nameof(BaseArtifactType.Process);
+            BaseArtifactType processTypeName = BaseArtifactType.Process;
             return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
-                projectId: project.Id, expectedStatusCodes: expectedStatusCodes);
+                projectId: project.Id);
         }
 
         public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)

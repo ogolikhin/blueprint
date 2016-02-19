@@ -44,7 +44,7 @@ namespace Model
         /// <param name="project">specified project</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The id of process artifact type</returns>
-        int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null);
+        int GetProcessTypeId(IUser user, IProject project);
 
         /// <summary>
         /// Updates a Process artifact

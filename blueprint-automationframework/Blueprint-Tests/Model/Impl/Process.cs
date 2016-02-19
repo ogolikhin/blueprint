@@ -28,14 +28,18 @@ namespace Model.Impl
         public int Permissions { get; set; }
         public int ArtifactDisplayId { get; set; }
         public byte[] Thumbnail { get; set; }
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
         public IProcessShape[] Shapes { get; set; }
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessLink[]>))]
         public IProcessLink[] Links { get; set; }
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ArtifactReference[]>))]
         public IArtifactReference[] ArtifactPathLinks { get; set; }
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; set; }
+        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; } = new Dictionary<string, IPropertyValueInformation>();
     }
 
     public class ProcessShape: IProcessShape

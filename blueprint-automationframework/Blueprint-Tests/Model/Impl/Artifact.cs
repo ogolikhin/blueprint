@@ -54,14 +54,17 @@ namespace Model.Impl
         private string _address = null;
         #endregion Constants
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; set; }
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiComment>))]
-        public List<IOpenApiComment> Comments { get; }
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiTrace>))]
-        public List<IOpenApiTrace> Traces { get; }
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiAttachment>))]
-        public List<IOpenApiAttachment> Attachments { get; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiProperty>))]
+        public List<IOpenApiProperty> Properties { get; } = new List<IOpenApiProperty>();
+
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiComment>))]
+        public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
+
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiTrace>))]
+        public List<IOpenApiTrace> Traces { get; } = new List<IOpenApiTrace>();
+
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiAttachment>))]
+        public List<IOpenApiAttachment> Attachments { get; } = new List<IOpenApiAttachment>();
 
         #region Constructors
         /// <summary>
@@ -82,20 +85,6 @@ namespace Model.Impl
             _address = address;
         }
         #endregion Constructors
-
-        /// <summary>
-        /// Set Properties for the artifact object
-        /// </summary>
-        /// <param name="properties">The property list</param>
-        /// 
-        public void SetProperties(List<IOpenApiProperty> properties)
-        {
-            if (Properties == null)
-            {
-                Properties = new List<IOpenApiProperty>();
-            }
-            Properties = properties;
-        }
 
         /// <summary>
         /// Adds the artifact to Blueprint.

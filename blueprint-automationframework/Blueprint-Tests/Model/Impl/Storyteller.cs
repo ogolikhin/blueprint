@@ -36,8 +36,11 @@ namespace Model.Impl
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
 
             //Create Description property
+            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
+            properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
+            _artifact.SetProperties(properties);
+
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;

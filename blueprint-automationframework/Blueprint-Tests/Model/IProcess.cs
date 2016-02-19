@@ -95,24 +95,24 @@ namespace Model
         /// Sub-artifact shapes for the process
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        List<IProcessShape> Shapes { get; }
+        List<ProcessShape> Shapes { get; }
 
         /// <summary>
         /// Sub-artifact links for the process
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        List<IProcessLink> Links { get; }
+        List<ProcessLink> Links { get; }
 
         /// <summary>
         /// Artifact path links for the Process.  This supports breadcrumb navigation
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        List<IArtifactPathLink> ArtifactPathLinks { get;}
+        List<ArtifactPathLink> ArtifactPathLinks { get; }
 
         /// <summary>
         /// The property values for the Process artifact
         /// </summary>
-        IDictionary<string, IPropertyValueInformation> PropertyValues { get; }
+        Dictionary<string, PropertyValueInformation> PropertyValues { get; }
         #endregion Properties
     }
 }

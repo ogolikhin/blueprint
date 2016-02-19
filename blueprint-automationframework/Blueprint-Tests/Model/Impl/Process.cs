@@ -7,6 +7,7 @@ namespace Model.Impl
 {
     public class Process: IProcess
     {
+
         public const string DefaultPreconditionName = "Precondition";
         public const string DefaultUserTaskName = "User Task 1";
         public const string DefaultSystemTaskName = "System Task 1";
@@ -27,17 +28,67 @@ namespace Model.Impl
         public int ArtifactDisplayId { get; set; }
         public byte[] Thumbnail { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public List<IProcessShape> Shapes { get; private set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessShape>>))]
+        public List<ProcessShape> Shapes { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessLink[]>))]
-        public List<IProcessLink> Links { get; private set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        public List<ProcessLink> Links { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<ArtifactPathLink[]>))]
-        public List<IArtifactPathLink> ArtifactPathLinks { get; private set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
+        public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; private set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
+        public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
+
+
+        public Process()
+        {
+            Shapes = new List<ProcessShape>();
+            Links = new List<ProcessLink>();
+            ArtifactPathLinks = new List<ArtifactPathLink>();
+            PropertyValues = new Dictionary<string, PropertyValueInformation>();
+        }
+
+        public void SetShapes(List<ProcessShape> shapes)
+        {
+            if (Shapes == null)
+            {
+                Shapes = new List<ProcessShape>();
+            }
+            Shapes = shapes;
+        }
+
+        public void SetLinks(List<ProcessLink> links)
+        {
+            if (Links == null)
+            {
+                Links = new List<ProcessLink>();
+            }
+            Links = links;
+        }
+
+        public void SetArtifactPathLinks(List<ArtifactPathLink> artifactPathLinks)
+        {
+            if (ArtifactPathLinks == null)
+            {
+                ArtifactPathLinks = new List<ArtifactPathLink>();
+            }
+            ArtifactPathLinks = artifactPathLinks;
+        }
+
+        public void SetPropertyValues(Dictionary<string, PropertyValueInformation> propertyValues)
+        {
+            if (PropertyValues == null)
+            {
+                PropertyValues = new Dictionary<string, PropertyValueInformation>();
+            }
+            PropertyValues = propertyValues;
+        }
+
     }
 
     public class ProcessShape: IProcessShape
@@ -53,6 +104,7 @@ namespace Model.Impl
         public List<string> InputParameters { get; } = new List<string>();
         public List<string> OutputParameters { get; } = new List<string>();
         public Uri AssociatedImageUrl { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
         public IDictionary<string, IPropertyValueInformation> PropertyValues { get; } = new Dictionary<string, IPropertyValueInformation>();
     }
 

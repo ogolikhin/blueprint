@@ -35,10 +35,6 @@ namespace Model.Impl
             //Create an artifact with ArtifactType and populate all required values without properties
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
 
-            //Create Description property
-            IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(project, "Description", "DescriptionValue"));
-
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 

@@ -25,7 +25,7 @@ namespace Model.Impl
         public string Prefix { get; set; }
 
         [JsonProperty("BaseArtifactType")]
-        public string BaseArtifactType { get; set; }
+        public BaseArtifactType BaseArtifactType { get; set; }
 
         #endregion Properties
         public ArtifactType()

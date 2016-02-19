@@ -17,7 +17,7 @@ namespace Model
 
         string Prefix { get; set; }
 
-        string BaseArtifactType { get; set; }
+        BaseArtifactType BaseArtifactType { get; set; }
 
         #endregion Properties
         #region Methods

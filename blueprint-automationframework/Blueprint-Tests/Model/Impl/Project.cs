@@ -19,7 +19,6 @@ namespace Model.Impl
         /// PATHs of the project related APIs
         /// </summary>
         private const string SVC_PROJECTS_PATH = "/api/v1/projects";
-        private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
 
         /// <summary>
@@ -118,16 +117,16 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public int GetArtifactTypeId(string address, int projectId, string baseArtifactTypeName, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user)
         {
             ThrowIf.ArgumentNull(projectId, nameof(projectId));
             ThrowIf.ArgumentNull(baseArtifactTypeName, nameof(baseArtifactTypeName));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, projectId, URL_ARTIFACTTYPES);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, projectId, URL_ARTIFACTTYPES);
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password);
-            List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET);
 
             ArtifactType artifactType = artifactTypes.First(t => (t.BaseArtifactType == baseArtifactTypeName));
 

@@ -127,7 +127,7 @@ namespace Model
         /// <summary>
         /// The property values for the Process artifact
         /// </summary>
-        IDictionary<string, IPropertyValueInformation> PropertyValues { get; set; } 
+        IDictionary<string, IPropertyValueInformation> PropertyValues { get; }
         #endregion Properties
     }
 }

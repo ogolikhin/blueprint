@@ -18,12 +18,10 @@ namespace Model
 
     public interface IOpenApiArtifact : IArtifactBase
     {
-        List<IOpenApiProperty> Properties { get; set; }
+        List<IOpenApiProperty> Properties { get; }
         List<IOpenApiComment> Comments { get; }
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
-
-        void SetProperties(List<IOpenApiProperty> properties);
 
         /// <summary>
         /// Adds the artifact to Blueprint

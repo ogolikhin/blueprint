@@ -14,7 +14,7 @@ namespace Utilities
         /// <param name="arg">The argument to check for null.</param>
         /// <param name="nameOfArg">The name of the arg (use the nameof() function for this).</param>
         /// <param name="message">(optional) An additional message to include in the exception.</param>
-        public static void ArgumentNull([ValidatedNotNull] this object arg, string nameOfArg, string message = null)
+        public static void ArgumentNull([ValidatedNotNull] object arg, string nameOfArg, string message = null)
         {
             if (arg == null)
             {
@@ -29,7 +29,7 @@ namespace Utilities
         /// <param name="arg">The string to check for null or whitespace.</param>
         /// <param name="nameOfArg">The name of the string variable (use the nameof() function for this).</param>
         /// <param name="message">(optional) An additional message to include in the exception.</param>
-        public static void IsNullOrWhiteSpace([ValidatedNotNull] this string arg, string nameOfArg, string message = null)
+        public static void IsNullOrWhiteSpace([ValidatedNotNull] string arg, string nameOfArg, string message = null)
         {
             if (string.IsNullOrWhiteSpace(arg))
             {

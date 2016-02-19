@@ -66,21 +66,6 @@ namespace Model
         int VersionId { get; set; }
 
         /// <summary>
-        /// Description of the process
-        /// </summary>
-        string Description { get; set; }
-
-        /// <summary>
-        /// Process Type of the process
-        /// </summary>
-        ProcessType Type { get; set; }
-
-        /// <summary>
-        /// Raw data of the process
-        /// </summary>
-        string RawData { get; set; }
-
-        /// <summary>
         /// User id of the the user that has a lock on the Process
         /// </summary>
         int? LockedByUserId { get; set; }
@@ -110,19 +95,19 @@ namespace Model
         /// Sub-artifact shapes for the process
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        IProcessShape[] Shapes { get; set; }
+        List<IProcessShape> Shapes { get; }
 
         /// <summary>
         /// Sub-artifact links for the process
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        IProcessLink[] Links { get; set; }
+        List<IProcessLink> Links { get; }
 
         /// <summary>
         /// Artifact path links for the Process.  This supports breadcrumb navigation
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-        IArtifactReference[] ArtifactPathLinks { get; set; }
+        List<IArtifactPathLink> ArtifactPathLinks { get;}
 
         /// <summary>
         /// The property values for the Process artifact

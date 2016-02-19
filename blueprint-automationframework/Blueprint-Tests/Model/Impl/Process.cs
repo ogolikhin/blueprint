@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
 
@@ -20,9 +21,6 @@ namespace Model.Impl
         public string TypePreffix { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public int VersionId { get; set; }
-        public string Description { get; set; }
-        public ProcessType Type { get; set; }
-        public string RawData { get; set; }
         public int? LockedByUserId { get; set; }
         public int? ArtifactInfoParentId { get; set; }
         public int Permissions { get; set; }
@@ -30,16 +28,16 @@ namespace Model.Impl
         public byte[] Thumbnail { get; set; }
 
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public IProcessShape[] Shapes { get; set; }
+        public List<IProcessShape> Shapes { get; private set; }
 
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessLink[]>))]
-        public IProcessLink[] Links { get; set; }
+        public List<IProcessLink> Links { get; private set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<ArtifactReference[]>))]
-        public IArtifactReference[] ArtifactPathLinks { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<ArtifactPathLink[]>))]
+        public List<IArtifactPathLink> ArtifactPathLinks { get; private set; }
 
         [JsonConverter(typeof(Deserialization.ConcreteConverter<ProcessShape[]>))]
-        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; } = new Dictionary<string, IPropertyValueInformation>();
+        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; private set; }
     }
 
     public class ProcessShape: IProcessShape
@@ -47,13 +45,15 @@ namespace Model.Impl
         public int Id { get; set; }
         public string Name { get; set; }
         public int ParentId { get; set; }
-        public string Label { get; set; }
-        public string Description { get; set; }
-        public ProcessShapeType ShapeType { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
+        public int ProjectId { get; set; }
+        public string TypePreffix { get; set; }
+        public ItemTypePredefined BaseItemTypePredefined { get; set; }
+        public string Purpose { get; set; }
+        public int? UserTaskId { get; set; }
+        public List<string> InputParameters { get; } = new List<string>();
+        public List<string> OutputParameters { get; } = new List<string>();
+        public Uri AssociatedImageUrl { get; set; }
+        public IDictionary<string, IPropertyValueInformation> PropertyValues { get; } = new Dictionary<string, IPropertyValueInformation>();
     }
 
     public class ProcessLink: IProcessLink
@@ -64,7 +64,7 @@ namespace Model.Impl
         public string Label { get; set; }
     }
 
-    public class ArtifactReference : IArtifactReference
+    public class ArtifactPathLink : IArtifactPathLink
     {
         public int Id { get; set; }
         public int ProjectId { get; set; }

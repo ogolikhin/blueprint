@@ -114,14 +114,17 @@ namespace Model.Impl
         public int GetProcessTypeId(IUser user, IProject project, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+
             string processTypeName = nameof(BaseArtifactType.Process);
             return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
                 projectId: project.Id, expectedStatusCodes: expectedStatusCodes);
         }
 
-        public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return _artifact.DeleteArtifact(process, user);
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            return artifact.DeleteArtifact(artifact, user, expectedStatusCodes);
         }
 
         #endregion Inherited from IStoryteller

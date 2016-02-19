@@ -58,10 +58,10 @@ namespace Model
         /// <summary>
         /// Deletes the process artifact
         /// </summary>
-        /// <param name="process">The artifact to be deleted.</param>
+        /// <param name="artifact">The artifact to be deleted.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
-        IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -55,7 +55,7 @@ namespace Model.Impl
         #endregion Constants
 
         [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; } = new List<IOpenApiProperty>();
+        public List<IOpenApiProperty> Properties { get; private set; }
 
         [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiComment>))]
         public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
@@ -86,14 +86,17 @@ namespace Model.Impl
         }
         #endregion Constructors
 
-        /// <summary>
-        /// Adds the artifact to Blueprint.
-        /// </summary>
-        /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to blueprint.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact result after adding artifact.</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        #region Methods
+
+        public void SetProperties(List<IOpenApiProperty> properties)
+        {
+            if (this.Properties == null)
+            {
+                Properties = new List<IOpenApiProperty>();
+            }
+            Properties = properties;
+        }
+
         public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -138,5 +141,7 @@ namespace Model.Impl
 
             return artifactResult;
         }
+
+        #endregion Methods
     }
 }

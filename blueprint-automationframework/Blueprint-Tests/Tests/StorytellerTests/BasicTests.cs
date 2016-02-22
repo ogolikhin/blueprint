@@ -19,7 +19,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private IOpenApiArtifact _artifact;
 
         #region Setup and Cleanup
 
@@ -42,9 +41,13 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_artifact != null)
+            if (_storyteller.Artifacts != null)
             {
-                _storyteller.DeleteProcessArtifact(_artifact, _user);
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts)
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user);
+                }
             }
 
             if (_adminStore != null)
@@ -70,12 +73,12 @@ namespace StorytellerTests
         [TestCase(5, 4, ProcessType.BusinessProcess)]
         public void GetDefaultProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
         {
-            _artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
-            var process = _storyteller.GetProcess(_user, _artifact.Id);
+            var process = _storyteller.GetProcess(_user, artifact.Id);
 
             Assert.IsNotNull(process, "The returned process was null.");
-            Assert.That(process.Id == _artifact.Id, I18NHelper.FormatInvariant("The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, _artifact.Id));
+            Assert.That(process.Id == artifact.Id, I18NHelper.FormatInvariant("The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, artifact.Id));
             Assert.That(process.Shapes.Count == defaultShapesLength, I18NHelper.FormatInvariant("The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count));
             Assert.That(process.Links.Count == defaultLinksLength, I18NHelper.FormatInvariant("The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count));
             //Assert.That(process.Type == processType, I18NHelper.FormatInvariant("The process type returned was '{0}', but '{1}' was expected", process.Type.ToString(), processType.ToString()));
@@ -94,13 +97,13 @@ namespace StorytellerTests
         [Test]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            _artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             IList<IProcess> processList = null;
             Assert.DoesNotThrow(() =>
             {
                 processList = _storyteller.GetProcesses(_user, 1);
             }, "GetProcesses must not return an error.");
-            var results = processList.Where(p => (p.Name == _artifact.Name)).ToList();
+            var results = processList.Where(p => (p.Name == artifact.Name)).ToList();
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }
     }

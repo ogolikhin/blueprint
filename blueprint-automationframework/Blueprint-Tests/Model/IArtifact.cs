@@ -23,8 +23,6 @@ namespace Model
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
 
-        void SetProperties(List<IOpenApiProperty> properties);
-
         /// <summary>
         /// Property Setter
         /// </summary>

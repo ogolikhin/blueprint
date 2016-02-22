@@ -1,6 +1,7 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Model.Factories;
 using Utilities;
@@ -16,10 +17,11 @@ namespace Model.Impl
         private IOpenApiArtifact _artifact;
         private readonly string _address;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="address">The URI address of the Storyteller REST API</param>
+        public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
+
+
+        #region Constructor
+
         public Storyteller(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -27,6 +29,9 @@ namespace Model.Impl
             _address = address;
             _artifact = new OpenApiArtifact(_address);
         }
+
+        #endregion Constructor
+
 
         #region Implemented from IStoryteller
 
@@ -38,8 +43,26 @@ namespace Model.Impl
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
+            var artifact = _artifact.AddArtifact(_artifact, user);
+            _artifact.Id = artifact.Id;
+
+            Artifacts.Add(_artifact);
+
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            return _artifact.AddArtifact(_artifact, user);
+            return artifact;
+        }
+
+        public List<IOpenApiArtifact> CreateProcessArtifacts(IStoryteller storyteller, IProject project, IUser user, int numberOfArtifacts)
+        {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            var artifacts = new List<IOpenApiArtifact>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                artifacts.Add(storyteller.CreateProcessArtifact(project, BaseArtifactType.Process, user));
+            }
+
+            return artifacts;
         }
 
         public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -58,7 +81,44 @@ namespace Model.Impl
             var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, id);
             if (versionIndex.HasValue)
             {
-                path = I18NHelper.FormatInvariant(path + "/{0}", versionIndex);
+                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
+            }
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<Process>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return response;
+        }
+
+        public IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(ids, nameof(ids));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var path = I18NHelper.FormatInvariant("{0}/processes", SVC_PATH);
+
+            foreach (var id in ids)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", path, id);
+            }
+
+            if (versionIndex.HasValue)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
             }
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
@@ -115,9 +175,11 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
+            Artifacts.Remove(Artifacts.First(i => i.Id == artifact.Id));
+
             return artifact.DeleteArtifact(artifact, user, expectedStatusCodes);
         }
 
-        #endregion Inherited from IStoryteller
+        #endregion Implemented from IStoryteller
     }
 }

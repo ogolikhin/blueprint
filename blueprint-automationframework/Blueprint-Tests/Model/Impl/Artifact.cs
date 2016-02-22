@@ -124,15 +124,6 @@ namespace Model.Impl
 
         #region Methods
 
-        public void SetProperties(List<IOpenApiProperty> properties)
-        {
-            if (this.Properties == null)
-            {
-                Properties = new List<IOpenApiProperty>();
-            }
-            Properties = properties;
-        }
-
         public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));

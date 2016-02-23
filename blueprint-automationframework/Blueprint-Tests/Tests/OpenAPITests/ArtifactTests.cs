@@ -65,7 +65,7 @@ namespace OpenAPITests
         public void PublishArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
             List<IOpenApiProperty> properties = new List<IOpenApiProperty>();

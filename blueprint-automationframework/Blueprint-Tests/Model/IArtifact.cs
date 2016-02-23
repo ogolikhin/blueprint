@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -23,6 +24,14 @@ namespace Model
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
 
+        string RetrieveAddress();
+
+        /// <summary>
+        /// address setter
+        /// </summary>
+        /// <param name="address"> Blueprint server address value</param>
+        void SetAddress(string address);
+
         /// <summary>
         /// Property Setter
         /// </summary>
@@ -38,6 +47,15 @@ namespace Model
         /// <returns>The artifact added to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publish added artifact(s) to Blueprint
+        /// </summary>
+        /// <param name="artifactList">The artifact(s) to be published.</param>
+        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '200' is expected.</param>
+        /// <returns>The artifact publish to blueprint</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<PublishArtifactResult> PublishArtifact(List<IOpenApiArtifact> artifactList, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete the artifact to Blueprint.

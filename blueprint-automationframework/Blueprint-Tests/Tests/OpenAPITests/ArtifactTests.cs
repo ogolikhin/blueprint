@@ -29,7 +29,8 @@ namespace OpenAPITests
         {
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: true);
+                // TODO Investigate how to remove user after publishing artifact with the particular Database User
+                //_user.DeleteUser(deleteFromDatabase: true);
                 _user = null;
             }
         }
@@ -54,11 +55,38 @@ namespace OpenAPITests
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             _artifact.AddArtifact(_artifact, _user);
             // TODO more assertion?
         }
 
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        public void PublishArtifact_Actor()
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+
+            //Create Description property
+            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
+            IOpenApiProperty property = new OpenApiProperty();
+            properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+            _artifact.SetProperties(properties);
+
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            _artifact = _artifact.AddArtifact(_artifact, _user);
+
+            //Adding all artifact(s) to publish
+            List<IOpenApiArtifact> _artifactList = new List<IOpenApiArtifact>();
+            _artifactList.Add(_artifact);
+            // TODO more assertion?
+
+            //Publish artifact(s)     
+            _artifact.PublishArtifact(_artifactList, _user);
+        }
 
         /// <summary>
         /// Create an "Actor" type artifact under the existing project, adding RTF value in RTF supported property field

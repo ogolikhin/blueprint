@@ -88,6 +88,15 @@ namespace Model.Impl
 
         #region Methods
 
+        public string RetrieveAddress()
+        {
+            return _address;
+        }
+        public void SetAddress(string address)
+        {
+            _address = address;
+        }
+
         public void SetProperties(List<IOpenApiProperty> properties)
         {
             if (this.Properties == null)
@@ -121,8 +130,40 @@ namespace Model.Impl
             Assert.That(artifactResult.Message == "Success", I18NHelper.FormatInvariant("The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, "Success"));
 
             Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture), I18NHelper.FormatInvariant("The returned ResultCode was '{0}' but '{1}' was expected", artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture)));
+            //add back address
+            artifactResult.Artifact.SetAddress(artifact.RetrieveAddress());
 
             return artifactResult.Artifact;
+        }
+
+        public List<PublishArtifactResult> PublishArtifact(List<IOpenApiArtifact> artifactList, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(URL_PUBLISH);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            additionalHeaders.Add("KeepLock", "true");
+
+            OpenApiArtifact artifactElement;
+            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
+            foreach (IOpenApiArtifact artifact in artifactList)
+            {
+                artifactElement = new OpenApiArtifact(artifact.RetrieveAddress());
+                artifactElement.Id = artifact.Id;
+                artifactElement.ProjectId = artifact.ProjectId;
+                artifactObjectList.Add(artifactElement);
+            }
+
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+
+            List<PublishArtifactResult> artifactResult = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            return artifactResult;
         }
 
         public IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)

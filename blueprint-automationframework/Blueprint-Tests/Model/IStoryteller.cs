@@ -6,6 +6,11 @@ namespace Model
     public interface IStoryteller
     {
         /// <summary>
+        /// List of created artifacts.
+        /// </summary>
+        List<IOpenApiArtifact> Artifacts { get; }
+
+        /// <summary>
         /// Creates a Process type artifact
         /// </summary>
         /// <param name="project">The project where the Process artifact is to be added</param>
@@ -14,6 +19,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
         /// <returns></returns>
         IOpenApiArtifact CreateProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Creates multiple Process artifacts
+        /// </summary>
+        /// <param name="storyteller">The storyteller object used to create Processes</param>
+        /// <param name="project">The project where the Process artifact is to be added</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="numberOfArtifacts"></param>
+        /// <returns></returns>
+        List<IOpenApiArtifact> CreateProcessArtifacts(IStoryteller storyteller, IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
         /// Gets a Process artifact
@@ -25,6 +40,17 @@ namespace Model
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The requested process artifact</returns>
         IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets a Process artifact from a breadcrumb trail
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="ids">Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
+        /// <param name="versionIndex">(optional) Version of the process artifact</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The requested process artifact</returns>
+        IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Gets list of processes for the specified projectId
@@ -42,7 +68,6 @@ namespace Model
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="project">specified project</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The id of process artifact type</returns>
         int GetProcessTypeId(IUser user, IProject project);
 
@@ -58,10 +83,10 @@ namespace Model
         /// <summary>
         /// Deletes the process artifact
         /// </summary>
-        /// <param name="process">The artifact to be deleted.</param>
+        /// <param name="artifact">The artifact to be deleted.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
-        IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact process, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

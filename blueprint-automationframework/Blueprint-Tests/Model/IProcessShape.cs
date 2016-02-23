@@ -1,4 +1,7 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Model.Impl;
 
 namespace Model
 {
@@ -34,39 +37,34 @@ namespace Model
         int ParentId { get; set; }
 
         /// <summary>
-        /// Label for the shape
+        /// Project containing the Process
         /// </summary>
-        string Label { get; set; }
+        int ProjectId { get; set; }
 
         /// <summary>
-        /// Description for the shape
+        /// Prefix of the process type
         /// </summary>
-        string Description { get; set; }
+        string TypePreffix { get; set; }
 
         /// <summary>
-        /// Shape type for the shape
+        /// Base item type for the process artifact
         /// </summary>
-        ProcessShapeType ShapeType { get; set; }
+        ItemTypePredefined BaseItemTypePredefined { get; set; }
+
+        string Purpose { get; set; }
+
+        int? UserTaskId { get; set; }
+
+        List<string> InputParameters { get; }
+
+        List<string> OutputParameters { get; }
+
+        Uri AssociatedImageUrl { get; set; }
 
         /// <summary>
-        /// X coordinate for the shape
+        /// The property values for the Process shape
         /// </summary>
-        double X { get; set; }
-
-        /// <summary>
-        /// Y coordinate for the shape
-        /// </summary>
-        double Y { get; set; }
-
-        /// <summary>
-        /// Width of the shape
-        /// </summary>
-        double Width { get; set; }
-
-        /// <summary>
-        /// Height of the shape
-        /// </summary>
-        double Height { get; set; }
+        Dictionary<string, PropertyValueInformation> PropertyValues { get; }
 
         #endregion Properties
     }

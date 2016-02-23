@@ -58,13 +58,49 @@ namespace Model.Impl
         public List<IOpenApiProperty> Properties { get; private set; }
 
         [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiComment>))]
-        public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
+        public List<IOpenApiComment> Comments { get; private set; }
 
         [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiTrace>))]
-        public List<IOpenApiTrace> Traces { get; } = new List<IOpenApiTrace>();
+        public List<IOpenApiTrace> Traces { get; private set; }
 
         [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiAttachment>))]
-        public List<IOpenApiAttachment> Attachments { get; } = new List<IOpenApiAttachment>();
+        public List<IOpenApiAttachment> Attachments { get; private set; }
+
+        public void SetProperties(List<IOpenApiProperty> properties)
+        {
+            if (Properties == null)
+            {
+                Properties = new List<IOpenApiProperty>();
+            }
+            Properties = properties;
+        }
+
+        public void SetComments(List<IOpenApiComment> comments)
+        {
+            if (Comments == null)
+            {
+                Comments = new List<IOpenApiComment>();
+            }
+            Comments = comments;
+        }
+
+        public void SetTraces(List<IOpenApiTrace> traces)
+        {
+            if (Traces == null)
+            {
+                Traces = new List<IOpenApiTrace>();
+            }
+            Traces = traces;
+        }
+
+        public void SetAttachments(List<IOpenApiAttachment> attachments)
+        {
+            if (Attachments == null)
+            {
+                Attachments = new List<IOpenApiAttachment>();
+            }
+            Attachments = attachments;
+        }
 
         #region Constructors
         /// <summary>
@@ -87,15 +123,6 @@ namespace Model.Impl
         #endregion Constructors
 
         #region Methods
-
-        public void SetProperties(List<IOpenApiProperty> properties)
-        {
-            if (this.Properties == null)
-            {
-                Properties = new List<IOpenApiProperty>();
-            }
-            Properties = properties;
-        }
 
         public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

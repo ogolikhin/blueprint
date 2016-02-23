@@ -95,6 +95,7 @@ namespace StorytellerTests
             List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
+            // Inject nonexistent artifact id into artifact ids list used for breadcrumb
             artifactIds[nonexistentArtifactIndex] = nonexistentArtifactId;
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
@@ -114,8 +115,8 @@ namespace StorytellerTests
             List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
+            // create and inject artifact id created by another user
             var inaccessibleArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
-
             artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);

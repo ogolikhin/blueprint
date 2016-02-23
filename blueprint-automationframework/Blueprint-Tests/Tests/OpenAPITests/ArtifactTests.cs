@@ -8,7 +8,6 @@ using System.Collections.Generic;
 
 namespace OpenAPITests
 {
-
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class ArtifactTests
@@ -55,8 +54,11 @@ namespace OpenAPITests
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
-            //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact.AddArtifact(_artifact, _user);
+            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            var artifact = _artifact.AddArtifact(_artifact, _user);
+
+            Assert.NotNull(artifact.Properties, "Properties should not be null!");
+
             // TODO more assertion?
         }
 

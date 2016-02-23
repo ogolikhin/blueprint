@@ -55,26 +55,32 @@ namespace Model.Impl
         #endregion Constants
 
         #region Properties
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; private set; }
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
+        public List<IOpenApiProperty> Properties { get; private set; } = new List<IOpenApiProperty>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiComment>))]
-        public List<IOpenApiComment> Comments { get; private set; }
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiComment, OpenApiComment>))]
+        public List<IOpenApiComment> Comments { get; private set; } = new List<IOpenApiComment>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiTrace>))]
-        public List<IOpenApiTrace> Traces { get; private set; }
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiTrace, OpenApiTrace>))]
+        public List<IOpenApiTrace> Traces { get; private set; } = new List<IOpenApiTrace>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiAttachment>))]
-        public List<IOpenApiAttachment> Attachments { get; private set; }
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiAttachment, OpenApiAttachment>))]
+        public List<IOpenApiAttachment> Attachments { get; private set; } = new List<IOpenApiAttachment>();
         #endregion Properties
 
         public void SetProperties(List<IOpenApiProperty> properties)
         {
-            if (Properties == null)
+            ThrowIf.ArgumentNull(properties, nameof(properties));
+
+            if (this.Properties == null)
             {
                 Properties = new List<IOpenApiProperty>();
             }
-            Properties = properties;
+
+            foreach (var prop in properties)
+            {
+                Properties.Add(prop);
+            }
         }
 
         public void SetComments(List<IOpenApiComment> comments)
@@ -125,12 +131,12 @@ namespace Model.Impl
         #endregion Constructors
 
         #region Methods
+
         public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-            additionalHeaders.Add("Accept", "application/json");
 
             string path = I18NHelper.FormatInvariant(SVC_PATH + "/{0}/" + URL_ARTIFACTS, artifact.ProjectId);
 

@@ -18,4 +18,12 @@ namespace Model.Impl
         public string Message { get; set; }
         public string ResultCode { get; set; }
     }
+
+    public class PublishArtifactResult : IPublishArtifactResult
+    {
+        public string ArtifactId { get; set; }
+        public string Message { get; set; }
+        public string ResultCode { get; set; }
+        public string ProjectId { get; set; }
+    }
 }

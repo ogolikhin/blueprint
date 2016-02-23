@@ -6,4 +6,12 @@
         string Message { get; set; }
         string ResultCode { get; set; }
     }
+
+    public interface IPublishArtifactResult
+    {
+        string ArtifactId { get; set; }
+        string ProjectId { get; set; }
+        string Message { get; set; }
+        string ResultCode { get; set; }
+    }
 }

@@ -97,5 +97,6 @@ namespace Model
         bool AreTracesReadOnly { get; set; }
         bool AreAttachmentsReadOnly { get; set; }
         bool AreDocumentReferencesReadOnly { get; set; }
+        string Address { get; set; }
     }
 }

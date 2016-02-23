@@ -16,9 +16,12 @@ namespace StorytellerTests
     [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BreadcrumbTests
     {
+        private const string STORYTELLER_BASE_URL = "/Web/#/Storyteller/{0}/";
+
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
-        private IUser _user;
+        private IUser _primaryUser;
+        private IUser _secondaryUser;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -28,15 +31,18 @@ namespace StorytellerTests
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject(_user);
+            _primaryUser = UserFactory.CreateUserAndAddToDatabase();
+            _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
+            _project = ProjectFactory.GetProject(_primaryUser);
 
             // Get a valid token for the user.
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            ISession primaryUserSession = _adminStore.AddSession(_primaryUser.Username, _primaryUser.Password);
+            _primaryUser.SetToken(primaryUserSession.SessionId);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.AccessControlToken), "The primary user didn't get an Access Control token!");
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            ISession secondaryUserSession = _adminStore.AddSession(_secondaryUser.Username, _secondaryUser.Password);
+            _secondaryUser.SetToken(secondaryUserSession.SessionId);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.AccessControlToken), "The secondary user didn't get an Access Control token!");
         }
 
         [TestFixtureTearDown]
@@ -61,10 +67,10 @@ namespace StorytellerTests
                 }
             }
 
-            if (_user != null)
+            if (_primaryUser != null)
             {
-                _user.DeleteUser();
-                _user = null;
+                _primaryUser.DeleteUser();
+                _primaryUser = null;
             }
         }
 
@@ -72,14 +78,77 @@ namespace StorytellerTests
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(3)]
-        public void GetDefaultProcessWithValidPaths_VerifyReturnedBreadcrumb(int numberOfArtifacts)
+        public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact>  artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _user, numberOfArtifacts);
+            List<IOpenApiArtifact>  artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_user, artifactIds);
+            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
 
+            AssertBreadcrumb(numberOfArtifacts, artifacts, process);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase(3, 1, 99999999)]
+        public void GetDefaultProcessWithNonexistentArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int nonexistentArtifactIndex, int nonexistentArtifactId)
+        {
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _primaryUser, numberOfArtifacts);
+            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+
+            // Inject nonexistent artifact id into artifact ids list used for breadcrumb
+            artifactIds[nonexistentArtifactIndex] = nonexistentArtifactId;
+
+            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
+
+            // Assert nonexistant artifact in artifact path links (breadcrumb) as expected
+            Assert.That(process.ArtifactPathLinks[nonexistentArtifactIndex].Id == artifactIds[nonexistentArtifactIndex], I18NHelper.FormatInvariant("Expected nonexistent artifact Id is {0} but artifact Id {1} was returned", artifactIds[nonexistentArtifactIndex], process.ArtifactPathLinks[nonexistentArtifactIndex].Id));
+            Assert.That(process.ArtifactPathLinks[nonexistentArtifactIndex].Name == "<Inaccessible>", I18NHelper.FormatInvariant("Expected nonexistent artifact Name is {0} but artifact name {1} was returned", "<Inaccessible>", process.ArtifactPathLinks[nonexistentArtifactIndex].Name));
+            Assert.That(process.ArtifactPathLinks[nonexistentArtifactIndex].Link == null, I18NHelper.FormatInvariant("Expected nonexistent artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks[nonexistentArtifactIndex].Link));
+
+            AssertBreadcrumb(numberOfArtifacts, artifacts, process, nonexistentArtifactIndex);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase(3, 1)]
+        public void GetDefaultProcessWithInaccessibleArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int inaccessibleArtifactIndex)
+        {
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_storyteller, _project, _primaryUser, numberOfArtifacts);
+            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+
+            // create and inject artifact id created by another user
+            var inaccessibleArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
+            artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
+
+            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
+
+            // Assert inaccessible artifact in artifact path links (breadcrumb) as expected
+            Assert.That(process.ArtifactPathLinks[inaccessibleArtifactIndex].Id == artifactIds[inaccessibleArtifactIndex], I18NHelper.FormatInvariant("Expected inaccessible artifact Id is {0} but artifact Id {1} was returned", artifactIds[inaccessibleArtifactIndex], process.ArtifactPathLinks[inaccessibleArtifactIndex].Id));
+            Assert.That(process.ArtifactPathLinks[inaccessibleArtifactIndex].Name == "<Inaccessible>", I18NHelper.FormatInvariant("Expected inaccessible artifact Name is {0} but artifact name {1} was returned", "<Inaccessible>", process.ArtifactPathLinks[inaccessibleArtifactIndex].Name));
+            Assert.That(process.ArtifactPathLinks[inaccessibleArtifactIndex].Link == null, I18NHelper.FormatInvariant("Expected inaccessible artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks[inaccessibleArtifactIndex].Link));
+
+            AssertBreadcrumb(numberOfArtifacts, artifacts, process, inaccessibleArtifactIndex);
+        }
+
+        private static void AssertBreadcrumb(int numberOfArtifacts, List<IOpenApiArtifact> artifacts, IProcess process, int? artifactIndex = null)
+        {
             Assert.IsNotNull(process, "The returned process was null.");
+            Assert.That(process.Id == artifacts.Last().Id);
+
+            // Assert final process in artifact path links (breadcrumb) as expected
+            Assert.That(process.ArtifactPathLinks.Last().Id == process.Id, I18NHelper.FormatInvariant("Expected final process artifact Id is {0} but artifact Id {1} was returned", process.Id, process.ArtifactPathLinks.Last().Id));
+            Assert.That(process.ArtifactPathLinks.Last().Name == process.Name, I18NHelper.FormatInvariant("Expected final process artifact Name is {0} but artifact name {1} was returned", process.Name, process.ArtifactPathLinks.Last().Name));
+            Assert.That(process.ArtifactPathLinks.Last().Link == null, I18NHelper.FormatInvariant("Expected final process artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks.Last().Link));
+
+            for (int i = 0; i < numberOfArtifacts - 1; i++)
+            {
+                if (artifactIndex != null && i!= artifactIndex)
+                {
+                    // Assert all other artifacts in artifact path links (breadcrumb) as expected
+                    Assert.That(process.ArtifactPathLinks[i].Id == artifacts[i].Id, I18NHelper.FormatInvariant("Expected artifact Id is {0} but artifact Id {1} was returned", artifacts[i].Id, process.ArtifactPathLinks[i].Id));
+                    Assert.That(process.ArtifactPathLinks[i].Name == artifacts[i].Name, I18NHelper.FormatInvariant("Expected artifact Name is {0} but artifact name {1} was returned", artifacts[i].Name, process.ArtifactPathLinks[i].Name));
+                    Assert.That(process.ArtifactPathLinks[i].Link == I18NHelper.FormatInvariant(STORYTELLER_BASE_URL, artifacts[i].Id), I18NHelper.FormatInvariant("Expected artifact link is {0} but artifact link {1} was returned", I18NHelper.FormatInvariant(STORYTELLER_BASE_URL, artifacts[i].Id), process.ArtifactPathLinks[i].Link));
+                }
+            }
         }
     }
 }

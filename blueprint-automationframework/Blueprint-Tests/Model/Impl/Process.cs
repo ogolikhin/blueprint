@@ -15,35 +15,20 @@ namespace Model.Impl
         public int ProjectId { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
-        public int ParentId { get; set; }
-        public uint ConnectionsAndStates { get; set; }
-        public double OrderIndex { get; set; }
-        public int TypeId { get; set; }
-        public string TypePreffix { get; set; }
+        public string TypePrefix { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
-        public int VersionId { get; set; }
-        public int? LockedByUserId { get; set; }
-        public int? ArtifactInfoParentId { get; set; }
-        public int Permissions { get; set; }
-        public int ArtifactDisplayId { get; set; }
-        public byte[] Thumbnail { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessShape>>))]
         public List<ProcessShape> Shapes { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
         public List<ProcessLink> Links { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
         public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
-
 
         public Process()
         {
@@ -97,13 +82,8 @@ namespace Model.Impl
         public string Name { get; set; }
         public int ParentId { get; set; }
         public int ProjectId { get; set; }
-        public string TypePreffix { get; set; }
+        public string TypePrefix { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
-        public string Purpose { get; set; }
-        public int? UserTaskId { get; set; }
-        public List<string> InputParameters { get; } = new List<string>();
-        public List<string> OutputParameters { get; } = new List<string>();
-        public Uri AssociatedImageUrl { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
@@ -131,7 +111,7 @@ namespace Model.Impl
         public int Id { get; set; }
         public int ProjectId { get; set; }
         public string Name { get; set; }
-        public string TypePreffix { get; set; }
+        public string TypePrefix { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public string Link { get; set; }
     }

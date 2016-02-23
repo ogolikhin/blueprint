@@ -54,16 +54,16 @@ namespace Model.Impl
         private string _address = null;
         #endregion Constants
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; private set; }
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
+        public List<IOpenApiProperty> Properties { get; private set; } = new List<IOpenApiProperty>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiComment>))]
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiComment, OpenApiComment>))]
         public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiTrace>))]
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiTrace, OpenApiTrace>))]
         public List<IOpenApiTrace> Traces { get; } = new List<IOpenApiTrace>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<OpenApiAttachment>))]
+        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiAttachment, OpenApiAttachment>))]
         public List<IOpenApiAttachment> Attachments { get; } = new List<IOpenApiAttachment>();
 
         #region Constructors
@@ -90,11 +90,17 @@ namespace Model.Impl
 
         public void SetProperties(List<IOpenApiProperty> properties)
         {
+            ThrowIf.ArgumentNull(properties, nameof(properties));
+
             if (this.Properties == null)
             {
                 Properties = new List<IOpenApiProperty>();
             }
-            Properties = properties;
+
+            foreach (var prop in properties)
+            {
+                Properties.Add(prop);
+            }
         }
 
         public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)

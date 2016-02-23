@@ -1,8 +1,13 @@
 ﻿namespace Model
 {
-    public interface IArtifactReference
+    public interface IArtifactPathLink
     {
         #region Properties
+
+        /// <summary>
+        /// The base item type for the artifact
+        /// </summary>
+        ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         /// <summary>
         /// The Id of the Artifact
@@ -23,11 +28,6 @@
         /// The type prefix for the artifact
         /// </summary>
         string TypePreffix { get; set; }
-
-        /// <summary>
-        /// The type prefix for the artifact
-        /// </summary>
-        ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         /// <summary>
         /// The link to navigate to the artifact

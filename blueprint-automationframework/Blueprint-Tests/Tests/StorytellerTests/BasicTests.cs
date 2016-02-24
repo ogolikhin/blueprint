@@ -9,7 +9,6 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BasicTests
     {
         private IAdminStore _adminStore;

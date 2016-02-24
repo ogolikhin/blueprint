@@ -27,16 +27,7 @@ namespace Model.Factories
         public static IStoryteller GetStorytellerFromTestConfig()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            const string keyName = "Storyteller";
-
-            if (!testConfig.Services.ContainsKey(keyName))
-            {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
-                Logger.WriteError(msg);
-                throw new DataException(msg);
-            }
-
-            return CreateStoryteller(testConfig.Services[keyName].Address);
+            return CreateStoryteller(testConfig.BlueprintServerAddress);
         }
     }
 }

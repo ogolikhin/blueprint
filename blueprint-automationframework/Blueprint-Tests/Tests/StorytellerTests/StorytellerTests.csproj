@@ -64,6 +64,7 @@
     <Compile Include="BreadcrumbTests.cs" />
     <Compile Include="BasicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserStoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

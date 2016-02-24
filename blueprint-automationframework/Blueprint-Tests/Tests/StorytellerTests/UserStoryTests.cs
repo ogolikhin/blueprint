@@ -1,37 +1,33 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StorytellerTests
 {
-    class UserStoryTests
+    [Explicit(IgnoreReasons.UnderDevelopment)]
+    public class UserStoryTests
     {
         private IAdminStore _adminStore;
+        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private IArtifact _artifact;
+        private IOpenApiArtifact _processArtifact;
+        private ISession _session;
 
-        #region Setup
+        #region SetUp
         [SetUp]
         public void SetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject();
-            // Get a valid token for the user.
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-            // Create an process artifact
-            _artifact = ArtifactFactory.CreateArtifact(_project, ArtifactType.Process);
-
+            _project = ProjectFactory.GetProject(_user);
         }
-        #endregion Setup
+        #endregion SetUp
 
         #region TearDown
         [TearDown]
@@ -39,7 +35,7 @@ namespace StorytellerTests
         {
             if (_user != null)
             {
-                _user.DeleteUser(deleteFromDatabase: true);
+                //_user.DeleteUser(deleteFromDatabase: true);
                 _user = null;
             }
         }
@@ -47,10 +43,22 @@ namespace StorytellerTests
 
         #region Tests
         [Test]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        public void GetUserStories()
+        public void GenerateUserStories()
         {
+            // Create an Process artifact
+            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            
+            // Publish the Process artifact - using RestApi
+            _storyteller.PublishProcessArtifacts(_user);
 
+            // Set session for StoryTeller Interal Api Operation 
+            _session = _adminStore.AddSession(_user.Username, _user.Password);
+            _user.SetToken(_session.SessionId);
+
+            // Generate User Story artfact(s) from the Process artifact
+            List<OpenApiUserStoryArtifact> userStories = _storyteller.GenerateUserStories(_user, _processArtifact);
+
+            Logger.WriteDebug("Total number of UserStoryGenerated/Updated is: {0}", userStories.Count);
         }
         #endregion Tests
     }

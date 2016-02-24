@@ -1,10 +1,7 @@
-﻿using Common;
-using System.Linq;
-using System.Collections;
+﻿using System.Linq;
 using CustomAttributes;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -33,7 +30,6 @@ namespace StorytellerTests
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
         }
@@ -41,14 +37,15 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
+            // XXX: This is commented out because it will fail since we didn't publish any artifacts.  Need to implement a DiscardChanges() method instead.
+//            if (_storyteller.Artifacts != null)
+//            {
                 // Delete all the artifacts that were added.
-                foreach (var artifact in _storyteller.Artifacts)
-                {
-                    _storyteller.DeleteProcessArtifact(artifact, _user);
-                }
-            }
+//                foreach (var artifact in _storyteller.Artifacts)
+//                {
+//                    _storyteller.DeleteProcessArtifact(artifact, _user);
+//                }
+//            }
 
             if (_adminStore != null)
             {
@@ -78,9 +75,12 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, artifact.Id);
 
             Assert.IsNotNull(process, "The returned process was null.");
-            Assert.That(process.Id == artifact.Id, I18NHelper.FormatInvariant("The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, artifact.Id));
-            Assert.That(process.Shapes.Count == defaultShapesLength, I18NHelper.FormatInvariant("The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count));
-            Assert.That(process.Links.Count == defaultLinksLength, I18NHelper.FormatInvariant("The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count));
+            Assert.That(process.Id == artifact.Id,
+                "The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, artifact.Id);
+            Assert.That(process.Shapes.Count == defaultShapesLength,
+                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count);
+            Assert.That(process.Links.Count == defaultLinksLength,
+                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count);
             //Assert.That(process.Type == processType, I18NHelper.FormatInvariant("The process type returned was '{0}', but '{1}' was expected", process.Type.ToString(), processType.ToString()));
             //Assert.That(process.Shapes[0].Name == ProcessShapeType.Start.ToString(), I18NHelper.FormatInvariant("The shape returned was named '{0}', but '{1}' was expected", process.Shapes[0].Name, ProcessShapeType.Start.ToString()));
             //Assert.That(process.Shapes[0].ShapeType == ProcessShapeType.Start, I18NHelper.FormatInvariant("The shape returned was of type '{0}', but '{1}' was expected", process.Shapes[0].ShapeType.ToString(), ProcessShapeType.Start.ToString()));
@@ -99,10 +99,12 @@ namespace StorytellerTests
         {
             IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             IList<IProcess> processList = null;
+
             Assert.DoesNotThrow(() =>
             {
                 processList = _storyteller.GetProcesses(_user, 1);
             }, "GetProcesses must not return an error.");
+
             var results = processList.Where(p => (p.Name == artifact.Name)).ToList();
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }

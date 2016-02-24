@@ -21,16 +21,7 @@ namespace Model.Factories
         private static string getOpenApiUrl()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
-            const string keyName = "Storyteller";
-
-            if (!testConfig.Services.ContainsKey(keyName))
-            {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
-                Logger.WriteError(msg);
-                throw new DataException(msg);
-            }
-
-            return testConfig.Services[keyName].Address;
+            return testConfig.BlueprintServerAddress;
         }
 
         private const string SVC_PROJECTS_PATH = "/api/v1/projects";

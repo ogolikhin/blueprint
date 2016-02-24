@@ -9,7 +9,6 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BasicTests
     {
         private IAdminStore _adminStore;
@@ -66,7 +65,6 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(5, 4, ProcessType.BusinessProcess)]
         public void GetDefaultProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
         {

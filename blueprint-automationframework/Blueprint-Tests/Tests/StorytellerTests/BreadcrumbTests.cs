@@ -85,7 +85,7 @@ namespace StorytellerTests
         [TestCase(15)]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact>  artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
@@ -187,12 +187,15 @@ namespace StorytellerTests
         private static void AssertBreadcrumb(int numberOfArtifacts, List<IOpenApiArtifact> artifacts, IProcess process, List<int> artifactIndexes = null)
         {
             Assert.IsNotNull(process, "The returned process was null.");
-            Assert.That(process.Id == artifacts.Last().Id, I18NHelper.FormatInvariant("Expected process artifact Id is {0} but artifact Id {1} was returned", artifacts.Last().Id, process.Id));
+            Assert.That(process.Id == artifacts.Last().Id, "Expected process artifact Id is {0} but artifact Id {1} was returned", artifacts.Last().Id, process.Id);
 
             // Assert final process in artifact path links (breadcrumb) as expected
-            Assert.That(process.ArtifactPathLinks.Last().Id == process.Id, I18NHelper.FormatInvariant("Expected final process artifact Id is {0} but artifact Id {1} was returned", process.Id, process.ArtifactPathLinks.Last().Id));
-            Assert.That(process.ArtifactPathLinks.Last().Name == process.Name, I18NHelper.FormatInvariant("Expected final process artifact Name is {0} but artifact name {1} was returned", process.Name, process.ArtifactPathLinks.Last().Name));
-            Assert.That(process.ArtifactPathLinks.Last().Link == null, I18NHelper.FormatInvariant("Expected final process artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks.Last().Link));
+            Assert.That(process.ArtifactPathLinks.Last().Id == process.Id,
+                "Expected final process artifact Id is {0} but artifact Id {1} was returned", process.Id, process.ArtifactPathLinks.Last().Id);
+            Assert.That(process.ArtifactPathLinks.Last().Name == process.Name,
+                "Expected final process artifact Name is {0} but artifact name {1} was returned", process.Name, process.ArtifactPathLinks.Last().Name);
+            Assert.That(process.ArtifactPathLinks.Last().Link == null,
+                "Expected final process artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks.Last().Link);
 
             string link = STORYTELLER_BASE_URL;
 
@@ -201,19 +204,25 @@ namespace StorytellerTests
             {
                 link = I18NHelper.FormatInvariant("{0}{1}/", link, artifacts[i].Id);
 
-                Assert.That(process.ArtifactPathLinks[i].Id == artifacts[i].Id, I18NHelper.FormatInvariant("Expected artifact Id is {0} but artifact Id {1} was returned", artifacts[i].Id, process.ArtifactPathLinks[i].Id));
+                Assert.That(process.ArtifactPathLinks[i].Id == artifacts[i].Id,
+                    "Expected artifact Id is {0} but artifact Id {1} was returned", artifacts[i].Id, process.ArtifactPathLinks[i].Id);
 
                 if (artifactIndexes !=null && artifactIndexes.Contains(i))
                 {
+                    const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
                     // Name is "<Inaccessible>" for nonexistent/inaccessible artifact
-                    Assert.That(process.ArtifactPathLinks[i].Name == "<Inaccessible>", I18NHelper.FormatInvariant("Expected artifact Name is {0} but artifact name {1} was returned", "<Inaccessible>", process.ArtifactPathLinks[i].Name));
+                    Assert.That(process.ArtifactPathLinks[i].Name == INACCESSIBLE_ARTIFACT_NAME,
+                        "Expected artifact Name is {0} but artifact name {1} was returned", INACCESSIBLE_ARTIFACT_NAME, process.ArtifactPathLinks[i].Name);
                     // Link is null for nonexistent/inaccessible artifact
-                    Assert.That(process.ArtifactPathLinks[i].Link == null, I18NHelper.FormatInvariant("Expected artifact link is {0} but artifact link {1} was returned", link, process.ArtifactPathLinks[i].Link));
+                    Assert.IsNull(process.ArtifactPathLinks[i].Link,
+                        "Artifact Link for '{0}' should be null, but artifact link '{1}' was returned", link, process.ArtifactPathLinks[i].Link);
                 }
                 else
                 {
-                    Assert.That(process.ArtifactPathLinks[i].Name == artifacts[i].Name, I18NHelper.FormatInvariant("Expected artifact Name is {0} but artifact name {1} was returned", artifacts[i].Name, process.ArtifactPathLinks[i].Name));
-                    Assert.That(process.ArtifactPathLinks[i].Link == link, I18NHelper.FormatInvariant("Expected artifact link is {0} but artifact link {1} was returned", link, process.ArtifactPathLinks[i].Link));
+                    Assert.That(process.ArtifactPathLinks[i].Name == artifacts[i].Name,
+                        "Expected artifact Name is {0} but artifact name {1} was returned", artifacts[i].Name, process.ArtifactPathLinks[i].Name);
+                    Assert.That(process.ArtifactPathLinks[i].Link == link,
+                        "Expected artifact link is {0} but artifact link {1} was returned", link, process.ArtifactPathLinks[i].Link);
                 }
             }
         }

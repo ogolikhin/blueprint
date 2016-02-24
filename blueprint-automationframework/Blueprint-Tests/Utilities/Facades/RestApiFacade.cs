@@ -338,16 +338,27 @@ namespace Utilities.Facades
                 request.AddJsonBody(jsonObject);
             }
 
+            IRestResponse response = null;
+
             try
             {
-                var response = client.Execute(request);
+                response = client.Execute(request);
                 //proper serialization using JsonConvert
                 var result = JsonConvert.DeserializeObject<T1>(response.Content);
+
                 Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
                 Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
+
                 _restResponse = ConvertToRestResponse(response);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
+
                 return result;   // This will deserialize the data for us.
+            }
+            catch (JsonReaderException)
+            {
+                Logger.WriteError("Error while deserializing the response!");
+                Logger.WriteError("  The server returned:  {0}", response?.Content);
+                throw;
             }
             catch (WebException e)
             {

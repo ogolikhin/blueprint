@@ -27,7 +27,7 @@
         /// <summary>
         /// The type prefix for the artifact
         /// </summary>
-        string TypePreffix { get; set; }
+        string TypePrefix { get; set; }
 
         /// <summary>
         /// The link to navigate to the artifact

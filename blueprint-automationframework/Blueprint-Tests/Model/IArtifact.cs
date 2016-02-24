@@ -1,4 +1,4 @@
-﻿using Model.Impl;
+using Model.Impl;
 using System.Collections.Generic;
 using System.Net;
 
@@ -22,12 +22,6 @@ namespace Model
         List<IOpenApiComment> Comments { get; }
         List<IOpenApiTrace> Traces { get; }
         List<IOpenApiAttachment> Attachments { get; }
-
-        /// <summary>
-        /// Property Setter
-        /// </summary>
-        /// <param name="properties"> list of property</param>
-        void SetProperties(List<IOpenApiProperty> properties);
 
         /// <summary>
         /// Adds the artifact to Blueprint

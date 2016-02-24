@@ -44,22 +44,12 @@ namespace Model
         /// <summary>
         /// Prefix of the process type
         /// </summary>
-        string TypePreffix { get; set; }
+        string TypePrefix { get; set; }
 
         /// <summary>
         /// Base item type for the process artifact
         /// </summary>
         ItemTypePredefined BaseItemTypePredefined { get; set; }
-
-        string Purpose { get; set; }
-
-        int? UserTaskId { get; set; }
-
-        List<string> InputParameters { get; }
-
-        List<string> OutputParameters { get; }
-
-        Uri AssociatedImageUrl { get; set; }
 
         /// <summary>
         /// The property values for the Process shape

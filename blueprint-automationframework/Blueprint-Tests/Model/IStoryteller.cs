@@ -23,12 +23,11 @@ namespace Model
         /// <summary>
         /// Creates multiple Process artifacts
         /// </summary>
-        /// <param name="storyteller">The storyteller object used to create Processes</param>
         /// <param name="project">The project where the Process artifact is to be added</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="numberOfArtifacts"></param>
         /// <returns></returns>
-        List<IOpenApiArtifact> CreateProcessArtifacts(IStoryteller storyteller, IProject project, IUser user, int numberOfArtifacts);
+        List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
         /// Gets a Process artifact

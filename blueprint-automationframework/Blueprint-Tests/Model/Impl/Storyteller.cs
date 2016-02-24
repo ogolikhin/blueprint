@@ -52,14 +52,13 @@ namespace Model.Impl
             return artifact;
         }
 
-        public List<IOpenApiArtifact> CreateProcessArtifacts(IStoryteller storyteller, IProject project, IUser user, int numberOfArtifacts)
+        public List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
-            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
             var artifacts = new List<IOpenApiArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                artifacts.Add(storyteller.CreateProcessArtifact(project, BaseArtifactType.Process, user));
+                artifacts.Add(CreateProcessArtifact(project, BaseArtifactType.Process, user));
             }
 
             return artifacts;

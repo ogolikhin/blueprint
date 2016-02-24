@@ -11,7 +11,6 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class BreadcrumbTests
     {
         private const string STORYTELLER_BASE_URL = "/Web/#/Storyteller/";
@@ -80,7 +79,6 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(3)]
         [TestCase(15)]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
@@ -93,7 +91,6 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(3, 1, 99999999)]
         [TestCase(4, 1, 99999999)]
         [TestCase(4, 2, 99999999)]
@@ -112,7 +109,6 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { nonexistentArtifactIndex});
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(4, new int[] { 1, 2 }, 99999999, Description="Test for sequential nonexistent artifacts in breadcrumb")]
         [TestCase(15, new int[] { 2, 6, 13 }, 99999999, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
         public void GetDefaultProcessWithMultipleNonexistentArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int[] nonexistentArtifactIndexes, int nonexistentArtifactId)
@@ -134,7 +130,6 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, nonexistentArtifactIndexes.ToList());
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(3, 1)]
         [TestCase(4, 1)]
         [TestCase(4, 2)]
@@ -154,7 +149,6 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { inaccessibleArtifactIndex });
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb")]
         [TestCase(15, new int[] { 2, 6, 13 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb")]
         public void GetDefaultProcessWithMultipleInaccessibleArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int[] inaccessibleArtifactIndexes)

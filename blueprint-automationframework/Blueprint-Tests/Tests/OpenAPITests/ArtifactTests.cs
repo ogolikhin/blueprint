@@ -46,10 +46,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
-            properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
-            _artifact.SetProperties(properties);
+            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
@@ -70,10 +68,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
-            properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
-            _artifact.SetProperties(properties);
+            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
@@ -105,10 +101,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
-            List<IOpenApiProperty> properties = new List<IOpenApiProperty>();
             IOpenApiProperty property = new OpenApiProperty();
-            properties.Add(property.GetProperty(_project, "Description", text));
-            _artifact.SetProperties(properties);
+            _artifact.Properties.Add(property.GetProperty(_project, "Description", text));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;

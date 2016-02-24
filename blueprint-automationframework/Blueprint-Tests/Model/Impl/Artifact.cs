@@ -56,59 +56,17 @@ namespace Model.Impl
 
         #region Properties
         [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; private set; } = new List<IOpenApiProperty>();
+        public List<IOpenApiProperty> Properties { get; } = new List<IOpenApiProperty>();
 
         [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiComment, OpenApiComment>))]
-        public List<IOpenApiComment> Comments { get; private set; } = new List<IOpenApiComment>();
+        public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
 
         [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiTrace, OpenApiTrace>))]
-        public List<IOpenApiTrace> Traces { get; private set; } = new List<IOpenApiTrace>();
+        public List<IOpenApiTrace> Traces { get; } = new List<IOpenApiTrace>();
 
         [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiAttachment, OpenApiAttachment>))]
-        public List<IOpenApiAttachment> Attachments { get; private set; } = new List<IOpenApiAttachment>();
+        public List<IOpenApiAttachment> Attachments { get; } = new List<IOpenApiAttachment>();
         #endregion Properties
-
-        public void SetProperties(List<IOpenApiProperty> properties)
-        {
-            ThrowIf.ArgumentNull(properties, nameof(properties));
-
-            if (this.Properties == null)
-            {
-                Properties = new List<IOpenApiProperty>();
-            }
-
-            foreach (var prop in properties)
-            {
-                Properties.Add(prop);
-            }
-        }
-
-        public void SetComments(List<IOpenApiComment> comments)
-        {
-            if (Comments == null)
-            {
-                Comments = new List<IOpenApiComment>();
-            }
-            Comments = comments;
-        }
-
-        public void SetTraces(List<IOpenApiTrace> traces)
-        {
-            if (Traces == null)
-            {
-                Traces = new List<IOpenApiTrace>();
-            }
-            Traces = traces;
-        }
-
-        public void SetAttachments(List<IOpenApiAttachment> attachments)
-        {
-            if (Attachments == null)
-            {
-                Attachments = new List<IOpenApiAttachment>();
-            }
-            Attachments = attachments;
-        }
 
         #region Constructors
         /// <summary>
@@ -168,7 +126,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
             ThrowIf.ArgumentNull(user, nameof(user));
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-            additionalHeaders.Add("Accept", "application/json");
+
             if (isKeepLock)
             {
                 additionalHeaders.Add("KeepLock", "true");

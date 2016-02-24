@@ -24,12 +24,6 @@ namespace Model
         List<IOpenApiAttachment> Attachments { get; }
 
         /// <summary>
-        /// Property Setter
-        /// </summary>
-        /// <param name="properties"> list of property</param>
-        void SetProperties(List<IOpenApiProperty> properties);
-
-        /// <summary>
         /// Adds the artifact to Blueprint
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>

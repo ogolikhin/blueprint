@@ -331,6 +331,8 @@ namespace Utilities.Facades
                 additionalHeaders = new Dictionary<string, string>();
             }
 
+            additionalHeaders.Add("Accept", "application/json");
+
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
 
             if (jsonObject != null)

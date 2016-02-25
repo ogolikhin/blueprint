@@ -130,7 +130,7 @@ namespace Model.Impl
             return artifactResult.Artifact;
         }
 
-        public List<PublishArtifactResult> PublishArtifacts(
+        public List<IPublishArtifactResult> PublishArtifacts(
             List<IOpenApiArtifact> artifactList,
             IUser user,
             bool isKeepLock = false,
@@ -164,10 +164,10 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
 
-            List<PublishArtifactResult> artifactResult = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
-            return artifactResult;
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
         public IArtifactResult<IOpenApiArtifact> DeleteArtifact(
@@ -193,64 +193,4 @@ namespace Model.Impl
 
         #endregion Methods
     }
-
-    public class OpenApiUserStoryArtifact : ArtifactBase, IOpenApiUserStoryArtifact
-    {
-        #region Constants
-
-        #endregion Constants
-
-        #region Properties
-
-        public int ProcessTaskId { get; set; }
-        public bool IsNew { get; set; }
-        public int? TypeId { get; set; }
-        public string typePrefix { get; set; }
-        public PropertyTypePredefined TypePredefined { get; set; }
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> SystemProperties { get; private set; }
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiProperty>))]
-        public List<IOpenApiProperty> CustomProperties { get; private set; }
-
-        #endregion Properties
-
-        public void SetSystemProperties(List<IOpenApiProperty> properties)
-        {
-            if (SystemProperties == null)
-            {
-                SystemProperties = new List<IOpenApiProperty>();
-            }
-            SystemProperties = properties;
-        }
-
-        public void SetCustomProperties(List<IOpenApiProperty> properties)
-        {
-            if (CustomProperties == null)
-            {
-                CustomProperties = new List<IOpenApiProperty>();
-            }
-            CustomProperties = properties;
-        }
-
-        #region Constructor
-
-        public OpenApiUserStoryArtifact()
-        {
-            //Required for deserializing OpenApiArtifact
-        }
-
-        public OpenApiUserStoryArtifact(string address)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            Address = address;
-        }
-
-        #endregion Constructor
-
-        #region Methods
-
-        #endregion Methods
-    }
-
-
 }

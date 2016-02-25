@@ -70,6 +70,37 @@ namespace Model.Impl
             return artifacts;
         }
 
+        public List<IStorytellerUserStory> GenerateUserStories(IUser user, IOpenApiArtifact processArtifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            var path = SVC_PATH + "/" + URL_PROJECTS;
+
+            ThrowIf.ArgumentNull(processArtifact, nameof(processArtifact));
+            path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}/{4}", path, processArtifact.ProjectId, URL_PROCESSES, processArtifact.Id, URL_USERSTORIES);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(path, RestRequestMethod.POST, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
+        }
+
         public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -98,6 +129,40 @@ namespace Model.Impl
                 cookies: cookies);
 
             return response;
+        }
+
+        public IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return response.ConvertAll(o => (IProcess)o);
+        }
+
+        public int GetProcessTypeId(IUser user, IProject project)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            BaseArtifactType processTypeName = BaseArtifactType.Process;
+            return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
+                projectId: project.Id);
         }
 
         public IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -142,45 +207,11 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            var path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
-
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            return response.ConvertAll(o => (IProcess)o);
-        }
-
-        public int GetProcessTypeId(IUser user, IProject project)
-        {
-            ThrowIf.ArgumentNull(project, nameof(project));
-            BaseArtifactType processTypeName = BaseArtifactType.Process;
-            return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
-                projectId: project.Id);
-        }
-
-        public List<PublishArtifactResult> PublishProcessArtifacts(IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
+            string tokenValue = user.Token?.OpenApiToken;
             var cookies = new Dictionary<string, string>();
 
             if (sendAuthorizationAsCookie)
@@ -191,13 +222,10 @@ namespace Model.Impl
 
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
-            additionalHeaders.Add("Accept", "application/json");
-
             if (isKeepLock)
             {
                 additionalHeaders.Add("KeepLock", "true");
             }
-            string path = URL_PUBLISH;
 
             if (expectedStatusCodes == null)
             {
@@ -214,11 +242,11 @@ namespace Model.Impl
                 artifactObjectList.Add(artifactElement);
             }
 
+            string path = URL_PUBLISH;
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
-            List<PublishArtifactResult> artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-
-            return artifactResults;
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
         public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
@@ -228,41 +256,6 @@ namespace Model.Impl
             Artifacts.Remove(Artifacts.First(i => i.Id == artifact.Id));
 
             return artifact.DeleteArtifact(artifact, user, expectedStatusCodes);
-        }
-
-        public List<OpenApiUserStoryArtifact> GenerateUserStories(IUser user, IOpenApiArtifact processArtifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            var path = SVC_PATH + "/" + URL_PROJECTS;
-
-            ThrowIf.ArgumentNull(processArtifact, nameof(processArtifact));
-            path = I18NHelper.FormatInvariant("{0}/{1}", path, processArtifact.ProjectId);
-            path = I18NHelper.FormatInvariant("{0}/{1}", path, URL_PROCESSES);
-            path = I18NHelper.FormatInvariant("{0}/{1}", path, processArtifact.Id);
-            path = I18NHelper.FormatInvariant("{0}/{1}", path, URL_USERSTORIES);
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-            additionalHeaders.Add("Accept", "application/json");
-
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-
-            List<OpenApiUserStoryArtifact> userstoryResults = restApi.SendRequestAndDeserializeObject<List<OpenApiUserStoryArtifact>>(path, RestRequestMethod.POST, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-
-            return userstoryResults;
         }
 
         #endregion Implemented from IStoryteller

@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
+    <Compile Include="Impl\StorytellerUserStory.cs" />
     <Compile Include="IPropertyValueInformation.cs" />
     <Compile Include="Impl\Storyteller.cs" />
     <Compile Include="Impl\Process.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
     <Compile Include="IStoryboard.cs" />
+    <Compile Include="IStorytellerUserStory.cs" />
     <Compile Include="ITextualRequirement.cs" />
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />

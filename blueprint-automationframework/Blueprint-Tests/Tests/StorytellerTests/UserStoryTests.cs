@@ -26,6 +26,9 @@ namespace StorytellerTests
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
+            // Set session for StoryTeller Interal Api Operation 
+            _session = _adminStore.AddSession(_user.Username, _user.Password);
+            _user.SetToken(_session.SessionId);
         }
         #endregion SetUp
 
@@ -51,14 +54,18 @@ namespace StorytellerTests
             // Publish the Process artifact - using RestApi
             _storyteller.PublishProcessArtifacts(_user);
 
-            // Set session for StoryTeller Interal Api Operation 
-            _session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(_session.SessionId);
+            // Find number of UserTasks from the published Process
+            var process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var userTasksOnProcess = process.Shapes.FindAll(p => (p.Name.Equals(Process.DefaultUserTaskName))).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<OpenApiUserStoryArtifact> userStories = _storyteller.GenerateUserStories(_user, _processArtifact);
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _processArtifact);
 
-            Logger.WriteDebug("Total number of UserStoryGenerated/Updated is: {0}", userStories.Count);
+            Logger.WriteDebug("Total number of UserTasks inside of Process is: {0}", userTasksOnProcess);
+            Logger.WriteDebug("Total number of UserStoryGenerated or Updated is: {0}", userStories.Count);
+
+            // Verify that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
+            Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStoryGenerated or Updated from tje process is {0} but the process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
         }
         #endregion Tests
     }

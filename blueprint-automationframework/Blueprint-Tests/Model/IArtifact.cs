@@ -1,4 +1,3 @@
-using Model.Impl;
 using System.Collections.Generic;
 using System.Net;
 
@@ -42,7 +41,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  By default, only '200' is expected.</param>
         /// <returns>The artifact publish to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<PublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
+        List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete the artifact to Blueprint.
@@ -53,17 +52,5 @@ namespace Model
         /// <returns>The artifactResult after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-    }
-
-    public interface IOpenApiUserStoryArtifact : IArtifactBase
-    {
-        int ProcessTaskId { get; set; }
-        bool IsNew { get; set; }
-        PropertyTypePredefined TypePredefined { get; set; }
-        int? TypeId { get; set; }
-        string typePrefix { get; set; }
-        List<IOpenApiProperty> SystemProperties { get; }
-        List<IOpenApiProperty> CustomProperties { get; }
-
     }
 }

@@ -21,6 +21,7 @@ namespace Model.Factories
             
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
             artifact.ArtifactTypeName = artifactType.ToString();
+            artifact.BaseArtifactType = artifactType;
             artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
 
             artifact.ProjectId = project.Id;

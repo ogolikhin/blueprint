@@ -84,7 +84,15 @@ namespace Model.Impl
         public OpenApiArtifact(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            Address = address;
+            this.Address = address;
+        }
+
+        public OpenApiArtifact(string address, int id, int projectId)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            this.Address = address;
+            this.Id = id;
+            this.ProjectId = projectId;
         }
         #endregion Constructors
 
@@ -130,17 +138,17 @@ namespace Model.Impl
             return artifactResult.Artifact;
         }
 
-        public List<PublishArtifactResult> PublishArtifacts(
+        public List<IPublishArtifactResult> PublishArtifacts(
             List<IOpenApiArtifact> artifactList,
             IUser user,
-            bool isKeepLock = false,
+            bool shouldKeepLock = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
             ThrowIf.ArgumentNull(user, nameof(user));
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
-            if (isKeepLock)
+            if (shouldKeepLock)
             {
                 additionalHeaders.Add("KeepLock", "true");
             }
@@ -164,10 +172,10 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
 
-            List<PublishArtifactResult> artifactResult = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
-            return artifactResult;
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
         public IArtifactResult<IOpenApiArtifact> DeleteArtifact(

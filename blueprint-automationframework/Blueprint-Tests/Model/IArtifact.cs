@@ -1,4 +1,3 @@
-using Model.Impl;
 using System.Collections.Generic;
 using System.Net;
 
@@ -28,7 +27,7 @@ namespace Model
         /// </summary>
         /// <param name="artifact">The artifact to add.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '201' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional)A list of expected status codes.  By default, only '201' is expected.</param>
         /// <returns>The artifact added to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
@@ -38,18 +37,18 @@ namespace Model
         /// </summary>
         /// <param name="artifactList">The artifact(s) to be published.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="isKeepLock">boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.  By default, only '200' is expected.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  By default, only '200' is expected.</param>
         /// <returns>The artifact publish to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<PublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
+        List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete the artifact to Blueprint.
         /// </summary>
         /// <param name="artifact">The artifact to delete.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
         /// <returns>The artifactResult after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);

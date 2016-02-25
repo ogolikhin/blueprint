@@ -30,6 +30,16 @@ namespace Model
         List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
+        /// Generates UserStories from the target process artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="process">The process to generate UserStories.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>The list of UserStories that generated or updated after the call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
         /// Gets a Process artifact
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
@@ -39,17 +49,6 @@ namespace Model
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The requested process artifact</returns>
         IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
-
-        /// <summary>
-        /// Gets a Process artifact from a breadcrumb trail
-        /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="ids">Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
-        /// <param name="versionIndex">(optional) Version of the process artifact</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The requested process artifact</returns>
-        IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Gets list of processes for the specified projectId
@@ -71,6 +70,17 @@ namespace Model
         int GetProcessTypeId(IUser user, IProject project);
 
         /// <summary>
+        /// Gets a Process artifact from a breadcrumb trail
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="ids">Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
+        /// <param name="versionIndex">(optional) Version of the process artifact</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The requested process artifact</returns>
+        IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
         /// Updates a Process artifact
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
@@ -80,6 +90,17 @@ namespace Model
         void UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
+        /// Publish Process artifact(s)
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The list of PublishArtifactResult after the call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
         /// Deletes the process artifact
         /// </summary>
         /// <param name="artifact">The artifact to be deleted.</param>
@@ -87,5 +108,6 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
         IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

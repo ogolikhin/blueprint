@@ -37,11 +37,11 @@ namespace Model
         /// </summary>
         /// <param name="artifactList">The artifact(s) to be published.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="isKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  By default, only '200' is expected.</param>
         /// <returns>The artifact publish to blueprint</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
+        List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete the artifact to Blueprint.

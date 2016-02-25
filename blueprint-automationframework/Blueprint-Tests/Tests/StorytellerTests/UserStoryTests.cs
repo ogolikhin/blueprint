@@ -4,7 +4,9 @@ using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace StorytellerTests
 {
@@ -18,7 +20,7 @@ namespace StorytellerTests
         private IOpenApiArtifact _processArtifact;
         private ISession _session;
 
-        #region SetUp
+        #region SetUp and Teardown
         [SetUp]
         public void SetUp()
         {
@@ -29,24 +31,23 @@ namespace StorytellerTests
             // Set session for StoryTeller Interal Api Operation 
             _session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(_session.SessionId);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
         }
-        #endregion SetUp
 
-        #region TearDown
         [TearDown]
         public void TearDown()
         {
             if (_user != null)
             {
-                //_user.DeleteUser(deleteFromDatabase: true);
+                _user.DeleteUser();
                 _user = null;
             }
         }
-        #endregion TearDown
+        #endregion SetUp and TearDown
 
         #region Tests
         [Test]
-        public void GenerateUserStories()
+        public void PublishProcessArtifactsAndGenerateUserStories_NumberOfUserTasksAndGeneratedUserStoriesAreEqual()
         {
             // Create an Process artifact
             _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
@@ -56,7 +57,8 @@ namespace StorytellerTests
 
             // Find number of UserTasks from the published Process
             var process = _storyteller.GetProcess(_user, _processArtifact.Id);
-            var userTasksOnProcess = process.Shapes.FindAll(p => (p.Name.Equals(Process.DefaultUserTaskName))).Count;
+            //var userTasksOnProcess = process.Shapes.FindAll(p => (p.Name.Equals(Process.DefaultUserTaskName))).Count;
+            var userTasksOnProcess = process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
 
             // Generate User Story artfact(s) from the Process artifact
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _processArtifact);
@@ -65,7 +67,7 @@ namespace StorytellerTests
             Logger.WriteDebug("Total number of UserStoryGenerated or Updated is: {0}", userStories.Count);
 
             // Verify that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
-            Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStoryGenerated or Updated from tje process is {0} but the process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
+            Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStoryGenerated or Updated from the process is {0} but the process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
         }
         #endregion Tests
     }

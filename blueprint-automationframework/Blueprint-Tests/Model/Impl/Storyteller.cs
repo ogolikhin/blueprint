@@ -45,7 +45,6 @@ namespace Model.Impl
         {
             //Create an artifact with ArtifactType and populate all required values without properties
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
-            _artifact.BaseArtifactType = artifactType;
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
@@ -73,7 +72,7 @@ namespace Model.Impl
         public List<IStorytellerUserStory> GenerateUserStories(IUser user, IOpenApiArtifact processArtifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            var path = SVC_PATH + "/" + URL_PROJECTS;
+            var path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PATH, URL_PROJECTS);
 
             ThrowIf.ArgumentNull(processArtifact, nameof(processArtifact));
             path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}/{4}", path, processArtifact.ProjectId, URL_PROCESSES, processArtifact.Id, URL_USERSTORIES);
@@ -207,7 +206,7 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool isKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -222,7 +221,7 @@ namespace Model.Impl
 
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
-            if (isKeepLock)
+            if (shouldKeepLock)
             {
                 additionalHeaders.Add("KeepLock", "true");
             }
@@ -232,13 +231,11 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            OpenApiArtifact artifactElement;
             List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
             foreach (IOpenApiArtifact artifact in Artifacts)
             {
-                artifactElement = new OpenApiArtifact(artifact.Address);
-                artifactElement.Id = artifact.Id;
-                artifactElement.ProjectId = artifact.ProjectId;
+                OpenApiArtifact artifactElement;
+                artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
             }
 

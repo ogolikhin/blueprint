@@ -12,7 +12,7 @@ namespace Model.Impl
         public string Name { get; set; }
         public int ProjectId { get; set; }
         public int TypeId { get; set; }
-        public string typePrefix { get; set; }
+        public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
         public List<IOpenApiProperty> SystemProperties { get; } = new List<IOpenApiProperty>();

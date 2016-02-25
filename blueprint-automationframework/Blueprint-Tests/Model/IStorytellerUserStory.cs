@@ -8,7 +8,7 @@ namespace Model
         string Name { get; set; }
         int ProjectId { get; set; }
         int TypeId { get; set; }
-        string typePrefix { get; set; }
+        string TypePrefix { get; set; }
         PropertyTypePredefined TypePredefined { get; set; }
         List<IOpenApiProperty> SystemProperties { get; }
         List<IOpenApiProperty> CustomProperties { get; }

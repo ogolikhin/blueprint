@@ -30,14 +30,14 @@ namespace Model
         List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
-        /// Generates UserStorie artifact(s) from the target process artifact.
+        /// Generates UserStories from the target process artifact.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="processArtifact">The processArtifact to generate UserStoryArtifacts.</param>
+        /// <param name="process">The process to generate UserStories.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>The list of OpenApiUserStoryArtifact that generated or updated after the call</returns>
+        /// <returns>The list of UserStories that generated or updated after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IStorytellerUserStory> GenerateUserStories(IUser user, IOpenApiArtifact processArtifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Gets a Process artifact

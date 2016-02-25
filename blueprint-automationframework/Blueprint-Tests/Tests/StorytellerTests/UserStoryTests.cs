@@ -56,12 +56,12 @@ namespace StorytellerTests
             _storyteller.PublishProcessArtifacts(_user);
 
             // Find number of UserTasks from the published Process
-            var process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
             //var userTasksOnProcess = process.Shapes.FindAll(p => (p.Name.Equals(Process.DefaultUserTaskName))).Count;
-            var userTasksOnProcess = process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _processArtifact);
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
 
             Logger.WriteDebug("Total number of UserTasks inside of Process is: {0}", userTasksOnProcess);
             Logger.WriteDebug("Total number of UserStoryGenerated or Updated is: {0}", userStories.Count);

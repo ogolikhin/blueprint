@@ -69,13 +69,13 @@ namespace Model.Impl
             return artifacts;
         }
 
-        public List<IStorytellerUserStory> GenerateUserStories(IUser user, IOpenApiArtifact processArtifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             var path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PATH, URL_PROJECTS);
 
-            ThrowIf.ArgumentNull(processArtifact, nameof(processArtifact));
-            path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}/{4}", path, processArtifact.ProjectId, URL_PROCESSES, processArtifact.Id, URL_USERSTORIES);
+            ThrowIf.ArgumentNull(process, nameof(process));
+            path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}/{4}", path, process.ProjectId, URL_PROCESSES, process.Id, URL_USERSTORIES);
 
             if (expectedStatusCodes == null)
             {

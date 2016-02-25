@@ -81,6 +81,17 @@ namespace Model
         IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
+        /// Get UserStory artifactType for the project
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="projectId">Id of the Project</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The UserStory ArtifactType</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        IArtifactType GetUserStoryArtifactType(IUser user, int proejctId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
         /// Updates a Process artifact
         /// </summary>
         /// <param name="user">The user credentials for the request</param>

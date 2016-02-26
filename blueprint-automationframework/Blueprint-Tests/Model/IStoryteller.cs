@@ -98,7 +98,7 @@ namespace Model
         /// <param name="process">The updated Process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        void UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Publish Process artifact(s)
@@ -119,6 +119,5 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns></returns>
         IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-
     }
 }

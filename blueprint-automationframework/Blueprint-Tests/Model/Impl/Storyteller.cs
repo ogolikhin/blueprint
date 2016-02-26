@@ -231,6 +231,7 @@ namespace Model.Impl
         public IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(process, nameof(process));
 
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();

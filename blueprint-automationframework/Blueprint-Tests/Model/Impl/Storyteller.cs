@@ -201,7 +201,7 @@ namespace Model.Impl
             return response;
         }
 
-        public IArtifactType GetUserStoryArtifactType(IUser user, int proejctId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -219,7 +219,7 @@ namespace Model.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, proejctId, URL_ARTIFACTTYPES);
+            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, projectId, URL_ARTIFACTTYPES);
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 

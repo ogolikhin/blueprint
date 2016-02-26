@@ -35,7 +35,7 @@ namespace StorytellerTests
 
             if (_storyteller.GetUserStoryArtifactType(_user, _project.Id) == null )
             {
-                Assert.Ignore("StorytellerPack  is not installed successfully on the environment. Omitting.");
+                Assert.Ignore("StorytellerPack is not installed successfully on the environment. Omitting.");
             }
         }
 

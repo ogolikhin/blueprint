@@ -201,9 +201,31 @@ namespace Model.Impl
             return response;
         }
 
-        public void UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            throw new NotImplementedException();
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var returnedProcess = restApi.SendRequestAndDeserializeObject<Process, Process>(
+                path,
+                RestRequestMethod.PATCH,
+                (Process)process,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return returnedProcess;
         }
 
         public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

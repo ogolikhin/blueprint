@@ -20,6 +20,7 @@ namespace Utilities.Facades
         GET,
         HEAD,
         OPTIONS,
+        PATCH,
         POST,
         PUT
     }

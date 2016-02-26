@@ -60,10 +60,5 @@ namespace Model
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
         #endregion Properties
-
-        /// <summary>
-        /// Parameterless constructor required for deserialization
-        /// </summary>
-        void Process();
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Model.Impl;
 
 namespace Model
@@ -60,5 +62,15 @@ namespace Model
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
         #endregion Properties
+
+        #region Methods
+
+        IProcess AddUserTask(IProcessLink sourceLink, IProcessLink destinationLink);
+
+        IProcess AddUserDecisionPoint(IProcessLink sourceLink, IProcessLink destinationLink);
+
+        IProcess AddBranch(IProcessLink sourceLink, IProcessLink destinationLink);
+
+        #endregion Methods
     }
 }

@@ -65,11 +65,29 @@ namespace Model
 
         #region Methods
 
-        IProcess AddUserTask(IProcessLink sourceLink, IProcessLink destinationLink);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceId"></param>
+        /// <param name="destinationId"></param>
+        /// <param name="orderIndex"></param>
+        void AddUserTask(int sourceId, int destinationId, int orderIndex);
 
-        IProcess AddUserDecisionPoint(IProcessLink sourceLink, IProcessLink destinationLink);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceId"></param>
+        /// <param name="destinationId"></param>
+        /// <param name="orderIndex"></param>
+        void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
 
-        IProcess AddBranch(IProcessLink sourceLink, IProcessLink destinationLink);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceId"></param>
+        /// <param name="destinationId"></param>
+        /// <param name="orderIndex"></param>
+        void AddBranch(int sourceId, int destinationId, int orderIndex);
 
         #endregion Methods
     }

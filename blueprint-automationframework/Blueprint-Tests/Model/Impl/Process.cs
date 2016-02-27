@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Common;
 using Newtonsoft.Json;
 using Utilities;
+using Utilities.Factories;
 
 namespace Model.Impl
 {
     public class Process: IProcess
     {
-
         #region Constants
 
         public const string DefaultPreconditionName = "Precondition";
@@ -17,9 +19,47 @@ namespace Model.Impl
 
         #endregion Constants
 
+        #region Private Properties
 
-        #region Properties
+        private int tempId = 0;
 
+        public static readonly string Description = PropertyTypePredefined.Description.ToString();
+
+        public static readonly string Objective = PropertyTypePredefined.ItemLabel.ToString();
+
+        public static readonly string Label = PropertyTypePredefined.Label.ToString();
+
+        public static readonly string X = PropertyTypePredefined.X.ToString();
+
+        public static readonly string Y = PropertyTypePredefined.Y.ToString();
+
+        public static readonly string Height = PropertyTypePredefined.Height.ToString();
+
+        public static readonly string Width = PropertyTypePredefined.Width.ToString();
+
+        public static readonly string ClientType = PropertyTypePredefined.ClientType.ToString();
+
+        public const string Include = "Include";
+
+        public const string LinkLabels = "LinkLabels";
+
+        public const string Persona = "Persona";
+
+        public const string AssociatedImageUrl = "AssociatedImageUrl";
+
+        public const string OutputParameters = "OutputParameters";
+
+        public const string UserTaskId = "UserTaskId";
+
+        public const string StoryLinks = "StoryLinks";
+
+        public const string InputParameters = "InputParameters";
+
+        public const string ItemLabel = "ItemLabel";
+
+        #endregion Private Properties
+
+        #region Public Properties
         public int ProjectId { get; set; }
 
         public int Id { get; set; }
@@ -32,26 +72,25 @@ namespace Model.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<ProcessShape>>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessShape>>))]
         public List<ProcessShape> Shapes { get; set; }
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
         public List<ProcessLink> Links { get; set; }
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
         public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
-        #endregion Properties
-
+        #endregion Public Properties
 
         #region Constructors
 
@@ -103,17 +142,43 @@ namespace Model.Impl
             PropertyValues = propertyValues;
         }
 
-        public IProcess AddUserTask(IProcessLink sourceLink, IProcessLink destinationLink)
+        public void AddUserTask(int sourceId, int destinationId, int orderIndex)
+        {
+            IProcessShape userTask = CreateUserTask("User", "", 0, 126, 150, 0, 0);
+
+            IProcessShape systemTask = CreateSystemTask("", "User", "", 0, 126, 150, 0, userTask.Id, 0);
+
+            if (Links != null)
+            {
+                Links.First(l => l.Orderindex == orderIndex && l.SourceId == sourceId && l.DestinationId == destinationId)
+                    .DestinationId = userTask.Id;
+
+                Links.Add(new ProcessLink
+                {
+                    DestinationId = systemTask.Id,
+                    Label = string.Empty,
+                    Orderindex = orderIndex,
+                    SourceId = userTask.Id 
+                });
+
+                Links.Add(new ProcessLink
+                {
+                    DestinationId = destinationId,
+                    Label = string.Empty,
+                    Orderindex = orderIndex,
+                    SourceId = systemTask.Id
+                });
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IProcess AddUserDecisionPoint(IProcessLink sourceLink, IProcessLink destinationLink)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IProcess AddBranch(IProcessLink sourceLink, IProcessLink destinationLink)
+        public void AddBranch(int sourceId, int destinationId, int orderIndex)
         {
             throw new NotImplementedException();
         }
@@ -122,161 +187,236 @@ namespace Model.Impl
 
         #region Private Methods
 
-        private IProcessShape CreateUserTask()
+        private IProcessShape CreateUserTask(string persona, string itemLabel, int include, int width, int height, int x, int y, int storyLinkId = 0)
         {
-            IProcessShape userTask = new ProcessShape();
+            const string userTaskNamePrefix = "UT";
 
-            userTask.BaseItemTypePredefined = ItemTypePredefined.PROShape;
-            userTask.Id = -1;
-            userTask.Name = "User Task";
-            userTask.ParentId = -1;
-            userTask.ProjectId = -1;
-            userTask.TypePrefix = "Prefix";
+            IProcessShape userTask = CreateProcessShape(userTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
 
-            userTask.PropertyValues.Add("clientType",
+            userTask.PropertyValues.Add(ClientType,
                 new PropertyValueInformation
                 {
-                    PropertyName = "clientType",
+                    PropertyName = ClientType,
                     TypePredefined = PropertyTypePredefined.ClientType,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(ClientType)).PropertyValues[ClientType].TypeId,
                     IsVirtual = true,
                     Value = ProcessShapeType.UserTask
                 });
 
-            userTask.PropertyValues.Add("description", 
+            userTask.PropertyValues.Add(InputParameters,
                 new PropertyValueInformation
                 {
-                    PropertyName = "description",
+                    PropertyName = InputParameters,
+                    TypePredefined = 0,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(InputParameters)).PropertyValues[InputParameters].TypeId,
+                    IsVirtual = true,
+                    Value = null
+                }
+                );
+
+            return userTask;
+        }
+
+        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int include, int width, int height, int x, int y, int userTaskId, int storyLinkId = 0)
+        {
+            const string systemTaskNamePrefix = "ST";
+
+            IProcessShape systemTask = CreateProcessShape(systemTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
+
+            systemTask.PropertyValues.Add(AssociatedImageUrl,
+                new PropertyValueInformation
+                {
+                    PropertyName = AssociatedImageUrl,
+                    TypePredefined = 0,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(AssociatedImageUrl)).PropertyValues[AssociatedImageUrl].TypeId,
+                    IsVirtual = true,
+                    Value = associatedImageUrl
+                });
+
+            systemTask.PropertyValues.Add(ClientType,
+                new PropertyValueInformation
+                {
+                    PropertyName = ClientType,
+                    TypePredefined = PropertyTypePredefined.ClientType,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(ClientType)).PropertyValues[ClientType].TypeId,
+                    IsVirtual = true,
+                    Value = ProcessShapeType.SystemTask
+                });
+
+            systemTask.PropertyValues.Add(OutputParameters,
+                new PropertyValueInformation
+                {
+                    PropertyName = OutputParameters,
+                    TypePredefined = 0,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(OutputParameters)).PropertyValues[OutputParameters].TypeId,
+                    IsVirtual = true,
+                    Value = null
+                }
+                );
+
+            systemTask.PropertyValues.Add(UserTaskId,
+                new PropertyValueInformation
+                {
+                    PropertyName = UserTaskId,
+                    TypePredefined = 0,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(UserTaskId)).PropertyValues[UserTaskId].TypeId,
+                    IsVirtual = true,
+                    Value = userTaskId
+                }
+                );
+
+            return systemTask;
+        }
+
+        private IProcessShape CreateProcessShape(string taskNamePrefix, string persona, string itemLabel, int include, int width, int height, int x, int y, int storyLinkId = 0)
+        {
+            IProcessShape processShape = new ProcessShape();
+
+            processShape.BaseItemTypePredefined = ItemTypePredefined.PROShape;
+            processShape.Id = --tempId;
+            processShape.Name = taskNamePrefix + processShape.Id;
+            processShape.ParentId = Id;
+            processShape.ProjectId = ProjectId;
+            processShape.TypePrefix = "PROS";
+
+            processShape.PropertyValues.Add(Description,
+                new PropertyValueInformation
+                {
+                    PropertyName = Description,
                     TypePredefined = PropertyTypePredefined.Description,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Description)).PropertyValues[Description].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = UniqueValue(Description)
                 });
 
-            userTask.PropertyValues.Add("height",
+            processShape.PropertyValues.Add(Height,
                 new PropertyValueInformation
                 {
-                    PropertyName = "height",
+                    PropertyName = Height,
                     TypePredefined = PropertyTypePredefined.Height,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Height)).PropertyValues[Height].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = height
                 });
 
-            userTask.PropertyValues.Add("include",
+            processShape.PropertyValues.Add(Include,
                 new PropertyValueInformation
                 {
-                    PropertyName = "include",
+                    PropertyName = Include,
                     TypePredefined = 0,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Include)).PropertyValues[Include].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = include
                 }
                 );
 
-            userTask.PropertyValues.Add("inputParameters",
+            processShape.PropertyValues.Add(ItemLabel,
                 new PropertyValueInformation
                 {
-                    PropertyName = "inputParameters",
-                    TypePredefined = 0,
-                    TypeId = null,
-                    IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
-                }
-                );
-
-            userTask.PropertyValues.Add("itemLabel",
-                new PropertyValueInformation
-                {
-                    PropertyName = "itemLabel",
+                    PropertyName = ItemLabel,
                     TypePredefined = PropertyTypePredefined.ItemLabel,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(ItemLabel)).PropertyValues[ItemLabel].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = itemLabel
                 }
                 );
 
-            userTask.PropertyValues.Add("label",
+            processShape.PropertyValues.Add(Label,
                 new PropertyValueInformation
                 {
-                    PropertyName = "label",
+                    PropertyName = Label,
                     TypePredefined = PropertyTypePredefined.Label,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Label)).PropertyValues[Label].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = processShape.Name
                 }
                 );
 
-            userTask.PropertyValues.Add("persona",
+            processShape.PropertyValues.Add(OutputParameters,
                 new PropertyValueInformation
                 {
-                    PropertyName = "persona",
+                    PropertyName = OutputParameters,
                     TypePredefined = 0,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(OutputParameters)).PropertyValues[OutputParameters].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = null
                 }
                 );
 
-            userTask.PropertyValues.Add("storyLinks",
+            processShape.PropertyValues.Add(Persona,
                 new PropertyValueInformation
                 {
-                    PropertyName = "storyLinks",
+                    PropertyName = Persona,
                     TypePredefined = 0,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Persona)).PropertyValues[Persona].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = persona
                 }
                 );
 
-            userTask.PropertyValues.Add("width",
+            processShape.PropertyValues.Add(StoryLinks,
                 new PropertyValueInformation
                 {
-                    PropertyName = "width",
+                    PropertyName = StoryLinks,
+                    TypePredefined = 0,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(StoryLinks)).PropertyValues[StoryLinks].TypeId,
+                    IsVirtual = true,
+                    Value = new StoryLink
+                    {
+                        AssociatedReferenceArtifactId = storyLinkId,
+                        DestinationId = storyLinkId,
+                        OrderIndex = 0,
+                        SourceId = Id
+                    }
+                }
+                );
+
+            processShape.PropertyValues.Add(Width,
+                new PropertyValueInformation
+                {
+                    PropertyName = Width,
                     TypePredefined = PropertyTypePredefined.Width,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Width)).PropertyValues[Width].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = width
                 }
                 );
 
-            userTask.PropertyValues.Add("x",
+            processShape.PropertyValues.Add(X,
                 new PropertyValueInformation
                 {
-                    PropertyName = "x",
+                    PropertyName = X,
                     TypePredefined = PropertyTypePredefined.X,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(X)).PropertyValues[X].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = x
                 }
                 );
 
-            userTask.PropertyValues.Add("y",
+            processShape.PropertyValues.Add(Y,
                 new PropertyValueInformation
                 {
-                    PropertyName = "y",
+                    PropertyName = Y,
                     TypePredefined = PropertyTypePredefined.Y,
-                    TypeId = null,
+                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Y)).PropertyValues[Y].TypeId,
                     IsVirtual = true,
-                    Value = ProcessShapeType.UserTask
+                    Value = y
                 }
                 );
 
-            throw new NotImplementedException();
+            return processShape;
         }
 
-        private IProcessShape CreateSystemtask()
+        //private IProcessShape CreateDecisionPoint()
+        //{
+        //    IProcessShape userDecisionPoint = new ProcessShape();
+
+        //    throw new NotImplementedException();
+        //}
+
+        private static string UniqueValue(string prefix)
         {
-            IProcessShape systemTask = new ProcessShape();
-
-            throw new NotImplementedException();
-        }
-
-        private IProcessShape CreateDecisionPoint()
-        {
-            IProcessShape userDecisionPoint = new ProcessShape();
-
-            throw new NotImplementedException();
+            return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(4));
         }
 
         #endregion Private Methods
@@ -316,7 +456,7 @@ namespace Model.Impl
 
         public int DestinationId { get; set; }
 
-        public double Orderindex { get; set; }
+        public int Orderindex { get; set; }
 
         public string Label { get; set; }
     }
@@ -347,5 +487,16 @@ namespace Model.Impl
         public bool IsVirtual { get; set; }
 
         public object Value { get; set; }
+    }
+
+    public class StoryLink : IStoryLink
+    {
+        public int AssociatedReferenceArtifactId { get; set; }
+
+        public int DestinationId { get; set; }
+
+        public int OrderIndex { get; set; }
+
+        public int SourceId { get; set; }
     }
 }

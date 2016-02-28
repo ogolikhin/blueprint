@@ -11,7 +11,7 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class UpdateTests
+    public class UpdateProcessTests
     {
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
@@ -66,8 +66,10 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [TestCase, Description("Update name of default process and verify")]
-        public void ModifyDefaultProcessName_VerifyReturnedProcessName()
+        #region Tests
+
+        [TestCase, Description("Update name of default process and verify returned process")]
+        public void ModifyDefaultProcessName_VerifyReturnedProcess()
         {
             var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
@@ -90,5 +92,7 @@ namespace StorytellerTests
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             StorytellerTestHelper.AssertProcessesAreIdentical(modifiedProcess, returnedProcess);
         }
+
+        #endregion Tests
     }
 }

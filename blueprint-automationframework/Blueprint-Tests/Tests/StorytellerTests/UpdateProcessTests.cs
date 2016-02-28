@@ -11,6 +11,7 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
+    [Explicit(IgnoreReasons.UnderDevelopment)]
     public class UpdateProcessTests
     {
         private IAdminStore _adminStore;
@@ -68,6 +69,7 @@ namespace StorytellerTests
 
         #region Tests
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update name of default process and verify returned process")]
         public void ModifyDefaultProcessName_VerifyReturnedProcess()
         {

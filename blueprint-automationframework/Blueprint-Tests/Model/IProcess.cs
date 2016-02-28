@@ -66,27 +66,27 @@ namespace Model
         #region Methods
 
         /// <summary>
-        /// 
+        /// Adds a User Task to the Process
         /// </summary>
-        /// <param name="sourceId"></param>
-        /// <param name="destinationId"></param>
-        /// <param name="orderIndex"></param>
+        /// <param name="sourceId">Id of the preceding shape</param>
+        /// <param name="destinationId">Id of the following shape</param>
+        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
         void AddUserTask(int sourceId, int destinationId, int orderIndex);
 
         /// <summary>
-        /// 
+        /// Adds a User Decision Point to the Process
         /// </summary>
-        /// <param name="sourceId"></param>
-        /// <param name="destinationId"></param>
-        /// <param name="orderIndex"></param>
+        /// <param name="sourceId">Id of the preceding shape</param>
+        /// <param name="destinationId">Id of the following shape</param>
+        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
         void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
 
         /// <summary>
-        /// 
+        /// Adds a Branch to the Process
         /// </summary>
-        /// <param name="sourceId"></param>
-        /// <param name="destinationId"></param>
-        /// <param name="orderIndex"></param>
+        /// <param name="sourceId">Id of the preceding shape</param>
+        /// <param name="destinationId">Id of the following shape</param>
+        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
         void AddBranch(int sourceId, int destinationId, int orderIndex);
 
         #endregion Methods

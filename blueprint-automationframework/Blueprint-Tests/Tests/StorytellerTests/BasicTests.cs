@@ -92,23 +92,6 @@ namespace StorytellerTests
             //Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, ProcessType.BusinessProcess)]
-        public void UpdateProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
-        {
-            IOpenApiArtifact defaultArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
-
-            var process = _storyteller.GetProcess(_user, defaultArtifact.Id);
-
-            Assert.IsNotNull(process, "The returned process was null.");
-            Assert.That(process.Id == defaultArtifact.Id,
-                "The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, defaultArtifact.Id);
-            Assert.That(process.Shapes.Count == defaultShapesLength,
-                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count);
-            Assert.That(process.Links.Count == defaultLinksLength,
-                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count);
-        }
-
         [Test]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {

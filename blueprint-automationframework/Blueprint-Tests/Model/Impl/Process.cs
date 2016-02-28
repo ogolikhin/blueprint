@@ -14,48 +14,42 @@ namespace Model.Impl
         #region Constants
 
         public const string DefaultPreconditionName = "Precondition";
-        public const string DefaultUserTaskName = "User Task 1";
-        public const string DefaultSystemTaskName = "System Task 1";
 
         #endregion Constants
 
         #region Private Properties
 
-        private int tempId = 0;
+        private int _tempId;
 
-        public static readonly string Description = PropertyTypePredefined.Description.ToString();
+        private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
-        public static readonly string Objective = PropertyTypePredefined.ItemLabel.ToString();
+        private static readonly string Label = PropertyTypePredefined.Label.ToString();
 
-        public static readonly string Label = PropertyTypePredefined.Label.ToString();
+        private static readonly string X = PropertyTypePredefined.X.ToString();
 
-        public static readonly string X = PropertyTypePredefined.X.ToString();
+        private static readonly string Y = PropertyTypePredefined.Y.ToString();
 
-        public static readonly string Y = PropertyTypePredefined.Y.ToString();
+        private static readonly string Height = PropertyTypePredefined.Height.ToString();
 
-        public static readonly string Height = PropertyTypePredefined.Height.ToString();
+        private static readonly string Width = PropertyTypePredefined.Width.ToString();
 
-        public static readonly string Width = PropertyTypePredefined.Width.ToString();
+        private static readonly string ClientType = PropertyTypePredefined.ClientType.ToString();
 
-        public static readonly string ClientType = PropertyTypePredefined.ClientType.ToString();
+        private const string Include = "Include";
 
-        public const string Include = "Include";
+        private const string Persona = "Persona";
 
-        public const string LinkLabels = "LinkLabels";
+        private const string AssociatedImageUrl = "AssociatedImageUrl";
 
-        public const string Persona = "Persona";
+        private const string OutputParameters = "OutputParameters";
 
-        public const string AssociatedImageUrl = "AssociatedImageUrl";
+        private const string UserTaskId = "UserTaskId";
 
-        public const string OutputParameters = "OutputParameters";
+        private const string StoryLinks = "StoryLinks";
 
-        public const string UserTaskId = "UserTaskId";
+        private const string InputParameters = "InputParameters";
 
-        public const string StoryLinks = "StoryLinks";
-
-        public const string InputParameters = "InputParameters";
-
-        public const string ItemLabel = "ItemLabel";
+        private const string ItemLabel = "ItemLabel";
 
         #endregion Private Properties
 
@@ -144,9 +138,9 @@ namespace Model.Impl
 
         public void AddUserTask(int sourceId, int destinationId, int orderIndex)
         {
-            IProcessShape userTask = CreateUserTask("User", "", 0, 126, 150, 0, 0);
+            var userTask = CreateUserTask("User", "", 0, 126, 150, 0, 0);
 
-            IProcessShape systemTask = CreateSystemTask("", "User", "", 0, 126, 150, 0, userTask.Id, 0);
+            var systemTask = CreateSystemTask("", "User", "", 0, 126, 150, 0, userTask.Id, 0);
 
             if (Links != null)
             {
@@ -189,7 +183,7 @@ namespace Model.Impl
         {
             const string userTaskNamePrefix = "UT";
 
-            IProcessShape userTask = CreateProcessShape(userTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
+            var userTask = CreateProcessShape(userTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
 
             userTask.PropertyValues.Add(ClientType,
                 new PropertyValueInformation
@@ -219,7 +213,7 @@ namespace Model.Impl
         {
             const string systemTaskNamePrefix = "ST";
 
-            IProcessShape systemTask = CreateProcessShape(systemTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
+            var systemTask = CreateProcessShape(systemTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
 
             systemTask.PropertyValues.Add(AssociatedImageUrl,
                 new PropertyValueInformation
@@ -268,14 +262,16 @@ namespace Model.Impl
 
         private IProcessShape CreateProcessShape(string taskNamePrefix, string persona, string itemLabel, int include, int width, int height, int x, int y, int storyLinkId = 0)
         {
+            const string processShapeTypePrefix = "PROS";
+
             IProcessShape processShape = new ProcessShape();
 
             processShape.BaseItemTypePredefined = ItemTypePredefined.PROShape;
-            processShape.Id = --tempId;
+            processShape.Id = --_tempId;
             processShape.Name = taskNamePrefix + processShape.Id;
             processShape.ParentId = Id;
             processShape.ProjectId = ProjectId;
-            processShape.TypePrefix = "PROS";
+            processShape.TypePrefix = processShapeTypePrefix;
 
             processShape.PropertyValues.Add(Description,
                 new PropertyValueInformation
@@ -284,7 +280,7 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Description,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Description)).PropertyValues[Description].TypeId,
                     IsVirtual = true,
-                    Value = RandomValue(Description)
+                    Value = RandomValueWithPrefix(Description)
                 });
 
             processShape.PropertyValues.Add(Height,
@@ -363,7 +359,7 @@ namespace Model.Impl
                     {
                         AssociatedReferenceArtifactId = storyLinkId,
                         DestinationId = storyLinkId,
-                        OrderIndex = 0,
+                        Orderindex = 0,
                         SourceId = Id
                     }
                 }
@@ -415,7 +411,7 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        private static string RandomValue(string prefix)
+        private static string RandomValueWithPrefix(string prefix)
         {
             return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(4));
         }
@@ -496,7 +492,7 @@ namespace Model.Impl
 
         public int DestinationId { get; set; }
 
-        public int OrderIndex { get; set; }
+        public int Orderindex { get; set; }
 
         public int SourceId { get; set; }
     }

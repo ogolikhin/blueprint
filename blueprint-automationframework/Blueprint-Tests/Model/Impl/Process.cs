@@ -169,8 +169,6 @@ namespace Model.Impl
                     SourceId = systemTask.Id
                 });
             }
-
-            throw new NotImplementedException();
         }
 
         public void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex)
@@ -286,7 +284,7 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Description,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Description)).PropertyValues[Description].TypeId,
                     IsVirtual = true,
-                    Value = UniqueValue(Description)
+                    Value = RandomValue(Description)
                 });
 
             processShape.PropertyValues.Add(Height,
@@ -407,14 +405,17 @@ namespace Model.Impl
             return processShape;
         }
 
-        //private IProcessShape CreateDecisionPoint()
-        //{
-        //    IProcessShape userDecisionPoint = new ProcessShape();
+        [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "userDecisionPoint")]
+        [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        private IProcessShape CreateDecisionPoint()
+        {
+            IProcessShape userDecisionPoint = new ProcessShape();
 
-        //    throw new NotImplementedException();
-        //}
+            throw new NotImplementedException();
+        }
 
-        private static string UniqueValue(string prefix)
+        private static string RandomValue(string prefix)
         {
             return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(4));
         }

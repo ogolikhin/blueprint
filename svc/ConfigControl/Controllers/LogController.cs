@@ -1,8 +1,13 @@
-﻿using ServiceLibrary.EventSources;
+﻿using System.Configuration;
+using System.Net;
+using System.Net.Http;
+using ServiceLibrary.EventSources;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
+using ConfigControl.Repositories;
 
 namespace ConfigControl.Controllers
 {
@@ -348,6 +353,25 @@ namespace ConfigControl.Controllers
                 logEntry.Database);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Get Log Entries
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet]
+        [Route("GetLog")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [UnhandledExceptionFilter]
+        public IHttpActionResult GetLog()
+        {
+            var limitRecords = I18NHelper.ToInt32Invariant(ConfigurationManager.AppSettings["LogRecordsLimit"]);
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+
+            response.Content = new CsvLogContent().Generate(limitRecords,true);
+            return ResponseMessage(response);
         }
 
         private string GetIpAddress()

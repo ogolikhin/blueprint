@@ -17,7 +17,7 @@
         /// <summary>
         /// Order index for the process link (Order in which the links are drawn for decision points)
         /// </summary>
-        int Orderindex { get; set; }
+        double Orderindex { get; set; }
 
         /// <summary>
         /// Label for the process link

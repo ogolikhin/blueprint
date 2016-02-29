@@ -151,6 +151,8 @@ namespace Utilities.Facades
                     return Method.HEAD;
                 case RestRequestMethod.OPTIONS:
                     return Method.OPTIONS;
+                case RestRequestMethod.PATCH:
+                    return Method.PATCH;
                 case RestRequestMethod.POST:
                     return Method.POST;
                 case RestRequestMethod.PUT:

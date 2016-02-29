@@ -138,13 +138,13 @@ namespace Model.Impl
 
         public void AddUserTask(int sourceId, int destinationId, int orderIndex)
         {
-            var userTask = CreateUserTask("User", "", 0, 126, 150, 0, 0);
+            var userTask = CreateUserTask("User", "", 0, 126.0, 150.0, 0, 0);
 
-            var systemTask = CreateSystemTask("", "User", "", 0, 126, 150, 0, userTask.Id, 0);
+            var systemTask = CreateSystemTask("", "User", "", 0, 126.0, 150.0, 0, userTask.Id, 0);
 
             if (Links != null)
             {
-                Links.First(l => l.Orderindex == orderIndex && l.SourceId == sourceId && l.DestinationId == destinationId)
+                Links.First(l => (int)l.Orderindex == orderIndex && l.SourceId == sourceId && l.DestinationId == destinationId)
                     .DestinationId = userTask.Id;
 
                 Links.Add(new ProcessLink
@@ -179,7 +179,7 @@ namespace Model.Impl
 
         #region Private Methods
 
-        private IProcessShape CreateUserTask(string persona, string itemLabel, int include, int width, int height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateUserTask(string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string userTaskNamePrefix = "UT";
 
@@ -209,7 +209,7 @@ namespace Model.Impl
             return userTask;
         }
 
-        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int include, int width, int height, int x, int y, int userTaskId, int storyLinkId = 0)
+        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int include, double width, double height, int x, int y, int userTaskId, int storyLinkId = 0)
         {
             const string systemTaskNamePrefix = "ST";
 
@@ -260,7 +260,7 @@ namespace Model.Impl
             return systemTask;
         }
 
-        private IProcessShape CreateProcessShape(string taskNamePrefix, string persona, string itemLabel, int include, int width, int height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateProcessShape(string taskNamePrefix, string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string processShapeTypePrefix = "PROS";
 
@@ -268,7 +268,7 @@ namespace Model.Impl
 
             processShape.BaseItemTypePredefined = ItemTypePredefined.PROShape;
             processShape.Id = --_tempId;
-            processShape.Name = taskNamePrefix + processShape.Id;
+            processShape.Name = taskNamePrefix + Math.Abs(processShape.Id);
             processShape.ParentId = Id;
             processShape.ProjectId = ProjectId;
             processShape.TypePrefix = processShapeTypePrefix;
@@ -453,7 +453,7 @@ namespace Model.Impl
 
         public int DestinationId { get; set; }
 
-        public int Orderindex { get; set; }
+        public double Orderindex { get; set; }
 
         public string Label { get; set; }
     }
@@ -492,7 +492,7 @@ namespace Model.Impl
 
         public int DestinationId { get; set; }
 
-        public int Orderindex { get; set; }
+        public double Orderindex { get; set; }
 
         public int SourceId { get; set; }
     }

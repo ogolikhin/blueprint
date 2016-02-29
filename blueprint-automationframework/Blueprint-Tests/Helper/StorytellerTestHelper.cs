@@ -36,6 +36,14 @@ namespace Helper
             Assert.AreEqual(process1.Shapes.Count, process2.Shapes.Count,
                 "The processes have different process shape counts");
 
+            // Assert that Process artifact path links are equal
+            foreach (var process1ArtifactPathLink in process1.ArtifactPathLinks)
+            {
+                var process2ArtifactPathLink = process2.ArtifactPathLinks.First(p => p.Id == process1ArtifactPathLink.Id);
+
+                AssertArtifactPathLinksAreEqual(process1ArtifactPathLink, process2ArtifactPathLink);
+            }
+
             // Assert that Process properties are equal
             foreach (var process1Property in process1.PropertyValues)
             {
@@ -61,6 +69,22 @@ namespace Helper
 
                 AssertShapesAreEqual(process1Shape, process2Shape);
             }
+        }
+
+        /// <summary>
+        /// Assert that Process Artifact Path Links are equal
+        /// </summary>
+        /// <param name="artifactPathlink1">The first ArtifactPath Link</param>
+        /// <param name="artifactPathlink2">The Artifact Path Link being compared to the first</param>
+        private static void AssertArtifactPathLinksAreEqual(IArtifactPathLink artifactPathlink1, IArtifactPathLink artifactPathlink2)
+        {
+            Assert.AreEqual(artifactPathlink1.BaseItemTypePredefined, artifactPathlink2.BaseItemTypePredefined,
+                "Artifact path link base item types do not match");
+            Assert.AreEqual(artifactPathlink1.Id, artifactPathlink2.Id, "Artifact path link ids do not match");
+            Assert.AreEqual(artifactPathlink1.Link, artifactPathlink2.Link, "Artifact path link links do not match");
+            Assert.AreEqual(artifactPathlink1.Name, artifactPathlink2.Name, "Artifact path link names do not match");
+            Assert.AreEqual(artifactPathlink1.ProjectId, artifactPathlink2.ProjectId, "Artifact path link project ids do not match");
+            Assert.AreEqual(artifactPathlink1.TypePrefix, artifactPathlink2.TypePrefix, "Artifact path link type prefixes do not match");
         }
 
         /// <summary>

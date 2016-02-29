@@ -19,7 +19,7 @@ namespace Model
         /// <summary>
         /// The vertical order index
         /// </summary>
-        int Orderindex { get; set; }
+        double Orderindex { get; set; }
 
         /// <summary>
         /// The Source Id of the Story Link

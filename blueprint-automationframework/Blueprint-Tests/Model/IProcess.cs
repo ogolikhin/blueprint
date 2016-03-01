@@ -58,7 +58,7 @@ namespace Model
         /// <summary>
         /// The property values for the Process artifact
         /// </summary>
-        Dictionary<string, IPropertyValueInformation> PropertyValues { get; }
+        Dictionary<string, PropertyValueInformation> PropertyValues { get; }
         #endregion Properties
 
         #region Methods

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Model;
+using Model.Impl;
 using NUnit.Framework;
 using Utilities;
 
@@ -45,7 +46,7 @@ namespace Helper
             // Assert that Process properties are equal
             foreach (var process1Property in process1.PropertyValues)
             {
-                var process2Property = FindPropertyValue(process1Property, process2.PropertyValues);
+                var process2Property = FindPropertyValue(process1Property.Key, process2.PropertyValues);
 
                 AssertPropertyValuesAreEqual(process1Property.Value, process2Property.Value);
             }
@@ -150,12 +151,12 @@ namespace Helper
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
 
             // Assert that Shape properties are equal
-            foreach (var shape1Property in shape1.PropertyValues)
-            {
-                var shape2Property = shape2.PropertyValues.First(p => p.Key == shape1Property.Key);
+            //foreach (var shape1Property in shape1.PropertyValues)
+            //{
+            //    var shape2Property = FindPropertyValue(shape1Property.Key, shape2.PropertyValues);
 
-                AssertPropertyValuesAreEqual(shape1Property.Value, shape2Property.Value);
-            }
+            //    AssertPropertyValuesAreEqual(shape1Property.Value, shape2Property.Value);
+            //}
         }
 
         /// <summary>
@@ -180,9 +181,9 @@ namespace Helper
         private static IArtifactPathLink FindArtifactPathLink(IArtifactPathLink linkToFind,
             IEnumerable<IArtifactPathLink> linksToSearchThrough)
         {
-            var linkFound = linksToSearchThrough.First(p => p.Id == linkToFind.Id);
+            var linkFound = linksToSearchThrough.ToList().Find(p => p.Id == linkToFind.Id);
 
-            Assert.IsNotNull(linkFound);
+            Assert.IsNotNull(linkFound, "Could not find and ArtifactPathLink with Id {0}", linkToFind.Id);
 
             return linkFound;
         }
@@ -190,15 +191,15 @@ namespace Helper
         /// <summary>
         /// Find a Property in an enumeration of Properties
         /// </summary>
-        /// <param name="propertyToFind">The property to find</param>
+        /// <param name="keyToFind">The property to find</param>
         /// <param name="propertiesToSearchThrough">The properties to search though</param>
         /// <returns>The found Property</returns>
-        private static KeyValuePair<string, IPropertyValueInformation> FindPropertyValue(KeyValuePair<string, IPropertyValueInformation> propertyToFind,
-        IEnumerable<KeyValuePair<string, IPropertyValueInformation>> propertiesToSearchThrough)
+        private static KeyValuePair<string, PropertyValueInformation> FindPropertyValue(string keyToFind,
+        Dictionary<string, PropertyValueInformation> propertiesToSearchThrough)
         {
-            var propertyFound = propertiesToSearchThrough.First(p => p.Key == propertyToFind.Key);
+            var propertyFound = propertiesToSearchThrough.ToList().Find(p => p.Key == keyToFind);
 
-            Assert.IsNotNull(propertyFound);
+            Assert.IsNotNull(propertyFound, "Could not find a Property with Name: {0}", keyToFind);
 
             return propertyFound;
         }
@@ -208,13 +209,14 @@ namespace Helper
         /// </summary>
         /// <param name="linkToFind">The process link to find</param>
         /// <param name="linksToSearchThrough">The process links to search</param>
-        /// <returns></returns>
+        /// <returns>The found process link</returns>
         private static IProcessLink FindProcessLink(IProcessLink linkToFind,
             IEnumerable<IProcessLink> linksToSearchThrough)
         {
-            var linkFound = linksToSearchThrough.First(l => l.SourceId == linkToFind.SourceId && l.DestinationId == linkToFind.DestinationId);
-
-            Assert.IsNotNull(linkFound);
+            var linkFound = linksToSearchThrough.ToList()
+                    .Find(l => l.SourceId == linkToFind.SourceId && l.DestinationId == linkToFind.DestinationId);
+ 
+            Assert.IsNotNull(linkFound, "Could not find and ProcessLink with Source Id {0} and Destination Id {1}", linkToFind.SourceId, linkToFind.DestinationId);
 
             return linkFound;
         }
@@ -222,15 +224,15 @@ namespace Helper
         /// <summary>
         /// Find a Process Shape in an enumeration of Process SHapes
         /// </summary>
-        /// <param name="shapeToFind"></param>
-        /// <param name="shapesToSearchThrough"></param>
-        /// <returns></returns>
+        /// <param name="shapeToFind">The process shape to find</param>
+        /// <param name="shapesToSearchThrough">The process shapes to search</param>
+        /// <returns>The found process shape</returns>
         private static IProcessShape FindProcessShape(IProcessShape shapeToFind,
             IEnumerable<IProcessShape> shapesToSearchThrough)
         {
-            var shapeFound = shapesToSearchThrough.First(s => s.Name == shapeToFind.Name);
+            var shapeFound = shapesToSearchThrough.ToList().Find(s => s.Name == shapeToFind.Name);
 
-            Assert.IsNotNull(shapeFound);
+            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Id {0}", shapeToFind.Id);
 
             return shapeFound;
         }

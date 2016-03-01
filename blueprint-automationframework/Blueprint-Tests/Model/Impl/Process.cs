@@ -28,8 +28,6 @@ namespace Model.Impl
 
         private static readonly string ClientType = PropertyTypePredefined.ClientType.ToString();
 
-        private const string Include = "Include";
-
         private const string Persona = "Persona";
 
         private const string AssociatedImageUrl = "AssociatedImageUrl";
@@ -81,7 +79,7 @@ namespace Model.Impl
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
-        public Dictionary<string, IPropertyValueInformation> PropertyValues { get; set; }
+        public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         #endregion Public Properties
 
@@ -92,7 +90,7 @@ namespace Model.Impl
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
             ArtifactPathLinks = new List<ArtifactPathLink>();
-            PropertyValues = new Dictionary<string, IPropertyValueInformation>();
+            PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
         #endregion Constructors
@@ -126,11 +124,11 @@ namespace Model.Impl
             ArtifactPathLinks = artifactPathLinks;
         }
 
-        public void SetPropertyValues(Dictionary<string, IPropertyValueInformation> propertyValues)
+        public void SetPropertyValues(Dictionary<string, PropertyValueInformation> propertyValues)
         {
             if (PropertyValues == null)
             {
-                PropertyValues = new Dictionary<string, IPropertyValueInformation>();
+                PropertyValues = new Dictionary<string, PropertyValueInformation>();
             }
             PropertyValues = propertyValues;
         }
@@ -186,18 +184,18 @@ namespace Model.Impl
         /// </summary>
         /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
-        /// <param name="include">The include of the user task</param>
+        /// <param name="associatedArtifact">The include of the user task</param>
         /// <param name="width">The width of the user task</param>
         /// <param name="height">The height of the user task</param>
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
         /// <returns></returns>
-        private IProcessShape CreateUserTask(string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateUserTask(string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string userTaskNamePrefix = "UT";
 
-            var userTask = CreateProcessShape(userTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
+            var userTask = CreateProcessShape(userTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y, storyLinkId);
 
             userTask.PropertyValues.Add(ClientType,
                 new PropertyValueInformation
@@ -229,7 +227,7 @@ namespace Model.Impl
         /// <param name="associatedImageUrl">The url of the system task image</param>
         /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
-        /// <param name="include">The include of the user task</param>
+        /// <param name="associatedArtifact">The include of the user task</param>
         /// <param name="width">The width of the user task</param>
         /// <param name="height">The height of the user task</param>
         /// <param name="x">The x coordinate of the user task</param>
@@ -237,11 +235,11 @@ namespace Model.Impl
         /// <param name="userTaskId">The usertask that this system task belongs to</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
         /// <returns></returns>
-        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int include, double width, double height, int x, int y, int userTaskId, int storyLinkId = 0)
+        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y, int userTaskId, int storyLinkId = 0)
         {
             const string systemTaskNamePrefix = "ST";
 
-            var systemTask = CreateProcessShape(systemTaskNamePrefix, persona, itemLabel, include, width, height, x, y, storyLinkId);
+            var systemTask = CreateProcessShape(systemTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y, storyLinkId);
 
             systemTask.PropertyValues.Add(AssociatedImageUrl,
                 new PropertyValueInformation
@@ -294,14 +292,13 @@ namespace Model.Impl
         /// <param name="shapeNamePrefix">The prefix for both the shape name and the shape label</param>
         /// <param name="persona">The persona of the process shape</param>
         /// <param name="itemLabel">The item label of the process shape</param>
-        /// <param name="include">The include of the process shape</param>
         /// <param name="width">The width of the process shape</param>
         /// <param name="height">The height of the process shape</param>
         /// <param name="x">The x coordinate of the process shape</param>
         /// <param name="y">The y coordinate of the process shape</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
         /// <returns></returns>
-        private IProcessShape CreateProcessShape(string shapeNamePrefix, string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateProcessShape(string shapeNamePrefix, string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string processShapeTypePrefix = "PROS";
 
@@ -315,6 +312,7 @@ namespace Model.Impl
             processShape.ParentId = Id;
             processShape.ProjectId = ProjectId;
             processShape.TypePrefix = processShapeTypePrefix;
+            processShape.AssociatedArtifact = associatedArtifact;
 
             processShape.PropertyValues.Add(Description,
                 new PropertyValueInformation
@@ -336,17 +334,6 @@ namespace Model.Impl
                     IsVirtual = true,
                     Value = height
                 });
-
-            processShape.PropertyValues.Add(Include,
-                new PropertyValueInformation
-                {
-                    PropertyName = Include,
-                    TypePredefined = PropertyTypePredefined.None,
-                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Include)).PropertyValues[Include].TypeId,
-                    IsVirtual = true,
-                    Value = include
-                }
-                );
 
             processShape.PropertyValues.Add(ItemLabel,
                 new PropertyValueInformation
@@ -458,6 +445,8 @@ namespace Model.Impl
         public int ProjectId { get; set; }
 
         public string TypePrefix { get; set; }
+
+        public int? AssociatedArtifact { get; set; }
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 

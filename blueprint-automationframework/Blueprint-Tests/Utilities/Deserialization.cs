@@ -83,6 +83,8 @@ namespace Utilities
                 ThrowIf.ArgumentNull(serializer, nameof(serializer));
                 ThrowIf.ArgumentNull(writer, nameof(writer));
 
+                // Distionary keys must be serialized with a capitla first letter in order to match the
+                // Process model in the backend
                 Dictionary<string, TI> dict2 =  new Dictionary<string, TI>();
 
                 foreach (var kvp in (Dictionary<string, TI>)value)
@@ -98,9 +100,9 @@ namespace Utilities
         /// <summary>
         /// A custom serializer to override the default RestSharp serializer
         /// </summary>
-        public class CustomSerializer : ISerializer
+        public class CustomJsonSerializer : ISerializer
         {
-            public CustomSerializer()
+            public CustomJsonSerializer()
             {
                 ContentType = "application/json";
             }

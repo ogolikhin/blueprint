@@ -47,6 +47,11 @@ namespace Model
         string TypePrefix { get; set; }
 
         /// <summary>
+        /// Artifact associated with the process shape (i.e. the Include) 
+        /// </summary>
+        int? AssociatedArtifact { get; set; }
+
+        /// <summary>
         /// Base item type for the process artifact
         /// </summary>
         ItemTypePredefined BaseItemTypePredefined { get; set; }

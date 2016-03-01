@@ -71,6 +71,15 @@ namespace ConfigControl.Repositories
             length = _stream.Length;
             return true;
         }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_stream != null)
+                _stream.Dispose();
+            base.Dispose(disposing);
+
+        }
     }
 
 }

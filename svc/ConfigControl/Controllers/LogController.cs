@@ -367,10 +367,13 @@ namespace ConfigControl.Controllers
         [UnhandledExceptionFilter]
         public IHttpActionResult GetLog()
         {
-            var limitRecords = I18NHelper.ToInt32Invariant(ConfigurationManager.AppSettings["LogRecordsLimit"]);
-            var response = Request.CreateResponse(HttpStatusCode.OK);
+            var limitRecords = ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32();
+
+            var response = Request.CreateResponse();
 
             response.Content = new CsvLogContent().Generate(limitRecords,true);
+            response.StatusCode = HttpStatusCode.OK;
+
             return ResponseMessage(response);
         }
 

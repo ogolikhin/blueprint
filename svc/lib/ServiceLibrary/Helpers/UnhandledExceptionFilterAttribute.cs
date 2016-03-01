@@ -10,7 +10,9 @@ namespace ServiceLibrary.Helpers
     {
         public override void OnException(HttpActionExecutedContext context)
         {
-            HttpStatusCode? statusCode = null;
+            base.OnException(context);
+
+            HttpStatusCode? statusCode;
 
             if (context.Exception is NotImplementedException)
             {

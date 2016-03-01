@@ -15,7 +15,7 @@ namespace ConfigControl.Repositories
 
         private const string dispositionType = "attachment";
         private const string attachmentFileName = "AdminStore.csv";
-        private const string mediaType = "application/octet-stream";
+        private const string mediaType = "text/csv";
 
         private readonly IServiceLogRepository _log;
         private readonly ILogRepository _repository;

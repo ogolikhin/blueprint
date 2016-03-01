@@ -10,20 +10,17 @@ namespace ServiceLibrary.Helpers
     {
         public override void OnException(HttpActionExecutedContext context)
         {
-            base.OnException(context);
-
-            HttpStatusCode? statusCode;
 
             if (context.Exception is NotImplementedException)
             {
-                statusCode = HttpStatusCode.NotImplemented;
+                var statusCode = HttpStatusCode.NotImplemented;
+                context.Response = context.Request.CreateErrorResponse(statusCode, context.Exception.Message);
             }
             else
             {
-                statusCode = HttpStatusCode.InternalServerError;
+                base.OnException(context);
             }
 
-            context.Response = context.Request.CreateErrorResponse(statusCode.Value, context.Exception.Message);
         }
     }
 }

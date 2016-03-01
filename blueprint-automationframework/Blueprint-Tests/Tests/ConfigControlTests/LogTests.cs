@@ -50,28 +50,48 @@ namespace ConfigControlTests
 
         #endregion Setup and Cleanup
 
-        [Test]
-        public void GetLog_SendToken_ExpectSuccess()
+        /// <summary>
+        /// Runs a common set of asserts on the given file.
+        /// </summary>
+        /// <param name="file">The file to check.</param>
+        private static void AssertLogFile(IFile file)
+        {
+            Assert.NotNull(file, "ConfigControl returned a null file!");
+
+            const string expectedFilename = "AdminStore.csv";
+            const string expectedFileType = "text/csv";
+
+            Assert.That(file.FileName == expectedFilename,
+                "ConfigControl.GetLog returned a file named '{0}', but it should be '{1}'!", file.FileName, expectedFilename);
+
+            Assert.That(file.FileType == expectedFileType,
+                "ConfigControl.GetLog returned File Type '{0}', but it should be '{1}'!", file.FileType, expectedFileType);
+
+            Assert.That(file.Content.ToString().Length > 0, "ConfigControl.GetLog returned an empty file!");
+        }
+
+        [Test, Description("Calls the GetLog method of ConfigControl and sends a valid token header.  Verify log file is returned.")]
+        public void GetLog_SendToken_VerifyLogFile()
         {
             IFile file = _configControl.GetLog(_user);
 
-            Assert.NotNull(file, "ConfigControl returned a null file!");
+            AssertLogFile(file);
         }
 
-        [Test]
-        public void GetLog_SendCookie_ExpectSuccess()
+        [Test, Description("Calls the GetLog method of ConfigControl and sends a valid token in a cookie.  Verify log file is returned.")]
+        public void GetLog_SendCookie_VerifyLogFile()
         {
             IFile file = _configControl.GetLog(_user, sendAuthorizationAsCookie: true);
 
-            Assert.NotNull(file, "ConfigControl returned a null file!");
+            AssertLogFile(file);
         }
 
-        [Test]
-        public void GetLog_NoToken_ExpectSuccess()
+        [Test, Description("Calls the GetLog method of ConfigControl with no authentication.  Verify log file is returned.")]
+        public void GetLog_NoToken_VerifyLogFile()
         {
             IFile file = _configControl.GetLog();
 
-            Assert.NotNull(file, "ConfigControl returned a null file!");
+            AssertLogFile(file);
         }
     }
 }

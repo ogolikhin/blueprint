@@ -53,8 +53,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\ConfigControlFactory.cs" />
     <Compile Include="Factories\StorytellerFactory.cs" />
+    <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
+    <Compile Include="Impl\ConfigControl.cs" />
     <Compile Include="Impl\StorytellerUserStory.cs" />
     <Compile Include="IStoryLink.cs" />
     <Compile Include="IPropertyValueInformation.cs" />

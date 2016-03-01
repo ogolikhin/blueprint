@@ -421,12 +421,11 @@ namespace Model.Impl
             return processShape;
         }
 
-        [SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "userDecisionPoint")]
         [SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private IProcessShape CreateDecisionPoint()
         {
-            IProcessShape userDecisionPoint = new ProcessShape();
+//            IProcessShape userDecisionPoint = new ProcessShape();
 
             throw new NotImplementedException();
         }

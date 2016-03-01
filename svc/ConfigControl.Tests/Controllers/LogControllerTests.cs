@@ -510,21 +510,11 @@ namespace ConfigControl.Controllers
 
         private IEnumerable<string> GetTestLogEntries()
         {
-            /*
-                        return new List<string> {
-                            "id,IpAddress,Source,FormattedMessage,MethodName,FilePath,LineNumber,StackTrace,InstanceName,ProviderId,ProviderName,EventId,EventKeywords,Level,Opcode,Task,Timestamp,Version,Payload,ActivityId,RelatedActivityId,ProcessId,ThreadId",
-                            ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,27144",
-                            ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,29172",
-                            ",::1,,, [PROFILING], 0, 00000000-0000-0000-0000-000000000000, ,,,0,,BlueprintSys-Blueprint-Blueprint,2530ba0d-e71b-5cc1-54a7-f40c531356b0,BlueprintSys-Blueprint-PerformanceLog,500,0,5,0,65034,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime><CorrelationId>00000000-0000-0000-0000-000000000000</CorrelationId><Duration>0</Duration></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,15120"};
-            */
-            return new List<string>
-            {
-                "ONE",
-                "TWO",
-                "THREE",
-                "FOUR"
-
-            };
+            return new List<string> {
+                "id,IpAddress,Source,FormattedMessage,MethodName,FilePath,LineNumber,StackTrace,InstanceName,ProviderId,ProviderName,EventId,EventKeywords,Level,Opcode,Task,Timestamp,Version,Payload,ActivityId,RelatedActivityId,ProcessId,ThreadId",
+                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,27144",
+                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,29172",
+                ",::1,,, [PROFILING], 0, 00000000-0000-0000-0000-000000000000, ,,,0,,BlueprintSys-Blueprint-Blueprint,2530ba0d-e71b-5cc1-54a7-f40c531356b0,BlueprintSys-Blueprint-PerformanceLog,500,0,5,0,65034,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime><CorrelationId>00000000-0000-0000-0000-000000000000</CorrelationId><Duration>0</Duration></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,15120"};
         }
 
         [TestMethod]

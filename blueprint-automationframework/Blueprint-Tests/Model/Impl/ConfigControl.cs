@@ -24,9 +24,6 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
 
             _address = address;
-
-            ConfigControl cc = new ConfigControl("foo");
-            cc.GetLog();
         }
 
         #region Inherited from IConfigControl

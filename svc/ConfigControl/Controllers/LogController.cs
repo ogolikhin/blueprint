@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ConfigControl.Repositories;
+using ServiceLibrary.Attributes;
 
 namespace ConfigControl.Controllers
 {
@@ -361,7 +362,7 @@ namespace ConfigControl.Controllers
         /// <remarks>
         /// </remarks>
         /// <response code="200">OK.</response>
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route("GetLog")]
         [ResponseType(typeof(HttpResponseMessage))]
         [UnhandledExceptionFilter]

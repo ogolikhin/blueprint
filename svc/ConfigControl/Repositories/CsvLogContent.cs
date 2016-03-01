@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -37,13 +38,14 @@ namespace ConfigControl.Repositories
         {
             try
             {
-                using (var writer = new StreamWriter(_stream, Encoding.UTF8, 512, true))
+                using (var writer = new StreamWriter(_stream, Encoding.Default, 512, true))
                 {
                     foreach (var line in _repository.GetLogEntries(limitRecords, showHeader))
                     {
                         writer.WriteLine(line);
                     }
                     writer.Flush();
+                    var b = _stream.ToArray().Select(it=>Convert.ToChar(it)).ToArray();
                 }
             }
 

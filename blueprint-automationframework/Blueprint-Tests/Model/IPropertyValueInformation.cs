@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
-
-namespace Model
+﻿namespace Model
 {
     public enum PropertyTypePredefined
     {

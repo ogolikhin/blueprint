@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Common;
 
 namespace Utilities.Factories
 {
@@ -50,6 +51,17 @@ namespace Utilities.Factories
         public static string RandomAlphaNumericUpperAndLowerCase(uint length)
         {
             return RandomString(length, UpperAndLowerCaseAndNumbers);
+        }
+
+        /// <summary>
+        /// Create Random Value with a supplied Prefix
+        /// </summary>
+        /// <param name="prefix">The prefix</param>
+        /// <param name="numberOfCharacters">The number of alphanumeric characters to append to the prefix</param>
+        /// <returns>A random alpha numeric character value with a supplied prefix</returns>
+        public static string RandomValueWithPrefix(string prefix, uint numberOfCharacters)
+        {
+            return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomAlphaNumericUpperAndLowerCase(numberOfCharacters));
         }
     }
 }

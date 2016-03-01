@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessControlDoubleHelper.cs" />
+    <Compile Include="StorytellerTestHelper.cs" />
     <Compile Include="FileStoreTestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

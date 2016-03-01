@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Common;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Factories;
@@ -14,12 +13,6 @@ namespace Model.Impl
         #region Constants
 
         public const string DefaultPreconditionName = "Precondition";
-
-        #endregion Constants
-
-        #region Private Properties
-
-        private int _tempId;
 
         private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
@@ -51,6 +44,12 @@ namespace Model.Impl
 
         private const string ItemLabel = "ItemLabel";
 
+        #endregion Constants
+
+        #region Private Properties
+
+        private int _tempId;
+
         #endregion Private Properties
 
         #region Public Properties
@@ -81,8 +80,8 @@ namespace Model.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
-        public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
+        public Dictionary<string, IPropertyValueInformation> PropertyValues { get; set; }
 
         #endregion Public Properties
 
@@ -93,7 +92,7 @@ namespace Model.Impl
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
             ArtifactPathLinks = new List<ArtifactPathLink>();
-            PropertyValues = new Dictionary<string, PropertyValueInformation>();
+            PropertyValues = new Dictionary<string, IPropertyValueInformation>();
         }
 
         #endregion Constructors
@@ -127,50 +126,53 @@ namespace Model.Impl
             ArtifactPathLinks = artifactPathLinks;
         }
 
-        public void SetPropertyValues(Dictionary<string, PropertyValueInformation> propertyValues)
+        public void SetPropertyValues(Dictionary<string, IPropertyValueInformation> propertyValues)
         {
             if (PropertyValues == null)
             {
-                PropertyValues = new Dictionary<string, PropertyValueInformation>();
+                PropertyValues = new Dictionary<string, IPropertyValueInformation>();
             }
             PropertyValues = propertyValues;
         }
 
-        public void AddUserTask(int sourceId, int destinationId, int orderIndex)
+        public IProcessShape AddUserTask(int sourceId, int destinationId, int orderIndex)
         {
             var userTask = CreateUserTask("User", "", 0, 126.0, 150.0, 0, 0);
 
             var systemTask = CreateSystemTask("", "User", "", 0, 126.0, 150.0, 0, userTask.Id, 0);
 
-            if (Links != null)
+            // Modify the destination id of the link preceding the insertion point of the new task so
+            // that the destination now points to the new user task
+            Links.First(l => (int)l.Orderindex == orderIndex && l.SourceId == sourceId && l.DestinationId == destinationId)
+                .DestinationId = userTask.Id;
+
+            // Add a new link between the new user task and the new system task
+            Links.Add(new ProcessLink
             {
-                Links.First(l => (int)l.Orderindex == orderIndex && l.SourceId == sourceId && l.DestinationId == destinationId)
-                    .DestinationId = userTask.Id;
+                DestinationId = systemTask.Id,
+                Label = string.Empty,
+                Orderindex = orderIndex,
+                SourceId = userTask.Id 
+            });
 
-                Links.Add(new ProcessLink
-                {
-                    DestinationId = systemTask.Id,
-                    Label = string.Empty,
-                    Orderindex = orderIndex,
-                    SourceId = userTask.Id 
-                });
+            // Add a new link between the new system task and the destination
+            Links.Add(new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = string.Empty,
+                Orderindex = orderIndex,
+                SourceId = systemTask.Id
+            });
 
-                Links.Add(new ProcessLink
-                {
-                    DestinationId = destinationId,
-                    Label = string.Empty,
-                    Orderindex = orderIndex,
-                    SourceId = systemTask.Id
-                });
-            }
+            return userTask;
         }
 
-        public void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex)
+        public IProcessShape AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex)
         {
             throw new NotImplementedException();
         }
 
-        public void AddBranch(int sourceId, int destinationId, int orderIndex)
+        public IProcessShape AddBranch(int sourceId, int destinationId, int orderIndex)
         {
             throw new NotImplementedException();
         }
@@ -179,6 +181,18 @@ namespace Model.Impl
 
         #region Private Methods
 
+        /// <summary>
+        /// Create a User Task
+        /// </summary>
+        /// <param name="persona">The persona of the user task</param>
+        /// <param name="itemLabel">The item label of the user task</param>
+        /// <param name="include">The include of the user task</param>
+        /// <param name="width">The width of the user task</param>
+        /// <param name="height">The height of the user task</param>
+        /// <param name="x">The x coordinate of the user task</param>
+        /// <param name="y">The y coordinate of the user task</param>
+        /// <param name="storyLinkId">The id of the linked user story</param>
+        /// <returns></returns>
         private IProcessShape CreateUserTask(string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string userTaskNamePrefix = "UT";
@@ -199,7 +213,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = InputParameters,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(InputParameters)).PropertyValues[InputParameters].TypeId,
                     IsVirtual = true,
                     Value = null
@@ -209,6 +223,20 @@ namespace Model.Impl
             return userTask;
         }
 
+        /// <summary>
+        /// Create a System Task
+        /// </summary>
+        /// <param name="associatedImageUrl">The url of the system task image</param>
+        /// <param name="persona">The persona of the user task</param>
+        /// <param name="itemLabel">The item label of the user task</param>
+        /// <param name="include">The include of the user task</param>
+        /// <param name="width">The width of the user task</param>
+        /// <param name="height">The height of the user task</param>
+        /// <param name="x">The x coordinate of the user task</param>
+        /// <param name="y">The y coordinate of the user task</param>
+        /// <param name="userTaskId">The usertask that this system task belongs to</param>
+        /// <param name="storyLinkId">The id of the linked user story</param>
+        /// <returns></returns>
         private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, int include, double width, double height, int x, int y, int userTaskId, int storyLinkId = 0)
         {
             const string systemTaskNamePrefix = "ST";
@@ -219,7 +247,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = AssociatedImageUrl,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(AssociatedImageUrl)).PropertyValues[AssociatedImageUrl].TypeId,
                     IsVirtual = true,
                     Value = associatedImageUrl
@@ -239,7 +267,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = OutputParameters,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(OutputParameters)).PropertyValues[OutputParameters].TypeId,
                     IsVirtual = true,
                     Value = null
@@ -250,7 +278,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = UserTaskId,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(UserTaskId)).PropertyValues[UserTaskId].TypeId,
                     IsVirtual = true,
                     Value = userTaskId
@@ -260,15 +288,30 @@ namespace Model.Impl
             return systemTask;
         }
 
-        private IProcessShape CreateProcessShape(string taskNamePrefix, string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
+        /// <summary>
+        /// Create a Generic Process Shape
+        /// </summary>
+        /// <param name="shapeNamePrefix">The prefix for both the shape name and the shape label</param>
+        /// <param name="persona">The persona of the process shape</param>
+        /// <param name="itemLabel">The item label of the process shape</param>
+        /// <param name="include">The include of the process shape</param>
+        /// <param name="width">The width of the process shape</param>
+        /// <param name="height">The height of the process shape</param>
+        /// <param name="x">The x coordinate of the process shape</param>
+        /// <param name="y">The y coordinate of the process shape</param>
+        /// <param name="storyLinkId">The id of the linked user story</param>
+        /// <returns></returns>
+        private IProcessShape CreateProcessShape(string shapeNamePrefix, string persona, string itemLabel, int include, double width, double height, int x, int y, int storyLinkId = 0)
         {
             const string processShapeTypePrefix = "PROS";
 
             IProcessShape processShape = new ProcessShape();
 
             processShape.BaseItemTypePredefined = ItemTypePredefined.PROShape;
+            // New process shapes require a unique negative ID before being sent to the backend
+            // by the Storyteller REST API method 'UpdateProcess'
             processShape.Id = --_tempId;
-            processShape.Name = taskNamePrefix + Math.Abs(processShape.Id);
+            processShape.Name = shapeNamePrefix + Math.Abs(processShape.Id);
             processShape.ParentId = Id;
             processShape.ProjectId = ProjectId;
             processShape.TypePrefix = processShapeTypePrefix;
@@ -280,7 +323,8 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Description,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Description)).PropertyValues[Description].TypeId,
                     IsVirtual = true,
-                    Value = RandomValueWithPrefix(Description)
+                    // Create a random description
+                    Value = RandomGenerator.RandomValueWithPrefix(Description, 4)
                 });
 
             processShape.PropertyValues.Add(Height,
@@ -297,7 +341,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = Include,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Include)).PropertyValues[Include].TypeId,
                     IsVirtual = true,
                     Value = include
@@ -326,22 +370,11 @@ namespace Model.Impl
                 }
                 );
 
-            processShape.PropertyValues.Add(OutputParameters,
-                new PropertyValueInformation
-                {
-                    PropertyName = OutputParameters,
-                    TypePredefined = 0,
-                    TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(OutputParameters)).PropertyValues[OutputParameters].TypeId,
-                    IsVirtual = true,
-                    Value = null
-                }
-                );
-
             processShape.PropertyValues.Add(Persona,
                 new PropertyValueInformation
                 {
                     PropertyName = Persona,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(Persona)).PropertyValues[Persona].TypeId,
                     IsVirtual = true,
                     Value = persona
@@ -352,7 +385,7 @@ namespace Model.Impl
                 new PropertyValueInformation
                 {
                     PropertyName = StoryLinks,
-                    TypePredefined = 0,
+                    TypePredefined = PropertyTypePredefined.None,
                     TypeId = Shapes.First(shape => shape.PropertyValues.ContainsKey(StoryLinks)).PropertyValues[StoryLinks].TypeId,
                     IsVirtual = true,
                     Value = new StoryLink
@@ -411,11 +444,6 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        private static string RandomValueWithPrefix(string prefix)
-        {
-            return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(4));
-        }
-
         #endregion Private Methods
     }
 
@@ -434,7 +462,7 @@ namespace Model.Impl
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<Dictionary<string, PropertyValueInformation>>))]
+        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         public void SetPropertyValues(Dictionary<string, PropertyValueInformation> propertyValues)

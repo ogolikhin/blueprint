@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using Common;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Model;
-using Model.Impl;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Factories;
 
 namespace Helper
 {
@@ -39,7 +37,7 @@ namespace Helper
             // Assert that Process artifact path links are equal
             foreach (var process1ArtifactPathLink in process1.ArtifactPathLinks)
             {
-                var process2ArtifactPathLink = process2.ArtifactPathLinks.First(p => p.Id == process1ArtifactPathLink.Id);
+                var process2ArtifactPathLink = FindArtifactPathLink(process1ArtifactPathLink, process2.ArtifactPathLinks);
 
                 AssertArtifactPathLinksAreEqual(process1ArtifactPathLink, process2ArtifactPathLink);
             }
@@ -47,7 +45,7 @@ namespace Helper
             // Assert that Process properties are equal
             foreach (var process1Property in process1.PropertyValues)
             {
-                var process2Property = process2.PropertyValues.First(p => p.Key == process1Property.Key);
+                var process2Property = FindPropertyValue(process1Property, process2.PropertyValues);
 
                 AssertPropertyValuesAreEqual(process1Property.Value, process2Property.Value);
             }
@@ -55,9 +53,7 @@ namespace Helper
             // Assert that Process links are equal
             foreach (var process1Link in process1.Links)
             {
-                var process2Link =
-                    process2.Links.First(
-                        l => l.SourceId == process1Link.SourceId && l.DestinationId == process1Link.DestinationId);
+                var process2Link = FindProcessLink(process1Link, process2.Links);
 
                 AssertLinksAreEqual(process1Link, process2Link);
             }
@@ -65,7 +61,7 @@ namespace Helper
             //Assert that Process shapes are equal
             foreach (var process1Shape in process1.Shapes)
             {
-                var process2Shape = process2.Shapes.First(s => s.Name == process1Shape.Name);
+                var process2Shape = FindProcessShape(process1Shape, process2.Shapes);
 
                 AssertShapesAreEqual(process1Shape, process2Shape);
             }
@@ -100,13 +96,13 @@ namespace Helper
             Assert.AreEqual(propertyValue1.TypeId, propertyValue2.TypeId, "Property type ids do not match");
             Assert.AreEqual(propertyValue1.IsVirtual, propertyValue2.IsVirtual, "Property 'IsVirtual' does not match");
 
-            if (propertyValue1.PropertyName == "StoryLinks")
+            if (propertyValue1.PropertyName == "StoryLinks" && propertyValue1.Value != null)
             {
                 AssertStoryLinksAreEqual((IStoryLink)propertyValue1.Value, (IStoryLink)propertyValue2.Value);
             }
             else
             {
-                Assert.AreEqual(propertyValue1.Value, propertyValue2.Value, "Property values do not match");
+                Assert.AreEqual(propertyValue1.Value, propertyValue2.Value, "Property names do not match");
             }
         }
 
@@ -136,6 +132,10 @@ namespace Helper
             if (shape1.Id < 0)
             {
                 Assert.That(shape2.Id > 0, "Returned shape id was negative");
+            }
+            else if (shape2.Id < 0)
+            {
+                Assert.That(shape1.Id > 0, "Returned shape id was negative");
             }
             else
             {
@@ -172,14 +172,67 @@ namespace Helper
         }
 
         /// <summary>
-        /// Create Random Value with a supplied Prefix
+        /// Find an Artifact Path Link in an enumeration of Artifact Path Links
         /// </summary>
-        /// <param name="prefix">The prefix</param>
-        /// <param name="numberOfCharacters">The number of alphanumeric characters to append to the prefix</param>
-        /// <returns>A random alpha numeric character value with a supplied prefix</returns>
-        public static string RandomValueWithPrefix(string prefix, uint numberOfCharacters)
+        /// <param name="linkToFind">The artifact path link to find</param>
+        /// <param name="linksToSearchThrough">The artifact path links to search through</param>
+        /// <returns>The artifact path link that is found</returns>
+        private static IArtifactPathLink FindArtifactPathLink(IArtifactPathLink linkToFind,
+            IEnumerable<IArtifactPathLink> linksToSearchThrough)
         {
-            return I18NHelper.FormatInvariant("{0}_{1}", prefix, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(numberOfCharacters));
+            var linkFound = linksToSearchThrough.First(p => p.Id == linkToFind.Id);
+
+            Assert.IsNotNull(linkFound);
+
+            return linkFound;
+        }
+
+        /// <summary>
+        /// Find a Property in an enumeration of Properties
+        /// </summary>
+        /// <param name="propertyToFind">The property to find</param>
+        /// <param name="propertiesToSearchThrough">The properties to search though</param>
+        /// <returns>The found Property</returns>
+        private static KeyValuePair<string, IPropertyValueInformation> FindPropertyValue(KeyValuePair<string, IPropertyValueInformation> propertyToFind,
+        IEnumerable<KeyValuePair<string, IPropertyValueInformation>> propertiesToSearchThrough)
+        {
+            var propertyFound = propertiesToSearchThrough.First(p => p.Key == propertyToFind.Key);
+
+            Assert.IsNotNull(propertyFound);
+
+            return propertyFound;
+        }
+
+        /// <summary>
+        /// Find a Process Link in an enumeration of Process Links
+        /// </summary>
+        /// <param name="linkToFind">The process link to find</param>
+        /// <param name="linksToSearchThrough">The process links to search</param>
+        /// <returns></returns>
+        private static IProcessLink FindProcessLink(IProcessLink linkToFind,
+            IEnumerable<IProcessLink> linksToSearchThrough)
+        {
+            var linkFound = linksToSearchThrough.First(l => l.SourceId == linkToFind.SourceId && l.DestinationId == linkToFind.DestinationId);
+
+            Assert.IsNotNull(linkFound);
+
+            return linkFound;
+        }
+
+        /// <summary>
+        /// Find a Process Shape in an enumeration of Process SHapes
+        /// </summary>
+        /// <param name="shapeToFind"></param>
+        /// <param name="shapesToSearchThrough"></param>
+        /// <returns></returns>
+        private static IProcessShape FindProcessShape(IProcessShape shapeToFind,
+            IEnumerable<IProcessShape> shapesToSearchThrough)
+        {
+            var shapeFound = shapesToSearchThrough.First(s => s.Name == shapeToFind.Name);
+
+            Assert.IsNotNull(shapeFound);
+
+            return shapeFound;
         }
     }
 }

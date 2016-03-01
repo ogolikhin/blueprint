@@ -340,6 +340,7 @@ namespace Utilities.Facades
 
             if (jsonObject != null)
             {
+                request.JsonSerializer = new Deserialization.CustomSerializer();
                 request.AddJsonBody(jsonObject);
             }
 

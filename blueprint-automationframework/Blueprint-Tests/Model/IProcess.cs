@@ -58,7 +58,7 @@ namespace Model
         /// <summary>
         /// The property values for the Process artifact
         /// </summary>
-        Dictionary<string, PropertyValueInformation> PropertyValues { get; }
+        Dictionary<string, IPropertyValueInformation> PropertyValues { get; }
         #endregion Properties
 
         #region Methods
@@ -69,7 +69,8 @@ namespace Model
         /// <param name="sourceId">Id of the preceding shape</param>
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
-        void AddUserTask(int sourceId, int destinationId, int orderIndex);
+        /// <returns>The user task that was added</returns>
+        IProcessShape AddUserTask(int sourceId, int destinationId, int orderIndex);
 
         /// <summary>
         /// Adds a User Decision Point to the Process
@@ -77,7 +78,8 @@ namespace Model
         /// <param name="sourceId">Id of the preceding shape</param>
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
-        void AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
+        /// <returns>The user decision point that was added</returns>
+        IProcessShape AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
 
         /// <summary>
         /// Adds a Branch to the Process
@@ -85,7 +87,8 @@ namespace Model
         /// <param name="sourceId">Id of the preceding shape</param>
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
-        void AddBranch(int sourceId, int destinationId, int orderIndex);
+        /// <returns>The branch that was added</returns>
+        IProcessShape AddBranch(int sourceId, int destinationId, int orderIndex);
 
         #endregion Methods
     }

@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
-using Model.Impl;
+using Utilities.Factories;
 
 namespace StorytellerTests
 {
@@ -80,7 +78,8 @@ namespace StorytellerTests
             Assert.IsNotNull(defaultProcess, "The returned process was null.");
 
             // Modify default process name and update process
-            defaultProcess.Name = StorytellerTestHelper.RandomValueWithPrefix("DefaultProcess", 4);
+            defaultProcess.Name = RandomGenerator.RandomValueWithPrefix("DefaultProcess", 4);
+            defaultProcess.ArtifactPathLinks[0].Name = defaultProcess.Name;
 
             // Update the default process with a new process name
             var modifiedProcess = _storyteller.UpdateProcess(_user, defaultProcess);

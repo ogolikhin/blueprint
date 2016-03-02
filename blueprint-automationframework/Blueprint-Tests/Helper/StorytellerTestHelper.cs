@@ -29,7 +29,9 @@ namespace Helper
             Assert.AreEqual(process1.ProjectId, process2.ProjectId, "The project ids of the processes don't match");
             Assert.AreEqual(process1.TypePrefix, process2.TypePrefix, "The type prefixes of the processes don't match");
 
-            // Assert that Link counts, Shape counts and Property counts are equal
+            // Assert that ArtifactPathLinks counts, Link counts, Shape counts and Property counts are equal
+            Assert.AreEqual(process1.ArtifactPathLinks.Count, process2.ArtifactPathLinks.Count,
+                "The processes have different artifact path link counts");
             Assert.AreEqual(process1.PropertyValues.Count, process2.PropertyValues.Count,
                 "The processes have different property counts");
             Assert.AreEqual(process1.Links.Count, process2.Links.Count, "The processes have different link counts");
@@ -141,7 +143,6 @@ namespace Helper
             Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match");
             Assert.AreEqual(propertyValue1.TypePredefined, propertyValue2.TypePredefined, "Property types do not match");
             Assert.AreEqual(propertyValue1.TypeId, propertyValue2.TypeId, "Property type ids do not match");
-            Assert.AreEqual(propertyValue1.IsVirtual, propertyValue2.IsVirtual, "Property 'IsVirtual' does not match");
 
             if (propertyValue1.PropertyName == "StoryLinks" && propertyValue1.Value != null)
             {

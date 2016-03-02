@@ -18,12 +18,11 @@ CREATE PROCEDURE [dbo].[GetLogs]
 )
 AS
 BEGIN
+	DECLARE @total Int
+	SELECT @total = COUNT(*) FROM [Logs]	
 	
-	IF @limit > 0
+	IF @limit > 0 AND @limit <= @total
 	BEGIN
-		DECLARE @total Int
-		SELECT @total = COUNT(*) FROM [Logs]
- 
 		SELECT * FROM [Logs] ORDER BY id 
 			OFFSET @total - @limit ROWS
 			FETCH NEXT @limit ROWS ONLY;

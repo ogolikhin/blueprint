@@ -44,7 +44,7 @@ namespace Model
         List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Delete the artifact to Blueprint.
+        /// Delete the artifact on Blueprint server.
         /// </summary>
         /// <param name="artifact">The artifact to delete.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
@@ -52,5 +52,36 @@ namespace Model
         /// <returns>The artifactResult after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publish the artifact on Blueprint server.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        void Publish(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Save the artifact on Blueprint server.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        void Save(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Delete the artifact on Blueprint server. One need call Publish to delete permanently.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns true for unpublished artifact and false for published. Method checks Version property.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>True for unpublished artifact, false for published artifact.</returns>
+        bool IsArtifactUnpublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

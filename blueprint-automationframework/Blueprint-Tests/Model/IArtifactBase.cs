@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using Model.Impl;
 using Newtonsoft.Json;
 using Utilities;
@@ -98,5 +99,15 @@ namespace Model
         bool AreAttachmentsReadOnly { get; set; }
         bool AreDocumentReferencesReadOnly { get; set; }
         string Address { get; set; }
+
+        /// <summary>
+        /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="searchSubstring">The substring to search.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>List of artifacts</returns>
+        IList<IArtifactBase> SearchArtifactsByName(IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -15,6 +15,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+        private IOpenApiArtifact _artifact;
 
         #region Setup and Cleanup
 
@@ -31,6 +32,12 @@ namespace StorytellerTests
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Create and publish artifact for test.
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Document);
+            _artifact.Save(_user);
+            _artifact.Publish(_user);
+            Assert.IsFalse(_artifact.IsArtifactUnpublished(_user), "Artifact wasn't published!");
         }
 
         [TestFixtureTearDown]
@@ -58,6 +65,13 @@ namespace StorytellerTests
             if (_user != null)
             {
                 _user.DeleteUser();
+                _user = null;
+            }
+
+            if (_artifact != null)
+            {
+                _artifact.Delete(_user);
+                _artifact.Publish(_user);
                 _user = null;
             }
         }
@@ -105,6 +119,17 @@ namespace StorytellerTests
 
             var results = processList.Where(p => (p.Name == artifact.Name)).ToList();
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
+        }
+
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                var artifactsList = _artifact.SearchArtifactsByName(user: _user, searchSubstring: _artifact.Name);
+                Assert.IsTrue(artifactsList.Count > 0);
+            }, "Newly created artifact must be found by name, but it doesn't.");
         }
     }
 }

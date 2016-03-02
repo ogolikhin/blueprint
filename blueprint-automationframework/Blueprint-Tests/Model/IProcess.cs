@@ -70,7 +70,7 @@ namespace Model
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
         /// <returns>The user task that was added</returns>
-        IProcessShape AddUserTask(int sourceId, int destinationId, int orderIndex);
+        IProcessShape AddUserTask(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
         /// Adds a User Decision Point to the Process
@@ -79,7 +79,7 @@ namespace Model
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
+        IProcessShape AddUserDecisionPoint(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
         /// Adds a Branch to the Process
@@ -87,8 +87,11 @@ namespace Model
         /// <param name="sourceId">Id of the preceding shape</param>
         /// <param name="destinationId">Id of the following shape</param>
         /// <param name="orderIndex">Order index of the added user task (y-index)</param>
-        /// <returns>The branch that was added</returns>
-        IProcessShape AddBranch(int sourceId, int destinationId, int orderIndex);
+        void AddBranch(int sourceId, int destinationId, double orderIndex);
+
+        IProcessShape FindProcessShapeByShapeName(string shapeName);
+
+        IProcessLink FindIncomingLinkForShape(int shapeId);
 
         #endregion Methods
     }

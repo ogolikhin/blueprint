@@ -24,7 +24,6 @@ namespace Model.Impl
 
         public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
 
-
         #region Constructor
 
         public Storyteller(string address)
@@ -37,7 +36,6 @@ namespace Model.Impl
         }
 
         #endregion Constructor
-
 
         #region Implemented from IStoryteller
 
@@ -284,8 +282,7 @@ namespace Model.Impl
             List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
             foreach (IOpenApiArtifact artifact in Artifacts)
             {
-                OpenApiArtifact artifactElement;
-                artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
+                var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
             }
 

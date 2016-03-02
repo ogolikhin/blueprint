@@ -158,7 +158,7 @@ namespace Model.Impl
 
             // Add a new link after the new user decision point
             Links.Add(new ProcessLink
-            {
+        {
                 DestinationId = destinationId,
                 Label = null,
                 Orderindex = orderIndex,
@@ -521,9 +521,9 @@ namespace Model.Impl
 
 
         public ProcessShape()
-        {
-            PropertyValues = new Dictionary<string, PropertyValueInformation>();
-        }
+            {
+                PropertyValues = new Dictionary<string, PropertyValueInformation>();
+            }
     }
 
     public class ProcessLink: IProcessLink

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Model;
 using Model.Impl;
@@ -200,12 +202,33 @@ namespace Helper
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
 
             // Assert that Shape properties are equal
-            //foreach (var shape1Property in shape1.PropertyValues)
-            //{
-            //    var shape2Property = FindPropertyValue(shape1Property.Key, shape2.PropertyValues);
+            foreach (var shape1Property in shape1.PropertyValues)
+            {
+                var shape2Property = FindPropertyValue(shape1Property.Key, shape2.PropertyValues);
 
-            //    AssertPropertyValuesAreEqual(shape1Property.Value, shape2Property.Value);
-            //}
+                AssertPropertyValuesAreEqual(shape1Property.Value, shape2Property.Value);
+            }
+        }
+
+        /// <summary>
+        /// Toggle the Case of the First Character in a String
+        /// </summary>
+        /// <param name="valueToModify">The string to modify</param>
+        /// <returns>The modified string</returns>
+        public static string ToggleCaseOfFirstCharacter(string valueToModify)
+        {
+            ThrowIf.ArgumentNull(valueToModify, nameof(valueToModify));
+
+            if (char.IsUpper(valueToModify[0]))
+            {
+                valueToModify = char.ToLower(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
+            }
+            else
+            {
+                valueToModify = char.ToUpper(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
+            }
+
+            return valueToModify;
         }
 
         /// <summary>
@@ -246,7 +269,7 @@ namespace Helper
         private static KeyValuePair<string, PropertyValueInformation> FindPropertyValue(string keyToFind,
         Dictionary<string, PropertyValueInformation> propertiesToSearchThrough)
         {
-            var propertyFound = propertiesToSearchThrough.ToList().Find(p => p.Key == keyToFind);
+            var propertyFound = propertiesToSearchThrough.ToList().Find(p => string.Equals(p.Key, keyToFind, StringComparison.CurrentCultureIgnoreCase));
 
             Assert.IsNotNull(propertyFound, "Could not find a Property with Name: {0}", keyToFind);
 

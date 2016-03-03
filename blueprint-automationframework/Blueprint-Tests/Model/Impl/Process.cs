@@ -359,7 +359,7 @@ namespace Model.Impl
                     PropertyName = ClientType,
                     TypePredefined = PropertyTypePredefined.ClientType,
                     TypeId = FindPropertyNameTypeId(ClientType),
-                    Value = processShapeType
+                    Value = (int)processShapeType
                 });
 
             processShape.PropertyValues.Add(Description,
@@ -454,7 +454,8 @@ namespace Model.Impl
         {
             // Must convert first charater of property name to lowercase in order to find the pproperty in the 
             // default process
-            propertyName = propertyName.Substring(0, 1).ToLower(CultureInfo.CurrentCulture) + propertyName.Substring(1);
+            propertyName = char.ToLower(propertyName[0], CultureInfo.InvariantCulture) + propertyName.Substring(1);
+
             var property = Shapes.Find(shape => shape.PropertyValues.ContainsKey(propertyName));
 
             return property?.PropertyValues[propertyName].TypeId;

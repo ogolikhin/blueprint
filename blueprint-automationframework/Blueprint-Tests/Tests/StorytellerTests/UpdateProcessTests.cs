@@ -1,4 +1,6 @@
-﻿using CustomAttributes;
+﻿using System;
+using System.Globalization;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -40,11 +42,12 @@ namespace StorytellerTests
         {
              if (_storyteller.Artifacts != null)
             {
+                // TODO: Uncomment when new Publish Process is implemented
                 //Delete all the artifacts that were added.
-                foreach (var artifact in _storyteller.Artifacts)
-                {
-                    _storyteller.DeleteProcessArtifact(artifact, _user);
-                }
+                //foreach (var artifact in _storyteller.Artifacts)
+                //{
+                //    _storyteller.DeleteProcessArtifact(artifact, _user);
+                //}
             }
 
             if (_adminStore != null)
@@ -67,7 +70,6 @@ namespace StorytellerTests
 
         #region Tests
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "tempProcess")]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update name of default process and verify returned process")]
         public void ModifyDefaultProcessName_VerifyReturnedProcess()
@@ -88,9 +90,35 @@ namespace StorytellerTests
             VerifyProcess(defaultProcess);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase, Description("Update type of default process and verify returned process")]
+        public void ModifyType_VerifyReturnedProcess()
+        {
+            // Create default process
+            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+
+            // Get default process
+            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+
+            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+
+            // Must toggle case of the first character to create lower case property name
+            var clientTypePropertyName =
+                StorytellerTestHelper.ToggleCaseOfFirstCharacter(PropertyTypePredefined.ClientType.ToString());
+
+            var processType = Convert.ToInt32(defaultProcess.PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
+
+            Assert.That(processType == (int)ProcessType.BusinessProcess);
+
+            // Modify default process Type
+            defaultProcess.PropertyValues[clientTypePropertyName].Value = (int)ProcessType.UserToSystemProcess;
+
+            // Verify the modified process
+            VerifyProcess(defaultProcess);
+        }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Add a user and system task and verify returned process")]
+        [TestCase, Description("Add a user and system task after the precondition and verify returned process")]
         public void AddUserAndSystemTaskAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
@@ -117,7 +145,7 @@ namespace StorytellerTests
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Add a user and system task and verify returned process")]
+        [TestCase, Description("Add a user and system task before the end and verify returned process")]
         public void AddUserAndSystemTaskBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
@@ -144,7 +172,7 @@ namespace StorytellerTests
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Add a user and system task and verify returned process")]
+        [TestCase, Description("Add two sequential user/system tasks before the end and verify returned process")]
         public void AddTwoSequentialUserAndSystemTasksBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
@@ -177,7 +205,7 @@ namespace StorytellerTests
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Add a user and system task and verify returned process")]
+        [TestCase, Description("Add a user decision with branch after precondition and verify returned process")]
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
@@ -213,8 +241,8 @@ namespace StorytellerTests
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Add a user and system task and verify returned process")]
-        public void AddUserDecisionBeforeEnd_VerifyReturnedProcess()
+        [TestCase, Description("Add a user decision point before the end and verify returned process")]
+        public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
             var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -252,7 +280,7 @@ namespace StorytellerTests
         }
 
         /// <summary>
-        /// Updates process and verifies process returned from UpdateProcess and GetProcess
+        /// Verifies the processes returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
         private void VerifyProcess(IProcess processToVerify)

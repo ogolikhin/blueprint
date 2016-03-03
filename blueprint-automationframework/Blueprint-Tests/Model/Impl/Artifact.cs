@@ -176,8 +176,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-
+            
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, this.ProjectId, URL_ARTIFACTS);
 
             if (expectedStatusCodes == null)
@@ -189,16 +188,12 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
-                path, RestRequestMethod.POST, artifactObject, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+                path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
             Id = artifactResult.Artifact.Id;
-            //TODO Assertion to check Message
-            const string expectedMsg = "Success";
-            Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
 
             Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture),
                 "The returned ResultCode was '{0}' but '{1}' was expected",
@@ -219,23 +214,16 @@ namespace Model.Impl
 
             string path = URL_PUBLISH;
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
             OpenApiArtifact artifactToPublish = new OpenApiArtifact();
             artifactToPublish.Id = Id;
             artifactToPublish.ProjectId = ProjectId;
-            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
-            artifactObjectList.Add(artifactToPublish);
+            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
             List<PublishArtifactResult> publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-            Assert.That(publishResultList.Count == 1, "List of results must have 1 item while it has {0}", publishResultList.Count);
             Logger.WriteDebug("Result Code for Publish artifact: {0}", publishResultList[0].ResultCode);
             Assert.That(publishResultList[0].ResultCode == ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture),
-                "The returned ResultCode was '{0}' but '{1}' was expected", ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture), publishResultList[0].ResultCode);
+                "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
         }
 
         public List<IPublishArtifactResult> PublishArtifacts(
@@ -292,7 +280,6 @@ namespace Model.Impl
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(
                 path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
@@ -309,28 +296,21 @@ namespace Model.Impl
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(
                 path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
         }
 
-        public bool IsArtifactUnpublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public bool IsArtifactPublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
-                resourcePath: path, method: RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+                resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             //for unpublished artifact Version is -1
-            return (returnedArtifact.Version == -1);
+            return (returnedArtifact.Version != -1);
         }
 
         #endregion Methods

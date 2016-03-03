@@ -78,11 +78,11 @@ namespace Model
         void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Returns true for unpublished artifact and false for published. Method checks Version property.
+        /// Returns true for published artifact and false for unpublished. Method checks Version property.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>True for unpublished artifact, false for published artifact.</returns>
-        bool IsArtifactUnpublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>True for published artifact, false for unpublished artifact.</returns>
+        bool IsArtifactPublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

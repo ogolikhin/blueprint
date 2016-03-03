@@ -37,7 +37,7 @@ namespace StorytellerTests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Document);
             _artifact.Save(_user);
             _artifact.Publish(_user);
-            Assert.IsFalse(_artifact.IsArtifactUnpublished(_user), "Artifact wasn't published!");
+            Assert.IsTrue(_artifact.IsArtifactPublished(_user), "Artifact wasn't published!");
         }
 
         [TestFixtureTearDown]
@@ -62,16 +62,16 @@ namespace StorytellerTests
                 }
             }
 
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
-
             if (_artifact != null)
             {
                 _artifact.Delete(_user);
                 _artifact.Publish(_user);
+                _artifact = null;
+            }
+
+            if (_user != null)
+            {
+                _user.DeleteUser();
                 _user = null;
             }
         }
@@ -129,7 +129,7 @@ namespace StorytellerTests
             {
                 var artifactsList = _artifact.SearchArtifactsByName(user: _user, searchSubstring: _artifact.Name);
                 Assert.IsTrue(artifactsList.Count > 0);
-            }, "Newly created artifact must be found by name, but it doesn't.");
+            }, "Couldn't find an artifact named '{0}'.", _artifact.Name);
         }
     }
 }

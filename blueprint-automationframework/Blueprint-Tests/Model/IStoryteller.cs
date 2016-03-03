@@ -40,14 +40,14 @@ namespace Model
         List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets a Process artifact
+        /// Gets a Process
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="id">Id of the Process artifact</param>
         /// <param name="versionIndex">(optional) Version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The requested process artifact</returns>
+        /// <returns>The requested process</returns>
         IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
@@ -92,14 +92,25 @@ namespace Model
         IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Updates a Process artifact
+        /// Updates a Process
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="process">The updated Process artifact</param>
+        /// <param name="process">The Process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <returns>The updated Process</returns>
         IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Publish a Process
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="process">The Process to publish</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <returns>The list of PublishArtifactResult after the call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Publish Process artifact(s)

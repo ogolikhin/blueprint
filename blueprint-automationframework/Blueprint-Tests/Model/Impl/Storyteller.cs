@@ -256,6 +256,42 @@ namespace Model.Impl
             return returnedProcess;
         }
 
+        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
+            foreach (IOpenApiArtifact artifact in Artifacts)
+            {
+                OpenApiArtifact artifactElement;
+                artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
+                artifactObjectList.Add(artifactElement);
+            }
+
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, URL_PROCESSES, process.Id);
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            //var artifactResult = restApi.SendRequestAndDeserializeObject<String>(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
+            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResult.Content;
+        }
+
+
         public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));

@@ -14,8 +14,9 @@ namespace Helper
         /// </summary>
         /// <param name="process1">First Process</param>
         /// <param name="process2">Second Process being compared to the first</param>
+        /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
         /// <exception cref="AssertionException">If process1 is not identical to process2</exception>
-        public static void AssertProcessesAreIdentical(IProcess process1, IProcess process2)
+        public static void AssertProcessesAreIdentical(IProcess process1, IProcess process2, bool allowNegativeShapeIds = false)
         {
             ThrowIf.ArgumentNull(process1, nameof(process1));
             ThrowIf.ArgumentNull(process2, nameof(process2));
@@ -28,7 +29,9 @@ namespace Helper
             Assert.AreEqual(process1.ProjectId, process2.ProjectId, "The project ids of the processes don't match");
             Assert.AreEqual(process1.TypePrefix, process2.TypePrefix, "The type prefixes of the processes don't match");
 
-            // Assert that Link counts, Shape counts and Property counts are equal
+            // Assert that ArtifactPathLinks counts, Link counts, Shape counts and Property counts are equal
+            Assert.AreEqual(process1.ArtifactPathLinks.Count, process2.ArtifactPathLinks.Count,
+                "The processes have different artifact path link counts");
             Assert.AreEqual(process1.PropertyValues.Count, process2.PropertyValues.Count,
                 "The processes have different property counts");
             Assert.AreEqual(process1.Links.Count, process2.Links.Count, "The processes have different link counts");
@@ -51,20 +54,65 @@ namespace Helper
                 AssertPropertyValuesAreEqual(process1Property.Value, process2Property.Value);
             }
 
-            // Assert that Process links are equal
-            foreach (var process1Link in process1.Links)
-            {
-                var process2Link = FindProcessLink(process1Link, process2.Links);
+            // Assert that process links are the same
+            // This involves finding the new id of shapes that had negative ids in the source process
+            // Also, shapes and links need to be modified so that either process can have the negative ids
 
-                AssertLinksAreEqual(process1Link, process2Link);
+            List<ProcessLink> links1;
+            List<ProcessLink> links2;
+            List<ProcessShape> shapes1;
+            List<ProcessShape> shapes2;
+
+            if (process2.Links.Find(l => l.SourceId < 0 || l.DestinationId < 0) != null)
+            {
+                links2 = process1.Links;  
+                links1 = process2.Links;
+                shapes2 = process1.Shapes;
+                shapes1 = process2.Shapes;
+            }
+            else
+            {
+                links1 = process1.Links;
+                links2 = process2.Links;
+                shapes1 = process1.Shapes;
+                shapes2 = process2.Shapes;
+            }
+
+            foreach (var link1 in links1)
+            {
+                if (link1.SourceId > 0 && link1.DestinationId > 0)
+                {
+                    var link2 = FindProcessLink(link1, links2);
+                    AssertLinksAreEqual(link1, link2);
+                }
+                else if (link1.SourceId > 0 && link1.DestinationId < 0)
+                {
+                    var link1ShapeDestination = FindProcessShapeById(link1.DestinationId, shapes1);
+                    var link2Shape = FindProcessShapeByName(link1ShapeDestination.Name, shapes2);
+
+                    link1.DestinationId = link2Shape.Id;
+
+                    var link2 = FindProcessLink(link1, links2);
+                    AssertLinksAreEqual(link1, link2);
+                }
+                else if (link1.SourceId < 0 && link1.DestinationId > 0)
+                {
+                    var link1ShapeSource = FindProcessShapeById(link1.SourceId, shapes1);
+                    var link2Shape = FindProcessShapeByName(link1ShapeSource.Name, shapes2);
+
+                    link1.SourceId = link2Shape.Id;
+
+                    var link2 = FindProcessLink(link1, links2);
+                    AssertLinksAreEqual(link1, link2);
+                }
             }
 
             //Assert that Process shapes are equal
             foreach (var process1Shape in process1.Shapes)
             {
-                var process2Shape = FindProcessShape(process1Shape, process2.Shapes);
+                var process2Shape = FindProcessShapeByName(process1Shape.Name, process2.Shapes);
 
-                AssertShapesAreEqual(process1Shape, process2Shape);
+                AssertShapesAreEqual(process1Shape, process2Shape, allowNegativeShapeIds);
             }
         }
 
@@ -95,7 +143,6 @@ namespace Helper
             Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match");
             Assert.AreEqual(propertyValue1.TypePredefined, propertyValue2.TypePredefined, "Property types do not match");
             Assert.AreEqual(propertyValue1.TypeId, propertyValue2.TypeId, "Property type ids do not match");
-            Assert.AreEqual(propertyValue1.IsVirtual, propertyValue2.IsVirtual, "Property 'IsVirtual' does not match");
 
             if (propertyValue1.PropertyName == "StoryLinks" && propertyValue1.Value != null)
             {
@@ -125,16 +172,18 @@ namespace Helper
         /// </summary>
         /// <param name="shape1">The first Shape</param>
         /// <param name="shape2">The Shape being compared to the first</param>
-        private static void AssertShapesAreEqual(IProcessShape shape1, IProcessShape shape2)
+        /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
+        private static void AssertShapesAreEqual(IProcessShape shape1, IProcessShape shape2, bool allowNegativeShapeIds)
         {
+
             // Note that if a shape id of the first Process being compared is less than 0, then the first Process 
             // is a process that will be updated with proper id values at the back end.  If the shape id of
             // the first process being compared is greater than 0, then the shape ids should match.
-            if (shape1.Id < 0)
+            if (allowNegativeShapeIds && shape1.Id < 0)
             {
                 Assert.That(shape2.Id > 0, "Returned shape id was negative");
             }
-            else if (shape2.Id < 0)
+            else if (allowNegativeShapeIds && shape2.Id < 0)
             {
                 Assert.That(shape1.Id > 0, "Returned shape id was negative");
             }
@@ -222,17 +271,33 @@ namespace Helper
         }
 
         /// <summary>
-        /// Find a Process Shape in an enumeration of Process SHapes
+        /// Find a Process Shape by name in an enumeration of Process Shapes
         /// </summary>
-        /// <param name="shapeToFind">The process shape to find</param>
+        /// <param name="shapeName">The name of the process shape to find</param>
         /// <param name="shapesToSearchThrough">The process shapes to search</param>
         /// <returns>The found process shape</returns>
-        private static IProcessShape FindProcessShape(IProcessShape shapeToFind,
+        private static IProcessShape FindProcessShapeByName(string shapeName,
             IEnumerable<IProcessShape> shapesToSearchThrough)
         {
-            var shapeFound = shapesToSearchThrough.ToList().Find(s => s.Name == shapeToFind.Name);
+            var shapeFound = shapesToSearchThrough.ToList().Find(s => s.Name == shapeName);
 
-            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Id {0}", shapeToFind.Id);
+            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Name {0}", shapeName);
+
+            return shapeFound;
+        }
+
+        /// <summary>
+        /// Find a Process Shape by id in an enumeration of Process Shapes
+        /// </summary>
+        /// <param name="shapeId">The id of the process shape to find</param>
+        /// <param name="shapesToSearchThrough">The process shapes to search</param>
+        /// <returns>The found process shape</returns>
+        private static IProcessShape FindProcessShapeById(int shapeId,
+            IEnumerable<IProcessShape> shapesToSearchThrough)
+        {
+            var shapeFound = shapesToSearchThrough.ToList().Find(s => s.Id == shapeId);
+
+            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Id {0}", shapeId);
 
             return shapeFound;
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Text;
 using Dapper;
 using ServiceLibrary.Repositories;
@@ -28,7 +29,15 @@ namespace ConfigControl.Repositories
             // column loop
             for (var fieldCounter = 0; fieldCounter < reader.FieldCount; fieldCounter++)
             {
-                line.AppendFormat("{0}{1}", nameOnly ? reader.GetName(fieldCounter) : reader.GetValue(fieldCounter), csvDelemiter);
+                object csvValue;
+                if (nameOnly)
+                    csvValue = reader.GetName(fieldCounter);
+                else
+                {
+                    var value = reader.GetValue(fieldCounter);
+                    csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"","'"),"\"") : value;
+                }
+                line.AppendFormat("{0}{1}", csvValue, csvDelemiter);
             }
             line.Length--;
             return line.ToString();

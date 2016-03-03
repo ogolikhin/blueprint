@@ -86,8 +86,8 @@ namespace StorytellerTests
             Assert.NotNull(userStoryArtifactType.Name, "UserStoryArtifactType Name is null");
         }
 
-        [Test]
-        public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual()
+        [TestCase(5)]
+        public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
             // Create an Process artifact
             _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
@@ -97,12 +97,12 @@ namespace StorytellerTests
 
             // Add additional UserTasks
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < iteration; i++)
             {
-                //AddUserTask("Precondition Shape's ID", "Postcondition Shape's ID", 1);
-                var userTask= _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId, 1);
+                var userTask= _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId);
+                
                 //Assign preconditionId with new Postcondition Shape's ID\
-                preconditionId = _process.Links.Find(p => p.DestinationId.Equals(userTask.Id)).SourceId;    
+                preconditionId = _process.FindOutgoingLinkForShape(userTask.Id).DestinationId;
 
                 //Update Precondition Shape with New User Shape
                 /// case of adding on top
@@ -110,6 +110,7 @@ namespace StorytellerTests
                 //// new UT preCondition -> original precondition
                 //// new UserTask
                 //// new UT postCondition -> new ST
+
                 ///  
                 /// case of adding on bottom
                 //// new UT preCondition -> origial postcondition

@@ -44,14 +44,21 @@ namespace StorytellerTests
         public void ClassTearDown()
         {
             // XXX: This is commented out because it will fail since we didn't publish any artifacts.  Need to implement a DiscardChanges() method instead.
-//            if (_storyteller.Artifacts != null)
-//            {
-                // Delete all the artifacts that were added.
-//                foreach (var artifact in _storyteller.Artifacts)
-//                {
-//                    _storyteller.DeleteProcessArtifact(artifact, _user);
-//                }
-//            }
+            //            if (_storyteller.Artifacts != null)
+            //            {
+            // Delete all the artifacts that were added.
+            //                foreach (var artifact in _storyteller.Artifacts)
+            //                {
+            //                    _storyteller.DeleteProcessArtifact(artifact, _user);
+            //                }
+            //            }
+
+            if (_artifact != null)
+            {
+                _artifact.Delete(_user);
+                _artifact.Publish(_user);
+                _artifact = null;
+            }
 
             if (_adminStore != null)
             {
@@ -60,13 +67,6 @@ namespace StorytellerTests
                 {
                     _adminStore.DeleteSession(session);
                 }
-            }
-
-            if (_artifact != null)
-            {
-                _artifact.Delete(_user);
-                _artifact.Publish(_user);
-                _artifact = null;
             }
 
             if (_user != null)

@@ -293,11 +293,11 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
                 path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
-            Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
+            Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResults[0].Message, artifactResults[0].ResultCode);
+            Logger.WriteDebug("The Artifact Returned: {0}", artifactResults[0].ResultCode);
         }
 
         public bool IsArtifactPublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null)

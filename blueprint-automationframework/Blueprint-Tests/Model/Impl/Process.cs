@@ -115,7 +115,7 @@ namespace Model.Impl
             Shapes.Add((ProcessShape)userTask);
 
             // Add a system task to be paired with the user task just created
-            var systemTask = CreateSystemTask("", "User", "", 0, null, 126.0, 150.0, 0, 0);
+            var systemTask = CreateSystemTask(null, "User", "", 0, null, 126.0, 150.0, 0, 0);
             Shapes.Add((ProcessShape)systemTask);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
@@ -150,7 +150,7 @@ namespace Model.Impl
 
             var destinationId = processLink.DestinationId;
 
-            var userDecisionPoint = CreateUserDecisionPoint("User", "", 0, 126.0, 150.0, 0, 0);
+            var userDecisionPoint = CreateUserDecisionPoint("", 0, 126.0, 150.0, 0, 0);
             Shapes.Add((ProcessShape)userDecisionPoint);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
@@ -298,7 +298,7 @@ namespace Model.Impl
                     .Find(p => string.Equals(p.Key, ClientType, StringComparison.CurrentCultureIgnoreCase))
                     .Value;
 
-            var shapeType = clientTypePropertyInformation.Value;
+            var shapeType = Convert.ToInt32(clientTypePropertyInformation.Value, CultureInfo.InvariantCulture);
 
             return (ProcessShapeType)shapeType;
         }
@@ -324,9 +324,20 @@ namespace Model.Impl
         {
             const string userTaskNamePrefix = "UT";
 
-            var userTask = CreateProcessShape(ProcessShapeType.UserTask, userTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var userTask = CreateProcessShape(ProcessShapeType.UserTask, userTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             var storyLink = storyLinkId == 0 ? null : CreateStoryLink(userTask.Id, storyLinkId, 0, storyLinkId);
+
+
+            userTask.PropertyValues.Add(Persona,
+                new PropertyValueInformation
+                {
+                    PropertyName = Persona,
+                    TypePredefined = PropertyTypePredefined.None,
+                    TypeId = FindPropertyNameTypeId(Persona),
+                    Value = persona
+                }
+                );
 
             userTask.PropertyValues.Add(ImageId,
                 new PropertyValueInformation
@@ -369,7 +380,7 @@ namespace Model.Impl
         {
             const string systemTaskNamePrefix = "ST";
 
-            var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, systemTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, systemTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             var storyLink = storyLinkId == 0 ? null : CreateStoryLink(systemTask.Id, storyLinkId, 0, storyLinkId);
 
@@ -381,6 +392,17 @@ namespace Model.Impl
                     TypeId = FindPropertyNameTypeId(AssociatedImageUrl),
                     Value = associatedImageUrl
                 });
+
+
+            systemTask.PropertyValues.Add(Persona,
+                new PropertyValueInformation
+                {
+                    PropertyName = Persona,
+                    TypePredefined = PropertyTypePredefined.None,
+                    TypeId = FindPropertyNameTypeId(Persona),
+                    Value = persona
+                }
+                );
 
             systemTask.PropertyValues.Add(ImageId,
                 new PropertyValueInformation
@@ -408,7 +430,6 @@ namespace Model.Impl
         /// <summary>
         /// Create a User Decision Point
         /// </summary>
-        /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
         /// <param name="associatedArtifact">The include of the user task</param>
         /// <param name="width">The width of the user task</param>
@@ -416,11 +437,11 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <returns>A new user decision point</returns>
-        private IProcessShape CreateUserDecisionPoint(string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateUserDecisionPoint(string itemLabel, int associatedArtifact, double width, double height, int x, int y)
         {
             const string userTaskNamePrefix = "UD";
 
-            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, userTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, userTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             userDecisionPoint.PropertyValues.Add(LinkLabels,
                 new PropertyValueInformation
@@ -439,7 +460,6 @@ namespace Model.Impl
         /// </summary>
         /// <param name="processShapeType">The type of the process shape</param>
         /// <param name="shapeNamePrefix">The prefix for both the shape name and the shape label</param>
-        /// <param name="persona">The persona of the process shape</param>
         /// <param name="itemLabel">The item label of the process shape</param>
         /// <param name="associatedArtifact">The user story artifact associated with the Process shape</param>
         /// <param name="width">The width of the process shape</param>
@@ -447,7 +467,7 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the process shape</param>
         /// <param name="y">The y coordinate of the process shape</param>
         /// <returns></returns>
-        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
         {
             const string processShapeTypePrefix = "PROS";
 
@@ -509,16 +529,6 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Label,
                     TypeId = FindPropertyNameTypeId(Label),
                     Value = processShape.Name
-                }
-                );
-
-            processShape.PropertyValues.Add(Persona,
-                new PropertyValueInformation
-                {
-                    PropertyName = Persona,
-                    TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(Persona),
-                    Value = persona
                 }
                 );
 

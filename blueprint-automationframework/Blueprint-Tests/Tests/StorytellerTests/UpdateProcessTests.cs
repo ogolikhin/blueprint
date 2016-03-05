@@ -240,7 +240,7 @@ namespace StorytellerTests
             var endShape = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Find incoming process link for end shape
-            var processLink = defaultProcess.FindOutgoingLinkForShape(endShape.Id);
+            var processLink = defaultProcess.FindIncomingLinkForShape(endShape.Id);
 
             // Add Decision point with branch and 2 user tasks
             defaultProcess.AddDecisionPointWithBranchBeforeShape(endShape.Id, processLink.Orderindex + 1);

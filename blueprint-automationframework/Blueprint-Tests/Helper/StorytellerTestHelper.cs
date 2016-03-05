@@ -142,7 +142,7 @@ namespace Helper
         private static void AssertPropertyValuesAreEqual(IPropertyValueInformation propertyValue1,
             IPropertyValueInformation propertyValue2)
         {
-            Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match");
+            Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match: {0} != {1}", propertyValue1.PropertyName, propertyValue2.PropertyName);
             Assert.AreEqual(propertyValue1.TypePredefined, propertyValue2.TypePredefined, "Property types do not match");
             Assert.AreEqual(propertyValue1.TypeId, propertyValue2.TypeId, "Property type ids do not match");
 
@@ -150,10 +150,11 @@ namespace Helper
             {
                 AssertStoryLinksAreEqual((IStoryLink)propertyValue1.Value, (IStoryLink)propertyValue2.Value);
             }
-            else
+            else if (propertyValue1.PropertyName != "LinkLabels")
             {
-                Assert.AreEqual(propertyValue1.Value, propertyValue2.Value, "Property names do not match");
+                Assert.AreEqual(propertyValue1.Value, propertyValue2.Value, "Property values do not match: {0} != {1} for Property name: {2}", propertyValue1.Value, propertyValue2.Value, propertyValue1.PropertyName);
             }
+
         }
 
         /// <summary>

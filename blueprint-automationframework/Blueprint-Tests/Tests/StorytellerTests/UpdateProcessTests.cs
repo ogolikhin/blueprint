@@ -71,50 +71,50 @@ namespace StorytellerTests
         #region Tests
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Update name of default process and verify returned process")]
-        public void ModifyDefaultProcessName_VerifyReturnedProcess()
+        [TestCase, Description("Update name of process and verify returned process")]
+        public void ModifyreturnedProcessName_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Modify default process Name
-            defaultProcess.Name = RandomGenerator.RandomValueWithPrefix("DefaultProcess", 4);
-            defaultProcess.ArtifactPathLinks[0].Name = defaultProcess.Name;
+            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
+            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase, Description("Update type of default process and verify returned process")]
+        [TestCase, Description("Update type of process and verify returned process")]
         public void ModifyProcessType_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
-            // Must toggle case of the first character to create lower case property name
+            // Must lower the case of the first character to create lower case property name
             var clientTypePropertyName =
-                StorytellerTestHelper.ToggleCaseOfFirstCharacter(PropertyTypePredefined.ClientType.ToString());
+                StorytellerTestHelper.LowerCaseFirstCharacter(PropertyTypePredefined.ClientType.ToString());
 
-            var processType = Convert.ToInt32(defaultProcess.PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
+            var processType = Convert.ToInt32(returnedProcess.PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
 
             Assert.That(processType == (int)ProcessType.BusinessProcess);
 
             // Modify default process Type
-            defaultProcess.PropertyValues[clientTypePropertyName].Value = (int)ProcessType.UserToSystemProcess;
+            returnedProcess.PropertyValues[clientTypePropertyName].Value = (int)ProcessType.UserToSystemProcess;
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -122,26 +122,26 @@ namespace StorytellerTests
         public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
                 
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            defaultProcess.AddUserTask(processLink);
+            returnedProcess.AddUserTask(processLink);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -149,26 +149,26 @@ namespace StorytellerTests
         public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find the end shape
-            var endShape = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var endShape = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var processLink = defaultProcess.FindIncomingLinkForShape(endShape.Id);
+            var processLink = returnedProcess.FindIncomingLinkForShape(endShape.Id);
 
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            defaultProcess.AddUserTask(processLink);
+            returnedProcess.AddUserTask(processLink);
 
             // Updatea and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -176,25 +176,25 @@ namespace StorytellerTests
         public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
-            var defaultUserTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the incoming link for the end shape
-            var processLink = defaultProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
 
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            defaultProcess.AddUserTask(processLink);
+            returnedProcess.AddUserTask(processLink);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -202,26 +202,26 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
-            var branchEndPoint = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            defaultProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -229,24 +229,24 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find the end shape
-            var endShape = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var endShape = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Find incoming process link for end shape
-            var processLink = defaultProcess.FindIncomingLinkForShape(endShape.Id);
+            var processLink = returnedProcess.FindIncomingLinkForShape(endShape.Id);
 
             // Add Decision point with branch and 2 user tasks
-            defaultProcess.AddDecisionPointWithBranchBeforeShape(endShape.Id, processLink.Orderindex + 1);
+            returnedProcess.AddDecisionPointWithBranchBeforeShape(endShape.Id, processLink.Orderindex + 1);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -254,30 +254,30 @@ namespace StorytellerTests
         public void AddUserTaskBeforeUserDecision_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find the default user task
-            var defaultUserTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find incoming process link for the default user task shape
-            var processLink = defaultProcess.FindIncomingLinkForShape(defaultUserTask.Id);
+            var processLink = returnedProcess.FindIncomingLinkForShape(defaultUserTask.Id);
 
             // Add Decision point with branch before default user task
-            var userDecisionPoint = defaultProcess.AddDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1);
+            var userDecisionPoint = returnedProcess.AddDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1);
 
             // Find the incoming link for the user decision task
-             processLink = defaultProcess.FindIncomingLinkForShape(userDecisionPoint.Id);
+             processLink = returnedProcess.FindIncomingLinkForShape(userDecisionPoint.Id);
 
             // Add a user/system task immediately before the user decision point
-            defaultProcess.AddUserTask(processLink);
+            returnedProcess.AddUserTask(processLink);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -285,27 +285,27 @@ namespace StorytellerTests
         public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find the end shape
-            var defaultUserTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing link for the default user task
-            var processLink = defaultProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
 
             // Add a user/system task immediately bafter the default user task
-            defaultProcess.AddUserTask(processLink);
+            returnedProcess.AddUserTask(processLink);
 
             // Add a user decision point between 2 user/system tasks
-            defaultProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -313,35 +313,35 @@ namespace StorytellerTests
         public void AddUserDecisionWithinUserDecisionBeforeMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
-            var branchEndPoint = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch (make order index to to give room for internal branch
-            defaultProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
 
             // Find the default user task
-            var defaultUserTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing link for the default user task
-            processLink = defaultProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
+            processLink = returnedProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
 
             // Add a user decision point between 2 user/system tasks
-            defaultProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -349,29 +349,29 @@ namespace StorytellerTests
         public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
-            var branchEndPoint = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch to end
-            defaultProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            defaultProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
+            returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -379,32 +379,32 @@ namespace StorytellerTests
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
-            var branchEndPoint = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch to end
-            defaultProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            var userTask = defaultProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var userTask = returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point with branch to end
-            defaultProcess.AddDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -412,29 +412,29 @@ namespace StorytellerTests
         public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find the default user task
-            var defaultUserTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the outgoing link for the default user task
-            var processLink = defaultProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(defaultUserTask.Id);
 
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            var userTask = defaultProcess.AddUserTask(processLink);
+            var userTask = returnedProcess.AddUserTask(processLink);
 
             // Add branch with merge point between 2 user tasks
-            defaultProcess.AddDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1, userTask.Id);
+            returnedProcess.AddDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1, userTask.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -442,29 +442,29 @@ namespace StorytellerTests
         public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var defaultProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
-            var defaultProcess = _storyteller.GetProcess(_user, defaultProcessArtifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(defaultProcess, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = defaultProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = defaultProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
-            var branchEndPoint = defaultProcess.FindProcessShapeByShapeName(Process.EndName);
+            var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            var userDecisionPoint = defaultProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var userDecisionPoint = returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point before decision point; will have same branch order index as previous added branch
-            defaultProcess.AddDecisionPointWithBranchBeforeShape(userDecisionPoint.Id, processLink.Orderindex + 1);
+            returnedProcess.AddDecisionPointWithBranchBeforeShape(userDecisionPoint.Id, processLink.Orderindex + 1);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(defaultProcess);
+            UpdateAndVerifyProcess(returnedProcess);
         }
 
         /// <summary>

@@ -89,7 +89,7 @@ namespace Utilities
 
                 foreach (var kvp in (Dictionary<string, TI>)value)
                 {
-                    string newKey = kvp.Key.Substring(0, 1).ToUpper(CultureInfo.CurrentCulture) + kvp.Key.Substring(1);
+                    string newKey = char.ToUpper(kvp.Key[0], CultureInfo.InvariantCulture) + kvp.Key.Substring(1);
                     dict2.Add(newKey, kvp.Value); 
                 }
 

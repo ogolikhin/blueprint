@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factories\StorytellerFactory.cs" />
+    <Compile Include="ILinkLabelInfo.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\StorytellerUserStory.cs" />
     <Compile Include="IStoryLink.cs" />

@@ -73,11 +73,6 @@
         int? TypeId { get; set; }
 
         /// <summary>
-        /// Indicates whether the type is actually available within blueprint project metadata
-        /// </summary>
-        bool IsVirtual { get; set; }
-
-        /// <summary>
         /// The value of the property
         /// </summary>
         object Value { get; set; }

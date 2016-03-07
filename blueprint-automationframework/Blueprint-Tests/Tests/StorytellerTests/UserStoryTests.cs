@@ -31,7 +31,6 @@ namespace StorytellerTests
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
-            // Set session for StoryTeller Interal Api Operation 
             _session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(_session.SessionId);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");

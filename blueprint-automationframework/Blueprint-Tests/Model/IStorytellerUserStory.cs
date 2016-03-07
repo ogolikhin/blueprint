@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Model.Impl;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -10,10 +11,18 @@ namespace Model
         int TypeId { get; set; }
         string TypePrefix { get; set; }
         PropertyTypePredefined TypePredefined { get; set; }
-        List<IOpenApiProperty> SystemProperties { get; }
-        List<IOpenApiProperty> CustomProperties { get; }
+        List<StorytellerProperty> SystemProperties { get; }
+        List<StorytellerProperty> CustomProperties { get; }
 
-        int? ProcessTaskId { get; set; }
-        bool? IsNew { get; set; }
+        int ProcessTaskId { get; set; }
+        bool IsNew { get; set; }
+    }
+
+    public interface IStorytellerProperty
+    {
+        string Name { get; set; }
+        int PropertyTypeId { get; set; }
+        //int? PropertyType { get; set; }
+        string Value { get; set; }
     }
 }

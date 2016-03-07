@@ -152,12 +152,14 @@ namespace StorytellerTests
 
             // Add UserTasks - iteration
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+
+            // Find outgoing process link for precondition task
+            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+
             for (int i = 0; i < iteration; i++)
             {
-                var userTask= _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId);
-                
-                //Assign preconditionId with new Postcondition Shape's ID
-                preconditionId = _process.FindOutgoingLinkForShape(userTask.Id).DestinationId;
+                var userTask = _process.AddUserTask(processLink);
+                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
@@ -196,12 +198,14 @@ namespace StorytellerTests
 
             // Add UserTasks - iteration
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+
+            // Find outgoing process link for precondition task
+            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+
             for (int i = 0; i < iteration; i++)
             {
-                var userTask = _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId);
-
-                //Assign preconditionId with new Postcondition Shape's ID
-                preconditionId = _process.FindOutgoingLinkForShape(userTask.Id).DestinationId;
+                var userTask = _process.AddUserTask(processLink);
+                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
@@ -245,14 +249,17 @@ namespace StorytellerTests
             // Get the process artifact
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
+
             // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+            
+            // Find outgoing process link for precondition task
+            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+
             for (int i = 0; i < InitialUserTaskExpectedCount - DEFAULTUSERTASK_COUNT; i++)
             {
-                var userTask = _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId);
-
-                //Assign preconditionId with new Postcondition Shape's ID
-                preconditionId = _process.FindOutgoingLinkForShape(userTask.Id).DestinationId;
+                var userTask = _process.AddUserTask(processLink);
+                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
@@ -268,12 +275,14 @@ namespace StorytellerTests
 
             // Add UserTasks - AdditionalUserTaskExpected
             preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+
+            // Find outgoing process link for precondition task
+            processLink = _process.FindOutgoingLinkForShape(preconditionId);
+
             for (int i = 0; i < AdditionalUserTaskExpectedCount; i++)
             {
-                var userTask = _process.AddUserTask(preconditionId, _process.Links.Find(p => p.SourceId.Equals(preconditionId)).DestinationId);
-
-                //Assign preconditionId with new Postcondition Shape's ID
-                preconditionId = _process.FindOutgoingLinkForShape(userTask.Id).DestinationId;
+                var userTask = _process.AddUserTask(processLink);
+                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process

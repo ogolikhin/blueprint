@@ -282,13 +282,13 @@ namespace Model.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, URL_PROCESSES, process.Id);
+
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-            //var artifactResult = restApi.SendRequestAndDeserializeObject<String>(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
+
             var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
 
             return artifactResult.Content;
         }
-
 
         public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {

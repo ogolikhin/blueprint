@@ -104,19 +104,24 @@ namespace Model.Impl
 
         #region Public Methods
 
-        public IProcessShape AddUserTask(int sourceId, int destinationId)
+        public IProcessShape AddUserTask(IProcessLink processLink)
         {
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            var destinationId = processLink.DestinationId;
+
             // Add a user task
             var userTask = CreateUserTask("User", "", 0, null, 126.0, 150.0, 0, 0);
             Shapes.Add((ProcessShape)userTask);
 
             // Add a system task to be paired with the user task just created
-            var systemTask = CreateSystemTask("", "User", "", 0, null, 126.0, 150.0, 0, 0);
+            var systemTask = CreateSystemTask(null, "User", "", 0, null, 126.0, 150.0, 0, 0);
             Shapes.Add((ProcessShape)systemTask);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
             // that the destination now points to the new user task
-            UpdateDestinationIdOfLink(sourceId, destinationId, userTask.Id);
+            // Note: Maintains existing order index
+            UpdateDestinationIdOfLink(processLink, userTask.Id);
 
             // Add a new link between the new user task and the new system task
             Links.Add(new ProcessLink
@@ -139,14 +144,18 @@ namespace Model.Impl
             return userTask;
         }
 
-        public IProcessShape AddUserDecisionPoint(int sourceId, int destinationId)
+        public IProcessShape AddUserDecisionPoint(IProcessLink processLink)
         {
-            var userDecisionPoint = CreateUserDecisionPoint("User", "", 0, 126.0, 150.0, 0, 0);
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            var destinationId = processLink.DestinationId;
+
+            var userDecisionPoint = CreateUserDecisionPoint("", 0, 126.0, 150.0, 0, 0);
             Shapes.Add((ProcessShape)userDecisionPoint);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
             // that the destination now points to the new user task
-            UpdateDestinationIdOfLink(sourceId, destinationId, userDecisionPoint.Id);
+            UpdateDestinationIdOfLink(processLink, userDecisionPoint.Id);
 
             // Add a new link after the new user decision point
             Links.Add(new ProcessLink
@@ -160,16 +169,96 @@ namespace Model.Impl
             return userDecisionPoint;
         }
 
-        public void AddBranch(int sourceId, int destinationId, double orderIndex)
+        public IProcessShape AddDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
         {
-            // Adds a new link to decision point
-            Links.Add(new ProcessLink
+            // Find the incoming link for the next shape
+            var processLink = FindIncomingLinkForShape(idOfNextShape);
+
+            int branchEndPointId;
+
+            if (idOfBranchMergePoint == null)
+            {
+                branchEndPointId = processLink.DestinationId;
+            }
+            else
+            {
+                branchEndPointId = (int)idOfBranchMergePoint;
+            }
+
+            // Add user decision point before next shape
+            var userDecisionPoint = AddUserDecisionPoint(processLink);
+
+            // Find outgoing process link for new user decision point
+            var newprocesslink = FindOutgoingLinkForShape(userDecisionPoint.Id);
+
+            // Add user/system task immediately after user decision point if next shape is the end shape or a user decision point
+            if (idOfNextShape == FindProcessShapeByShapeName(EndName).Id || FindProcessShapeTypeById(idOfNextShape) == ProcessShapeType.UserDecision)
+            {
+                // Add new user/system task to branch
+                AddUserTask(newprocesslink);
+            }
+
+            // Add new branch to user decision point
+            AddBranchWithUserTaskToDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+
+            return userDecisionPoint;
+        }
+
+        public IProcessShape AddDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
+        {
+            // Find the outgoing link for the previous shape
+            var processLink = FindOutgoingLinkForShape(idOfPreviousShape);
+
+            int branchEndPointId;
+
+            if (idOfBranchMergePoint == null)
+            {
+                branchEndPointId = processLink.DestinationId;
+            }
+            else
+            {
+                branchEndPointId = (int)idOfBranchMergePoint;
+            }
+
+            // Add user decision point after the previous shape
+            var userDecisionPoint = AddUserDecisionPoint(processLink);
+
+            // Find outgoing process link for new user decision point
+            var newprocesslink = FindOutgoingLinkForShape(userDecisionPoint.Id);
+
+            // Add user/system task immediately after user decision point only if next shape is the end shape
+            if (newprocesslink.DestinationId == FindProcessShapeByShapeName(EndName).Id)
+            {
+                // Add new user/system task to branch
+                AddUserTask(newprocesslink);
+            }
+
+            // Add new branch to user decision point
+            AddBranchWithUserTaskToDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+
+            return userDecisionPoint;
+        }
+
+        public IProcessShape AddBranchWithUserTaskToDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
+        {
+            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
+
+            return AddUserTask(processLink);
+        }
+
+        public IProcessLink AddLink(int sourceId, int destinationId, double orderIndex)
+        {
+            var processLink = new ProcessLink
             {
                 DestinationId = destinationId,
                 Label = null,
                 Orderindex = orderIndex,
                 SourceId = sourceId
-            });
+            };
+
+            Links.Add(processLink);
+
+            return processLink;
         }
 
         public IProcessLink FindIncomingLinkForShape(int shapeId)
@@ -193,6 +282,27 @@ namespace Model.Impl
             return shape;
         }
 
+        public IProcessShape FindProcessShapeById(int shapeId)
+        {
+            var shape = Shapes.ToList().Find(s => s.Id == shapeId);
+
+            return shape;
+        }
+
+        public ProcessShapeType FindProcessShapeTypeById(int shapeId)
+        {
+            var shape = Shapes.ToList().Find(s => s.Id == shapeId);
+
+            var clientTypePropertyInformation =
+                shape.PropertyValues.ToList()
+                    .Find(p => string.Equals(p.Key, ClientType, StringComparison.CurrentCultureIgnoreCase))
+                    .Value;
+
+            var shapeType = Convert.ToInt32(clientTypePropertyInformation.Value, CultureInfo.InvariantCulture);
+
+            return (ProcessShapeType)shapeType;
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -214,9 +324,20 @@ namespace Model.Impl
         {
             const string userTaskNamePrefix = "UT";
 
-            var userTask = CreateProcessShape(ProcessShapeType.UserTask, userTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var userTask = CreateProcessShape(ProcessShapeType.UserTask, userTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             var storyLink = storyLinkId == 0 ? null : CreateStoryLink(userTask.Id, storyLinkId, 0, storyLinkId);
+
+
+            userTask.PropertyValues.Add(Persona,
+                new PropertyValueInformation
+                {
+                    PropertyName = Persona,
+                    TypePredefined = PropertyTypePredefined.None,
+                    TypeId = FindPropertyNameTypeId(Persona),
+                    Value = persona
+                }
+                );
 
             userTask.PropertyValues.Add(ImageId,
                 new PropertyValueInformation
@@ -259,7 +380,7 @@ namespace Model.Impl
         {
             const string systemTaskNamePrefix = "ST";
 
-            var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, systemTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, systemTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             var storyLink = storyLinkId == 0 ? null : CreateStoryLink(systemTask.Id, storyLinkId, 0, storyLinkId);
 
@@ -271,6 +392,17 @@ namespace Model.Impl
                     TypeId = FindPropertyNameTypeId(AssociatedImageUrl),
                     Value = associatedImageUrl
                 });
+
+
+            systemTask.PropertyValues.Add(Persona,
+                new PropertyValueInformation
+                {
+                    PropertyName = Persona,
+                    TypePredefined = PropertyTypePredefined.None,
+                    TypeId = FindPropertyNameTypeId(Persona),
+                    Value = persona
+                }
+                );
 
             systemTask.PropertyValues.Add(ImageId,
                 new PropertyValueInformation
@@ -298,7 +430,6 @@ namespace Model.Impl
         /// <summary>
         /// Create a User Decision Point
         /// </summary>
-        /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
         /// <param name="associatedArtifact">The include of the user task</param>
         /// <param name="width">The width of the user task</param>
@@ -306,11 +437,11 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <returns>A new user decision point</returns>
-        private IProcessShape CreateUserDecisionPoint(string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateUserDecisionPoint(string itemLabel, int associatedArtifact, double width, double height, int x, int y)
         {
             const string userTaskNamePrefix = "UD";
 
-            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, userTaskNamePrefix, persona, itemLabel, associatedArtifact, width, height, x, y);
+            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, userTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             userDecisionPoint.PropertyValues.Add(LinkLabels,
                 new PropertyValueInformation
@@ -329,7 +460,6 @@ namespace Model.Impl
         /// </summary>
         /// <param name="processShapeType">The type of the process shape</param>
         /// <param name="shapeNamePrefix">The prefix for both the shape name and the shape label</param>
-        /// <param name="persona">The persona of the process shape</param>
         /// <param name="itemLabel">The item label of the process shape</param>
         /// <param name="associatedArtifact">The user story artifact associated with the Process shape</param>
         /// <param name="width">The width of the process shape</param>
@@ -337,7 +467,7 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the process shape</param>
         /// <param name="y">The y coordinate of the process shape</param>
         /// <returns></returns>
-        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string persona, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string itemLabel, int associatedArtifact, double width, double height, int x, int y)
         {
             const string processShapeTypePrefix = "PROS";
 
@@ -359,7 +489,7 @@ namespace Model.Impl
                     PropertyName = ClientType,
                     TypePredefined = PropertyTypePredefined.ClientType,
                     TypeId = FindPropertyNameTypeId(ClientType),
-                    Value = processShapeType
+                    Value = (int)processShapeType
                 });
 
             processShape.PropertyValues.Add(Description,
@@ -399,16 +529,6 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Label,
                     TypeId = FindPropertyNameTypeId(Label),
                     Value = processShape.Name
-                }
-                );
-
-            processShape.PropertyValues.Add(Persona,
-                new PropertyValueInformation
-                {
-                    PropertyName = Persona,
-                    TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(Persona),
-                    Value = persona
                 }
                 );
 
@@ -454,7 +574,8 @@ namespace Model.Impl
         {
             // Must convert first charater of property name to lowercase in order to find the pproperty in the 
             // default process
-            propertyName = propertyName.Substring(0, 1).ToLower(CultureInfo.CurrentCulture) + propertyName.Substring(1);
+            propertyName = char.ToLower(propertyName[0], CultureInfo.InvariantCulture) + propertyName.Substring(1);
+
             var property = Shapes.Find(shape => shape.PropertyValues.ContainsKey(propertyName));
 
             return property?.PropertyValues[propertyName].TypeId;
@@ -463,19 +584,17 @@ namespace Model.Impl
         /// <summary>
         /// Update Destination Id of Link
         /// </summary>
-        /// <param name="sourceId">The source id of the link</param>
-        /// <param name="originalDestinationId">The original destination id of the link</param>
+        /// <param name="processLink">The process lioink to update</param>
         /// <param name="newDestinationId">The new destination id of the link</param>
-        private void UpdateDestinationIdOfLink(int sourceId, int originalDestinationId, int newDestinationId)
+        private void UpdateDestinationIdOfLink(IProcessLink processLink, int newDestinationId)
         {
-            var processLink = Links.ToList()
-                .Find(l => l.SourceId == sourceId && l.DestinationId == originalDestinationId);
+            var link = (ProcessLink) processLink;
 
-            Links.Remove(processLink);
+            Links.Remove(link);
 
             processLink.DestinationId = newDestinationId;
 
-            Links.Add(processLink);
+            Links.Add(link);
         }
 
         /// <summary>

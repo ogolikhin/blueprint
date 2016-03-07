@@ -14,4 +14,11 @@
         string Message { get; set; }
         string ResultCode { get; set; }
     }
+
+    public interface IDeleteArtifactResult
+    {
+        string ArtifactId { get; set; }
+        string Message { get; set; }
+        string ResultCode { get; set; }
+    }
 }

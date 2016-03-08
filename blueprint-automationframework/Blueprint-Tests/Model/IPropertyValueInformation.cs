@@ -1,5 +1,20 @@
 ﻿namespace Model
 {
+    public enum PropertyTypeName
+    {
+        associatedImageUrl,
+        clientType,
+        description,
+        height,
+        imageId,
+        itemLabel,
+        label,
+        persona,
+        storyLinks,
+        width,
+        x,
+        y
+    }
     public enum PropertyTypePredefined
     {
         None = 0,

@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace StorytellerTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopment)]
+    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class UserStoryTests
     {
         private IAdminStore _adminStore;
@@ -18,8 +18,8 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private ISession _session;
-        private const int DEFAULTUSERTASK_COUNT = 1;
-        private const int ITERATION_COUNT = 5;
+        private int defaultUserTaskCount = 1;
+        private const int numberOfAdditionalUserTasks = 5;
 
         #region SetUp and Teardown
         [SetUp]
@@ -68,7 +68,7 @@ namespace StorytellerTests
             var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues[PropertyTypeName.clientType.ToString()].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
-            Assert.That(userTasksOnProcess == DEFAULTUSERTASK_COUNT, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", DEFAULTUSERTASK_COUNT, userTasksOnProcess);
+            Assert.That(userTasksOnProcess == defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", defaultUserTaskCount, userTasksOnProcess);
 
             Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
 
@@ -136,11 +136,11 @@ namespace StorytellerTests
             Assert.NotNull(userStoryArtifactType.Name, "UserStoryArtifactType Name is null");
         }
 
-        [TestCase(ITERATION_COUNT)]
+        [TestCase(numberOfAdditionalUserTasks)]
         [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
-            int UserTaskExpectedCount = iteration + DEFAULTUSERTASK_COUNT;
+            int UserTaskExpectedCount = iteration + defaultUserTaskCount;
             if (UserTaskExpectedCount == int.MaxValue)
             {
                 throw new OverflowException("overflow exception");
@@ -189,7 +189,7 @@ namespace StorytellerTests
             Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
         }
 
-        [TestCase(ITERATION_COUNT)]
+        [TestCase(numberOfAdditionalUserTasks)]
         [Description("Verify that every generated or updated user stories are mapped to user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_UserTaskUserStoryMapping(int iteration)
         {
@@ -240,11 +240,11 @@ namespace StorytellerTests
         }
 
 
-        [TestCase(ITERATION_COUNT)]
+        [TestCase(numberOfAdditionalUserTasks)]
         [Description("Verify that Genearate UserStories updates user stories if there are existing user stories for user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_VerifyingUpdateFlagsForExistingUserStories(int iteration)
         {
-            var InitialUserTaskExpectedCount = iteration / 2 + DEFAULTUSERTASK_COUNT;
+            var InitialUserTaskExpectedCount = iteration / 2 + defaultUserTaskCount;
             var AdditionalUserTaskExpectedCount = iteration - (iteration/2);
 
             // Create an Process artifact
@@ -260,7 +260,7 @@ namespace StorytellerTests
             // Find outgoing process link for precondition task
             var processLink = _process.FindOutgoingLinkForShape(preconditionId);
 
-            for (int i = 0; i < InitialUserTaskExpectedCount - DEFAULTUSERTASK_COUNT; i++)
+            for (int i = 0; i < InitialUserTaskExpectedCount - defaultUserTaskCount; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
                 processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
@@ -301,9 +301,13 @@ namespace StorytellerTests
             Logger.WriteDebug("The number of user stories generated or updated is: {0}", userStories_SecondBatch.Count);
 
             //Assert that the count of generated user stories from first batch is equal to the count of updated user stories from the second batch
-            var generatedUserStories_FirstBatch_Count = userStories_FirstBatch.Count;
+            var createdUserStories_FirstBatch_Count = userStories_FirstBatch.Count;
+            var totalUserStories_SecondBatch_Count = userStories_SecondBatch.Count;
+            var createdUserStories_SecondBatch_Count = userStories_SecondBatch.FindAll(u => u.IsNew.Equals(true)).Count;
             var updatedUserStories_SecondBatch_Count = userStories_SecondBatch.FindAll(u => u.IsNew.Equals(false)).Count;
-            Assert.That(generatedUserStories_FirstBatch_Count == updatedUserStories_SecondBatch_Count, "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.", generatedUserStories_FirstBatch_Count, updatedUserStories_SecondBatch_Count);
+
+            Assert.That(totalUserStories_SecondBatch_Count == createdUserStories_SecondBatch_Count + updatedUserStories_SecondBatch_Count, "The user stories either updated or created: {0} should be equal to addition of the created: {1} and updated: {2}", totalUserStories_SecondBatch_Count, createdUserStories_SecondBatch_Count, updatedUserStories_SecondBatch_Count);
+            Assert.That(createdUserStories_FirstBatch_Count == updatedUserStories_SecondBatch_Count, "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.", createdUserStories_FirstBatch_Count, updatedUserStories_SecondBatch_Count);
         }
 
         #endregion Tests

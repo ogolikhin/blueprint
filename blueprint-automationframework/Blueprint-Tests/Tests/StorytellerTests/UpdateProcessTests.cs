@@ -19,6 +19,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+        private IFileStore _filestore;
 
         #region Setup and Cleanup
 
@@ -29,6 +30,7 @@ namespace StorytellerTests
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
+            _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
 
             // Get a valid token for the user.
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -40,7 +42,16 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-             if (_storyteller.Artifacts != null)
+            if (_filestore != null)
+            {
+                // Delete all the files that were added.
+                foreach (var file in _filestore.Files.ToArray())
+                {
+                    _filestore.DeleteFile(file.Id, _user);
+                }
+            }
+
+            if (_storyteller.Artifacts != null)
             {
                 // TODO: Uncomment when new Publish Process is implemented
                 //Delete all the artifacts that were added.
@@ -466,6 +477,36 @@ namespace StorytellerTests
             // Update and Verify the modified process
             UpdateAndVerifyProcess(returnedProcess);
         }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
+        [TestCase, Description("Upload an Image file to Default Precondition and verify returned process model")]
+        public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Create an Process artifact
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+
+            // Get default process
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
+
+            // Setup: create a file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // TODO uploading the file
+            var result = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
+
+            Assert.IsNotNull(result);
+
+            // Update the process
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Assert that the Default Precondition SystemTask contains
+            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value);
+            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.imageId.ToString()].Value);
+
+            // TODO Assert that there is a row of data available on image table
+
+           }
 
         /// <summary>
         /// Updates and verifies the processes returned from UpdateProcess and GetProcess

@@ -6,6 +6,7 @@ using System.Net;
 using Model.Factories;
 using Utilities;
 using Utilities.Facades;
+using System.Globalization;
 
 namespace Model.Impl
 {
@@ -18,6 +19,8 @@ namespace Model.Impl
         private const string URL_USERSTORIES = "userstories";
         private const string URL_ARTIFACTTYPES = "artifacttypes/userstory";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
+        private const string SVC_UPLOAD_PATH = "svc/components/filestore/files";
 
         private IOpenApiArtifact _artifact;
         private readonly string _address;
@@ -252,6 +255,38 @@ namespace Model.Impl
                 cookies: cookies);
 
             return returnedProcess;
+        }
+
+        public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
+            if (expireDate != null)
+            {
+                DateTime time = (DateTime)expireDate;
+                path = I18NHelper.FormatInvariant("{0}/{1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
+            }
+
+            byte[] bytes = file.Content.ToArray<byte>();
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", expectedStatusCodes: expectedStatusCodes);
+            return artifactResult.Content;
         }
 
         public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

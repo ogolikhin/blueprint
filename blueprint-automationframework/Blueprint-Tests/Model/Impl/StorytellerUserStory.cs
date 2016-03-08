@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Utilities;
 
 namespace Model.Impl
@@ -14,19 +15,35 @@ namespace Model.Impl
         public int TypeId { get; set; }
         public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
-        public List<IOpenApiProperty> SystemProperties { get; } = new List<IOpenApiProperty>();
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
-        public List<IOpenApiProperty> CustomProperties { get; } = new List<IOpenApiProperty>();
+        [SuppressMessage("Microsoft.Usage",
+    "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        public List<StorytellerProperty> SystemProperties { get; set; }
+        [SuppressMessage("Microsoft.Usage",
+    "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        public List<StorytellerProperty> CustomProperties { get; set; }
 
-        public int? ProcessTaskId { get; set; }
-        public bool? IsNew { get; set; }
+        public int ProcessTaskId { get; set; }
+        public bool IsNew { get; set; }
 
         #endregion Properties
 
         public StorytellerUserStory()
         {
             //Required for deserializing OpenApiUserStoryArtifact
+            SystemProperties = new List<StorytellerProperty>();
+            CustomProperties = new List<StorytellerProperty>();
         }
+    }
+
+    public class StorytellerProperty : IStorytellerProperty
+    {
+        public string Name { get; set; }
+        public int PropertyTypeId { get; set; }
+        public int? PropertyType { get; set; }
+        public string Value { get; set; }
     }
 }

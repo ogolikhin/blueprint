@@ -1,5 +1,4 @@
 ﻿using Common;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -252,6 +251,41 @@ namespace Model.Impl
                 cookies: cookies);
 
             return returnedProcess;
+        }
+
+        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>
+            {
+                {"Accept", "application/json"}
+            };
+
+
+            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
+
+            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+
+            var restResponse = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                additionalHeaders: additionalHeaders,
+                bodyObject: (Process)process,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return restResponse.Content;
         }
 
         public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

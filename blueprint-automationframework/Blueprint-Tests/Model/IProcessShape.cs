@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
 using Model.Impl;
 
 namespace Model
@@ -49,7 +47,7 @@ namespace Model
         /// <summary>
         /// Artifact associated with the process shape (i.e. the Include) 
         /// </summary>
-        int? AssociatedArtifact { get; set; }
+        ArtifactPathLink AssociatedArtifact { get; set; }
 
         /// <summary>
         /// Base item type for the process artifact
@@ -60,6 +58,13 @@ namespace Model
         /// The property values for the Process shape
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="artifact"></param>
+        /// <returns></returns>
+        IArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact);
 
         #endregion Properties
     }

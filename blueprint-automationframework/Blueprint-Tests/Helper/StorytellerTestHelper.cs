@@ -75,15 +75,33 @@ namespace Helper
         /// </summary>
         /// <param name="artifactPathlink1">The first ArtifactPath Link</param>
         /// <param name="artifactPathlink2">The Artifact Path Link being compared to the first</param>
-        private static void AssertArtifactPathLinksAreEqual(IArtifactPathLink artifactPathlink1, IArtifactPathLink artifactPathlink2)
+        /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
+        private static void AssertArtifactPathLinksAreEqual(IArtifactPathLink artifactPathlink1, IArtifactPathLink artifactPathlink2, bool doDeepCompare = true)
         {
-            Assert.AreEqual(artifactPathlink1.BaseItemTypePredefined, artifactPathlink2.BaseItemTypePredefined,
-                "Artifact path link base item types do not match");
-            Assert.AreEqual(artifactPathlink1.Id, artifactPathlink2.Id, "Artifact path link ids do not match");
-            Assert.AreEqual(artifactPathlink1.Link, artifactPathlink2.Link, "Artifact path link links do not match");
-            Assert.AreEqual(artifactPathlink1.Name, artifactPathlink2.Name, "Artifact path link names do not match");
-            Assert.AreEqual(artifactPathlink1.ProjectId, artifactPathlink2.ProjectId, "Artifact path link project ids do not match");
-            Assert.AreEqual(artifactPathlink1.TypePrefix, artifactPathlink2.TypePrefix, "Artifact path link type prefixes do not match");
+            if (artifactPathlink1 == null)
+            {
+                Assert.IsNull(artifactPathlink2, "One of the artifact path links is null while the other is not null");
+            }
+
+            if (artifactPathlink2 == null)
+            {
+                Assert.IsNull(artifactPathlink1, "One of the artifact path links is null while the other is not null");
+            }
+
+            if (artifactPathlink1 != null)
+            {
+                Assert.AreEqual(artifactPathlink1.Id, artifactPathlink2.Id, "Artifact path link ids do not match");
+
+                if (doDeepCompare)
+                {
+                    Assert.AreEqual(artifactPathlink1.BaseItemTypePredefined, artifactPathlink2.BaseItemTypePredefined,
+                        "Artifact path link base item types do not match");
+                    Assert.AreEqual(artifactPathlink1.Link, artifactPathlink2.Link, "Artifact path link links do not match");
+                    Assert.AreEqual(artifactPathlink1.Name, artifactPathlink2.Name, "Artifact path link names do not match");
+                    Assert.AreEqual(artifactPathlink1.ProjectId, artifactPathlink2.ProjectId, "Artifact path link project ids do not match");
+                    Assert.AreEqual(artifactPathlink1.TypePrefix, artifactPathlink2.TypePrefix, "Artifact path link type prefixes do not match");
+                }
+            }
         }
 
         /// <summary>
@@ -201,6 +219,9 @@ namespace Helper
             Assert.AreEqual(shape1.ProjectId, shape2.ProjectId, "Shape project ids do not match");
             Assert.AreEqual(shape1.ParentId, shape2.ParentId, "Shape parent ids do not match");
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
+
+            // Assert associated artifacts are equal by checking artifact Id only
+            AssertArtifactPathLinksAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
 
             // Assert that Shape properties are equal
             foreach (var shape1Property in shape1.PropertyValues)
@@ -330,6 +351,37 @@ namespace Helper
             Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Id {0}", shapeId);
 
             return shapeFound;
+        }
+
+        /// <summary>
+        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
+        /// </summary>
+        /// <param name="processToVerify">The process to verify</param>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="user">The user that updates the process</param>
+        public static void UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        {
+            ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Update the process using UpdateProcess
+            var processReturnedFromUpdate = storyteller.UpdateProcess(user, processToVerify);
+
+            Assert.IsNotNull(processReturnedFromUpdate, "The returned process was null.");
+
+            // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
+            // Allow negative shape ids in the process being verified
+            StorytellerTestHelper.AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
+
+            // Get the process using GetProcess
+            var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
+
+            Assert.IsNotNull(processReturnedFromGet, "The returned process was null.");
+
+            // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
+            // Don't allow and negative shape ids
+            StorytellerTestHelper.AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
         }
     }
 }

@@ -121,11 +121,18 @@ namespace Model
         IProcessShape FindProcessShapeByShapeName(string shapeName);
 
         /// <summary>
-        /// 
+        /// Find the Process Shape by the Artifact Id of the Shape
         /// </summary>
-        /// <param name="shapeId"></param>
-        /// <returns></returns>
+        /// <param name="shapeId">The artifact id of the shape</param>
+        /// <returns>The process shape</returns>
         IProcessShape FindProcessShapeById(int shapeId);
+
+        /// <summary>
+        /// Find the Process Shape Type by the Artifact Id of the Shape
+        /// </summary>
+        /// <param name="shapeId">The artifact id of the shape</param>
+        /// <returns>The process shape type</returns>
+        ProcessShapeType FindProcessShapeTypeById(int shapeId);
 
         /// <summary>
         /// Find the Incoming Process Link for a Shape

@@ -481,7 +481,12 @@ namespace Utilities.Facades
         {
             var client = new RestClient(_baseUri);
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
-            request.AddJsonBody(bodyObject);
+
+            if (bodyObject != null)
+            {
+                request.JsonSerializer = new Deserialization.CustomJsonSerializer();
+                request.AddJsonBody(bodyObject);
+            }
 
             try
             {

@@ -65,7 +65,6 @@ namespace Model
         /// Save the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
         void Save(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 

@@ -10,7 +10,6 @@ using System.Globalization;
 
 namespace StorytellerTests
 {
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class UserStoryTests
     {
         private IAdminStore _adminStore;
@@ -107,7 +106,7 @@ namespace StorytellerTests
                     {
                         userStoryCounter++;
 
-                        /// -- Verifying userStory contents -- ///
+                        // -- Verifying userStory contents -- 
                         Assert.That(us.Name.Equals(shape.Name),"Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
 
                         // TODO Assert that UserStory ID == 

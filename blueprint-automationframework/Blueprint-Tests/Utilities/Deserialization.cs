@@ -117,5 +117,16 @@ namespace Utilities
             public string DateFormat { get; set; }
             public string ContentType { get; set; }
         }
+
+        /// <summary>
+        /// Deserialize JSON Content to Generic Type
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize</typeparam>
+        /// <param name="content">The JSON body content</param>
+        /// <returns></returns>
+        public static T DeserializeObject<T>(string content)
+        {
+            return JsonConvert.DeserializeObject<T>(content);
+        }
     }
 }

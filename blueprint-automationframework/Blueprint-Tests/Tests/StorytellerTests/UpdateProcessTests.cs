@@ -12,7 +12,6 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.UnderDevelopment)]
     public class UpdateProcessTests
     {
         private IAdminStore _adminStore;
@@ -51,7 +50,7 @@ namespace StorytellerTests
                 }
             }
 
-            if (_storyteller.Artifacts != null)
+             if (_storyteller.Artifacts != null)
             {
                 // TODO: Uncomment when new Publish Process is implemented
                 //Delete all the artifacts that were added.
@@ -81,9 +80,8 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update name of process and verify returned process")]
-        public void ModifyreturnedProcessName_VerifyReturnedProcess()
+        public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create default process
             var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -98,10 +96,9 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update type of process and verify returned process")]
         public void ModifyProcessType_VerifyReturnedProcess()
         {
@@ -125,10 +122,9 @@ namespace StorytellerTests
             returnedProcess.PropertyValues[clientTypePropertyName].Value = (int)ProcessType.UserToSystemProcess;
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after the precondition and verify returned process")]
         public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
@@ -152,10 +148,9 @@ namespace StorytellerTests
             returnedProcess.AddUserTask(processLink);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task before the end and verify returned process")]
         public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
@@ -179,10 +174,9 @@ namespace StorytellerTests
             returnedProcess.AddUserTask(processLink);
 
             // Updatea and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after an existing user task and verify returned process")]
         public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
@@ -205,10 +199,9 @@ namespace StorytellerTests
             returnedProcess.AddUserTask(processLink);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision with branch after precondition and verify returned process")]
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
@@ -232,10 +225,9 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point before the end and verify returned process")]
         public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
@@ -257,10 +249,9 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchBeforeShape(endShape.Id, processLink.Orderindex + 1);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user task before a user decision point and verify returned process")]
         public void AddUserTaskBeforeUserDecision_VerifyReturnedProcess()
         {
@@ -288,10 +279,9 @@ namespace StorytellerTests
             returnedProcess.AddUserTask(processLink);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user decision point between 2 user tasks and verify returned process")]
         public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
@@ -316,12 +306,11 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user decision point before merge point and verify returned process")]
-        public void AddUserDecisionWithinUserDecisionBeforeMergePoint_VerifyReturnedProcess()
+        public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifyReturnedProcess()
         {
             // Create default process
             var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -340,7 +329,7 @@ namespace StorytellerTests
             var branchEndPoint = returnedProcess.FindProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch (make order index to to give room for internal branch
-            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Find the default user task
             var defaultUserTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -352,10 +341,9 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a second branch to a user decision point and verify returned process")]
         public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
@@ -382,10 +370,9 @@ namespace StorytellerTests
             returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point to a branch and verify returned process")]
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
@@ -412,13 +399,12 @@ namespace StorytellerTests
             var userTask = returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point with branch to end
-            returnedProcess.AddDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 2, branchEndPoint.Id);
+            returnedProcess.AddDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after a merge point and verify returned process")]
         public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
@@ -445,10 +431,9 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1, userTask.Id);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point after a merge point and verify returned process")]
         public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
@@ -475,7 +460,94 @@ namespace StorytellerTests
             returnedProcess.AddDecisionPointWithBranchBeforeShape(userDecisionPoint.Id, processLink.Orderindex + 1);
 
             // Update and Verify the modified process
-            UpdateAndVerifyProcess(returnedProcess);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
+        [TestCase, Description("Add include to user task and verify returned process")]
+        public void AddIncludeToUserTask_VerifyReturnedProcess()
+        {
+            // Create default process
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+
+            // Get default process
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+
+            // Modify default process Name
+            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
+            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
+
+            // Create and publish process artifact to be used as include
+            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            includedProcessArtifact.Publish(_user);
+
+            // Add include to default user task
+            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
+        [TestCase, Description("Add include to system task and verify returned process")]
+        public void AddIncludeToSystemTask_VerifyReturnedProcess()
+        {
+            // Create default process
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+
+            // Get default process
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+
+            // Modify default process Name
+            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
+            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
+
+            // Create and publish process artifact to be used as include
+            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            includedProcessArtifact.Publish(_user);
+
+            // Add include to default user task
+            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
+        [TestCase, Description("Add include to user task and verify returned process")]
+        public void DeleteIncludeFromUserTask_VerifyReturnedProcess()
+        {
+            // Create default process
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+
+            // Get default process
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+
+            // Modify default process Name
+            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
+            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
+
+            // Create and publish process artifact to be used as include
+            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            includedProcessArtifact.Publish(_user);
+
+            // Add include to default user task
+            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+
+            // Get the process using GetProcess
+            var processReturnedFromGet = _storyteller.GetProcess(_user, returnedProcess.Id);
+
+            // Remove the include from the default user task
+            processReturnedFromGet.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).AssociatedArtifact = null;
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(processReturnedFromGet, _storyteller, _user);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
@@ -506,31 +578,6 @@ namespace StorytellerTests
 
             // TODO Assert that there is a row of data available on image table
 
-           }
-
-        /// <summary>
-        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
-        /// </summary>
-        /// <param name="processToVerify">The process to verify</param>
-        private void UpdateAndVerifyProcess(IProcess processToVerify)
-        {
-            // Update the process using UpdateProcess
-            var processReturnedFromUpdate = _storyteller.UpdateProcess(_user, processToVerify);
-
-            Assert.IsNotNull(processReturnedFromUpdate, "The returned process was null.");
-
-            // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
-            // Allow negative shape ids in the process being verified
-            StorytellerTestHelper.AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
-
-            // Get the process using GetProcess
-            var processReturnedFromGet = _storyteller.GetProcess(_user, processToVerify.Id);
-
-            Assert.IsNotNull(processReturnedFromGet, "The returned process was null.");
-
-            // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
-            // Don't allow and negative shape ids
-            StorytellerTestHelper.AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
         }
 
         #endregion Tests

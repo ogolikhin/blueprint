@@ -509,7 +509,7 @@ namespace StorytellerTests
             includedProcessArtifact.Publish(_user);
 
             // Add include to default user task
-            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
+            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultSystemTaskName).AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);

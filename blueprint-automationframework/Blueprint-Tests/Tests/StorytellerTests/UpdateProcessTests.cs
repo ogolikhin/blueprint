@@ -12,7 +12,6 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.UnderDevelopment)]
     public class UpdateProcessTests
     {
         private IAdminStore _adminStore;
@@ -81,7 +80,6 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update name of process and verify returned process")]
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
@@ -101,7 +99,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update type of process and verify returned process")]
         public void ModifyProcessType_VerifyReturnedProcess()
         {
@@ -128,7 +125,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after the precondition and verify returned process")]
         public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
@@ -155,7 +151,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task before the end and verify returned process")]
         public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
@@ -182,7 +177,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after an existing user task and verify returned process")]
         public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
@@ -208,7 +202,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision with branch after precondition and verify returned process")]
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
@@ -235,7 +228,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point before the end and verify returned process")]
         public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
@@ -260,7 +252,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user task before a user decision point and verify returned process")]
         public void AddUserTaskBeforeUserDecision_VerifyReturnedProcess()
         {
@@ -291,7 +282,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user decision point between 2 user tasks and verify returned process")]
         public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
@@ -319,7 +309,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add user decision point before merge point and verify returned process")]
         public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifyReturnedProcess()
         {
@@ -355,7 +344,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a second branch to a user decision point and verify returned process")]
         public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
@@ -385,7 +373,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point to a branch and verify returned process")]
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
@@ -418,7 +405,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user task after a merge point and verify returned process")]
         public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
@@ -448,7 +434,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add a user decision point after a merge point and verify returned process")]
         public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
@@ -478,7 +463,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add include to user task and verify returned process")]
         public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
@@ -505,7 +489,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Add include to system task and verify returned process")]
         public void AddIncludeToSystemTask_VerifyReturnedProcess()
         {
@@ -532,41 +515,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
-        [TestCase, Description("Upload an Image file to Default Precondition and verify returned process model")]
-        public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
-        {
-            // Create an Process artifact
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
-
-            // Get default process
-            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
-
-            // Setup: create a file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
-
-            // TODO uploading the file
-            var result = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
-
-            Assert.IsNotNull(result);
-
-            // Update the process
-            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
-
-            // Assert that the Default Precondition SystemTask contains
-            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value);
-            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.imageId.ToString()].Value);
-
-            // TODO Assert that there is a row of data available on image table
-
-           }
-
-        /// <summary>
-        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
-        /// </summary>
-        /// <param name="processToVerify">The process to verify</param>
-        private void UpdateAndVerifyProcess(IProcess processToVerify)
         [TestCase, Description("Add include to user task and verify returned process")]
         public void DeleteIncludeFromUserTask_VerifyReturnedProcess()
         {
@@ -600,6 +548,36 @@ namespace StorytellerTests
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(processReturnedFromGet, _storyteller, _user);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
+        [TestCase, Description("Upload an Image file to Default Precondition and verify returned process model")]
+        public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Create an Process artifact
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+
+            // Get default process
+            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
+
+            // Setup: create a file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // TODO uploading the file
+            var result = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
+
+            Assert.IsNotNull(result);
+
+            // Update the process
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Assert that the Default Precondition SystemTask contains
+            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value);
+            Assert.IsNotNull(returnedProcess.Shapes.Find(s => s.Name.Equals(Process.DefaultPreconditionName)).PropertyValues[PropertyTypeName.imageId.ToString()].Value);
+
+            // TODO Assert that there is a row of data available on image table
+
         }
 
         #endregion Tests

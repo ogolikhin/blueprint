@@ -59,13 +59,17 @@ namespace Model
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
 
+        #endregion Properties
+
+        #region Methods
+
         /// <summary>
-        /// 
+        /// Adds Associated Artifact Reference (Include) to Process Shape
         /// </summary>
-        /// <param name="artifact"></param>
-        /// <returns></returns>
+        /// <param name="artifact">The artifact to add</param>
+        /// <returns>The artifact reference to the associated artifact</returns>
         IArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact);
 
-        #endregion Properties
+        #endregion Methods
     }
 }

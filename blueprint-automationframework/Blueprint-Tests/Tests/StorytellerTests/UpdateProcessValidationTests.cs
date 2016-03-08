@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using CustomAttributes;
-using Helper;
 using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Factories;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    [Explicit(IgnoreReasons.UnderDevelopment)]
     public class UpdateProcessValidationTests
     {
         private IAdminStore _adminStore;
@@ -73,7 +69,6 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Remove name of process and verify returned validation error")]
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
@@ -92,12 +87,12 @@ namespace StorytellerTests
             var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.InternalServerError});
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
+            // Assert that the deserialized response indicates that the process name is required
             Assert.That( deserializedResponse.Message == ProcessValidationResponse.NameRequired,
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
                 );
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase, Description("Update artifact with orphaned task and verify returned validation error")]
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
@@ -115,24 +110,30 @@ namespace StorytellerTests
             // Find outgoing process link for precondition
             var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
 
+            // Remove the process link between the precondition and the default user task
             returnedProcess.Links.Remove((ProcessLink)processLink);
 
             // Get and deserialize response
             var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.InternalServerError });
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
+            // Asser that the deserialized response indicates that an orphaned shape was found
             Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.OrphanedShapes),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
+                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
                 );
 
+            // Assert that the shape id of the orphaned shape is the one expected
             Assert.That(deserializedResponse.Message.Contains(processLink.DestinationId.ToString(CultureInfo.InvariantCulture)),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
+                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
                 );
         }
 
         #endregion Tests
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class ProcessValidationResponse
     {
         public static readonly string NameRequired = "Name is required for Process";

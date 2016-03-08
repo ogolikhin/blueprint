@@ -17,9 +17,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private IOpenApiArtifact _processArtifact;
         private ISession _session;
-        private IProcess _process;
         private const int DEFAULTUSERTASK_COUNT = 1;
         private const int ITERATION_COUNT = 5;
 
@@ -55,18 +53,19 @@ namespace StorytellerTests
         #region Tests
 
         [Test]
+        [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the default process")]
         public void UserStoryGenerationProcessWithDefaultUserTask_NumberOfUserTasksAndGeneratedUserStoriesAreEqual()
         {
             // Create an Process artifact
-            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
             
             // Publish the Process artifact - using RestApi
             _storyteller.PublishProcessArtifacts(_user);
 
             // Find number of UserTasks from the published Process
-            _process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
-            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues[PropertyTypeName.clientType.ToString()].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
             Assert.That(userTasksOnProcess == DEFAULTUSERTASK_COUNT, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", DEFAULTUSERTASK_COUNT, userTasksOnProcess);
@@ -83,16 +82,17 @@ namespace StorytellerTests
         }
 
         [Test]
+        [Description("Verify the contents of generated or updated user stories")]
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {
             // Create an Process artifact
-            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
 
             // Checking Object: The Process that contains shapes including user task shapes
-            _process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
             // Test Object: Generated User Stories from the Process
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
@@ -100,33 +100,34 @@ namespace StorytellerTests
             // Assert that there is only one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))))
             {
-                var UserStoryCounter = 0;
+                var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)
                 {
                     if (us.ProcessTaskId.Equals(shape.Id))
                     {
-                        UserStoryCounter++;
+                        userStoryCounter++;
 
                         /// -- Verifying userStory contents -- ///
-                        Assert.That(us.Name.Equals(shape.Name),"Genearated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
+                        Assert.That(us.Name.Equals(shape.Name),"Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
 
                         // TODO Assert that UserStory ID == 
-                        //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Genearated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
+                        //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Generated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
 
                         // Assert that UserStory Property's Name value with Shape's Name Value 
-                        Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name), "Genearated US's Property Name {0} doesn't match with the source UT name {1}", us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
+                        Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name), "Generated US's Property Name {0} doesn't match with the source UT name {1}", us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
                         
                         // Assert that UserStory ST-Title ==
                         // Assert that UserStory ST-Acceptance Criteria ==
                     }
                 }
-                Assert.That(!UserStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
-                Assert.That(UserStoryCounter > 0 && UserStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
+                Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
+                Assert.That(userStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
             }
         }
 
 
         [Test]
+        [Description("Retrieve UserStoryArtifactType if Storyteller Pack is installed on the target Blueprint")]
         public void GetUserStoryArtifactType_ReceiveUserStoryArtifactType()
         {
             var userStoryArtifactType = _storyteller.GetUserStoryArtifactType(_user, _project.Id);
@@ -136,6 +137,7 @@ namespace StorytellerTests
         }
 
         [TestCase(ITERATION_COUNT)]
+        [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
             int UserTaskExpectedCount = iteration + DEFAULTUSERTASK_COUNT;
@@ -145,10 +147,10 @@ namespace StorytellerTests
             }
 
             // Create an Process artifact
-            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
-            _process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
             // Add UserTasks - iteration
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
@@ -188,13 +190,14 @@ namespace StorytellerTests
         }
 
         [TestCase(ITERATION_COUNT)]
+        [Description("Verify that every generated or updated user stories are mapped to user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_UserTaskUserStoryMapping(int iteration)
         {
             // Create an Process artifact
-            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
-            _process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
             // Add UserTasks - iteration
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
@@ -223,31 +226,32 @@ namespace StorytellerTests
             // Assert that there is one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))))
             {
-                var UserStoryCounter = 0;
+                var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)
                 {  
                     if (us.ProcessTaskId.Equals(shape.Id))
                     {
-                        UserStoryCounter++;
+                        userStoryCounter++;
                     }
                 }
-                Assert.That(!UserStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
-                Assert.That(UserStoryCounter > 0 && UserStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
+                Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
+                Assert.That(userStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
             }
         }
 
 
         [TestCase(ITERATION_COUNT)]
+        [Description("Verify that Genearate UserStories updates user stories if there are existing user stories for user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_VerifyingUpdateFlagsForExistingUserStories(int iteration)
         {
             var InitialUserTaskExpectedCount = iteration / 2 + DEFAULTUSERTASK_COUNT;
             var AdditionalUserTaskExpectedCount = iteration - (iteration/2);
 
             // Create an Process artifact
-            _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
-            _process = _storyteller.GetProcess(_user, _processArtifact.Id);
+            var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
 
             // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts

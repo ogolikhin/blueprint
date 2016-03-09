@@ -72,7 +72,9 @@ namespace StorytellerTests
 
         #region Tests
 
-        [TestCase, Description("Add a story link to a task without a story link and verify returned process")]
+        [TestCase]
+        [Description("Add a story link to a task without a story link and verify returned process" +
+                     "")]
         public void AddStoryLinkToUserTaskWithoutStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create default process

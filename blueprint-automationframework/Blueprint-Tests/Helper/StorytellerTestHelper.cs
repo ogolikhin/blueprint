@@ -78,14 +78,9 @@ namespace Helper
         /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
         private static void AssertArtifactPathLinksAreEqual(IArtifactPathLink artifactPathlink1, IArtifactPathLink artifactPathlink2, bool doDeepCompare = true)
         {
-            if (artifactPathlink1 == null)
+            if ((artifactPathlink1 == null) || (artifactPathlink2 == null))
             {
-                Assert.IsNull(artifactPathlink2, "One of the artifact path links is null while the other is not null");
-            }
-
-            if (artifactPathlink2 == null)
-            {
-                Assert.IsNull(artifactPathlink1, "One of the artifact path links is null while the other is not null");
+                Assert.That((artifactPathlink1 == null) && (artifactPathlink2 == null), "One of the artifact path links is null while the other is not null");
             }
 
             if (artifactPathlink1 != null)

@@ -13,4 +13,4 @@ GO
 -- --------------------------------------------------
 
 
-
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Migration\7.0.1.0\7.0.1.0.sql" ) ) #>

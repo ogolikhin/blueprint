@@ -18,9 +18,9 @@ namespace Model.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "User Task 1";
+        public const string DefaultUserTaskName = "<Start with a verb, i.e. select, run, view>";
 
-        public const string DefaultSystemTaskName = "System Task 1";
+        public const string DefaultSystemTaskName = "<Start with a verb, i.e. display, print, calculate>";
 
         public const string EndName = "End";
 
@@ -504,7 +504,7 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Description,
                     TypeId = FindPropertyNameTypeId(Description),
                     // Create a random description
-                    Value = AddHtmlTags(RandomGenerator.RandomValueWithPrefix(Description, 4))
+                    Value = AddDivTags(RandomGenerator.RandomValueWithPrefix(Description, 4))
                 });
 
             processShape.PropertyValues.Add(Height,
@@ -603,13 +603,13 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Add HTML Tags to Text
+        /// Add Div Tags to Text
         /// </summary>
         /// <param name="plainTextString">The plain text string to be modified</param>
-        /// <returns>The plain text string surrounded by HTML tags</returns>
-        private static string AddHtmlTags(string plainTextString)
+        /// <returns>The plain text string surrounded by DIV tags</returns>
+        private static string AddDivTags(string plainTextString)
         {
-            string formatString = "<html>{0}</html>";
+            string formatString = "<div>{0}</div>";
 
             return I18NHelper.FormatInvariant(formatString, plainTextString);
         }

@@ -122,7 +122,6 @@ namespace StorytellerTests
         }
 
         [Test]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
         {
             Assert.DoesNotThrow(() =>

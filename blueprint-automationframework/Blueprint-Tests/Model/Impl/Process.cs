@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -494,6 +495,8 @@ namespace Model.Impl
                     Value = (int)processShapeType
                 });
 
+            
+
             processShape.PropertyValues.Add(Description,
                 new PropertyValueInformation
                 {
@@ -501,7 +504,7 @@ namespace Model.Impl
                     TypePredefined = PropertyTypePredefined.Description,
                     TypeId = FindPropertyNameTypeId(Description),
                     // Create a random description
-                    Value = RandomGenerator.RandomValueWithPrefix(Description, 4)
+                    Value = AddHtmlTags(RandomGenerator.RandomValueWithPrefix(Description, 4))
                 });
 
             processShape.PropertyValues.Add(Height,
@@ -597,6 +600,18 @@ namespace Model.Impl
             processLink.DestinationId = newDestinationId;
 
             Links.Add(link);
+        }
+
+        /// <summary>
+        /// Add HTML Tags to Text
+        /// </summary>
+        /// <param name="plainTextString">The plain text string to be modified</param>
+        /// <returns>The plain text string surrounded by HTML tags</returns>
+        private static string AddHtmlTags(string plainTextString)
+        {
+            string formatString = "<html>{0}</html>";
+
+            return I18NHelper.FormatInvariant(formatString, plainTextString);
         }
 
         #endregion Private Methods

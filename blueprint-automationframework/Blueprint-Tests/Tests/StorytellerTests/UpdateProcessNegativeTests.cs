@@ -150,8 +150,7 @@ namespace StorytellerTests
                     Value = newStoryLink
                 };
 
-            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).PropertyValues.Remove(StoryLinksKey);
-            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).PropertyValues.Add(StoryLinksKey, newStoryLinksProperty);
+            returnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).PropertyValues[StoryLinksKey] = newStoryLinksProperty;
 
             // Update the process using UpdateProcess in attempt to change the story link
             var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -163,12 +162,8 @@ namespace StorytellerTests
                 modifiedReturnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).PropertyValues[StoryLinksKey];
             var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
-            // Verify returned process contains the original story link, not the updated story link
-            Assert.IsNotNull(returnedStoryLink, "The returned story link was null but should not have been null");
-            Assert.AreEqual(originalStoryLink.AssociatedReferenceArtifactId, returnedStoryLink.AssociatedReferenceArtifactId, "Link associated reference artifact ids do not match");
-            Assert.AreEqual(originalStoryLink.DestinationId, returnedStoryLink.DestinationId, "Link destinations do not match");
-            Assert.AreEqual(originalStoryLink.SourceId, returnedStoryLink.SourceId, "Link sources do not match");
-            Assert.AreEqual(originalStoryLink.Orderindex, returnedStoryLink.Orderindex, "Link order indexes do not match");
+            // Verify that the returned story link is identical to the sent story link
+            AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
         }
 
         [TestCase, Description("Update an existing story link in a task and verify returned process")]
@@ -209,14 +204,24 @@ namespace StorytellerTests
                 modifiedReturnedProcess.Shapes.Find(s => s.Name == Process.DefaultUserTaskName).PropertyValues[StoryLinksKey];
             var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
-            // Verify returned process contains the original story link
+            // Verify that the returned story link is identical to the sent story link
+            AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
+        }
+
+        #endregion Tests
+
+        /// <summary>
+        /// Asserts that the Original and Returned Story Links are Identical
+        /// </summary>
+        /// <param name="originalStoryLink">The story link sent via the UpdateProcess method</param>
+        /// <param name="returnedStoryLink">The story link returned from the UpdatePRocess method</param>
+        private static void AssertThatOriginalAndReturnedStoryLinksAreIdentical(IStoryLink originalStoryLink, IStoryLink returnedStoryLink)
+        {
             Assert.IsNotNull(returnedStoryLink, "The returned story link was null but should not have been null");
             Assert.AreEqual(originalStoryLink.AssociatedReferenceArtifactId, returnedStoryLink.AssociatedReferenceArtifactId, "Link associated reference artifact ids do not match");
             Assert.AreEqual(originalStoryLink.DestinationId, returnedStoryLink.DestinationId, "Link destinations do not match");
             Assert.AreEqual(originalStoryLink.SourceId, returnedStoryLink.SourceId, "Link sources do not match");
             Assert.AreEqual(originalStoryLink.Orderindex, returnedStoryLink.Orderindex, "Link order indexes do not match");
         }
-
-        #endregion Tests
     }
 }

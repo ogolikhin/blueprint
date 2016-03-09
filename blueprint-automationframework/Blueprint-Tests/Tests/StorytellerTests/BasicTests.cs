@@ -106,7 +106,7 @@ namespace StorytellerTests
             //Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
         }
 
-        [Test]
+        [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
             IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -121,7 +121,7 @@ namespace StorytellerTests
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
         }
 
-        [Test]
+        [TestCase]
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
         {
             Assert.DoesNotThrow(() =>

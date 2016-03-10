@@ -28,27 +28,16 @@ namespace Model.Impl
 
         #region Inherited from IConfigControl
 
-        /// <see cref="IConfigControl.GetLog(IUser, List{HttpStatusCode}, bool)"/>
-        public IFile GetLog(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <see cref="IConfigControl.GetLog(List{HttpStatusCode})"/>
+        public IFile GetLog(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string tokenValue = user?.Token?.AccessControlToken ?? string.Empty;    // Set to token or empty string, not null.
-
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SESSION_TOKEN_COOKIE_NAME, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            var restApi = new RestApiFacade(_address, user?.Username, user?.Password, tokenValue);
+            var restApi = new RestApiFacade(_address, token: string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/log/getlog", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                expectedStatusCodes: expectedStatusCodes);
 
             File file = null;
 
@@ -57,9 +46,6 @@ namespace Model.Impl
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-//                    LastModifiedDate =
-//                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-//                            null),
                     FileType = response.ContentType,
                     FileName =
                         new ContentDisposition(

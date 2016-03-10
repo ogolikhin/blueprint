@@ -15,6 +15,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+        private IOpenApiArtifact _artifact;
 
         #region Setup and Cleanup
 
@@ -31,20 +32,33 @@ namespace StorytellerTests
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Create and publish artifact for test.
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Document);
+            _artifact.Save(_user);
+            _artifact.Publish(_user);
+            Assert.IsTrue(_artifact.IsArtifactPublished(_user), "Artifact wasn't published!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
             // XXX: This is commented out because it will fail since we didn't publish any artifacts.  Need to implement a DiscardChanges() method instead.
-//            if (_storyteller.Artifacts != null)
-//            {
-                // Delete all the artifacts that were added.
-//                foreach (var artifact in _storyteller.Artifacts)
-//                {
-//                    _storyteller.DeleteProcessArtifact(artifact, _user);
-//                }
-//            }
+            //            if (_storyteller.Artifacts != null)
+            //            {
+            // Delete all the artifacts that were added.
+            //                foreach (var artifact in _storyteller.Artifacts)
+            //                {
+            //                    _storyteller.DeleteProcessArtifact(artifact, _user);
+            //                }
+            //            }
+
+            if (_artifact != null)
+            {
+                _artifact.Delete(_user);
+                _artifact.Publish(_user);
+                _artifact = null;
+            }
 
             if (_adminStore != null)
             {
@@ -92,7 +106,7 @@ namespace StorytellerTests
             //Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
         }
 
-        [Test]
+        [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
             IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -105,6 +119,16 @@ namespace StorytellerTests
 
             var results = processList.Where(p => (p.Name == artifact.Name)).ToList();
             Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
+        }
+
+        [TestCase]
+        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                var artifactsList = _artifact.SearchArtifactsByName(user: _user, searchSubstring: _artifact.Name);
+                Assert.IsTrue(artifactsList.Count > 0);
+            }, "Couldn't find an artifact named '{0}'.", _artifact.Name);
         }
     }
 }

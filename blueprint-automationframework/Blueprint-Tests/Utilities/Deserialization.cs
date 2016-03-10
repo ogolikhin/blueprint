@@ -89,7 +89,7 @@ namespace Utilities
 
                 foreach (var kvp in (Dictionary<string, TI>)value)
                 {
-                    string newKey = kvp.Key.Substring(0, 1).ToUpper(CultureInfo.CurrentCulture) + kvp.Key.Substring(1);
+                    string newKey = char.ToUpper(kvp.Key[0], CultureInfo.InvariantCulture) + kvp.Key.Substring(1);
                     dict2.Add(newKey, kvp.Value); 
                 }
 
@@ -116,6 +116,17 @@ namespace Utilities
             public string Namespace { get; set; }
             public string DateFormat { get; set; }
             public string ContentType { get; set; }
+        }
+
+        /// <summary>
+        /// Deserialize JSON Content to Generic Type
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize</typeparam>
+        /// <param name="content">The JSON body content</param>
+        /// <returns></returns>
+        public static T DeserializeObject<T>(string content)
+        {
+            return JsonConvert.DeserializeObject<T>(content);
         }
     }
 }

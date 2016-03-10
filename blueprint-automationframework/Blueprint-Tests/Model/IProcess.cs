@@ -66,29 +66,87 @@ namespace Model
         /// <summary>
         /// Adds a User Task to the Process
         /// </summary>
-        /// <param name="sourceId">Id of the preceding shape</param>
-        /// <param name="destinationId">Id of the following shape</param>
-        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
+        /// <param name="processLink">The process link where the user task will be added</param>
         /// <returns>The user task that was added</returns>
-        IProcessShape AddUserTask(int sourceId, int destinationId, int orderIndex);
+        IProcessShape AddUserTask(IProcessLink processLink);
 
         /// <summary>
         /// Adds a User Decision Point to the Process
         /// </summary>
-        /// <param name="sourceId">Id of the preceding shape</param>
-        /// <param name="destinationId">Id of the following shape</param>
-        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
+        /// <param name="processLink">The process link where the user decision point will be added</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPoint(int sourceId, int destinationId, int orderIndex);
+        IProcessShape AddUserDecisionPoint(IProcessLink processLink);
 
         /// <summary>
-        /// Adds a Branch to the Process
+        /// Adds a Branch to a Decision Point
         /// </summary>
-        /// <param name="sourceId">Id of the preceding shape</param>
+        /// <param name="decisionPointId">Id of the decision point</param>
+        /// <param name="orderIndex">Order index of the added branch</param>
         /// <param name="destinationId">Id of the following shape</param>
-        /// <param name="orderIndex">Order index of the added user task (y-index)</param>
-        /// <returns>The branch that was added</returns>
-        IProcessShape AddBranch(int sourceId, int destinationId, int orderIndex);
+        /// <returns>The user task created</returns>
+        IProcessShape AddBranchWithUserTaskToDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceId"></param>
+        /// <param name="destinationId"></param>
+        /// <param name="orderIndex"></param>
+        /// <returns></returns>
+        IProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idOfPreviousShape"></param>
+        /// <param name="orderIndexOfBranch"></param>
+        /// <param name="idOfBranchMergePoint"></param>
+        /// <returns></returns>
+        IProcessShape AddDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idOfNextShape"></param>
+        /// <param name="orderIndexOfBranch"></param>
+        /// <param name="idOfBranchMergePoint"></param>
+        /// <returns></returns>
+        IProcessShape AddDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+
+        /// <summary>
+        /// Find the Process Shape by the Shape Name
+        /// </summary>
+        /// <param name="shapeName">The shape name</param>
+        /// <returns>The process shape</returns>
+        IProcessShape FindProcessShapeByShapeName(string shapeName);
+
+        /// <summary>
+        /// Find the Process Shape by the Artifact Id of the Shape
+        /// </summary>
+        /// <param name="shapeId">The artifact id of the shape</param>
+        /// <returns>The process shape</returns>
+        IProcessShape FindProcessShapeById(int shapeId);
+
+        /// <summary>
+        /// Find the Process Shape Type by the Artifact Id of the Shape
+        /// </summary>
+        /// <param name="shapeId">The artifact id of the shape</param>
+        /// <returns>The process shape type</returns>
+        ProcessShapeType FindProcessShapeTypeById(int shapeId);
+
+        /// <summary>
+        /// Find the Incoming Process Link for a Shape
+        /// </summary>
+        /// <param name="shapeId">The shape id</param>
+        /// <returns>The process link</returns>
+        IProcessLink FindIncomingLinkForShape(int shapeId);
+
+        /// <summary>
+        /// Find the Outgoing Process Link for a Shape
+        /// </summary>
+        /// <param name="shapeId">The shape id</param>
+        /// <returns>The process link</returns>
+        IProcessLink FindOutgoingLinkForShape(int shapeId);
 
         #endregion Methods
     }

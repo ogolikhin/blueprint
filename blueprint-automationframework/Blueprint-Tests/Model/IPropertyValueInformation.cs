@@ -1,5 +1,20 @@
 ﻿namespace Model
 {
+    public enum PropertyTypeName
+    {
+        associatedImageUrl,
+        clientType,
+        description,
+        height,
+        imageId,
+        itemLabel,
+        label,
+        persona,
+        storyLinks,
+        width,
+        x,
+        y
+    }
     public enum PropertyTypePredefined
     {
         None = 0,
@@ -71,11 +86,6 @@
         /// Property Type Id as defined in the blueprint project metadata
         /// </summary>
         int? TypeId { get; set; }
-
-        /// <summary>
-        /// Indicates whether the type is actually available within blueprint project metadata
-        /// </summary>
-        bool IsVirtual { get; set; }
 
         /// <summary>
         /// The value of the property

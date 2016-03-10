@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ConfigControlTests
 {
     [TestFixture]
-    [Explicit(IgnoreReasons.UnderDevelopment)]
+    [Category(Categories.ConfigControl)]
     public class LogTests
     {
         private IAdminStore _adminStore;
@@ -70,7 +70,8 @@ namespace ConfigControlTests
             Assert.That(file.Content.ToString().Length > 0, "ConfigControl.GetLog returned an empty file!");
         }
 
-        [Test, Description("Calls the GetLog method of ConfigControl and sends a valid token header.  Verify log file is returned.")]
+        [Test]
+        [Description("Calls the GetLog method of ConfigControl and sends a valid token header.  Verify log file is returned.")]
         public void GetLog_SendToken_VerifyLogFile()
         {
             IFile file = _configControl.GetLog(_user);
@@ -78,7 +79,8 @@ namespace ConfigControlTests
             AssertLogFile(file);
         }
 
-        [Test, Description("Calls the GetLog method of ConfigControl and sends a valid token in a cookie.  Verify log file is returned.")]
+        [Test]
+        [Description("Calls the GetLog method of ConfigControl and sends a valid token in a cookie.  Verify log file is returned.")]
         public void GetLog_SendCookie_VerifyLogFile()
         {
             IFile file = _configControl.GetLog(_user, sendAuthorizationAsCookie: true);
@@ -86,7 +88,8 @@ namespace ConfigControlTests
             AssertLogFile(file);
         }
 
-        [Test, Description("Calls the GetLog method of ConfigControl with no authentication.  Verify log file is returned.")]
+        [Test]
+        [Description("Calls the GetLog method of ConfigControl with no authentication.  Verify log file is returned.")]
         public void GetLog_NoToken_VerifyLogFile()
         {
             IFile file = _configControl.GetLog();

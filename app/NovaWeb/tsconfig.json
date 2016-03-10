@@ -1,0 +1,11 @@
+{
+    "exclude": [
+        "node_modules",
+        "assets",
+        "dist"
+    ],
+    "compilerOptions": {
+        "target": "es5",
+        "sourceMap": true
+    }
+}

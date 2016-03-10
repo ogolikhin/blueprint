@@ -1,0 +1,21 @@
+{
+  "name": "nova",
+  "description": "Requirements Management Software Web Application",
+  "main": "Index.html",
+  "homepage": "https://github.com/BlueprintSys/blueprint",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "assets/libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.0",
+    "angular-sanitize": "^1.5.0",
+    "angular-bootstrap": "^1.2.2",
+    "angular-ui-router": "^0.2.18"
+  }
+}

@@ -1,0 +1,9 @@
+/assets/libs/
+/app/**/*.js
+/app/**/*.map.js
+/typings/**/*.d.ts
+!/typings/tsd.d.ts
+!/typings/custom/
+
+/dist/
+/.config/

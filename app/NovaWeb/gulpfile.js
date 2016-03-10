@@ -1,6 +1,6 @@
-'use srtrict';
+'use strict';
 
-var gulp = require('gulp'),
+var gulp = require('gulp-help')(require('gulp')),
     srcmaps = require('gulp-sourcemaps'),
     tsc = require('gulp-typescript'),
     tslint = require('gulp-tslint'),
@@ -30,6 +30,8 @@ var dst = {
     dist: 'dist/',
     libs: 'dist/assets/libs/'
 }
+
+gulp.task('default', ['help']);
 
 // pre-build
 
@@ -81,7 +83,7 @@ gulp.task('ts-lint', function () {
  * Compile TypeScript and include references to library and app .d.ts files.
  */
 gulp.task('compile-ts', ['start-build'], function () {
-    var sourceTsFiles = [src.ts,                //path to typescript files
+    var sourceTsFiles = [src.ts, //path to typescript files
         "typings/**/*.d.ts"]; //reference to library .d.ts files
 
     var tsResult = gulp.src(sourceTsFiles)
@@ -135,7 +137,7 @@ gulp.task('watch', function () {
     gulp.watch('index.html', ['inject']);
 });
 
-gulp.task('serve', function () {
+gulp.task('serve', ['build'], function () {
     var options = {
         livereload: true,
         open: true,

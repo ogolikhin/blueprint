@@ -1,6 +1,6 @@
 /assets/libs/
 /app/**/*.js
-/app/**/*.map.js
+/app/**/*.js.map
 /typings/**/*.d.ts
 !/typings/tsd.d.ts
 !/typings/custom/

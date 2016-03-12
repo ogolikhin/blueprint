@@ -1,9 +1,7 @@
-/assets/libs/
-/app/**/*.js
-/app/**/*.js.map
-/typings/**/*.d.ts
-!/typings/tsd.d.ts
-!/typings/custom/
-
-/dist/
-/.config/
+node_modules
+dist
+reports
+typings
+out
+typings
+.idea/

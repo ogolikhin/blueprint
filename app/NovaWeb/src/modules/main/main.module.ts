@@ -2,6 +2,7 @@ import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "bootstrap/dist/css/bootstrap.css"
+
 import {PageAboutComponent} from "./components/about/about.component";
 import {AboutSvc} from "./components/about/about.service";
 import {Sidebar} from "./components/sidebar/sidebar";

@@ -3,8 +3,8 @@
     //public template: string = "<ui-view></ui-view>";
 
     // Template will be injected on the build time
-    //public template: string = require("./app.view.html");
+    public template: string = require("./app.html");
 
     // 'External' template should ends with *.view.html to be copied to the dest folder
-    public templateUrl: string = "/modules/application/app.view.html"
+    //public templateUrl: string = "/modules/application/app.view.html"
 }

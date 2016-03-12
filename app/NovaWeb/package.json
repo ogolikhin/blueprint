@@ -29,6 +29,7 @@
     "file-loader": "0.8.5",
     "gulp": "^3.9.1",
     "gulp-help": "^1.6.1",
+    "gulp-npm-run": "0.0.3",
     "html-webpack-plugin": "2.7.2",
     "istanbul": "0.4.2",
     "istanbul-instrumenter-loader": "0.1.3",

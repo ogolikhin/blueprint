@@ -18,6 +18,9 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
+    proxy: {
+        "svc": "http://localhost:9801/svc"
+    },
     devtool: "source-map",
     context: path.join(__dirname, '../src'),
     plugins: [

@@ -1,7 +1,7 @@
 node_modules
 dist
 reports
-typings
+typings/
 out
 typings
 .idea/

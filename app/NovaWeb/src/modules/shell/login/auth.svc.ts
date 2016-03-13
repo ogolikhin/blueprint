@@ -38,8 +38,10 @@ export class AuthSvc implements IAuth {
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
 
-        var options = this.skipCommonInterceptor();
-        this.$http.get<IUser>("/svc/adminstore/users/loginuser", options)
+        var config = this.skipCommonInterceptor();
+        config.headers = config.headers || {};
+        config.headers["Session-Token"] = "AFD56943990C43B490F5B54C35AE0DBF"; //GET real token from localStorage
+        this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
             .success((result: IUser) => {
                 //SessionTokenHelper.updateTokenCookie();
                 //this.onLogin(result);

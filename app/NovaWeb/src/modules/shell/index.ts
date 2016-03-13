@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.css"
 import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
-import {ILogin, LoginSvc} from "./login/login.svc";
+import {ISession, SessionSvc} from "./login/session.svc";
 
 angular.module("app.shell",
     [
@@ -15,7 +15,7 @@ angular.module("app.shell",
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
-    .service("login", LoginSvc);
+    .service("session", SessionSvc);
     //.config(routesConfig);
 
 //TODO: move to other files
@@ -25,9 +25,9 @@ export class AuthenticationRequired {
 
     constructor() {
         this.resolve[AuthenticationRequired.key] = [
-            "$log", "login", ($log: ng.ILogService, login: ILogin): ng.IPromise<any> => {
+            "$log", "session", ($log: ng.ILogService, session: ISession): ng.IPromise<any> => {
                 $log.debug("AuthenticationRequired...called");
-                return login.ensureAuthenticated();
+                return session.ensureAuthenticated();
             }
         ];
     }

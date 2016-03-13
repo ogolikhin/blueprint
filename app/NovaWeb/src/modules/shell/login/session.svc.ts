@@ -1,11 +1,13 @@
 ﻿import "angular";
-import {IAuth} from "./auth.svc";
+import {IAuth, IUser} from "./auth.svc";
 
-export interface ILogin {
+export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
+
+    currentUser: IUser;
 }
 
-export class LoginSvc implements ILogin {
+export class SessionSvc implements ISession {
 
     static $inject: [string] = ["$q", "auth", "$uibModal"];
     constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService) {
@@ -13,7 +15,16 @@ export class LoginSvc implements ILogin {
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
-    public ensureAuthenticated(): ng.IPromise<any> {
+    private _currentUser: IUser;
+    public get currentUser(): IUser {
+        return this._currentUser;
+    }
+
+    public ensureAuthenticated(): ng.IPromise<any> {        
+        if (this._currentUser) {
+            return this.$q.resolve();
+        }
+
         var defer = this.$q.defer();
 
         this.auth.authenticated.then(
@@ -37,11 +48,18 @@ export class LoginSvc implements ILogin {
 
             this._modalInstance.result.then((result) => {
                 if (result) {
+                    //TEMP: just to test
+                    this._currentUser = <IUser>{
+                        DisplayName: "Default Instance Admin"
+                    };
+
                     done.resolve();
                 }
                 else {
                     done.reject();
                 }
+            }).finally(() => {
+                this._modalInstance = null;
             });
         }
     }

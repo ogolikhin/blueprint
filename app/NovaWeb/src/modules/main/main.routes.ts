@@ -1,6 +1,5 @@
 import "angular";
 import {AuthenticationRequired} from "../shell";
-import {IAbout} from "./components/about/about.service";
 
 config.$inject = ["$stateProvider", "$urlRouterProvider"];
 export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider): void {
@@ -9,8 +8,8 @@ export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider:
 }
 
 class MainCtrl {
-    public static $inject: [string] = ["$log", "about"];
-    constructor(private $log: ng.ILogService, private about: IAbout) {
+    public static $inject: [string] = ["$log"];
+    constructor(private $log: ng.ILogService) {
     }
 
     public leftToggled: boolean = false;
@@ -18,12 +17,6 @@ class MainCtrl {
     public toggleLeft(): void {
         this.$log.debug("MainCtrl.toggleLeft");
         this.leftToggled = !this.leftToggled;
-    }
-
-    public showAbout(): void {
-        this.$log.debug("MainCtrl.about");
-
-        this.about.show();
     }
 }
 

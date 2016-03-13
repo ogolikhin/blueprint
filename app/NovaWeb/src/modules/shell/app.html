@@ -2,5 +2,10 @@
     <div class="navbar-header">
         <span class="navbar-brand nova-title">Blueprint</span>
     </div>
+    <div ng-if="app.currentUser">
+        <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link">{{app.currentUser.DisplayName}}</a></p>
+    </div>
 </div>
-<ui-view></ui-view>
+<div ng-show="app.currentUser">
+    <ui-view></ui-view>
+</div>

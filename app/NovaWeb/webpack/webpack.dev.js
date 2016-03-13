@@ -5,6 +5,11 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var webpack = require('webpack');
 var path = require('path');
 
+var url = require('url'),
+   proxy = require('proxy-middleware');
+var proxyOptions = url.parse('http://localhost:9801/svc');
+proxyOptions.route = '/svc'
+
 module.exports = {
     entry: ['./index.ts'],
     output: {
@@ -18,9 +23,6 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
-    proxy: {
-        "svc": "http://localhost:9801/svc"
-    },
     devtool: "source-map",
     context: path.join(__dirname, '../src'),
     plugins: [
@@ -33,7 +35,8 @@ module.exports = {
             host: 'localhost',
             port: 8000,
             server: {
-                baseDir: 'dist'
+                baseDir: 'dist',
+                middleware: [proxy(proxyOptions)]
             },
             ui: false,
             online: false,

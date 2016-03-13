@@ -1,4 +1,5 @@
 import "angular";
+import {AuthenticationRequired} from "../shell";
 import {IAbout} from "./components/about/about.service";
 
 config.$inject = ["$stateProvider", "$urlRouterProvider"];
@@ -26,7 +27,7 @@ class MainCtrl {
     }
 }
 
-class MainState implements ng.ui.IState {
+class MainState extends AuthenticationRequired implements ng.ui.IState {
     public url = "/main";
 
     public template = require("./main.html");

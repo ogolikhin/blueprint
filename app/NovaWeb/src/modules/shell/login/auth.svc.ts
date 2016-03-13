@@ -6,8 +6,8 @@ export interface IAuth {
 
 export class AuthSvc implements IAuth {
 
-    static $inject: [string] = ["$q"];
-    constructor(private $q: ng.IQService) {
+    static $inject: [string] = ["$q", "$log"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService) {
     }
 
     get authenticated(): ng.IPromise<boolean> {

@@ -1,0 +1,107 @@
+/* http://bootsnipp.com/snippets/rgqbz */
+
+$sidebar-size: 350px;
+
+#wrapper {
+    padding-left: $sidebar-size;
+    padding-right: $sidebar-size;
+    transition: all 0.4s ease 0s;
+}
+
+#sidebar-wrapper-left {
+    margin-left: -$sidebar-size;
+    left: $sidebar-size;
+    width: $sidebar-size;
+    background: rgba(247, 247, 247, 1);
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all 0.4s ease 0s;
+}
+
+#sidebar-wrapper-right {
+    margin-right: -$sidebar-size;
+    right: $sidebar-size;
+    width: $sidebar-size;
+    background: rgba(247, 247, 247, 1);
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all 0.4s ease 0s;
+}
+
+#wrapper.active-left {
+    padding-left: 0;
+}
+
+#wrapper.active-right {
+    padding-right: 0;
+}
+
+#wrapper.active-left #sidebar-wrapper-left {
+    left: 0;
+}
+
+#wrapper.active-right #sidebar-wrapper-right {
+    right: 0;
+}
+
+#page-content-wrapper {
+    width: 100%;
+}
+
+.content-header {
+    height: 65px;
+    line-height: 65px;
+}
+
+.content-header h1 {
+    margin: 0;
+    margin-left: 20px;
+    line-height: 65px;
+    display: inline-block;
+}
+
+#menu-toggle {
+    text-decoration: none;
+}
+
+.btn-menu {
+    color: #000;
+}
+
+.inset {
+    padding: 20px;
+}
+
+@media (max-width:767px) {
+
+    #wrapper {
+        padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+        left: 0;
+    }
+
+    #wrapper.active {
+        position: relative;
+        left: $sidebar-size;
+    }
+
+    #wrapper.active #sidebar-wrapper {
+        left: $sidebar-size;
+        width: $sidebar-size;
+        transition: all 0.4s ease 0s;
+    }
+
+    #menu-toggle {
+        display: inline-block;
+    }
+
+    .inset {
+        padding: 15px;
+    }
+}

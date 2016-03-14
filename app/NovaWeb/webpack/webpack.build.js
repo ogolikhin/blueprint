@@ -1,13 +1,17 @@
 var loaders = require("./loaders");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 
 module.exports = {
-    entry: ['./index.ts'],
+    entry: {
+        app: './index.ts',
+        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css']
+    },
     output: {
-        filename: 'build.js',
+        filename: 'app.js',
         path: 'dist'
     },
     devtool: 'source-map',
@@ -20,6 +24,7 @@ module.exports = {
         modulesDirectories: ["node_modules"]
     },
     plugins: [
+        new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin(
             {
                 warning: false,
@@ -32,6 +37,7 @@ module.exports = {
             inject: 'body',
             hash: true
         }),
+        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.js"),
         // Uncomment next lines if jQuery is required for the app
         //new webpack.ProvidePlugin({
         //    $: 'jquery',

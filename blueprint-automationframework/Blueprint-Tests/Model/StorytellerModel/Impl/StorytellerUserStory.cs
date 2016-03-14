@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 using Utilities;
 
-namespace Model.Impl
+namespace Model.StorytellerModel.Impl
 {
     public class StorytellerUserStory : IStorytellerUserStory
     {

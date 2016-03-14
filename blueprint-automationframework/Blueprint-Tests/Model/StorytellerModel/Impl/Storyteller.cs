@@ -1,14 +1,15 @@
 ﻿using System;
-using Common;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
+using Common;
 using Model.Factories;
+using Model.Impl;
 using Utilities;
 using Utilities.Facades;
-using System.Globalization;
 
-namespace Model.Impl
+namespace Model.StorytellerModel.Impl
 {
     public class Storyteller : IStoryteller
     {

@@ -1,33 +1,61 @@
-# Nova Prototype
+# Nova Web
 
-If you haven't installed node.js, bower and gulp globally, please install them first.
+If you haven't installed node.js please install it first. Then run devsetup to install required npm packages globally.
 ```
- npm install -g bower
- npm install -g gulp
+ devsetup
 ```
 
 In order to run nova prototype simply run:
 ```
- npm install
- bower install
- gulp serve
+ gulp dev
 ```
 
-## npm install
-package.json file that is used to install node-modules currently includes bower, gulp and components we need for the prototype. Please adjust this as needed going forward
+## npm install --save-dev
+package.json file that is used to install node-modules currently includes webpackage, karma, gulp, typescript, typings and components we need for the prototype. Please adjust this as needed going forward
 
-## bower install
-bower is used for grabbing open source client side libraries.
+## npm install --save
+we also using npm for grabbing open source client side libraries (bower is not used anymore)
 Note that for client side libraries that are not open source (example mxgraph), we will not be using bower
 
 ## gulp 
-A number of tasks are defined for minification and typescript compilation but they are not currently in use. They definetely need to be tested when used as part of build step or from the IDE
+We have number of gulp tasks:
+
+Use
+```
+gulp help
+```
+to see list of available tasks.
+
+Use
+```
+gulp build
+```
+to build production version in the dist folder.
+
+Use
+```
+gulp dev
+```
+to build the project and start a browser-sync dev server with live-reload on default port (8000). Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc
+
+Use
+```
+gulp test
+```
+to run unit tests using Karma and PhantomJS. 
+Note: all unit test are located together with the code using next pattern: [name_of_file_under_test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
 
 Use
 ```
 gulp serve
 ```
-to start a gulp web-server with live-reload on default port (8000). Currently there are no server components but we can use proxy to redirect all /svc calls to blueprint/blueprint-current REST services
+to build the project in production version and run it with browser-sync server.
+
+Note: you also can run all these tasks (except serve) using
+```
+npm run {dev | test | build}
+```
+as npm scripts defined in package.json 
 
 # Synchronize Node.JS Install Version with Visual Studio 2015:
 http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/

@@ -19,7 +19,7 @@ namespace StorytellerTests
         private ISession _session;
         private int defaultUserTaskCount = 1;
         private const int numberOfAdditionalUserTasks = 5;
-        private bool shouldRecursive = false;
+        private bool deleteChildren = false;
 
         #region SetUp and Teardown
         [SetUp]
@@ -47,7 +47,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts)
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, shouldRecursive: shouldRecursive);
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
                 }
             }
             if (_user != null)
@@ -69,7 +69,7 @@ namespace StorytellerTests
             
             // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
-            shouldRecursive = true;
+            deleteChildren = true;
 
             // Find number of UserTasks from the published Process
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -99,7 +99,7 @@ namespace StorytellerTests
 
             // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
-            shouldRecursive = true;
+            deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -179,7 +179,7 @@ namespace StorytellerTests
 
             // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
-            shouldRecursive = true;
+            deleteChildren = true;
 
             // Find number of UserTasks from the published Process
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -227,7 +227,7 @@ namespace StorytellerTests
 
             // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
-            shouldRecursive = true;
+            deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -308,7 +308,7 @@ namespace StorytellerTests
             _storyteller.PublishProcessArtifacts(_user);
 
             // enable recursive delete flag
-            shouldRecursive = true;
+            deleteChildren = true;
 
             // User Stories from the Process artifact
             List<IStorytellerUserStory> userStories_SecondBatch = _storyteller.GenerateUserStories(_user, _process);

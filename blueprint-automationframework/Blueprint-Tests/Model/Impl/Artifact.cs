@@ -266,13 +266,13 @@ namespace Model.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool shouldRecursive = false)
+        public List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
-            if (shouldRecursive)
+            if (deleteChildren)
                 path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
 
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();

@@ -50,10 +50,10 @@ namespace Model
         /// <param name="artifact">The artifact to delete.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <param name="shouldRecursive">(optional) Specifies wheather or not to also delete all child artifacts of the specified artifact</param>
+        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool shouldRecursive = false);
+        List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
         /// Publish the artifact on Blueprint server.

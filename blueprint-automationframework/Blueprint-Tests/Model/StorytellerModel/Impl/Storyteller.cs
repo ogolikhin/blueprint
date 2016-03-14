@@ -406,11 +406,11 @@ namespace Model.StorytellerModel.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool shouldRecursive = false)
+        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return artifact.DeleteArtifact(artifact, user, expectedStatusCodes, shouldRecursive);
+            return artifact.DeleteArtifact(artifact, user, expectedStatusCodes, deleteChildren);
         }
 
         #endregion Implemented from IStoryteller

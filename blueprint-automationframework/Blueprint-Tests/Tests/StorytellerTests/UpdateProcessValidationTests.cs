@@ -19,7 +19,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool shouldRecursive = false;
+        private bool deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -47,7 +47,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts)
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, shouldRecursive: shouldRecursive);
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
                 }
             }
 

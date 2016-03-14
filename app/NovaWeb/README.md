@@ -1,13 +1,23 @@
 # Nova Web
 
-If you haven't installed node.js please install it first. Then run devsetup to install required npm packages globally.
+If you haven't installed node.js please install it first (latest LTS version from https://nodejs.org). Then run devsetup (on Windows) to install required npm packages globally.
 ```
  devsetup
 ```
 
-In order to run nova prototype simply run:
+We don't have full list of required npm packages yet, so run
+```
+npm i
+```
+after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
+
+In order to run nova prototype simply run (see gulp section below for other tasks):
 ```
  gulp dev
+```
+or
+```
+npm run dev
 ```
 
 ## npm install --save-dev

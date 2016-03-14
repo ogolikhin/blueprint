@@ -54,6 +54,7 @@
     <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="Factories\WebExceptionFactory.cs" />
     <Compile Include="HashingUtilities.cs" />
+    <Compile Include="StringUtilities.cs" />
     <Compile Include="ThrowIf.cs" />
     <Compile Include="WebExceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,7 +4,8 @@ using System.Net;
 using CustomAttributes;
 using Model;
 using Model.Factories;
-using Model.Impl;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Utilities;
 
@@ -105,10 +106,10 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Find precondition task
-            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Remove the process link between the precondition and the default user task
             returnedProcess.Links.Remove((ProcessLink)processLink);

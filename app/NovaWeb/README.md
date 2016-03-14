@@ -60,5 +60,5 @@ as npm scripts defined in package.json
 # Synchronize Node.JS Install Version with Visual Studio 2015:
 http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/
 
-# If in the console window we are getting the error message that 'bower' is not recognized as an internal or external command, operable program or batch file,
+# If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
 add the following path %APPDATA%\npm to system environment variable PATH.

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Model.Impl;
+using Model.StorytellerModel.Impl;
 
-namespace Model
+namespace Model.StorytellerModel
 {
     public enum ProcessShapeType
     {
@@ -68,7 +68,7 @@ namespace Model
         /// </summary>
         /// <param name="artifact">The artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>
-        IArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact);
+        ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact);
 
         #endregion Methods
     }

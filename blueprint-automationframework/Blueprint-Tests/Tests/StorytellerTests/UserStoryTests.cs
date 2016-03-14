@@ -56,7 +56,7 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithDefaultUserTask_NumberOfUserTasksAndGeneratedUserStoriesAreEqual()
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
             
             // Publish the Process artifact - using RestApi
             _storyteller.PublishProcessArtifacts(_user);
@@ -85,7 +85,7 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
@@ -146,7 +146,7 @@ namespace StorytellerTests
             }
 
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -193,7 +193,7 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithMultipleUserTasks_UserTaskUserStoryMapping(int iteration)
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -247,7 +247,7 @@ namespace StorytellerTests
             var AdditionalUserTaskExpectedCount = iteration - (iteration/2);
 
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);

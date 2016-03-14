@@ -83,7 +83,7 @@ namespace StorytellerTests
         [TestCase(5, 4, ProcessType.BusinessProcess)]
         public void GetDefaultProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
         {
-            IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             var process = _storyteller.GetProcess(_user, artifact.Id);
 
@@ -94,23 +94,12 @@ namespace StorytellerTests
                 "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count);
             Assert.That(process.Links.Count == defaultLinksLength,
                 "The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count);
-            //Assert.That(process.Type == processType, I18NHelper.FormatInvariant("The process type returned was '{0}', but '{1}' was expected", process.Type.ToString(), processType.ToString()));
-            //Assert.That(process.Shapes[0].Name == ProcessShapeType.Start.ToString(), I18NHelper.FormatInvariant("The shape returned was named '{0}', but '{1}' was expected", process.Shapes[0].Name, ProcessShapeType.Start.ToString()));
-            //Assert.That(process.Shapes[0].ShapeType == ProcessShapeType.Start, I18NHelper.FormatInvariant("The shape returned was of type '{0}', but '{1}' was expected", process.Shapes[0].ShapeType.ToString(), ProcessShapeType.Start.ToString()));
-            //Assert.That(process.Shapes[1].Name == Process.DefaultPreconditionName, I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[1].Name, Process.DefaultPreconditionName));
-            //Assert.That(process.Shapes[1].ShapeType == ProcessShapeType.PreconditionSystemTask, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[1].ShapeType.ToString(), ProcessShapeType.PreconditionSystemTask.ToString()));
-            //Assert.That(process.Shapes[2].Name == Process.DefaultUserTaskName, I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[2].Name, Process.DefaultUserTaskName));
-            //Assert.That(process.Shapes[2].ShapeType == ProcessShapeType.UserTask, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[2].ShapeType.ToString(), ProcessShapeType.UserTask.ToString()));
-            //Assert.That(process.Shapes[3].Name == Process.DefaultSystemTaskName, I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[3].Name, Process.DefaultSystemTaskName));
-            //Assert.That(process.Shapes[3].ShapeType == ProcessShapeType.SystemTask, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[3].ShapeType.ToString(), ProcessShapeType.SystemTask.ToString()));
-            //Assert.That(process.Shapes[4].Name == ProcessShapeType.End.ToString(), I18NHelper.FormatInvariant("The shape returned was named '{0}' but '{1}' was expected", process.Shapes[4].Name, ProcessShapeType.End.ToString()));
-            //Assert.That(process.Shapes[4].ShapeType == ProcessShapeType.End, I18NHelper.FormatInvariant("The shape returned was of type '{0}' but '{1}' was expected", process.Shapes[4].ShapeType.ToString(), ProcessShapeType.End.ToString()));
         }
 
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IOpenApiArtifact artifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             IList<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>

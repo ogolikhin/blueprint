@@ -70,11 +70,13 @@ namespace StorytellerTests
 
         #region Tests
 
-        [TestCase, Description("Remove name of process and verify returned validation error")]
+        [TestCase]
+        [Description("Clear the name of process and verify the returned process has a validation error" +
+                     "indicating that the process name is required.")]
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -94,11 +96,14 @@ namespace StorytellerTests
                 );
         }
 
-        [TestCase, Description("Update artifact with orphaned task and verify returned validation error")]
+        [TestCase]
+        [Description("Add an orphaned task to a process and verify the returned process has a validation error" +
+                     "indicating that an orphaned task was detected.  The validation error message includes" +
+                     "the sub-artifact Id of the orphaned task.")]
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);

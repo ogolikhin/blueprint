@@ -15,6 +15,7 @@ namespace StorytellerTests
     public class BreadcrumbTests
     {
         private const string STORYTELLER_BASE_URL = "/Web/#/Storyteller/";
+        private const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
 
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
@@ -84,7 +85,7 @@ namespace StorytellerTests
         [TestCase(15)]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
@@ -98,7 +99,7 @@ namespace StorytellerTests
         [TestCase(15, 13, 99999999)]
         public void GetDefaultProcessWithNonexistentArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int nonexistentArtifactIndex, int nonexistentArtifactId)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -116,7 +117,7 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(nonexistentArtifactIndexes,nameof(nonexistentArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -137,11 +138,11 @@ namespace StorytellerTests
         [TestCase(15, 13)]
         public void GetDefaultProcessWithInaccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int inaccessibleArtifactIndex)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
-            var inaccessibleArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
+            var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
             artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
             artifacts[inaccessibleArtifactIndex].Id = inaccessibleArtifact.Id;
 
@@ -156,13 +157,13 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                var inaccessibleArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
+                var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
                 artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
                 artifacts[inaccessibleArtifactIndex].Id = inaccessibleArtifact.Id;
             }
@@ -204,7 +205,6 @@ namespace StorytellerTests
 
                 if (artifactIndexes !=null && artifactIndexes.Contains(i))
                 {
-                    const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
                     // Name is "<Inaccessible>" for nonexistent/inaccessible artifact
                     Assert.That(process.ArtifactPathLinks[i].Name == INACCESSIBLE_ARTIFACT_NAME,
                         "Expected artifact Name is {0} but artifact name {1} was returned", INACCESSIBLE_ARTIFACT_NAME, process.ArtifactPathLinks[i].Name);

@@ -43,29 +43,31 @@ namespace Model.StorytellerModel.Impl
 
         #region Implemented from IStoryteller
 
-        public IOpenApiArtifact CreateProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
             _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
+
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
+            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             var artifact = _artifact.AddArtifact(_artifact, user);
             _artifact.Id = artifact.Id;
 
+            // Add artifact to artifacts list
             Artifacts.Add(_artifact);
 
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
             return artifact;
         }
 
-        public List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        public List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                artifacts.Add(CreateProcessArtifact(project, BaseArtifactType.Process, user));
+                artifacts.Add(CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user));
             }
 
             return artifacts;
@@ -257,39 +259,6 @@ namespace Model.StorytellerModel.Impl
 
             return returnedProcess;
         }
-
-        public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(file, nameof(file));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            }
-
-            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
-            if (expireDate != null)
-            {
-                DateTime time = (DateTime)expireDate;
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
-            }
-
-            byte[] bytes = file.Content.ToArray<byte>();
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", expectedStatusCodes: expectedStatusCodes);
-            return artifactResult.Content;
-        }
-
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -325,6 +294,38 @@ namespace Model.StorytellerModel.Impl
             return restResponse.Content;
         }
 
+        public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
+            if (expireDate != null)
+            {
+                DateTime time = (DateTime)expireDate;
+                path = I18NHelper.FormatInvariant("{0}/{1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
+            }
+
+            byte[] bytes = file.Content.ToArray<byte>();
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", expectedStatusCodes: expectedStatusCodes);
+            return artifactResult.Content;
+        }
+
         public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -347,8 +348,7 @@ namespace Model.StorytellerModel.Impl
             List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
             foreach (IOpenApiArtifact artifact in Artifacts)
             {
-                OpenApiArtifact artifactElement;
-                artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
+                var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
             }
 

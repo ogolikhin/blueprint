@@ -86,7 +86,7 @@ namespace StorytellerTests
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -105,7 +105,7 @@ namespace StorytellerTests
         public void ModifyProcessType_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -130,7 +130,7 @@ namespace StorytellerTests
         public void AddUserTaskAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -156,7 +156,7 @@ namespace StorytellerTests
         public void AddUserTaskBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -182,7 +182,7 @@ namespace StorytellerTests
         public void AddUserTaskAfterUserTask_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -207,7 +207,7 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchAfterPrecondition_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -233,7 +233,7 @@ namespace StorytellerTests
         public void AddUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -257,7 +257,7 @@ namespace StorytellerTests
         public void AddUserTaskBeforeUserDecision_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -287,7 +287,7 @@ namespace StorytellerTests
         public void AddUserDecisionBetweenTwoUserTasks_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -314,7 +314,7 @@ namespace StorytellerTests
         public void AddUserDecisionWithinMainBranchBeforeMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -349,7 +349,7 @@ namespace StorytellerTests
         public void AddSecondBranchToUserDecision_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -378,7 +378,7 @@ namespace StorytellerTests
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -410,7 +410,7 @@ namespace StorytellerTests
         public void AddUserTaskAfterMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -439,7 +439,7 @@ namespace StorytellerTests
         public void AddUserDecisionPointAfterMergePoint_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -468,7 +468,7 @@ namespace StorytellerTests
         public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -480,7 +480,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
 
             // Add include to default user task
@@ -494,7 +494,7 @@ namespace StorytellerTests
         public void AddIncludeToSystemTask_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -506,7 +506,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
 
             // Add include to default user task
@@ -520,7 +520,7 @@ namespace StorytellerTests
         public void DeleteIncludeFromUserTask_VerifyReturnedProcess()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -532,7 +532,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
 
             // Add include to default user task
@@ -557,7 +557,7 @@ namespace StorytellerTests
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
             // Create an Process artifact
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);

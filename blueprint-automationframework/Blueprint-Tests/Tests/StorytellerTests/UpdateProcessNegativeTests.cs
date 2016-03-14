@@ -12,7 +12,7 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class UpdateProcessNegativeTests
     {
-        private const string StoryLinksKey = "storyLinks";
+        private const string STORYLINKSKEY = "storyLinks";
 
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
@@ -75,7 +75,7 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithoutStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -92,7 +92,7 @@ namespace StorytellerTests
 
             // Add a story link to the default user task
             var storyLink = new StoryLink(defaultUserTask.Id, addedArtifact.Id, 1, addedArtifact.Id);
-            defaultUserTask.PropertyValues[StoryLinksKey].Value = storyLink;
+            defaultUserTask.PropertyValues[STORYLINKSKEY].Value = storyLink;
 
             // Update the process using UpdateProcess in attempt to add a story link
             var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -100,7 +100,7 @@ namespace StorytellerTests
             Assert.IsNotNull(modifiedReturnedProcess, "The returned process was null.");
 
             // Verify returned process does not contain a story link
-            Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[StoryLinksKey].Value,
+            Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
         }
 
@@ -108,7 +108,7 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -128,7 +128,7 @@ namespace StorytellerTests
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Get original story link
-            var originalStoryLinksProperty = defaultUserTask.PropertyValues[StoryLinksKey];
+            var originalStoryLinksProperty = defaultUserTask.PropertyValues[STORYLINKSKEY];
             var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Create and publish textual requirement artifact to simulate user story artifact
@@ -146,7 +146,8 @@ namespace StorytellerTests
                     Value = newStoryLink
                 };
 
-            defaultUserTask.PropertyValues[StoryLinksKey] = newStoryLinksProperty;
+            // Update the story link
+            defaultUserTask.PropertyValues[STORYLINKSKEY] = newStoryLinksProperty;
 
             // Update the process using UpdateProcess in attempt to change the story link
             var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -154,7 +155,7 @@ namespace StorytellerTests
             Assert.IsNotNull(modifiedReturnedProcess, "The returned process was null.");
 
             // Get returned story link
-            var returnedStoryLinksProperty = modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[StoryLinksKey];
+            var returnedStoryLinksProperty = modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
             var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
             // Verify that the returned story link is identical to the sent story link
@@ -165,7 +166,7 @@ namespace StorytellerTests
         public void DeleteStorylinkFromUserTask_VerifyReturnedProcessHasStoryLink()
         {
             // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -183,11 +184,11 @@ namespace StorytellerTests
 
             // Get original story link
             var originalStoryLinksProperty =
-                returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[StoryLinksKey];
+                returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
             var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Delete the story link for the default user task
-            returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[StoryLinksKey].Value = null;
+            returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value = null;
 
             // Update the process using UpdateProcess in attempt to delete the story link
             var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -196,7 +197,7 @@ namespace StorytellerTests
 
             // Get returned story link
             var returnedStoryLinksProperty =
-                modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[StoryLinksKey];
+                modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
             var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
             // Verify that the returned story link is identical to the sent story link
@@ -209,7 +210,7 @@ namespace StorytellerTests
         /// Asserts that the Original and Returned Story Links are Identical
         /// </summary>
         /// <param name="originalStoryLink">The story link sent via the UpdateProcess method</param>
-        /// <param name="returnedStoryLink">The story link returned from the UpdatePRocess method</param>
+        /// <param name="returnedStoryLink">The story link returned from the UpdateProcess method</param>
         private static void AssertThatOriginalAndReturnedStoryLinksAreIdentical(StoryLink originalStoryLink, StoryLink returnedStoryLink)
         {
             Assert.IsNotNull(returnedStoryLink, "The returned story link was null but should not have been null");

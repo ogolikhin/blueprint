@@ -7,43 +7,52 @@ namespace Model.StorytellerModel
     public interface IStorytellerUserStory
     {
         /// <summary>
-        /// Id of the UserStory
+        /// The Artifact Id of the User Story
         /// </summary>
         int Id { get; set; }
+
         /// <summary>
-        /// Name of the UserStory
+        /// Name of the User Story
         /// </summary>
         string Name { get; set; }
+
         /// <summary>
-        /// ProejctId of the UserStory
+        /// Project Id of the User Story
         /// </summary>
         int ProjectId { get; set; }
+
         /// <summary>
-        /// TypeId of the UserStory
+        /// TypeId of the User Story
         /// </summary>
         int TypeId { get; set; }
+
         /// <summary>
-        /// TypePrefix of the UserStory
+        /// TypePrefix of the User Story
         /// </summary>
         string TypePrefix { get; set; }
+
         /// <summary>
-        /// PropertyTypePredefined of the UserStory
+        /// The Predefined Property Type of the User Story
         /// </summary>
         PropertyTypePredefined TypePredefined { get; set; }
+
         /// <summary>
-        /// SystemProperties of the UserStory
+        /// List of System Properties of the User Story
         /// </summary>
         List<StorytellerProperty> SystemProperties { get; }
+
         /// <summary>
-        /// CustomProperties of the UserStory
+        /// List of Custom Properties of the User Story
         /// </summary>
         List<StorytellerProperty> CustomProperties { get; }
+
         /// <summary>
-        /// ProcessTaskId of the UserStory
+        /// ProcessTaskId of the User Story
         /// </summary>
         int ProcessTaskId { get; set; }
+
         /// <summary>
-        /// IsNew of the UserStory - Inidicator if the UserStory is created or updated
+        /// Boolean flag indicating whether the User Story is being Created or Updated
         /// </summary>
         bool IsNew { get; set; }
     }
@@ -51,19 +60,22 @@ namespace Model.StorytellerModel
     public interface IStorytellerProperty
     {
         /// <summary>
-        /// Id of the StorytellerPropert
+        /// Name of the Storyteller Property
         /// </summary>
         string Name { get; set; }
+
         /// <summary>
-        /// Id of the StorytellerPropert
+        /// Type Id of the Storyteller Property
         /// </summary>
         int PropertyTypeId { get; set; }
+
         /// <summary>
-        /// PropertyType of the StorytellerPropert
+        /// PropertyType of the Storyteller Property
         /// </summary>
         int? PropertyType { get; set; }
+
         /// <summary>
-        /// Value of the StorytellerPropert
+        /// Value of the Storyteller Property
         /// </summary>
         string Value { get; set; }
     }

@@ -16,9 +16,8 @@ angular.module("app.shell",
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
     .service("session", SessionSvc);
-    //.config(routesConfig);
 
-//TODO: move to other files
+//TODO: move to other file
 export class AuthenticationRequired {
     private static key = "authenticated";
     public resolve = {};

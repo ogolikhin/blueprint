@@ -16,13 +16,18 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["session"];
+    static $inject: [string] = ["$state","session"];
 
-    constructor(private session: ISession) {
+    constructor(private $state: ng.ui.IStateService, private session: ISession) {
         
     }
 
     public get currentUser(): IUser {
         return this.session.currentUser;
+    }
+
+    public logout(evt: ng.IAngularEvent) {
+        evt.preventDefault();
+        this.session.logout().finally(() => this.$state.reload());
     }
 }

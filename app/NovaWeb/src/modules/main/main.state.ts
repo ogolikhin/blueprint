@@ -11,13 +11,6 @@ class MainCtrl {
     public static $inject: [string] = ["$log"];
     constructor(private $log: ng.ILogService) {
     }
-
-    public leftToggled: boolean = false;
-
-    public toggleLeft(): void {
-        this.$log.debug("MainCtrl.toggleLeft");
-        this.leftToggled = !this.leftToggled;
-    }
 }
 
 class MainState extends AuthenticationRequired implements ng.ui.IState {

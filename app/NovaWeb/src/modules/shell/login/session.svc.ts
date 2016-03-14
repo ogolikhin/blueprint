@@ -5,6 +5,8 @@ export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
     currentUser: IUser;
+
+    logout(): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {
@@ -18,6 +20,12 @@ export class SessionSvc implements ISession {
     private _currentUser: IUser;
     public get currentUser(): IUser {
         return this._currentUser;
+    }
+
+    public logout(): ng.IPromise<any> {
+        this._currentUser = null;
+
+        return this.$q.resolve();
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {        

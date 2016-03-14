@@ -83,6 +83,8 @@ namespace StorytellerTests
 
         [TestCase(3)]
         [TestCase(15)]
+        [Description("Get the default process when accessible artifacts are in the GET url path. Verify" +
+                     "that the returned artifact path links contains all process Ids in the url path.")]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
             List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
@@ -97,7 +99,13 @@ namespace StorytellerTests
         [TestCase(4, 1, 99999999)]
         [TestCase(4, 2, 99999999)]
         [TestCase(15, 13, 99999999)]
-        public void GetDefaultProcessWithNonexistentArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int nonexistentArtifactIndex, int nonexistentArtifactId)
+        [Description("Get the default process with a non-existent artifact in the GET url path.  Verify" +
+                     "that the non-existent artifact is marked as <Inaccessible> in the returned " +
+                     "artifact path links. ")]
+        public void GetDefaultProcessWithNonexistentArtifactInPath_VerifyReturnedBreadcrumb(
+            int numberOfArtifacts, 
+            int nonexistentArtifactIndex, 
+            int nonexistentArtifactId)
         {
             List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
@@ -111,9 +119,15 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { nonexistentArtifactIndex});
         }
 
-        [TestCase(4, new int[] { 1, 2 }, 99999999, Description="Test for sequential nonexistent artifacts in breadcrumb")]
-        [TestCase(15, new int[] { 2, 6, 13 }, 99999999, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
-        public void GetDefaultProcessWithMultipleNonexistentArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int[] nonexistentArtifactIndexes, int nonexistentArtifactId)
+        [TestCase(4, new[] { 1, 2 }, 99999999, Description ="Test for sequential nonexistent artifacts in breadcrumb")]
+        [TestCase(15, new[] { 2, 6, 13 }, 99999999, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
+        [Description("Get the default process with multiple non-existent artifacts in the GET url path. " +
+                     "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
+                     "artifact path links. ")]
+        public void GetDefaultProcessWithMultipleNonexistentArtifactsInPath_VerifyReturnedBreadcrumb(
+            int numberOfArtifacts, 
+            int[] nonexistentArtifactIndexes, 
+            int nonexistentArtifactId)
         {
             ThrowIf.ArgumentNull(nonexistentArtifactIndexes,nameof(nonexistentArtifactIndexes));
 
@@ -136,7 +150,12 @@ namespace StorytellerTests
         [TestCase(4, 1)]
         [TestCase(4, 2)]
         [TestCase(15, 13)]
-        public void GetDefaultProcessWithInaccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int inaccessibleArtifactIndex)
+        [Description("Get the default process with an inaccessible artifact in the GET url path. " +
+                     "Verify that the inaccessible artifact is marked as <Inaccessible> in the returned " +
+                     "artifact path links. ")]
+        public void GetDefaultProcessWithInaccessibleArtifactsInPath_VerifyReturnedBreadcrumb(
+            int numberOfArtifacts, 
+            int inaccessibleArtifactIndex)
         {
             List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
@@ -153,7 +172,12 @@ namespace StorytellerTests
 
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb")]
         [TestCase(15, new int[] { 2, 6, 13 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb")]
-        public void GetDefaultProcessWithMultipleInaccessibleArtifactInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts, int[] inaccessibleArtifactIndexes)
+        [Description("Get the default process with multiple inaccessible artifacts in the GET url path. " +
+                     "Verify that the inaccessible artifacts are marked as <Inaccessible> in the returned " +
+                     "artifact path links. ")]
+        public void GetDefaultProcessWithMultipleInaccessibleArtifactInPath_VerifyReturnedBreadcrumb(
+            int numberOfArtifacts, 
+            int[] inaccessibleArtifactIndexes)
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 

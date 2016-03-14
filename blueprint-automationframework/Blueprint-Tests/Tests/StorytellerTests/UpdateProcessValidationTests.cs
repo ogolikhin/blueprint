@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Net;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
 using Model.StorytellerModel;
@@ -75,13 +76,8 @@ namespace StorytellerTests
                      "indicating that the process name is required.")]
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
-            // Create default process
-            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
-
-            // Get default process
-            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Modify default process Name
             returnedProcess.Name = string.Empty;
@@ -102,13 +98,8 @@ namespace StorytellerTests
                      "the sub-artifact Id of the orphaned task.")]
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
-            // Create default process
-            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
-
-            // Get default process
-            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

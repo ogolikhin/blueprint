@@ -80,20 +80,33 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, ProcessType.BusinessProcess)]
-        public void GetDefaultProcess_VerifyReturnedProcess(int defaultShapesLength, int defaultLinksLength, ProcessType processType)
+        [TestCase(5, 4, 1, 2, ProcessType.BusinessProcess)]
+        [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
+                     "returned process has the same Id as the process artifact Id and that the numbers of " +
+                     "shapes, links, artifact path links and property values are as expected.")]
+        public void GetDefaultProcess_VerifyReturnedProcess(
+            int defaultShapesCount, 
+            int defaultLinksCount, 
+            int defaultArtifactPathLinksCount, 
+            int defaultPropertyValuesCount, 
+            ProcessType processType)
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             var process = _storyteller.GetProcess(_user, artifact.Id);
 
             Assert.IsNotNull(process, "The returned process was null.");
+
             Assert.That(process.Id == artifact.Id,
                 "The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, artifact.Id);
-            Assert.That(process.Shapes.Count == defaultShapesLength,
-                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesLength, process.Shapes.Count);
-            Assert.That(process.Links.Count == defaultLinksLength,
-                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksLength, process.Links.Count);
+            Assert.That(process.Shapes.Count == defaultShapesCount,
+                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesCount, process.Shapes.Count);
+            Assert.That(process.Links.Count == defaultLinksCount,
+                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksCount, process.Links.Count);
+            Assert.That(process.ArtifactPathLinks.Count == defaultArtifactPathLinksCount,
+                "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, process.ArtifactPathLinks.Count);
+            Assert.That(process.PropertyValues.Count == defaultPropertyValuesCount,
+                "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, process.PropertyValues.Count);
         }
 
         [TestCase]

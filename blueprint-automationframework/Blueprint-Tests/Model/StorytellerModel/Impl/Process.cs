@@ -10,8 +10,9 @@ using Utilities.Factories;
 
 namespace Model.StorytellerModel.Impl
 {
-
-
+    /// <summary>
+    /// The Storyteller Process Model
+    /// </summary>
     public class Process: IProcess
     {
         #region Constants
@@ -69,6 +70,7 @@ namespace Model.StorytellerModel.Impl
         #endregion Private Properties
 
         #region Public Properties
+
         public int ProjectId { get; set; }
 
         public int Id { get; set; }
@@ -119,6 +121,7 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(processLink, nameof(processLink));
 
+            // Get the destination Id of the process link
             var destinationId = processLink.DestinationId;
 
             // Add a user task
@@ -161,8 +164,10 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(processLink, nameof(processLink));
 
+            // Get the destination Id of the process link
             var destinationId = processLink.DestinationId;
 
+            // Add a user decision point
             // Using non-default values to ensure values are saved
             var userDecisionPoint = CreateUserDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
             Shapes.Add((ProcessShape)userDecisionPoint);
@@ -188,14 +193,17 @@ namespace Model.StorytellerModel.Impl
             // Find the incoming link for the next shape
             var processLink = GetIncomingLinkForShape(idOfNextShape);
 
+            // Determine the artifact Id of the branch end point
             int branchEndPointId;
 
             if (idOfBranchMergePoint == null)
             {
+                // branch endpoint is the process link destination id if the branch merge point is null
                 branchEndPointId = processLink.DestinationId;
             }
             else
             {
+                // branch endpoint id the id of the branch merge point if the branch merge point is not null
                 branchEndPointId = (int)idOfBranchMergePoint;
             }
 
@@ -213,7 +221,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             // Add new branch to user decision point
-            AddBranchWithUserTaskToDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+            AddBranchWithUserTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
 
             return userDecisionPoint;
         }
@@ -223,14 +231,17 @@ namespace Model.StorytellerModel.Impl
             // Find the outgoing link for the previous shape
             var processLink = GetOutgoingLinkForShape(idOfPreviousShape);
 
+            // Determine the artifact Id of the branch end point
             int branchEndPointId;
 
             if (idOfBranchMergePoint == null)
             {
+                // branch endpoint is the process link destination id if the branch merge point is null
                 branchEndPointId = processLink.DestinationId;
             }
             else
             {
+                // branch endpoint id the id of the branch merge point if the branch merge point is not null
                 branchEndPointId = (int)idOfBranchMergePoint;
             }
 
@@ -248,20 +259,23 @@ namespace Model.StorytellerModel.Impl
             }
 
             // Add new branch to user decision point
-            AddBranchWithUserTaskToDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+            AddBranchWithUserTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
 
             return userDecisionPoint;
         }
 
-        public IProcessShape AddBranchWithUserTaskToDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
+        public IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
         {
+            // Add a process link to the user decision point
             var processLink = AddLink(decisionPointId, destinationId, orderIndex);
 
+            // Add a user task to the branch and return the user task shape object
             return AddUserTask(processLink);
         }
 
         public ProcessLink AddLink(int sourceId, int destinationId, double orderIndex)
         {
+            // Create a process link
             var processLink = new ProcessLink
             {
                 DestinationId = destinationId,
@@ -270,6 +284,7 @@ namespace Model.StorytellerModel.Impl
                 SourceId = sourceId
             };
 
+            // Add the process link to the list of links in the process
             Links.Add(processLink);
 
             return processLink;
@@ -277,6 +292,7 @@ namespace Model.StorytellerModel.Impl
 
         public ProcessLink GetIncomingLinkForShape(int shapeId)
         {
+            // Find the incoming link for the process shape
             var link = Links.ToList().Find(l => l.DestinationId == shapeId);
 
             return link;
@@ -284,6 +300,7 @@ namespace Model.StorytellerModel.Impl
 
         public ProcessLink GetOutgoingLinkForShape(int shapeId)
         {
+            // Find the outgoing link for the process shape
             var link = Links.ToList().Find(l => l.SourceId == shapeId);
 
             return link;
@@ -291,6 +308,7 @@ namespace Model.StorytellerModel.Impl
 
         public IProcessShape GetProcessShapeByShapeName(string shapeName)
         {
+            // Find the process shape by the process shape name
             var shape = Shapes.ToList().Find(s => s.Name == shapeName);
 
             return shape;
@@ -298,6 +316,7 @@ namespace Model.StorytellerModel.Impl
 
         public IProcessShape GetProcessShapeById(int shapeId)
         {
+            // Find the process shape by the process shape artifact Id
             var shape = Shapes.ToList().Find(s => s.Id == shapeId);
 
             return shape;
@@ -305,15 +324,19 @@ namespace Model.StorytellerModel.Impl
 
         public ProcessShapeType GetProcessShapeTypeById(int shapeId)
         {
+            // Find the process shape by the process shape artifact Id
             var shape = Shapes.ToList().Find(s => s.Id == shapeId);
 
+            // Get the property information value for the shape type
             var clientTypePropertyInformation =
                 shape.PropertyValues.ToList()
                     .Find(p => string.Equals(p.Key, ClientType, StringComparison.CurrentCultureIgnoreCase))
                     .Value;
 
+            // Get the integer representation of the process shape type
             var shapeType = Convert.ToInt32(clientTypePropertyInformation.Value, CultureInfo.InvariantCulture);
 
+            // Return the process shape type
             return (ProcessShapeType)shapeType;
         }
 
@@ -336,8 +359,10 @@ namespace Model.StorytellerModel.Impl
         /// <returns>A new user task</returns>
         private IProcessShape CreateUserTask(string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
+            // Create a user task
             var userTask = CreateProcessShape(ProcessShapeType.UserTask, UserTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
+            // Create a story link for the user task if the story link Id was not 0
             var storyLink = storyLinkId == 0 ? null : new StoryLink(userTask.Id, storyLinkId, 0, storyLinkId);
 
             userTask.PropertyValues.Add(Persona,
@@ -668,51 +693,112 @@ namespace Model.StorytellerModel.Impl
 
     public class ProcessLink
     {
+        /// <summary>		
+        /// Source Id for the process link		
+        /// </summary>
         public int SourceId { get; set; }
 
+        /// <summary>		
+        /// Destination Id for the process link		
+        /// </summary>
         public int DestinationId { get; set; }
 
+        /// <summary>		
+        /// Order index for the process link (Order in which the links are drawn for decision points)		
+        /// </summary>
         public double Orderindex { get; set; }
 
+        /// <summary>		
+        /// Label for the process link		
+        /// </summary>
         public string Label { get; set; }
     }
 
     public class ArtifactPathLink
     {
+        /// <summary>
+        /// The Id of the Artifact
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// The Project Id for the artifact
+        /// </summary>
         public int ProjectId { get; set; }
 
+        /// <summary>
+        /// The name of the artifact
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The type prefix for the artifact
+        /// </summary>
         public string TypePrefix { get; set; }
 
+        /// <summary>
+        /// The base item type for the artifact
+        /// </summary>
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
+        /// <summary>
+        /// The link to navigate to the artifact
+        /// </summary>
         public string Link { get; set; }
     }
 
     public class PropertyValueInformation
     {
+        /// <summary>
+        /// The name of the property
+        /// </summary>
         public string PropertyName { get; set; }
 
+        /// <summary>
+        /// The predefined property type
+        /// </summary>
         public PropertyTypePredefined TypePredefined { get; set; }
 
+        /// <summary>
+        /// Property Type Id as defined in the blueprint project metadata
+        /// </summary>
         public int? TypeId { get; set; }
 
+        /// <summary>
+        /// The value of the property
+        /// </summary>
         public object Value { get; set; }
     }
 
     public class StoryLink
     {
+        /// <summary>
+        /// The Artifact Id of referenced User Story
+        /// </summary>
         public int AssociatedReferenceArtifactId { get; set; }
 
+        /// <summary>
+        /// The Destination Id of the Story Link
+        /// </summary>
         public int DestinationId { get; set; }
 
+        /// <summary>
+        /// The vertical order index
+        /// </summary>
         public double Orderindex { get; set; }
 
+        /// <summary>
+        /// The Source Id of the Story Link
+        /// </summary>
         public int SourceId { get; set; }
 
+        /// <summary>
+        /// Storylink Constructor
+        /// </summary>
+        /// <param name="sourceId">The source id of the story link</param>
+        /// <param name="destinationId">The destination id of the story link</param>
+        /// <param name="orderIndex">The vertical order index</param>
+        /// <param name="associatedReferenceId">The artifact id of referenced user story</param>
         public StoryLink(int sourceId, int destinationId, double orderIndex, int associatedReferenceId)
         {
             AssociatedReferenceArtifactId = associatedReferenceId;
@@ -724,7 +810,14 @@ namespace Model.StorytellerModel.Impl
 
     public class LinkLabels
     {
+        /// <summary>
+        /// The Id of the Process Link
+        /// </summary>
         public int LinkId { get; set; }
+
+        /// <summary>
+        /// The Label of the Process Link
+        /// </summary>
         public string Label { get; set; }
     }
 }

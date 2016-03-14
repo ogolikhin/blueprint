@@ -3,6 +3,9 @@ using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
 {
+    /// <summary>
+    /// Enumeration of Process Types
+    /// </summary>
     public enum ProcessType
     {
         None = 0,
@@ -11,6 +14,9 @@ namespace Model.StorytellerModel
         SystemToSystemProcess = 3
     }
 
+    /// <summary>
+    /// Enumeration of Property Type Names
+    /// </summary>
     public enum PropertyTypeName
     {
         associatedImageUrl,
@@ -26,6 +32,10 @@ namespace Model.StorytellerModel
         x,
         y
     }
+
+    /// <summary>
+    /// Enumeration of Predefinded Property Types
+    /// </summary>
     public enum PropertyTypePredefined
     {
         None = 0,
@@ -88,42 +98,42 @@ namespace Model.StorytellerModel
         int ProjectId { get; set; }
 
         /// <summary>
-        /// Artifact Id for the process
+        /// Artifact Id of the Process
         /// </summary>
         int Id { get; set; }
 
         /// <summary>
-        /// Name for the process
+        /// Name of the Process
         /// </summary>
         string Name { get; set; }
 
         /// <summary>
-        /// Prefix of the process type
+        /// Type Prefix of the Process
         /// </summary>
         string TypePrefix { get; set; }
 
         /// <summary>
-        /// Base item type for the process artifact
+        /// Base Item Type for the Process
         /// </summary>
         ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         /// <summary>
-        /// Sub-artifact shapes for the process
+        /// Sub-artifact Process Shapes for the Process
         /// </summary>
         List<ProcessShape> Shapes { get; }
 
         /// <summary>
-        /// Sub-artifact links for the process
+        /// Sub-artifact Process Links for the Process
         /// </summary>
         List<ProcessLink> Links { get; }
 
         /// <summary>
-        /// Artifact path links for the Process.  This supports breadcrumb navigation
+        /// Artifact path links for the Process.  This supports breadcrumb navigation.
         /// </summary>
         List<ArtifactPathLink> ArtifactPathLinks { get; }
 
         /// <summary>
-        /// The property values for the Process artifact
+        /// The Property values for the Process
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
         #endregion Properties
@@ -131,88 +141,88 @@ namespace Model.StorytellerModel
         #region Methods
 
         /// <summary>
-        /// Adds a User Task to the Process
+        /// Add a User Task to the Process
         /// </summary>
         /// <param name="processLink">The process link where the user task will be added</param>
         /// <returns>The user task that was added</returns>
         IProcessShape AddUserTask(ProcessLink processLink);
 
         /// <summary>
-        /// Adds a User Decision Point to the Process
+        /// Add a User Decision Point to the Process
         /// </summary>
         /// <param name="processLink">The process link where the user decision point will be added</param>
         /// <returns>The user decision point that was added</returns>
         IProcessShape AddUserDecisionPoint(ProcessLink processLink);
 
         /// <summary>
-        /// Adds a Branch to a Decision Point
+        /// Add a Branch to a User Decision Point
         /// </summary>
-        /// <param name="decisionPointId">Id of the decision point</param>
-        /// <param name="orderIndex">Order index of the added branch</param>
-        /// <param name="destinationId">Id of the following shape</param>
+        /// <param name="decisionPointId">Artifact Id of the user decision point</param>
+        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="destinationId">The artifact Id of the following process shape</param>
         /// <returns>The user task created</returns>
-        IProcessShape AddBranchWithUserTaskToDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+        IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
 
         /// <summary>
-        /// Adds a Link to a Process
+        /// Add a Link to a Process
         /// </summary>
-        /// <param name="sourceId">The source Id of the link</param>
-        /// <param name="destinationId">The destination Id of the link</param>
-        /// <param name="orderIndex">The order index of the link</param>
+        /// <param name="sourceId">The artifact Id of the link source</param>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order in the process graph)</param>
         /// <returns></returns>
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
-        /// Adds a User Decision Point with a Branch After an Existing Shape
+        /// Add a User Decision Point with a Branch After an Existing Shape
         /// </summary>
-        /// <param name="idOfPreviousShape">The Id of the shape before the insertion point</param>
-        /// <param name="orderIndexOfBranch">The order index of the added branch</param>
-        /// <param name="idOfBranchMergePoint">The of the shape where the branch terminates</param>
+        /// <param name="idOfPreviousShape">The artifact Id of the shape before the insertion point</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns></returns>
         IProcessShape AddUserDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
-        /// Adds a User Decision Point with a Branch Before an Existing Shape
+        /// Add a User Decision Point with a Branch Before an Existing Shape
         /// </summary>
-        /// <param name="idOfNextShape">The Id of the shape after the insertion point</param>
-        /// <param name="orderIndexOfBranch">the order index of the added branch</param>
-        /// <param name="idOfBranchMergePoint">The of the shape where the branch terminates</param>
+        /// <param name="idOfNextShape">The artifact Id of the shape after the insertion point</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns></returns>
         IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
-        /// Find the Process Shape by the Shape Name
+        /// Get the Process Shape by the Shape Name
         /// </summary>
         /// <param name="shapeName">The shape name</param>
-        /// <returns>The process shape</returns>
+        /// <returns>The process shape object</returns>
         IProcessShape GetProcessShapeByShapeName(string shapeName);
 
         /// <summary>
-        /// Find the Process Shape by the Artifact Id of the Shape
+        /// Get the Process Shape by the Artifact Id of the Shape
         /// </summary>
-        /// <param name="shapeId">The artifact id of the shape</param>
-        /// <returns>The process shape</returns>
+        /// <param name="shapeId">The artifact Id of the shape</param>
+        /// <returns>The process shape object</returns>
         IProcessShape GetProcessShapeById(int shapeId);
 
         /// <summary>
-        /// Find the Process Shape Type by the Artifact Id of the Shape
+        /// Get the Process Shape Type by the Artifact Id of the Shape
         /// </summary>
-        /// <param name="shapeId">The artifact id of the shape</param>
+        /// <param name="shapeId">The artifact Id of the shape</param>
         /// <returns>The process shape type</returns>
         ProcessShapeType GetProcessShapeTypeById(int shapeId);
 
         /// <summary>
-        /// Find the Incoming Process Link for a Shape
+        /// Get the Incoming Process Link for a Shape
         /// </summary>
-        /// <param name="shapeId">The shape id</param>
-        /// <returns>The process link</returns>
+        /// <param name="shapeId">The artifact Id of the shape</param>
+        /// <returns>The incoming process link</returns>
         ProcessLink GetIncomingLinkForShape(int shapeId);
 
         /// <summary>
-        /// Find the Outgoing Process Link for a Shape
+        /// Get the Outgoing Process Link for a Shape
         /// </summary>
-        /// <param name="shapeId">The shape id</param>
-        /// <returns>The process link</returns>
+        /// <param name="shapeId">The artifact Id of the shape</param>
+        /// <returns>The outgoing process link</returns>
         ProcessLink GetOutgoingLinkForShape(int shapeId);
 
         #endregion Methods

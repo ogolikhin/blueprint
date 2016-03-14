@@ -88,48 +88,20 @@ namespace Helper
             // Update the process using UpdateProcess
             var processReturnedFromUpdate = storyteller.UpdateProcess(user, processToVerify);
 
-            Assert.IsNotNull(processReturnedFromUpdate, "The returned process was null.");
+            Assert.IsNotNull(processReturnedFromUpdate, "UpdateProcess() returned a null process.");
 
             // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
             // Allow negative shape ids in the process being verified
-            StorytellerTestHelper.AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
+            AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
 
             // Get the process using GetProcess
             var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
 
-            Assert.IsNotNull(processReturnedFromGet, "The returned process was null.");
+            Assert.IsNotNull(processReturnedFromGet, "GetPRocess() returned a null process.");
 
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
-            StorytellerTestHelper.AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
-        }
-
-        /// <summary>
-        /// Capitalizes the First Character in a String
-        /// </summary>
-        /// <param name="valueToModify">The string to modify</param>
-        /// <returns>The modified string</returns>
-        public static string CapitalizeFirstCharacter(string valueToModify)
-        {
-            ThrowIf.ArgumentNull(valueToModify, nameof(valueToModify));
-
-            valueToModify = char.ToUpper(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
-
-            return valueToModify;
-        }
-
-        /// <summary>
-        /// Lowers  the Case of the First Character in a String
-        /// </summary>
-        /// <param name="valueToModify">The string to modify</param>
-        /// <returns>The modified string</returns>
-        public static string LowerCaseFirstCharacter(string valueToModify)
-        {
-            ThrowIf.ArgumentNull(valueToModify, nameof(valueToModify));
-
-            valueToModify = char.ToLower(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
-
-            return valueToModify;
+            AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
         }
 
         #endregion Public Methods

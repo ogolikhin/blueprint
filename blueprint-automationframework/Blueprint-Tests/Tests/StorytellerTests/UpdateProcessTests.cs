@@ -7,6 +7,7 @@ using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using Utilities;
 using Utilities.Factories;
 
 namespace StorytellerTests
@@ -112,8 +113,7 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
             // Must lower the case of the first character to create lower case property name
-            var clientTypePropertyName =
-                StorytellerTestHelper.LowerCaseFirstCharacter(PropertyTypePredefined.ClientType.ToString());
+            var clientTypePropertyName = PropertyTypePredefined.ClientType.ToString().LowerCaseFirstCharacter();
 
             var processType = Convert.ToInt32(returnedProcess.PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
 
@@ -368,7 +368,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
+            returnedProcess.AddBranchWithUserTaskToUserDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
@@ -397,7 +397,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            var userTask = returnedProcess.AddBranchWithUserTaskToDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var userTask = returnedProcess.AddBranchWithUserTaskToUserDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point with branch to end
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
@@ -573,9 +573,12 @@ namespace StorytellerTests
             // Update the process
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
 
+            // Get precondition shape
+            var preconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
             // Assert that the Default Precondition SystemTask contains
-            Assert.IsNotNull(returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value);
-            Assert.IsNotNull(returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.imageId.ToString()].Value);
+            Assert.IsNotNull(preconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value, "The associated image url in the precondition shape does not exist");
+            Assert.IsNotNull(preconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value, "The image id in the precondition shape does not exist");
 
             // TODO Assert that there is a row of data available on image table
 

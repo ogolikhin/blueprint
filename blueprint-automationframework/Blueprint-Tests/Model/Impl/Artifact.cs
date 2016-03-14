@@ -88,17 +88,17 @@ namespace Model.Impl
         #endregion Constants
 
         #region Properties
-        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiProperty, OpenApiProperty>))]
-        public List<IOpenApiProperty> Properties { get; } = new List<IOpenApiProperty>();
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; } = new List<OpenApiProperty>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiComment, OpenApiComment>))]
-        public List<IOpenApiComment> Comments { get; } = new List<IOpenApiComment>();
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiComment>>))]
+        public List<OpenApiComment> Comments { get; } = new List<OpenApiComment>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiTrace, OpenApiTrace>))]
-        public List<IOpenApiTrace> Traces { get; } = new List<IOpenApiTrace>();
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
+        public List<OpenApiTrace> Traces { get; } = new List<OpenApiTrace>();
 
-        [JsonConverter(typeof (Deserialization.ConcreteListConverter<IOpenApiAttachment, OpenApiAttachment>))]
-        public List<IOpenApiAttachment> Attachments { get; } = new List<IOpenApiAttachment>();
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
+        public List<OpenApiAttachment> Attachments { get; } = new List<OpenApiAttachment>();
         #endregion Properties
 
         #region Constructors
@@ -266,24 +266,26 @@ namespace Model.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public IArtifactResult<IOpenApiArtifact> DeleteArtifact(
-            IOpenApiArtifact artifact,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
+            if (deleteChildren)
+                path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
+
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            additionalHeaders.Add("Accept", "application/json");
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult>(
-                path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
-            Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            return artifactResult;
+            foreach (var deletedArtifact in artifactResults)
+            {
+                Logger.WriteDebug("DELETE {0} returned followings: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
+            }
+            return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
         public void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null)

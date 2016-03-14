@@ -9,6 +9,9 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using System.Data.SqlClient;
+using Common;
+using System.Data;
 
 namespace StorytellerTests
 {
@@ -21,6 +24,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private IFileStore _filestore;
+        private bool deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -54,12 +58,11 @@ namespace StorytellerTests
 
              if (_storyteller.Artifacts != null)
             {
-                // TODO: Uncomment when new Publish Process is implemented
-                //Delete all the artifacts that were added.
-                //foreach (var artifact in _storyteller.Artifacts)
-                //{
-                //    _storyteller.DeleteProcessArtifact(artifact, _user);
-                //}
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts)
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
+            }
             }
 
             if (_adminStore != null)
@@ -439,9 +442,10 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include
+            // Create and publish process artifact to be used as include; enable delete flag
             var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
+            deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -461,9 +465,10 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include
+            // Create and publish process artifact to be used as include; enable delete flag
             var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
+            deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -483,9 +488,10 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include
+            // Create and publish process artifact to be used as include; enable delete flag
             var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
+            deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -508,8 +514,10 @@ namespace StorytellerTests
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
-            // Create an Process artifact
+            // Create and publish Process artifact; enable delete flag
             var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            addedProcessArtifact.Publish(_user);
+            deleteChildren = true;
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -517,23 +525,65 @@ namespace StorytellerTests
             // Setup: create a file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // TODO uploading the file
-            var result = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
+            /// Uploading the file
+            var uploadResult = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
-            Assert.IsNotNull(result);
+            var deserialzedUploadResult = Deserialization.DeserializeObject<Storyteller.UploadResult>(uploadResult);
 
-            // Update the process
+            // Update the default precondition properties in the retrieved process model with guid and uriToFile
+            returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.uriToFile;
+            returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.guid;
+
+            // Save the process with the updated properties
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
 
-            // Get precondition shape
-            var preconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            // Assert that the Default Precondition SystemTask contains value
+            string updatedAssociatedImageUrl = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
+            string updatedImageId = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
 
-            // Assert that the Default Precondition SystemTask contains
-            Assert.IsNotNull(preconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value, "The associated image url in the precondition shape does not exist");
-            Assert.IsNotNull(preconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value, "The image id in the precondition shape does not exist");
+            Assert.That(updatedAssociatedImageUrl.Contains("/svc/components/RapidReview/diagram/image/"), "The updated associatedImageUri of The precondition contains {0}", updatedAssociatedImageUrl);
 
-            // TODO Assert that there is a row of data available on image table
+            Assert.IsNotNull(updatedImageId, "The updated ImageId of The precondition contains nothing");
 
+            // Assert that there is a row of data available on image table
+            int expectedImageRow = 1;
+            VerifyImageRowsFromDB(expectedImageRow, updatedImageId);
+        }
+
+        private static void VerifyImageRowsFromDB(int expectedCount, string imageId)
+        {
+            int resultCount = 0;
+            string query = null;
+            SqlDataReader reader;
+
+            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            {
+                query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
+                Logger.WriteDebug("Running: {0}", query);
+                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                {
+                    database.Open();
+                    cmd.Parameters.Add("@Image_Id", SqlDbType.Int).Value = imageId;
+                    cmd.CommandType = CommandType.Text;
+
+                    try
+                    {
+                        using (reader = cmd.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+                            }
+                            resultCount = Int32.Parse(reader["counter"].ToString(), CultureInfo.InvariantCulture);
+                        }
+                    }
+                    catch (System.InvalidOperationException ex)
+                    {
+                        Logger.WriteError("Upload Image didn't create a data entry. Exception details = {0}", ex);
+                    }
+                }
+            }
+            Assert.That(resultCount.Equals(expectedCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedCount);
         }
 
         #endregion Tests

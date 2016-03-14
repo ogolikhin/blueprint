@@ -259,6 +259,7 @@ namespace Model.StorytellerModel.Impl
 
             return returnedProcess;
         }
+
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -313,16 +314,22 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+
+            additionalHeaders.Add("Accept", "application/json");
+
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
             if (expireDate != null)
             {
                 DateTime time = (DateTime)expireDate;
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
+                path = I18NHelper.FormatInvariant("{0}/?expired={1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
             }
 
             byte[] bytes = file.Content.ToArray<byte>();
+
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", expectedStatusCodes: expectedStatusCodes);
+            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+
             return artifactResult.Content;
         }
 
@@ -400,15 +407,19 @@ namespace Model.StorytellerModel.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public IArtifactResult<IOpenApiArtifact> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            Artifacts.Remove(Artifacts.First(i => i.Id == artifact.Id));
-
-            return artifact.DeleteArtifact(artifact, user, expectedStatusCodes);
+            return artifact.DeleteArtifact(artifact, user, expectedStatusCodes, deleteChildren);
         }
 
         #endregion Implemented from IStoryteller
+
+        public class UploadResult
+        {
+            public string guid { get; set; }
+            public Uri uriToFile { get; set; }
+        }
     }
 }

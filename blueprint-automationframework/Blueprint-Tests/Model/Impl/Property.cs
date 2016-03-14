@@ -29,7 +29,7 @@ namespace Model.Impl
         /// <param name="propertyValue">(optional) property Name</param>
         /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
         /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public IOpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null)
+        public OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             string query = null;
@@ -42,7 +42,7 @@ namespace Model.Impl
             string query_textOrChoiceValue;
             bool query_isRichText;
             bool query_isReadOnly;
-            IOpenApiProperty property = null;
+            OpenApiProperty property = null;
 
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {

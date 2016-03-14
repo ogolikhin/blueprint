@@ -1,7 +1,6 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
-import "bootstrap/dist/css/bootstrap.css"
 import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";

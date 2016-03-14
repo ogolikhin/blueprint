@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "webpack --config webpack/webpack.dev.js --watch --NODE_ENV=dev",
     "test": "karma start --NODE_ENV=test",
-    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
-    "postinstall": "typings i"
+    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
   },
   "dependencies": {
     "angular": "1.5.0",
@@ -26,6 +25,7 @@
     "compression-webpack-plugin": "0.3.0",
     "copy-webpack-plugin": "^1.1.1",
     "css-loader": "0.23.1",
+    "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "0.8.5",
     "gulp": "^3.9.1",
     "gulp-help": "^1.6.1",

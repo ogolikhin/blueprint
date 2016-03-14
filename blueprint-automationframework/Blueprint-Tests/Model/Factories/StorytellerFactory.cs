@@ -1,8 +1,7 @@
 ﻿using System.Data;
-using Common;
-using Model.Impl;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using TestConfig;
-
 namespace Model.Factories
 {
     public static class StorytellerFactory
@@ -26,7 +25,7 @@ namespace Model.Factories
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IStoryteller GetStorytellerFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            TestConfiguration testConfig = TestConfig.TestConfiguration.GetInstance();
             return CreateStoryteller(testConfig.BlueprintServerAddress);
         }
     }

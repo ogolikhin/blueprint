@@ -1,15 +1,17 @@
-﻿using Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using Common;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Factories;
 
-namespace Model.Impl
+namespace Model.StorytellerModel.Impl
 {
+
+
     public class Process: IProcess
     {
         #region Constants
@@ -113,7 +115,7 @@ namespace Model.Impl
 
         #region Public Methods
 
-        public IProcessShape AddUserTask(IProcessLink processLink)
+        public IProcessShape AddUserTask(ProcessLink processLink)
         {
             ThrowIf.ArgumentNull(processLink, nameof(processLink));
 
@@ -155,7 +157,7 @@ namespace Model.Impl
             return userTask;
         }
 
-        public IProcessShape AddUserDecisionPoint(IProcessLink processLink)
+        public IProcessShape AddUserDecisionPoint(ProcessLink processLink)
         {
             ThrowIf.ArgumentNull(processLink, nameof(processLink));
 
@@ -181,10 +183,10 @@ namespace Model.Impl
             return userDecisionPoint;
         }
 
-        public IProcessShape AddDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
+        public IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
         {
             // Find the incoming link for the next shape
-            var processLink = FindIncomingLinkForShape(idOfNextShape);
+            var processLink = GetIncomingLinkForShape(idOfNextShape);
 
             int branchEndPointId;
 
@@ -201,10 +203,10 @@ namespace Model.Impl
             var userDecisionPoint = AddUserDecisionPoint(processLink);
 
             // Find outgoing process link for new user decision point
-            var newprocesslink = FindOutgoingLinkForShape(userDecisionPoint.Id);
+            var newprocesslink = GetOutgoingLinkForShape(userDecisionPoint.Id);
 
             // Add user/system task immediately after user decision point if next shape is the end shape or a user decision point
-            if (idOfNextShape == FindProcessShapeByShapeName(EndName).Id || FindProcessShapeTypeById(idOfNextShape) == ProcessShapeType.UserDecision)
+            if (idOfNextShape == GetProcessShapeByShapeName(EndName).Id || GetProcessShapeTypeById(idOfNextShape) == ProcessShapeType.UserDecision)
             {
                 // Add new user/system task to branch
                 AddUserTask(newprocesslink);
@@ -216,10 +218,10 @@ namespace Model.Impl
             return userDecisionPoint;
         }
 
-        public IProcessShape AddDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
+        public IProcessShape AddUserDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
         {
             // Find the outgoing link for the previous shape
-            var processLink = FindOutgoingLinkForShape(idOfPreviousShape);
+            var processLink = GetOutgoingLinkForShape(idOfPreviousShape);
 
             int branchEndPointId;
 
@@ -236,10 +238,10 @@ namespace Model.Impl
             var userDecisionPoint = AddUserDecisionPoint(processLink);
 
             // Find outgoing process link for new user decision point
-            var newprocesslink = FindOutgoingLinkForShape(userDecisionPoint.Id);
+            var newprocesslink = GetOutgoingLinkForShape(userDecisionPoint.Id);
 
             // Add user/system task immediately after user decision point only if next shape is the end shape
-            if (newprocesslink.DestinationId == FindProcessShapeByShapeName(EndName).Id)
+            if (newprocesslink.DestinationId == GetProcessShapeByShapeName(EndName).Id)
             {
                 // Add new user/system task to branch
                 AddUserTask(newprocesslink);
@@ -258,7 +260,7 @@ namespace Model.Impl
             return AddUserTask(processLink);
         }
 
-        public IProcessLink AddLink(int sourceId, int destinationId, double orderIndex)
+        public ProcessLink AddLink(int sourceId, int destinationId, double orderIndex)
         {
             var processLink = new ProcessLink
             {
@@ -273,35 +275,35 @@ namespace Model.Impl
             return processLink;
         }
 
-        public IProcessLink FindIncomingLinkForShape(int shapeId)
+        public ProcessLink GetIncomingLinkForShape(int shapeId)
         {
             var link = Links.ToList().Find(l => l.DestinationId == shapeId);
 
             return link;
         }
 
-        public IProcessLink FindOutgoingLinkForShape(int shapeId)
+        public ProcessLink GetOutgoingLinkForShape(int shapeId)
         {
             var link = Links.ToList().Find(l => l.SourceId == shapeId);
 
             return link;
         }
 
-        public IProcessShape FindProcessShapeByShapeName(string shapeName)
+        public IProcessShape GetProcessShapeByShapeName(string shapeName)
         {
             var shape = Shapes.ToList().Find(s => s.Name == shapeName);
 
             return shape;
         }
 
-        public IProcessShape FindProcessShapeById(int shapeId)
+        public IProcessShape GetProcessShapeById(int shapeId)
         {
             var shape = Shapes.ToList().Find(s => s.Id == shapeId);
 
             return shape;
         }
 
-        public ProcessShapeType FindProcessShapeTypeById(int shapeId)
+        public ProcessShapeType GetProcessShapeTypeById(int shapeId)
         {
             var shape = Shapes.ToList().Find(s => s.Id == shapeId);
 
@@ -332,7 +334,7 @@ namespace Model.Impl
         /// <param name="y">The y coordinate of the user task</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
         /// <returns>A new user task</returns>
-        private IProcessShape CreateUserTask(string persona, string itemLabel, IArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateUserTask(string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
             var userTask = CreateProcessShape(ProcessShapeType.UserTask, UserTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
@@ -343,7 +345,7 @@ namespace Model.Impl
                 {
                     PropertyName = Persona,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(Persona),
+                    TypeId = GetPropertyNameTypeId(Persona),
                     Value = persona
                 }
                 );
@@ -353,7 +355,7 @@ namespace Model.Impl
                 {
                     PropertyName = ImageId,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(ImageId),
+                    TypeId = GetPropertyNameTypeId(ImageId),
                     Value = imageId
                 }
                 );
@@ -363,7 +365,7 @@ namespace Model.Impl
                 {
                     PropertyName = StoryLinks,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(StoryLinks),
+                    TypeId = GetPropertyNameTypeId(StoryLinks),
                     Value = storyLink
                 }
                 );
@@ -385,7 +387,7 @@ namespace Model.Impl
         /// <param name="y">The y coordinate of the user task</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
         /// <returns>A new system task</returns>
-        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, IArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
+        private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
             var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, SystemTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
@@ -396,7 +398,7 @@ namespace Model.Impl
                 {
                     PropertyName = AssociatedImageUrl,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(AssociatedImageUrl),
+                    TypeId = GetPropertyNameTypeId(AssociatedImageUrl),
                     Value = associatedImageUrl
                 });
 
@@ -406,7 +408,7 @@ namespace Model.Impl
                 {
                     PropertyName = Persona,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(Persona),
+                    TypeId = GetPropertyNameTypeId(Persona),
                     Value = persona
                 }
                 );
@@ -416,7 +418,7 @@ namespace Model.Impl
                 {
                     PropertyName = ImageId,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(ImageId),
+                    TypeId = GetPropertyNameTypeId(ImageId),
                     Value = imageId
                 }
                 );
@@ -426,7 +428,7 @@ namespace Model.Impl
                 {
                     PropertyName = StoryLinks,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(StoryLinks),
+                    TypeId = GetPropertyNameTypeId(StoryLinks),
                     Value = storyLink
                 }
                 );
@@ -444,7 +446,7 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <returns>A new user decision point</returns>
-        private IProcessShape CreateUserDecisionPoint(string itemLabel, IArtifactPathLink associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateUserDecisionPoint(string itemLabel, ArtifactPathLink associatedArtifact, double width, double height, int x, int y)
         {
              var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, UserDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
@@ -453,7 +455,7 @@ namespace Model.Impl
                 {
                     PropertyName = LinkLabels,
                     TypePredefined = PropertyTypePredefined.None,
-                    TypeId = FindPropertyNameTypeId(LinkLabels),
+                    TypeId = GetPropertyNameTypeId(LinkLabels),
                     Value = null
                 });
 
@@ -472,7 +474,7 @@ namespace Model.Impl
         /// <param name="x">The x coordinate of the process shape</param>
         /// <param name="y">The y coordinate of the process shape</param>
         /// <returns></returns>
-        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string itemLabel, IArtifactPathLink associatedArtifact, double width, double height, int x, int y)
+        private IProcessShape CreateProcessShape(ProcessShapeType processShapeType, string shapeNamePrefix, string itemLabel, ArtifactPathLink associatedArtifact, double width, double height, int x, int y)
         {
             IProcessShape processShape = new ProcessShape();
 
@@ -491,7 +493,7 @@ namespace Model.Impl
                 {
                     PropertyName = ClientType,
                     TypePredefined = PropertyTypePredefined.ClientType,
-                    TypeId = FindPropertyNameTypeId(ClientType),
+                    TypeId = GetPropertyNameTypeId(ClientType),
                     Value = (int)processShapeType
                 });
 
@@ -502,7 +504,7 @@ namespace Model.Impl
                 {
                     PropertyName = Description,
                     TypePredefined = PropertyTypePredefined.Description,
-                    TypeId = FindPropertyNameTypeId(Description),
+                    TypeId = GetPropertyNameTypeId(Description),
                     // Create a random description
                     Value = AddDivTags(RandomGenerator.RandomValueWithPrefix(Description, 4))
                 });
@@ -512,7 +514,7 @@ namespace Model.Impl
                 {
                     PropertyName = Height,
                     TypePredefined = PropertyTypePredefined.Height,
-                    TypeId = FindPropertyNameTypeId(Height),
+                    TypeId = GetPropertyNameTypeId(Height),
                     Value = height
                 });
 
@@ -522,7 +524,7 @@ namespace Model.Impl
                 {
                     PropertyName = ItemLabel,
                     TypePredefined = PropertyTypePredefined.ItemLabel,
-                    TypeId = FindPropertyNameTypeId(ItemLabel),
+                    TypeId = GetPropertyNameTypeId(ItemLabel),
                     Value = itemLabel + " for " + processShape.Name
                 }
                 );
@@ -532,7 +534,7 @@ namespace Model.Impl
                 {
                     PropertyName = Label,
                     TypePredefined = PropertyTypePredefined.Label,
-                    TypeId = FindPropertyNameTypeId(Label),
+                    TypeId = GetPropertyNameTypeId(Label),
                     Value = processShape.Name
                 }
                 );
@@ -542,7 +544,7 @@ namespace Model.Impl
                 {
                     PropertyName = Width,
                     TypePredefined = PropertyTypePredefined.Width,
-                    TypeId = FindPropertyNameTypeId(Width),
+                    TypeId = GetPropertyNameTypeId(Width),
                     Value = width
                 }
                 );
@@ -552,7 +554,7 @@ namespace Model.Impl
                 {
                     PropertyName = X,
                     TypePredefined = PropertyTypePredefined.X,
-                    TypeId = FindPropertyNameTypeId(X),
+                    TypeId = GetPropertyNameTypeId(X),
                     Value = x
                 }
                 );
@@ -562,7 +564,7 @@ namespace Model.Impl
                 {
                     PropertyName = Y,
                     TypePredefined = PropertyTypePredefined.Y,
-                    TypeId = FindPropertyNameTypeId(Y),
+                    TypeId = GetPropertyNameTypeId(Y),
                     Value = y
                 }
                 );
@@ -575,7 +577,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
         /// <returns>The type id of the property</returns>
-        private int? FindPropertyNameTypeId(string propertyName)
+        private int? GetPropertyNameTypeId(string propertyName)
         {
             // Must convert first charater of property name to lowercase in order to find the pproperty in the 
             // default process
@@ -591,7 +593,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="processLink">The process lioink to update</param>
         /// <param name="newDestinationId">The new destination id of the link</param>
-        private void UpdateDestinationIdOfLink(IProcessLink processLink, int newDestinationId)
+        private void UpdateDestinationIdOfLink(ProcessLink processLink, int newDestinationId)
         {
             var link = (ProcessLink) processLink;
 
@@ -646,7 +648,7 @@ namespace Model.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public IArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -664,7 +666,7 @@ namespace Model.Impl
         }
     }
 
-    public class ProcessLink: IProcessLink
+    public class ProcessLink
     {
         public int SourceId { get; set; }
 
@@ -675,7 +677,7 @@ namespace Model.Impl
         public string Label { get; set; }
     }
 
-    public class ArtifactPathLink : IArtifactPathLink
+    public class ArtifactPathLink
     {
         public int Id { get; set; }
 
@@ -690,7 +692,7 @@ namespace Model.Impl
         public string Link { get; set; }
     }
 
-    public class PropertyValueInformation : IPropertyValueInformation
+    public class PropertyValueInformation
     {
         public string PropertyName { get; set; }
 
@@ -701,7 +703,7 @@ namespace Model.Impl
         public object Value { get; set; }
     }
 
-    public class StoryLink : IStoryLink
+    public class StoryLink
     {
         public int AssociatedReferenceArtifactId { get; set; }
 
@@ -720,7 +722,7 @@ namespace Model.Impl
         }
     }
 
-    public class LinkLabels : ILinkLabelInfo
+    public class LinkLabels
     {
         public int LinkId { get; set; }
         public string Label { get; set; }

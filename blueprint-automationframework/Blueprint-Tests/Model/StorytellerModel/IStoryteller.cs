@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Model
+namespace Model.StorytellerModel
 {
     public interface IStoryteller
     {

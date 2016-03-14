@@ -1,7 +1,7 @@
-﻿using Model.Impl;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Model.StorytellerModel.Impl;
 
-namespace Model
+namespace Model.StorytellerModel
 {
 
     public interface IStorytellerUserStory

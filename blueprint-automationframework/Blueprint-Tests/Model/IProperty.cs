@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Model.Impl;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -20,6 +21,6 @@ namespace Model
         /// <param name="project">project</param>
         /// <param name="propertyName">property Name</param>
         /// <param name="propertyValue">(optional) property Name</param>
-        IOpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null);
+        OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null);
     }
 }

@@ -18,6 +18,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+        private bool shouldRecursive = false;
 
         #region Setup and Cleanup
 
@@ -41,12 +42,12 @@ namespace StorytellerTests
         {
              if (_storyteller.Artifacts != null)
             {
-                // TODO: Uncomment when new Publish Process is implemented
-                //Delete all the artifacts that were added.
-                //foreach (var artifact in _storyteller.Artifacts)
-                //{
-                //    _storyteller.DeleteProcessArtifact(artifact, _user);
-                //}
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts)
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, shouldRecursive: shouldRecursive);
+                }
             }
 
             if (_adminStore != null)
@@ -115,8 +116,9 @@ namespace StorytellerTests
 
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
-            // Publish process
+            // Publish process; enable recursive delete flag
             _storyteller.PublishProcess(_user, returnedProcess);
+            shouldRecursive = true;
 
             // Generate user stories for process
             _storyteller.GenerateUserStories(_user, returnedProcess);
@@ -172,8 +174,9 @@ namespace StorytellerTests
 
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
-            // Publish process
+            // Publish process; enable recursive delete flag
             _storyteller.PublishProcess(_user, returnedProcess);
+            shouldRecursive = true;
 
             // Generate user stories for process
             _storyteller.GenerateUserStories(_user, returnedProcess);

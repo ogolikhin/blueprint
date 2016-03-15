@@ -47,7 +47,7 @@ export class SessionSvc implements ISession {
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                 template: require("./login.html"),
-                windowClass: "login",
+                windowClass: "nova-login",
                 controller: LoginCtrl,
                 controllerAs: "ctrl",
                 keyboard: false, // cannot Escape ))

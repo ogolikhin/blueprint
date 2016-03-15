@@ -41,15 +41,15 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            // if (_storyteller.Artifacts != null)
-            //{
-            //    // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-            //    // Delete all the artifacts that were added.
-            //    foreach (var artifact in _storyteller.Artifacts)
-            //    {
-            //        _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
-            //    }
-            //}
+             if (_storyteller.Artifacts != null)
+            {
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
+                }
+            }
 
             if (_adminStore != null)
             {

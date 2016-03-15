@@ -1,4 +1,4 @@
-﻿import "./sidebar.scss"
+﻿//import "./sidebar.scss"
 
 export class Sidebar implements ng.IComponentOptions {
     public template: string = require("./sidebar.html");

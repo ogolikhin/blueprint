@@ -12,46 +12,8 @@ body {
   background-size: 84%, 100%;
 }
 
-.modal-content {
-  border: 0;
-}
-
-.modal-header {
-  @include rounded-corners(6px 6px 0 0);
-  background-color: $brand-secondary;
-
-  .modal-title {
-    color: $white;
-  }
-}
-
-.modal.in.login .modal-dialog {
-  width: 423px;
-
-  .modal-header {
-    background: $brand-secondary url('images/bp_logo_white.svg') center center no-repeat;
-    background-size: 180px;
-    height: 89px;
-  }
-
-  .modal-footer {
-    @include rounded-corners(0 0 6px 6px);
-    background: $gray-lightest;
-    border-top: solid 1px $gray-lighter;
-    color: $gray-light;
-    display: table;
-    height: 60px;
-    padding: 0;
-    width: 100%;
-
-    div {
-      display: table-cell;
-      font-size: $font-size-smaller;
-      text-align: center;
-      vertical-align: middle;
-    }
-  }
-}
+@import 'partials/modal';
+@import 'partials/form';
 
 .app-loading {
   color: $gray-light;

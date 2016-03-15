@@ -45,7 +45,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete all the artifacts that were added.
-                foreach (var artifact in _storyteller.Artifacts)
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
                 }
@@ -74,7 +74,7 @@ namespace StorytellerTests
             // Find number of UserTasks from the published Process
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
-            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues[PropertyTypeName.clientType.ToString()].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessShapeType.UserTask, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.GetProcessesShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
             Assert.That(userTasksOnProcess == defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", defaultUserTaskCount, userTasksOnProcess);
@@ -108,7 +108,7 @@ namespace StorytellerTests
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
 
             // Assert that there is only one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessShapeType.UserTask, CultureInfo.CurrentCulture))))
+            foreach (IProcessShape shape in _process.GetProcessesShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)
@@ -184,7 +184,7 @@ namespace StorytellerTests
             // Find number of UserTasks from the published Process
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
-            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessShapeType.UserTask, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.GetProcessesShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
             Assert.That(userTasksOnProcess == UserTaskExpectedCount, "The number of UserTasks expected for the Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", UserTaskExpectedCount, userTasksOnProcess);
@@ -236,7 +236,7 @@ namespace StorytellerTests
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
 
             // Assert that there is one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessShapeType.UserTask, CultureInfo.CurrentCulture))))
+            foreach (IProcessShape shape in _process.GetProcessesShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)

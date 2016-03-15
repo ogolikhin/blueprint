@@ -59,7 +59,7 @@ namespace StorytellerTests
              if (_storyteller.Artifacts != null)
             {
                 // Delete all the artifacts that were added.
-                foreach (var artifact in _storyteller.Artifacts)
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
                 }
@@ -482,7 +482,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -509,7 +509,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -536,7 +536,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -562,10 +562,8 @@ namespace StorytellerTests
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
-            // Create and publish Process artifact; enable delete flag
+            // Create a Process artifact
             var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
-            addedProcessArtifact.Publish(_user);
-            deleteChildren = true;
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -579,15 +577,21 @@ namespace StorytellerTests
             var deserialzedUploadResult = Deserialization.DeserializeObject<Storyteller.UploadResult>(uploadResult);
 
             // Update the default precondition properties in the retrieved process model with guid and uriToFile
-            returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.uriToFile;
-            returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.guid;
+            var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            // Save the process with the updated properties
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.uriToFile;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.guid;
+
+            // Save the process with the updated properties; enable recursive delete flag
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+            defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            addedProcessArtifact.Publish(_user);
+            deleteChildren = true;
 
             // Assert that the Default Precondition SystemTask contains value
-            string updatedAssociatedImageUrl = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
-            string updatedImageId = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName).PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
+            string updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
+            string updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
 
             Assert.That(updatedAssociatedImageUrl.Contains("/svc/components/RapidReview/diagram/image/"), "The updated associatedImageUri of The precondition contains {0}", updatedAssociatedImageUrl);
 
@@ -598,6 +602,11 @@ namespace StorytellerTests
             VerifyImageRowsFromDB(expectedImageRow, updatedImageId);
         }
 
+        /// <summary>
+        /// Verifies that number of row from Image table match with expected value
+        /// </summary>
+        /// <param name="expectedCount">the expected total count of images from the image table</param>
+        /// <param name="imageId">the image Id that can be used to find image from the image table</param>
         private static void VerifyImageRowsFromDB(int expectedCount, string imageId)
         {
             int resultCount = 0;

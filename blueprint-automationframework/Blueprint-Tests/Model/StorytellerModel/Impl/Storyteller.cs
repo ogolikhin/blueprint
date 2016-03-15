@@ -409,7 +409,7 @@ namespace Model.StorytellerModel.Impl
         public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
+            Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.DeleteArtifact(artifact, user, expectedStatusCodes, deleteChildren);
         }
 

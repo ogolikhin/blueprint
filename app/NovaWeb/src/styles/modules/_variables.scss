@@ -9,7 +9,7 @@ $white:             #fff;
 $brand-primary:     #1c285c;
 $brand-secondary:   #009cde;
 $brand-success:     #fff;
-$brand-error:       #f10;
+$brand-error:       #ff1300;
 
 //body
 $body-bg:           $white;
@@ -21,9 +21,10 @@ $link-hover-color:  lighten($brand-secondary, 10%);
 //Font
 $font-family-base: 'Open Sans', sans-serif;
 
-$font-size-root:    14px;
-$font-size-smaller: .85rem;
-$font-size-smallest: .75rem;
-$font-size-tiny: .67rem;
-$font-size-bigger: 1.1rem;
-$font-size-biggest: 1.2rem;
+$font-size-root:     16px;
+$font-size-smaller:  .875rem;  //~14px
+$font-size-smallest: .75rem;   //~12px
+$font-size-tiny:     .6875rem; //~11px
+$font-size-micro:    .5625rem; //~9px
+$font-size-bigger:   1.125rem; //~18px
+$font-size-biggest:  1.25rem;  //~20px

@@ -1,0 +1,28 @@
+$gray-darker:       #333;
+$gray-dark:         #4c4c4c;
+$gray:              #565656;
+$gray-light:        #999;
+$gray-lighter:      #cbcbcb;
+$gray-lightest:     #eee;
+
+$brand-primary:     #1c285c;
+$brand-secondary:   #3398db;
+$brand-success:     #fff;
+$brand-error:       #f10;
+    
+//body 
+$body-bg:           #fff;
+$body-color:        $gray;
+
+$link-color:        $brand-secondary;
+$link-hover-color:  lighten($brand-secondary, 10%);
+
+//Font
+$font-family-base: 'Open Sans', sans-serif;
+
+$font-size-root:    14px;
+$font-size-smaller: 0.95rem;
+$font-size-smallest: 0.9rem;
+$font-size-tiny: 0.8rem;
+$font-size-bigger: 1.1rem;
+$font-size-biggest: 1.2rem;

@@ -1,5 +1,10 @@
-body{
+@import "modules/normalize";
+@import "modules/variables";
+@import "modules/typography";
+
+body {
   padding-top: 50px;
+font-family: $font-family-base;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
@@ -9,4 +14,7 @@ body{
 .nova-title {
     font-size: large;
     color: cornflowerblue;
+}
+.panel-heading {
+font-family: $font-family-base;
 }

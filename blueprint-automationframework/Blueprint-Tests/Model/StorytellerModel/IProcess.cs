@@ -215,7 +215,7 @@ namespace Model.StorytellerModel
         /// Get list of process shapes by process shapeType
         /// <param name="processShapeType">The process shapeType</param>
         /// <returns>The list of process shapes</returns>
-        List<IProcessShape> GetProcessesShapesByShapeType(ProcessShapeType processShapeType);
+        List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType);
 
         /// <summary>
         /// Get the Incoming Process Link for a Shape

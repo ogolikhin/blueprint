@@ -482,7 +482,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -509,7 +509,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -536,7 +536,7 @@ namespace StorytellerTests
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
-            // Create and publish process artifact to be used as include; enable delete flag
+            // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             deleteChildren = true;
@@ -562,7 +562,7 @@ namespace StorytellerTests
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
-            // Create an Process artifact; enable delete flag
+            // Create a Process artifact
             var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get default process
@@ -582,7 +582,7 @@ namespace StorytellerTests
             defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.uriToFile;
             defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.guid;
 
-            // Save the process with the updated properties
+            // Save the process with the updated properties; enable recursive delete flag
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
             defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 

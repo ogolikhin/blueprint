@@ -290,7 +290,7 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
-        public List<IProcessShape> GetProcessesShapesByShapeType(ProcessShapeType processShapeType)
+        public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
         {
             return Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues[PropertyTypeName.clientType.ToString()].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(processShapeType, CultureInfo.CurrentCulture))).ConvertAll(o => (IProcessShape)o);
         }

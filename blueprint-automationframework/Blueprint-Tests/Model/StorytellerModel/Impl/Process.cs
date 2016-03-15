@@ -61,6 +61,8 @@ namespace Model.StorytellerModel.Impl
 
         private const string UserDecisionNamePrefix = "UD";
 
+        private const string SystemDecisionNamePrefix = "SD";
+
         #endregion Constants
 
         #region Private Properties
@@ -160,35 +162,6 @@ namespace Model.StorytellerModel.Impl
             return userTask;
         }
 
-        public IProcessShape AddUserDecisionPoint(ProcessLink processLink)
-        {
-            ThrowIf.ArgumentNull(processLink, nameof(processLink));
-
-            // Get the destination Id of the process link
-            var destinationId = processLink.DestinationId;
-
-            // Add a user decision point
-            // Using non-default values to ensure values are saved
-            var userDecisionPoint = CreateUserDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
-            Shapes.Add((ProcessShape)userDecisionPoint);
-
-            // Modify the destination id of the link preceding the insertion point of the new task so
-            // that the destination now points to the new user task
-            // Note: Maintains existing order index
-            processLink.DestinationId = userDecisionPoint.Id;
-
-            // Add a new link after the new user decision point
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = userDecisionPoint.Id
-            });
-
-            return userDecisionPoint;
-        }
-
         public IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
         {
             // Find the incoming link for the next shape
@@ -242,7 +215,7 @@ namespace Model.StorytellerModel.Impl
             }
             else
             {
-                // branch endpoint id the id of the branch merge point if the branch merge point is not null
+                // branch endpoint is the id of the branch merge point if the branch merge point is not null
                 branchEndPointId = (int)idOfBranchMergePoint;
             }
 
@@ -263,6 +236,37 @@ namespace Model.StorytellerModel.Impl
             AddBranchWithUserTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
 
             return userDecisionPoint;
+        }
+
+        public IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
+        {
+            // Find the outgoing link for the next system taskshape
+            var outgoingProcessLink = GetOutgoingLinkForShape(idOfNextSystemTaskShape);
+
+            // Determine the artifact Id of the branch end point
+            int branchEndPointId;
+
+            if (idOfBranchMergePoint == null)
+            {
+                // branch endpoint is the process link destination id if the branch merge point is null
+                branchEndPointId = outgoingProcessLink.DestinationId;
+            }
+            else
+            {
+                // branch endpoint is the id of the branch merge point if the branch merge point is not null
+                branchEndPointId = (int)idOfBranchMergePoint;
+            }
+
+            // Find the incoming link for the next system taskshape
+            var incomingProcessLink = GetIncomingLinkForShape(idOfNextSystemTaskShape);
+
+            // Add user decision point before next shape
+            var systemDecisionPoint = AddSystemDecisionPoint(incomingProcessLink);
+
+            // Add new branch to system decision point
+            AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+
+            return systemDecisionPoint;
         }
 
         public IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
@@ -357,7 +361,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
-        /// <returns>A new user task</returns>
+        /// <returns>The new user task</returns>
         private IProcessShape CreateUserTask(string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
             // Create a user task
@@ -412,7 +416,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="x">The x coordinate of the user task</param>
         /// <param name="y">The y coordinate of the user task</param>
         /// <param name="storyLinkId">The id of the linked user story</param>
-        /// <returns>A new system task</returns>
+        /// <returns>The new system task</returns>
         private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
             // Create a system task
@@ -467,13 +471,13 @@ namespace Model.StorytellerModel.Impl
         /// <summary>
         /// Create a User Decision Point
         /// </summary>
-        /// <param name="itemLabel">The item label of the user task</param>
-        /// <param name="associatedArtifact">The include of the user task</param>
-        /// <param name="width">The width of the user task</param>
-        /// <param name="height">The height of the user task</param>
-        /// <param name="x">The x coordinate of the user task</param>
-        /// <param name="y">The y coordinate of the user task</param>
-        /// <returns>A new user decision point</returns>
+        /// <param name="itemLabel">The item label of the user decision point</param>
+        /// <param name="associatedArtifact">The include of the user decision point</param>
+        /// <param name="width">The width of the user decision point</param>
+        /// <param name="height">The height of the user decision point</param>
+        /// <param name="x">The x coordinate of the user decision pointtask</param>
+        /// <param name="y">The y coordinate of the user decision point</param>
+        /// <returns>The new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(string itemLabel, ArtifactPathLink associatedArtifact, double width, double height, int x, int y)
         {
             // Create a user decision point
@@ -489,6 +493,33 @@ namespace Model.StorytellerModel.Impl
                 });
 
             return userDecisionPoint;
+        }
+
+        /// <summary>
+        /// Create a System Decision Point
+        /// </summary>
+        /// <param name="itemLabel">The item label of the system decision point</param>
+        /// <param name="associatedArtifact">The include of the system decision point</param>
+        /// <param name="width">The width of the system decision point</param>
+        /// <param name="height">The height of the system decision point</param>
+        /// <param name="x">The x coordinate of the system decision pointtask</param>
+        /// <param name="y">The y coordinate of the system decision point</param>
+        /// <returns>The new system decision point</returns>
+        private IProcessShape CreateSystemDecisionPoint(string itemLabel, ArtifactPathLink associatedArtifact, double width, double height, int x, int y)
+        {
+            // Create a system decision point
+            var systemDecisionPoint = CreateProcessShape(ProcessShapeType.SystemDecision, SystemDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+
+            systemDecisionPoint.PropertyValues.Add(LinkLabels,
+                new PropertyValueInformation
+                {
+                    PropertyName = LinkLabels,
+                    TypePredefined = PropertyTypePredefined.None,
+                    TypeId = GetPropertyNameTypeId(LinkLabels),
+                    Value = null
+                });
+
+            return systemDecisionPoint;
         }
 
         /// <summary>
@@ -597,6 +628,120 @@ namespace Model.StorytellerModel.Impl
                 );
 
             return processShape;
+        }
+
+        /// <summary>
+        /// Add a User Decision Point to the Process
+        /// </summary>
+        /// <param name="processLink">The process link where the user decision point will be added</param>
+        /// <returns>The user decision point that was added</returns>
+        private IProcessShape AddUserDecisionPoint(ProcessLink processLink)
+        {
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            // Get the destination Id of the process link
+            var destinationId = processLink.DestinationId;
+
+            // Add a user decision point
+            // Using non-default values to ensure values are saved
+            var userDecisionPoint = CreateUserDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
+            Shapes.Add((ProcessShape)userDecisionPoint);
+
+            // Modify the destination id of the link preceding the insertion point of the new task so
+            // that the destination now points to the new user task
+            // Note: Maintains existing order index
+            processLink.DestinationId = userDecisionPoint.Id;
+
+            // Add a new link after the new user decision point
+            Links.Add(new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = 1,
+                SourceId = userDecisionPoint.Id
+            });
+
+            return userDecisionPoint;
+        }
+
+        /// <summary>
+        /// Add a System Decision Point to the Process
+        /// </summary>
+        /// <param name="processLink">The process link where the system decision point will be added</param>
+        /// <returns>The system decision point that was added</returns>
+        private IProcessShape AddSystemDecisionPoint(ProcessLink processLink)
+        {
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            // Get the destination Id of the process link
+            var destinationId = processLink.DestinationId;
+
+            // Add a system decision point
+            // Using non-default values to ensure values are saved
+            var userDecisionPoint = CreateSystemDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
+            Shapes.Add((ProcessShape)userDecisionPoint);
+
+            // Modify the destination id of the link preceding the insertion point of the new task so
+            // that the destination now points to the new user task
+            // Note: Maintains existing order index
+            processLink.DestinationId = userDecisionPoint.Id;
+
+            // Add a new link after the new user decision point
+            Links.Add(new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = 1,
+                SourceId = userDecisionPoint.Id
+            });
+
+            return userDecisionPoint;
+        }
+
+        /// <summary>
+        /// Add a System Task to the Process
+        /// </summary>
+        /// <param name="processLink">The process link where the system task will be added</param>
+        private void AddSystemTask(ProcessLink processLink)
+        {
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            // Get the destination Id of the process link
+            var destinationId = processLink.DestinationId;
+
+            // Add a system task
+            // Using non-default values to ensure values are saved
+            var systemTask = CreateSystemTask(null, "NewSystem", "Objective", null, null, 120.0, 160.0, 5, 10);
+            Shapes.Add((ProcessShape)systemTask);
+
+            // Modify the destination id of the link preceding the insertion point of the new task so
+            // that the destination now points to the new user task
+            // Note: Maintains existing order index
+            processLink.DestinationId = systemTask.Id;
+
+            // Add a new link between the new system task and the destination
+            Links.Add(new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = 1,
+                SourceId = systemTask.Id
+            });
+        }
+
+        /// <summary>
+        /// Add a Branch to a System Decision Point
+        /// </summary>
+        /// <param name="decisionPointId">Artifact Id of the system decision point</param>
+        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="destinationId">The artifact Id of the following process shape</param>
+        private void AddBranchWithSystemTaskToSystemDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
+        {
+            // Add a process link to the system decision point
+            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
+
+            // Add a system task to the branch and return the system task shape object
+            AddSystemTask(processLink);
         }
 
         /// <summary>

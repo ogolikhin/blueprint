@@ -148,13 +148,6 @@ namespace Model.StorytellerModel
         IProcessShape AddUserTask(ProcessLink processLink);
 
         /// <summary>
-        /// Add a User Decision Point to the Process
-        /// </summary>
-        /// <param name="processLink">The process link where the user decision point will be added</param>
-        /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPoint(ProcessLink processLink);
-
-        /// <summary>
         /// Add a Branch to a User Decision Point
         /// </summary>
         /// <param name="decisionPointId">Artifact Id of the user decision point</param>
@@ -189,6 +182,15 @@ namespace Model.StorytellerModel
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The user decision point that was added</returns>
         IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+
+        /// <summary>
+        /// Add a System Decision Point with a Branch Before an Existing System Task
+        /// </summary>
+        /// <param name="idOfNextSystemTaskShape">The artifact Id of the system task after the insertion point</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
+        /// <returns>The system decision point that was added</returns>
+        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Get the Process Shape by the Shape Name

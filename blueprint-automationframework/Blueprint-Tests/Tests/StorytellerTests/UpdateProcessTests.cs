@@ -24,7 +24,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private IFileStore _filestore;
-        private bool deleteChildren = false;
+        private bool _deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -61,7 +61,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
                 }
             }
 
@@ -445,7 +445,7 @@ namespace StorytellerTests
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
-            deleteChildren = true;
+            _deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -468,7 +468,7 @@ namespace StorytellerTests
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
-            deleteChildren = true;
+            _deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -491,7 +491,7 @@ namespace StorytellerTests
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
-            deleteChildren = true;
+            _deleteChildren = true;
 
             // Add include to default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
@@ -539,7 +539,7 @@ namespace StorytellerTests
             defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             addedProcessArtifact.Publish(_user);
-            deleteChildren = true;
+            _deleteChildren = true;
 
             // Assert that the Default Precondition SystemTask contains value
             string updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();

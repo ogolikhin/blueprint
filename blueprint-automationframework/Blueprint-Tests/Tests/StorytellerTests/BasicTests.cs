@@ -17,6 +17,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private IOpenApiArtifact _artifact;
+        private bool _deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -44,15 +45,15 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            // XXX: This is commented out because it will fail since we didn't publish any artifacts.  Need to implement a DiscardChanges() method instead.
-            //            if (_storyteller.Artifacts != null)
-            //            {
-            // Delete all the artifacts that were added.
-            //                foreach (var artifact in _storyteller.Artifacts)
-            //                {
-            //                    _storyteller.DeleteProcessArtifact(artifact, _user);
-            //                }
-            //            }
+            if (_storyteller.Artifacts != null)
+            {
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                }
+            }
 
             if (_artifact != null)
             {

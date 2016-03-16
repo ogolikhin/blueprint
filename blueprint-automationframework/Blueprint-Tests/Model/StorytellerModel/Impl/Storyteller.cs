@@ -274,12 +274,6 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>
-            {
-                {"Accept", "application/json"}
-            };
-
-
             var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
@@ -287,7 +281,6 @@ namespace Model.StorytellerModel.Impl
             var restResponse = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
-                additionalHeaders: additionalHeaders,
                 bodyObject: (Process)process,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);

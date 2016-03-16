@@ -81,7 +81,7 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, 1, 2, ProcessType.BusinessProcess)]
+        [TestCase(5, 4, 1, 2)]
         [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
                      "returned process has the same Id as the process artifact Id and that the numbers of " +
                      "shapes, links, artifact path links and property values are as expected.")]
@@ -89,8 +89,7 @@ namespace StorytellerTests
             int defaultShapesCount, 
             int defaultLinksCount, 
             int defaultArtifactPathLinksCount, 
-            int defaultPropertyValuesCount, 
-            ProcessType processType)
+            int defaultPropertyValuesCount)
         {
             var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 

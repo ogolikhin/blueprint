@@ -62,7 +62,7 @@ namespace StorytellerTests
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
-                }
+            }
             }
 
             if (_adminStore != null)
@@ -514,10 +514,8 @@ namespace StorytellerTests
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
-            // Create and publish Process artifact; enable delete flag
-            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
-            addedProcessArtifact.Publish(_user);
-            deleteChildren = true;
+            // Create a Process artifact
+            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);

@@ -108,8 +108,9 @@
   font-weight: 900;
   font-style: italic;
 }
-html, body {
+
+html,
+body {
   font-family: $font-family-base;
   font-size: $font-size-root;
-  height: 100%;
 }

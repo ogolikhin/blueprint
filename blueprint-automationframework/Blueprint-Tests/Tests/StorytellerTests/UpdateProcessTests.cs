@@ -443,7 +443,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             _deleteChildren = true;
 
@@ -466,7 +466,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             _deleteChildren = true;
 
@@ -489,7 +489,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
-            var includedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             includedProcessArtifact.Publish(_user);
             _deleteChildren = true;
 
@@ -515,7 +515,7 @@ namespace StorytellerTests
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
         {
             // Create a Process artifact
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var addedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get default process
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
@@ -523,7 +523,7 @@ namespace StorytellerTests
             // Setup: create a file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            /// Uploading the file
+            // Uploading the file
             var uploadResult = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
             var deserialzedUploadResult = Deserialization.DeserializeObject<Storyteller.UploadResult>(uploadResult);

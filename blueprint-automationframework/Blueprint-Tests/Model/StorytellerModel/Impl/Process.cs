@@ -608,12 +608,12 @@ namespace Model.StorytellerModel.Impl
         /// get the Property Name Type Id
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
-        /// <returns>The type id of the property (nullable int)</returns>
+        /// <returns>The type id of the property (returns null if no such property type was found)</returns>
         private int? GetPropertyNameTypeId(string propertyName)
         {
             // Must convert first character of property name to lowercase in order to find the property in the 
             // default process
-            propertyName = propertyName.ToString(CultureInfo.InvariantCulture).LowerCaseFirstCharacter();
+            propertyName = propertyName.LowerCaseFirstCharacter();
 
             // Find the property with name propertyName
             var property = Shapes.Find(shape => shape.PropertyValues.ContainsKey(propertyName));

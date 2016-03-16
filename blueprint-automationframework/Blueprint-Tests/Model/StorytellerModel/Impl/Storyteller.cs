@@ -160,7 +160,7 @@ namespace Model.StorytellerModel.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
-        public int GetProcessTypeId(IUser user, IProject project)
+        public int GetProcessArtifactTypeId(IUser user, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             BaseArtifactType processTypeName = BaseArtifactType.Process;
@@ -333,7 +333,7 @@ namespace Model.StorytellerModel.Impl
             return artifactResult.Content;
         }
 
-        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));

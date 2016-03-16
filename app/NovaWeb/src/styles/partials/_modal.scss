@@ -1,9 +1,10 @@
 .modal-content {
   border: 0;
+  @include rounded-corners(0 0 4px 4px);
 }
 
 .modal-header {
-  @include rounded-corners(6px 6px 0 0);
+  @include rounded-corners(4px 4px 0 0);
   background-color: $brand-secondary;
 
   .modal-title {
@@ -12,7 +13,10 @@
 }
 
 .modal.in.nova-login {
+  margin: 0;
+
   .modal-dialog {
+    margin: 30px auto;
     width: 423px;
   }
 
@@ -27,7 +31,7 @@
   }
 
   .modal-footer {
-    @include rounded-corners(0 0 6px 6px);
+    @include rounded-corners(0 0 4px 4px);
     background: $gray-lightest;
     border-top: solid 1px $gray-lighter;
     color: $gray-light;

@@ -160,7 +160,7 @@ namespace Model.StorytellerModel.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
-        public int GetProcessTypeId(IUser user, IProject project)
+        public int GetProcessArtifactTypeId(IUser user, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             BaseArtifactType processTypeName = BaseArtifactType.Process;
@@ -250,14 +250,14 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 
-            var returnedProcess = restApi.SendRequestAndDeserializeObject<Process, Process>(
+            var updateProcessResult = restApi.SendRequestAndDeserializeObject<ProcessUpdateResult, Process>(
                 path,
                 RestRequestMethod.PATCH,
                 (Process)process,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
-            return returnedProcess;
+            return updateProcessResult.item;
         }
 
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -333,7 +333,7 @@ namespace Model.StorytellerModel.Impl
             return artifactResult.Content;
         }
 
-        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
@@ -420,6 +420,18 @@ namespace Model.StorytellerModel.Impl
         {
             public string guid { get; set; }
             public Uri uriToFile { get; set; }
+        }
+
+        public class ProcessUpdateResult : IUpdateResult<Process>
+        {
+            public IEnumerable<UpdateInformation> UpdateInfos
+            {
+                get; set;
+            }
+            public Process item
+            {
+                get; set;
+            }
         }
     }
 }

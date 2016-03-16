@@ -17,6 +17,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private IOpenApiArtifact _artifact;
+        private bool _deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -44,15 +45,15 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            // XXX: This is commented out because it will fail since we didn't publish any artifacts.  Need to implement a DiscardChanges() method instead.
-            //            if (_storyteller.Artifacts != null)
-            //            {
-            // Delete all the artifacts that were added.
-            //                foreach (var artifact in _storyteller.Artifacts)
-            //                {
-            //                    _storyteller.DeleteProcessArtifact(artifact, _user);
-            //                }
-            //            }
+            if (_storyteller.Artifacts != null)
+            {
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                }
+            }
 
             if (_artifact != null)
             {
@@ -80,7 +81,7 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, 1, 2, ProcessType.BusinessProcess)]
+        [TestCase(5, 4, 1, 2)]
         [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
                      "returned process has the same Id as the process artifact Id and that the numbers of " +
                      "shapes, links, artifact path links and property values are as expected.")]
@@ -88,8 +89,7 @@ namespace StorytellerTests
             int defaultShapesCount, 
             int defaultLinksCount, 
             int defaultArtifactPathLinksCount, 
-            int defaultPropertyValuesCount, 
-            ProcessType processType)
+            int defaultPropertyValuesCount)
         {
             var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 

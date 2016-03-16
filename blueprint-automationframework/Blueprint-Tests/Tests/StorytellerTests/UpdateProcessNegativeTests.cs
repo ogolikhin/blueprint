@@ -112,7 +112,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
@@ -169,7 +169,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process

@@ -17,7 +17,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private ISession _session;
-        private int defaultUserTaskCount = 1;
+        private int _defaultUserTaskCount = 1;
         private const int numberOfAdditionalUserTasks = 5;
         private bool _deleteChildren = false;
 
@@ -77,7 +77,7 @@ namespace StorytellerTests
             var userTasksOnProcess = _process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
-            Assert.That(userTasksOnProcess == defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", defaultUserTaskCount, userTasksOnProcess);
+            Assert.That(userTasksOnProcess == _defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", _defaultUserTaskCount, userTasksOnProcess);
 
             Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
 
@@ -149,7 +149,7 @@ namespace StorytellerTests
         [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
-            int UserTaskExpectedCount = iteration + defaultUserTaskCount;
+            int UserTaskExpectedCount = iteration + _defaultUserTaskCount;
             if (UserTaskExpectedCount == int.MaxValue)
             {
                 throw new OverflowException("overflow exception");
@@ -255,7 +255,7 @@ namespace StorytellerTests
         [Description("Verify that Genearate UserStories updates user stories if there are existing user stories for user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_VerifyingUpdateFlagsForExistingUserStories(int iteration)
         {
-            var InitialUserTaskExpectedCount = iteration / 2 + defaultUserTaskCount;
+            var InitialUserTaskExpectedCount = iteration / 2 + _defaultUserTaskCount;
             var AdditionalUserTaskExpectedCount = iteration - (iteration/2);
 
             // Create an Process artifact
@@ -271,7 +271,7 @@ namespace StorytellerTests
             // Find outgoing process link for precondition task
             var processLink = _process.GetOutgoingLinkForShape(preconditionId);
 
-            for (int i = 0; i < InitialUserTaskExpectedCount - defaultUserTaskCount; i++)
+            for (int i = 0; i < InitialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
                 processLink = _process.GetOutgoingLinkForShape(_process.GetOutgoingLinkForShape(userTask.Id).DestinationId);

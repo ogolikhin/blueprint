@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
+    <Compile Include="IUpdateResult.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />

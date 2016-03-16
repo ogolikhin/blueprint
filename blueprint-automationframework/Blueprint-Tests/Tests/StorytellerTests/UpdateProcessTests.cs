@@ -62,7 +62,7 @@ namespace StorytellerTests
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
-            }
+                }
             }
 
             if (_adminStore != null)

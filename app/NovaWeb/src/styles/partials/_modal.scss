@@ -1,10 +1,10 @@
 .modal-content {
   border: 0;
-  @include rounded-corners(0 0 4px 4px);
+  @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
 }
 
 .modal-header {
-  @include rounded-corners(4px 4px 0 0);
+  @include rounded-corners($border-radius-amount $border-radius-amount 0 0);
   background-color: $brand-secondary;
 
   .modal-title {
@@ -28,10 +28,43 @@
 
   .modal-body {
     padding: 11px 56px;
+
+    .nova-login-message {
+      box-sizing: content-box;
+      font-size: $font-size-smallest;
+      height: 3em;
+      padding: 17px 0;
+      text-align: center;
+
+      &.error {
+        color: $brand-error;
+      }
+    }
+
+    .nova-forgot-password {
+      margin-top: -12px;
+
+      a {
+        color: $gray;
+        font-size: $font-size-smallest;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: $brand-secondary;
+        text-decoration: underline;
+      }
+    }
+
+    .nova-login-to {
+      color: $brand-secondary;
+      font-size: $font-size-smallest;
+      margin-top: 4px;
+    }
   }
 
   .modal-footer {
-    @include rounded-corners(0 0 4px 4px);
+    @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
     background: $gray-lightest;
     border-top: solid 1px $gray-lighter;
     color: $gray-light;

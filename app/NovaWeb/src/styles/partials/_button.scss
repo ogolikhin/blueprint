@@ -1,0 +1,16 @@
+button.btn {
+  @include rounded-corners(3px);
+}
+
+.btn-primary {
+  background-color: $brand-secondary;
+  border: $brand-secondary;
+  color: $white;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken($brand-secondary, 10%);
+    border: darken($brand-secondary, 10%);
+  }
+}

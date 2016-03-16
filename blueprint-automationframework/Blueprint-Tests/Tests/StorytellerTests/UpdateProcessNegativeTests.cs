@@ -19,7 +19,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        //private bool deleteChildren = false;
+        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -47,7 +47,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
@@ -169,7 +169,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process

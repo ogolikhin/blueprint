@@ -69,7 +69,7 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to get the artifact type Id</param>
         /// <param name="project">The project from which the artifact type is retrieved</param>
         /// <returns>The Id of process artifact type</returns>
-        int GetProcessTypeId(IUser user, IProject project);
+        int GetProcessArtifactTypeId(IUser user, IProject project);
 
         /// <summary>
         /// Get a Process Artifact from a Breadcrumb Trail
@@ -94,10 +94,10 @@ namespace Model.StorytellerModel
         IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Update a File
+        /// Upload a File
         /// </summary>
-        /// <param name="user">The user credentials for the request to update the file</param>
-        /// <param name="file">The file to update</param>
+        /// <param name="user">The user credentials for the request to upload the file</param>
+        /// <param name="file">The file to upload</param>
         /// <param name="expireDate">(optional) Expected expire date for the file</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
@@ -115,7 +115,8 @@ namespace Model.StorytellerModel
         IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Update a Process but only return the JSON response as a string
+        /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object
+        /// is expected - i.e. when testing a negative case where an error message is expected rather than a process object)
         /// </summary>
         /// <param name="user">The user credentials for the request to update a process</param>
         /// <param name="process">The process to update</param>
@@ -125,7 +126,7 @@ namespace Model.StorytellerModel
         string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Publish a Process
+        /// Publish a Process Artifact (Used when publishing a single process artifact)
         /// </summary>
         /// <param name="user">The user credentials for the request to publish a process</param>
         /// <param name="process">The process to publish</param>
@@ -133,16 +134,16 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Publish Process Artifact(s)
+        /// Publish Process Artifact(s) (Used when publishing a single process artifact OR a list of process artifacts)
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish processes request</returns>
+        /// <returns>The list of PublishArtifactResult objects created by the publish process artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 

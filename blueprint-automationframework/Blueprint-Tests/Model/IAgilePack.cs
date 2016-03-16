@@ -1,4 +1,5 @@
-﻿
+﻿using Model.OpenApiModel;
+
 namespace Model
 {
     public enum MoSCoW

@@ -7,7 +7,7 @@ using System.Globalization;
 using Model.Factories;
 using Utilities;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.Impl
 {
         public class OpenApiProperty : IOpenApiProperty
     {

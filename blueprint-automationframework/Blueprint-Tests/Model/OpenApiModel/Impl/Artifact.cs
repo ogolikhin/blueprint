@@ -8,7 +8,7 @@ using System.Globalization;
 using Utilities;
 using Utilities.Facades;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.Impl
 {
     public class ArtifactBase : IArtifactBase
     {

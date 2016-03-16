@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using CustomAttributes;
 using Model;
+using Model.OpenApiModel;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
+using Model.OpenApiModel;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Factories;

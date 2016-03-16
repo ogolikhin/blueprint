@@ -74,6 +74,30 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and Get the Default Process
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcess(IStoryteller storyteller, IProject project, IUser user)
+        {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create default process artifact
+            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+
+            // Get default process
+            var returnedProcess = storyteller.GetProcess(user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The process returned from GetProcess() was null.");
+
+            return returnedProcess;
+        }
+
+        /// <summary>
         /// Updates and verifies the processes returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>

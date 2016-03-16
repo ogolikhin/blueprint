@@ -273,17 +273,19 @@ namespace Model.Impl
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
             if (deleteChildren)
+            {
                 path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
+            }
 
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
             additionalHeaders.Add("Accept", "application/json");
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
 
             foreach (var deletedArtifact in artifactResults)
             {
-                Logger.WriteDebug("DELETE {0} returned followings: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
+                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
             }
             return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }

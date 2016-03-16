@@ -1,12 +1,132 @@
-body{
-  padding-top: 50px;
+@import 'modules/normalize';
+@import 'modules/variables';
+@import 'modules/mixins';
+@import 'modules/animations';
+@import 'modules/typography';
+
+body {
+  background-color: #f4f4f4;
+  background-image: url('images/bp_logo_gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  background-repeat: no-repeat, no-repeat;
+  background-position: center 44%, top;
+  background-size: 84%, 100%;
 }
 
-[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-  display: none !important;
+@import 'partials/modal';
+@import 'partials/form';
+
+.app-loading {
+  color: $gray-light;
+  font-size: $font-size-bigger;
+  padding: 32px;
+  text-align: center;
+  width: 100%;
+}
+/////////////////////////////////////////
+
+//sidebar
+$sidebar-size: 250px;
+
+#wrapper {
+  padding-left: $sidebar-size;
+  padding-right: $sidebar-size;
+  transition: all 0.4s ease 0s;
 }
 
-.nova-title {
-    font-size: large;
-    color: cornflowerblue;
+#sidebar-wrapper-left {
+  margin-left: -$sidebar-size;
+  left: $sidebar-size;
+  width: $sidebar-size;
+  background: rgba(247, 247, 247, 1);
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: all 0.4s ease 0s;
+}
+
+#sidebar-wrapper-right {
+  margin-right: -$sidebar-size;
+  right: $sidebar-size;
+  width: $sidebar-size;
+  background: rgba(247, 247, 247, 1);
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: all 0.4s ease 0s;
+}
+
+#wrapper.active-left {
+  padding-left: 0;
+}
+
+#wrapper.active-right {
+  padding-right: 0;
+}
+
+#wrapper.active-left #sidebar-wrapper-left {
+  left: 0;
+}
+
+#wrapper.active-right #sidebar-wrapper-right {
+  right: 0;
+}
+
+#page-content-wrapper {
+  width: 100%;
+}
+
+.content-header {
+  height: 65px;
+  line-height: 65px;
+}
+
+.content-header h1 {
+  margin: 0;
+  margin-left: 20px;
+  line-height: 65px;
+  display: inline-block;
+}
+
+#menu-toggle {
+  text-decoration: none;
+}
+
+.btn-menu {
+  color: #000;
+}
+
+.inset {
+  padding: 20px;
+}
+
+@media (max-width:767px) {
+
+  #wrapper {
+    padding-left: 0;
+  }
+
+  #sidebar-wrapper {
+    left: 0;
+  }
+
+  #wrapper.active {
+    position: relative;
+    left: $sidebar-size;
+  }
+
+  #wrapper.active #sidebar-wrapper {
+    left: $sidebar-size;
+    transition: all 0.4s ease 0s;
+    width: $sidebar-size;
+  }
+
+  #menu-toggle {
+    display: inline-block;
+  }
+
+  .inset {
+    padding: 15px;
+  }
 }

@@ -160,7 +160,7 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("Update an existing story link in a user task and execute UpdateProcess().  Verify that" +
+        [Description("Delete an existing story link in a user task and execute UpdateProcess().  Verify that" +
                      "the returned process maintains the original story link since story links can only be " +
                      "modified by GenerateUserStories().")]
         public void DeleteStorylinkFromUserTask_VerifyReturnedProcessHasStoryLink()

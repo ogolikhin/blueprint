@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Model
 {
@@ -19,8 +18,8 @@ namespace Model
     /// <typeparam name="T">The type of the item included in the update result</typeparam>
     public interface IUpdateResult<T> where T : class
     {
-        IEnumerable<UpdateInformation> UpdateInfos { get; set; } 
-        
+        IEnumerable<UpdateInformation> UpdateInfos { get; set; }
+
         T item { get; set; }
     }
 

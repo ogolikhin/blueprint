@@ -353,7 +353,7 @@ namespace StorytellerTests
 
         [TestCase]
         [Description("Add a new user decision point to a branch and verify that the returned process" +
-                     "conatins the new decision point, branch and 2 user tasks and has the correct properties.")]
+                     "has the new decision point, branch and 2 user tasks and has the correct properties.")]
         public void AddUserDecisionToBranch_VerifyReturnedProcess()
         {
             // Create and get the default process

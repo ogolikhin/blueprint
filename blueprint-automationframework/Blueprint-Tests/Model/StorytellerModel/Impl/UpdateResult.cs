@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Model
+namespace Model.StorytellerModel.Impl
 {
     /// <summary>
     /// Enumeration for Message Level Type
@@ -17,7 +17,7 @@ namespace Model
     /// A generic update result interface that allows for different result types to be included
     /// </summary>
     /// <typeparam name="T">The type of the result included in the update result</typeparam>
-    public interface IUpdateResult<T> where T : class
+    public class UpdateResult<T> where T : class
     {
         /// <summary>
         /// The list of messages returned by the update method

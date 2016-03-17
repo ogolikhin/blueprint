@@ -417,7 +417,7 @@ namespace Model.StorytellerModel.Impl
             public Uri uriToFile { get; set; }
         }
 
-        public class ProcessUpdateResult : IUpdateResult<Process>
+        public class ProcessUpdateResult : UpdateResult<Process>
         {
             public IEnumerable<OperationMessageResult> Messages
             {

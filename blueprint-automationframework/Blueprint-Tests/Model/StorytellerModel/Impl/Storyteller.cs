@@ -106,7 +106,7 @@ namespace Model.StorytellerModel.Impl
             return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
         }
 
-        public IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess GetProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -119,7 +119,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, id);
+            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
             if (versionIndex.HasValue)
             {
                 path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
@@ -170,10 +170,10 @@ namespace Model.StorytellerModel.Impl
                 projectId: project.Id);
         }
 
-        public IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public IProcess GetProcessWithBreadcrumb(IUser user, List<int> artifactIds, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(ids, nameof(ids));
+            ThrowIf.ArgumentNull(artifactIds, nameof(artifactIds));
 
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();
@@ -186,7 +186,7 @@ namespace Model.StorytellerModel.Impl
 
             var path = I18NHelper.FormatInvariant("{0}/processes", SVC_PATH);
 
-            foreach (var id in ids)
+            foreach (var id in artifactIds)
             {
                 path = I18NHelper.FormatInvariant("{0}/{1}", path, id);
             }
@@ -252,14 +252,14 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 
-            var returnedProcess = restApi.SendRequestAndDeserializeObject<Process, Process>(
+            var updateProcessResult = restApi.SendRequestAndDeserializeObject<ProcessUpdateResult, Process>(
                 path,
                 RestRequestMethod.PATCH,
                 (Process)process,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
-            return returnedProcess;
+            return updateProcessResult.item;
         }
 
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -276,12 +276,6 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>
-            {
-                {"Accept", "application/json"}
-            };
-
-
             var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
@@ -289,7 +283,6 @@ namespace Model.StorytellerModel.Impl
             var restResponse = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
-                additionalHeaders: additionalHeaders,
                 bodyObject: (Process)process,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
@@ -422,6 +415,18 @@ namespace Model.StorytellerModel.Impl
         {
             public string guid { get; set; }
             public Uri uriToFile { get; set; }
+        }
+
+        public class ProcessUpdateResult : IUpdateResult<Process>
+        {
+            public IEnumerable<UpdateInformation> UpdateInfos
+            {
+                get; set;
+            }
+            public Process item
+            {
+                get; set;
+            }
         }
     }
 }

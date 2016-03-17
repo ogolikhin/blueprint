@@ -146,6 +146,7 @@
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />
     <Compile Include="IUIMockup.cs" />
+    <Compile Include="IUpdateResult.cs" />
     <Compile Include="IUseCase.cs" />
     <Compile Include="IUseCaseDiagram.cs" />
     <Compile Include="IUser.cs" />

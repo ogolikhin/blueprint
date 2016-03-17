@@ -101,16 +101,20 @@ namespace Utilities.Facades
                 request.AddHeader("Session-Token", _token);     // This is for new AccessControl.
             }
 
-            if (additionalHeaders != null)
+            if (additionalHeaders == null)
             {
-                foreach (var header in additionalHeaders)
-                {
-                    // First if the header already exists, remove it so we can replace it.
-                    request.Parameters.RemoveAll(p => { return (p.Name == header.Key); });
+                additionalHeaders = new Dictionary<string, string>();
+            }
 
-                    Logger.WriteTrace("**** Adding additional header '{0}'.", header.Key);
-                    request.AddHeader(header.Key, header.Value);
-                }
+            additionalHeaders.Add("Accept", "application/json");
+
+            foreach (var header in additionalHeaders)
+            {
+                // First if the header already exists, remove it so we can replace it.
+                request.Parameters.RemoveAll(p => { return (p.Name == header.Key); });
+
+                Logger.WriteTrace("**** Adding additional header '{0}'.", header.Key);
+                request.AddHeader(header.Key, header.Value);
             }
 
             if (queryParameters != null)
@@ -328,13 +332,6 @@ namespace Utilities.Facades
             where T2 : new()
         {
             var client = new RestClient(_baseUri);
-
-            if (additionalHeaders == null)
-            {
-                additionalHeaders = new Dictionary<string, string>();
-            }
-
-            additionalHeaders.Add("Accept", "application/json");
 
             var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
 

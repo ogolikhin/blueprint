@@ -25,10 +25,10 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Create Multiple Process Artifacts
         /// </summary>
-        /// <param name="project">The project where the process artifact is to be added</param>
+        /// <param name="project">The project where the process artifacts are to be added</param>
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
         /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
-        /// <returns>THe list of the created artifact objects</returns>
+        /// <returns>The list of the created artifact objects</returns>
         List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
@@ -46,12 +46,12 @@ namespace Model.StorytellerModel
         /// Get a Process
         /// </summary>
         /// <param name="user">The user credentials for the request to get a process</param>
-        /// <param name="id">Id of the process artifact from which the process is obtained</param>
+        /// <param name="artifactId">Id of the process artifact from which the process is obtained</param>
         /// <param name="versionIndex">(optional) The version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The requested process object</returns>
-        IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IProcess GetProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Get a List of Processes for the specified Project Id
@@ -76,12 +76,12 @@ namespace Model.StorytellerModel
         /// Get a Process Artifact from a Breadcrumb Trail
         /// </summary>
         /// <param name="user">The user credentials for the request to get the process artifact</param>
-        /// <param name="ids">The Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
+        /// <param name="artifactIds">The Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
         /// <param name="versionIndex">(optional) The version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The requested process artifact</returns>
-        IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IProcess GetProcessWithBreadcrumb(IUser user, List<int> artifactIds, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Get the User Story Artifact Type for the Project

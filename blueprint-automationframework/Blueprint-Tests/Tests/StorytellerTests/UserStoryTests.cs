@@ -257,7 +257,6 @@ namespace StorytellerTests
             // Get the process artifact
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
-
             // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts
             var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
 
@@ -275,6 +274,9 @@ namespace StorytellerTests
 
             // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
+
+            // Get the process artifact
+            process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // User Stories from the Process artifact
             List<IStorytellerUserStory> userStoriesFirstBatch = _storyteller.GenerateUserStories(_user, process);
@@ -298,6 +300,9 @@ namespace StorytellerTests
 
             // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
+
+            // Get the process artifact
+            process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // enable recursive delete flag
             _deleteChildren = true;

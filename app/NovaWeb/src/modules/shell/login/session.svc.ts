@@ -78,6 +78,8 @@ export class SessionSvc implements ISession {
 
 export class LoginCtrl {
 
+
+
     static $inject: [string] = ["$uibModalInstance", "auth", '$scope'];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $scope: ng.IScope) {
         this.$scope["errorMsg"] = "Please enter your Username and Password";
@@ -86,8 +88,39 @@ export class LoginCtrl {
     public login(): void {
         this.auth.login(this.$scope.$eval('novaUsername'), this.$scope.$eval('novaPassword'), true).then(
             (user) => {
+                this.removeClass("error", document.getElementById("message-error"));
+                this.removeClass("error", document.getElementById("nova-username-div"));
+                this.removeClass("error", document.getElementById("nova-password-div"));
                 this.$uibModalInstance.close(user);
             },
-            (error) => this.$scope["errorMsg"] = error.message); 
+            (error) => {
+                if (error.errorCode === 2000) {
+                    this.$scope["errorMsg"] = "Please enter a correct Username and Password";
+                    this.addClass("error",document.getElementById("message-error"));
+                    this.addClass("error",document.getElementById("nova-username-div"));
+                    this.addClass("error",document.getElementById("nova-password-div"));
+                } else if (error.errorCode === 2001) {
+                    this.$scope["errorMsg"] = "Your account has been disabled. <br>Please contact your administrator.";
+                    this.addClass("error", document.getElementById("message-error"));
+                    this.removeClass("error", document.getElementById("nova-username-div"));
+                    this.removeClass("error", document.getElementById("nova-password-div"));
+                } else {
+                    this.$scope["errorMsg"] = error.message;
+                    this.addClass("error", document.getElementById("message-error"));
+                    this.addClass("error", document.getElementById("nova-username-div"));
+                    this.addClass("error", document.getElementById("nova-password-div"));
+                }
+                
+            });
+     
+    }
+
+    private addClass(className: string, element: any) {
+        element.className = element.className.replace(className, "");
+        element.className += " " + className;
+    }
+
+    private removeClass(className: string, element: any) {
+        element.className = element.className.replace(" " + className, "");
     }
 }

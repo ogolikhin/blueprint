@@ -10,7 +10,8 @@ angular.module("app.shell",
     [
         "app.core",
         "ui.router",
-        "ui.bootstrap"
+        "ui.bootstrap",
+        "ngSanitize"
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)

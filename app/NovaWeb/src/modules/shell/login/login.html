@@ -1,12 +1,12 @@
 ﻿<div class="modal-header"></div>
 <div class="modal-body">
     <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
-    <div class="nova-login-message error"><span ng-bind="errorMsg"></span></div>
-    <div class="nova-form-group nova-floating-label">
+    <div class="nova-login-message" id="message-error"><span ng-bind-html="errorMsg"></span></div>
+    <div class="nova-form-group nova-floating-label" id="nova-username-div">
         <input type="text" class="nova-form-control required" ng-class="{'input-is-dirty': novaLoginForm.novaUsername.$dirty }" id="nova-username" name="novaUsername" ng-model="novaUsername">
         <label for="nova-username" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
     </div>
-    <div class="nova-form-group nova-floating-label">
+    <div class="nova-form-group nova-floating-label" id="nova-password-div">
         <input type="password" class="nova-form-control required" ng-class="{'input-is-dirty': novaLoginForm.novaPassword.$dirty }" id="nova-password" name="novaPassword" ng-model="novaPassword">
         <label for="nova-password" class="nova-label"><i class="fonticon-lock"></i> Password</label>
     </div>

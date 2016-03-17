@@ -48,15 +48,19 @@ export class AuthSvc implements IAuth {
     }
 
     public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
+        var encUserName: string = userName ? AuthSvc.encode(userName) : "";
+        var encPassword: string = password ? AuthSvc.encode(password) : "";
+
         var deferred = this.$q.defer<IUser>();
 
-        this.$http.post<any>("/svc/adminstore/sessions/?login=" + AuthSvc.encode(userName) + "&force=" + overrideSession, angular.toJson(AuthSvc.encode(password)), this.createRequestConfig())
+        this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
             .success((token: string) => {
                 this.onTokenSuccess(token, deferred, false);
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: this.getLoginErrorMessage(err)
+                    message: this.getLoginErrorMessage(err),
+                    errorCode: err.ErrorCode
                 };
                 deferred.reject(error);
 

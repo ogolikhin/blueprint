@@ -1,7 +1,7 @@
 ﻿<div class="modal-header"></div>
 <div class="modal-body">
     <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
-    <div class="nova-login-message">Please enter your Username and Password</div>
+    <div class="nova-login-message error"><span ng-bind="errorMsg"></span></div>
     <div class="nova-form-group nova-floating-label">
         <input type="text" class="nova-form-control required" ng-class="{'input-is-dirty': novaLoginForm.novaUsername.$dirty }" id="nova-username" name="novaUsername" ng-model="novaUsername">
         <label for="nova-username" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>

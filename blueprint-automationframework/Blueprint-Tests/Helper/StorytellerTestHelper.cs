@@ -126,6 +126,8 @@ namespace Helper
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
             AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
+
+            storyteller.PublishProcessArtifact(user, processReturnedFromGet);
         }
 
         #endregion Public Methods

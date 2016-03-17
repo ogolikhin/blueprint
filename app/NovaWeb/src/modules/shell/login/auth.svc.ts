@@ -143,6 +143,7 @@ export class AuthSvc implements IAuth {
     private createRequestConfig(): ng.IRequestConfig {
         var config = <IHttpInterceptorConfig>{ ignoreInterceptor: true };
         config.headers = {};
+        //TODO: move the token injection somewhere more appropriate
         config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = SessionTokenHelper.getSessionToken();
         return config;
     }
@@ -151,6 +152,11 @@ export class AuthSvc implements IAuth {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
        
+        if (!requestConfig.headers) {
+            requestConfig.headers = {};
+        }
+        requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
+
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {

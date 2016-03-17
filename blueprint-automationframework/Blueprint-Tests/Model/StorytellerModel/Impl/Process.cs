@@ -270,6 +270,16 @@ namespace Model.StorytellerModel.Impl
             return systemDecisionPoint;
         }
 
+        public void AddBranchWithSystemTaskToSystemDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
+        {
+            // Add a process link to the system decision point
+            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
+
+            // Add a system task to the branch and return the system task shape object
+            AddSystemTask(processLink);
+        }
+
+
         public IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
         {
             // Add a process link to the user decision point
@@ -653,8 +663,8 @@ namespace Model.StorytellerModel.Impl
             var userDecisionPoint = CreateUserDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
             Shapes.Add((ProcessShape)userDecisionPoint);
 
-            // Modify the destination id of the link preceding the insertion point of the new task so
-            // that the destination now points to the new user task
+            // Modify the destination id of the link preceding the insertion point of the new user decision so
+            // that the destination now points to the new user decision
             // Note: Maintains existing order index
             processLink.DestinationId = userDecisionPoint.Id;
 
@@ -684,24 +694,24 @@ namespace Model.StorytellerModel.Impl
 
             // Add a system decision point
             // Using non-default values to ensure values are saved
-            var userDecisionPoint = CreateSystemDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
-            Shapes.Add((ProcessShape)userDecisionPoint);
+            var systemDecisionPoint = CreateSystemDecisionPoint("Objective", null, 120.0, 155.0, 10, 10);
+            Shapes.Add((ProcessShape)systemDecisionPoint);
 
-            // Modify the destination id of the link preceding the insertion point of the new task so
-            // that the destination now points to the new user task
+            // Modify the destination id of the link preceding the insertion point of the new system decision so
+            // that the destination now points to the new system decision
             // Note: Maintains existing order index
-            processLink.DestinationId = userDecisionPoint.Id;
+            processLink.DestinationId = systemDecisionPoint.Id;
 
-            // Add a new link after the new user decision point
+            // Add a new link after the new system decision point
             Links.Add(new ProcessLink
             {
                 DestinationId = destinationId,
                 Label = null,
                 Orderindex = 1,
-                SourceId = userDecisionPoint.Id
+                SourceId = systemDecisionPoint.Id
             });
 
-            return userDecisionPoint;
+            return systemDecisionPoint;
         }
 
         /// <summary>
@@ -733,21 +743,6 @@ namespace Model.StorytellerModel.Impl
                 Orderindex = 1,
                 SourceId = systemTask.Id
             });
-        }
-
-        /// <summary>
-        /// Add a Branch to a System Decision Point
-        /// </summary>
-        /// <param name="decisionPointId">Artifact Id of the system decision point</param>
-        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
-        /// <param name="destinationId">The artifact Id of the following process shape</param>
-        private void AddBranchWithSystemTaskToSystemDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
-        {
-            // Add a process link to the system decision point
-            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
-
-            // Add a system task to the branch and return the system task shape object
-            AddSystemTask(processLink);
         }
 
         /// <summary>

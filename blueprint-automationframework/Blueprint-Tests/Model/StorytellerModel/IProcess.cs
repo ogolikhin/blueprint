@@ -194,6 +194,14 @@ namespace Model.StorytellerModel
         IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
+        /// Add a Branch to a System Decision Point
+        /// </summary>
+        /// <param name="decisionPointId">Artifact Id of the system decision point</param>
+        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="destinationId">The artifact Id of the following process shape</param>
+        void AddBranchWithSystemTaskToSystemDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+
+        /// <summary>
         /// Get the Process Shape by the Shape Name
         /// </summary>
         /// <param name="shapeName">The shape name</param>

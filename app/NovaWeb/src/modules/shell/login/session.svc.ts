@@ -80,12 +80,14 @@ export class LoginCtrl {
 
     static $inject: [string] = ["$uibModalInstance", "auth", '$scope'];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $scope: ng.IScope) {
+        this.$scope["errorMsg"] = "Please enter your Username and Password";
     }
 
     public login(): void {
         this.auth.login(this.$scope.$eval('novaUsername'), this.$scope.$eval('novaPassword'), true).then(
             (user) => {
                 this.$uibModalInstance.close(user);
-            });
+            },
+            (error) => this.$scope["errorMsg"] = error.message); 
     }
 }

@@ -8,7 +8,13 @@ namespace CustomAttributes
         public const string AccessControl = "AccessControl";
         public const string AccessControlDouble = "AccessControlDouble";
         public const string AdminStore = "AdminStore";
+
+        /// <summary>
+        /// This test runs several operations in multiple threads.
+        /// </summary>
         public const string ConcurrentTest = "ConcurrentTest";
+
+        public const string ConfigControl = "ConfigControl";
         public const string Filestore = "Filestore";
 
         /// <summary>

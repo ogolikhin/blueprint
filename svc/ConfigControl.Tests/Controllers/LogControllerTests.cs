@@ -4,7 +4,15 @@ using ServiceLibrary.LocalLog;
 using Moq;
 using ServiceLibrary.Helpers;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Web.Http.Results;
+using ConfigControl.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ConfigControl.Controllers
 {
@@ -497,6 +505,65 @@ namespace ConfigControl.Controllers
         }
 
         #endregion
+
+
+
+        private IEnumerable<string> GetTestLogEntries()
+        {
+            return new List<string> {
+                "id,IpAddress,Source,FormattedMessage,MethodName,FilePath,LineNumber,StackTrace,InstanceName,ProviderId,ProviderName,EventId,EventKeywords,Level,Opcode,Task,Timestamp,Version,Payload,ActivityId,RelatedActivityId,ProcessId,ThreadId",
+                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,27144",
+                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,29172",
+                ",::1,,, [PROFILING], 0, 00000000-0000-0000-0000-000000000000, ,,,0,,BlueprintSys-Blueprint-Blueprint,2530ba0d-e71b-5cc1-54a7-f40c531356b0,BlueprintSys-Blueprint-PerformanceLog,500,0,5,0,65034,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime><CorrelationId>00000000-0000-0000-0000-000000000000</CorrelationId><Duration>0</Duration></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,15120"};
+        }
+
+        [TestMethod]
+        public void GetLog_WithTitle_Succsess()
+        {
+
+            // Arrange
+            var entries = GetTestLogEntries();
+            var length = entries.Sum(it => it.Length + Environment.NewLine.Length);
+            var mockLogRepository = new Mock<ILogRepository>();
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+
+            mockLogRepository.Setup(o => o.GetLogEntries(It.IsAny<int>(), It.IsAny<bool>())).Returns(entries);
+
+            // Act
+            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), true);
+
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(HttpContent));
+            Assert.AreEqual(length, result.Headers.ContentLength);
+            Assert.AreEqual("text/csv", result.Headers.ContentType.MediaType);
+            Assert.AreEqual("AdminStore.csv", result.Headers.ContentDisposition.FileName);
+
+        }
+
+        [TestMethod]
+        public void GetLog_NoTitle_Succsess()
+        {
+
+            // Arrange
+            var entries = GetTestLogEntries().Skip(1);
+            var length = entries.Sum(it => it.Length + Environment.NewLine.Length);
+            var mockLogRepository = new Mock<ILogRepository>();
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+
+            mockLogRepository.Setup(o => o.GetLogEntries(It.IsAny<int>(), It.IsAny<bool>())).Returns(entries);
+
+            // Act
+            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), false);
+
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(HttpContent));
+            Assert.AreEqual(length, result.Headers.ContentLength);
+            Assert.AreEqual("text/csv", result.Headers.ContentType.MediaType);
+            Assert.AreEqual("AdminStore.csv", result.Headers.ContentDisposition.FileName);
+
+        }
 
     }
 }

@@ -93,10 +93,20 @@ namespace ServiceLibrary.Helpers
             return Convert.ToString(value, CultureInfo.InvariantCulture);
         }
 
-        public static int ToInt32Invariant(object value)
+        public static int ToInt32Invariant(object value, int defValue = default(int))
         {
+            
             return Convert.ToInt32(value, CultureInfo.InvariantCulture);
         }
+
+        public static int ToInt32(this string value, int defValue = default(int))
+        {
+            int result;
+            if (Int32.TryParse(value, out result))
+                return result;
+            return defValue;
+        }
+
 
         #endregion Convert methods
     }

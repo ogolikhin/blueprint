@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Model;
-using Model.Impl;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Utilities;
 
@@ -11,6 +12,8 @@ namespace Helper
 {
     public static class StorytellerTestHelper
     {
+        #region Public Methods
+
         /// <summary>
         /// Asserts that the two Processes are identical.
         /// </summary>
@@ -71,12 +74,71 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and Get the Default Process
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcess(IStoryteller storyteller, IProject project, IUser user)
+        {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create default process artifact
+            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+
+            // Get default process
+            var returnedProcess = storyteller.GetProcess(user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The process returned from GetProcess() was null.");
+
+            return returnedProcess;
+        }
+
+        /// <summary>
+        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
+        /// </summary>
+        /// <param name="processToVerify">The process to verify</param>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="user">The user that updates the process</param>
+        public static void UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        {
+            ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Update the process using UpdateProcess
+            var processReturnedFromUpdate = storyteller.UpdateProcess(user, processToVerify);
+
+            Assert.IsNotNull(processReturnedFromUpdate, "UpdateProcess() returned a null process.");
+
+            // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
+            // Allow negative shape ids in the process being verified
+            AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
+
+            // Get the process using GetProcess
+            var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
+
+            Assert.IsNotNull(processReturnedFromGet, "GetPRocess() returned a null process.");
+
+            // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
+            // Don't allow and negative shape ids
+            AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        /// <summary>
         /// Assert that Process Artifact Path Links are equal
         /// </summary>
         /// <param name="artifactPathlink1">The first ArtifactPath Link</param>
         /// <param name="artifactPathlink2">The Artifact Path Link being compared to the first</param>
         /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
-        private static void AssertArtifactPathLinksAreEqual(IArtifactPathLink artifactPathlink1, IArtifactPathLink artifactPathlink2, bool doDeepCompare = true)
+        private static void AssertArtifactPathLinksAreEqual(ArtifactPathLink artifactPathlink1, ArtifactPathLink artifactPathlink2, bool doDeepCompare = true)
         {
             if ((artifactPathlink1 == null) || (artifactPathlink2 == null))
             {
@@ -104,8 +166,8 @@ namespace Helper
         /// </summary>
         /// <param name="propertyValue1">The first Property value</param>
         /// <param name="propertyValue2">The Property value being compared to the first</param>
-        private static void AssertPropertyValuesAreEqual(IPropertyValueInformation propertyValue1,
-            IPropertyValueInformation propertyValue2)
+        private static void AssertPropertyValuesAreEqual(PropertyValueInformation propertyValue1,
+            PropertyValueInformation propertyValue2)
         {
             Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match: {0} != {1}", propertyValue1.PropertyName, propertyValue2.PropertyName);
             Assert.AreEqual(propertyValue1.TypePredefined, propertyValue2.TypePredefined, "Property types do not match");
@@ -114,7 +176,7 @@ namespace Helper
             // Asserts story links only if not null
             if (propertyValue1.PropertyName == "StoryLinks" && propertyValue1.Value != null)
             {
-                AssertStoryLinksAreEqual((IStoryLink)propertyValue1.Value, (IStoryLink)propertyValue2.Value);
+                AssertStoryLinksAreEqual((StoryLink)propertyValue1.Value, (StoryLink)propertyValue2.Value);
             }
             // TODO: To be removed when link labels removed from backend model
             else if (propertyValue1.PropertyName != "LinkLabels")
@@ -132,11 +194,11 @@ namespace Helper
         {
             foreach (var link1 in process1.Links)
             {
-                IProcessLink link2 = new ProcessLink();
+                ProcessLink link2 = new ProcessLink();
 
                 if (link1.SourceId > 0 && link1.DestinationId > 0)
                 {
-                    link2 = FindProcessLink(link1, (List<ProcessLink>)process2.Links);
+                    link2 = FindProcessLink(link1, process2.Links);
                 }
                 // If the destination id is < 0, we find the name of the destination shape and 
                 // then locate this shape in the second process. We then replace the destination id
@@ -228,39 +290,11 @@ namespace Helper
         }
 
         /// <summary>
-        /// Capitalizes the First Character in a String
-        /// </summary>
-        /// <param name="valueToModify">The string to modify</param>
-        /// <returns>The modified string</returns>
-        public static string CapitalizeFirstCharacter(string valueToModify)
-        {
-            ThrowIf.ArgumentNull(valueToModify, nameof(valueToModify));
-
-            valueToModify = char.ToUpper(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
-
-            return valueToModify;
-        }
-
-        /// <summary>
-        /// Lowers  the Case of the First Character in a String
-        /// </summary>
-        /// <param name="valueToModify">The string to modify</param>
-        /// <returns>The modified string</returns>
-        public static string LowerCaseFirstCharacter(string valueToModify)
-        {
-            ThrowIf.ArgumentNull(valueToModify, nameof(valueToModify));
-
-            valueToModify = char.ToLower(valueToModify[0], CultureInfo.InvariantCulture) + valueToModify.Substring(1);
-
-            return valueToModify;
-        }
-
-        /// <summary>
         /// Assert that Story Links are equal
         /// </summary>
         /// <param name="link1">The first Story Link</param>
         /// <param name="link2">The Story Link being compared to the first</param>
-        private static void AssertStoryLinksAreEqual(IStoryLink link1, IStoryLink link2)
+        private static void AssertStoryLinksAreEqual(StoryLink link1, StoryLink link2)
         {
             Assert.AreEqual(link1.AssociatedReferenceArtifactId, link2.AssociatedReferenceArtifactId, "Link associated reference artifact ids do not match");
             Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
@@ -274,8 +308,8 @@ namespace Helper
         /// <param name="linkToFind">The artifact path link to find</param>
         /// <param name="linksToSearchThrough">The artifact path links to search through</param>
         /// <returns>The artifact path link that is found</returns>
-        private static IArtifactPathLink FindArtifactPathLink(IArtifactPathLink linkToFind,
-            IEnumerable<IArtifactPathLink> linksToSearchThrough)
+        private static ArtifactPathLink FindArtifactPathLink(ArtifactPathLink linkToFind,
+            IEnumerable<ArtifactPathLink> linksToSearchThrough)
         {
             var linkFound = linksToSearchThrough.ToList().Find(p => p.Id == linkToFind.Id);
 
@@ -306,7 +340,7 @@ namespace Helper
         /// <param name="linkToFind">The process link to find</param>
         /// <param name="linksToSearchThrough">The process links to search</param>
         /// <returns>The found process link</returns>
-        private static IProcessLink FindProcessLink(IProcessLink linkToFind,
+        private static ProcessLink FindProcessLink(ProcessLink linkToFind,
             List<ProcessLink> linksToSearchThrough)
         {
             var linkFound = linksToSearchThrough.Find(l => l.SourceId == linkToFind.SourceId && l.DestinationId == linkToFind.DestinationId);
@@ -325,6 +359,8 @@ namespace Helper
         private static IProcessShape FindProcessShapeByName(string shapeName,
             List<ProcessShape> shapesToSearchThrough)
         {
+            ThrowIf.ArgumentNull(shapesToSearchThrough, nameof(shapesToSearchThrough));
+
             var shapeFound = shapesToSearchThrough.Find(s => s.Name == shapeName);
 
             Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Name {0}", shapeName);
@@ -348,35 +384,6 @@ namespace Helper
             return shapeFound;
         }
 
-        /// <summary>
-        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
-        /// </summary>
-        /// <param name="processToVerify">The process to verify</param>
-        /// <param name="storyteller">The storyteller instance</param>
-        /// <param name="user">The user that updates the process</param>
-        public static void UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
-        {
-            ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
-            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            // Update the process using UpdateProcess
-            var processReturnedFromUpdate = storyteller.UpdateProcess(user, processToVerify);
-
-            Assert.IsNotNull(processReturnedFromUpdate, "The returned process was null.");
-
-            // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
-            // Allow negative shape ids in the process being verified
-            StorytellerTestHelper.AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
-
-            // Get the process using GetProcess
-            var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
-
-            Assert.IsNotNull(processReturnedFromGet, "The returned process was null.");
-
-            // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
-            // Don't allow and negative shape ids
-            StorytellerTestHelper.AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
-        }
+        #endregion Private Methods
     }
 }

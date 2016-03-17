@@ -2,9 +2,11 @@
 using System.Globalization;
 using System.Net;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using Model.Impl;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Utilities;
 
@@ -18,6 +20,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+        private bool _deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -41,12 +44,12 @@ namespace StorytellerTests
         {
              if (_storyteller.Artifacts != null)
             {
-                // TODO: Uncomment when new Publish Process is implemented
-                //Delete all the artifacts that were added.
-                //foreach (var artifact in _storyteller.Artifacts)
-                //{
-                //    _storyteller.DeleteProcessArtifact(artifact, _user);
-                //}
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                }
             }
 
             if (_adminStore != null)
@@ -69,16 +72,13 @@ namespace StorytellerTests
 
         #region Tests
 
-        [TestCase, Description("Remove name of process and verify returned validation error")]
+        [TestCase]
+        [Description("Clear the name of process and verify the returned process has a validation error" +
+                     "indicating that the process name is required.")]
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
-            // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
-
-            // Get default process
-            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Modify default process Name
             returnedProcess.Name = string.Empty;
@@ -93,22 +93,20 @@ namespace StorytellerTests
                 );
         }
 
-        [TestCase, Description("Update artifact with orphaned task and verify returned validation error")]
+        [TestCase]
+        [Description("Add an orphaned task to a process and verify the returned process has a validation error" +
+                     "indicating that an orphaned task was detected.  The validation error message includes" +
+                     "the sub-artifact Id of the orphaned task.")]
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
-            // Create default process
-            var addedProcessArtifact = _storyteller.CreateProcessArtifact(_project, BaseArtifactType.Process, _user);
-
-            // Get default process
-            var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(returnedProcess, "The returned process was null.");
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.FindProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.FindOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Remove the process link between the precondition and the default user task
             returnedProcess.Links.Remove((ProcessLink)processLink);

@@ -1,12 +1,12 @@
 ﻿using Common;
-using CustomAttributes;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 
 namespace StorytellerTests
 {
@@ -17,8 +17,9 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private ISession _session;
-        private int defaultUserTaskCount = 1;
+        private int _defaultUserTaskCount = 1;
         private const int numberOfAdditionalUserTasks = 5;
+        private bool _deleteChildren = false;
 
         #region SetUp and Teardown
         [SetUp]
@@ -41,6 +42,14 @@ namespace StorytellerTests
         [TearDown]
         public void TearDown()
         {
+            if (_storyteller.Artifacts != null)
+            {
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                }
+            }
             if (_user != null)
             {
                 _user.DeleteUser();
@@ -56,18 +65,19 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithDefaultUserTask_NumberOfUserTasksAndGeneratedUserStoriesAreEqual()
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
             
-            // Publish the Process artifact - using RestApi
+            // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
-            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues[PropertyTypeName.clientType.ToString()].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
-            Assert.That(userTasksOnProcess == defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", defaultUserTaskCount, userTasksOnProcess);
+            Assert.That(userTasksOnProcess == _defaultUserTaskCount, "The default number of UserTasks for the new Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", _defaultUserTaskCount, userTasksOnProcess);
 
             Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
 
@@ -85,10 +95,11 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
-            // Publish the Process artifact
+            // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -97,7 +108,7 @@ namespace StorytellerTests
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
 
             // Assert that there is only one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))))
+            foreach (IProcessShape shape in _process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)
@@ -124,7 +135,6 @@ namespace StorytellerTests
             }
         }
 
-
         [Test]
         [Description("Retrieve UserStoryArtifactType if Storyteller Pack is installed on the target Blueprint")]
         public void GetUserStoryArtifactType_ReceiveUserStoryArtifactType()
@@ -139,14 +149,14 @@ namespace StorytellerTests
         [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_NumberOfUserTasksAndUserStoriesAreEqual(int iteration)
         {
-            int UserTaskExpectedCount = iteration + defaultUserTaskCount;
+            int UserTaskExpectedCount = iteration + _defaultUserTaskCount;
             if (UserTaskExpectedCount == int.MaxValue)
             {
                 throw new OverflowException("overflow exception");
             }
 
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -155,24 +165,25 @@ namespace StorytellerTests
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
 
             // Find outgoing process link for precondition task
-            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+            var processLink = _process.GetOutgoingLinkForShape(preconditionId);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
-                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
+                processLink = _process.GetOutgoingLinkForShape(_process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
             _process = _storyteller.UpdateProcess(_user, _process);
 
-            // Publish the Process artifact - using RestApi
+            // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
 
-            var userTasksOnProcess = _process.Shapes.FindAll(p => (Convert.ToInt32(p.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))).Count;
+            var userTasksOnProcess = _process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Assert that the number of UserTasks the published process is equal to the number of UserTasks returned from GetProcess call
             Assert.That(userTasksOnProcess == UserTaskExpectedCount, "The number of UserTasks expected for the Process is {0} but The number of UserTasks returned from GetProcess call is {1}.", UserTaskExpectedCount, userTasksOnProcess);
@@ -193,7 +204,7 @@ namespace StorytellerTests
         public void UserStoryGenerationProcessWithMultipleUserTasks_UserTaskUserStoryMapping(int iteration)
         {
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -202,19 +213,20 @@ namespace StorytellerTests
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
 
             // Find outgoing process link for precondition task
-            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+            var processLink = _process.GetOutgoingLinkForShape(preconditionId);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
-                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
+                processLink = _process.GetOutgoingLinkForShape(_process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
             _process = _storyteller.UpdateProcess(_user, _process);
 
-            // Publish the Process artifact - using RestApi
+            // Publish the Process artifact; enable recursive delete flag
             _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
             _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -223,7 +235,7 @@ namespace StorytellerTests
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, _process);
 
             // Assert that there is one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in _process.Shapes.FindAll(s => (Convert.ToInt32(s.PropertyValues["clientType"].Value, CultureInfo.CurrentCulture) == Convert.ToInt32(ProcessType.UserToSystemProcess, CultureInfo.CurrentCulture))))
+            foreach (IProcessShape shape in _process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories)
@@ -243,11 +255,11 @@ namespace StorytellerTests
         [Description("Verify that Genearate UserStories updates user stories if there are existing user stories for user tasks for the process with multi user tasks")]
         public void UserStoryGenerationProcessWithMultipleUserTasks_VerifyingUpdateFlagsForExistingUserStories(int iteration)
         {
-            var InitialUserTaskExpectedCount = iteration / 2 + defaultUserTaskCount;
+            var InitialUserTaskExpectedCount = iteration / 2 + _defaultUserTaskCount;
             var AdditionalUserTaskExpectedCount = iteration - (iteration/2);
 
             // Create an Process artifact
-            var _processArtifact = _storyteller.CreateProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+            var _processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Get the process artifact
             var _process = _storyteller.GetProcess(_user, _processArtifact.Id);
@@ -257,18 +269,18 @@ namespace StorytellerTests
             var preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
             
             // Find outgoing process link for precondition task
-            var processLink = _process.FindOutgoingLinkForShape(preconditionId);
+            var processLink = _process.GetOutgoingLinkForShape(preconditionId);
 
-            for (int i = 0; i < InitialUserTaskExpectedCount - defaultUserTaskCount; i++)
+            for (int i = 0; i < InitialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
-                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
+                processLink = _process.GetOutgoingLinkForShape(_process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
             _process = _storyteller.UpdateProcess(_user, _process);
 
-            // Publish the Process artifact - using RestApi
+            // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
 
             // User Stories from the Process artifact
@@ -280,19 +292,22 @@ namespace StorytellerTests
             preconditionId = _process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
 
             // Find outgoing process link for precondition task
-            processLink = _process.FindOutgoingLinkForShape(preconditionId);
+            processLink = _process.GetOutgoingLinkForShape(preconditionId);
 
             for (int i = 0; i < AdditionalUserTaskExpectedCount; i++)
             {
                 var userTask = _process.AddUserTask(processLink);
-                processLink = _process.FindOutgoingLinkForShape(_process.FindOutgoingLinkForShape(userTask.Id).DestinationId);
+                processLink = _process.GetOutgoingLinkForShape(_process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
             // Update the process
             _process = _storyteller.UpdateProcess(_user, _process);
 
-            // Publish the Process artifact - using RestApi
+            // Publish the Process artifact
             _storyteller.PublishProcessArtifacts(_user);
+
+            // enable recursive delete flag
+            _deleteChildren = true;
 
             // User Stories from the Process artifact
             List<IStorytellerUserStory> userStories_SecondBatch = _storyteller.GenerateUserStories(_user, _process);

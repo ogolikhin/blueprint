@@ -1,3 +1,4 @@
+using Model.Impl;
 using System.Collections.Generic;
 using System.Net;
 
@@ -17,10 +18,10 @@ namespace Model
 
     public interface IOpenApiArtifact : IArtifactBase
     {
-        List<IOpenApiProperty> Properties { get; }
-        List<IOpenApiComment> Comments { get; }
-        List<IOpenApiTrace> Traces { get; }
-        List<IOpenApiAttachment> Attachments { get; }
+        List<OpenApiProperty> Properties { get; }
+        List<OpenApiComment> Comments { get; }
+        List<OpenApiTrace> Traces { get; }
+        List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>
         /// Adds the artifact to Blueprint
@@ -49,9 +50,10 @@ namespace Model
         /// <param name="artifact">The artifact to delete.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>The artifactResult after delete artifact call</returns>
+        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        IArtifactResult<IOpenApiArtifact> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
         /// Publish the artifact on Blueprint server.

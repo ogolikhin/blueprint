@@ -259,7 +259,7 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
-            return updateProcessResult.item;
+            return updateProcessResult.Result;
         }
 
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -419,11 +419,11 @@ namespace Model.StorytellerModel.Impl
 
         public class ProcessUpdateResult : IUpdateResult<Process>
         {
-            public IEnumerable<UpdateInformation> UpdateInfos
+            public IEnumerable<OperationMessageResult> Messages
             {
                 get; set;
             }
-            public Process item
+            public Process Result
             {
                 get; set;
             }

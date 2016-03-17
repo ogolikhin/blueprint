@@ -7,9 +7,10 @@ namespace Model
     /// </summary>
     public enum MessageLevel
     {
-        Info,
-        Warning,
-        Error
+        None = 0,
+        Info = 1,
+        Warning = 2,
+        Error = 3
     }
 
     /// <summary>
@@ -18,15 +19,15 @@ namespace Model
     /// <typeparam name="T">The type of the item included in the update result</typeparam>
     public interface IUpdateResult<T> where T : class
     {
-        IEnumerable<UpdateInformation> UpdateInfos { get; set; }
+        IEnumerable<OperationMessageResult> Messages { get; set; }
 
-        T item { get; set; }
+        T Result { get; set; }
     }
 
     /// <summary>
     /// The UpdateInformation class used by the IUpdateResult interface
     /// </summary>
-    public class UpdateInformation
+    public class OperationMessageResult
     {
         /// <summary>
         /// The message level of the returned information message

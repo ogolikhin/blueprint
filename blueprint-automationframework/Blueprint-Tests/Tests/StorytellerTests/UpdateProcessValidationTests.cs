@@ -21,7 +21,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        //private bool _deleteChildren = false;
+        private bool _deleteChildren = false;
 
         #region Setup and Cleanup
 
@@ -43,15 +43,15 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            // if (_storyteller.Artifacts != null)
-            //{
-            //    // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-            //    // Delete all the artifacts that were added.
-            //    foreach (var artifact in _storyteller.Artifacts.ToArray())
-            //    {
-            //        _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
-            //    }
-            //}
+            if (_storyteller.Artifacts != null)
+            {
+                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
+                // Delete all the artifacts that were added.
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                }
+            }
 
             if (_adminStore != null)
             {

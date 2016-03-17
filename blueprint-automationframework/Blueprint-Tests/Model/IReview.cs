@@ -1,4 +1,6 @@
 ﻿
+using Model.OpenApiModel;
+
 namespace Model
 {
     public interface IReview : IArtifactBase

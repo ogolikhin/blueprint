@@ -4,7 +4,7 @@ using Model.Factories;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using Model.OpenApiModel;
 using System.Linq;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -115,20 +115,20 @@ namespace StorytellerTests
                 var userStoryCounter = 0;
                 foreach (IStorytellerUserStory us in userStories.Where(us => us.ProcessTaskId.Equals(shape.Id)))
                 {
-                    userStoryCounter++;
+                        userStoryCounter++;
 
-                    // -- Verifying userStory contents -- 
-                    Assert.That(us.Name.Equals(shape.Name),"Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
+                        // -- Verifying userStory contents -- 
+                        Assert.That(us.Name.Equals(shape.Name),"Generated US name {0} doesn't match with the source UT name {1}", us.Name, shape.Name);
 
-                    // TODO Assert that UserStory ID == 
-                    //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Generated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
+                        // TODO Assert that UserStory ID == 
+                        //Assert.That(userStory.Id.Equals(processShape.PropertyValues["storyLinks"]), "Generated US name {0} doesn't match with the source UT name {1}", userStory.Name, processShape.Name);
 
-                    // Assert that UserStory Property's Name value with Shape's Name Value 
-                    Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name), "Generated US's Property Name {0} doesn't match with the source UT name {1}", us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
+                        // Assert that UserStory Property's Name value with Shape's Name Value 
+                        Assert.That(us.SystemProperties.Find(s => s.Name.Equals("Name")).Value.Equals(shape.Name), "Generated US's Property Name {0} doesn't match with the source UT name {1}", us.SystemProperties.Find(s => s.Name.Equals("Name")).Value, shape.Name);
                         
-                    // Assert that UserStory ST-Title ==
-                    // Assert that UserStory ST-Acceptance Criteria ==
-                }
+                        // Assert that UserStory ST-Title ==
+                        // Assert that UserStory ST-Acceptance Criteria ==
+                    }
                 Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
                 Assert.That(userStoryCounter.Equals(1), "More than one UserStories are generated for the UserTask whose ID: {0}.", shape.Id);
             }
@@ -235,7 +235,7 @@ namespace StorytellerTests
 
             // Assert that there is one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
-            {
+                    {
                 var userStoryCounter = userStories.Count(us => us.ProcessTaskId.Equals(shape.Id));
 
                 Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);

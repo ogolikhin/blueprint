@@ -1,4 +1,4 @@
-﻿namespace Model.Impl
+﻿namespace Model.OpenApiModel.Impl
 {
     public class OpenApiComment : IOpenApiComment
     {

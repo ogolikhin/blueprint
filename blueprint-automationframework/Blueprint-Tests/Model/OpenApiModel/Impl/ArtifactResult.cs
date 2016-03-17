@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Utilities;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.Impl
 {
     public class ArtifactResult : IArtifactResult<IArtifact>
     {

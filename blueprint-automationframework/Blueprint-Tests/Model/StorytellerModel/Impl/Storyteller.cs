@@ -6,6 +6,8 @@ using System.Net;
 using Common;
 using Model.Factories;
 using Model.Impl;
+using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using Utilities;
 using Utilities.Facades;
 

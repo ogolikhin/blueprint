@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Model.Impl
+﻿namespace Model.OpenApiModel.Impl
 {
     public class OpenApiAttachment : IOpenApiAttachment
     {

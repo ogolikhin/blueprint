@@ -1,5 +1,6 @@
 ﻿export class SessionTokenHelper {
     private static SESSION_TOKEN_ID = "BLUEPRINT_SESSION_TOKEN";
+    public static get SESSION_TOKEN_KEY(): string { return "Session-Token" };
 
     public static setToken(token: string) {
         if (window.localStorage != null) {

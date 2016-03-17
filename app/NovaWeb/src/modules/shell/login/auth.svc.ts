@@ -22,6 +22,8 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
+    
+
     static $inject: [string] = ["$q", "$log", "$http"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService) {
     }
@@ -141,18 +143,14 @@ export class AuthSvc implements IAuth {
     private createRequestConfig(): ng.IRequestConfig {
         var config = <IHttpInterceptorConfig>{ ignoreInterceptor: true };
         config.headers = {};
-        config.headers["Session-Token"] = SessionTokenHelper.getSessionToken();
+        config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = SessionTokenHelper.getSessionToken();
         return config;
     }
 
     private verifyLicense(token: string): ng.IPromise<any> {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
-        if (!requestConfig.headers) {
-            requestConfig.headers = {};
-        }
-        requestConfig.headers["Session-Token"] = token;
-
+       
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {

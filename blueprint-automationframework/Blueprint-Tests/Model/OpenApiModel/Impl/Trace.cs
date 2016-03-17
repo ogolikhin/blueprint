@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.Impl
 {
     public class OpenApiTrace : IOpenApiTrace
     {

@@ -4,6 +4,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
+using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;

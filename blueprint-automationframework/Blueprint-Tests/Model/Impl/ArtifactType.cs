@@ -1,11 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Net;
-using Common;
-using Utilities;
-using Utilities.Facades;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Model.OpenApiModel;
 
 namespace Model.Impl
 {

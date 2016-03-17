@@ -1,4 +1,5 @@
-﻿using Model.Impl;
+﻿using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;

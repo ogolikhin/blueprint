@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.Impl;
-using Newtonsoft.Json;
-using Utilities;
 
-namespace Model
+namespace Model.OpenApiModel
 {
     public enum ItemTypePredefined
     {

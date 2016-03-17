@@ -1,8 +1,8 @@
-using Model.Impl;
+using Model.OpenApiModel.Impl;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Model
+namespace Model.OpenApiModel
 {
 
     public interface IArtifact : IArtifactBase

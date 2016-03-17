@@ -5,6 +5,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Utilities;
 

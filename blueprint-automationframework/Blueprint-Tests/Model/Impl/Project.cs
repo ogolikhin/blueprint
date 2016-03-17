@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Runtime.Serialization;
 using System.Linq;
 using Newtonsoft.Json;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using Common;
 using Utilities;
 using Utilities.Facades;
+using Model.OpenApiModel;
 
 namespace Model.Impl
 {

@@ -2,11 +2,11 @@
 <div class="modal-body">
     <div class="nova-login-message">Please enter your Username and Password</div>
     <div class="nova-form-group nova-floating-label">
-        <input type="text" class="nova-form-control" id="nova-username" required>
+        <input type="text" class="nova-form-control" id="nova-username" required ng-model="novaUsername">
         <label for="nova-username" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
     </div>
     <div class="nova-form-group nova-floating-label error"><!-- here class "error" is just to show what the validation should change in case of errors -->
-        <input type="password" class="nova-form-control" id="nova-password" required>
+        <input type="password" class="nova-form-control" id="nova-password" required ng-model="novaPassword">
         <label for="nova-password" class="nova-label"><i class="fonticon-lock"></i> Password</label>
     </div>
     <div class="nova-form-group nova-forgot-password">

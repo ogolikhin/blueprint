@@ -8,28 +8,12 @@ export interface IUser {
     IsSso: boolean;
 }
 
-export class UserInfo implements IUser {
-    DisplayName: string;
-    Login: string;
-    IsFallbackAllowed: boolean;
-    IsSso: boolean;
-
-    constructor(public displayName: string, public login: string, public IsSSo: boolean, public allowFallback: boolean) {
-        this.DisplayName = displayName;
-        this.Login = login;
-        this.IsFallbackAllowed = allowFallback;
-        this.IsSso = IsSSo;
-    }
-}
-
 export interface IAuth {
-    authenticated: ng.IPromise<boolean>;
-
     getCurrentUser(): ng.IPromise<IUser>;
 
     login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser>;
 
-    logout(skipSamlLogout: boolean): ng.IPromise<UserInfo>;
+    logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any>;
 }
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
@@ -42,36 +26,12 @@ export class AuthSvc implements IAuth {
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService) {
     }
 
-    public userInfo: IUser;
-
-    public get authenticated(): ng.IPromise<boolean> {
-        var defer = this.$q.defer<boolean>();
-
-        this.getCurrentUser().then(
-            (user: IUser) => {
-                //TODO: remember current user
-                defer.resolve(!!user);
-            },
-            (err) => {
-                defer.resolve(false);
-            }
-        );
-
-        return defer.promise;
-    }
-
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
-        var config = this.skipCommonInterceptor();
-        config.headers = config.headers || {};
-
-        var token = SessionTokenHelper.getSessionToken();
-        config.headers["Session-Token"] = token;
-
+        var config = this.createRequestConfig();
+       
         this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
             .success((result: IUser) => {
-                this.onLogin(result);
-      
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
@@ -107,9 +67,9 @@ export class AuthSvc implements IAuth {
 
     private pendingLogout: ng.IPromise<any>;
 
-    public logout(skipSamlLogout: boolean = false): ng.IPromise<UserInfo> {
+    public logout(userInfo: IUser, skipSamlLogout: boolean = false): ng.IPromise<any> {
         if (!this.pendingLogout) {
-            var logoutFinilizer: () => boolean = (!skipSamlLogout && this.userInfo && this.userInfo.IsSso)
+            var logoutFinilizer: () => boolean = (!skipSamlLogout && userInfo && userInfo.IsSso)
                 ? () => {
                     var url = "/Login/SAMLHandler.ashx?action=logout";
                     //this.$window.location.replace(url);
@@ -119,17 +79,14 @@ export class AuthSvc implements IAuth {
 
             var deferred: ng.IDeferred<any> = this.$q.defer();
             this.pendingLogout = deferred.promise;
-            console.debug(SessionTokenHelper.getSessionToken());
             this.$http.delete("/svc/adminstore/sessions", this.createRequestConfig())
                 .finally(() => {
                     if (logoutFinilizer()) {
                         return;
                     }
-                    var userInfo = this.userInfo;
                     this.pendingLogout = null;
-                    this.onLogout();
                     SessionTokenHelper.setToken(null);
-                    deferred.resolve(userInfo);
+                    deferred.resolve();
                 });
         }
 
@@ -155,8 +112,8 @@ export class AuthSvc implements IAuth {
                                     deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
                                 });
                             } else {*/
-                                this.onLogin(user);
-                                deferred.resolve(this.userInfo);
+                                //this.onLogin(user);
+                            deferred.resolve(user);
                             //}
                         }).error((err: any, statusCode: number) => {
                             var error = {
@@ -268,34 +225,5 @@ export class AuthSvc implements IAuth {
         }
 
         return output;
-    }
-
-    private onLogin(result: IUser): void {
-        this.userInfo = new UserInfo(result.DisplayName, result.Login, result.IsSso, result.IsFallbackAllowed);
-
-        /*
-        this.$rootScope.$broadcast("serviceLoginEvent");
-
-        this.retryHttpBuffer.retryAll((config: ng.IRequestConfig) => {
-            if (config.headers && config.headers["Session-Token"]) {
-                var token = SessionTokenHelper.getSessionToken();
-                config.headers["Session-Token"] = token;
-            }
-            return config;
-        });*/
-    }
-
-    private onLogout(): void {
-        /*if (this.userInfo) {
-            this.prevLogin = this.userInfo.Login;
-        }*/
-
-        this.userInfo = null;
-        //this.$rootScope.$broadcast("serviceLogoutEvent");
-    }
-
-    private skipCommonInterceptor(): ng.IRequestShortcutConfig {
-        //TODO: ignore session token and unauthorized response processing for some Auth service calls
-        return {};
     }
 }

@@ -23,23 +23,29 @@ export class SessionSvc implements ISession {
     }
 
     public logout(): ng.IPromise<any> {
+        var defer = this.$q.defer();
+        this.auth.logout(this._currentUser, false).then(() => defer.resolve());
         this._currentUser = null;
 
-        return this.$q.resolve();
+        return defer.promise;
     }
 
-    public ensureAuthenticated(): ng.IPromise<any> {        
+    public ensureAuthenticated(): ng.IPromise<any> {
         if (this._currentUser) {
             return this.$q.resolve();
         }
-
         var defer = this.$q.defer();
-
-        this.auth.authenticated.then(
-            (authenticated) => authenticated ? defer.resolve() : this.showLogin(defer),
+        this.auth.getCurrentUser().then(
+            (result: IUser) => {
+                if (result) {
+                    this._currentUser = result;
+                    defer.resolve();
+                } else {
+                    this.showLogin(defer);
+                }
+            },
             () => this.showLogin(defer)
         );
-
         return defer.promise;
     }
 
@@ -57,11 +63,7 @@ export class SessionSvc implements ISession {
 
             this._modalInstance.result.then((result) => {
                 if (result) {
-                    //TEMP: just to test
-                    this._currentUser = <IUser>{
-                        DisplayName: "Default Instance Admin"
-                    };
-
+                    this._currentUser = result;
                     done.resolve();
                 }
                 else {
@@ -76,11 +78,14 @@ export class SessionSvc implements ISession {
 
 export class LoginCtrl {
 
-    static $inject: [string] = ["$uibModalInstance", "auth"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth) {
+    static $inject: [string] = ["$uibModalInstance", "auth", '$scope'];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $scope: ng.IScope) {
     }
 
     public login(): void {
-        this.$uibModalInstance.close(true);
+        this.auth.login(this.$scope.$eval('novaUsername'), this.$scope.$eval('novaPassword'), true).then(
+            (user) => {
+                this.$uibModalInstance.close(user);
+            });
     }
 }

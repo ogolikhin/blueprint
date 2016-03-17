@@ -193,7 +193,7 @@ textarea[rows="2"].nova-form-control {
   }
 
   i::before {
-    font-size: 1.5em;
+    font-size: 1.5 * $font-size-root;
     line-height: 1.2em;
     margin-left: 0;
     margin-right: 0;
@@ -207,6 +207,6 @@ textarea[rows="2"].nova-form-control {
   top: -16px;
 
   i::before {
-    font-size: 1.15em;
+    font-size: 1.15 * $font-size-root;
   }
 }

@@ -14,18 +14,25 @@ namespace Model
     }
 
     /// <summary>
-    /// A generic update result interface that allows for different Item types to be included
+    /// A generic update result interface that allows for different result types to be included
     /// </summary>
-    /// <typeparam name="T">The type of the item included in the update result</typeparam>
+    /// <typeparam name="T">The type of the result included in the update result</typeparam>
     public interface IUpdateResult<T> where T : class
     {
+        /// <summary>
+        /// The list of messages returned by the update method
+        /// </summary>
         IEnumerable<OperationMessageResult> Messages { get; set; }
 
+        /// <summary>
+        /// The result returned by the update method
+        /// </summary>
         T Result { get; set; }
     }
 
     /// <summary>
-    /// The UpdateInformation class used by the IUpdateResult interface
+    /// The OperationMessageResult class used by the IUpdateResult interface. This defines a returned
+    /// message and various descriptive properties related to the message.
     /// </summary>
     public class OperationMessageResult
     {

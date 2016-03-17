@@ -146,7 +146,7 @@
     <Compile Include="ITheme.cs" />
     <Compile Include="ITrace.cs" />
     <Compile Include="IUIMockup.cs" />
-    <Compile Include="StorytellerModel\Impl\UpdateResult.cs" />
+    <Compile Include="Impl\UpdateResult.cs" />
     <Compile Include="IUseCase.cs" />
     <Compile Include="IUseCaseDiagram.cs" />
     <Compile Include="IUser.cs" />

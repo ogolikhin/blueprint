@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Model.StorytellerModel.Impl
+namespace Model.Impl
 {
     /// <summary>
     /// Enumeration for Message Level Type

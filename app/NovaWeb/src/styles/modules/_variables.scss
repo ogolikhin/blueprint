@@ -1,28 +1,35 @@
+//colors
+$text-color:        #0c0c0c;
 $gray-darker:       #333;
 $gray-dark:         #4c4c4c;
-$gray:              #565656;
-$gray-light:        #999;
+$gray:              #616161;
+$gray-light:        #aaa;
 $gray-lighter:      #cbcbcb;
-$gray-lightest:     #eee;
+$gray-lightest:     #eaeaea;
+$white:             #fff;
 
 $brand-primary:     #1c285c;
-$brand-secondary:   #3398db;
+$brand-secondary:   #009cde;
 $brand-success:     #fff;
-$brand-error:       #f10;
-    
-//body 
-$body-bg:           #fff;
-$body-color:        $gray;
+$brand-error:       #ff1300;
+
+//body
+$body-bg-color:     #f4f4f4;
+$body-color:        $text-color;
 
 $link-color:        $brand-secondary;
 $link-hover-color:  lighten($brand-secondary, 10%);
 
-//Font
+//font
 $font-family-base: 'Open Sans', sans-serif;
 
-$font-size-root:    14px;
-$font-size-smaller: 0.95rem;
-$font-size-smallest: 0.9rem;
-$font-size-tiny: 0.8rem;
-$font-size-bigger: 1.1rem;
-$font-size-biggest: 1.2rem;
+$font-size-root:     16px;
+$font-size-smaller:  .875rem;  //~14px
+$font-size-smallest: .75rem;   //~12px
+$font-size-tiny:     .6875rem; //~11px
+$font-size-micro:    .5625rem; //~9px
+$font-size-bigger:   1.125rem; //~18px
+$font-size-biggest:  1.25rem;  //~20px
+
+//other
+$border-radius-amount: 4px;

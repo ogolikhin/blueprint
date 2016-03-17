@@ -14,7 +14,7 @@ namespace Model.Impl
     }
 
     /// <summary>
-    /// A generic update result interface that allows for different result types to be included
+    /// A generic update result class that allows for different result types to be included
     /// </summary>
     /// <typeparam name="T">The type of the result included in the update result</typeparam>
     public class UpdateResult<T> where T : class
@@ -31,7 +31,7 @@ namespace Model.Impl
     }
 
     /// <summary>
-    /// The OperationMessageResult class used by the IUpdateResult interface. This defines a returned
+    /// The OperationMessageResult class used by the UpdateResult class. This defines a returned
     /// message and various descriptive properties related to the message.
     /// </summary>
     public class OperationMessageResult

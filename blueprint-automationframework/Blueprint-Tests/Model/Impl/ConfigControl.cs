@@ -11,7 +11,6 @@ namespace Model.Impl
     public class ConfigControl : IConfigControl
     {
         private const string SVC_PATH = "/svc/configcontrol";
-        private const string SESSION_TOKEN_COOKIE_NAME = "BLUEPRINT_SESSION_TOKEN";
 
         private readonly string _address;
 

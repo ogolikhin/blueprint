@@ -43,18 +43,18 @@
       <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="IArtifactType.cs" />
+    <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="OpenApiModel\IArtifact.cs" />
     <Compile Include="OpenApiModel\IArtifactBase.cs" />
@@ -80,12 +80,14 @@
     <Compile Include="Factories\AdminStoreFactory.cs" />
     <Compile Include="Factories\ArtifactFactory.cs" />
     <Compile Include="Factories\BlueprintServerFactory.cs" />
+    <Compile Include="Factories\ConfigControlFactory.cs" />
     <Compile Include="Factories\DatabaseFactory.cs" />
     <Compile Include="Factories\FileFactory.cs" />
     <Compile Include="Factories\FileStoreFactory.cs" />
     <Compile Include="Factories\ProjectFactory.cs" />
     <Compile Include="Factories\ServiceErrorMessageFactory.cs" />
     <Compile Include="Factories\SessionFactory.cs" />
+    <Compile Include="Factories\StorytellerFactory.cs" />
     <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Impl\AdminStore.cs" />
     <Compile Include="Impl\BlueprintServer.cs" />
     <Compile Include="Impl\BlueprintToken.cs" />
+    <Compile Include="Impl\ConfigControl.cs" />
     <Compile Include="Impl\File.cs" />
     <Compile Include="Impl\FileStore.cs" />
     <Compile Include="Impl\LicenseActivity.cs" />

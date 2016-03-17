@@ -138,7 +138,7 @@ namespace Model.StorytellerModel.Impl
             // Modify the destination id of the link preceding the insertion point of the new task so
             // that the destination now points to the new user task
             // Note: Maintains existing order index
-            UpdateDestinationIdOfLink(processLink, userTask.Id);
+            processLink.DestinationId = userTask.Id;
 
             // Add a new link between the new user task and the new system task
             Links.Add(new ProcessLink
@@ -175,7 +175,8 @@ namespace Model.StorytellerModel.Impl
 
             // Modify the destination id of the link preceding the insertion point of the new task so
             // that the destination now points to the new user task
-            UpdateDestinationIdOfLink(processLink, userDecisionPoint.Id);
+            // Note: Maintains existing order index
+            processLink.DestinationId = userDecisionPoint.Id;
 
             // Add a new link after the new user decision point
             Links.Add(new ProcessLink
@@ -420,8 +421,10 @@ namespace Model.StorytellerModel.Impl
         /// <returns>A new system task</returns>
         private IProcessShape CreateSystemTask(string associatedImageUrl, string persona, string itemLabel, ArtifactPathLink associatedArtifact, int? imageId, double width, double height, int x, int y, int storyLinkId = 0)
         {
+            // Create a system task
             var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, SystemTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
+            // Create a story link for the system task if the story link Id was not 0
             var storyLink = storyLinkId == 0 ? null : new StoryLink(systemTask.Id, storyLinkId, 0, storyLinkId);
 
             systemTask.PropertyValues.Add(AssociatedImageUrl,
@@ -479,7 +482,8 @@ namespace Model.StorytellerModel.Impl
         /// <returns>A new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(string itemLabel, ArtifactPathLink associatedArtifact, double width, double height, int x, int y)
         {
-             var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, UserDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+            // Create a user decision point
+            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, UserDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
 
             userDecisionPoint.PropertyValues.Add(LinkLabels,
                 new PropertyValueInformation
@@ -527,8 +531,6 @@ namespace Model.StorytellerModel.Impl
                     TypeId = GetPropertyNameTypeId(ClientType),
                     Value = (int)processShapeType
                 });
-
-            
 
             processShape.PropertyValues.Add(Description,
                 new PropertyValueInformation
@@ -604,35 +606,21 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <summary>
-        /// Find Property Name Type Id
+        /// get the Property Name Type Id
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
-        /// <returns>The type id of the property</returns>
+        /// <returns>The type id of the property (returns null if no such property type was found)</returns>
         private int? GetPropertyNameTypeId(string propertyName)
         {
-            // Must convert first charater of property name to lowercase in order to find the pproperty in the 
+            // Must convert first character of property name to lowercase in order to find the property in the 
             // default process
-            propertyName = char.ToLower(propertyName[0], CultureInfo.InvariantCulture) + propertyName.Substring(1);
+            propertyName = propertyName.LowerCaseFirstCharacter();
 
+            // Find the property with name propertyName
             var property = Shapes.Find(shape => shape.PropertyValues.ContainsKey(propertyName));
 
+            // Return the property type Id if found, otherwise return null
             return property?.PropertyValues[propertyName].TypeId;
-        }
-
-        /// <summary>
-        /// Update Destination Id of Link
-        /// </summary>
-        /// <param name="processLink">The process lioink to update</param>
-        /// <param name="newDestinationId">The new destination id of the link</param>
-        private void UpdateDestinationIdOfLink(ProcessLink processLink, int newDestinationId)
-        {
-            var link = (ProcessLink) processLink;
-
-            Links.Remove(link);
-
-            processLink.DestinationId = newDestinationId;
-
-            Links.Add(link);
         }
 
         /// <summary>
@@ -652,7 +640,6 @@ namespace Model.StorytellerModel.Impl
 
     public class ProcessShape: IProcessShape
     {
-
         private const string StorytellerProcessPrefix = "SP";
 
         public int Id { get; set; }
@@ -672,7 +659,6 @@ namespace Model.StorytellerModel.Impl
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
-
 
         public ProcessShape()
         {

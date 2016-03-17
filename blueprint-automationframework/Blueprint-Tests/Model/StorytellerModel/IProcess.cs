@@ -170,7 +170,7 @@ namespace Model.StorytellerModel
         /// <param name="sourceId">The artifact Id of the link source</param>
         /// <param name="destinationId">The artifact Id of the link destination</param>
         /// <param name="orderIndex">The order index of the link (Indicates display order in the process graph)</param>
-        /// <returns></returns>
+        /// <returns>The process link that was added</returns>
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Model.StorytellerModel
         /// <param name="idOfPreviousShape">The artifact Id of the shape before the insertion point</param>
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
-        /// <returns></returns>
+        /// <returns>The user decision point that was added</returns>
         IProcessShape AddUserDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace Model.StorytellerModel
         /// <param name="idOfNextShape">The artifact Id of the shape after the insertion point</param>
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
-        /// <returns></returns>
+        /// <returns>The user decision point that was added</returns>
         IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>

@@ -4,6 +4,9 @@ using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
 {
+    /// <summary>
+    /// Enumeration of Process Shape Types
+    /// </summary>
     public enum ProcessShapeType
     {
         None = 0,
@@ -21,42 +24,42 @@ namespace Model.StorytellerModel
         #region Properties
 
         /// <summary>
-        /// Sub artifact Id for the shape
+        /// Sub artifact Id for the process shape
         /// </summary>
         int Id { get; set; }
 
         /// <summary>
-        /// Name of the shape
+        /// Name of the process shape
         /// </summary>
         string Name { get; set; }
 
         /// <summary>
-        /// Parent Id of the shape
+        /// Parent Id of the process shape
         /// </summary>
         int ParentId { get; set; }
 
         /// <summary>
-        /// Project containing the Process
+        /// Project containing the process shape
         /// </summary>
         int ProjectId { get; set; }
 
         /// <summary>
-        /// Prefix of the process type
+        /// Type prefix of the process shape
         /// </summary>
         string TypePrefix { get; set; }
 
         /// <summary>
-        /// Artifact associated with the process shape (i.e. the Include) 
+        /// Artifact reference associated with the process shape (i.e. the Include) 
         /// </summary>
         ArtifactPathLink AssociatedArtifact { get; set; }
 
         /// <summary>
-        /// Base item type for the process artifact
+        /// Base item type for the process shape
         /// </summary>
         ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         /// <summary>
-        /// The property values for the Process shape
+        /// The property values for the process shape
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
 
@@ -65,7 +68,7 @@ namespace Model.StorytellerModel
         #region Methods
 
         /// <summary>
-        /// Adds Associated Artifact Reference (Include) to Process Shape
+        /// Add Associated Artifact Reference (Include) to Process Shape
         /// </summary>
         /// <param name="artifact">The artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>

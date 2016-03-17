@@ -13,144 +13,146 @@ namespace Model.StorytellerModel
         List<IOpenApiArtifact> Artifacts { get; }
 
         /// <summary>
-        /// Creates a Process type artifact
+        /// Create a Process artifact
         /// </summary>
-        /// <param name="project">The project where the Process artifact is to be added</param>
-        /// <param name="artifactType">The base artifact type of the Process artifact</param>
-        /// <param name="user">The user credentials for the request</param>
+        /// <param name="project">The project where the process artifact is to be added</param>
+        /// <param name="artifactType">The base artifact type of the process artifact</param>
+        /// <param name="user">The user credentials for the request to create the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
-        /// <returns></returns>
-        IOpenApiArtifact CreateProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>The created artifact object</returns>
+        IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Creates multiple Process artifacts
+        /// Create Multiple Process Artifacts
         /// </summary>
-        /// <param name="project">The project where the Process artifact is to be added</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="numberOfArtifacts"></param>
-        /// <returns></returns>
-        List<IOpenApiArtifact> CreateProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
+        /// <param name="project">The project where the process artifact is to be added</param>
+        /// <param name="user">The user credentials for the request to create the process artifacts</param>
+        /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
+        /// <returns>THe list of the created artifact objects</returns>
+        List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
-        /// Generates UserStories from the target process artifact.
+        /// Generate or Update User Stories for the Process Artifact.
         /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="process">The process to generate UserStories.</param>
+        /// <param name="user">The user credentials for the request to generate the user stories</param>
+        /// <param name="process">The process from which user stories are generated.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>The list of UserStories that generated or updated after the call</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of user stories that were generated or updated</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets a Process
+        /// Get a Process
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="id">Id of the Process artifact</param>
-        /// <param name="versionIndex">(optional) Version of the process artifact</param>
+        /// <param name="user">The user credentials for the request to get a process</param>
+        /// <param name="id">Id of the process artifact from which the process is obtained</param>
+        /// <param name="versionIndex">(optional) The version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The requested process</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The requested process object</returns>
         IProcess GetProcess(IUser user, int id, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets list of processes for the specified projectId
+        /// Get a List of Processes for the specified Project Id
         /// Runs /projects/id/processes
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="projectId">Id of the Project</param>
+        /// <param name="user">The user credentials for the request to get the process list</param>
+        /// <param name="projectId">The Id of the project</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The list of processes</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of process objects</returns>
         IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Gets Id of the process artifact type for the specified project
+        /// Get the Id of the Process Artifact Type from the specified Project
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="project">specified project</param>
-        /// <returns>The id of process artifact type</returns>
-        int GetProcessTypeId(IUser user, IProject project);
+        /// <param name="user">The user credentials for the request to get the artifact type Id</param>
+        /// <param name="project">The project from which the artifact type is retrieved</param>
+        /// <returns>The Id of process artifact type</returns>
+        int GetProcessArtifactTypeId(IUser user, IProject project);
 
         /// <summary>
-        /// Gets a Process artifact from a breadcrumb trail
+        /// Get a Process Artifact from a Breadcrumb Trail
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="ids">Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
-        /// <param name="versionIndex">(optional) Version of the process artifact</param>
+        /// <param name="user">The user credentials for the request to get the process artifact</param>
+        /// <param name="ids">The Ids in the breadcrumb trail.  The last Id is the Id of the Process being retrieved.</param>
+        /// <param name="versionIndex">(optional) The version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The requested process artifact</returns>
         IProcess GetProcessWithBreadcrumb(IUser user, List<int> ids, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Get UserStory artifactType for the project
+        /// Get the User Story Artifact Type for the Project
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="projectId">Id of the Project</param>
+        /// <param name="user">The user credentials for the request to get the user story artifact type</param>
+        /// <param name="projectId">The Id of the Project from which the user story artifact type is retrieved</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The UserStory ArtifactType</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The user story artifact type</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Updates a File
+        /// Upload a File
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="file">The File to update</param>
+        /// <param name="user">The user credentials for the request to upload the file</param>
+        /// <param name="file">The file to upload</param>
         /// <param name="expireDate">(optional) Expected expire date for the file</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The updated Process</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The REST response content of the upload file request</returns>
         string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Updates a Process
+        /// Update a Process
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="process">The Process to update</param>
+        /// <param name="user">The user credentials for the request to update a process</param>
+        /// <param name="process">The process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The updated Process</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The updated process</returns>
         IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Updates a Process but only returns the JSON response as a string
+        /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object
+        /// is expected - i.e. when testing a negative case where an error message is expected rather than a process object)
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="process">The Process to update</param>
+        /// <param name="user">The user credentials for the request to update a process</param>
+        /// <param name="process">The process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The REST response content</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The REST response content of the update process request</returns>
         string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Publish a Process
+        /// Publish a Process Artifact (Used when publishing a single process artifact)
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="process">The Process to publish</param>
+        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="process">The process to publish</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The list of PublishArtifactResult after the call</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Publish Process artifact(s)
+        /// Publish Process Artifact(s) (Used when publishing a single process artifact OR a list of process artifacts)
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the weather or not to keep the lock after publishing the artfacts</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <returns>The list of PublishArtifactResult after the call</returns>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of PublishArtifactResult objects created by the publish process artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Deletes the process artifact
+        /// Delete a process artifact
         /// </summary>
-        /// <param name="artifact">The artifact to be deleted.</param>
-        /// <param name="user">The user credentials for the request</param>
+        /// <param name="artifact">The artifact to be deleted</param>
+        /// <param name="user">The user credentials for the request to delete the artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>

@@ -163,7 +163,7 @@ textarea[rows="2"].nova-form-control {
 .nova-form-group .nova-form-control[required]:focus ~ .nova-label,
 .nova-form-group .nova-form-control:focus ~ .nova-label,
 .nova-form-group .nova-form-control.fake-focus ~ .nova-label {
-  color: $brand-secondary;
+  color: $brand-secondary !important;
 
   &::before {
     color: $brand-secondary;
@@ -202,6 +202,7 @@ textarea[rows="2"].nova-form-control {
 .nova-floating-label .nova-form-control[required]:valid ~ .nova-label,
 .nova-floating-label .nova-form-control:focus ~ .nova-label,
 .nova-floating-label .nova-form-control.fake-focus ~ .nova-label,
+.nova-floating-label .nova-form-control.ng-not-empty ~ .nova-label,
 .nova-floating-label .nova-form-control.input-is-dirty ~ .nova-label {
   color: $gray;
   font-size: $font-size-smallest !important;

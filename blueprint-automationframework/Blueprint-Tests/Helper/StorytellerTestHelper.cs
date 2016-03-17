@@ -98,12 +98,12 @@ namespace Helper
         }
 
         /// <summary>
-        /// Updates and verifies the processes returned from UpdateProcess and GetProcess
+        /// Updates, verifies and deletes the processes returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="user">The user that updates the process</param>
-        public static void UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        public static void UpdateVerifyAndDeleteProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
             ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
@@ -127,6 +127,7 @@ namespace Helper
             // Don't allow and negative shape ids
             AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
 
+            // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcessArtifact(user, processReturnedFromGet);
         }
 

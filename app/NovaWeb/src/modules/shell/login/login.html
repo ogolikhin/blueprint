@@ -1,21 +1,23 @@
 ﻿<div class="modal-header"></div>
 <div class="modal-body">
+    <form name="form" ng-submit="ctrl.login()" role="form">
     <div class="nova-login-message">Please enter your Username and Password</div>
     <div class="nova-form-group nova-floating-label">
-        <input type="text" class="nova-form-control" id="nova-username" required>
+        <input type="text" class="nova-form-control" id="nova-username" required ng-model="novaUsername">
         <label for="nova-username" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
     </div>
-    <div class="nova-form-group nova-floating-label error"><!-- here class "error" is just to show what the validation should change in case of errors -->
-        <input type="password" class="nova-form-control" id="nova-password" required>
+    <div class="nova-form-group nova-floating-label">
+        <input type="password" class="nova-form-control" id="nova-password" required ng-model="novaPassword">
         <label for="nova-password" class="nova-label"><i class="fonticon-lock"></i> Password</label>
     </div>
     <div class="nova-form-group nova-forgot-password">
         <a href="#">Forgot password?</a>
     </div>
     <div class="nova-form-group nova-form-buttons">
-        <button class="btn btn-primary" type="button" ng-click="ctrl.login()">Login</button>
+        <button class="btn btn-primary" type="submit">Login</button>
         <div class="nova-login-to">Login to blueprint.toronto</div>
     </div>
+    </form>
 </div>
 <div class="modal-footer">
     <div>

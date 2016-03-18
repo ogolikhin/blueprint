@@ -120,53 +120,25 @@ namespace Model.StorytellerModel.Impl
 
         #region Public Methods
 
-        public IProcessShape AddUserTask(ProcessLink processLink)
+        public IProcessShape AddUserAndSystemTask(ProcessLink processLink)
         {
             /*
             If you start with this:
                 --[??]--+--[??]--
 
             It becomes this:
-                --[??]--+--[UT]--+--[??]--
+                --[??]--+--[UT]--+--[ST]--+--[??]--
             */
 
             ThrowIf.ArgumentNull(processLink, nameof(processLink));
 
-            // Get the destination Id of the process link
-            var destinationId = processLink.DestinationId;
-
             // Add a user task
-            // Using non-default values to ensure values are saved
-            var userTask = CreateUserTask("NewUser", "Objective", null, null, 120.0, 160.0, 5, 5);
-            Shapes.Add((ProcessShape)userTask);
+            var userTask = AddUserTask(processLink);
+
+            var userLink = GetOutgoingLinkForShape(userTask.Id);
 
             // Add a system task to be paired with the user task just created
-            // Using non-default values to ensure values are saved
-            var systemTask = CreateSystemTask(null, "NewSystem", "Objective", null, null, 120.0, 160.0, 5, 10);
-            Shapes.Add((ProcessShape)systemTask);
-
-            // Modify the destination id of the link preceding the insertion point of the new task so
-            // that the destination now points to the new user task
-            // Note: Maintains existing order index
-            processLink.DestinationId = userTask.Id;
-
-            // Add a new link between the new user task and the new system task
-            Links.Add(new ProcessLink
-            {
-                DestinationId = systemTask.Id,
-                Label = null,
-                Orderindex = 1,
-                SourceId = userTask.Id 
-            });
-
-            // Add a new link between the new system task and the destination
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = systemTask.Id
-            });
+            AddSystemTask(userLink);
 
             return userTask;
         }
@@ -209,7 +181,7 @@ namespace Model.StorytellerModel.Impl
                 */
 
                 // Add new user/system task to branch
-                AddUserTask(newprocesslink);
+                AddUserAndSystemTask(newprocesslink);
             }
 
             // Add new branch to user decision point
@@ -256,7 +228,7 @@ namespace Model.StorytellerModel.Impl
                 */
 
                 // Add new user/system task to branch
-                AddUserTask(newprocesslink);
+                AddUserAndSystemTask(newprocesslink);
             }
 
             // Add new branch to user decision point
@@ -342,7 +314,7 @@ namespace Model.StorytellerModel.Impl
             var processLink = AddLink(decisionPointId, destinationId, orderIndex);
 
             // Add a user task to the branch and return the user task shape object
-            return AddUserTask(processLink);
+            return AddUserAndSystemTask(processLink);
         }
 
         public ProcessLink AddLink(int sourceId, int destinationId, double orderIndex)
@@ -790,7 +762,8 @@ namespace Model.StorytellerModel.Impl
         /// Add a System Task to the Process
         /// </summary>
         /// <param name="processLink">The process link where the system task will be added</param>
-        private void AddSystemTask(ProcessLink processLink)
+        /// <returns>The new System Task that was added</returns>
+        private IProcessShape AddSystemTask(ProcessLink processLink)
         {
             /*
             If you start with this:
@@ -823,6 +796,50 @@ namespace Model.StorytellerModel.Impl
                 Orderindex = 1,
                 SourceId = systemTask.Id
             });
+
+            return systemTask;
+        }
+
+        /// <summary>
+        /// Add a User Task to the Process
+        /// </summary>
+        /// <param name="processLink">The process link where the user task will be added</param>
+        /// <returns>The new User Task that was added</returns>
+        private IProcessShape AddUserTask(ProcessLink processLink)
+        {
+            /*
+            If you start with this:
+                --[??]--+--[??]--
+
+            It becomes this:
+                --[??]--+--[UT]--+--[??]--
+            */
+
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+
+            // Get the destination Id of the process link
+            var destinationId = processLink.DestinationId;
+
+            // Add a user task
+            // Using non-default values to ensure values are saved
+            var userTask = CreateUserTask("NewUser", "Objective", null, null, 120.0, 160.0, 5, 5);
+            Shapes.Add((ProcessShape)userTask);
+
+            // Modify the destination id of the link preceding the insertion point of the new task so
+            // that the destination now points to the new user task
+            // Note: Maintains existing order index
+            processLink.DestinationId = userTask.Id;
+
+            // Add a new link between the new user task and the destination
+            Links.Add(new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = 1,
+                SourceId = userTask.Id
+            });
+
+            return userTask;
         }
 
         /// <summary>

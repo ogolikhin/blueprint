@@ -142,11 +142,11 @@ namespace Model.StorytellerModel
         #region Methods
 
         /// <summary>
-        /// Add a User Task to the Process
+        /// Add a User Task and System Task to the Process
         /// </summary>
         /// <param name="processLink">The process link where the user task will be added</param>
         /// <returns>The user task that was added</returns>
-        IProcessShape AddUserTask(ProcessLink processLink);
+        IProcessShape AddUserAndSystemTask(ProcessLink processLink);
 
         /// <summary>
         /// Add a Branch to a User Decision Point

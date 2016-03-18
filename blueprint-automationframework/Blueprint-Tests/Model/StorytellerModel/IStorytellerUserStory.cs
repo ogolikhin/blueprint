@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -55,6 +56,17 @@ namespace Model.StorytellerModel
         /// Boolean flag indicating whether the User Story is being Created or Updated
         /// </summary>
         bool IsNew { get; set; }
+
+        /// <summary>
+        /// Updates Nonfunctionals requirements property for user story
+        /// <param name="address">URL of the Blueprint server</param>
+        /// <param name="user">The user credentials for the request to delete the artifact</param>
+        /// <param name="value">Text to update Nonfunctionals requirements property</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The List of DeleteArtifactResult after the call</returns>
+        /// </summary>
+        StorytellerPropertyUpdateResult UpdateNonfunctionalsRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
     }
 
     public interface IStorytellerProperty

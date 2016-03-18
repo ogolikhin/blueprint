@@ -200,6 +200,7 @@ textarea[rows="2"].nova-form-control {
 }
 
 .nova-floating-label .nova-form-control[required]:valid ~ .nova-label,
+.nova-floating-label .nova-form-control:-webkit-autofill ~ .nova-label, //https://developer.mozilla.org/en-US/docs/Web/CSS/:-webkit-autofill
 .nova-floating-label .nova-form-control:focus ~ .nova-label,
 .nova-floating-label .nova-form-control.fake-focus ~ .nova-label,
 .nova-floating-label .nova-form-control.ng-not-empty ~ .nova-label,

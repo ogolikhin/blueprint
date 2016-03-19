@@ -12,7 +12,7 @@ module.exports = {
     },
     output: {
         filename: 'app.js',
-        path: 'dist'
+        path: 'dist/NovaWeb'
     },
     devtool: 'source-map',
     context: path.join(__dirname, '../src'),
@@ -34,6 +34,7 @@ module.exports = {
         ),
         new HtmlWebpackPlugin({
             template: './index.html',
+            filename: '../index.html',
             inject: 'body',
             hash: true
         }),

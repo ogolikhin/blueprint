@@ -63,13 +63,15 @@ namespace Model.StorytellerModel.Impl
             return artifact;
         }
 
-        public List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                artifacts.Add(CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user));
+                var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                artifact.Publish(user);
+                artifacts.Add(artifact);
             }
 
             return artifacts;
@@ -411,12 +413,18 @@ namespace Model.StorytellerModel.Impl
 
         #endregion Implemented from IStoryteller
 
+        /// <summary>
+        /// The Result Returned from UploadFile() 
+        /// </summary>
         public class UploadResult
         {
-            public string guid { get; set; }
-            public Uri uriToFile { get; set; }
+            public string Guid { get; set; }
+            public Uri UriToFile { get; set; }
         }
 
+        /// <summary>
+        /// The Result Returned from UpdateProcess()
+        /// </summary>
         public class ProcessUpdateResult : UpdateResult<Process>
         {
             public IEnumerable<OperationMessageResult> Messages

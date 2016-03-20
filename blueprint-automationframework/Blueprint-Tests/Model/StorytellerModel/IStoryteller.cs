@@ -13,23 +13,23 @@ namespace Model.StorytellerModel
         List<IOpenApiArtifact> Artifacts { get; }
 
         /// <summary>
-        /// Create a Process artifact
+        /// Create and Save a Process artifact
         /// </summary>
         /// <param name="project">The project where the process artifact is to be added</param>
         /// <param name="artifactType">The base artifact type of the process artifact</param>
         /// <param name="user">The user credentials for the request to create the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
-        /// <returns>The created artifact object</returns>
+        /// <returns>The saved artifact object</returns>
         IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Create Multiple Process Artifacts
+        /// Create and Publish Multiple Process Artifacts
         /// </summary>
         /// <param name="project">The project where the process artifacts are to be added</param>
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
         /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
-        /// <returns>The list of the created artifact objects</returns>
-        List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
+        /// <returns>The list of the published artifact objects</returns>
+        List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
         /// Generate or Update User Stories for the Process Artifact.

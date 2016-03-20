@@ -21,7 +21,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = false;
+        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -92,6 +92,9 @@ namespace StorytellerTests
             Assert.That( deserializedResponse.Message == ProcessValidationResponse.NameRequired,
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
                 );
+
+            // Publish the process artifact
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 
         [TestCase]
@@ -125,6 +128,9 @@ namespace StorytellerTests
             Assert.That(deserializedResponse.Message.Contains(processLink.DestinationId.ToString(CultureInfo.InvariantCulture)),
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
                 );
+
+            // Publish the process artifact
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 
         #endregion Tests

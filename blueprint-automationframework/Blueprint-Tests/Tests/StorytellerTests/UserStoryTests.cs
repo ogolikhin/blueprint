@@ -322,7 +322,61 @@ namespace StorytellerTests
             Assert.That(createdUserStoriesFirstBatchCount == updatedUserStoriesSecondBatchCount, "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.", createdUserStoriesFirstBatchCount, updatedUserStoriesSecondBatchCount);
         }
 
+        [TestCase]
+        [Description("Publish process, generate user story for it, update Nonfunctional requirement" +
+            "field with inline trace to deleted artifact. Response must return error message.")]
+        public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifyReturnedMessage()
+        {
+            // Create an Process artifact
+            var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+
+            // Publish the Process artifact; enable recursive delete flag
+            _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
+
+            var process = _storyteller.GetProcess(_user, processArtifact.Id);
+
+            // Create target artifact for inline trace
+            IOpenApiArtifact linkedArtifact = ArtifactFactory.CreateOpenApiArtifact(project: _project,
+                user: _user, artifactType: BaseArtifactType.Actor);
+            linkedArtifact.Save(user: _user);
+            linkedArtifact.Publish(user: _user);
+
+            //get text with inline trace to the specified artifact
+            var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
+            
+            //delete artifact which is target for inline trace
+            linkedArtifact.Delete(user: _user);
+            linkedArtifact.Publish(user: _user);
+
+            // Generate User Stories from the Process
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
+
+            // update Nonfunctional Requirements field with inline trace
+            var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(_storyteller.Address, _user, inlineTraceText);
+            Assert.That(updatePropertyResult.Messages.Count() == 1, "Result of create inline trace must return one error message, but returns {0}", updatePropertyResult.Messages.Count());
+        }
+
         #endregion Tests
 
+        /// <summary>
+        /// Creates text with inline traces for provided artifacts. For use with RTF properties.
+        /// </summary>
+        /// <param name="artifacts">list of target artifacts for inline traces</param>
+        /// <returns>Text with inline traces</returns>
+        private static string GetTextForInlineTrace(List<IOpenApiArtifact> artifacts)
+        {
+            var text = String.Empty;
+            foreach (var artifact in artifacts)
+            {
+                text = text + I18NHelper.FormatInvariant("<a " +
+                "href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\"" +
+                " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
+                " text=\"{2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\">{2}</a>&nbsp;",
+                artifact.Address, artifact.Id, artifact.Name);
+            }
+            text = "<p>" + text + "</p>";
+            return text;
+        }
     }
 }

@@ -94,35 +94,43 @@ namespace StorytellerTests
         {
             var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
-            var process = _storyteller.GetProcess(_user, artifact.Id);
+            var returnedProcess = _storyteller.GetProcess(_user, artifact.Id);
 
-            Assert.IsNotNull(process, "The returned process was null.");
+            Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
-            Assert.That(process.Id == artifact.Id,
-                "The ID of the returned process was '{0}', but '{1}' was expected.", process.Id, artifact.Id);
-            Assert.That(process.Shapes.Count == defaultShapesCount,
-                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesCount, process.Shapes.Count);
-            Assert.That(process.Links.Count == defaultLinksCount,
-                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksCount, process.Links.Count);
-            Assert.That(process.ArtifactPathLinks.Count == defaultArtifactPathLinksCount,
-                "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, process.ArtifactPathLinks.Count);
-            Assert.That(process.PropertyValues.Count == defaultPropertyValuesCount,
-                "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, process.PropertyValues.Count);
+            Assert.That(returnedProcess.Id == artifact.Id,
+                "The ID of the returned process was '{0}', but '{1}' was expected.", returnedProcess.Id, artifact.Id);
+            Assert.That(returnedProcess.Shapes.Count == defaultShapesCount,
+                "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesCount, returnedProcess.Shapes.Count);
+            Assert.That(returnedProcess.Links.Count == defaultLinksCount,
+                "The number of links in a default process is {0} but {1} links were returned.", defaultLinksCount, returnedProcess.Links.Count);
+            Assert.That(returnedProcess.ArtifactPathLinks.Count == defaultArtifactPathLinksCount,
+                "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, returnedProcess.ArtifactPathLinks.Count);
+            Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
+                "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
+
+            // Publish the process artifact so teardown can properly delete the process
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
             IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
-            IList<IProcess> processList = null;
+            List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
             {
-                processList = _storyteller.GetProcesses(_user, 1);
+                processList = (List<IProcess>)_storyteller.GetProcesses(_user, _project.Id);
             }, "GetProcesses must not return an error.");
 
-            var results = processList.Where(p => (p.Name == artifact.Name)).ToList();
-            Assert.IsTrue(results.Count > 0, "List of processes must have newly created process, but it doesn't.");
+            // Get returned process from list of processes
+            var returnedProcess = processList.Find(p => p.Name == artifact.Name);
+
+            Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
+
+            // Publish the process artifact so teardown can properly delete the process
+            _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 
         [TestCase]

@@ -25,7 +25,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private IFileStore _filestore;
-        private bool _deleteChildren = false;
+        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -137,12 +137,12 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
                 
-            Assert.IsNotNull(processLink, "Process link was not found.");
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            returnedProcess.AddUserAndSystemTask(processLink);
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -160,12 +160,12 @@ namespace StorytellerTests
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var processLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
+            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
 
-            Assert.IsNotNull(processLink, "Process link was not found.");
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserAndSystemTask(processLink);
+            returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
             // Updatea and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -179,16 +179,16 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Get the default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            // Find the end shape
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the incoming link for the end shape
-            var processLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask.Id);
+            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
 
-            Assert.IsNotNull(processLink, "Process link was not found.");
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserAndSystemTask(processLink);
+            returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -207,12 +207,13 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
+            // Get the branch end point
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -231,37 +232,10 @@ namespace StorytellerTests
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find incoming process link for end shape
-            var processLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
+            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
 
             // Add Decision point with branch and 2 user tasks
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(endShape.Id, processLink.Orderindex + 1);
-
-            // Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
-        }
-
-        [TestCase]
-        [Description("Add a new user task before a user decision point and verify that the returned process" +
-                     "has the new user task in the correct position and has the correct properties.")]
-        public void AddUserTaskBeforeUserDecision_VerifyReturnedProcess()
-        {
-            // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-
-            // Find the default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find incoming process link for the default user task shape
-            var processLink = returnedProcess.GetIncomingLinkForShape(defaultUserTask.Id);
-
-            // Add Decision point with branch before default user task
-            var userDecisionPoint = returnedProcess.AddUserDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1);
-
-            // Find the incoming link for the user decision task
-             processLink = returnedProcess.GetIncomingLinkForShape(userDecisionPoint.Id);
-
-            // Add a user/system task immediately before the user decision point
-            returnedProcess.AddUserAndSystemTask(processLink);
+            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(endShape.Id, endIncomingLink.Orderindex + 1);
 
             // Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -276,16 +250,16 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Find the end shape
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
-            // Find the outgoing link for the default user task
-            var processLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask.Id);
+            // Find the incoming link for the end shape
+            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
 
-            // Add a user/system task immediately bafter the default user task
-            returnedProcess.AddUserAndSystemTask(processLink);
+            // Add a user/system task immediately before the end shape
+            var newUserTask = returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
             // Add a user decision point between 2 user/system tasks
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1);
+            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(newUserTask.Id, endIncomingLink.Orderindex + 1, endShape.Id);
 
             // Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -304,21 +278,22 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find the outgoing link for the precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
-
-            var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Add Decision point with branch (make order index to to give room for internal branch
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1);
 
-            // Find the default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            // Find the updated outgoing link for the precondition
+            preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
-            // Find the outgoing link for the default user task
-            processLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask.Id);
+            // Add user and system task before new user decision point
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
 
-            // Add a user decision point after the default user task and before the end point
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            // Find the updated outgoing link for the precondition
+            preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+
+            // Add a user decision point after the precondition and before the new user/system task
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1);
 
             // Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -337,16 +312,16 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Find the endpoint for the new branch
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var userDecision = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1);
 
             // Add branch to decision point with task
-            returnedProcess.AddBranchWithUserTaskToUserDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id); 
+            returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision.Id, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id); 
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -364,16 +339,21 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Determine the branch endpoint
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
+            // Add decision point with branch after precondition
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+
             // Add branch to decision point with task
-            var userTask = returnedProcess.AddBranchWithUserTaskToUserDecisionPoint(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+
+            var newSystemTask = returnedProcess.GetNextShape(newUserTask);
 
             // Add decision point with branch to end
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(userTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(newSystemTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -387,19 +367,26 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Find the default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            // Find the end shape
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
-            // Find the outgoing link for the default user task
-            var processLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask.Id);
+            // Find the incoming link for the end shape
+            var endIncomingLink = returnedProcess.GetIncomingLinkForShape(endShape.Id);
 
-            Assert.IsNotNull(processLink, "Process link was not found.");
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
 
-            // Add a user/system task immediately before the end shape
-            var userTask = returnedProcess.AddUserAndSystemTask(processLink);
+            var newUserTask = returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
-            // Add branch with merge point between 2 user tasks
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1, userTask.Id);
+            // Find the precondition task
+            var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find the outgoing link for the precondition shape
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(precondition.Id);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user decision with branch and merge point after precondition
+            returnedProcess.AddUserDecisionPointWithBranchAfterShape(precondition.Id, preconditionOutgoingLink.Orderindex + 1, newUserTask.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -417,16 +404,16 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
             // Determine the branch endpoint
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Add Decision point with branch to end
-            var userDecisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, processLink.Orderindex + 1, branchEndPoint.Id);
+            var userDecisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point before decision point; will have same branch order index as previous added branch
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint.Id, processLink.Orderindex + 1);
+            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint.Id, preconditionOutgoingLink.Orderindex + 1);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -527,13 +514,13 @@ namespace StorytellerTests
             // Uploading the file
             var uploadResult = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
-            var deserialzedUploadResult = Deserialization.DeserializeObject<Storyteller.UploadResult>(uploadResult);
+            var deserialzedUploadResult = Deserialization.DeserializeObject<UploadResult>(uploadResult);
 
-            // Update the default precondition properties in the retrieved process model with guid and uriToFile
+            // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.uriToFile;
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.guid;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.UriToFile;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.Guid;
 
             // Save the process with the updated properties; enable recursive delete flag
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);

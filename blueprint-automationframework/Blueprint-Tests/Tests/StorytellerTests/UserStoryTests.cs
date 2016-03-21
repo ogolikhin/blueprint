@@ -322,10 +322,10 @@ namespace StorytellerTests
             Assert.That(createdUserStoriesFirstBatchCount == updatedUserStoriesSecondBatchCount, "The expected number of user stories from UserStoryGeneration call is {0} but {1} are updated.", createdUserStoriesFirstBatchCount, updatedUserStoriesSecondBatchCount);
         }
 
-        [Test]
+        [TestCase]
         [Description("Publish process, generate user story for it, update Nonfunctional requirement" +
             "field with inline trace to deleted artifact. Response must return error message.")]
-        public void UpdateNonfunctionalsRequirementsWithInlineTrace_VerifyReturnedMessage()
+        public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifyReturnedMessage()
         {
             // Create an Process artifact
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
@@ -345,8 +345,6 @@ namespace StorytellerTests
             //get text with inline trace to the specified artifact
             var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
             
-            //var expectedMessage = I18NHelper.FormatInvariant("Artifact with ID {0} was inaccessible. A manual trace was not created.", linkedArtifact.Id);
-            
             //delete artifact which is target for inline trace
             linkedArtifact.Delete(user: _user);
             linkedArtifact.Publish(user: _user);
@@ -355,12 +353,17 @@ namespace StorytellerTests
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
 
             // update Nonfunctional Requirements field with inline trace
-            var updatePropertyResult = userStories[0].UpdateNonfunctionalsRequirements(_storyteller.Address, _user, inlineTraceText);
+            var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(_storyteller.Address, _user, inlineTraceText);
             Assert.That(updatePropertyResult.Messages.Count() == 1, "Result of create inline trace must return one error message, but returns {0}", updatePropertyResult.Messages.Count());
         }
 
         #endregion Tests
 
+        /// <summary>
+        /// Creates text with inline traces for provided artifacts. For use with RTF properties.
+        /// </summary>
+        /// <param name="artifacts">list of target artifacts for inline traces</param>
+        /// <returns>Text with inline traces</returns>
         private static string GetTextForInlineTrace(List<IOpenApiArtifact> artifacts)
         {
             var text = String.Empty;

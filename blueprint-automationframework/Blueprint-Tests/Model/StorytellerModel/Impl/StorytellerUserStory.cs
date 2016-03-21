@@ -47,15 +47,10 @@ namespace Model.StorytellerModel.Impl
             CustomProperties = new List<StorytellerProperty>();
         }
 
-        public StorytellerPropertyUpdateResult UpdateNonfunctionalsRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public StorytellerPropertyUpdateResult UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, items, Id, properties);
-                        
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
                         
             string tokenValue = user.Token?.AccessControlToken;
             var cookies = new Dictionary<string, string>();
@@ -72,7 +67,7 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
             var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<StorytellerPropertyUpdateResult, List<StorytellerProperty>>(path,
-                RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty });
+                RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, expectedStatusCodes: expectedStatusCodes);
             return userstoryUpdateResult;
         }
     }

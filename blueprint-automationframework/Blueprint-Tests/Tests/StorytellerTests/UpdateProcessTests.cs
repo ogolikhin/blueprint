@@ -514,7 +514,7 @@ namespace StorytellerTests
             // Uploading the file
             var uploadResult = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
-            var deserialzedUploadResult = Deserialization.DeserializeObject<Storyteller.UploadResult>(uploadResult);
+            var deserialzedUploadResult = Deserialization.DeserializeObject<UploadResult>(uploadResult);
 
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

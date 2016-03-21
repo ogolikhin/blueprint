@@ -254,7 +254,7 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 
-            var updateProcessResult = restApi.SendRequestAndDeserializeObject<ProcessUpdateResult, Process>(
+            var updateProcessResult = restApi.SendRequestAndDeserializeObject<UpdateResult<Process>, Process>(
                 path,
                 RestRequestMethod.PATCH,
                 (Process)process,
@@ -412,29 +412,5 @@ namespace Model.StorytellerModel.Impl
         }
 
         #endregion Implemented from IStoryteller
-
-        /// <summary>
-        /// The Result Returned from UploadFile() 
-        /// </summary>
-        public class UploadResult
-        {
-            public string Guid { get; set; }
-            public Uri UriToFile { get; set; }
-        }
-
-        /// <summary>
-        /// The Result Returned from UpdateProcess()
-        /// </summary>
-        public class ProcessUpdateResult : UpdateResult<Process>
-        {
-            public IEnumerable<OperationMessageResult> Messages
-            {
-                get; set;
-            }
-            public Process Result
-            {
-                get; set;
-            }
-        }
     }
 }

@@ -23,7 +23,7 @@ namespace StorytellerTests
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
-        private bool _deleteChildren = false;
+        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -89,7 +89,7 @@ namespace StorytellerTests
                      "that the returned artifact path links contains all process Ids in the url path.")]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
@@ -109,7 +109,7 @@ namespace StorytellerTests
             int nonexistentArtifactIndex, 
             int nonexistentArtifactId)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -133,7 +133,7 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(nonexistentArtifactIndexes,nameof(nonexistentArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -159,7 +159,7 @@ namespace StorytellerTests
             int numberOfArtifacts, 
             int inaccessibleArtifactIndex)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
@@ -170,6 +170,9 @@ namespace StorytellerTests
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { inaccessibleArtifactIndex });
+
+            // Must be published after assert so that the artifact is deletable in teardown by primary user
+            inaccessibleArtifact.Publish(_secondaryUser);
         }
 
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb")]
@@ -183,7 +186,7 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
@@ -197,6 +200,12 @@ namespace StorytellerTests
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, inaccessibleArtifactIndexes.ToList());
+
+            // Must be published after assert so that the artifact is deletable in teardown by primary user
+            foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
+            {
+                artifacts[inaccessibleArtifactIndex].Publish(_secondaryUser);
+            }
         }
 
         /// <summary>
@@ -206,7 +215,7 @@ namespace StorytellerTests
         /// <param name="artifacts">The list of artifact objects in the breadcrumb</param>
         /// <param name="process">The process object that was returned</param>
         /// <param name="artifactIndexes">A list of artifact indexes for nonexistent or inaccessible artifacts</param>
-        private static void AssertBreadcrumb(int numberOfArtifacts, List<IOpenApiArtifact> artifacts, IProcess process, List<int> artifactIndexes = null)
+        private static void AssertBreadcrumb(int numberOfArtifacts, IReadOnlyList<IOpenApiArtifact> artifacts, IProcess process, ICollection<int> artifactIndexes = null)
         {
             Assert.IsNotNull(process, "The returned process was null.");
             Assert.That(process.Id == artifacts.Last().Id, "Expected process artifact Id is {0} but artifact Id {1} was returned", artifacts.Last().Id, process.Id);

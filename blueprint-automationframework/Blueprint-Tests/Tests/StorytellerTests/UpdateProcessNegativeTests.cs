@@ -20,7 +20,7 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = false;
+        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -101,6 +101,9 @@ namespace StorytellerTests
             // Verify returned process does not contain a story link
             Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
+
+            // Publish the process artifact so teardown can properly delete the process
+            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
         }
 
         [TestCase]
@@ -158,6 +161,9 @@ namespace StorytellerTests
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
+
+            // Publish the process artifact so teardown can properly delete the process
+            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
         }
 
         [TestCase]
@@ -199,6 +205,9 @@ namespace StorytellerTests
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
+
+            // Publish the process artifact so teardown can properly delete the process
+            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
         }
 
         #endregion Tests

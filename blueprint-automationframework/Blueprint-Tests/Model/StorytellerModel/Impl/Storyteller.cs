@@ -69,13 +69,15 @@ namespace Model.StorytellerModel.Impl
             return artifact;
         }
 
-        public List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                artifacts.Add(CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user));
+                var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                artifact.Publish(user);
+                artifacts.Add(artifact);
             }
 
             return artifacts;
@@ -258,7 +260,7 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
 
-            var updateProcessResult = restApi.SendRequestAndDeserializeObject<ProcessUpdateResult, Process>(
+            var updateProcessResult = restApi.SendRequestAndDeserializeObject<UpdateResult<Process>, Process>(
                 path,
                 RestRequestMethod.PATCH,
                 (Process)process,
@@ -414,23 +416,5 @@ namespace Model.StorytellerModel.Impl
         }
 
         #endregion Implemented from IStoryteller
-
-        public class UploadResult
-        {
-            public string guid { get; set; }
-            public Uri uriToFile { get; set; }
-        }
-
-        public class ProcessUpdateResult : UpdateResult<Process>
-        {
-            public IEnumerable<OperationMessageResult> Messages
-            {
-                get; set;
-            }
-            public Process Result
-            {
-                get; set;
-            }
-        }
     }
 }

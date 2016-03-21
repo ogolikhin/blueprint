@@ -6,6 +6,7 @@ using System.Linq;
 using Common;
 using Model.OpenApiModel;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
 
@@ -27,6 +28,9 @@ namespace Model.StorytellerModel.Impl
         public const string DefaultSystemTaskName = "<Start with a verb, i.e. display, print, calculate>";
 
         public const string EndName = "End";
+
+
+        private const double DefaultOrderIndex = 0;
 
         private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
@@ -147,7 +151,7 @@ namespace Model.StorytellerModel.Impl
         {
             /*
             If you start with this:
-                --[UT]--+--[ST]--+--
+                --[UT]--+--[ST]--
 
             It becomes this:
                 --<UD>--+--[UT]--+--[ST]--+--
@@ -158,34 +162,11 @@ namespace Model.StorytellerModel.Impl
             // Find the incoming link for the next shape
             var processLink = GetIncomingLinkForShape(idOfNextShape);
 
-            // Determine the artifact Id of the branch end point
-            int branchEndPointId = idOfBranchMergePoint ?? processLink.DestinationId;   // XXX: Verify if this is correct.  It looks like this goes before the ST.
-
             // Add user decision point before next shape
             var userDecisionPoint = AddUserDecisionPoint(processLink);
 
-            // Find outgoing process link for new user decision point
-            var newprocesslink = GetOutgoingLinkForShape(userDecisionPoint.Id);
-
-            // Add user/system task immediately after user decision point if next shape is the end shape or a user decision point
-            if (idOfNextShape == GetProcessShapeByShapeName(EndName).Id || GetProcessShapeTypeById(idOfNextShape) == ProcessShapeType.UserDecision)
-            {
-                /*  Special case:
-                If next shape is (End):                         If next shape is <UD>:
-                    --+--(End)                                      --+--<UD>--
-
-                It becomes this:                                It becomes this:
-                    --+--<UD>--+--[UT]--+--[ST]--+--(End)           --+--<UD>--+--[UT]--+--[ST]--+--<UD>--
-                          |                      |                        |                      |
-                          +-------[UT]--+--[ST]--+                        +-------[UT]--+--[ST]--+
-                */
-
-                // Add new user/system task to branch
-                AddUserAndSystemTask(newprocesslink);
-            }
-
-            // Add new branch to user decision point
-            AddBranchWithUserTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+            // Add a branch to user decision point
+            AddBranchToUserDecisionPoint(orderIndexOfBranch, idOfBranchMergePoint, userDecisionPoint);
 
             return userDecisionPoint;
         }
@@ -194,7 +175,7 @@ namespace Model.StorytellerModel.Impl
         {
             /*
             If you start with this:
-                --[??]--+--[UT]--+--[ST]--+--
+                --[??]--+--
 
             It becomes this:
                 --[??]--+--<UD>--+--[UT]--+--[ST]--+--
@@ -203,41 +184,22 @@ namespace Model.StorytellerModel.Impl
             */
 
             // Find the outgoing link for the previous shape
-            var processLink = GetOutgoingLinkForShape(idOfPreviousShape);
+            var outgoingLinkForPreviousShape = GetOutgoingLinkForShape(idOfPreviousShape);
 
-            // Determine the artifact Id of the branch end point
-            int branchEndPointId = idOfBranchMergePoint ?? processLink.DestinationId;   // XXX: Verify if this is correct.  It looks like this goes before the ST.
+            var shapeAfterNewUserDecisionPoint = GetProcessShapeTypeById(outgoingLinkForPreviousShape.DestinationId);
+
+            Assert.That(shapeAfterNewUserDecisionPoint != ProcessShapeType.UserDecision, "A user decision point cannot be inserted before an existing user decision point");
 
             // Add user decision point after the previous shape
-            var userDecisionPoint = AddUserDecisionPoint(processLink);
+            var userDecisionPoint = AddUserDecisionPoint(outgoingLinkForPreviousShape);
 
-            // Find outgoing process link for new user decision point
-            var newprocesslink = GetOutgoingLinkForShape(userDecisionPoint.Id);
-
-            // Add user/system task immediately after user decision point only if next shape is the end shape
-            if (newprocesslink.DestinationId == GetProcessShapeByShapeName(EndName).Id)
-            {
-                /*  Special case:
-                If previous shape is right before (End):
-                    --[??]--+--(End)
-
-                It becomes this:
-                    --[??]--+--<UD>--+--[UT]--+--[ST]--+--(End)
-                                |                      |
-                                +-------[UT]--+--[ST]--+
-                */
-
-                // Add new user/system task to branch
-                AddUserAndSystemTask(newprocesslink);
-            }
-
-            // Add new branch to user decision point
-            AddBranchWithUserTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+            // Add a branch to user decision point
+            AddBranchToUserDecisionPoint(orderIndexOfBranch, idOfBranchMergePoint, userDecisionPoint);
 
             return userDecisionPoint;
         }
 
-        public IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
+        public IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null)
         {
             /*
             If you start with this:
@@ -253,18 +215,7 @@ namespace Model.StorytellerModel.Impl
             var outgoingProcessLink = GetOutgoingLinkForShape(idOfNextSystemTaskShape);
 
             // Determine the artifact Id of the branch end point
-            int branchEndPointId;
-
-            if (idOfBranchMergePoint == null)
-            {
-                // branch endpoint is the process link destination id if the branch merge point is null
-                branchEndPointId = outgoingProcessLink.DestinationId;
-            }
-            else
-            {
-                // branch endpoint is the id of the branch merge point if the branch merge point is not null
-                branchEndPointId = (int)idOfBranchMergePoint;
-            }
+            int branchEndPointId = idOfBranchMergePoint ?? outgoingProcessLink.DestinationId;
 
             // Find the incoming link for the next system taskshape
             var incomingProcessLink = GetIncomingLinkForShape(idOfNextSystemTaskShape);
@@ -298,11 +249,11 @@ namespace Model.StorytellerModel.Impl
         }
 
 
-        public IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
+        public IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId)
         {
             /*
             If you start with this:
-                --+--[UT]--+--[ST]--+--
+                --+--<UD>--+--[UT]--+--[ST]--+--
 
             It becomes this:
                 --+--<UD>--+--[UT]--+--[ST]--+--
@@ -353,6 +304,15 @@ namespace Model.StorytellerModel.Impl
             var link = Links.ToList().Find(l => l.SourceId == shapeId);
 
             return link;
+        }
+
+        public IProcessShape GetNextShape(IProcessShape shape)
+        {
+            // Find the outgoing link for the process shape
+            var outgoingLink = Links.ToList().Find(l => l.SourceId == shape.Id);
+
+            // Return the next shape which is located via the link destination Id
+            return GetProcessShapeById(outgoingLink.DestinationId);
         }
 
         public IProcessShape GetProcessShapeByShapeName(string shapeName)
@@ -705,13 +665,7 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = userDecisionPoint.Id;
 
             // Add a new link after the new user decision point
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = userDecisionPoint.Id
-            });
+            AddLink(sourceId: userDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
 
             return userDecisionPoint;
         }
@@ -747,13 +701,7 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = systemDecisionPoint.Id;
 
             // Add a new link after the new system decision point
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = systemDecisionPoint.Id
-            });
+            AddLink(sourceId: systemDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
 
             return systemDecisionPoint;
         }
@@ -789,13 +737,7 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = systemTask.Id;
 
             // Add a new link between the new system task and the destination
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = systemTask.Id
-            });
+            AddLink(sourceId: systemTask.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
 
             return systemTask;
         }
@@ -831,15 +773,71 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = userTask.Id;
 
             // Add a new link between the new user task and the destination
-            Links.Add(new ProcessLink
-            {
-                DestinationId = destinationId,
-                Label = null,
-                Orderindex = 1,
-                SourceId = userTask.Id
-            });
+            AddLink(sourceId: userTask.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
 
             return userTask;
+        }
+
+        /// <summary>
+        /// Add a Branch with User/System Tasks to a User Decision Point
+        /// </summary>
+        /// <param name="orderIndexOfBranch">The vertical order index of the branch</param>
+        /// <param name="idOfBranchMergePoint">The id of the shape where the branch merges</param>
+        /// <param name="userDecisionPoint">The user decision that will receive the new branch</param>
+        private void AddBranchToUserDecisionPoint(
+            double orderIndexOfBranch, 
+            int? idOfBranchMergePoint,
+            IProcessShape userDecisionPoint)
+        {
+            // Find outgoing process link for new user decision point
+            var linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint.Id);
+
+            // Find process shape immediately after the added user decision point
+            var processShapeAfterUserDecisionPoint = GetProcessShapeTypeById(linkAferUserDecisionPoint.DestinationId);
+
+            // Add user/system task immediately after user decision point only if next shape is the end shape
+            // or another user decision
+            if (processShapeAfterUserDecisionPoint == ProcessShapeType.End ||
+                processShapeAfterUserDecisionPoint == ProcessShapeType.UserDecision)
+            {
+                /*  Special case:
+                If next shape is (End):                         If next shape is <UD>:
+                    --<UD>--+--(End)                                --<UD>--+--<UD>---
+
+                It becomes this:                                It becomes this:
+                    --+--<UD>--+--[UT]--+--[ST]--+--(End)           --+--<UD>--+--[UT]--+--[ST]--+--<UD>--
+                          |                      |                        |                      |
+                          +-------[UT]--+--[ST]--+                        +-------[UT]--+--[ST]--+
+                */
+
+                // Add new user/system task to branch
+                AddUserAndSystemTask(linkAferUserDecisionPoint);
+
+                // Find updated outgoing process link for user decision point
+                linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint.Id);
+
+                // Find process shape immediately after the added user decision from the udated link
+                // after the added user decision point
+                processShapeAfterUserDecisionPoint = GetProcessShapeTypeById(linkAferUserDecisionPoint.DestinationId);
+            }
+
+            // Get the branch merge point following the user/system task combination only if
+            // the id of the branch merge point was not defined in the passed parameter and
+            // the following process shape is a user task
+            if (idOfBranchMergePoint == null && processShapeAfterUserDecisionPoint == ProcessShapeType.UserTask)
+            {
+                var userTaskShape = GetProcessShapeById(linkAferUserDecisionPoint.DestinationId);
+                var systemTaskShape = GetNextShape(userTaskShape);
+                var shapeAfterSystemTaskShape = GetNextShape(systemTaskShape);
+
+                idOfBranchMergePoint = shapeAfterSystemTaskShape.Id;
+            }
+
+            Assert.NotNull(idOfBranchMergePoint, "The Id of the branch merge point is null.");
+
+            // Add a branch with a user/system task to user decision point
+            AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch,
+                    (int)idOfBranchMergePoint);
         }
 
         /// <summary>

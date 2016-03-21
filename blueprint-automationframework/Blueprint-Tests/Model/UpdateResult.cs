@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Model.Impl
+namespace Model
 {
     /// <summary>
     /// Enumeration for Message Level Type
@@ -22,12 +22,12 @@ namespace Model.Impl
         /// <summary>
         /// The list of messages returned by the update method
         /// </summary>
-        IEnumerable<OperationMessageResult> Messages { get; set; }
+        public IEnumerable<OperationMessageResult> Messages { get; set; }
 
         /// <summary>
         /// The result returned by the update method
         /// </summary>
-        T Result { get; set; }
+        public T Result { get; set; }
     }
 
     /// <summary>

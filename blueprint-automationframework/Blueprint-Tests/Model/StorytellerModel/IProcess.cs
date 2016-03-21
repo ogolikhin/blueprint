@@ -155,7 +155,7 @@ namespace Model.StorytellerModel
         /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="destinationId">The artifact Id of the following process shape</param>
         /// <returns>The user task created</returns>
-        IProcessShape AddBranchWithUserTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+        IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
 
         /// <summary>
         /// Add a Link to a Process
@@ -191,7 +191,7 @@ namespace Model.StorytellerModel
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The system decision point that was added</returns>
-        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a Branch to a System Decision Point
@@ -242,6 +242,13 @@ namespace Model.StorytellerModel
         /// <param name="shapeId">The artifact Id of the shape</param>
         /// <returns>The outgoing process link</returns>
         ProcessLink GetOutgoingLinkForShape(int shapeId);
+
+        /// <summary>
+        /// Get the Shape Following an Existing Shape
+        /// </summary>
+        /// <param name="shape">The existing shape</param>
+        /// <returns>The shape following the existing shape</returns>
+        IProcessShape GetNextShape(IProcessShape shape);
 
         #endregion Methods
     }

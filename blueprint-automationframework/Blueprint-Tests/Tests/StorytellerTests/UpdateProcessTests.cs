@@ -142,7 +142,7 @@ namespace StorytellerTests
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add user/system Task immediately after the precondition
-            returnedProcess.AddUserTask(processLink);
+            returnedProcess.AddUserAndSystemTask(processLink);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -165,7 +165,7 @@ namespace StorytellerTests
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserTask(processLink);
+            returnedProcess.AddUserAndSystemTask(processLink);
 
             // Updatea and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -188,7 +188,7 @@ namespace StorytellerTests
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            returnedProcess.AddUserTask(processLink);
+            returnedProcess.AddUserAndSystemTask(processLink);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -261,7 +261,7 @@ namespace StorytellerTests
              processLink = returnedProcess.GetIncomingLinkForShape(userDecisionPoint.Id);
 
             // Add a user/system task immediately before the user decision point
-            returnedProcess.AddUserTask(processLink);
+            returnedProcess.AddUserAndSystemTask(processLink);
 
             // Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
@@ -282,7 +282,7 @@ namespace StorytellerTests
             var processLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask.Id);
 
             // Add a user/system task immediately bafter the default user task
-            returnedProcess.AddUserTask(processLink);
+            returnedProcess.AddUserAndSystemTask(processLink);
 
             // Add a user decision point between 2 user/system tasks
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(defaultUserTask.Id, processLink.Orderindex + 1);
@@ -396,7 +396,7 @@ namespace StorytellerTests
             Assert.IsNotNull(processLink, "Process link was not found.");
 
             // Add a user/system task immediately before the end shape
-            var userTask = returnedProcess.AddUserTask(processLink);
+            var userTask = returnedProcess.AddUserAndSystemTask(processLink);
 
             // Add branch with merge point between 2 user tasks
             returnedProcess.AddUserDecisionPointWithBranchBeforeShape(defaultUserTask.Id, processLink.Orderindex + 1, userTask.Id);

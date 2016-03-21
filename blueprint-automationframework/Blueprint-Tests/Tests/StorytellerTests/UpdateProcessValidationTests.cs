@@ -93,7 +93,7 @@ namespace StorytellerTests
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
                 );
 
-            // Publish the process artifact
+            // Publish the process artifact so teardown can properly delete the process
             _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 
@@ -129,7 +129,7 @@ namespace StorytellerTests
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
                 );
 
-            // Publish the process artifact
+            // Publish the process artifact so teardown can properly delete the process
             _storyteller.PublishProcessArtifact(_user, returnedProcess);
         }
 

@@ -171,7 +171,7 @@ namespace StorytellerTests
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { inaccessibleArtifactIndex });
 
-            // Must be published after assert so that the artifact is inaccessible by primary user
+            // Must be published after assert so that the artifact is deletable in teardown by primary user
             inaccessibleArtifact.Publish(_secondaryUser);
         }
 
@@ -201,7 +201,7 @@ namespace StorytellerTests
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, inaccessibleArtifactIndexes.ToList());
 
-            // Must be published after assert so that the artifact is inaccessible by primary user
+            // Must be published after assert so that the artifact is deletable in teardown by primary user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
                 artifacts[inaccessibleArtifactIndex].Publish(_secondaryUser);

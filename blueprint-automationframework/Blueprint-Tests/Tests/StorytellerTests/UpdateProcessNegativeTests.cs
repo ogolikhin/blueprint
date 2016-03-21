@@ -102,6 +102,7 @@ namespace StorytellerTests
             Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
 
+            // Publish the process artifact so teardown can properly delete the process
             _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
         }
 
@@ -161,6 +162,7 @@ namespace StorytellerTests
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
 
+            // Publish the process artifact so teardown can properly delete the process
             _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
         }
 
@@ -204,8 +206,8 @@ namespace StorytellerTests
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
 
+            // Publish the process artifact so teardown can properly delete the process
             _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
-            _storyteller.GenerateUserStories(_user, modifiedReturnedProcess);
         }
 
         #endregion Tests

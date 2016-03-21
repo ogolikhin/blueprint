@@ -311,8 +311,6 @@ namespace Model.StorytellerModel.Impl
 
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
-            additionalHeaders.Add("Accept", "application/json");
-
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
             if (expireDate != null)
             {

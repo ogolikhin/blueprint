@@ -27,7 +27,13 @@ namespace Model.StorytellerModel.Impl
 
         private IOpenApiArtifact _artifact;
         private readonly string _address;
-
+        public string Address
+        {
+            get
+            {
+                return _address;
+            }
+        }
         public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
 
         #region Constructor

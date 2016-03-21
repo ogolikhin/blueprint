@@ -158,5 +158,10 @@ namespace Model.StorytellerModel
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
+
+        /// <summary>
+        /// Returns URL of the Blueprint server
+        /// </summary>
+        string Address { get; }
     }
 }

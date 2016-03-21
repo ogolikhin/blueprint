@@ -121,7 +121,7 @@ namespace StorytellerTests
 
             Assert.DoesNotThrow(() =>
             {
-                processList = (List<IProcess>)_storyteller.GetProcesses(_user, 1);
+                processList = (List<IProcess>)_storyteller.GetProcesses(_user, _project.Id);
             }, "GetProcesses must not return an error.");
 
             // Get returned process from list of processes

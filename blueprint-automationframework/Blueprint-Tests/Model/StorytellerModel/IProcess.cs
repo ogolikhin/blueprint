@@ -191,7 +191,7 @@ namespace Model.StorytellerModel
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The system decision point that was added</returns>
-        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemtask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a Branch to a System Decision Point

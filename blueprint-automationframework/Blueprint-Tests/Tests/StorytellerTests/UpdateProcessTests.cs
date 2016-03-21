@@ -286,7 +286,13 @@ namespace StorytellerTests
             // Find the updated outgoing link for the precondition
             preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
 
-            // Add a user decision point after the default user task and before the end point
+            // Add user and system task before new user decision point
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Find the updated outgoing link for the precondition
+            preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+
+            // Add a user decision point after the precondition and before the new user/system task
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1);
 
             // Verify the modified process
@@ -379,7 +385,7 @@ namespace StorytellerTests
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
-            // Add branch with merge point after precondition
+            // Add user decision with branch and merge point after precondition
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(precondition.Id, preconditionOutgoingLink.Orderindex + 1, newUserTask.Id);
 
             // Update and Verify the modified process

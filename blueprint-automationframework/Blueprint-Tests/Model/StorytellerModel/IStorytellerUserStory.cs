@@ -66,7 +66,7 @@ namespace Model.StorytellerModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Result of updating nonfunctional requrements</returns>
-        StorytellerPropertyUpdateResult UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
     }
 
     public interface IStorytellerProperty

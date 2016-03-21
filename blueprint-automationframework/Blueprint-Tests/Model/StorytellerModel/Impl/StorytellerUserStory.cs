@@ -47,7 +47,7 @@ namespace Model.StorytellerModel.Impl
             CustomProperties = new List<StorytellerProperty>();
         }
 
-        public StorytellerPropertyUpdateResult UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, items, Id, properties);
@@ -66,7 +66,7 @@ namespace Model.StorytellerModel.Impl
             
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
-            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<StorytellerPropertyUpdateResult, List<StorytellerProperty>>(path,
+            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(path,
                 RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, expectedStatusCodes: expectedStatusCodes);
             return userstoryUpdateResult;
         }
@@ -78,17 +78,5 @@ namespace Model.StorytellerModel.Impl
         public int PropertyTypeId { get; set; }
         public int? PropertyType { get; set; }
         public string Value { get; set; }
-    }
-
-    public class StorytellerPropertyUpdateResult : UpdateResult<StorytellerProperty>
-    {
-        public IEnumerable<OperationMessageResult> Messages
-        {
-            get; set;
-        }
-        public StorytellerProperty Result
-        {
-            get; set;
-        }
     }
 }

@@ -617,8 +617,8 @@ namespace StorytellerTests
 
         [Test]
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [Description("Add a new system decision point to the default process. The system decision point added with two additonal branches after the default UT.")]
-        public void AddSystemDecisionWithBranchsAfterDefaultUserTask_VerifyReturnedProcess()
+        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
+        public void AddSystemDecisionWithBranchesAfterDefaultUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
@@ -646,6 +646,79 @@ namespace StorytellerTests
             
             // Add additonal branch to the System Decision point
             process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint.Id,processLink.Orderindex+2,branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point."
+            )]
+        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemtask(defaultUserTaskOutgoingProcessLink.DestinationId, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update the process with the system decision point
+            process = _storyteller.UpdateProcess(_user, process);
+
+            // Get the system task shape on the second branch for adding the additional System Decision Point
+            var systemTaskOnTheSecondBranch = process.GetProcessShapesByShapeType(ProcessShapeType.SystemTask).Find(s => s.Id.Equals(process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1)).DestinationId));
+
+            // Add the System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemtask(systemTaskOnTheSecondBranch.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: one contains a system decision point along with branches and system tasks and the other contain just a system task"
+            )]
+        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemtask(defaultUserTaskOutgoingProcessLink.DestinationId, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update the process with the system decision point
+            process = _storyteller.UpdateProcess(_user, process);
+
+            // Get the system task shape on the second branch for adding the additional System Decision Point
+            var systemTaskOnTheSecondBranch = process.GetProcessShapesByShapeType(ProcessShapeType.SystemTask).Find(s => s.Id.Equals(process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1)).DestinationId));
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemtask(systemTaskOnTheSecondBranch.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+
+            // Update the process with the system decision point
+            process = _storyteller.UpdateProcess(_user, process);
+
+            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);

@@ -1,5 +1,6 @@
 ﻿import "angular";
 import {IAuth, IUser} from "./auth.svc";
+import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
@@ -63,17 +64,63 @@ export class SessionSvc implements ISession {
 
             this._modalInstance.result.then((result) => {
                 if (result) {
-                    this._currentUser = result;
-                    done.resolve();
+                    if (result.userInfo) {
+                        this._currentUser = result;
+                        done.resolve();
+                    } else if (result.userName && result.password) {
+                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
+                        confirmationDialog = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
+                            template: require("./../messaging/confirmation.dialog.html"),
+                            windowClass: "nova-login",
+                            controller: SimpleDialogCtrl,
+                            controllerAs: "ctrl",
+                            keyboard: false, // cannot Escape ))
+                            backdrop: false,
+                            bindToController: true
+                        });
+                        confirmationDialog.result.then((confirmed) => {
+                            if (confirmed) {
+                                this.auth.login(result.userName, result.password, true).then(
+                                    (user) => {
+                                        this._currentUser = user;
+                                        done.resolve();
+                                    },
+                                    (error) => {
+                                        this.showLogin(done);
+                                    });
+                            } else {
+                                this.showLogin(done);
+                            }
+                        }).finally(() => {
+                            confirmationDialog = null;
+                        });
+                    } else {
+                        this.showLogin(done);
+                    }
                 }
                 else {
-                    done.reject();
+                    this.showLogin(done);
                 }
             }).finally(() => {
                 this._modalInstance = null;
             });
         }
     }
+}
+
+export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
+    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
+        super($uibModalInstance);
+        this.acceptButtonName = "Yes";
+        this.cancelButtonName = "No";
+        this.msg = "The current session has expired or you have logged into Blueprint in another window. Do you wish to override current session?";
+    }
+}
+
+export class ILoginInfo {
+    public userName: string;
+    public password: string;
+    public userInfo: IUser;
 }
 
 export class LoginCtrl {
@@ -91,21 +138,38 @@ export class LoginCtrl {
     }
 
     public login(): void {
-        this.auth.login(this.novaUsername, this.novaPassword, true).then(
+        this.auth.login(this.novaUsername, this.novaPassword, false).then(
             (user) => {
                 this.labelError = false;
                 this.fieldError = false;
-                this.$uibModalInstance.close(user);
+                var result: ILoginInfo = new ILoginInfo();
+                result.userInfo = user;
+
+                this.$uibModalInstance.close(result);
             },
             (error) => {
-                if (error.errorCode === 2000) {
-                    this.errorMsg = "Please enter a correct Username and Password";
-                    this.labelError = true;
-                    this.fieldError = true;
-                } else if (error.errorCode === 2001) {
-                    this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
-                    this.labelError = true;
+                if (error.statusCode === 401) {
+                    if (error.errorCode === 2000) {
+                        this.errorMsg = "Please enter a correct Username and Password";
+                        this.labelError = true;
+                        this.fieldError = true;
+                    } else if (error.errorCode === 2001) {
+                        this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
+                        this.labelError = true;
+                        this.fieldError = false;
+                    } else {
+                        this.errorMsg = error.message;
+                        this.labelError = true;
+                        this.fieldError = true;
+                    }
+                } else if (error.statusCode === 409) {
+                    this.labelError = false;
                     this.fieldError = false;
+                    var result: ILoginInfo = new ILoginInfo();
+                    result.userName = this.novaUsername;
+                    result.password = this.novaPassword;
+
+                    this.$uibModalInstance.close(result);
                 } else {
                     this.errorMsg = error.message;
                     this.labelError = true;

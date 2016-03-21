@@ -168,7 +168,7 @@ namespace StorytellerTests
 
             for (int i = 0; i < iteration; i++)
             {
-                var userTask = process.AddUserTask(processLink);
+                var userTask = process.AddUserAndSystemTask(processLink);
                 processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
@@ -216,7 +216,7 @@ namespace StorytellerTests
 
             for (int i = 0; i < iteration; i++)
             {
-                var userTask = process.AddUserTask(processLink);
+                var userTask = process.AddUserAndSystemTask(processLink);
                 processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
@@ -265,7 +265,7 @@ namespace StorytellerTests
 
             for (int i = 0; i < initialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
-                var userTask = process.AddUserTask(processLink);
+                var userTask = process.AddUserAndSystemTask(processLink);
                 processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 
@@ -291,7 +291,7 @@ namespace StorytellerTests
 
             for (int i = 0; i < additionalUserTaskExpectedCount; i++)
             {
-                var userTask = process.AddUserTask(processLink);
+                var userTask = process.AddUserAndSystemTask(processLink);
                 processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
             }
 

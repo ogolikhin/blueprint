@@ -113,11 +113,11 @@ export class AuthSvc implements IAuth {
                     SessionTokenHelper.setToken(token);
                     this.$http.get<IUser>("/svc/adminstore/users/loginuser", this.createRequestConfig())
                         .success((user: IUser) => {
-                            /*if (isSaml && this.prevLogin && this.prevLogin !== user.Login) {
-                                this.internalLogout(token).finally(() => {
-                                    deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
-                                });
-                            } else {*/
+                            //if (isSaml && this.prevLogin && this.prevLogin !== user.Login) {
+                            //    this.internalLogout(token).finally(() => {
+                            //        deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
+                            //    });
+                            //} else {
                                 //this.onLogin(user);
                             deferred.resolve(user);
                             //}
@@ -161,14 +161,12 @@ export class AuthSvc implements IAuth {
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {
                 var msg = null;
-                /*if (statusCode === 404) { // NotFound
-                    msg = LabelsUtil.getValue(this.$rootScope, "ZeroLicenseMessage",
-                        "No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator");
+                if (statusCode === 404) { // NotFound
+                    msg = "No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator";
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = LabelsUtil.getValue(this.$rootScope, "LicenseLimitReachedMessage",
-                        "The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.");
-                }*/
+                    msg = "The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.";
+                }
 
                 deferred.reject(msg);
             });

@@ -567,15 +567,15 @@ namespace StorytellerTests
 
             // Find the default UserTask
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
             // Find the branch end point for the system decision point
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
             
             // Find the outgoing process link from the default UserTask
-            var processLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
 
             // Add System Decision point with branch to end
-            process.AddSystemDecisionPointWithBranchBeforeSystemtask(processLink.DestinationId, processLink.Orderindex + 1, branchEndPoint.Id);
+            process.AddSystemDecisionPointWithBranchBeforeSystemtask(targetSystemTask.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);

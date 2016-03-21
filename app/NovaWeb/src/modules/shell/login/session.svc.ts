@@ -81,13 +81,29 @@ export class LoginCtrl {
     public labelError: boolean;
     public fieldError: boolean;
 
+    public rememberPassword: boolean;
     public errorMsg: string;
     public novaUsername: string;
     public novaPassword: string;
 
     static $inject: [string] = ["$uibModalInstance", "auth"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth) {
+        this.rememberPassword = false;
         this.errorMsg = "Please enter your Username and Password";
+    }
+
+    public forgotPassword(): void {
+        this.rememberPassword = true;
+        this.errorMsg = "Please enter your Username";
+    }
+
+    public goToLogin(): void {
+        this.rememberPassword = false;
+        this.errorMsg = "Please enter your Username and Password";
+    }
+
+    public reset(): void {
+        this.errorMsg = "(FAKE) Your password has been reset.<br>Please go back to login.";
     }
 
     public login(): void {

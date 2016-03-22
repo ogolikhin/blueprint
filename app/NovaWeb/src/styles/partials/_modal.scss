@@ -12,8 +12,22 @@
   }
 }
 
+.modal.in.nova-messaging,
 .modal.in.nova-login {
   margin: 0;
+
+  .modal-header{
+    .modal-close {
+      color: $blue-lightest;
+      cursor: pointer;
+      float: right !important;
+      text-decoration: none;
+
+      &:hover {
+        color: $white;
+      }
+    }
+  }
 
   .modal-dialog {
     bottom: 0;
@@ -28,6 +42,36 @@
     top: 0;
   }
 
+  .modal-body {
+    padding: 11px 56px;
+  }
+
+  .modal-footer {
+    @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
+    background: $gray-lightest;
+    border-top: solid 1px $gray-lighter;
+    color: $gray-light;
+    padding: 15px 23px;
+    width: 100%;
+
+    .nova-form-group {
+      margin: 0;
+    }
+  }
+}
+
+.modal.in.nova-messaging {
+  .modal-body {
+    .nova-message {
+      box-sizing: content-box;
+      font-size: $font-size-smallest;
+      min-height: 3em;
+      padding: 9px 0 18px;
+    }
+  }
+}
+
+.modal.in.nova-login {
   .modal-header {
     background: $brand-secondary url('images/bp_logo_white.svg') center center no-repeat;
     background-size: 180px;
@@ -35,8 +79,6 @@
   }
 
   .modal-body {
-    padding: 11px 56px;
-
     .nova-login-message {
       box-sizing: content-box;
       font-size: $font-size-smallest;
@@ -72,14 +114,9 @@
   }
 
   .modal-footer {
-    @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
-    background: $gray-lightest;
-    border-top: solid 1px $gray-lighter;
-    color: $gray-light;
+    padding: 0;
     display: table;
     min-height: 60px;
-    padding: 0;
-    width: 100%;
 
     div {
       display: table-cell;

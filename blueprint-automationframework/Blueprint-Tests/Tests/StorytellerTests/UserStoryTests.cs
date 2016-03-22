@@ -361,6 +361,33 @@ namespace StorytellerTests
             Assert.That(updatePropertyResult.Messages.ElementAt(0).ItemId == linkedArtifact.Id, "Returned ID must be {0}, but it is {1}");
         }
 
+        [TestCase]
+        [Description("Publish process, generate user story for it, update Nonfunctional requirement" +
+            "field with inline trace to process artifact. Response must not return an error.")]
+        public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifySuccess()
+        {
+            // Create an Process artifact
+            var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
+
+            // Publish the Process artifact; enable recursive delete flag
+            _storyteller.PublishProcessArtifacts(_user);
+            _deleteChildren = true;
+
+            var process = _storyteller.GetProcess(_user, processArtifact.Id);
+
+            //get text with inline trace to the specified artifact
+            var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { processArtifact });
+
+            // Generate User Stories from the Process
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
+
+            // update Nonfunctional Requirements field with inline trace
+            Assert.DoesNotThrow(() =>
+            {
+                userStories[0].UpdateNonfunctionalRequirements(_storyteller.Address, _user, inlineTraceText);
+            }, "Update Nonfunctional Requirements must not return an error.");
+        }
+
         #endregion Tests
 
         /// <summary>

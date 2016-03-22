@@ -13,6 +13,7 @@ using Utilities.Factories;
 using System.Data.SqlClient;
 using Common;
 using System.Data;
+using System.Linq;
 
 namespace StorytellerTests
 {
@@ -424,7 +425,7 @@ namespace StorytellerTests
         public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user); ;
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Modify default process Name
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
@@ -497,7 +498,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processReturnedFromGet, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
         [Description("Upload an Image file to Default Precondition and verify returned process model")]
         public void UploadImageToDefaultPrecondition_VerifyImage(uint fileSize, string fakeFileName, string fileType)
@@ -509,7 +509,7 @@ namespace StorytellerTests
             var returnedProcess = _storyteller.GetProcess(_user, addedProcessArtifact.Id);
 
             // Setup: create a file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Uploading the file
             var uploadResult = _storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
@@ -522,42 +522,195 @@ namespace StorytellerTests
             defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.UriToFile;
             defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.Guid;
 
-            // Save the process with the updated properties; enable recursive delete flag
+            // Save the process with the updated properties
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
             defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
+            // Publish the process and enables recursive delete flag
             addedProcessArtifact.Publish(_user);
             _deleteChildren = true;
 
             // Assert that the Default Precondition SystemTask contains value
-            string updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
-            string updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
+            var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
+            var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
 
             Assert.That(updatedAssociatedImageUrl.Contains("/svc/components/RapidReview/diagram/image/"), "The updated associatedImageUri of The precondition contains {0}", updatedAssociatedImageUrl);
 
             Assert.IsNotNull(updatedImageId, "The updated ImageId of The precondition contains nothing");
 
             // Assert that there is a row of data available on image table
-            int expectedImageRow = 1;
-            VerifyImageRowsFromDB(expectedImageRow, updatedImageId);
+            VerifyImageRowsFromDb(updatedImageId);
+        }
+
+        [Test]
+        [Description("Add a new system decision point to the default process. The new system decision point added after the default UT.")]
+        public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for the system decision point
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Description("Add two new system decision points to the default process. The two system decision points added one after the other after the default UT.")]
+        public void AddSystemDecisionsWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the default SystemTask
+            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+            
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultUserTaskOutgoingProcessLink.DestinationId, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Get the updated default outgoing process link from the  default UserTask
+            defaultUserTaskOutgoingProcessLink = process.GetIncomingLinkForShape(defaultSystemTask.Id);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultUserTaskOutgoingProcessLink.DestinationId, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
+        public void AddSystemDecisionWithBranchesAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            
+            // Add additonal branch to the System Decision point
+            process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint.Id,defaultUserTaskOutgoingProcessLink.Orderindex+2,branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point."
+            )]
+        public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Get the system task shape on the second branch for adding the additional System Decision Point
+            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1)).DestinationId);
+
+            // Add the System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [Test]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: one contains a system decision point along with branches and system tasks and the other contain just a system task"
+            )]
+        public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask.Id);
+
+            // Add System Decision point with branch to end
+            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Get the system task shape on the second branch for adding the additional System Decision Point
+            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1)).DestinationId);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+
+            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint.Id, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
         /// <summary>
         /// Verifies that number of row from Image table match with expected value
         /// </summary>
-        /// <param name="expectedCount">the expected total count of images from the image table</param>
         /// <param name="imageId">the image Id that can be used to find image from the image table</param>
-        private static void VerifyImageRowsFromDB(int expectedCount, string imageId)
+        private static void VerifyImageRowsFromDb(string imageId)
         {
-            int resultCount = 0;
-            string query = null;
-            SqlDataReader reader;
+            const int expectedImagerowCount = 1;
+            var resultCount = 0;
 
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
-                query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
+                const string query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
                 Logger.WriteDebug("Running: {0}", query);
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var cmd = database.CreateSqlCommand(query))
                 {
                     database.Open();
                     cmd.Parameters.Add("@Image_Id", SqlDbType.Int).Value = imageId;
@@ -565,6 +718,7 @@ namespace StorytellerTests
 
                     try
                     {
+                        SqlDataReader reader;
                         using (reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -574,13 +728,13 @@ namespace StorytellerTests
                             resultCount = Int32.Parse(reader["counter"].ToString(), CultureInfo.InvariantCulture);
                         }
                     }
-                    catch (System.InvalidOperationException ex)
+                    catch (InvalidOperationException ex)
                     {
                         Logger.WriteError("Upload Image didn't create a data entry. Exception details = {0}", ex);
                     }
                 }
             }
-            Assert.That(resultCount.Equals(expectedCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedCount);
+            Assert.That(resultCount.Equals(expectedImagerowCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedImagerowCount);
         }
 
         #endregion Tests

@@ -425,7 +425,7 @@ namespace StorytellerTests
         public void AddIncludeToUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user); ;
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Modify default process Name
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
@@ -539,8 +539,7 @@ namespace StorytellerTests
             Assert.IsNotNull(updatedImageId, "The updated ImageId of The precondition contains nothing");
 
             // Assert that there is a row of data available on image table
-            var expectedImageRow = 1;
-            VerifyImageRowsFromDb(expectedImageRow, updatedImageId);
+            VerifyImageRowsFromDb(updatedImageId);
         }
 
         [Test]
@@ -702,16 +701,15 @@ namespace StorytellerTests
         /// <summary>
         /// Verifies that number of row from Image table match with expected value
         /// </summary>
-        /// <param name="expectedCount">the expected total count of images from the image table</param>
         /// <param name="imageId">the image Id that can be used to find image from the image table</param>
-        private static void VerifyImageRowsFromDb(int expectedCount, string imageId)
+        private static void VerifyImageRowsFromDb(string imageId)
         {
+            const int expectedImagerowCount = 1;
             var resultCount = 0;
 
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
-                string query = null;
-                query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
+                const string query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
                 Logger.WriteDebug("Running: {0}", query);
                 using (var cmd = database.CreateSqlCommand(query))
                 {
@@ -731,13 +729,13 @@ namespace StorytellerTests
                             resultCount = Int32.Parse(reader["counter"].ToString(), CultureInfo.InvariantCulture);
                         }
                     }
-                    catch (System.InvalidOperationException ex)
+                    catch (InvalidOperationException ex)
                     {
                         Logger.WriteError("Upload Image didn't create a data entry. Exception details = {0}", ex);
                     }
                 }
             }
-            Assert.That(resultCount.Equals(expectedCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedCount);
+            Assert.That(resultCount.Equals(expectedImagerowCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedImagerowCount);
         }
 
         #endregion Tests

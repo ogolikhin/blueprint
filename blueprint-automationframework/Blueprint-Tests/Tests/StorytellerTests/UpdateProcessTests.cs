@@ -544,7 +544,6 @@ namespace StorytellerTests
 
         [Test]
         [Description("Add a new system decision point to the default process. The new system decision point added after the default UT.")]
-
         public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
             // Create and get the default process

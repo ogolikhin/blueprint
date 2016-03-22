@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Common;
+using Utilities.Facades;
+
 
 namespace Utilities
 {
@@ -11,12 +14,49 @@ namespace Utilities
      * 413: Request Entriy Too Large
      * 415: Unsupported Media Type
      * 416: Request Range Not Satisfiable
-     * 501: Note Implemented
+     * 501: Not Implemented
      **/
     #region Exceptions
 
     [Serializable]
-    public class Http400BadRequestException : WebException
+    public class HttpRequestBaseException : WebException
+    {
+        public Facades.RestResponse RestResponse { get; set; }
+        
+        public HttpRequestBaseException()
+        { }
+
+        public HttpRequestBaseException(WebException ex)
+            : base(ex?.Message, ex)
+        { }
+
+        public HttpRequestBaseException(string msg)
+            : base(msg)
+        { }
+
+        public HttpRequestBaseException(string msg, Exception e)
+            : base(msg, e)
+        { }
+
+        protected HttpRequestBaseException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+
+        #region ISerializable members
+
+        /// <seealso cref="ISerializable.GetObjectData(SerializationInfo, StreamingContext)" />
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            ThrowIf.ArgumentNull(info, nameof(info));
+
+            base.GetObjectData(info, context);
+        }
+
+        #endregion ISerializable members
+    }
+
+    [Serializable]
+    public class Http400BadRequestException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 400";
 
@@ -41,7 +81,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http401UnauthorizedException : WebException
+    public class Http401UnauthorizedException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 401";
 
@@ -66,7 +106,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http403ForbiddenException : WebException
+    public class Http403ForbiddenException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 403";
 
@@ -91,7 +131,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http404NotFoundException : WebException
+    public class Http404NotFoundException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 404";
 
@@ -116,7 +156,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http405MethodNotAllowedException : WebException
+    public class Http405MethodNotAllowedException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 405.";
 
@@ -141,7 +181,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http406NotAcceptableException : WebException
+    public class Http406NotAcceptableException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 406";
 
@@ -166,7 +206,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http409ConflictException : WebException
+    public class Http409ConflictException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 409";
 
@@ -191,7 +231,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http500InternalServerErrorException : WebException
+    public class Http500InternalServerErrorException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 500";
 
@@ -216,7 +256,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class Http503ServiceUnavailableException : WebException
+    public class Http503ServiceUnavailableException : HttpRequestBaseException
     {
         public const string ERROR = "Received status code: 503";
 
@@ -241,7 +281,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class OperationTimedOutException : WebException
+    public class OperationTimedOutException : HttpRequestBaseException
     {
         public const string ERROR = "The operation has timed out";
 
@@ -266,7 +306,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class ConnectionClosedException : WebException
+    public class ConnectionClosedException : HttpRequestBaseException
     {
         public const string ERROR = "The underlying connection was closed: A pipeline failure occurred";
 
@@ -291,7 +331,7 @@ namespace Utilities
     }
 
     [Serializable]
-    public class RequestAbortedException : WebException
+    public class RequestAbortedException : HttpRequestBaseException
     {
         public const string ERROR = "The request was aborted: The request was canceled.";
 
@@ -326,66 +366,74 @@ namespace Utilities
         /// Converts a generic WebException into a specific exception based on the exception message.
         /// </summary>
         /// <param name="ex">The WebException to convert.</param>
-        /// <returns>A specific exception derived from WebException, or the same WebException that was passed in if it couldn't parse the exception message.</returns>
+        /// <param name="restResponse">(optional) The REST response info received that caused this exception.</param>
+        /// <returns>A specific exception derived from HttpRequestExceptionBase, or the same WebException that was passed in if it couldn't parse the exception message.</returns>
         /// <exception cref="ArgumentNullException">If a null argument was passed in.</exception>
-        public static WebException Convert(WebException ex)
+        public static HttpRequestBaseException Convert(WebException ex, RestResponse restResponse = null)
         {
             ThrowIf.ArgumentNull(ex, nameof(ex));
+            HttpRequestBaseException newEx = null;
 
             if (ex.Message.Contains(Http400BadRequestException.ERROR))
             {
-                ex = new Http400BadRequestException(ex);
+                newEx = new Http400BadRequestException(ex);
             }
             else if (ex.Message.Contains(Http401UnauthorizedException.ERROR))
             {
-                ex = new Http401UnauthorizedException(ex);
+                newEx = new Http401UnauthorizedException(ex);
             }
             else if (ex.Message.Contains(Http403ForbiddenException.ERROR))
             {
-                ex = new Http403ForbiddenException(ex);
+                newEx = new Http403ForbiddenException(ex);
             }
             else if (ex.Message.Contains(Http404NotFoundException.ERROR))
             {
-                ex = new Http404NotFoundException(ex);
+                newEx = new Http404NotFoundException(ex);
             }
             else if (ex.Message.Contains(Http405MethodNotAllowedException.ERROR))
             {
-                ex = new Http405MethodNotAllowedException(ex);
+                newEx = new Http405MethodNotAllowedException(ex);
             }
             else if (ex.Message.Contains(Http406NotAcceptableException.ERROR))
             {
-                ex = new Http406NotAcceptableException(ex);
+                newEx = new Http406NotAcceptableException(ex);
             }
             else if (ex.Message.Contains(Http409ConflictException.ERROR))
             {
-                ex = new Http409ConflictException(ex);
+                newEx = new Http409ConflictException(ex);
             }
             else if (ex.Message.Contains(Http500InternalServerErrorException.ERROR))
             {
-                ex = new Http500InternalServerErrorException(ex);
+                newEx = new Http500InternalServerErrorException(ex);
             }
             else if (ex.Message.Contains(Http503ServiceUnavailableException.ERROR))
             {
-                ex = new Http503ServiceUnavailableException(ex);
+                newEx = new Http503ServiceUnavailableException(ex);
             }
             else if (ex.Message.Contains(OperationTimedOutException.ERROR))
             {
-                ex = new OperationTimedOutException(ex);
+                newEx = new OperationTimedOutException(ex);
             }
             else if (ex.Message.Contains(ConnectionClosedException.ERROR))
             {
-                ex = new ConnectionClosedException(ex);
+                newEx = new ConnectionClosedException(ex);
             }
             else if (ex.Message.Contains(RequestAbortedException.ERROR))
             {
-                ex = new RequestAbortedException(ex);
+                newEx = new RequestAbortedException(ex);
             }
             else
             {
                 Logger.WriteWarning("Could not convert the WebException into a specific Http exception.  The WebException message is '{0}'.", ex.Message);
+                newEx = new HttpRequestBaseException(ex);
             }
 
-            return ex;
+            if (restResponse != null)
+            {
+                newEx.RestResponse = restResponse;
+            }
+
+            return newEx;
         }
     }
 }

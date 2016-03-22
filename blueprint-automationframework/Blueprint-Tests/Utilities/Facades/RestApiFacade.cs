@@ -241,9 +241,16 @@ namespace Utilities.Facades
         /// <param name="method">The method type used.</param>
         /// <param name="statusCode">The status code received.</param>
         /// <param name="exceptionMsg">The exception message.</param>
+        /// <param name="restResponse">(optional) The REST response to include in the exception (if thrown).</param>
         /// <param name="expectedStatusCodes">(optional) The expected list of status codes.  By default, only 200 OK is expected.</param>
         /// <exception cref="WebException">An exception derived from WebException.</exception>
-        private static void ThrowIfUnexpectedStatusCode(string fullAddress, RestRequestMethod method, HttpStatusCode statusCode, string exceptionMsg, List<HttpStatusCode> expectedStatusCodes = null)
+        private static void ThrowIfUnexpectedStatusCode(
+            string fullAddress,
+            RestRequestMethod method,
+            HttpStatusCode statusCode,
+            string exceptionMsg,
+            RestResponse restResponse = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteDebug("'{0} {1}' got back Status Code: {2}", method.ToString(), fullAddress, statusCode.ToString());
 
@@ -251,7 +258,7 @@ namespace Utilities.Facades
 
             if (!expectedStatusCodes.Contains(statusCode))
             {
-                throw WebExceptionFactory.Create((int)statusCode, exceptionMsg);
+                throw WebExceptionFactory.Create((int)statusCode, exceptionMsg, restResponse);
             }
         }
 
@@ -348,7 +355,7 @@ namespace Utilities.Facades
                 response = client.Execute(request);
 
                 _restResponse = ConvertToRestResponse(response);
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 // Derialization
                 var result = JsonConvert.DeserializeObject<T1>(response.Content);
@@ -367,7 +374,7 @@ namespace Utilities.Facades
             }
             catch (WebException e)
             {
-                throw WebExceptionConverter.Convert(e);
+                throw WebExceptionConverter.Convert(e, _restResponse);
             }
         }
 
@@ -447,13 +454,13 @@ namespace Utilities.Facades
 
                 _restResponse = ConvertToRestResponse(response);
 
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;
             }
             catch (WebException e)
             {
-                throw WebExceptionConverter.Convert(e);
+                throw WebExceptionConverter.Convert(e, _restResponse);
             }
         }
 
@@ -495,13 +502,13 @@ namespace Utilities.Facades
 
                 _restResponse = ConvertToRestResponse(response);
 
-                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, expectedStatusCodes);
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
                 return _restResponse;
             }
             catch (WebException e)
             {
-                throw WebExceptionConverter.Convert(e);
+                throw WebExceptionConverter.Convert(e, _restResponse);
             }
         }
     }

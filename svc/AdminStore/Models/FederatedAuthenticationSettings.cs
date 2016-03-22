@@ -22,7 +22,7 @@ namespace AdminStore.Models
             LoginUrl = fedAuthSettings.LoginUrl;
             LogoutUrl = fedAuthSettings.LogoutUrl;
             ErrorUrl = fedAuthSettings.ErrorUrl;
-            NameClaimType = fedAuthSettings.NameClaimType;
+            NameClaimType = string.IsNullOrEmpty(fedAuthSettings.NameClaimType) ? "Username" : fedAuthSettings.NameClaimType;
         }
 
         public string LoginUrl { get; private set; }

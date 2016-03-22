@@ -124,12 +124,12 @@ namespace AdminStore.Repositories
 
             if (user == null) // cannot find user in the DB
             {
-                await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", principal.Identity.Name));
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'. NameClaimType '{1}'", principal.Identity.Name, fedAuthSettings.NameClaimType));
                 throw new AuthenticationException("Invalid user name or password", ErrorCodes.InvalidCredentials);
             }
             if (!user.IsEnabled)
             {
-                throw new AuthenticationException("Your account has been locked out, please contact your Blueprint Instance Administrator.", ErrorCodes.AccountIsLocked);
+                throw new AuthenticationException(I18NHelper.FormatInvariant("Your account '{0}' has been locked out, please contact your Blueprint Instance Administrator.", user.Login), ErrorCodes.AccountIsLocked);
             }
 
             user.LicenseType = await _userRepository.GetEffectiveUserLicenseAsync(user.Id);

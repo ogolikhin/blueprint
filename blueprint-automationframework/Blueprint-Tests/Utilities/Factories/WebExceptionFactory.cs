@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Net;
 using Common;
+using Utilities.Facades;
 
 namespace Utilities.Factories
 {
@@ -14,10 +14,11 @@ namespace Utilities.Factories
         /// </summary>
         /// <param name="statusCode">The HTTP status code number.</param>
         /// <param name="innerExceptionMsg">The inner exception message.</param>
-        /// <returns>A WebException or a child of WebException appropriate for the specified status code.</returns>
-        public static WebException Create(int statusCode, string innerExceptionMsg)
+        /// <param name="restResponse">(optional) The REST response to include in the exception.</param>
+        /// <returns>A HttpRequestBaseException or a child of HttpRequestBaseException appropriate for the specified status code.</returns>
+        public static HttpRequestBaseException Create(int statusCode, string innerExceptionMsg, RestResponse restResponse = null)
         {
-            WebException ex = null;
+            HttpRequestBaseException ex = null;
             string message = I18NHelper.FormatInvariant("Received status code: {0}.", statusCode);
 
             switch (statusCode)
@@ -55,10 +56,13 @@ namespace Utilities.Factories
                         innerExceptionMsg = String.Empty;
                     }
 
-                    return new WebException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!  Inner Exception = '{1}'", statusCode, innerExceptionMsg));
+                    ex = new HttpRequestBaseException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!  Inner Exception = '{1}'", statusCode, innerExceptionMsg));
+                    break;
             }
 
             Logger.WriteDebug(message);
+            ex.RestResponse = restResponse;
+
             return ex;
         }
     }

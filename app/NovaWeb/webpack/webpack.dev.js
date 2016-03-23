@@ -10,6 +10,8 @@ var url = require('url'),
    proxy = require('proxy-middleware');
 var proxyOptions = url.parse('http://localhost:9801/svc');
 proxyOptions.route = '/svc'
+var loginProxyOptions = url.parse('http://localhost:9801/Login/WinLogin.aspx');
+loginProxyOptions.route = '/Login/WinLogin.aspx'
 
 module.exports = {
     entry: {
@@ -18,7 +20,7 @@ module.exports = {
     },
     output: {
         filename: 'app.js',
-        path: 'dist'
+        path: 'dist/NovaWeb'
     },
     resolve: {
         root: __dirname,
@@ -33,6 +35,7 @@ module.exports = {
         new ExtractTextPlugin("[name].css"),
         new HtmlWebpackPlugin({
             template: './index.html',
+            filename: '../index.html',
             inject: 'body',
             hash: true
         }),
@@ -41,7 +44,7 @@ module.exports = {
             port: 8000,
             server: {
                 baseDir: 'dist',
-                middleware: [proxy(proxyOptions)]
+                middleware: [proxy(proxyOptions), proxy(loginProxyOptions)]
             },
             ui: false,
             online: false,

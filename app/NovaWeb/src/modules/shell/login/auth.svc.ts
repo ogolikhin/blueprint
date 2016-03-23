@@ -41,9 +41,20 @@ export class AuthSvc implements IAuth {
                     message: err ? err.Message : "Cannot get current user"
                 };
 
-                this.$log.error(`AuthSvc.getCurrentUser: ErrorCode:${error.statusCode} Msg:${error.message}`);
+                //TODO uncomment this once the settings provider is implemented
+                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
+                if (true) {
+                    this.$http.get<any>("/Login/WinLogin.aspx", config)
+                        .success(
+                        (token: string) => { this.onTokenSuccess(token, defer, false); }
+                        )
+                        .error((err) => {
+                            defer.reject(error);
+                        });
 
-                defer.reject(error);
+                } else {
+                    defer.reject(error);
+                }
             });
 
         return defer.promise;

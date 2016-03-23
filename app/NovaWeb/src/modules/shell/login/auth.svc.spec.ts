@@ -14,6 +14,8 @@ describe("AuthSvc", () => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
+            $httpBackend.expectPOST("/Login/WinLogin.aspx","")
+                .respond(401);
 
             // Act
             var error: any;
@@ -26,6 +28,35 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
+
+        it("succeed with SSO login after failing to get user info", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+            // Arrange
+            $httpBackend.expectGET("/svc/adminstore/users/loginuser")
+                .respond(401);
+            $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
+                .respond(200, "6be473a999a140d894805746bf54c129");
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(200);
+            $httpBackend.expectGET("/svc/adminstore/users/loginuser")
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.getCurrentUser().then((responce) => { user = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBe(undefined, "responce got error");
+            expect(user.Login).toBe("admin", "user login does not match");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+     
 
         it("resolve successfully", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
@@ -72,9 +103,7 @@ describe("AuthSvc", () => {
         it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
-                .respond(200, <IUser>{
-                    DisplayName: "Default Instance Admin", Login: "admin"
-                }
+                .respond(200, "6be473a999a140d894805746bf54c129"
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(200);
@@ -93,6 +122,24 @@ describe("AuthSvc", () => {
             // Assert
             expect(error).toBe(undefined, "responce got error");
             expect(user.Login).toBe("admin", "user login does not match");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("respond with error from missing token", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
+                .respond(200);
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.statusCode).toBe(500);
+            expect(error.message).toBe("Cannot get Session Token");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

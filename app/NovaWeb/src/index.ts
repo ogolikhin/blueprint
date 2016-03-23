@@ -1,6 +1,6 @@
 import "angular";
 import "./modules/main/main.module";
-import {ExecutionEnvironmentDetector} from "./modules/shell/ExecutionEnvironment/ExecutionEnvironmentDetector";
+import {ExecutionEnvironmentDetector} from "./modules/shell/execution-environment/execution-environment-detector";
 
 // load our default (non specific) css
 import "./styles/screen.scss";

@@ -56,7 +56,8 @@ module.exports = {
         //}),
          new CopyWebpackPlugin([
             // {output}/file.txt 
-            { from: '**/*.view.html' }
+            { from: '**/*.view.html' },
+            { from: '../node_modules/bowser/bowser.js' }
          ])
     ],
     module:{

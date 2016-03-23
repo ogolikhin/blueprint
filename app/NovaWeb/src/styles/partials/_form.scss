@@ -8,6 +8,13 @@
 
   &.nova-form-buttons {
     text-align: right;
+
+    .btn {
+      min-width: 100px;
+      padding: 13px 30px;
+      text-align: center;
+      text-transform: uppercase;
+    }
   }
 
   .nova-form-control ~ .nova-label {

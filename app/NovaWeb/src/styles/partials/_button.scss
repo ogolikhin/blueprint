@@ -12,5 +12,20 @@ button.btn {
   &:active {
     background-color: darken($brand-secondary, 10%);
     border: darken($brand-secondary, 10%);
+    color: $white;
+  }
+}
+
+.btn-secondaary {
+  background-color: $gray-light;
+  border: $gray-light;
+  color: $white;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken($gray-light, 10%);
+    border: darken($gray-light, 10%);
+    color: $white;
   }
 }

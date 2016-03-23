@@ -71,7 +71,7 @@ export class SessionSvc implements ISession {
                         var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                         confirmationDialog = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                             template: require("./../messaging/confirmation.dialog.html"),
-                            windowClass: "nova-login",
+                            windowClass: "nova-messaging",
                             controller: SimpleDialogCtrl,
                             controllerAs: "ctrl",
                             keyboard: false, // cannot Escape ))
@@ -113,7 +113,7 @@ export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
         super($uibModalInstance);
         this.acceptButtonName = "Yes";
         this.cancelButtonName = "No";
-        this.msg = "The current session has expired or you have logged into Blueprint in another window. Do you wish to override current session?";
+        this.msg = "This user is already logged into Blueprint in another browser/session.<br><br>Do you want to override the previous session?";
     }
 }
 

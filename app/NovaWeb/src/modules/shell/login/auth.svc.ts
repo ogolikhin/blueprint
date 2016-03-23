@@ -43,7 +43,7 @@ export class AuthSvc implements IAuth {
 
                 //TODO uncomment this once the settings provider is implemented
                 //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
-                if (true) {
+                if (1 == 1) {
                     this.$http.get<any>("/Login/WinLogin.aspx", config)
                         .success(
                         (token: string) => { this.onTokenSuccess(token, defer, false); }

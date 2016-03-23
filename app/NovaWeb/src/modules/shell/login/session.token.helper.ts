@@ -20,10 +20,11 @@
         return null;
     }
 
-    public static updateTokenCookie() {
+    //currently unused
+    /*public static updateTokenCookie() {
         var token = this.getSessionToken();
         if (token) {
             this.setToken(token);
         }
-    }
+    }*/
 }

@@ -136,7 +136,7 @@ export class AuthSvc implements IAuth {
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: "Cannot get Sessin Token" });
+            deferred.reject({ statusCode: 500, message: "Cannot get Session Token" });
         }
     }
 

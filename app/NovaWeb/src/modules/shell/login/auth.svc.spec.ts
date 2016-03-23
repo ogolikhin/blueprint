@@ -96,6 +96,77 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
+
+        it("respond with loginuser error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+            // Arrange
+            //unicode to test encode function
+            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("Карл") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(200);
+            $httpBackend.expectGET("/svc/adminstore/users/loginuser")
+                .respond(401, {Message:"401 error"});
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.login("Карл", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.statusCode).toBe(401, "error.statusCode is not 401");
+            expect(error.message).toBe("401 error");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("respond with no licenses error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+            // Arrange
+            //exotic unicode to test encode function
+            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("𐊇𐊈𐊉") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(404);
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.login("𐊇𐊈𐊉", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe("No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator", "error.message does not match");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("respond with license limit error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(403);
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe("The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
     });
 
     describe("logout", () => {

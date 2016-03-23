@@ -62,10 +62,10 @@ export class SessionSvc implements ISession {
                 bindToController: true
             });
 
-            this._modalInstance.result.then((result) => {
+            this._modalInstance.result.then((result: ILoginInfo) => {
                 if (result) {
                     if (result.userInfo) {
-                        this._currentUser = result;
+                        this._currentUser = result.userInfo;
                         done.resolve();
                     } else if (result.userName && result.password) {
                         var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
@@ -78,7 +78,7 @@ export class SessionSvc implements ISession {
                             backdrop: false,
                             bindToController: true
                         });
-                        confirmationDialog.result.then((confirmed) => {
+                        confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.auth.login(result.userName, result.password, true).then(
                                     (user) => {
@@ -158,7 +158,7 @@ export class LoginCtrl {
 
     public login(): void {
         this.auth.login(this.novaUsername, this.novaPassword, false).then(
-            (user) => {
+            (user: IUser) => {
                 this.labelError = false;
                 this.fieldError = false;
                 var result: ILoginInfo = new ILoginInfo();

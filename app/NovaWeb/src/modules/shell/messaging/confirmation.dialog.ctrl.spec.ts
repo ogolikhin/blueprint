@@ -1,0 +1,54 @@
+﻿import "angular";
+import "angular-mocks"
+import {ConfirmationDialogCtrl} from "./confirmation.dialog.ctrl";
+
+export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
+    public actualResult: boolean;
+
+    constructor() {
+    }
+
+    public close(result?: any): void {
+        this.actualResult = result;
+    }
+
+    public dismiss(reason?: any): void {
+    }
+
+    public result: angular.IPromise<any>;
+
+    public opened: angular.IPromise<any>;
+
+    public rendered: angular.IPromise<any>;
+}
+
+describe("ConfirmationDialogCtrl", () => {
+
+    describe("accept", () => {
+        it("return true", () => {
+            // Arrange
+            var serviceInstanceMock = new ModalServiceInstanceMock();
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock);
+            
+            // Act
+            confirmationDialogCtrl.accept();
+
+            // Assert
+            expect(serviceInstanceMock.actualResult).toBe(true, "result is false");
+        });
+    });
+
+    describe("cancel", () => {
+        it("return false", () => {
+            // Arrange
+            var serviceInstanceMock = new ModalServiceInstanceMock();
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock);
+            
+            // Act
+            confirmationDialogCtrl.cancel();
+
+            // Assert
+            expect(serviceInstanceMock.actualResult).toBe(false, "result is true");
+        });
+    });
+});

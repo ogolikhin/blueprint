@@ -1,5 +1,8 @@
 # Nova Web
 
+Please be aware: we are using lower-case hypen separated name convention for file and folder names!
+
+## Setup
 If you haven't installed node.js please install it first (latest LTS version from https://nodejs.org). Then run devsetup (on Windows) to install required npm packages globally.
 ```
  devsetup

@@ -19,6 +19,7 @@ namespace Model.Factories
         public static IOpenApiArtifact CreateOpenApiArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
             
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
             artifact.ArtifactTypeName = artifactType.ToString();
@@ -28,6 +29,7 @@ namespace Model.Factories
             artifact.ProjectId = project.Id;
             artifact.ArtifactTypeId = project.GetArtifactTypeId(address: address, projectId: project.Id, baseArtifactTypeName: artifactType,
                 user: user);
+            artifact.CreatedBy = user.UserId;
             return artifact;
         }
 

@@ -28,6 +28,11 @@ window.onload = () => {
         if (xhr.readyState === 4) {
             console.log(xhr.responseText);
             //add the supported browser from a JSON obj and render the page
+
+            var divUnsupportedBrowser = document.createElement("div");
+            divUnsupportedBrowser.id = "unsupported-browser-container";
+            divUnsupportedBrowser.innerHTML = xhr.responseText;
+            document.body.insertBefore(divUnsupportedBrowser, document.body.firstChild);
         }
     };
     xhr.open('GET', '/novaweb/static/unsupported-browser.html');
@@ -99,6 +104,11 @@ window.onload = () => {
 
     document.getElementById("proceed").onclick = () => {
         document.getElementById("unsupported").style.display = "none";
+        document.getElementById("unsupported-browser-container").style.display = "none";
+        // TODO: change that to
+        // var element = document.getElementById("unsupported");
+        // element.parentNode.removeChild(element);
+
         initApp();
         return false;
     };

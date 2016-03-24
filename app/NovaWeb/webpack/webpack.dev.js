@@ -62,10 +62,10 @@ module.exports = {
         //    'window.jquery': 'jquery'
         //}),
          new CopyWebpackPlugin([
-            // {output}/file.txt
-            { from: '**/*.view.html' },
-            { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
-            { from: './unsupported-browser', to: './static' }
+             // {output}/file.txt
+             { from: '**/*.view.html' },
+             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
+             { from: './unsupported-browser', to: './static' }
          ])
     ],
     module:{

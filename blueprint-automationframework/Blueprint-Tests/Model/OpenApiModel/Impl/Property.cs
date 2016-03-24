@@ -9,6 +9,15 @@ using Utilities;
 
 namespace Model.OpenApiModel.Impl
 {
+    /// <summary>
+    /// An Enumeration of possible UsersAndGroups Types
+    /// </summary>
+    public enum UsersAndGroupsType
+    {
+        User,
+        Group
+    }
+
         public class OpenApiProperty : IOpenApiProperty
     {
         public int PropertyTypeId { get; set; }
@@ -17,7 +26,8 @@ namespace Model.OpenApiModel.Impl
         public string TextOrChoiceValue { get; set; }
         public bool IsRichText { get; set; }
         public bool IsReadOnly { get; set; }
-        public List<object> UsersAndGroups { get; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<UsersAndGroups> UsersAndGroups { get; set; }
         public List<object> Choices { get; }
         public string DateValue { get; set; }
 
@@ -32,21 +42,12 @@ namespace Model.OpenApiModel.Impl
         public OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
-            string query = null;
-            SqlDataReader reader;
 
-            //variables
-            int query_propertyTypeId;
-            string query_name;
-            string query_basePropertyType;
-            string query_textOrChoiceValue;
-            bool query_isRichText;
-            bool query_isReadOnly;
             OpenApiProperty property = null;
 
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
-                query = "SELECT PropertyTypeId, RichText, Name FROM dbo.TipPropertyTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
+                string query = "SELECT PropertyTypeId, RichText, Name FROM dbo.TipPropertyTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
                 Logger.WriteDebug("Running: {0}", query);
                 using (SqlCommand cmd = database.CreateSqlCommand(query))
                 {
@@ -57,37 +58,30 @@ namespace Model.OpenApiModel.Impl
 
                     try
                     {
+                        SqlDataReader reader;
                         using (reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 reader.Read();
                             }
-                            query_basePropertyType = "Text";
-                            if (propertyValue == null)
-                            {
-                                query_textOrChoiceValue = "DefaultValue";
-                            }
-                            else
-                            {
-                                query_textOrChoiceValue = propertyValue;
-                            }
-                            query_isReadOnly = false;
-                            query_propertyTypeId = Int32.Parse(reader["PropertyTypeId"].ToString(), CultureInfo.InvariantCulture);
-                            //query_isRichText = testbool.Equals(1) ? true : false;
-                            query_isRichText = true;
-                            query_name = reader["Name"].ToString();
+                            string querybasePropertyType = "Text";
+                            string querytextOrChoiceValue = propertyValue ?? "DefaultValue";
+                            int querypropertyTypeId = int.Parse(reader["PropertyTypeId"].ToString(), CultureInfo.InvariantCulture);
+                            string queryname = reader["Name"].ToString();
 
-                            property = new OpenApiProperty();
-                            property.PropertyTypeId = query_propertyTypeId;
-                            property.Name = query_name;
-                            property.BasePropertyType = query_basePropertyType;
-                            property.TextOrChoiceValue = query_textOrChoiceValue;
-                            property.IsRichText = query_isRichText;
-                            property.IsReadOnly = query_isReadOnly;
+                            property = new OpenApiProperty
+                            {
+                                PropertyTypeId = querypropertyTypeId,
+                                Name = queryname,
+                                BasePropertyType = querybasePropertyType,
+                                TextOrChoiceValue = querytextOrChoiceValue,
+                                IsRichText = true,
+                                IsReadOnly = false
+                            };
                         }
                     }
-                    catch (System.InvalidOperationException ex)
+                    catch (InvalidOperationException ex)
                     {
                         Logger.WriteError("No Property is available which matches with condition. Exception details - {0}", ex);
                     }
@@ -95,5 +89,15 @@ namespace Model.OpenApiModel.Impl
             }
             return property;
         }
+    }
+
+    public class UsersAndGroups
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
+        public UsersAndGroupsType Type { get; set; }
+
+        public int Id { get; set; }
+
+        public string DisplayName { get; set; }
     }
 }

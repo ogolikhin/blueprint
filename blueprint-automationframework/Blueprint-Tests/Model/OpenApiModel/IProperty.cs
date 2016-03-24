@@ -11,7 +11,7 @@ namespace Model.OpenApiModel
         string TextOrChoiceValue { get; set; }
         bool IsRichText { get; set; }
         bool IsReadOnly { get; set; }
-        List<object> UsersAndGroups { get; }
+        List<UsersAndGroups> UsersAndGroups { get; }
         List<object> Choices { get; }
         string DateValue { get; set; }
 

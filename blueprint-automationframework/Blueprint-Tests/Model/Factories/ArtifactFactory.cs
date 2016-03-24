@@ -29,7 +29,7 @@ namespace Model.Factories
             artifact.ProjectId = project.Id;
             artifact.ArtifactTypeId = project.GetArtifactTypeId(address: address, projectId: project.Id, baseArtifactTypeName: artifactType,
                 user: user);
-            artifact.CreatedBy = user.UserId;
+            artifact.CreatedBy = user;
             return artifact;
         }
 

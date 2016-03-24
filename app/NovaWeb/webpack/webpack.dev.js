@@ -9,9 +9,12 @@ var path = require('path');
 var url = require('url'),
    proxy = require('proxy-middleware');
 var proxyOptions = url.parse('http://localhost:9801/svc');
-proxyOptions.route = '/svc'
+proxyOptions.route = '/svc';
 var loginProxyOptions = url.parse('http://localhost:9801/Login/WinLogin.aspx');
-loginProxyOptions.route = '/Login/WinLogin.aspx'
+loginProxyOptions.route = '/Login/WinLogin.aspx';
+
+var del = require('del');
+del(['dist/*']);
 
 module.exports = {
     entry: {
@@ -20,7 +23,7 @@ module.exports = {
     },
     output: {
         filename: 'app.js',
-        path: 'dist/NovaWeb'
+        path: 'dist/novaweb'
     },
     resolve: {
         root: __dirname,
@@ -29,7 +32,7 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
-    devtool: "source-map",
+    devtool: 'source-map',
     context: path.join(__dirname, '../src'),
     plugins: [
         new ExtractTextPlugin("[name].css"),
@@ -51,6 +54,7 @@ module.exports = {
             notify: false
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.js"),
+        // Uncomment next lines if jQuery is required for the app
         //new webpack.ProvidePlugin({
         //    $: 'jquery',
         //    jQuery: 'jquery',
@@ -58,9 +62,10 @@ module.exports = {
         //    'window.jquery': 'jquery'
         //}),
          new CopyWebpackPlugin([
-            // {output}/file.txt 
+            // {output}/file.txt
             { from: '**/*.view.html' },
-            { from: '../node_modules/bowser/bowser.js' }
+            { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
+            { from: './unsupported-browser', to: './static' }
          ])
     ],
     module:{

@@ -11,7 +11,7 @@ function initApp() {
     angular.bootstrap(document, ["app"], {
         strictDi: true
     });
-};
+}
 
 window.onload = () => {
 
@@ -19,8 +19,19 @@ window.onload = () => {
 
     //TODO: Remove NOT operator that is used just for debugging
     if (!executionEnvironmentDetector.isSupportedVersion()) {
+        initApp();
         return;
     }
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            console.log(xhr.responseText);
+            //add the supported browser from a JSON obj and render the page
+        }
+    };
+    xhr.open('GET', '/novaweb/static/unsupported-browser.html');
+    xhr.send();
 
     var text: string = "<div style='display: inline-block; width:150px; vertical-align:top;'></div>";
     //if (window["config"] != null && typeof (window["config"]) != "undefined") {

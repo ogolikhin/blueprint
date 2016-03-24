@@ -29,8 +29,7 @@ namespace OpenAPITests
         {
             if (_user != null)
             {
-                // TODO Investigate how to remove user after publishing artifact with the particular Database User
-                //_user.DeleteUser(deleteFromDatabase: true);
+                _user.DeleteUser();
                 _user = null;
             }
         }
@@ -79,12 +78,12 @@ namespace OpenAPITests
             _artifact = _artifact.AddArtifact(_artifact, _user);
 
             //Adding all artifact(s) to publish
-            List<IOpenApiArtifact> _artifactList = new List<IOpenApiArtifact>();
-            _artifactList.Add(_artifact);
+            List<IOpenApiArtifact> artifactList = new List<IOpenApiArtifact>();
+            artifactList.Add(_artifact);
             // TODO more assertion?
 
             //Publish artifact(s)     
-            _artifact.PublishArtifacts(_artifactList, _user);
+            _artifact.PublishArtifacts(artifactList, _user);
         }
 
         /// <summary>

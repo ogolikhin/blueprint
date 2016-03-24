@@ -18,9 +18,29 @@ namespace Model.OpenApiModel
 
     public interface IOpenApiArtifact : IArtifactBase
     {
+        /// <summary>
+        /// The Id of the User who Created the Artifact
+        /// </summary>
+        int CreatedBy { get; set; }
+
+        /// <summary>
+        /// List of Open Api Artifact Properties
+        /// </summary>
         List<OpenApiProperty> Properties { get; }
+
+        /// <summary>
+        /// List of Open Api Artifact Comments
+        /// </summary>
         List<OpenApiComment> Comments { get; }
+
+        /// <summary>
+        /// List of Open Api Artifact Traces
+        /// </summary>
         List<OpenApiTrace> Traces { get; }
+
+        /// <summary>
+        ///  List of Open Api Artifact Attachments
+        /// </summary>
         List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>

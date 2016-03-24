@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Utilities;
 using Utilities.Facades;
@@ -79,48 +80,83 @@ namespace Model.OpenApiModel.Impl
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
         #region Constants
+
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
         private const string URL_PUBLISH = "api/v1/vc/publish";
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
+        
         #endregion Constants
 
         #region Properties
+
+        private int _createdBy;
+
+        public int CreatedBy
+        {
+            get
+            {
+                //TODO: Implement when we are able to return UsersAndGroups from OpenAPI call properly
+                //if (Properties == null)
+                //{
+                //    Properties = new List<OpenApiProperty>();
+                //}
+                //var createdByProperty = Properties.Find(p => p.Name == "Created By");
+
+                //var usersAndGroups = createdByProperty?.UsersAndGroups;
+                //return usersAndGroups?[0].Id;
+
+                return _createdBy;
+            }
+
+            set { _createdBy = value; }
+        }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
-        public List<OpenApiProperty> Properties { get; } = new List<OpenApiProperty>();
+        public List<OpenApiProperty> Properties { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiComment>>))]
-        public List<OpenApiComment> Comments { get; } = new List<OpenApiComment>();
+        public List<OpenApiComment> Comments { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
-        public List<OpenApiTrace> Traces { get; } = new List<OpenApiTrace>();
+        public List<OpenApiTrace> Traces { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
-        public List<OpenApiAttachment> Attachments { get; } = new List<OpenApiAttachment>();
+        public List<OpenApiAttachment> Attachments { get; set; }
+        
         #endregion Properties
 
         #region Constructors
+        
         /// <summary>
         /// Constructor in order to use it as generic type
         /// </summary>
         public OpenApiArtifact()
         {
             //Required for deserializing OpenApiArtifact
+            Properties = new List<OpenApiProperty>();
+            Comments = new List<OpenApiComment>();
+            Traces = new List<OpenApiTrace>();
+            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="address">The URI address of the artifact.</param>
-        public OpenApiArtifact(string address)
+        public OpenApiArtifact(string address) : this()
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             this.Address = address;
         }
 
-        public OpenApiArtifact(string address, int id, int projectId)
+        public OpenApiArtifact(string address, int id, int projectId) : this()
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             this.Address = address;

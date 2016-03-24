@@ -124,32 +124,51 @@ export class ILoginInfo {
 }
 
 export class LoginCtrl {
-
     public labelError: boolean;
     public fieldError: boolean;
-
-    public enableForgetPasswordScreen: boolean;
-    public isInForgetPasswordScreen: boolean;
 
     public errorMsg: string;
     public novaUsername: string;
     public novaPassword: string;
 
+    public enableForgetPasswordScreen: boolean;
+    public isInForgetPasswordScreen: boolean;
+    public forgetPasswordScreenError: boolean;
+    public forgetPasswordScreenMessage: string;
+    public forgetPasswordScreenUsername: string;
+
+    public enableSAMLScreen: boolean;
+    public isInSAMLScreen: boolean;
+    public SAMLScreenMessage: string;
+
     static $inject: [string] = ["$uibModalInstance", "auth"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth) {
-        this.enableForgetPasswordScreen = false;
-        this.isInForgetPasswordScreen = false;
         this.errorMsg = "Please enter your Username and Password";
+
+        this.enableForgetPasswordScreen = true;
+        this.isInForgetPasswordScreen = false;
+        this.forgetPasswordScreenMessage = "Please enter your Username";
+
+        this.enableSAMLScreen = true;
+        this.isInSAMLScreen = false;
+        this.SAMLScreenMessage = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur";
     }
 
     public goToForgetPasswordScreen(): void {
+        this.forgetPasswordScreenUsername = this.novaUsername;
+        this.isInSAMLScreen = false;
         this.isInForgetPasswordScreen = true;
-        this.errorMsg = "Please enter your Username";
+        this.forgetPasswordScreenError = false;
+    }
+
+    public goToSAMLScreen(): void {
+        this.isInForgetPasswordScreen = false;
+        this.isInSAMLScreen = true;
     }
 
     public goToLoginScreen(): void {
         this.isInForgetPasswordScreen = false;
-        this.errorMsg = "Please enter your Username and Password";
+        this.isInSAMLScreen = false;
     }
 
     public resetPassword(): void {

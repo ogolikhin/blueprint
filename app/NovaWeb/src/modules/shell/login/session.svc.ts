@@ -153,7 +153,7 @@ export class LoginCtrl {
     }
 
     public resetPassword(): void {
-        this.errorMsg = "(FAKE) Your password has been reset.<br>Please go back to login.";
+        // TODO: back-end not ready yet
     }
 
     public login(): void {

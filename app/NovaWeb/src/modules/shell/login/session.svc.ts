@@ -127,6 +127,7 @@ export class LoginCtrl {
     public labelError: boolean;
     public fieldError: boolean;
 
+    public isInLoginForm: boolean;
     public errorMsg: string;
     public novaUsername: string;
     public novaPassword: string;
@@ -143,6 +144,7 @@ export class LoginCtrl {
 
     static $inject: [string] = ["$uibModalInstance", "auth"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth) {
+        this.isInLoginForm = true;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = true;
@@ -156,19 +158,20 @@ export class LoginCtrl {
 
     public goToForgetPasswordScreen(): void {
         this.forgetPasswordScreenUsername = this.novaUsername;
+        this.isInLoginForm = false;
         this.isInSAMLScreen = false;
         this.isInForgetPasswordScreen = true;
         this.forgetPasswordScreenError = false;
     }
 
     public goToSAMLScreen(): void {
+        this.isInLoginForm = false;
         this.isInForgetPasswordScreen = false;
         this.isInSAMLScreen = true;
     }
 
     public goToLoginScreen(): void {
-        this.isInForgetPasswordScreen = false;
-        this.isInSAMLScreen = false;
+        this.isInLoginForm = true;
     }
 
     public resetPassword(): void {

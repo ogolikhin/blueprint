@@ -1,9 +1,8 @@
 ﻿<div class="modal-header"></div>
 <div class="modal-body">
     <div class="modal-panel-container" ng-class="{
-        'modal-panel-login': !ctrl.isInForgetPasswordScreen,
-        'modal-panel-forget-password': ctrl.isInForgetPasswordScreen,
-        'modal-panel-saml': ctrl.isInSAMLScreen
+        'modal-panel-login': ctrl.isInLoginForm,
+        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
             <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">

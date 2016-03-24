@@ -84,6 +84,16 @@
       overflow: hidden;
       position: relative;
 
+      &.modal-panel-not-login .modal-panel {
+        -webkit-transition-duration: .5s;
+        -moz-transition-duration: .5s;
+        -o-transition-duration: .5s;
+        transition-duration: .5s;
+        -ms-transform: translate(-120%, 0); /* IE 9 */
+        -webkit-transform: translate(-120%, 0); /* Safari */
+        transform: translate(-120%, 0); /* Standard syntax */
+      }
+
       &.modal-panel-login .modal-panel {
         -webkit-transition-duration: .5s;
         -moz-transition-duration: .5s;
@@ -92,17 +102,6 @@
         -ms-transform: translate(0, 0); /* IE 9 */
         -webkit-transform: translate(0, 0); /* Safari */
         transform: translate(0, 0); /* Standard syntax */
-      }
-
-      &.modal-panel-forget-password .modal-panel,
-      &.modal-panel-saml .modal-panel {
-        -webkit-transition-duration: .5s;
-        -moz-transition-duration: .5s;
-        -o-transition-duration: .5s;
-        transition-duration: .5s;
-        -ms-transform: translate(-120%, 0); /* IE 9 */
-        -webkit-transform: translate(-120%, 0); /* Safari */
-        transform: translate(-120%, 0); /* Standard syntax */
       }
     }
 

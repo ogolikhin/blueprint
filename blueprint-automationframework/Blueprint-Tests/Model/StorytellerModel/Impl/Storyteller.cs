@@ -25,15 +25,8 @@ namespace Model.StorytellerModel.Impl
 
         private const string SVC_UPLOAD_PATH = "svc/components/filestore/files";
 
-        private IOpenApiArtifact _artifact;
-        private readonly string _address;
-        public string Address
-        {
-            get
-            {
-                return _address;
-            }
-        }
+        public string Address { get; }
+
         public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
 
         #region Constructor
@@ -42,9 +35,7 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
-            _artifact = new OpenApiArtifact(_address);
-            _artifact.BaseArtifactType = BaseArtifactType.Process;
+            Address = address;
         }
 
         #endregion Constructor
@@ -54,17 +45,16 @@ namespace Model.StorytellerModel.Impl
         public IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(_address, user, project, artifactType);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(Address, user, project, artifactType);
 
             //Set to add in root of the project
-            _artifact.ParentId = _artifact.ProjectId;
+            artifact.ParentId = artifact.ProjectId;
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            var artifact = _artifact.AddArtifact(_artifact, user);
-            _artifact.Id = artifact.Id;
+            artifact.Save(user);
 
             // Add artifact to artifacts list
-            Artifacts.Add(_artifact);
+            Artifacts.Add(artifact);
 
             return artifact;
         }
@@ -86,7 +76,7 @@ namespace Model.StorytellerModel.Impl
         public List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            var path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PATH, URL_PROJECTS);
+            string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PATH, URL_PROJECTS);
 
             ThrowIf.ArgumentNull(process, nameof(process));
             path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}/{4}", path, process.ProjectId, URL_PROCESSES, process.Id, URL_USERSTORIES);
@@ -105,9 +95,9 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            var additionalHeaders = new Dictionary<string, string>();
 
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(path, RestRequestMethod.POST, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
@@ -127,13 +117,13 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
+            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
             if (versionIndex.HasValue)
             {
                 path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
             }
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
@@ -157,9 +147,9 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
+            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
                 path,
@@ -174,7 +164,8 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             BaseArtifactType processTypeName = BaseArtifactType.Process;
-            return project.GetArtifactTypeId(address: _address, user: user, baseArtifactTypeName: processTypeName,
+
+            return project.GetArtifactTypeId(address: Address, user: user, baseArtifactTypeName: processTypeName,
                 projectId: project.Id);
         }
 
@@ -192,7 +183,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/processes", SVC_PATH);
+            string path = I18NHelper.FormatInvariant("{0}/processes", SVC_PATH);
 
             foreach (var id in artifactIds)
             {
@@ -204,7 +195,7 @@ namespace Model.StorytellerModel.Impl
                 path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
             }
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
@@ -233,9 +224,9 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, projectId, URL_ARTIFACTTYPES);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, projectId, URL_ARTIFACTTYPES);
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<ArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
@@ -256,9 +247,9 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
+            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var updateProcessResult = restApi.SendRequestAndDeserializeObject<UpdateResult<Process>, Process>(
                 path,
@@ -284,9 +275,9 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            var path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
+            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var restResponse = restApi.SendRequestAndGetResponse(
                 path,
@@ -317,7 +308,7 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            var additionalHeaders = new Dictionary<string, string>();
 
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_UPLOAD_PATH, file.FileName);
             if (expireDate != null)
@@ -326,9 +317,9 @@ namespace Model.StorytellerModel.Impl
                 path = I18NHelper.FormatInvariant("{0}/?expired={1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
             }
 
-            byte[] bytes = file.Content.ToArray<byte>();
+            byte[] bytes = file.Content.ToArray();
 
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             return artifactResult.Content;
@@ -353,7 +344,8 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
+            var artifactObjectList = new List<OpenApiArtifact>();
+
             foreach (IOpenApiArtifact artifact in Artifacts)
             {
                 var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
@@ -362,7 +354,7 @@ namespace Model.StorytellerModel.Impl
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, URL_PROCESSES, process.Id);
 
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
 
@@ -382,7 +374,7 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            var additionalHeaders = new Dictionary<string, string>();
 
             if (shouldKeepLock)
             {
@@ -394,16 +386,16 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
+            var artifactObjectList = new List<OpenApiArtifact>();
+
             foreach (IOpenApiArtifact artifact in Artifacts)
             {
                 var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
             }
 
-            string path = URL_PUBLISH;
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }

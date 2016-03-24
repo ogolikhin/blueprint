@@ -412,7 +412,7 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
-            return artifact.Delete(expectedStatusCodes, deleteChildren);
+            return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, deleteChildren);
         }
 
         #endregion Implemented from IStoryteller

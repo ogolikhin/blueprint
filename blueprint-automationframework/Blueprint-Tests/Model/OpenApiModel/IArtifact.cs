@@ -83,10 +83,12 @@ namespace Model.OpenApiModel
         /// Delete the artifact on Blueprint server.
         /// To delete artifact permanently Publish must be called after Delete, otherwise deletion can be discarded.
         /// </summary>
+        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        List<IDeleteArtifactResult> Delete(List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
+        List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
         /// Returns true for published artifact and false for unpublished. Method checks Version property.

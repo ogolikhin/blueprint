@@ -193,7 +193,7 @@ namespace Model.OpenApiModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, this.ProjectId, URL_ARTIFACTS);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, ProjectId, URL_ARTIFACTS);
 
             if (expectedStatusCodes == null)
             {
@@ -284,8 +284,10 @@ namespace Model.OpenApiModel.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public List<IDeleteArtifactResult> Delete(List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
+        public List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
 
             if (deleteChildren)
@@ -293,7 +295,7 @@ namespace Model.OpenApiModel.Impl
                 path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, CreatedBy.Username, CreatedBy.Password, token: CreatedBy.Token?.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
                 path,
                 RestRequestMethod.DELETE, 

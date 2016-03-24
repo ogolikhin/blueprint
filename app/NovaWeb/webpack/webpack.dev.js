@@ -23,7 +23,7 @@ module.exports = {
     },
     output: {
         filename: 'app.js',
-        path: 'dist/NovaWeb'
+        path: 'dist/novaweb'
     },
     resolve: {
         root: __dirname,
@@ -32,7 +32,7 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
-    devtool: "source-map",
+    devtool: 'source-map',
     context: path.join(__dirname, '../src'),
     plugins: [
         new ExtractTextPlugin("[name].css"),
@@ -54,6 +54,7 @@ module.exports = {
             notify: false
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.js"),
+        // Uncomment next lines if jQuery is required for the app
         //new webpack.ProvidePlugin({
         //    $: 'jquery',
         //    jQuery: 'jquery',
@@ -63,8 +64,8 @@ module.exports = {
          new CopyWebpackPlugin([
             // {output}/file.txt
             { from: '**/*.view.html' },
-            { from: '../node_modules/bowser/bowser.js', to: '../static/bowser.js' },
-            { from: './unsupported-browser', to: '../static' }
+            { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
+            { from: './unsupported-browser', to: './static' }
          ])
     ],
     module:{

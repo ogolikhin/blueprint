@@ -142,36 +142,42 @@ export class LoginCtrl {
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "auth"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth) {
+    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout"];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService) {
         this.isInLoginForm = true;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = true;
-        this.isInForgetPasswordScreen = false;
+        this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
         this.enableSAMLScreen = true;
-        this.isInSAMLScreen = false;
+        this.isInSAMLScreen = this.enableSAMLScreen;
         this.SAMLScreenMessage = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur";
     }
 
     public goToForgetPasswordScreen(): void {
-        this.forgetPasswordScreenUsername = this.novaUsername;
         this.isInLoginForm = false;
-        this.isInSAMLScreen = false;
-        this.isInForgetPasswordScreen = true;
+        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
+
         this.forgetPasswordScreenError = false;
+        this.forgetPasswordScreenUsername = this.novaUsername;
+        this.isInForgetPasswordScreen = true;
     }
 
     public goToSAMLScreen(): void {
         this.isInLoginForm = false;
-        this.isInForgetPasswordScreen = false;
+        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
+
         this.isInSAMLScreen = true;
     }
 
     public goToLoginScreen(): void {
         this.isInLoginForm = true;
+        this.$timeout(()=> {
+            this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
+            this.isInSAMLScreen = this.enableSAMLScreen;
+        }, 500); // I need to reset the other panels after transitioning back to the login form
     }
 
     public resetPassword(): void {

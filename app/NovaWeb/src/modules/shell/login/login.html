@@ -24,7 +24,7 @@
                 </div>
             </form>
         </div>
-        <div class="modal-panel" id="modal-login-forget-password" ng-if="!ctrl.isInSAMLScreen">
+        <div class="modal-panel" id="modal-login-forget-password" ng-if="ctrl.isInForgetPasswordScreen">
             <form name="novaLoginForgetPassword" ng-submit="ctrl.resetPassword()" role="form">
                 <div class="nova-login-message" ng-class="{error: ctrl.forgetPasswordScreenError}"><span ng-bind-html="ctrl.forgetPasswordScreenMessage"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.forgetPasswordScreenError}">
@@ -39,7 +39,7 @@
                 </div>
             </form>
         </div>
-        <div class="modal-panel" id="modal-login-saml" ng-if="!ctrl.isInForgetPasswordScreen">
+        <div class="modal-panel" id="modal-login-saml" ng-if="ctrl.isInSAMLScreen">
             <form name="novaLoginSAML" role="form">
                 <span ng-bind-html="ctrl.SAMLScreenMessage"></span>
                 <a href="#" ng-click="ctrl.goToLoginScreen()">Go back to login</a>

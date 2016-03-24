@@ -11,7 +11,7 @@ function initApp() {
     angular.bootstrap(document, ["app"], {
         strictDi: true
     });
-};
+}
 
 window.onload = () => {
 
@@ -19,8 +19,24 @@ window.onload = () => {
 
     //TODO: Remove NOT operator that is used just for debugging
     if (!executionEnvironmentDetector.isSupportedVersion()) {
+        initApp();
         return;
     }
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            console.log(xhr.responseText);
+            //add the supported browser from a JSON obj and render the page
+
+            var divUnsupportedBrowser = document.createElement("div");
+            divUnsupportedBrowser.id = "unsupported-browser-container";
+            divUnsupportedBrowser.innerHTML = xhr.responseText;
+            document.body.insertBefore(divUnsupportedBrowser, document.body.firstChild);
+        }
+    };
+    xhr.open('GET', '/novaweb/static/unsupported-browser.html');
+    xhr.send();
 
     var text: string = "<div style='display: inline-block; width:150px; vertical-align:top;'></div>";
     //if (window["config"] != null && typeof (window["config"]) != "undefined") {
@@ -88,6 +104,11 @@ window.onload = () => {
 
     document.getElementById("proceed").onclick = () => {
         document.getElementById("unsupported").style.display = "none";
+        document.getElementById("unsupported-browser-container").style.display = "none";
+        // TODO: change that to
+        // var element = document.getElementById("unsupported");
+        // element.parentNode.removeChild(element);
+
         initApp();
         return false;
     };

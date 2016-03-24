@@ -397,17 +397,16 @@ namespace StorytellerTests
         /// <returns>Text with inline traces</returns>
         private static string GetTextForInlineTrace(List<IOpenApiArtifact> artifacts)
         {
-            var text = String.Empty;
+            var text = string.Empty;
             foreach (var artifact in artifacts)
             {
                 text = text + I18NHelper.FormatInvariant("<a " +
-                "href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\"" +
+                "href=\"{0}?ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
                 " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
-                " text=\"{2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\">{2}</a>&nbsp;",
+                " text=\"{1}: {2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\"><span style=\"text-decoration: underline;\">{1}: {2}</span></a>&nbsp;",
                 artifact.Address, artifact.Id, artifact.Name);
             }
-            text = "<p>" + text + "</p>";
-            return text;
+            return "<p>"+text+"</p>";
         }
     }
 }

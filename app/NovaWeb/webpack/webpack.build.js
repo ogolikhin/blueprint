@@ -5,6 +5,9 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 
+var del = require('del');
+del(['dist/*']);
+
 module.exports = {
     entry: {
         app: './index.ts',
@@ -12,10 +15,8 @@ module.exports = {
     },
     output: {
         filename: 'app.js',
-        path: 'dist/NovaWeb'
+        path: 'dist/novaweb'
     },
-    devtool: 'source-map',
-    context: path.join(__dirname, '../src'),
     resolve: {
         root: __dirname,
         extensions: ['', '.ts', '.js', '.json']
@@ -23,6 +24,8 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
+    devtool: 'source-map',
+    context: path.join(__dirname, '../src'),
     plugins: [
         new ExtractTextPlugin("[name].css"),
         new webpack.optimize.UglifyJsPlugin(
@@ -49,7 +52,8 @@ module.exports = {
          new CopyWebpackPlugin([
             // {output}/file.txt 
             { from: '**/*.view.html' },
-            { from: '../node_modules/bowser/bowser.js' }
+            { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
+            { from: './unsupported-browser', to: './static' }
          ])
     ],
     module:{

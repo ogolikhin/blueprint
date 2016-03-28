@@ -7,7 +7,6 @@ using Common;
 using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -16,7 +15,6 @@ namespace Model.StorytellerModel.Impl
     public class Storyteller : IStoryteller
     {
         private const string SVC_PATH = "svc/components/storyteller";
-        private const string URL_PUBLISH = "api/v1/vc/publish";
         private const string URL_PROJECTS = "projects";
         private const string URL_PROCESSES = "processes";
         private const string URL_USERSTORIES = "userstories";
@@ -67,6 +65,7 @@ namespace Model.StorytellerModel.Impl
             {
                 var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
                 artifact.Publish(user);
+                artifact.IsPublished = true;
                 artifacts.Add(artifact);
             }
 
@@ -325,7 +324,7 @@ namespace Model.StorytellerModel.Impl
             return artifactResult.Content;
         }
 
-        public string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
@@ -344,69 +343,44 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            var artifactObjectList = new List<OpenApiArtifact>();
-
-            foreach (IOpenApiArtifact artifact in Artifacts)
-            {
-                var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
-                artifactObjectList.Add(artifactElement);
-            }
-
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, URL_PROCESSES, process.Id);
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
-            var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, expectedStatusCodes: expectedStatusCodes);
+            var publishProcessResult = restApi.SendRequestAndGetResponse(
+                path, 
+                RestRequestMethod.POST, 
+                expectedStatusCodes: expectedStatusCodes);
 
-            return artifactResult.Content;
-        }
+            // Mark artifact in artifact list as published
+            MarkArtifactAsPublished(process.Id);
 
-        public List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-
-            if (shouldKeepLock)
-            {
-                additionalHeaders.Add("KeepLock", "true");
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            var artifactObjectList = new List<OpenApiArtifact>();
-
-            foreach (IOpenApiArtifact artifact in Artifacts)
-            {
-                var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
-                artifactObjectList.Add(artifactElement);
-            }
-
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-
-            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+            return publishProcessResult.Content;
         }
 
         public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, deleteChildren);
         }
 
         #endregion Implemented from IStoryteller
+
+        #region Private Methods
+
+        /// <summary>
+        /// Mark the Artifact as Published
+        /// </summary>
+        /// <param name="artifactId">The id of the artifact to be published (Eq</param>
+        private void MarkArtifactAsPublished(int artifactId)
+        {
+            var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
+            publishedArtifact.IsPublished = true;
+        }
+
+        #endregion Private Methods
+
     }
 }

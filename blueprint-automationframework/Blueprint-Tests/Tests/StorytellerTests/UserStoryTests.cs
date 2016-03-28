@@ -70,7 +70,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
             
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
@@ -100,7 +100,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
@@ -176,7 +176,7 @@ namespace StorytellerTests
              _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
@@ -224,7 +224,7 @@ namespace StorytellerTests
             _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
@@ -270,10 +270,10 @@ namespace StorytellerTests
             }
 
             // Update the process
-            process = _storyteller.UpdateProcess(_user, process);
+            _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
 
             // Get the process artifact
             process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -296,10 +296,10 @@ namespace StorytellerTests
             }
 
             // Update the process
-            process = _storyteller.UpdateProcess(_user, process);
+            _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
 
             // Get the process artifact
             process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -331,7 +331,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -339,15 +339,15 @@ namespace StorytellerTests
             // Create target artifact for inline trace
             IOpenApiArtifact linkedArtifact = ArtifactFactory.CreateOpenApiArtifact(project: _project,
                 user: _user, artifactType: BaseArtifactType.Actor);
-            linkedArtifact.Save(user: _user);
-            linkedArtifact.Publish(user: _user);
+            linkedArtifact.Save();
+            linkedArtifact.Publish();
 
             //get text with inline trace to the specified artifact
             var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
             
             //delete artifact which is target for inline trace
             linkedArtifact.Delete();
-            linkedArtifact.Publish(user: _user);
+            linkedArtifact.Publish();
 
             // Generate User Stories from the Process
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
@@ -370,7 +370,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             var process = _storyteller.GetProcess(_user, processArtifact.Id);

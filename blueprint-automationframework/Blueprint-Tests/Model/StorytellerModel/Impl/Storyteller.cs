@@ -394,7 +394,6 @@ namespace Model.StorytellerModel.Impl
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = true;
-            publishedArtifact.IsPublished = false;
         }
 
         #endregion Private Methods

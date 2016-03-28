@@ -122,6 +122,9 @@ namespace Model.OpenApiModel.Impl
         /// </summary>
         public OpenApiArtifact()
         {
+            IsSaved = false;
+            IsPublished = false;
+
             //Required for deserializing OpenApiArtifact
             Properties = new List<OpenApiProperty>();
             Comments = new List<OpenApiComment>();
@@ -175,7 +178,6 @@ namespace Model.OpenApiModel.Impl
             if (artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture))
             {
                 IsSaved = true;
-                IsPublished = false;
             }
 
             Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
@@ -322,6 +324,9 @@ namespace Model.OpenApiModel.Impl
             {
                 var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
+
+                artifact.IsSaved = false;
+                artifact.IsPublished = true;
             }
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);

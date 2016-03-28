@@ -30,8 +30,6 @@ namespace Model.Factories
             artifact.ArtifactTypeId = project.GetArtifactTypeId(address: address, projectId: project.Id, baseArtifactTypeName: artifactType,
                 user: user);
             artifact.CreatedBy = user;
-            artifact.IsSaved = false;
-            artifact.IsPublished = false;
             return artifact;
         }
 

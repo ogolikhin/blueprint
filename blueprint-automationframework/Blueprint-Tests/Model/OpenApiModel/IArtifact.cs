@@ -44,16 +44,6 @@ namespace Model.OpenApiModel
         List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>
-        /// Adds the artifact to Blueprint
-        /// </summary>
-        /// <param name="artifact">The artifact to add.</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional)A list of expected status codes.  By default, only '201' is expected.</param>
-        /// <returns>The artifact added to blueprint</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
         /// Publish added artifact(s) to Blueprint
         /// </summary>
         /// <param name="artifactList">The artifact(s) to be published.</param>

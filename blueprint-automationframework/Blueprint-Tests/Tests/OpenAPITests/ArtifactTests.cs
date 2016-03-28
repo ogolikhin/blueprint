@@ -54,9 +54,9 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            var artifact = _artifact.AddArtifact(_artifact, _user);
+             _artifact.Save(_user);
 
-            Assert.NotNull(artifact.Properties, "Properties should not be null!");
+            Assert.NotNull(_artifact.Properties, "Properties should not be null!");
 
             // TODO more assertion?
         }
@@ -76,15 +76,15 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact = _artifact.AddArtifact(_artifact, _user);
+            _artifact.Save(_user);
 
             //Adding all artifact(s) to publish
-            List<IOpenApiArtifact> _artifactList = new List<IOpenApiArtifact>();
-            _artifactList.Add(_artifact);
+            var artifactList = new List<IOpenApiArtifact> {_artifact};
+
             // TODO more assertion?
 
             //Publish artifact(s)     
-            _artifact.PublishArtifacts(_artifactList, _user);
+            _artifact.PublishArtifacts(artifactList, _user);
         }
 
         /// <summary>
@@ -109,7 +109,8 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact.AddArtifact(_artifact, _user);
+            _artifact.Save(_user);
+
             // TODO more assertion?
         }
     }

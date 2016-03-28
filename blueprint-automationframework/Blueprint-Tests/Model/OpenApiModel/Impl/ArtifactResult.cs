@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Net;
+using Newtonsoft.Json;
 using Utilities;
 
 namespace Model.OpenApiModel.Impl
@@ -8,7 +9,7 @@ namespace Model.OpenApiModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
         public IArtifact Artifact { get; set; }
         public string Message { get; set; }
-        public string ResultCode { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
     }
 
     public class OpenApiArtifactResult : IArtifactResult<IOpenApiArtifact>
@@ -16,21 +17,21 @@ namespace Model.OpenApiModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
         public IOpenApiArtifact Artifact { get; set; }
         public string Message { get; set; }
-        public string ResultCode { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
     }
 
     public class PublishArtifactResult : IPublishArtifactResult
     {
-        public string ArtifactId { get; set; }
+        public int ArtifactId { get; set; }
         public string Message { get; set; }
-        public string ResultCode { get; set; }
-        public string ProjectId { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
+        public int ProjectId { get; set; }
     }
 
     public class DeleteArtifactResult : IDeleteArtifactResult
     {
-        public string ArtifactId { get; set; }
+        public int ArtifactId { get; set; }
         public string Message { get; set; }
-        public string ResultCode { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
     }
 }

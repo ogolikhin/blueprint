@@ -156,8 +156,10 @@ namespace Model.OpenApiModel.Impl
 
         public void Save(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
+
             if (user == null)
-        {
+            {
                 user = CreatedBy;
             }
             
@@ -175,7 +177,7 @@ namespace Model.OpenApiModel.Impl
                 path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
             // When artifact is saved, set IsPublished flag to false since changes have been saved but not published
-            if (artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture))
+            if (artifactResult.ResultCode == HttpStatusCode.Created)
             {
                 IsSaved = true;
             }
@@ -188,7 +190,7 @@ namespace Model.OpenApiModel.Impl
             const string expectedMsg = "Success";
             Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
 
-            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture),
+            Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
                 "The returned ResultCode was '{0}' but '{1}' was expected",
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
         }
@@ -197,6 +199,8 @@ namespace Model.OpenApiModel.Impl
             bool shouldKeepLock = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
+
             if (user == null)
             {
                 user = CreatedBy;
@@ -222,7 +226,7 @@ namespace Model.OpenApiModel.Impl
                 URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
             // When artifact is published, set IsSaved flag to false since there are no longer saved changes
-            if (publishResultList[0].ResultCode == ((int) HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture))
+            if (publishResultList[0].ResultCode == HttpStatusCode.OK)
             {
                 IsSaved = false;
                 IsPublished = true;
@@ -230,12 +234,14 @@ namespace Model.OpenApiModel.Impl
 
             Logger.WriteDebug("Result Code for Publish artifact: {0}", publishResultList[0].ResultCode);
 
-            Assert.That(publishResultList[0].ResultCode == ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture),
+            Assert.That(publishResultList[0].ResultCode == HttpStatusCode.OK,
                 "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
         }
 
         public List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
+            ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
+
             if (user == null)
             {
                 user = CreatedBy;
@@ -264,6 +270,8 @@ namespace Model.OpenApiModel.Impl
 
         public int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
+
             if (user == null)
             {
                 user = CreatedBy;
@@ -313,15 +321,11 @@ namespace Model.OpenApiModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
             var artifactObjectList = new List<OpenApiArtifact>();
 
             foreach (IOpenApiArtifact artifact in artifactsToPublish)
             {
+                // TODO:  Implement ICloneable for IOpenApiArtifact
                 var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
                 artifactObjectList.Add(artifactElement);
 
@@ -334,8 +338,7 @@ namespace Model.OpenApiModel.Impl
                 URL_PUBLISH,
                 RestRequestMethod.POST,
                 artifactObjectList,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes);
+                additionalHeaders: additionalHeaders);
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }

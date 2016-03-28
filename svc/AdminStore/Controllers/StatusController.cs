@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -13,17 +17,19 @@ namespace AdminStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusRepository StatusRepo;
+        internal readonly IStatusRepository AdminStatusRepo;
+        internal readonly IStatusRepository RaptorStatusRepo;
         internal readonly IServiceLogRepository Log;
 
         public StatusController()
-            : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"), new ServiceLogRepository())
+            : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"), new SqlStatusRepository(WebApiConfig.RaptorMain, "GetStatus"), new ServiceLogRepository())
         {
         }
 
-        internal StatusController(IStatusRepository statusRepo, IServiceLogRepository log)
+        internal StatusController(IStatusRepository adminStatusRepo, IStatusRepository raptorStatusRepo,  IServiceLogRepository log)
         {
-            StatusRepo = statusRepo;
+            AdminStatusRepo = adminStatusRepo;
+            RaptorStatusRepo = raptorStatusRepo;
             Log = log;
         }
 
@@ -38,15 +44,19 @@ namespace AdminStore.Controllers
         /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(void))]
+        [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus()
         {
+            var serviceStatus = new ServiceStatus();
+
+            serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
+
             try
             {
-                var result = await StatusRepo.GetStatus();
+                var result = await AdminStatusRepo.GetStatus();
                 if (result)
                 {
-                    return Ok();
+                    return Ok(serviceStatus);
                 }
                 return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
             }
@@ -55,6 +65,25 @@ namespace AdminStore.Controllers
                 await Log.LogError(WebApiConfig.LogSourceStatus, ex);
                 return InternalServerError();
             }
+
+            //var response = Request.CreateResponse(HttpStatusCode.OK, getStatusResponse);
+            //return ResponseMessage(response);
         }
+
+        public static string GetAssemblyFileVersion()
+        {
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
+        }
+    }
+
+    [JsonObject]
+    public class ServiceStatus
+    {
+        [JsonProperty]
+        public string AssemblyFileVersion;
+
+        [JsonProperty]
+        public Dictionary<string, string> DatabaseVersions;
     }
 }

@@ -25,7 +25,7 @@ namespace AdminStore.Controllers
             var controller = new StatusController();
 
             // Assert
-            Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
+            Assert.IsInstanceOfType(controller.AdminStatusRepo, typeof(SqlStatusRepository));
             Assert.IsInstanceOfType(controller.Log, typeof(ServiceLogRepository));
         }
 
@@ -40,7 +40,7 @@ namespace AdminStore.Controllers
             var statusRepo = new Mock<IStatusRepository>();
             var log = new Mock<IServiceLogRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var controller = new StatusController(statusRepo.Object, statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();
@@ -56,7 +56,7 @@ namespace AdminStore.Controllers
             var statusRepo = new Mock<IStatusRepository>();
             var log = new Mock<IServiceLogRepository>();
             statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var controller = new StatusController(statusRepo.Object, statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             var result = await controller.GetStatus() as StatusCodeResult;
@@ -75,7 +75,7 @@ namespace AdminStore.Controllers
             var log = new Mock<IServiceLogRepository>();
             var exception = new Exception();
             statusRepo.Setup(r => r.GetStatus()).Throws(exception);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var controller = new StatusController(statusRepo.Object, statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
             // Act
             IHttpActionResult result = await controller.GetStatus();

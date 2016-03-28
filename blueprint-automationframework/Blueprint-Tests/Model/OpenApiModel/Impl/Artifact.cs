@@ -92,27 +92,7 @@ namespace Model.OpenApiModel.Impl
 
         #region Properties
 
-        private int _createdBy;
-
-        public int CreatedBy
-        {
-            get
-            {
-                //TODO: Implement when we are able to return UsersAndGroups from OpenAPI call properly
-                //if (Properties == null)
-                //{
-                //    Properties = new List<OpenApiProperty>();
-                //}
-                //var createdByProperty = Properties.Find(p => p.Name == "Created By");
-
-                //var usersAndGroups = createdByProperty?.UsersAndGroups;
-                //return usersAndGroups?[0].Id;
-
-                return _createdBy;
-            }
-
-            set { _createdBy = value; }
-        }
+        public IUser CreatedBy { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
@@ -207,7 +187,7 @@ namespace Model.OpenApiModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, this.ProjectId, URL_ARTIFACTS);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, ProjectId, URL_ARTIFACTS);
 
             if (expectedStatusCodes == null)
             {
@@ -258,7 +238,7 @@ namespace Model.OpenApiModel.Impl
         {
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
             ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            var additionalHeaders = new Dictionary<string, string>();
 
             if (shouldKeepLock)
             {
@@ -276,9 +256,11 @@ namespace Model.OpenApiModel.Impl
 
             foreach (IOpenApiArtifact artifact in artifactList)
             {
-                OpenApiArtifact artifactElement = new OpenApiArtifact(artifact.Address);
-                artifactElement.Id = artifact.Id;
-                artifactElement.ProjectId = artifact.ProjectId;
+                OpenApiArtifact artifactElement = new OpenApiArtifact(artifact.Address)
+                {
+                    Id = artifact.Id,
+                    ProjectId = artifact.ProjectId
+                };
                 artifactObjectList.Add(artifactElement);
             }
 
@@ -290,42 +272,29 @@ namespace Model.OpenApiModel.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
-        public List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
-            if (deleteChildren)
-            {
-                path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
-            }
-
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-            additionalHeaders.Add("Accept", "application/json");
-
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
-
-            foreach (var deletedArtifact in artifactResults)
-            {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
-            }
-            return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
-        }
-
-        public void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
-                path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            if (deleteChildren)
+            {
+                path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
+            }
 
-            Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResults[0].Message, artifactResults[0].ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResults[0].ResultCode);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
+                path,
+                RestRequestMethod.DELETE, 
+                expectedStatusCodes: expectedStatusCodes);
+
+            foreach (var deletedArtifact in artifactResults)
+            {
+                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
+            }
+
+            return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
         public bool IsArtifactPublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null)

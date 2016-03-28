@@ -79,6 +79,44 @@
   }
 
   .modal-body {
+    .modal-panel-container {
+      min-height: 330px;
+      overflow: hidden;
+      position: relative;
+
+      &.modal-panel-not-login .modal-panel {
+        -webkit-transition-duration: .5s;
+        -moz-transition-duration: .5s;
+        -o-transition-duration: .5s;
+        transition-duration: .5s;
+        -ms-transform: translate(-120%, 0); /* IE 9 */
+        -webkit-transform: translate(-120%, 0); /* Safari */
+        transform: translate(-120%, 0); /* Standard syntax */
+      }
+
+      &.modal-panel-login .modal-panel {
+        -webkit-transition-duration: .5s;
+        -moz-transition-duration: .5s;
+        -o-transition-duration: .5s;
+        transition-duration: .5s;
+        -ms-transform: translate(0, 0); /* IE 9 */
+        -webkit-transform: translate(0, 0); /* Safari */
+        transform: translate(0, 0); /* Standard syntax */
+      }
+    }
+
+    .modal-panel {
+      background: $white;
+      left: 120%;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+
+    .modal-panel:first-child {
+      left: 0;
+    }
+
     .nova-login-message {
       box-sizing: content-box;
       font-size: $font-size-smallest;
@@ -91,7 +129,7 @@
       }
     }
 
-    .nova-forgot-password {
+    .nova-form-beneath {
       margin-top: -12px;
 
       a {

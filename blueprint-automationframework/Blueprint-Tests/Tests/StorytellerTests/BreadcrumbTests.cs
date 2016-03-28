@@ -55,7 +55,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _primaryUser, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
 

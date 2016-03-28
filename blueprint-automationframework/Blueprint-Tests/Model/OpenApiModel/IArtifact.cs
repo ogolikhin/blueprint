@@ -19,9 +19,9 @@ namespace Model.OpenApiModel
     public interface IOpenApiArtifact : IArtifactBase
     {
         /// <summary>
-        /// The Id of the User who Created the Artifact
+        /// The User who Created the Artifact
         /// </summary>
-        int CreatedBy { get; set; }
+        IUser CreatedBy { get; set; }
 
         /// <summary>
         /// List of Open Api Artifact Properties
@@ -65,17 +65,6 @@ namespace Model.OpenApiModel
         List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Delete the artifact on Blueprint server.
-        /// </summary>
-        /// <param name="artifact">The artifact to delete.</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
-
-        /// <summary>
         /// Publish the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
@@ -94,9 +83,12 @@ namespace Model.OpenApiModel
         /// Delete the artifact on Blueprint server.
         /// To delete artifact permanently Publish must be called after Delete, otherwise deletion can be discarded.
         /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
+        List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
         /// Returns true for published artifact and false for unpublished. Method checks Version property.

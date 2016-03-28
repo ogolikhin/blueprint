@@ -256,9 +256,12 @@ namespace Model.OpenApiModel.Impl
             return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
-        public bool GetPublishedStatus(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public bool GetPublishedStatus(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            if (user == null)
+            {
+                user = CreatedBy;
+            }
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);

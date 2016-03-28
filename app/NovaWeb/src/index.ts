@@ -6,7 +6,7 @@ import {ExecutionEnvironmentDetector} from "./modules/shell/execution-environmen
 import "./styles/screen.scss";
 
 function initApp() {
-    angular.module("app", ["app.main"]);
+    var app = angular.module("app", ["app.main"])
 
     angular.bootstrap(document, ["app"], {
         strictDi: true

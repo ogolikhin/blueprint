@@ -138,6 +138,11 @@ export class LoginCtrl {
     public forgetPasswordScreenMessage: string;
     public forgetPasswordScreenUsername: string;
 
+    public enableChangePasswordScreen: boolean;
+    public isInChangePasswordScreen: boolean;
+    public changePasswordScreenError: boolean;
+    public changePasswordScreenMessage: string;
+
     public enableSAMLScreen: boolean;
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
@@ -151,14 +156,19 @@ export class LoginCtrl {
         this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
+        this.enableChangePasswordScreen = true;
+        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
+        this.changePasswordScreenMessage = "Please enter your Username";
+
         this.enableSAMLScreen = true;
         this.isInSAMLScreen = this.enableSAMLScreen;
-        this.SAMLScreenMessage = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur";
+        this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
     }
 
     public goToForgetPasswordScreen(): void {
         this.isInLoginForm = false;
         if(this.enableSAMLScreen) this.isInSAMLScreen = false;
+        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
 
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
@@ -168,6 +178,7 @@ export class LoginCtrl {
     public goToSAMLScreen(): void {
         this.isInLoginForm = false;
         if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
+        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
 
         this.isInSAMLScreen = true;
     }
@@ -176,6 +187,7 @@ export class LoginCtrl {
         this.isInLoginForm = true;
         this.$timeout(()=> {
             this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
+            this.isInChangePasswordScreen = this.enableChangePasswordScreen;
             this.isInSAMLScreen = this.enableSAMLScreen;
         }, 500); // I need to reset the other panels after transitioning back to the login form
     }

@@ -2,7 +2,7 @@
 <div class="modal-body">
     <div class="modal-panel-container" ng-class="{
         'modal-panel-login': ctrl.isInLoginForm,
-        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInSAMLScreen
+        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
             <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
@@ -40,6 +40,15 @@
             </form>
         </div>
         <div class="modal-panel" id="modal-login-saml" ng-if="ctrl.isInSAMLScreen">
+            <form name="novaLoginSAML" role="form">
+                <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-primary">Retry</button>
+                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">Login with Username and Password</a></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-panel" id="modal-login-change-password" ng-if="ctrl.isInChangePasswordScreen">
             <form name="novaLoginSAML" role="form">
                 <span ng-bind-html="ctrl.SAMLScreenMessage"></span>
                 <a href="#" ng-click="ctrl.goToLoginScreen()">Go back to login</a>

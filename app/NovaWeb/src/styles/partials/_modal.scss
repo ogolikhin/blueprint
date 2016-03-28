@@ -1,6 +1,6 @@
 .modal-content {
   border: 0;
-  @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
+  @include rounded-corners($border-radius-amount $border-radius-amount $border-radius-amount $border-radius-amount);
 }
 
 .modal-header {

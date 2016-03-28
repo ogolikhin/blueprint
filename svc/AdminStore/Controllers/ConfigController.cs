@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,7 +22,7 @@ namespace AdminStore.Controllers
     public class ConfigController : ApiController
     {
         internal readonly IConfigRepository _configRepo;
-        internal readonly IApplicationSettingsRepository _settingsRepo;
+        internal readonly IApplicationSettingsRepository _appSettingsRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly sl.IServiceLogRepository _log;
 
@@ -33,7 +34,7 @@ namespace AdminStore.Controllers
         internal ConfigController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
         {
             _configRepo = configRepo;
-            _settingsRepo = settingsRepo;
+            _appSettingsRepo = settingsRepo;
             _httpClientProvider = httpClientProvider;
             _log = log;
         }
@@ -87,7 +88,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("config.js")]
+        [Route("config.js"), NoSessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetConfig()
         {
@@ -95,14 +96,15 @@ namespace AdminStore.Controllers
             {
                 var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
 
-                var settings = await _settingsRepo.GetSettings();
+                var settings = await _appSettingsRepo.GetSettings();
 
                 var labels = await _configRepo.GetLabels(locale);
 
-                var config = JsonConvert.SerializeObject(new {
-                    settings = settings.ToDictionary(it=>it.Key,it=>it.Value),
-                    labels = labels.ToDictionary(it=>it.Key, it=>it.Text),
-                });
+                var config = new
+                {
+                    settings = settings.ToDictionary(it => it.Key, it => it.Value),
+                    labels = labels.ToDictionary(it => it.Key, it => it.Text),
+                }.ToJSON();
 
                 var script = $"window.config={config};";
 

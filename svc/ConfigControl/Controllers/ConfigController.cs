@@ -34,17 +34,6 @@ namespace ConfigControl.Controllers
                 var settings = await _configRepo.GetSettings(allowRestricted);
                 var map = settings.GroupBy(it => it.Group).ToDictionary(it=>it.Key, it=>it.ToDictionary(i=>i.Key, i=>i.Value));
 
-/*
-                var map = new Dictionary<string, Dictionary<string, string>>();
-                foreach(var s in settings)
-                {
-                    if (!map.ContainsKey(s.Group))
-                    {
-                        map.Add(s.Group, new Dictionary<string, string>());
-                    }
-                    map[s.Group].Add(s.Key, s.Value);
-                }
-*/
                 var response = Request.CreateResponse(HttpStatusCode.OK, map);
                 return ResponseMessage(response);
             }

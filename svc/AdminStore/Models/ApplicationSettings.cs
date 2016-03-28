@@ -7,7 +7,9 @@ namespace AdminStore.Models
     {
         [JsonProperty]
         public string Key { get; set; }
+
         [JsonProperty]
         public string Value { get; set; }
 
     }
+}

@@ -153,10 +153,10 @@ namespace Model.OpenApiModel.Impl
         public void Save(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
-            {
+        {
                 user = CreatedBy;
             }
-
+            
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, ProjectId, URL_ARTIFACTS);
 
             if (expectedStatusCodes == null)
@@ -166,7 +166,7 @@ namespace Model.OpenApiModel.Impl
 
             OpenApiArtifact artifactObject = this;
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
                 path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
@@ -213,7 +213,7 @@ namespace Model.OpenApiModel.Impl
 
             var artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
             var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 

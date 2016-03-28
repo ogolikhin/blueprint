@@ -142,6 +142,9 @@ export class LoginCtrl {
     public isInChangePasswordScreen: boolean;
     public changePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
+    public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
+    public changePasswordNewPasswordError: boolean; //if the new password doesn't satisfy the security criteria
+    public changePasswordConfirmPasswordError: boolean; //if new password and confirm password don't match
 
     public enableSAMLScreen: boolean;
     public isInSAMLScreen: boolean;
@@ -156,9 +159,9 @@ export class LoginCtrl {
         this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
-        this.enableChangePasswordScreen = true;
+        this.enableChangePasswordScreen = false;
         this.isInChangePasswordScreen = this.enableChangePasswordScreen;
-        this.changePasswordScreenMessage = "Please enter your Username";
+        this.changePasswordScreenMessage = "Your password has expired. Please change your password below.";
 
         this.enableSAMLScreen = true;
         this.isInSAMLScreen = this.enableSAMLScreen;
@@ -173,6 +176,15 @@ export class LoginCtrl {
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
         this.isInForgetPasswordScreen = true;
+    }
+
+    public goToChangePasswordScreen(): void {
+        this.isInLoginForm = false;
+        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
+        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
+
+        this.changePasswordScreenError = false;
+        this.isInChangePasswordScreen = true;
     }
 
     public goToSAMLScreen(): void {
@@ -190,6 +202,10 @@ export class LoginCtrl {
             this.isInChangePasswordScreen = this.enableChangePasswordScreen;
             this.isInSAMLScreen = this.enableSAMLScreen;
         }, 500); // I need to reset the other panels after transitioning back to the login form
+    }
+
+    public changePassword(): void {
+        // TODO: back-end not ready yet
     }
 
     public resetPassword(): void {
@@ -216,6 +232,12 @@ export class LoginCtrl {
                         this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
                         this.labelError = true;
                         this.fieldError = false;
+                    } else if (error.errorCode === 2002) {
+                        this.errorMsg = "Your Password has expired.";
+                        this.labelError = true;
+                        this.fieldError = false;
+                        this.enableChangePasswordScreen = true;
+                        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
                     } else {
                         this.errorMsg = error.message;
                         this.labelError = true;

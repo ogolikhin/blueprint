@@ -95,8 +95,8 @@ namespace StorytellerTests
             Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
                 "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
@@ -115,8 +115,8 @@ namespace StorytellerTests
 
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]

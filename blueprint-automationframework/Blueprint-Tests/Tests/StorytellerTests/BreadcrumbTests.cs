@@ -17,6 +17,7 @@ namespace StorytellerTests
     {
         private const string STORYTELLER_BASE_URL = "/Web/#/Storyteller/";
         private const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
+        private const int NONEXISTENT_ARTIFACT_ID = 99999999;
 
         private IAdminStore _adminStore;
         private IStoryteller _storyteller;
@@ -55,7 +56,10 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.Id != NONEXISTENT_ARTIFACT_ID)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    }
                 }
             }
 
@@ -97,39 +101,37 @@ namespace StorytellerTests
             AssertBreadcrumb(numberOfArtifacts, artifacts, process);
         }
 
-        [TestCase(3, 1, 99999999)]
-        [TestCase(4, 1, 99999999)]
-        [TestCase(4, 2, 99999999)]
-        [TestCase(15, 13, 99999999)]
+        [TestCase(3, 1)]
+        [TestCase(4, 1)]
+        [TestCase(4, 2)]
+        [TestCase(15, 13)]
         [Description("Get the default process with a non-existent artifact in the GET url path.  Verify" +
                      "that the non-existent artifact is marked as <Inaccessible> in the returned " +
                      "artifact path links. ")]
         public void GetDefaultProcessWithNonexistentArtifactInPath_VerifyReturnedBreadcrumb(
             int numberOfArtifacts, 
-            int nonexistentArtifactIndex, 
-            int nonexistentArtifactId)
+            int nonexistentArtifactIndex)
         {
             List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
-            artifactIds[nonexistentArtifactIndex] = nonexistentArtifactId;
-            artifacts[nonexistentArtifactIndex].Id = nonexistentArtifactId;
+            artifactIds[nonexistentArtifactIndex] = NONEXISTENT_ARTIFACT_ID;
+            artifacts[nonexistentArtifactIndex].Id = NONEXISTENT_ARTIFACT_ID;
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { nonexistentArtifactIndex});
         }
 
-        [TestCase(4, new[] { 1, 2 }, 99999999, Description ="Test for sequential nonexistent artifacts in breadcrumb")]
-        [TestCase(15, new[] { 2, 6, 13 }, 99999999, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
+        [TestCase(4, new[] { 1, 2 }, Description ="Test for sequential nonexistent artifacts in breadcrumb")]
+        [TestCase(15, new[] { 2, 6, 13 }, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
         [Description("Get the default process with multiple non-existent artifacts in the GET url path. " +
                      "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
                      "artifact path links. ")]
         public void GetDefaultProcessWithMultipleNonexistentArtifactsInPath_VerifyReturnedBreadcrumb(
             int numberOfArtifacts, 
-            int[] nonexistentArtifactIndexes, 
-            int nonexistentArtifactId)
+            int[] nonexistentArtifactIndexes)
         {
             ThrowIf.ArgumentNull(nonexistentArtifactIndexes,nameof(nonexistentArtifactIndexes));
 
@@ -139,8 +141,8 @@ namespace StorytellerTests
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
             foreach (var nonexistentArtifactIndex in nonexistentArtifactIndexes)
             {
-                artifactIds[nonexistentArtifactIndex] = nonexistentArtifactId;
-                artifacts[nonexistentArtifactIndex].Id = nonexistentArtifactId;
+                artifactIds[nonexistentArtifactIndex] = NONEXISTENT_ARTIFACT_ID;
+                artifacts[nonexistentArtifactIndex].Id = NONEXISTENT_ARTIFACT_ID;
             }
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
@@ -165,7 +167,7 @@ namespace StorytellerTests
             // create and inject artifact ids created by another user
             var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
             artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
-            artifacts[inaccessibleArtifactIndex].Id = inaccessibleArtifact.Id;
+            artifacts[inaccessibleArtifactIndex] = inaccessibleArtifact;
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
 
@@ -194,7 +196,7 @@ namespace StorytellerTests
             {
                 var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
                 artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
-                artifacts[inaccessibleArtifactIndex].Id = inaccessibleArtifact.Id;
+                artifacts[inaccessibleArtifactIndex] = inaccessibleArtifact;
             }
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);

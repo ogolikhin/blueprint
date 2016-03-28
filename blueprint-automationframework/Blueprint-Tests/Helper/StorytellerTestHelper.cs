@@ -128,7 +128,7 @@ namespace Helper
             AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
 
             // Publish the process artifact so it can be deleted in test teardown
-            storyteller.PublishProcessArtifact(user, processReturnedFromGet);
+            storyteller.PublishProcess(user, processReturnedFromGet);
         }
 
         #endregion Public Methods

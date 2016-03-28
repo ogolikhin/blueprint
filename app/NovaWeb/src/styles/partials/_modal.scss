@@ -1,6 +1,6 @@
 .modal-content {
   border: 0;
-  @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
+  @include rounded-corners($border-radius-amount $border-radius-amount $border-radius-amount $border-radius-amount);
 }
 
 .modal-header {
@@ -126,6 +126,13 @@
 
       &.error {
         color: $brand-error;
+      }
+    }
+
+    #modal-login-saml {
+      .nova-login-message {
+        font-size: $font-size-smaller;
+        text-align: left;
       }
     }
 

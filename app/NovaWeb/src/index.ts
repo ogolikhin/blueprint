@@ -17,8 +17,7 @@ window.onload = () => {
 
     var executionEnvironmentDetector = new ExecutionEnvironmentDetector();
 
-    //TODO: Remove NOT operator that is used just for debugging
-    if (!executionEnvironmentDetector.isSupportedVersion()) {
+    if (executionEnvironmentDetector.isSupportedVersion()) {
         initApp();
         return;
     }

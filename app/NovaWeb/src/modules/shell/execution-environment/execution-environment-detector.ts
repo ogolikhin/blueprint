@@ -1,6 +1,4 @@
-﻿import "bowser";
-
-declare var bowser: any;
+﻿import * as bowser from "bowser";
 
 export interface IExecutionEnvironmentDetectorService {
     getBrowserInfo();
@@ -18,14 +16,9 @@ export interface IBrowserInfo extends BowserModule.IBowserUA {
 
 // Typescript implementation based on https://github.com/ded/bowser
 export class ExecutionEnvironmentDetector implements IExecutionEnvironmentDetectorService {
-
-    public static bowser: IBrowserInfo;
-
     public getBrowserInfo() {
         var ua = window.navigator !== undefined ? window.navigator.userAgent : "";
-        var browser = window["bowser"] || bowser;
-
-        return this.getBrowserInfoUserAgent(ua, browser);
+        return this.getBrowserInfoUserAgent(ua, bowser);
     }
 
 
@@ -58,7 +51,7 @@ export class ExecutionEnvironmentDetector implements IExecutionEnvironmentDetect
         //true if (IE9 + /FF19+/Chrome26 + on Windows 7+, Safari 7+ on OSX, Safari6 + /Chrome35+ on iOS 6+, Chrome35+ on Android 4+)
         browser.blueprintSupportedBrowser = false;
         if (bowser.mobile) {
-            bowser.blueprintSupportedBrowser = false;
+            browser.blueprintSupportedBrowser = false;
         } else if (browser.msie && browser.version >= 9 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         } else if (browser.firefox && browser.version >= 19 && browser.win7plus) {

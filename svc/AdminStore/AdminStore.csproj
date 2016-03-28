@@ -111,6 +111,9 @@
     </Compile>
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Models\ApplicationSettings.cs" />
+    <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
+    <Compile Include="Repositories\ISettingsRepository.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />
     <Compile Include="Controllers\ConfigController.cs" />

@@ -1,6 +1,4 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#" #>
-<#@ output extension=".sql" #>
-
+﻿
 -- --------------------------------------------------
 -- Migration 7.1.0.0
 -- --------------------------------------------------
@@ -24,7 +22,7 @@ GO
 
 BULK
 	INSERT [dbo].[ApplicationLabels] 
-	FROM '<#= this.Host.ResolvePath ( @"..\..\Scripts\ApplicationLabels.txt" ) #>'
+	FROM 'C:\Projects\blueprint\svc\db\AdminStorage\Migration\7.1.0.0\..\..\Scripts\ApplicationLabels.txt'
 	WITH
 (
 FIELDTERMINATOR = ',',

@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -31,6 +32,9 @@ namespace ConfigControl.Controllers
             try
             {
                 var settings = await _configRepo.GetSettings(allowRestricted);
+                var map = settings.GroupBy(it => it.Group).ToDictionary(it=>it.Key, it=>it.ToDictionary(i=>i.Key, i=>i.Value));
+
+/*
                 var map = new Dictionary<string, Dictionary<string, string>>();
                 foreach(var s in settings)
                 {
@@ -40,6 +44,7 @@ namespace ConfigControl.Controllers
                     }
                     map[s.Group].Add(s.Key, s.Value);
                 }
+*/
                 var response = Request.CreateResponse(HttpStatusCode.OK, map);
                 return ResponseMessage(response);
             }

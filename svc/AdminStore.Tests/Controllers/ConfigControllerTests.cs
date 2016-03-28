@@ -32,6 +32,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(controller._configRepo, typeof(SqlConfigRepository));
+            Assert.IsInstanceOfType(controller._settingsRepo, typeof(ApplicationSettingsRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
             Assert.IsInstanceOfType(controller._log, typeof(sl.ServiceLogRepository));
         }
@@ -143,6 +144,7 @@ namespace AdminStore.Controllers
         private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> settings, IEnumerable<ApplicationLabel> labels = null, string locale = "en-US")
         {
             var configRepo = new Mock<IConfigRepository>();
+            var settingsRepo = new Mock<IApplicationSettingsRepository>();
             IHttpClientProvider httpClientProvider;
             if (settings == null)
             {
@@ -154,12 +156,16 @@ namespace AdminStore.Controllers
                 httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWithOrdinal("settings/false") ?
                      new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
             }
+/*
+            settingsRepo.Setup(it => it.GetSettings()).ReturnsAsync(settings.Select(i=>new ApplicationSetting() {Key = i.Key, Value = i.Value}));
+*/
             if (labels != null)
             {
                 configRepo.Setup(r => r.GetLabels(locale)).ReturnsAsync(labels);
             }
+
             var logMock = new Mock<sl.IServiceLogRepository>();
-            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, settingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             return controller;

@@ -78,6 +78,15 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\7.1.0.0\7.1.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>7.1.0.01.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\7.1.0.0\7.1.0.01.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>7.1.0.0.tt</DependentUpon>
+    </Content>
     <Content Include="Procedures\DeleteLogs.sql" />
     <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
@@ -94,6 +103,7 @@
     <Content Include="Procedures\GetConfigSettings.sql" />
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
+    <Content Include="Scripts\ApplicationLabels.txt" />
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />

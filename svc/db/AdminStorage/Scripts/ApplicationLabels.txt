@@ -1,0 +1,7 @@
+Login_Username,en-US,Username
+Login_Password,en-US,Password
+Login_Button,en-US,Login
+Login_Blueprint,en-US,Login to blueprint.toronto
+Login_ForgotPassword,en-US,Forgot password?
+Login_ResetPassword,en-US,Reset password
+Login_Back,en-US,Go back to login 

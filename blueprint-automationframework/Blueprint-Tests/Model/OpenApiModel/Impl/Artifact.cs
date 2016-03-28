@@ -167,14 +167,10 @@ namespace Model.OpenApiModel.Impl
 
         #region Methods
 
-        public IOpenApiArtifact AddArtifact(
-            IOpenApiArtifact artifact,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public IOpenApiArtifact AddArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS);
 
@@ -187,29 +183,27 @@ namespace Model.OpenApiModel.Impl
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
-                path, RestRequestMethod.POST, artifactObject, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+                path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
             Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
             Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
+            //add back address
+            artifactResult.Artifact.Address = artifact.Address;
+
             //TODO Assertion to check Message
             const string expectedMsg = "Success";
-            Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
+            Assert.That(artifactResult.Message.Equals(expectedMsg), "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
 
             Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture),
                 "The returned ResultCode was '{0}' but '{1}' was expected",
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
 
-            //add back address
-            artifactResult.Artifact.Address = artifact.Address;
-
             return artifactResult.Artifact;
         }
 
-        public void Save(
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public void Save(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             
@@ -236,9 +230,7 @@ namespace Model.OpenApiModel.Impl
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
         }
 
-        public void Publish(IUser user,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public void Publish(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
@@ -262,11 +254,7 @@ namespace Model.OpenApiModel.Impl
                 "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
         }
 
-        public List<IPublishArtifactResult> PublishArtifacts(
-            List<IOpenApiArtifact> artifactList,
-            IUser user,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IPublishArtifactResult> PublishArtifacts(List<IOpenApiArtifact> artifactList, IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
             ThrowIf.ArgumentNull(user, nameof(user));

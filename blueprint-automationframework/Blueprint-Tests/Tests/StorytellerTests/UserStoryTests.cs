@@ -49,7 +49,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
             if (_user != null)
@@ -346,7 +346,7 @@ namespace StorytellerTests
             var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
             
             //delete artifact which is target for inline trace
-            linkedArtifact.Delete(user: _user);
+            linkedArtifact.Delete();
             linkedArtifact.Publish(user: _user);
 
             // Generate User Stories from the Process

@@ -65,7 +65,6 @@ namespace Model.StorytellerModel.Impl
             {
                 var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
                 artifact.Publish(user);
-                artifact.IsPublished = true;
                 artifacts.Add(artifact);
             }
 
@@ -257,6 +256,9 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
+            // Mark artifact in artifact list as saved
+            MarkArtifactAsSaved(process.Id);
+
             return updateProcessResult.Result;
         }
 
@@ -284,6 +286,9 @@ namespace Model.StorytellerModel.Impl
                 bodyObject: (Process)process,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
+
+            // Mark artifact in artifact list as saved
+            MarkArtifactAsSaved(process.Id);
 
             return restResponse.Content;
         }
@@ -371,13 +376,25 @@ namespace Model.StorytellerModel.Impl
         #region Private Methods
 
         /// <summary>
-        /// Mark the Artifact as Published
+        /// Mark the Artifact as Published (Indicates artifact has no pending changes)
         /// </summary>
-        /// <param name="artifactId">The id of the artifact to be published (Eq</param>
+        /// <param name="artifactId">The id of the artifact to be published</param>
         private void MarkArtifactAsPublished(int artifactId)
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
+            publishedArtifact.IsSaved = false;
             publishedArtifact.IsPublished = true;
+        }
+
+        /// <summary>
+        /// Mark the Artifact as Saved (Indicates artifact has pending changes)
+        /// </summary>
+        /// <param name="artifactId">The id of the artifact to be saved</param>
+        private void MarkArtifactAsSaved(int artifactId)
+        {
+            var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
+            publishedArtifact.IsSaved = true;
+            publishedArtifact.IsPublished = false;
         }
 
         #endregion Private Methods

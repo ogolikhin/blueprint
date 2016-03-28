@@ -67,11 +67,11 @@ namespace Model.OpenApiModel
         List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
-        /// Returns true for published artifact and false for unpublished. Method checks Version property via OpenAPI call
+        /// Gets the Version property of an Artifact via OpenAPI call
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>True for published artifact, false for unpublished artifact.</returns>
-        bool GetPublishedStatus(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>The historical version of the artifact.</returns>
+        int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

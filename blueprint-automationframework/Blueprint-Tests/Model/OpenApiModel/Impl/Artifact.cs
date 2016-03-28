@@ -34,6 +34,7 @@ namespace Model.OpenApiModel.Impl
         public string Address { get; set; }
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
+        public bool IsSaved { get; set; }
 
         #endregion Properties
 
@@ -170,9 +171,10 @@ namespace Model.OpenApiModel.Impl
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
                 path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
-            // When artifact is saved, set publish flag to false since changes have been saved but not published
+            // When artifact is saved, set IsPublished flag to false since changes have been saved but not published
             if (artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture))
             {
+                IsSaved = true;
                 IsPublished = false;
             }
 
@@ -217,8 +219,10 @@ namespace Model.OpenApiModel.Impl
             var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
+            // When artifact is published, set IsSaved flag to false since there are no longer saved changes
             if (publishResultList[0].ResultCode == ((int) HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture))
             {
+                IsSaved = false;
                 IsPublished = true;
             }
 
@@ -256,7 +260,7 @@ namespace Model.OpenApiModel.Impl
             return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
-        public bool GetPublishedStatus(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -268,10 +272,7 @@ namespace Model.OpenApiModel.Impl
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
-            //for unpublished artifact Version is -1
-            IsPublished = returnedArtifact.Version != -1;
-
-            return IsPublished;
+            return returnedArtifact.Version;
         }
 
         #endregion Methods

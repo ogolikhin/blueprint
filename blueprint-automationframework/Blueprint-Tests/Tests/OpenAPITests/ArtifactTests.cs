@@ -86,6 +86,32 @@ namespace OpenAPITests
             _artifact.PublishArtifacts(artifactList, _user);
         }
 
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        public void DiscardArtifact_Actor()
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+
+            //Create Description property
+            IOpenApiProperty property = new OpenApiProperty();
+            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            _artifact = _artifact.AddArtifact(_artifact, _user);
+
+            //Adding all artifact(s) to publish
+            List<IOpenApiArtifact> artifactList = new List<IOpenApiArtifact>();
+            artifactList.Add(_artifact);
+            // TODO more assertion?
+
+            //Discard artifact(s)     
+            _artifact.DiscardArtifacts(artifactList, _user);
+        }
+
         /// <summary>
         /// Create an "Actor" type artifact under the existing project, adding RTF value in RTF supported property field
         /// </summary>

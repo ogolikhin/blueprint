@@ -129,6 +129,13 @@
       }
     }
 
+    #modal-login-saml {
+      .nova-login-message {
+        font-size: $font-size-smaller;
+        text-align: left;
+      }
+    }
+
     .nova-form-beneath {
       margin-top: -12px;
 

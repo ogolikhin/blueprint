@@ -4,28 +4,41 @@ button.btn {
 
 .btn-primary {
   background-color: $brand-secondary;
-  border: $brand-secondary;
+  border: solid 1px $brand-secondary;
   color: $white;
 
   &:hover,
   &:focus,
   &:active {
     background-color: darken($brand-secondary, 10%);
-    border: darken($brand-secondary, 10%);
+    border-color: darken($brand-secondary, 10%);
     color: $white;
   }
 }
 
 .btn-secondaary {
   background-color: $gray-light;
-  border: $gray-light;
+  border: solid 1px $gray-light;
   color: $white;
 
   &:hover,
   &:focus,
   &:active {
     background-color: darken($gray-light, 10%);
-    border: darken($gray-light, 10%);
+    border-color: darken($gray-light, 10%);
     color: $white;
+  }
+}
+
+.btn-white {
+  background-color: $white;
+  border: solid 1px $gray-light;
+  color: $gray-lighter;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: $gray-lightest;
+    color: $gray;
   }
 }

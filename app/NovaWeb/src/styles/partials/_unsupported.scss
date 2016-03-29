@@ -19,8 +19,7 @@
   }
 
   h1 {
-    background: url('images/bp_logo_blue.svg') -20px no-repeat;
-    background-size: 270px;
+    background: url('/novaweb/static/logo-blueprint-blue.png') left no-repeat;
     border-bottom: solid 1px $brand-primary;
     border-left: 0;
     border-right: 0;
@@ -70,7 +69,7 @@
     .supported-platforms-row {
       margin: 0;
 
-      &::after {
+      &:after {
         clear: both;
         content: '';
         display: table;

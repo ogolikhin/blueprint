@@ -18,6 +18,21 @@ CREATE TABLE [dbo].[ApplicationLabels](
 	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
 	[Text] [nvarchar](512) NOT NULL,
- CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId] PRIMARY KEY CLUSTERED ([ApplicationLabelId] ASC)
+
+	CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId] PRIMARY KEY CLUSTERED 
+	(
+		[ApplicationLabelId] ASC
+	)
 ) ON [PRIMARY]
+GO
+
+IF EXISTS (SELECT name FROM sys.indexes WHERE name = N'IX_ApplicationLabels_Key_Locale')
+	DROP INDEX IX_ApplicationLabels_Key_Locale on [dbo].[ApplicationLabels]
+GO
+
+CREATE NONCLUSTERED INDEX IX_ApplicationLabels_Key_Locale on  [dbo].[ApplicationLabels] 
+(
+	[Key],
+	[Locale]
+)
 GO

@@ -1,9 +1,11 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
-<#@ output extension=".sql" #>
+<#@ output extension=".sql "encoding="UTF8" #>
 <#@ assembly name="System.Data.dll"#>
 <#@ assembly name="Microsoft.VisualBasic.dll"#>
 <#@ import namespace="System"#>
 <#@ import namespace="System.Data"#>
+<#@ import namespace="System.Text"#>
+<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="Microsoft.VisualBasic.FileIO"#>
 
 -- -----------------------------------------------------------------------------------------------
@@ -20,23 +22,16 @@ CREATE TABLE #tempAppLabels (
 	[Text] [nvarchar](512) NOT NULL
 )
 
-<#	var applicationLabelsCsvFile = this.Host.ResolvePath ( @".\ApplicationLabels_en-US.csv" );
-	using (TextFieldParser csvParser = new TextFieldParser(applicationLabelsCsvFile))
+<#	List<string[]> allApplicationLabels = new List<string[]>();
+
+	allApplicationLabels.AddRange(this.GetAppLablesFromCsv(this.Host.ResolvePath ( @".\ApplicationLabels_en-US.csv" )));
+	allApplicationLabels.AddRange(this.GetAppLablesFromCsv(this.Host.ResolvePath ( @".\ApplicationLabels_fr-CA.csv" )));
+
+	foreach (string[] appLabel in allApplicationLabels)
 	{
-		csvParser.CommentTokens = new string[] {"#"};
-		csvParser.SetDelimiters(new string[] {","});
-		csvParser.HasFieldsEnclosedInQuotes = false;
-
-		// Skip over header line.
-		csvParser.ReadLine();
-
-		while (!csvParser.EndOfData)
-		{
-			string[] fields = csvParser.ReadFields();
 #>
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('<#=fields[0]#>', '<#=fields[1]#>', '<#=fields[2]#>')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('<#=appLabel[0]#>', '<#=appLabel[1]#>', N'<#=appLabel[2]#>')
 <#
-		}
 	}
 #>
 
@@ -70,3 +65,32 @@ DROP TABLE #tempAppLabels
 
 -- End of Auto-Generation of SQL insert statements for Application Labels
 -- -----------------------------------------------------------------------------------------------
+<#+
+	public List<string[]> GetAppLablesFromCsv(string csvFile)
+	{
+		List<string[]> appLabels = new List<string[]>();
+
+		using (TextFieldParser csvParser = new TextFieldParser(csvFile))
+		{
+			csvParser.CommentTokens = new string[] {"#"};
+			csvParser.SetDelimiters(new string[] {","});
+			csvParser.HasFieldsEnclosedInQuotes = false;
+
+			// Skip over header line.
+			csvParser.ReadLine();
+
+			while (!csvParser.EndOfData)
+			{
+				string[] fields = csvParser.ReadFields();
+				if (fields.Length == 3)
+				{
+					// Escape any quotes
+					fields[2] = fields[2].Replace("'","''");
+				}
+				appLabels.Add(fields);
+			}
+		}
+
+		return appLabels;
+	}
+#>

@@ -542,7 +542,7 @@ namespace StorytellerTests
             VerifyImageRowsFromDb(updatedImageId);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The new system decision point added after the default UT.")]
         public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -568,7 +568,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add two new system decision points to the default process. The two system decision points added one after the other after the default UT.")]
         public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -600,7 +600,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
         public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -629,7 +629,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point.")]
         public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -664,7 +664,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: one contains a system decision point along with branches and system tasks and the other contains just a system task")]
         public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -702,7 +702,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: each of them contains a system decision point along with branches and system tasks")]
         public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -749,7 +749,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: each of them contains a system decision point along with branches and system tasks")]
         public void AddTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
         {

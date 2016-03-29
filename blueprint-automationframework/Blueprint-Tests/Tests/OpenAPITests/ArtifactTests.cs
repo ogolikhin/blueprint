@@ -16,18 +16,13 @@ namespace OpenAPITests
         private IUser _user;
         private IProject _project;
         private IOpenApiArtifact _artifact;
-        private IAdminStore _adminStore;
-        private ISession _session;
+
 
         [SetUp]
         public void SetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
-            _session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(_session.SessionId);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
         }
 
         [TearDown]

@@ -258,8 +258,8 @@ namespace Model.StorytellerModel.Impl
             // Add a process link to the system decision point
             var processLink = AddLink(decisionPointId, destinationId, orderIndex);
 
-            // Add default link label
-            processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex);
+            // Add default link label            
+            processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
 
             // Add a system task to the branch and return the system task shape object
             AddSystemTask(processLink);
@@ -285,7 +285,7 @@ namespace Model.StorytellerModel.Impl
             var processLink = AddLink(decisionPointId, destinationId, orderIndex);
 
             // Add default link label
-            processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int)orderIndex);
+            processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
 
             // Add a user task to the branch and return the user task shape object
             return AddUserAndSystemTask(processLink);
@@ -717,7 +717,10 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = userDecisionPoint.Id;
 
             // Add a new link after the new user decision point
-            AddLink(sourceId: userDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
+            var newProcessLink = AddLink(sourceId: userDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
+
+            // Add default link label
+            newProcessLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) DefaultOrderIndex + 1);
 
             return userDecisionPoint;
         }
@@ -753,7 +756,10 @@ namespace Model.StorytellerModel.Impl
             processLink.DestinationId = systemDecisionPoint.Id;
 
             // Add a new link after the new system decision point
-            AddLink(sourceId: systemDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
+            var newProcessLink = AddLink(sourceId: systemDecisionPoint.Id, destinationId: destinationId, orderIndex: DefaultOrderIndex);
+
+            // Add default link label
+            newProcessLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) DefaultOrderIndex + 1);
 
             return systemDecisionPoint;
         }
@@ -867,6 +873,9 @@ namespace Model.StorytellerModel.Impl
 
                 // Find updated outgoing process link for user decision point
                 linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint.Id);
+
+                // Add default link label
+                linkAferUserDecisionPoint.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) DefaultOrderIndex + 1);
 
                 // Find process shape immediately after the added user decision from the udated link
                 // after the added user decision point

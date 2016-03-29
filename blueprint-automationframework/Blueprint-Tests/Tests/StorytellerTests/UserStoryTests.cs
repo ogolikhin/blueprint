@@ -16,6 +16,7 @@ namespace StorytellerTests
         private const int NumberOfAdditionalUserTasks = 5;
 
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
@@ -24,25 +25,30 @@ namespace StorytellerTests
         private bool _deleteChildren;
 
         #region SetUp and Teardown
-        [SetUp]
-        public void SetUp()
+
+        [TestFixtureSetUp]
+        public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
+
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             _session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(_session.SessionId);
+
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
-            if (_storyteller.GetUserStoryArtifactType(_user, _project.Id) == null )
-            {
-                Assert.Ignore("StorytellerPack is not installed successfully on the environment. Omitting.");
-            }
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
-        [TearDown]
-        public void TearDown()
+        [TestFixtureTearDown]
+        public void ClassTearDown()
         {
             if (_storyteller.Artifacts != null)
             {
@@ -52,12 +58,14 @@ namespace StorytellerTests
                     _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
+
             if (_user != null)
             {
                 _user.DeleteUser();
                 _user = null;
             }
         }
+
         #endregion SetUp and TearDown
 
         #region Tests

@@ -73,9 +73,7 @@ namespace Model.Impl
         /// <returns>A list of all projects on the Blueprint server.</returns>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token?.OpenApiToken);
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
@@ -91,9 +89,7 @@ namespace Model.Impl
         /// <returns>a project associated with the projectId provided with the request.</returns>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, user.Token.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
@@ -117,15 +113,14 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user)
+        public int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user = null)
         {
             ThrowIf.ArgumentNull(projectId, nameof(projectId));
             ThrowIf.ArgumentNull(baseArtifactTypeName, nameof(baseArtifactTypeName));
-            ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, projectId, URL_ARTIFACTTYPES);
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token?.OpenApiToken);
             List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET);
 
             ArtifactType artifactType = artifactTypes.First(t => (t.BaseArtifactType == baseArtifactTypeName));

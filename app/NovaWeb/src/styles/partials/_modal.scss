@@ -20,6 +20,12 @@
   .modal-header{
     padding: 10px;
 
+    .modal-title {
+      .fonticon-information::before {
+        vertical-align: bottom;
+      }
+    }
+
     .modal-close {
       color: $blue-lightest;
       cursor: pointer;

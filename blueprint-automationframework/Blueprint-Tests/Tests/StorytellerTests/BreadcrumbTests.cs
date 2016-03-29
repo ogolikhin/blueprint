@@ -20,6 +20,7 @@ namespace StorytellerTests
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
 
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _primaryUser;
         private IUser _secondaryUser;
@@ -32,12 +33,13 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _primaryUser = UserFactory.CreateUserAndAddToDatabase();
             _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_primaryUser);
 
-            // Get a valid token for the user.
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession primaryUserSession = _adminStore.AddSession(_primaryUser.Username, _primaryUser.Password);
             _primaryUser.SetToken(primaryUserSession.SessionId);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.AccessControlToken), "The primary user didn't get an Access Control token!");
@@ -45,6 +47,13 @@ namespace StorytellerTests
             ISession secondaryUserSession = _adminStore.AddSession(_secondaryUser.Username, _secondaryUser.Password);
             _secondaryUser.SetToken(secondaryUserSession.SessionId);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.AccessControlToken), "The secondary user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_primaryUser, string.Empty);
+            _blueprintServer.LoginUsingBasicAuthorization(_secondaryUser, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.OpenApiToken), "The primary user didn't get an OpenApi token!");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.OpenApiToken), "The secondary user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]

@@ -172,7 +172,7 @@ namespace Model.OpenApiModel.Impl
 
             OpenApiArtifact artifactObject = this;
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token?.OpenApiToken);
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
                 path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
 
@@ -221,7 +221,7 @@ namespace Model.OpenApiModel.Impl
 
             var artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token?.OpenApiToken);
             var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
@@ -254,7 +254,7 @@ namespace Model.OpenApiModel.Impl
                 path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token?.OpenApiToken);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
                 path,
                 RestRequestMethod.DELETE, 
@@ -277,7 +277,7 @@ namespace Model.OpenApiModel.Impl
                 user = CreatedBy;
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token?.OpenApiToken);
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);

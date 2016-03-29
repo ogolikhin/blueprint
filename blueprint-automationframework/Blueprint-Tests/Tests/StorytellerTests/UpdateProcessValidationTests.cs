@@ -18,6 +18,7 @@ namespace StorytellerTests
     public class UpdateProcessValidationTests
     {
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
@@ -29,15 +30,21 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
 
-            // Get a valid token for the user.
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]

@@ -2,7 +2,7 @@
 <div class="modal-body">
     <div class="modal-panel-container" ng-class="{
         'modal-panel-login': ctrl.isInLoginForm,
-        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInSAMLScreen
+        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
             <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
@@ -19,8 +19,9 @@
                     <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">{{::$root.config.labels["Login_ForgotPassword"]}}</a>
                 </div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-primary" type="submit">{{::$root.config.labels["Login_Button"]}}</button>
-                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{::$root.config.labels["Login_ForgotPassword"]}}</a></div>
+                    <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreen()" ng-if="ctrl.enableChangePasswordScreen">Change Password</button>
+                    <button class="btn btn-primary" type="submit">Login</button>
+                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToSAMLScreen()">Login to blueprint.toronto</a></div>
                 </div>
             </form>
         </div>
@@ -41,8 +42,35 @@
         </div>
         <div class="modal-panel" id="modal-login-saml" ng-if="ctrl.isInSAMLScreen">
             <form name="novaLoginSAML" role="form">
-                <span ng-bind-html="ctrl.SAMLScreenMessage"></span>
-                <a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_Back"]}}</a>
+                <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-primary">Retry</button>
+                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">Login with Username and Password</a></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-panel" id="modal-login-change-password" ng-if="ctrl.isInChangePasswordScreen">
+            <form name="novaLoginChangePassword" ng-submit="ctrl.changePassword()" role="form">
+                <div class="nova-login-message" ng-class="{error: ctrl.changePasswordScreenError}"><span ng-bind-html="ctrl.changePasswordScreenMessage"></span></div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordCurrentPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword">
+                    <label for="nova-current-password" class="nova-label"><i class="fonticon-lock"></i> Current Password</label>
+                </div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordNewPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-new-password" name="novaNewPassword" ng-model="ctrl.novaNewPassword">
+                    <label for="nova-new-password" class="nova-label"><i class="fonticon-lock"></i> New Password</label>
+                </div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordConfirmPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-confirm-new-password" name="novaConfirmNewPassword" ng-model="ctrl.novaConfirmNewPassword">
+                    <label for="nova-confirm-new-password" class="nova-label"><i class="fonticon-lock"></i> Confirm New Password</label>
+                </div>
+                <div class="nova-form-group nova-form-beneath">
+                    &nbsp;
+                </div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-white" type="button" ng-click="ctrl.goToLoginScreen()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">OK</button>
+                </div>
             </form>
         </div>
     </div>

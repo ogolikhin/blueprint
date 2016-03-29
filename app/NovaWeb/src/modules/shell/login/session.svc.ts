@@ -1,4 +1,5 @@
 ﻿import "angular";
+import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
 import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
 
@@ -12,8 +13,8 @@ export interface ISession {
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal"];
-    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService) {
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization"];
+    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -109,11 +110,13 @@ export class SessionSvc implements ISession {
 }
 
 export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
-    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
-        super($uibModalInstance);
-        this.acceptButtonName = "Yes";
-        this.cancelButtonName = "No";
-        this.msg = "This user is already logged into Blueprint in another browser/session.<br><br>Do you want to override the previous session?";
+
+    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, localization: ILocalizationService) {
+        super($uibModalInstance, localization);
+        this.title = localization.get('Title');
+        this.acceptButtonName = localization.get('Ok');
+        this.cancelButtonName = localization.get('Cancel');
+        this.msg = localization.get('ConfirmMessage');
     }
 }
 
@@ -138,36 +141,70 @@ export class LoginCtrl {
     public forgetPasswordScreenMessage: string;
     public forgetPasswordScreenUsername: string;
 
+    public enableChangePasswordScreen: boolean;
+    public isInChangePasswordScreen: boolean;
+    public changePasswordScreenError: boolean;
+    public changePasswordScreenMessage: string;
+    public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
+    public changePasswordNewPasswordError: boolean; //if the new password doesn't satisfy the security criteria
+    public changePasswordConfirmPasswordError: boolean; //if new password and confirm password don't match
+
     public enableSAMLScreen: boolean;
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
+    public labels: any = {
+        BlueprintLogin : 'Hello!'    
+    };
 
-    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService) {
+    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout", "localization"];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService, private localization: ILocalizationService) {
         this.isInLoginForm = true;
-        this.errorMsg = "Please enter your Username and Password";
+        this.errorMsg = localization.get("Login_Title");
+        this.labels = angular.extend(this.labels, {
+            BlueprintLogin: localization.get("Login_Blueprint1") || this.labels['BlueprintLogin'],
+            UserName: localization.get('UserName'),
+            Password: localization.get('Password'),
+            LoginButton: localization.get('Login_Button'),
+            ForgotPassword: localization.get('Login_ForgotPassword'),
+        });
+
 
         this.enableForgetPasswordScreen = true;
         this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
+        this.enableChangePasswordScreen = false;
+        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
+        this.changePasswordScreenMessage = "Your password has expired. Please change your password below.";
+
         this.enableSAMLScreen = true;
         this.isInSAMLScreen = this.enableSAMLScreen;
-        this.SAMLScreenMessage = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur";
+        this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
     }
 
     public goToForgetPasswordScreen(): void {
         this.isInLoginForm = false;
         if(this.enableSAMLScreen) this.isInSAMLScreen = false;
+        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
 
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
         this.isInForgetPasswordScreen = true;
     }
 
+    public goToChangePasswordScreen(): void {
+        this.isInLoginForm = false;
+        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
+        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
+
+        this.changePasswordScreenError = false;
+        this.isInChangePasswordScreen = true;
+    }
+
     public goToSAMLScreen(): void {
         this.isInLoginForm = false;
         if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
+        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
 
         this.isInSAMLScreen = true;
     }
@@ -176,8 +213,13 @@ export class LoginCtrl {
         this.isInLoginForm = true;
         this.$timeout(()=> {
             this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
+            this.isInChangePasswordScreen = this.enableChangePasswordScreen;
             this.isInSAMLScreen = this.enableSAMLScreen;
         }, 500); // I need to reset the other panels after transitioning back to the login form
+    }
+
+    public changePassword(): void {
+        // TODO: back-end not ready yet
     }
 
     public resetPassword(): void {
@@ -204,6 +246,12 @@ export class LoginCtrl {
                         this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
                         this.labelError = true;
                         this.fieldError = false;
+                    } else if (error.errorCode === 2002) {
+                        this.errorMsg = "Your Password has expired.";
+                        this.labelError = true;
+                        this.fieldError = false;
+                        this.enableChangePasswordScreen = true;
+                        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
                     } else {
                         this.errorMsg = error.message;
                         this.labelError = true;

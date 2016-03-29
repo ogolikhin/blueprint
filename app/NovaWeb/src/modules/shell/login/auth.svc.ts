@@ -1,5 +1,6 @@
 ﻿import "angular";
 import {SessionTokenHelper} from "./session.token.helper";
+import {ILocalizationService} from "../../core/localization";
 
 export interface IUser {
     DisplayName: string;
@@ -24,8 +25,8 @@ export class AuthSvc implements IAuth {
 
     
 
-    static $inject: [string] = ["$q", "$log", "$http"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService) {
+    static $inject: [string] = ["$q", "$log", "$http", "localization"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private localization: ILocalizationService) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
@@ -38,7 +39,7 @@ export class AuthSvc implements IAuth {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: err ? err.Message : "Cannot get current user"
+                    message: err ? err.Message : this.localization.get("Auth_Error_NoUser")
                 };
 
                 //TODO uncomment this once the settings provider is implemented
@@ -114,7 +115,7 @@ export class AuthSvc implements IAuth {
         if (!err)
             return "";
 
-        return err.Message ? err.Message : "Login Failed"; // TODO: generic message
+        return err.Message ? err.Message : this.localization.get('Login_Error_Failed'); // TODO: generic message
     }
 
     private onTokenSuccess(token: string, deferred: any, isSaml: boolean) {
@@ -143,11 +144,11 @@ export class AuthSvc implements IAuth {
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {
-                        deferred.reject({ message: "Cannot verify license" });
+                        deferred.reject({ message: this.localization.get('Error_License_Verification') });
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: "Cannot get Session Token" });
+            deferred.reject({ statusCode: 500, message: this.localization.get('Error_SessionToken_Faled')});
         }
     }
 
@@ -173,10 +174,10 @@ export class AuthSvc implements IAuth {
             .error((err: any, statusCode: number) => {
                 var msg = null;
                 if (statusCode === 404) { // NotFound
-                    msg = "No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator";
+                    msg = this.localization.get('Error_License_NotFound');
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = "The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.";
+                    msg = this.localization.get('Error_License_MaxReached');
                 }
 
                 deferred.reject(msg);

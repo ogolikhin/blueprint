@@ -1,6 +1,7 @@
 ﻿import "angular";
 import "angular-mocks"
 import {ConfirmationDialogCtrl} from "./confirmation.dialog.ctrl";
+import {ILocalizationService} from "../../core/localization";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
     public actualResult: boolean;
@@ -21,14 +22,19 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 
     public rendered: angular.IPromise<any>;
 }
+export class LocalizationServiceMock implements ILocalizationService {
+    public get(name: string): string {
+        return '';
+    }
+}
 
 describe("ConfirmationDialogCtrl", () => {
-
     describe("accept", () => {
         it("return true", () => {
             // Arrange
             var serviceInstanceMock = new ModalServiceInstanceMock();
-            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock);
+            var localizationMock = new LocalizationServiceMock();
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock, localizationMock);
             
             // Act
             confirmationDialogCtrl.accept();
@@ -42,7 +48,7 @@ describe("ConfirmationDialogCtrl", () => {
         it("return false", () => {
             // Arrange
             var serviceInstanceMock = new ModalServiceInstanceMock();
-            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock);
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock,$rootScope);
             
             // Act
             confirmationDialogCtrl.cancel();

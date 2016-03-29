@@ -88,7 +88,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("config.js"), NoSessionRequired]
+        [Route("config.js"), SessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetConfig()
         {

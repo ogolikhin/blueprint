@@ -48,7 +48,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
 
@@ -102,8 +102,8 @@ namespace StorytellerTests
             Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         [TestCase]
@@ -116,7 +116,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            _storyteller.PublishProcess(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
@@ -162,8 +162,8 @@ namespace StorytellerTests
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         [TestCase]
@@ -176,7 +176,7 @@ namespace StorytellerTests
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            _storyteller.PublishProcess(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
@@ -206,8 +206,8 @@ namespace StorytellerTests
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, modifiedReturnedProcess);
+            // Publish the process  so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         #endregion Tests

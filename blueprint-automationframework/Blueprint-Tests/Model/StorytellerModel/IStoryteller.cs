@@ -135,29 +135,17 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        string PublishProcessArtifact(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
-
-        /// <summary>
-        /// Publish Process Artifact(s) (Used when publishing a single process artifact OR a list of process artifacts)
-        /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish process artifacts request</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IPublishArtifactResult> PublishProcessArtifacts(IUser user, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Delete a process artifact
         /// </summary>
         /// <param name="artifact">The artifact to be deleted</param>
-        /// <param name="user">The user credentials for the request to delete the artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
+        List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false);
 
         /// <summary>
         /// Returns URL of the Blueprint server

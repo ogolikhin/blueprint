@@ -17,7 +17,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private IOpenApiArtifact _artifact;
         private bool _deleteChildren = true;
 
         #region Setup and Cleanup
@@ -35,12 +34,6 @@ namespace StorytellerTests
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Create and publish artifact for test.
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Document);
-            _artifact.Save(_user);
-            _artifact.Publish(_user);
-            Assert.IsTrue(_artifact.IsArtifactPublished(_user), "Artifact wasn't published!");
         }
 
         [TestFixtureTearDown]
@@ -52,15 +45,8 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
-            }
-
-            if (_artifact != null)
-            {
-                _artifact.Delete(_user);
-                _artifact.Publish(_user);
-                _artifact = null;
             }
 
             if (_adminStore != null)
@@ -109,8 +95,8 @@ namespace StorytellerTests
             Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
                 "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
@@ -129,18 +115,22 @@ namespace StorytellerTests
 
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
         {
+            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+
+            artifact.Publish(_user);
+
             Assert.DoesNotThrow(() =>
             {
-                var artifactsList = _artifact.SearchArtifactsByName(user: _user, searchSubstring: _artifact.Name);
+                var artifactsList = artifact.SearchArtifactsByName(user: _user, searchSubstring: artifact.Name);
                 Assert.IsTrue(artifactsList.Count > 0);
-            }, "Couldn't find an artifact named '{0}'.", _artifact.Name);
+            }, "Couldn't find an artifact named '{0}'.", artifact.Name);
         }
     }
 }

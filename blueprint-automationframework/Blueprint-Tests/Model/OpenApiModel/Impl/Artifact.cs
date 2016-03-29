@@ -278,10 +278,10 @@ namespace Model.OpenApiModel.Impl
             var discardResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_DISCARD, RestRequestMethod.POST, artifactToDiscardList, expectedStatusCodes: expectedStatusCodes);
 
-            var discardRedResultList = discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+            var discardedResultList = discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
             // When each artifact is successfully discarded, set IsSaved flag to false
-            foreach (var discardedResult in discardRedResultList)
+            foreach (var discardedResult in discardedResultList)
             {
                 var publishedArtifact = artifactToDiscardList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
                 publishedArtifact.IsSaved = false;

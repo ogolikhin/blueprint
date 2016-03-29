@@ -32,7 +32,7 @@ GO
 
 CREATE NONCLUSTERED INDEX IX_ApplicationLabels_Key_Locale on  [dbo].[ApplicationLabels] 
 (
-	[Key],
-	[Locale]
+	[Key] ASC,
+	[Locale] ASC
 )
 GO

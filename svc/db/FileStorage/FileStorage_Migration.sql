@@ -14,12 +14,6 @@ GO
 -- --------------------------------------------------
 -- Migration 7.0.1.0
 -- --------------------------------------------------
-SET QUOTED_IDENTIFIER ON;
-GO
-USE [Blueprint_FileStorage]; -- REPLACE --
-GO
-SET NOCOUNT ON;
-GO
 IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.0.1') <> 0) 
 	set noexec on
 Print 'Migrating 7.0.1.0 ...'
@@ -632,12 +626,6 @@ set noexec off
 -- --------------------------------------------------
 -- Migration 7.1.0.0
 -- --------------------------------------------------
-SET QUOTED_IDENTIFIER ON;
-GO
-USE [Blueprint_FileStorage]; -- REPLACE --
-GO
-SET NOCOUNT ON;
-GO
 IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.1.0') <> 0) 
 	set noexec on
 Print 'Migrating 7.1.0.0 ...'

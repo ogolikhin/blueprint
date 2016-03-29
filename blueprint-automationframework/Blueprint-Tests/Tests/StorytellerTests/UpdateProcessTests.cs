@@ -353,10 +353,11 @@ namespace StorytellerTests
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch after precondition
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+
+            var decisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(decisionPoint.Id, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
             var newSystemTask = returnedProcess.GetNextShape(newUserTask);
 

@@ -29,7 +29,10 @@ namespace Model.Factories
             artifact.ProjectId = project.Id;
             artifact.ArtifactTypeId = project.GetArtifactTypeId(address: address, projectId: project.Id, baseArtifactTypeName: artifactType,
                 user: user);
+
+            //TODO: Move this to Save method and get CreatedBy from the result of the OpenAPI call
             artifact.CreatedBy = user;
+
             return artifact;
         }
 

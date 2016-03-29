@@ -9,6 +9,7 @@ using System.Web.Http.Description;
 using System.Web.Http.Results;
 using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.EventSources;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -18,24 +19,23 @@ namespace AdminStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly List<IStatusRepository> StatusRepos;
-
-        internal readonly IStatusRepository AdminStatusRepo;
-        internal readonly IStatusRepository RaptorStatusRepo;
-        internal readonly IServiceLogRepository Log;
+        internal readonly StatusControllerHelper statusControllerHelper;
 
         public StatusController()
-            : this( new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus", "AdminStorage"),
+            : this( new StatusControllerHelper(
+                        new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus", "AdminStorage"),
                                                   new SqlStatusRepository(WebApiConfig.RaptorMain, "GetStatus", "Raptor"),
                                                   new ServiceDependencyStatusRepository(new HttpClientProvider(), new Uri("http://localhost:9801/svc/AdminStore/"), "AdminStore")},
-                    new ServiceLogRepository())
+                        new ServiceLogRepository(),
+                        WebApiConfig.LogSourceStatus
+                    )
+            )
         {
         }
 
-        internal StatusController(List<IStatusRepository> statusRepos, IServiceLogRepository log)
+        internal StatusController(StatusControllerHelper scHelper)
         {
-            StatusRepos = statusRepos;
-            Log = log;
+            statusControllerHelper = scHelper;
         }
 
         /// <summary>
@@ -52,25 +52,9 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            var serviceStatus = new ServiceStatus();
+            ServiceStatus serviceStatus = await statusControllerHelper.GetStatus();
 
-            serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
-
-            //Get status responses from each repo, store the tasks.
-            List<Task<bool>> StatusResults = new List<Task<bool>>();
-            foreach (IStatusRepository statusRepo in StatusRepos)
-            {
-                StatusResults.Add(TryGetStatusResponse(serviceStatus, statusRepo));
-            }
-
-            //Await the status check task results.
-            bool success = true;
-            foreach (var result in StatusResults)
-            {
-                success &= await result;
-            }
-
-            if (success)
+            if (serviceStatus.NoErrors)
             {
                 return Ok(serviceStatus);
             }
@@ -94,54 +78,6 @@ namespace AdminStore.Controllers
         public IHttpActionResult GetStatusUpCheck()
         {
             return Ok();
-        }
-
-        /// <summary>
-        /// Modifies serviceStatus in place, returns whether DatabaseVersion was successfully obtained.
-        /// </summary>
-        private async Task<bool> TryGetStatusResponse(ServiceStatus serviceStatus, IStatusRepository statusRepo)
-        {
-            try
-            {
-                var result = await statusRepo.GetStatus();
-                serviceStatus.StatusResponses[statusRepo.Name] = result;
-            }
-            catch (Exception ex)
-            {
-                await Log.LogError(WebApiConfig.LogSourceStatus, ex);
-                serviceStatus.StatusResponses[statusRepo.Name] = "ERROR";
-                return false;
-            }
-
-            return true;
-        }
-
-        private static string GetAssemblyFileVersion()
-        {
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-        }
-    }
-
-    [JsonObject]
-    public class ServiceStatus
-    {
-        [JsonProperty]
-        public string AssemblyFileVersion;
-
-        private Dictionary<string, string> _statusResponses;
-
-        [JsonProperty]
-        public Dictionary<string, string> StatusResponses
-        {
-            get
-            {
-                if (_statusResponses == null)
-                {
-                    _statusResponses = new Dictionary<string, string>();
-                }
-                return _statusResponses;
-            }
         }
     }
 }

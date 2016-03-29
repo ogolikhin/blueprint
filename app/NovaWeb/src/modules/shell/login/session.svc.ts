@@ -10,6 +10,8 @@ export interface ISession {
     logout(): ng.IPromise<any>;
 
     login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
+
+    loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {
@@ -50,6 +52,23 @@ export class SessionSvc implements ISession {
             (error) => {
                 defer.reject(error);
         });
+        return defer.promise;
+    }
+
+   
+    public loginWithSaml(overrideSession: boolean = false): ng.IPromise<any> {
+        var defer = this.$q.defer();
+
+        this.auth.loginWithSaml(overrideSession, this._prevLogin).then(
+            (user) => {
+                this._currentUser = user;
+                defer.resolve();
+
+            },
+            (error) => {
+                defer.reject(error);
+            });
+
         return defer.promise;
     }
 
@@ -171,7 +190,7 @@ export class LoginCtrl {
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "session", "$timeout];
+    static $inject: [string] = ["$uibModalInstance", "session", "$timeout"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session:ISession, private $timeout: ng.ITimeoutService) {
 		this.isInLoginForm = true;
         this.enableForgetPasswordScreen = false;
@@ -214,6 +233,43 @@ export class LoginCtrl {
         this.isInLoginForm = false;
         if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
         if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
+
+        this.session.loginWithSaml(false).then(
+            () => {
+
+                this.labelError = false;
+                this.fieldError = false;
+                var result: ILoginInfo = new ILoginInfo();
+                result.loginSuccessful = true;
+
+                this.$uibModalInstance.close(result);
+            },
+            (error) => {
+                if (error.statusCode === 401) {
+                   if (error.errorCode === 2001) {
+                        this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
+                        this.labelError = true;
+                        this.fieldError = false;
+                    } else {
+                        this.errorMsg = error.message;
+                        this.labelError = true;
+                        this.fieldError = true;
+                    }
+                } else if (error.statusCode === 409) {
+                    this.labelError = false;
+                    this.fieldError = false;
+                    var result: ILoginInfo = new ILoginInfo();
+                    result.userName = this.novaUsername;
+                    result.password = this.novaPassword;
+                    result.loginSuccessful = false;
+
+                    this.$uibModalInstance.close(result);
+                } else {
+                    this.errorMsg = error.message;
+                    this.labelError = true;
+                    this.fieldError = true;
+                }
+            });
 
         this.isInSAMLScreen = true;
     }

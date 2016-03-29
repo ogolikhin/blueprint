@@ -22,6 +22,13 @@ export class AuthSvcMock implements IAuth {
         deferred.resolve(user);
         return deferred.promise;
     }
+    
+    public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<IUser> {
+        var deferred = this.$q.defer<IUser>();
+        var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve(user);
+        return deferred.promise;
+    }
 
     public logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any> {
         var deferred = this.$q.defer<any>();

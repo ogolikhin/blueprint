@@ -13,6 +13,8 @@ export interface IAuth {
 
     login(userName: string, password: string, overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
 
+    loginWithSaml(overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
+
     logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any>;
 }
 
@@ -24,6 +26,7 @@ export class AuthSvc implements IAuth {
 
     //TODO: grab this from the config when implemented
     private _enableSAML: boolean = true; 
+    private samlRequestId = 0;
 
     static $inject: [string] = ["$q", "$log", "$http", "$window"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService) {
@@ -41,18 +44,16 @@ export class AuthSvc implements IAuth {
                     statusCode: statusCode,
                     message: err ? err.Message : "Cannot get current user"
                 };
-
                 //TODO uncomment this once the settings provider is implemented
                 //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
                 if (1 == 1) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
-                        .success(
-                        (token: string) => { this.onTokenSuccess(token, defer, this._enableSAML, ""); }
-                        )
-                        .error((err) => {
+                        .success((token: string) => {
+                            this.onTokenSuccess(token, defer, this._enableSAML, "");
+                        }).error((err) => {
                             defer.reject(error);
                         });
-
+                    
                 } else {
                     defer.reject(error);
                 }
@@ -79,6 +80,69 @@ export class AuthSvc implements IAuth {
                 deferred.reject(error);
 
             });
+
+        return deferred.promise;
+    }
+
+    private getAppBaseUrl(): string {
+        let absPath: string;
+        const location = this.$window.location;
+
+        let origin: string = (<any>location).origin;
+        if (!origin) {
+            origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
+        }
+
+        const indexOf = location.pathname.toLowerCase().indexOf("web");
+        if (indexOf && indexOf > 0) {
+            absPath = origin + location.pathname.substring(0, indexOf);
+        } else {
+            absPath = origin + "/";
+        }
+
+        return absPath;
+    }
+
+
+    public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<any> {
+        var deferred = this.$q.defer<IUser>();
+
+        var guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+            var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+
+        this.$window.name = guid;
+
+        this.samlRequestId += 1;
+
+        var absPath = this.getAppBaseUrl();
+
+        var url = "/Login/SAMLHandler.ashx?action=relogin&id=" + this.samlRequestId + "&wname=" + guid + "&host=" + encodeURI(absPath);
+
+        this.$window["notifyAuthenticationResult"] = (requestId: string, samlResponse: string): string => {
+            if (requestId === this.samlRequestId.toString()) {
+                this.$http.post("/svc/adminstore/sessions/sso?force=" + overrideSession, angular.toJson(samlResponse), this.createRequestConfig())
+                    .success(
+                    (token: string) => {
+                        this.onTokenSuccess(token, deferred, true, prevLogin);
+                    })
+                    .error((err: any, statusCode: number) => {
+                        var error = {
+                            statusCode: statusCode,
+                            message: this.getLoginErrorMessage(err)
+                        };
+                        deferred.reject(error);
+                    });
+
+
+                return null;
+            } else {
+                return "Wrong request id. Please click 'Retry' in Blueprint";
+            }
+        };
+
+        this.$window.open(url, "_blank");
 
         return deferred.promise;
     }

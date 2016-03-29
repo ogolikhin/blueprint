@@ -39,6 +39,14 @@ namespace Model.OpenApiModel
         List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>
+        /// Save the artifact on Blueprint server.
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        void Save(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publish the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint. If null, attempts to delete using the credentials
@@ -48,12 +56,11 @@ namespace Model.OpenApiModel
         void Publish(IUser user = null, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Save the artifact on Blueprint server.
+        /// Discard the added artifact on Blueprint server.
         /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to delete using the credentials
-        /// of the user that created the artifact.</param>
+        /// <param name="user">The user to authenticate to Blueprint. If null, attempts to delete using the credentials</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        void Save(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        void Discard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete the artifact on Blueprint server.

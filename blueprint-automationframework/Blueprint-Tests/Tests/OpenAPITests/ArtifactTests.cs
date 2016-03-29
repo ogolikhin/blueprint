@@ -82,15 +82,15 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact.Save(_user);
+            _artifact.Save();
 
             //Adding all artifact(s) to publish
             List<IOpenApiArtifact> artifactList = new List<IOpenApiArtifact>();
             artifactList.Add(_artifact);
             // TODO more assertion?
 
-            //Discard artifact(s)     
-            _artifact.DiscardArtifacts(artifactList, _user);
+            //Discard the artifact     
+            _artifact.Discard();
         }
 
         [Test]

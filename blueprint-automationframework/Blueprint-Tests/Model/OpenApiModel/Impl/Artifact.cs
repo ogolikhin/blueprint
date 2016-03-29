@@ -6,6 +6,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using Utilities;
 using Utilities.Facades;
 
@@ -195,9 +196,7 @@ namespace Model.OpenApiModel.Impl
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
         }
 
-        public void Publish(IUser user = null,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public void Publish(IUser user = null, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
 
@@ -213,17 +212,12 @@ namespace Model.OpenApiModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            OpenApiArtifact artifactToPublish = new OpenApiArtifact
-            {
-                Id = Id,
-                ProjectId = ProjectId
-            };
+            OpenApiArtifact artifactToPublish = new OpenApiArtifact(Address, Id, ProjectId);
 
             var artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
-            var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
             // When artifact is published, set IsSaved flag to false since there are no longer saved changes
             if (publishResultList[0].ResultCode == HttpStatusCode.OK)
@@ -236,6 +230,35 @@ namespace Model.OpenApiModel.Impl
 
             Assert.That(publishResultList[0].ResultCode == HttpStatusCode.OK,
                 "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
+        }
+
+        public void Discard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(CreatedBy, nameof(CreatedBy));
+            if (user == null)
+            {
+                user = CreatedBy;
+            }
+
+            OpenApiArtifact artifactToDiscard = new OpenApiArtifact(Address, Id, ProjectId);
+
+            var artifactObjectList = new List<OpenApiArtifact> { artifactToDiscard };
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, user.Token.OpenApiToken);
+
+            var discardResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_DISCARD, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
+
+            // When artifact is discarded, set both IsSaved and IsPublished flags to false
+            if (discardResultList[0].ResultCode == HttpStatusCode.OK)
+            {
+                IsSaved = false;
+                IsPublished = false;
+            }
+
+            Logger.WriteDebug("Result Code for Discard artifact: {0}", discardResultList[0].ResultCode);
+
+            Assert.That(discardResultList[0].ResultCode == HttpStatusCode.OK,
+                "The returned ResultCode was '{0}' but '{1}' was expected", discardResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
         }
 
         public List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
@@ -290,6 +313,50 @@ namespace Model.OpenApiModel.Impl
         #region Static Methods
 
         /// <summary>
+        /// Discard the added artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The artifact added to blueprint</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<IPublishArtifactResult> DiscardArtifacts(List<IOpenApiArtifact> artifactsToDiscard, string address, IUser user, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            string path = URL_DISCARD;
+
+            var artifactObjectList = artifactsToDiscard.Select(artifact => new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+
+            foreach (IOpenApiArtifact artifact in artifactsToDiscard)
+            {
+                var artifactElement = new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId);
+                artifactObjectList.Add(artifactElement);
+
+                artifact.IsSaved = false;
+                artifact.IsPublished = false;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList);
+
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+        }
+
+        /// <summary>
         /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts)
         /// </summary>
         /// <param name="artifactsToPublish">The list of artifacts to publish</param>
@@ -333,11 +400,7 @@ namespace Model.OpenApiModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                URL_PUBLISH,
-                RestRequestMethod.POST,
-                artifactObjectList,
-                additionalHeaders: additionalHeaders);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders);
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }

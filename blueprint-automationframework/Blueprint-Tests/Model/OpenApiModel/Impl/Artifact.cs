@@ -371,8 +371,9 @@ namespace Model.OpenApiModel.Impl
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<IDiscardArtifactResult> DiscardArtifacts(List<IOpenApiArtifact> artifactsToDiscard,
-            string address,
+            string address,            
             IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -391,7 +392,7 @@ namespace Model.OpenApiModel.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(URL_DISCARD, RestRequestMethod.POST, artifactObjectList);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(URL_DISCARD, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
 
             var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
@@ -417,8 +418,9 @@ namespace Model.OpenApiModel.Impl
         public static List<IPublishArtifactResult> PublishArtifacts(List<OpenApiArtifact> artifactsToPublish,
             string address,
             IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
             bool shouldKeepLock = false,
-             bool sendAuthorizationAsCookie = false)
+            bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
@@ -443,7 +445,7 @@ namespace Model.OpenApiModel.Impl
             var artifactObjectList = (from IOpenApiArtifact artifact in artifactsToPublish select new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
             var publishedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 

@@ -9,6 +9,7 @@
 
   .modal-title {
     color: $white;
+    font-size: $font-size-bigger;
   }
 }
 
@@ -17,6 +18,14 @@
   margin: 0;
 
   .modal-header{
+    padding: 10px;
+
+    .modal-title {
+      .fonticon-information::before {
+        vertical-align: bottom;
+      }
+    }
+
     .modal-close {
       color: $blue-lightest;
       cursor: pointer;
@@ -25,6 +34,10 @@
 
       &:hover {
         color: $white;
+      }
+
+      .fonticon-close::before {
+        font-size: 1rem;
       }
     }
   }

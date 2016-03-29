@@ -282,9 +282,8 @@ namespace Utilities.Facades
         /// <param name="baseAddress">The base URI of the REST calls.</param>
         /// <param name="username">Username to authenticate with.</param>
         /// <param name="password">Password to authenticate with.</param>
-        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
-        /// If you don't want to use a token, you should pass an empty string here.</param>
-        public RestApiFacade(string baseAddress, string username, string password, string token = null)
+        /// <param name="token">The user token to use for the request.  If you don't want to use a token, you should pass an empty string here.</param>
+        public RestApiFacade(string baseAddress, string username, string password, string token)
             : this(new Uri(baseAddress), username, password, token)
         {
         }
@@ -295,9 +294,8 @@ namespace Utilities.Facades
         /// <param name="baseUri">The base URI of the REST calls.</param>
         /// <param name="username">Username to authenticate with.</param>
         /// <param name="password">Password to authenticate with.</param>
-        /// <param name="token">(optional) The user token to use for the request.  By default, if null was passed, we get a valid token for the user.
-        /// If you don't want to use a token, you should pass an empty string here.</param>
-        public RestApiFacade(Uri baseUri, string username, string password, string token = null)
+        /// <param name="token">(optional) The user token to use for the request.  If you don't want to use a token, you should pass an empty string here.</param>
+        public RestApiFacade(Uri baseUri, string username, string password, string token)
         {
             _baseUri = baseUri;
             _username = username;

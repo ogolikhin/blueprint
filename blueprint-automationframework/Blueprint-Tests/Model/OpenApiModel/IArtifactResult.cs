@@ -17,6 +17,14 @@ namespace Model.OpenApiModel
         HttpStatusCode ResultCode { get; set; }
     }
 
+    public interface IDiscardArtifactResult
+    {
+        int ArtifactId { get; set; }
+        int ProjectId { get; set; }
+        string Message { get; set; }
+        HttpStatusCode ResultCode { get; set; }
+    }
+
     public interface IDeleteArtifactResult
     {
         int ArtifactId { get; set; }

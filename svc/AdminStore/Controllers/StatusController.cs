@@ -26,7 +26,8 @@ namespace AdminStore.Controllers
 
         public StatusController()
             : this( new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus", "AdminStorage"),
-                                                  new SqlStatusRepository(WebApiConfig.RaptorMain, "GetStatus", "Raptor") },
+                                                  new SqlStatusRepository(WebApiConfig.RaptorMain, "GetStatus", "Raptor"),
+                                                  new ServiceDependencyStatusRepository(new HttpClientProvider(), new Uri("http://localhost:9801/svc/AdminStore/"), "AdminStore")},
                     new ServiceLogRepository())
         {
         }
@@ -61,10 +62,6 @@ namespace AdminStore.Controllers
             {
                 StatusResults.Add(TryGetStatusResponse(serviceStatus, statusRepo));
             }
-
-            //var adminStatusResult = TryGetStatusResponse(serviceStatus, AdminStatusRepo);
-            //var raptorStatusResult = TryGetStatusResponse(serviceStatus, RaptorStatusRepo);
-
 
             //Await the status check task results.
             bool success = true;

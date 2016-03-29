@@ -25,7 +25,7 @@ namespace ServiceLibrary.Repositories
         {
             var serviceHttpClient = _httpClientProvider.Create(_serviceUri);
             var result = await serviceHttpClient.GetAsync("status/upcheck");
-            return await result.Content.ReadAsStringAsync();
+            return result.StatusCode.ToString();
         }
     }
 }

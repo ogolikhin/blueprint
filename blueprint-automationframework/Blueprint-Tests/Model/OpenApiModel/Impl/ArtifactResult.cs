@@ -28,6 +28,14 @@ namespace Model.OpenApiModel.Impl
         public int ProjectId { get; set; }
     }
 
+    public class DiscardArtifactResult : IDiscardArtifactResult
+    {
+        public int ArtifactId { get; set; }
+        public string Message { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
+        public int ProjectId { get; set; }
+    }
+
     public class DeleteArtifactResult : IDeleteArtifactResult
     {
         public int ArtifactId { get; set; }

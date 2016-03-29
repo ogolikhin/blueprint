@@ -1,0 +1,24 @@
+Key,Locale,Text
+App_PrerequisiteMsg_JavaScript,en-US,You must enable JavaScript to use this application
+App_Header_Name,en-US,Blueprint
+App_Header_SignedInAs,en-US,Signed in as
+Login_Auth_CannotGetUser,en-US,Cannot get current user
+Login_Auth_LoginFailed,en-US,Login Failed
+Login_Auth_LicenseInvalid,en-US,Cannot verify license
+Login_Auth_SessionTokenFailed,en-US,Cannot get Session Token
+Login_Auth_LicenseInvalid_Verbose,en-US,No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator
+Login_Auth_LicenseLimitReached,en-US,The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.
+Login_Username,en-US,Username
+Login_Password,en-US,Password
+Login_ForgotPassword,en-US,Forgot password?
+Login_LoginButton,en-US,Login
+Login_SamlLink,en-US,Login to blueprint.toronto
+Login_GoBackToLogin,en-US,Go back to login
+Login_ResetPassword,en-US,Reset password
+Login_BlueprintCopyRight,en-US,Blueprint Software Systems Inc. All rights reserved
+Login_Version,en-US,Version:
+Login_Session_DuplicateSession_Verbose,en-US,This user is already logged into Blueprint in another browser/session.<br><br>Do you want to override the previous session?
+Login_Session_EnterCredentials,en-US,Please enter your Username and Password
+Login_Session_EnterUsername,en-US,Please enter your Username
+Login_Session_InvalidCredentials,en-US,Please enter a correct Username and Password
+Login_Session_AccountDisabled,en-US,Your account has been disabled. <br>Please contact your administrator.

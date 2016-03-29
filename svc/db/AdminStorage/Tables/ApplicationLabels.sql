@@ -13,12 +13,12 @@ DROP TABLE [dbo].[ApplicationLabels]
 GO
 
 CREATE TABLE [dbo].[ApplicationLabels](
-	[Key] [nvarchar](64) NOT NULL,
+	[ApplicationLabelId] [int] IDENTITY(1,1) NOT NULL,
+	[Key] [nvarchar](128) NOT NULL,
 	[Locale] [nvarchar](32) NOT NULL,
-	[Text] [nvarchar](128) NOT NULL,
- CONSTRAINT [PK_ApplicationLabels_Key_Locale] PRIMARY KEY CLUSTERED 
+	[Text] [nvarchar](512) NOT NULL,
+ CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId_Locale] PRIMARY KEY CLUSTERED 
 (
-	[Key] ASC,
-	[Locale] ASC
+	[ApplicationLabelId] ASC
 )) ON [PRIMARY]
 GO

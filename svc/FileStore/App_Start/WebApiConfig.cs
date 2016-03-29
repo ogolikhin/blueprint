@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Configuration;
+using System.Web.Http;
 using System.Web.Http.Hosting;
 
 namespace FileStore
@@ -13,6 +14,10 @@ namespace FileStore
             // Web API routes
             config.MapHttpAttributeRoutes();
         }
+
+        public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
+
+        public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
         internal static string LogSourceFiles = "FileStore.Files";
         internal static string LogSourceStatus = "FileStore.Status";

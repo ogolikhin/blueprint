@@ -44,6 +44,16 @@ namespace Model.OpenApiModel
         List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>
+        /// Discard the added artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactList">The artifact(s) to be discarded.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional)A list of expected status codes.  By default, only '200' is expected.</param>
+        /// <returns>The artifact added to blueprint</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<IPublishArtifactResult> DiscardArtifacts(List<IOpenApiArtifact> artifactList, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publish added artifact(s) to Blueprint
         /// </summary>
         /// <param name="artifactList">The artifact(s) to be published.</param>

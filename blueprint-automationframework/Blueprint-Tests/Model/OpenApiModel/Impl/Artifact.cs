@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Utilities;
 using Utilities.Facades;
+using System.Linq;
 
 namespace Model.OpenApiModel.Impl
 {
@@ -208,6 +209,25 @@ namespace Model.OpenApiModel.Impl
 
             Assert.That(publishResultList[0].ResultCode == ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture),
                 "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
+        }
+
+        public List<IPublishArtifactResult> DiscardArtifacts(List<IOpenApiArtifact> artifactList, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+            string path = URL_DISCARD;
+
+            List<OpenApiArtifact> artifactObjectList = artifactList.Select(artifact => new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(path, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
         public List<IPublishArtifactResult> PublishArtifacts(

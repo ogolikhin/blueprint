@@ -240,17 +240,17 @@ namespace Model.OpenApiModel.Impl
             var artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
             var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
 
-            // When artifact is published, set IsSaved flag to false since there are no longer saved changes
-            if (publishResultList[0].ResultCode == HttpStatusCode.OK)
+            // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
+            foreach (var publishedArtifact in publishResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
             {
-                IsSaved = false;
-                IsPublished = true;
+                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsSaved = false;
+                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsPublished = true;
+                Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedArtifact.ArtifactId, publishedArtifact.ResultCode);
             }
-
-            Logger.WriteDebug("Result Code for Publish artifact: {0}", publishResultList[0].ResultCode);
         }
 
         public void Discard(IUser user = null,
@@ -282,13 +282,12 @@ namespace Model.OpenApiModel.Impl
             var discardResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
                 URL_DISCARD, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
 
-            // When artifact is discarded, set IsSaved flag to false
-            if (discardResultList[0].ResultCode == HttpStatusCode.OK)
+            // When each artifact is successfully discarded, set IsSaved flag to false
+            foreach (var discardedArtifact in discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
             {
-                IsSaved = false;
+                artifactObjectList.Find(a => a.Id.Equals(discardedArtifact.ArtifactId)).IsSaved = false;
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedArtifact.ArtifactId, discardedArtifact.ResultCode);
             }
-
-            Logger.WriteDebug("Result Code for Discard artifact: {0}", discardResultList[0].ResultCode);
         }
 
         public List<IDeleteArtifactResult> Delete(IUser user = null,

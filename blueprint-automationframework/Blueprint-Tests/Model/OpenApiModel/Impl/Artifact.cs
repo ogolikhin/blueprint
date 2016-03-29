@@ -159,10 +159,9 @@ namespace Model.OpenApiModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            Assert.NotNull(CreatedBy,"No user is available to perform Save.");
-
             if (user == null)
             {
+                Assert.NotNull(CreatedBy, "No user is available to perform Save.");
                 user = CreatedBy;
             }
 
@@ -212,10 +211,9 @@ namespace Model.OpenApiModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            Assert.NotNull(CreatedBy, "No user is available to perform Publish.");
-
             if (user == null)
             {
+                Assert.NotNull(CreatedBy, "No user is available to perform Publish.");
                 user = CreatedBy;
             }
 
@@ -235,21 +233,22 @@ namespace Model.OpenApiModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            OpenApiArtifact artifactToPublish = new OpenApiArtifact(Address, Id, ProjectId);
-
-            var artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
+            var artifactToPublishList = new List<OpenApiArtifact> { new OpenApiArtifact(Address, Id, ProjectId) };
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+                URL_PUBLISH, RestRequestMethod.POST, artifactToPublishList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            var publishedResultList = publishResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
             // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
-            foreach (var publishedArtifact in publishResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
+            foreach (var publishedResult in publishedResultList)
             {
-                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsSaved = false;
-                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsPublished = true;
-                Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedArtifact.ArtifactId, publishedArtifact.ResultCode);
+                var publishedArtifact = artifactToPublishList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                publishedArtifact.IsPublished = true;
+                Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
             }
         }
 
@@ -257,10 +256,9 @@ namespace Model.OpenApiModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            Assert.NotNull(CreatedBy, "No user is available to perform Discard.");
-
             if (user == null)
             {
+                Assert.NotNull(CreatedBy, "No user is available to perform Discard.");
                 user = CreatedBy;
             }
 
@@ -273,20 +271,21 @@ namespace Model.OpenApiModel.Impl
                 tokenValue = string.Empty;
             }
 
-            OpenApiArtifact artifactToDiscard = new OpenApiArtifact(Address, Id, ProjectId);
-
-            var artifactObjectList = new List<OpenApiArtifact> { artifactToDiscard };
+            var artifactToDiscardList = new List<OpenApiArtifact> { new OpenApiArtifact(Address, Id, ProjectId) };
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             var discardResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                URL_DISCARD, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
+                URL_DISCARD, RestRequestMethod.POST, artifactToDiscardList, expectedStatusCodes: expectedStatusCodes);
+
+            var discardRedResultList = discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
             // When each artifact is successfully discarded, set IsSaved flag to false
-            foreach (var discardedArtifact in discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
+            foreach (var discardedResult in discardRedResultList)
             {
-                artifactObjectList.Find(a => a.Id.Equals(discardedArtifact.ArtifactId)).IsSaved = false;
-                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedArtifact.ArtifactId, discardedArtifact.ResultCode);
+                var publishedArtifact = artifactToDiscardList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
         }
 
@@ -295,10 +294,9 @@ namespace Model.OpenApiModel.Impl
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
         {
-            Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
-
             if (user == null)
             {
+                Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
                 user = CreatedBy;
             }
 
@@ -336,10 +334,9 @@ namespace Model.OpenApiModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            Assert.NotNull(CreatedBy, "No user is available to perform GetVersion.");
-
             if (user == null)
             {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetVersion.");
                 user = CreatedBy;
             }
 
@@ -396,9 +393,12 @@ namespace Model.OpenApiModel.Impl
 
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(URL_DISCARD, RestRequestMethod.POST, artifactObjectList);
 
-            foreach (var discardedArtifact in artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
+            var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            foreach (var discardedResult in discardedResultList)
             {
-                artifactObjectList.Find(a => a.Id.Equals(discardedArtifact.ArtifactId)).IsSaved = false;
+                var discardedArtifact = artifactObjectList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                discardedArtifact.IsSaved = false;
             }
 
             return artifactResults.ConvertAll(o => (IDiscardArtifactResult)o);
@@ -445,10 +445,13 @@ namespace Model.OpenApiModel.Impl
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders);
 
-            foreach (var publishedArtifact in artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK)))
+            var publishedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            foreach (var publishedResult in publishedResultList)
             {
-                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsSaved = false;
-                artifactObjectList.Find(a => a.Id.Equals(publishedArtifact.ArtifactId)).IsPublished = true;
+                var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                publishedArtifact.IsPublished = true;
             }
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);

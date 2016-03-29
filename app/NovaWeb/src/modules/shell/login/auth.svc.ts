@@ -11,7 +11,7 @@ export interface IUser {
 export interface IAuth {
     getCurrentUser(): ng.IPromise<IUser>;
 
-    login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser>;
+    login(userName: string, password: string, overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
 
     logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any>;
 }
@@ -22,10 +22,11 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
-    
+    //TODO: grab this from the config when implemented
+    private _enableSAML: boolean = true; 
 
-    static $inject: [string] = ["$q", "$log", "$http"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService) {
+    static $inject: [string] = ["$q", "$log", "$http", "$window"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
@@ -46,7 +47,7 @@ export class AuthSvc implements IAuth {
                 if (1 == 1) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success(
-                        (token: string) => { this.onTokenSuccess(token, defer, false); }
+                        (token: string) => { this.onTokenSuccess(token, defer, this._enableSAML, ""); }
                         )
                         .error((err) => {
                             defer.reject(error);
@@ -60,7 +61,7 @@ export class AuthSvc implements IAuth {
         return defer.promise;
     }
 
-    public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
+    public login(userName: string, password: string, overrideSession: boolean, prevLogin: string): ng.IPromise<IUser> {
         var encUserName: string = userName ? AuthSvc.encode(userName) : "";
         var encPassword: string = password ? AuthSvc.encode(password) : "";
 
@@ -68,7 +69,7 @@ export class AuthSvc implements IAuth {
 
         this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
             .success((token: string) => {
-                this.onTokenSuccess(token, deferred, false);
+                this.onTokenSuccess(token, deferred, this._enableSAML, prevLogin);
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
@@ -89,7 +90,7 @@ export class AuthSvc implements IAuth {
             var logoutFinilizer: () => boolean = (!skipSamlLogout && userInfo && userInfo.IsSso)
                 ? () => {
                     var url = "/Login/SAMLHandler.ashx?action=logout";
-                    //this.$window.location.replace(url);
+                    this.$window.location.replace(url);
                     return true;
                 }
                 : () => false;
@@ -117,21 +118,34 @@ export class AuthSvc implements IAuth {
         return err.Message ? err.Message : "Login Failed"; // TODO: generic message
     }
 
-    private onTokenSuccess(token: string, deferred: any, isSaml: boolean) {
+    private internalLogout(token: string): ng.IPromise<any> {
+        var deferred: ng.IDeferred<any> = this.$q.defer();
+
+        let requestConfig = this.createRequestConfig();
+        requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
+
+        this.$http.delete("/svc/adminstore/sessions", requestConfig)
+            .success(() => deferred.resolve())
+            .error(() => deferred.reject());
+
+        return deferred.promise;
+    }
+
+    private onTokenSuccess(token: string, deferred: any, isSaml: boolean, prevLogin: string) {
         if (token) {
             this.verifyLicense(token)
                 .then(() => {
                     SessionTokenHelper.setToken(token);
                     this.$http.get<IUser>("/svc/adminstore/users/loginuser", this.createRequestConfig())
                         .success((user: IUser) => {
-                            //if (isSaml && this.prevLogin && this.prevLogin !== user.Login) {
-                            //    this.internalLogout(token).finally(() => {
-                            //        deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
-                            //    });
-                            //} else {
+                            if (isSaml && prevLogin && prevLogin !== user.Login) {
+                                this.internalLogout(token).finally(() => {
+                                    deferred.reject({ message: "To continue your session, please login with the same user that the session was started with" });
+                                });
+                            } else {
                                 //this.onLogin(user);
-                            deferred.resolve(user);
-                            //}
+                                deferred.resolve(user);
+                            }
                         }).error((err: any, statusCode: number) => {
                             var error = {
                                 statusCode: statusCode,
@@ -163,9 +177,6 @@ export class AuthSvc implements IAuth {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
        
-        if (!requestConfig.headers) {
-            requestConfig.headers = {};
-        }
         requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
 
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)

@@ -37,9 +37,10 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     }
 
     public instanceMock: ModalServiceInstanceMock;
+    public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller();
+        this.loginCtrl = new options.controller();
         return this.instanceMock;
     }
 }
@@ -52,17 +53,15 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     constructor(private $q: ng.IQService) {
         this.opened = this.openedDeffered.promise;
         this.rendered = this.openedDeffered.promise;
+        this.result = this.resultDeffered.promise;
     }
 
     public close(result?: any): void {
-
         this.resultDeffered.resolve(result);
-        this.result = this.resultDeffered.promise;
     }
 
     public dismiss(reason?: any): void {
         this.resultDeffered.reject();
-        this.result = this.resultDeffered.promise;
     }
 
     public result: angular.IPromise<any>;
@@ -126,22 +125,17 @@ describe("SessionSvc", () => {
                 return deferred.promise;
             });
             var loginInfo: ILoginInfo = new ILoginInfo();
-            var userInfo: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
-            loginInfo.userName = undefined;
-            loginInfo.password = undefined;
-            loginInfo.userInfo = userInfo;
-
+            loginInfo.loginSuccessful = true;
+            
             // Act
             var error: any;
             var result = session.ensureAuthenticated().then(() => { }, (err) => error = err);
-            (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo);  //simulate user input in login dialog
+            (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
             
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
-            expect(session.currentUser).toBeDefined();
-            expect(session.currentUser.Login).toBe("admin", "current user is not admin");
         }))
     });
 
@@ -165,6 +159,8 @@ describe("LoginCtrl", () => {
         $provide.service("loginCtrl", LoginCtrl);
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
+        $provide.service("session", SessionSvc);
+        $provide.service("$uibModal", ModalServiceMock);
     }));
 
     describe("login", () => {

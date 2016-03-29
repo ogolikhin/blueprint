@@ -8,6 +8,8 @@ export interface ISession {
     currentUser: IUser;
 
     logout(): ng.IPromise<any>;
+
+    login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {
@@ -19,6 +21,7 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
+    private _prevLogin: string;
     public get currentUser(): IUser {
         return this._currentUser;
     }
@@ -26,8 +29,27 @@ export class SessionSvc implements ISession {
     public logout(): ng.IPromise<any> {
         var defer = this.$q.defer();
         this.auth.logout(this._currentUser, false).then(() => defer.resolve());
+        if (this._currentUser) {
+            this._prevLogin = this._currentUser.Login;
+        }
         this._currentUser = null;
 
+        return defer.promise;
+    }
+
+    public login(username: string, password: string, overrideSession: boolean): ng.IPromise<any> {
+        var defer = this.$q.defer();
+        
+        this.auth.login(username, password, overrideSession, this._prevLogin).then(
+            (user) => {
+                
+                this._currentUser = user;
+                defer.resolve();
+                
+            },
+            (error) => {
+                defer.reject(error);
+        });
         return defer.promise;
     }
 
@@ -61,11 +83,11 @@ export class SessionSvc implements ISession {
                 backdrop: false,
                 bindToController: true
             });
-
+            
             this._modalInstance.result.then((result: ILoginInfo) => {
+                
                 if (result) {
-                    if (result.userInfo) {
-                        this._currentUser = result.userInfo;
+                    if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.userName && result.password) {
                         var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
@@ -80,9 +102,8 @@ export class SessionSvc implements ISession {
                         });
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
-                                this.auth.login(result.userName, result.password, true).then(
-                                    (user) => {
-                                        this._currentUser = user;
+                                this.login(result.userName, result.password, true).then(
+                                    () => {
                                         done.resolve();
                                     },
                                     (error) => {
@@ -120,7 +141,7 @@ export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
 export class ILoginInfo {
     public userName: string;
     public password: string;
-    public userInfo: IUser;
+    public loginSuccessful: boolean;
 }
 
 export class LoginCtrl {
@@ -150,9 +171,11 @@ export class LoginCtrl {
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService) {
-        this.isInLoginForm = true;
+    static $inject: [string] = ["$uibModalInstance", "session", "$timeout];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session:ISession, private $timeout: ng.ITimeoutService) {
+		this.isInLoginForm = true;
+        this.enableForgetPasswordScreen = false;
+        this.isInForgetPasswordScreen = false;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = true;
@@ -213,13 +236,14 @@ export class LoginCtrl {
     }
 
     public login(): void {
-        this.auth.login(this.novaUsername, this.novaPassword, false).then(
-            (user: IUser) => {
+        this.session.login(this.novaUsername, this.novaPassword, false).then(
+            () => {
+                
                 this.labelError = false;
                 this.fieldError = false;
                 var result: ILoginInfo = new ILoginInfo();
-                result.userInfo = user;
-
+                result.loginSuccessful = true;
+                
                 this.$uibModalInstance.close(result);
             },
             (error) => {
@@ -249,6 +273,7 @@ export class LoginCtrl {
                     var result: ILoginInfo = new ILoginInfo();
                     result.userName = this.novaUsername;
                     result.password = this.novaPassword;
+                    result.loginSuccessful = false;
 
                     this.$uibModalInstance.close(result);
                 } else {

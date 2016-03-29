@@ -90,7 +90,7 @@ describe("AuthSvc", () => {
 
             // Act
             var error: any;
-            var result = auth.login("admin", "changeme", false).then(() => { }, (err) => error = err);
+            var result = auth.login("admin", "changeme", false, "").then(() => { }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -116,7 +116,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme",false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("admin", "changeme", false, "").then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -134,7 +134,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("admin", "changeme", false, "").then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -160,7 +160,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("Карл", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("Карл", "changeme", false, "").then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -184,7 +184,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("𐊇𐊈𐊉", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("𐊇𐊈𐊉", "changeme", false, "").then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -206,7 +206,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("admin", "changeme", false, "").then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert

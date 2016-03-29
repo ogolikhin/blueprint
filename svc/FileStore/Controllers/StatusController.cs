@@ -18,7 +18,7 @@ namespace FileStore.Controllers
         internal readonly IServiceLogRepository Log;
 
         public StatusController()
-            : this(new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "GetStatus"), new ServiceLogRepository())
+            : this(new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "GetStatus", "FileStorage"), new ServiceLogRepository())
         {
         }
 
@@ -42,6 +42,11 @@ namespace FileStore.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
+
+            var result = await StatusRepo.GetStatus();
+            return Ok();
+
+            /*
             try
             {
                 var result = await StatusRepo.GetStatus();
@@ -55,7 +60,7 @@ namespace FileStore.Controllers
             {
                 await Log.LogError(WebApiConfig.LogSourceStatus, ex);
                 return InternalServerError();
-            }
+            }*/
         }
     }
 }

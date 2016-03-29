@@ -17,7 +17,7 @@ namespace AccessControl.Controllers
         internal readonly IServiceLogRepository Log;
 
         public StatusController()
-            : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus"), new ServiceLogRepository())
+            : this(new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus", "AdminStorage"), new ServiceLogRepository())
         {
         }
 
@@ -41,6 +41,9 @@ namespace AccessControl.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
+            var result = await StatusRepo.GetStatus();
+            return Ok();
+            /*
             try
             {
                 var result = await StatusRepo.GetStatus();
@@ -54,7 +57,7 @@ namespace AccessControl.Controllers
             {
                 await Log.LogError(WebApiConfig.LogSourceStatus, ex);
                 return InternalServerError();
-            }
+            }*/
         }
     }
 }

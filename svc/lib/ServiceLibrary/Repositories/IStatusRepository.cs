@@ -4,6 +4,7 @@ namespace ServiceLibrary.Repositories
 {
 	public interface IStatusRepository
 	{
-		Task<bool> GetStatus();
+        string Name { get; set; }
+		Task<string> GetStatus();
 	}
 }

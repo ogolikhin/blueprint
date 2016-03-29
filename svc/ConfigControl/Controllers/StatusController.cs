@@ -18,7 +18,7 @@ namespace ConfigControl.Controllers
         internal readonly IServiceLogRepository Log;
 
         public StatusController()
-            : this(new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "GetStatus", "AdminStorage"), new ServiceLogRepository())
+            : this(new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage"), new ServiceLogRepository())
         {
         }
 
@@ -42,7 +42,7 @@ namespace ConfigControl.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            var result = await StatusRepo.GetStatus();
+            var result = await StatusRepo.GetStatus(100);
             return Ok();
             /*
             try

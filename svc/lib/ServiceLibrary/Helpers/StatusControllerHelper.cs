@@ -14,6 +14,8 @@ namespace ServiceLibrary.Helpers
 {
     public class StatusControllerHelper
     {
+        private const int GET_STATUS_TIMEOUT = 50;
+
         private readonly List<IStatusRepository> StatusRepos;
         private readonly IServiceLogRepository Log;
         private readonly string LogSource;
@@ -55,7 +57,7 @@ namespace ServiceLibrary.Helpers
         {
             try
             {
-                var result = await statusRepo.GetStatus();
+                var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
                 serviceStatus.StatusResponses[statusRepo.Name] = result;
             }
             catch (Exception ex)

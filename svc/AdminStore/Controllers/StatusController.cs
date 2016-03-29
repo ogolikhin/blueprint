@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Http.Results;
-using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.EventSources;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -23,13 +19,13 @@ namespace AdminStore.Controllers
 
         public StatusController()
             : this( new StatusControllerHelper(
-                        new List<IStatusRepository> { new SqlStatusRepository(WebApiConfig.AdminStorage, "GetStatus", "AdminStorage"),
-                                                  new SqlStatusRepository(WebApiConfig.RaptorMain, "GetStatus", "Raptor"),
-                                                  new ServiceDependencyStatusRepository(new HttpClientProvider(), new Uri("http://localhost:9801/svc/AdminStore/"), "AdminStore")},
+                        new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage"),
+                                                        new SqlStatusRepository(WebApiConfig.RaptorMain, "Raptor"),
+                                                        new ServiceDependencyStatusRepository(new Uri("http://localhost:9801/svc/AdminStore/"), "AdminStore")},
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
                     )
-            )
+                  )
         {
         }
 
@@ -46,7 +42,6 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]

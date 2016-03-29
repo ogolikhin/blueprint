@@ -17,7 +17,7 @@ namespace ArtifactStore.Controllers
         internal readonly IServiceLogRepository Log;
 
         public StatusController()
-            : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "GetStatus", "ArtifactStorage"), new ServiceLogRepository())
+            : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), new ServiceLogRepository())
         {
         }
 
@@ -41,7 +41,7 @@ namespace ArtifactStore.Controllers
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            var result = await StatusRepo.GetStatus();
+            var result = await StatusRepo.GetStatus(100);
             return Ok();
             /*
             try

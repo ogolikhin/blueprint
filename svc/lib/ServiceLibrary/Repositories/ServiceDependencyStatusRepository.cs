@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Repositories
@@ -11,21 +13,24 @@ namespace ServiceLibrary.Repositories
     {
         public string Name { get; set; }
 
-        private readonly HttpClientProvider _httpClientProvider;
         private readonly Uri _serviceUri;
 
-        public ServiceDependencyStatusRepository(HttpClientProvider httpClientProvider, Uri serviceUri, string name)
+        public ServiceDependencyStatusRepository(Uri serviceUri, string name)
         {
-            _httpClientProvider = httpClientProvider;
             _serviceUri = serviceUri;
             Name = name;
         }
 
-        public async Task<string> GetStatus()
+        public async Task<string> GetStatus(int timeout)
         {
-            var serviceHttpClient = _httpClientProvider.Create(_serviceUri);
-            var result = await serviceHttpClient.GetAsync("status/upcheck");
-            return result.StatusCode.ToString();
+            //Note: Getting an HttpClient from HttpClientProvider doesn't work, because we
+            //won't be able to change the timeout if the HttpClient has been used before.
+
+            var webRequest = WebRequest.CreateHttp(new Uri(_serviceUri, "status/upcheck"));
+            webRequest.Timeout = timeout;
+            HttpWebResponse result = (HttpWebResponse)await webRequest.GetResponseAsync();
+           
+            return ((int)result.StatusCode).ToString();
         }
     }
 }

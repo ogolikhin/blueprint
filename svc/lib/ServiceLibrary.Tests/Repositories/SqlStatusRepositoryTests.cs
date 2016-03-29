@@ -14,10 +14,9 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             string cxn = "data source=(local)";
-            string cmd = "command";
 
             // Act
-            var repository = new SqlStatusRepository(cxn, cmd, "test");
+            var repository = new SqlStatusRepository(cxn, "test");
 
             // Assert
             Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
@@ -33,12 +32,12 @@ namespace ServiceLibrary.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var cmd = "Test";
-            var repository = new SqlStatusRepository(cxn.Object, cmd, "Test");
+            var repository = new SqlStatusRepository(cxn.Object, "Test");
             IEnumerable<string> result = new[] { "7.0.0.0" };
             cxn.SetupQueryAsync(cmd, null, result);
 
             // Act
-            string status = await repository.GetStatus();
+            string status = await repository.GetStatus(100);
 
             // Assert
             cxn.Verify();

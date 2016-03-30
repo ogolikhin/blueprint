@@ -67,15 +67,20 @@ namespace StorytellerTests
                     if (artifact.Id != NONEXISTENT_ARTIFACT_ID)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                        Logger.WriteDebug("deleting process artifact which exist!");
                     }
 
                     if (artifact.IsPublished)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                        Logger.WriteDebug("deleting process artifact which is published!");
+
                     }
                     else
                     {
                         _storyteller.DiscardProcessArtifact(artifact);
+                        Logger.WriteDebug("discarding process artifact which is saved!");
+
                     }
                 }
             }
@@ -132,7 +137,9 @@ namespace StorytellerTests
             int numberOfArtifacts, 
             int nonexistentArtifactIndex)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            //List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb

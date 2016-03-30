@@ -231,7 +231,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     statusCode: 401,
                     errorCode: 2000,
-                    message: "Please enter a correct Username and Password"
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -282,7 +281,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     errorCode: 2001,
                     statusCode: 401,
-                    message: "Your account has been disabled.<br>Please contact your Administrator."
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -308,7 +306,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     errorCode: 2002,
                     statusCode: 401,
-                    message: "Your Password has expired."
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -452,7 +449,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     errorCode: 2001,
                     statusCode: 401,
-                    message: "Your account has been disabled. <br>Please contact your administrator."
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -466,7 +462,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Your account has been disabled. <br>Please contact your administrator.");
+            expect(loginCtrl.errorMsg).toBe("Your account has been disabled.<br>Please contact your Administrator.");
         }));
 
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {

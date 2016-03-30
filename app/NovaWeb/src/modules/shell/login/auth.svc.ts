@@ -84,7 +84,6 @@ export class AuthSvc implements IAuth {
     }
 
     private getAppBaseUrl(): string {
-        let absPath: string;
         const location = this.$window.location;
 
         let origin: string = (<any>location).origin;
@@ -92,14 +91,7 @@ export class AuthSvc implements IAuth {
             origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
         }
 
-        const indexOf = location.pathname.toLowerCase().indexOf("web");
-        if (indexOf && indexOf > 0) {
-            absPath = origin + location.pathname.substring(0, indexOf);
-        } else {
-            absPath = origin + "/";
-        }
-
-        return absPath;
+        return origin + "/";;
     }
 
 

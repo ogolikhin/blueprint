@@ -263,6 +263,24 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
+        it("respond with saml error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=false", angular.toJson("PHNhbWx"))
+                .respond(401, {Message: "saml login error"});
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.loginWithSaml(false, "").then((responce) => { user = responce; }, (err) => error = err);
+            $window["notifyAuthenticationResult"]("1", "PHNhbWx");
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe("saml login error");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
         it("reject with wrong user error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=true", angular.toJson("PHNhbWx"))

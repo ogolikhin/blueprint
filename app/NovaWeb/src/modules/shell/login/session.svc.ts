@@ -155,13 +155,13 @@ export class LoginCtrl {
         this.isInLoginForm = true;
         this.errorMsg = "Please enter your Username and Password";
 
-        this.enableForgetPasswordScreen = true;
+        this.enableForgetPasswordScreen = false;
         this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
         this.enableChangePasswordScreen = false;
         this.isInChangePasswordScreen = this.enableChangePasswordScreen;
-        this.changePasswordScreenMessage = "Your password has expired. Please change your password below.";
+        this.changePasswordScreenMessage = "Your Password has expired. Please change your Password below.";
 
         this.enableSAMLScreen = true;
         this.isInSAMLScreen = this.enableSAMLScreen;
@@ -229,7 +229,7 @@ export class LoginCtrl {
                         this.labelError = true;
                         this.fieldError = true;
                     } else if (error.errorCode === 2001) {
-                        this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
+                        this.errorMsg = "Your account has been disabled. <br>Please contact your Administrator.";
                         this.labelError = true;
                         this.fieldError = false;
                     } else if (error.errorCode === 2002) {

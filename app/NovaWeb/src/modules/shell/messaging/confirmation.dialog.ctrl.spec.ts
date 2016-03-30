@@ -48,7 +48,8 @@ describe("ConfirmationDialogCtrl", () => {
         it("return false", () => {
             // Arrange
             var serviceInstanceMock = new ModalServiceInstanceMock();
-            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock,$rootScope);
+            var localizationMock = new LocalizationServiceMock();
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock, localizationMock);
             
             // Act
             confirmationDialogCtrl.cancel();

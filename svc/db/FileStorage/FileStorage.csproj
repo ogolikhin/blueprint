@@ -34,6 +34,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +47,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Functions\ValidateExpiryTime.sql" />
     <Content Include="Jobs\Blueprint_FileStorage_Maintenance.sql" />
+    <Content Include="Migration\7.1.0.0\7.1.0.0.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>7.1.0.0.tt</DependentUpon>
+    </Content>
+    <Content Include="Migration\7.1.0.0\7.1.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>7.1.0.0.sql</LastGenOutput>
+    </Content>
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\MigrationLog.sql" />

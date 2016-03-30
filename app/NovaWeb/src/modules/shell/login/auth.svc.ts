@@ -27,6 +27,7 @@ export class AuthSvc implements IAuth {
     //TODO: grab this from the config when implemented
     private _enableSAML: boolean = true; 
     private samlRequestId = 0;
+    private _loggedOut: boolean = false;
 
     static $inject: [string] = ["$q", "$log", "$http", "$window"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService) {
@@ -45,8 +46,8 @@ export class AuthSvc implements IAuth {
                     message: err ? err.Message : "Cannot get current user"
                 };
                 //TODO uncomment this once the settings provider is implemented
-                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
-                if (1 == 1) {
+                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
+                if (!this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success((token: string) => {
                             this.onTokenSuccess(token, defer, this._enableSAML, "");
@@ -168,6 +169,7 @@ export class AuthSvc implements IAuth {
                     }
                     this.pendingLogout = null;
                     SessionTokenHelper.setToken(null);
+                    this._loggedOut = true;
                     deferred.resolve();
                 });
         }

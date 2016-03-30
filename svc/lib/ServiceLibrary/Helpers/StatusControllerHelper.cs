@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Authentication.ExtendedProtection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Management;
@@ -17,12 +18,14 @@ namespace ServiceLibrary.Helpers
         private const int GET_STATUS_TIMEOUT = 50;
 
         private readonly List<IStatusRepository> StatusRepos;
+        private readonly string ServiceName;
         private readonly IServiceLogRepository Log;
         private readonly string LogSource;
 
-        public StatusControllerHelper(List<IStatusRepository> statusRepos, IServiceLogRepository log, string logSource)
+        public StatusControllerHelper(List<IStatusRepository> statusRepos, string serviceName, IServiceLogRepository log, string logSource)
         {
             StatusRepos = statusRepos;
+            ServiceName = serviceName;
             Log = log;
             LogSource = logSource;
         }
@@ -31,6 +34,7 @@ namespace ServiceLibrary.Helpers
         {
             var serviceStatus = new ServiceStatus();
 
+            serviceStatus.ServiceName = ServiceName;
             serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
 
             //Get status responses from each repo, store the tasks.
@@ -86,6 +90,9 @@ namespace ServiceLibrary.Helpers
     public class ServiceStatus
     {
         [JsonProperty]
+        public string ServiceName;
+
+        [JsonProperty]
         public string AssemblyFileVersion;
 
         private Dictionary<string, string> _statusResponses;
@@ -105,5 +112,8 @@ namespace ServiceLibrary.Helpers
 
         [JsonProperty]
         public bool NoErrors;
+
+        [JsonProperty]
+        public string Errors;
     }
 }

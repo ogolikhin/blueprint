@@ -20,6 +20,7 @@ namespace AccessControl.Controllers
         public StatusController()
             : this(new StatusControllerHelper(
                         new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorage")},
+                        "AccessControl",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
                     )

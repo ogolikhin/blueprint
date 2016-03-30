@@ -23,6 +23,7 @@ namespace ConfigControl.Controllers
                         {
                             new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage")
                         },
+                        "ConfigControl",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
                     )

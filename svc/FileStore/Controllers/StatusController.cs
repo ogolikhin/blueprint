@@ -27,6 +27,7 @@ namespace FileStore.Controllers
                             new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                             new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
                         },
+                        "FileStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
                     )

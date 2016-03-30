@@ -28,9 +28,11 @@ namespace ServiceLibrary.Repositories
 
             var webRequest = WebRequest.CreateHttp(new Uri(_serviceUri, "status/upcheck"));
             webRequest.Timeout = timeout;
-            HttpWebResponse result = (HttpWebResponse)await webRequest.GetResponseAsync();
-           
-            return ((int)result.StatusCode).ToString();
+
+            using (HttpWebResponse result = (HttpWebResponse) await webRequest.GetResponseAsync())
+            {
+                return ((int)result.StatusCode).ToString();
+            }      
         }
     }
 }

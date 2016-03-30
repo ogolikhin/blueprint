@@ -45,6 +45,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Functions\ValidateExpiryTime.sql" />
     <Content Include="Jobs\Blueprint_FileStorage_Maintenance.sql" />
+    <Content Include="Procedures.sql">
+      <DependentUpon>Procedures.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
+    <Content Include="Procedures.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Procedures.sql</LastGenOutput>
+    </Content>
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\MigrationLog.sql" />

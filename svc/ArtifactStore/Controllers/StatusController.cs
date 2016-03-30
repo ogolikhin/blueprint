@@ -21,6 +21,7 @@ namespace ArtifactStore.Controllers
         public StatusController()
             : this(new StatusControllerHelper(
                         new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage")},
+                        "ArtifactStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
                     )

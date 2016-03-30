@@ -209,7 +209,7 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.errorMsg).toBe("Please enter a correct Username and Password", "error message is incorrect");
         }));
 
-        it("return empty username or password error (password)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
+        it("return empty username or password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
             // Arrange
             spyOn(auth, "login").and.callFake(function () {
                 var deferred = $q.defer();
@@ -225,58 +225,6 @@ describe("LoginCtrl", () => {
             // Act
             var error: any;
             loginCtrl.novaUsername = "admin";
-            loginCtrl.novaPassword = "";
-            var result = loginCtrl.login();
-            $rootScope.$digest();
-
-            // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Username and password cannot be empty", "error message is incorrect");
-        }));
-
-        it("return empty username or password error (username)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
-            // Arrange
-            spyOn(auth, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: 401,
-                    errorCode: 2003,
-                    message: "Username and password cannot be empty"
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
-
-            // Act
-            var error: any;
-            loginCtrl.novaUsername = "";
-            loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
-            $rootScope.$digest();
-
-            // Assert
-            expect(loginCtrl.fieldError).toBe(true, "field error is false");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Username and password cannot be empty", "error message is incorrect");
-        }));
-
-        it("return empty username or password error (both)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
-            // Arrange
-            spyOn(auth, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: 401,
-                    errorCode: 2003,
-                    message: "Username and password cannot be empty"
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
-
-            // Act
-            var error: any;
-            loginCtrl.novaUsername = "";
             loginCtrl.novaPassword = "";
             var result = loginCtrl.login();
             $rootScope.$digest();

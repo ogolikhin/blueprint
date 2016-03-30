@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ConfigControl;
 using ConfigControl.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
@@ -24,8 +21,7 @@ namespace ConfigControl.Controllers
             : this(new StatusControllerHelper(
                         new List<IStatusRepository>
                         {
-                            new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage"),
-                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint")
+                            new SqlStatusRepository(SqlConfigRepository.AdminStorageDatabase, "AdminStorage")
                         },
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus

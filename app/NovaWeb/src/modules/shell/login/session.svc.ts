@@ -207,17 +207,18 @@ export class LoginCtrl {
     public novaPassword: string;
 
     public formState: LoginState;
+    public transitionFromState: LoginState;
     public get isInLoginForm(): boolean {
-        return this.formState === LoginState.LoginForm;
+        return this.formState === LoginState.LoginForm || this.transitionFromState === LoginState.LoginForm;
     }
     public get isInForgetPasswordScreen(): boolean {
-        return this.formState === LoginState.ForgetPasswordForm;
+        return this.formState === LoginState.ForgetPasswordForm || this.transitionFromState === LoginState.ForgetPasswordForm;
     }
     public get isInChangePasswordScreen(): boolean {
-        return this.formState === LoginState.ChangePasswordForm;
+        return this.formState === LoginState.ChangePasswordForm || this.transitionFromState === LoginState.ChangePasswordForm;
     }
     public get isInSAMLScreen(): boolean {
-        return this.formState === LoginState.SamlLoginForm;
+        return this.formState === LoginState.SamlLoginForm || this.transitionFromState === LoginState.SamlLoginForm;
     }
 
     public enableForgetPasswordScreen: boolean;
@@ -251,15 +252,23 @@ export class LoginCtrl {
         this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
     }
 
+    private transitionToState(state: LoginState) {
+        this.transitionFromState = this.formState;
+        this.formState = state;
+        this.$timeout(() => {
+            this.transitionFromState = state;
+        }, 500); // both panels need to be visible during the transition
+    }
+
     public goToForgetPasswordScreen(): void {
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
-        this.formState = LoginState.ForgetPasswordForm;
+        this.transitionToState(LoginState.ForgetPasswordForm);
     }
 
     public goToChangePasswordScreen(): void {
         this.changePasswordScreenError = false;
-        this.formState = LoginState.ChangePasswordForm;
+        this.transitionToState(LoginState.ChangePasswordForm);
     }
 
     public goToSAMLScreen(): void {
@@ -298,11 +307,11 @@ export class LoginCtrl {
                 }
             });
 
-        this.formState = LoginState.SamlLoginForm;
+        this.transitionToState(LoginState.SamlLoginForm);
     }
 
     public goToLoginScreen(): void {
-        this.formState = LoginState.LoginForm;
+        this.transitionToState(LoginState.LoginForm);
     }
 
     public changePassword(): void {
@@ -316,7 +325,6 @@ export class LoginCtrl {
     public login(): void {
         this.session.login(this.novaUsername, this.novaPassword, false).then(
             () => {
-                
                 this.labelError = false;
                 this.fieldError = false;
                 var result: ILoginInfo = new ILoginInfo();
@@ -330,27 +338,28 @@ export class LoginCtrl {
                         this.errorMsg = "Please enter a correct Username and Password";
                         this.labelError = true;
                         this.fieldError = true;
-                        this.formState = LoginState.LoginForm;
+                        this.transitionToState(LoginState.LoginForm);
                     } else if (error.errorCode === 2001) {
                         this.errorMsg = "Your account has been disabled.<br>Please contact your Administrator.";
                         this.labelError = true;
                         this.fieldError = false;
-                        this.formState = LoginState.LoginForm;
+                        this.transitionToState(LoginState.LoginForm);
                     } else if (error.errorCode === 2002) {
                         this.errorMsg = "Your Password has expired.";
                         this.labelError = true;
                         this.fieldError = false;
                         this.enableChangePasswordScreen = true;
-                        this.formState = LoginState.ChangePasswordForm;
+                        this.transitionToState(LoginState.ChangePasswordForm);
                     } else if (error.errorCode === 2003) {
                         this.errorMsg = "Username and Password cannot be empty";
                         this.labelError = true;
                         this.fieldError = true;
+                        this.transitionToState(LoginState.LoginForm);
                     } else {
                         this.errorMsg = error.message;
                         this.labelError = true;
                         this.fieldError = true;
-                        this.formState = LoginState.LoginForm;
+                        this.transitionToState(LoginState.LoginForm);
                     }
                 } else if (error.statusCode === 409) {
                     this.labelError = false;

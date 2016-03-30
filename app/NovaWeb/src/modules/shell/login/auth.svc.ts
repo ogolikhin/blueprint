@@ -23,7 +23,8 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
-
+    private _loggedOut: boolean = false;
+    
 
     static $inject: [string] = ["$q", "$log", "$http", "localization"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private localization: ILocalizationService) {
@@ -32,7 +33,7 @@ export class AuthSvc implements IAuth {
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
         var config = this.createRequestConfig();
-
+       
         this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
             .success((result: IUser) => {
                 defer.resolve(result);
@@ -43,8 +44,8 @@ export class AuthSvc implements IAuth {
                 };
 
                 //TODO uncomment this once the settings provider is implemented
-                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
-                if (1 == 1) {
+                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
+                if (!this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success(
                         (token: string) => { this.onTokenSuccess(token, defer, false); }
@@ -104,6 +105,7 @@ export class AuthSvc implements IAuth {
                     }
                     this.pendingLogout = null;
                     SessionTokenHelper.setToken(null);
+                    this._loggedOut = true;
                     deferred.resolve();
                 });
         }
@@ -130,7 +132,7 @@ export class AuthSvc implements IAuth {
                             //        deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
                             //    });
                             //} else {
-                            //this.onLogin(user);
+                                //this.onLogin(user);
                             deferred.resolve(user);
                             //}
                         }).error((err: any, statusCode: number) => {
@@ -163,7 +165,7 @@ export class AuthSvc implements IAuth {
     private verifyLicense(token: string): ng.IPromise<any> {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
-
+       
         if (!requestConfig.headers) {
             requestConfig.headers = {};
         }

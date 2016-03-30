@@ -5,7 +5,7 @@
         'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
-            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
+            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form" onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();">
                 <div class="nova-login-message" ng-class="{error: ctrl.labelError}"><span ng-bind-html="ctrl.errorMsg"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
                     <input type="text" class="nova-form-control required" id="nova-username" name="novaUsername" ng-model="ctrl.novaUsername" ng-trim="false">

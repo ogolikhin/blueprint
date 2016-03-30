@@ -250,6 +250,32 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.errorMsg).toBe("Please enter a correct Username and Password", "error message is incorrect");
         }));
 
+        it("return empty username or password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
+            // Arrange
+            spyOn(auth, "login").and.callFake(function () {
+                var deferred = $q.defer();
+                var error = {
+                    statusCode: 401,
+                    errorCode: 2003,
+                    message: "Username and password cannot be empty"
+                };
+                deferred.reject(error);
+                return deferred.promise;
+            });
+
+            // Act
+            var error: any;
+            loginCtrl.novaUsername = "admin";
+            loginCtrl.novaPassword = "";
+            var result = loginCtrl.login();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.fieldError).toBe(true, "field error is false");
+            expect(loginCtrl.labelError).toBe(true, "label error is false");
+            expect(loginCtrl.errorMsg).toBe("Username and password cannot be empty", "error message is incorrect");
+        }));
+
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
             // Arrange
             spyOn(auth, "login").and.callFake(function () {
@@ -257,7 +283,7 @@ describe("LoginCtrl", () => {
                 var error = {
                     errorCode: 2001,
                     statusCode: 401,
-                    message: "Your account has been disabled. <br>Please contact your Administrator."
+                    message: "Your account has been disabled.<br>Please contact your Administrator."
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -273,7 +299,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Your account has been disabled. <br>Please contact your Administrator.");
+            expect(loginCtrl.errorMsg).toBe("Your account has been disabled.<br>Please contact your Administrator.");
         }));
 
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {

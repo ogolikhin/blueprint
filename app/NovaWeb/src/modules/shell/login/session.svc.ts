@@ -332,7 +332,7 @@ export class LoginCtrl {
                         this.fieldError = true;
                         this.formState = LoginState.LoginForm;
                     } else if (error.errorCode === 2001) {
-                        this.errorMsg = "Your account has been disabled. <br>Please contact your Administrator.";
+                        this.errorMsg = "Your account has been disabled.<br>Please contact your Administrator.";
                         this.labelError = true;
                         this.fieldError = false;
                         this.formState = LoginState.LoginForm;
@@ -342,6 +342,10 @@ export class LoginCtrl {
                         this.fieldError = false;
                         this.enableChangePasswordScreen = true;
                         this.formState = LoginState.ChangePasswordForm;
+                    } else if (error.errorCode === 2003) {
+                        this.errorMsg = "Username and Password cannot be empty";
+                        this.labelError = true;
+                        this.fieldError = true;
                     } else {
                         this.errorMsg = error.message;
                         this.labelError = true;

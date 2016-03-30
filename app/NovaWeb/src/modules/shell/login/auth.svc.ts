@@ -22,7 +22,7 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
-    
+    private _loggedOut: boolean = false;
 
     static $inject: [string] = ["$q", "$log", "$http"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService) {
@@ -42,8 +42,8 @@ export class AuthSvc implements IAuth {
                 };
 
                 //TODO uncomment this once the settings provider is implemented
-                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
-                if (1 == 1) {
+                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
+                if (!this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success(
                         (token: string) => { this.onTokenSuccess(token, defer, false); }
@@ -103,6 +103,7 @@ export class AuthSvc implements IAuth {
                     }
                     this.pendingLogout = null;
                     SessionTokenHelper.setToken(null);
+                    this._loggedOut = true;
                     deferred.resolve();
                 });
         }

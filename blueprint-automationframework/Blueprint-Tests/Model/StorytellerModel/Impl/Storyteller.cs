@@ -363,12 +363,12 @@ namespace Model.StorytellerModel.Impl
             return publishProcessResult.Content;
         }
 
-        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
+        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
-            return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, deleteChildren);
+            return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
         }
 
         #endregion Implemented from IStoryteller

@@ -1,24 +1,24 @@
 ﻿Key,Locale,Text
-App_PrerequisiteMsg_JavaScript,fr-CA,Vous devez activer JavaScript pour utiliser cette application
-App_Header_Name,fr-CA,Blueprint
-App_Header_SignedInAs,fr-CA,Signé en tant
-Login_Auth_CannotGetUser,fr-CA,Vous ne pouvez pas obtenir l'utilisateur actuel
-Login_Auth_LoginFailed,fr-CA,Échec de la connexion
-Login_Auth_LicenseInvalid,fr-CA,Impossible de vérifier la licence
-Login_Auth_SessionTokenFailed,fr-CA,Vous ne pouvez pas obtenir jeton de session
-Login_Auth_LicenseInvalid_Verbose,fr-CA,Aucune licence trouvé ou Blueprint utilise une licence de serveur non valide . S'il vous plaît contactez votre administrateur Blueprint
-Login_Auth_LicenseLimitReached,fr-CA,La limite maximale de licence concurrente a été atteint. S'il vous plaît contactez votre administrateur Blueprint.
-Login_Username,fr-CA,Nom d'utilisateur
-Login_Password,fr-CA,Mot de passe
-Login_ForgotPassword,fr-CA,Mot de passe oublié?
-Login_LoginButton,fr-CA,S'identifier
-Login_SamlLink,fr-CA,Connectez-vous pour blueprint.toronto
-Login_GoBackToLogin,fr-CA,Go back to login
-Login_ResetPassword,fr-CA,Retour à identifier
-Login_BlueprintCopyRight,fr-CA,Blueprint Software Systems Inc. Tous droits réservés
-Login_Version,fr-CA,Version:
-Login_Session_DuplicateSession_Verbose,fr-CA,Cet utilisateur est déjà connecté à Blueprint dans un autre navigateur / session. <br><br>Voulez-vous remplacer la session précédente ?
-Login_Session_EnterCredentials,fr-CA,Veuillez s'il vous plaît entrer votre nom d'utilisateur et votre mot de passe
-Login_Session_EnterUsername,fr-CA,S'il vous plaît entrez votre nom d'utilisateur
-Login_Session_InvalidCredentials,fr-CA,S'il vous plaît entrer un nom d'utilisateur correct et mot de passe
-Login_Session_AccountDisabled,fr-CA,Votre compte a été désactivé. <br> S'il vous plaît contactez votre administrateur.
+App_PrerequisiteMsg_JavaScript,fr-CA,"Vous devez activer JavaScript pour utiliser cette application"
+App_Header_Name,fr-CA,"Blueprint"
+App_Header_SignedInAs,fr-CA,"Signé en tant"
+Login_Auth_CannotGetUser,fr-CA,"Vous ne pouvez pas obtenir l'utilisateur actuel"
+Login_Auth_LoginFailed,fr-CA,"Échec de la connexion"
+Login_Auth_LicenseInvalid,fr-CA,"Impossible de vérifier la licence"
+Login_Auth_SessionTokenFailed,fr-CA,"Vous ne pouvez pas obtenir jeton de session"
+Login_Auth_LicenseInvalid_Verbose,fr-CA,"Aucune licence trouvé ou Blueprint utilise une licence de serveur non valide . S'il vous plaît contactez votre administrateur Blueprint"
+Login_Auth_LicenseLimitReached,fr-CA,"La limite maximale de licence concurrente a été atteint. S'il vous plaît contactez votre administrateur Blueprint."
+Login_Username,fr-CA,"Nom d'utilisateur"
+Login_Password,fr-CA,"Mot de passe"
+Login_ForgotPassword,fr-CA,"Mot de passe oublié?"
+Login_LoginButton,fr-CA,"S'identifier"
+Login_SamlLink,fr-CA,"Connectez-vous pour blueprint.toronto"
+Login_GoBackToLogin,fr-CA,"Go back to login"
+Login_ResetPassword,fr-CA,"Retour à identifier"
+Login_BlueprintCopyRight,fr-CA,"Blueprint Software Systems Inc. Tous droits réservés"
+Login_Version,fr-CA,"Version:"
+Login_Session_DuplicateSession_Verbose,fr-CA,"Cet utilisateur est déjà connecté à Blueprint dans un autre navigateur / session. <br><br>Voulez-vous remplacer la session précédente ?"
+Login_Session_EnterCredentials,fr-CA,"Veuillez s'il vous plaît entrer votre nom d'utilisateur et votre mot de passe"
+Login_Session_EnterUsername,fr-CA,"S'il vous plaît entrez votre nom d'utilisateur"
+Login_Session_InvalidCredentials,fr-CA,"S'il vous plaît entrer un nom d'utilisateur correct et mot de passe"
+Login_Session_AccountDisabled,fr-CA,"Votre compte a été désactivé. <br> S'il vous plaît contactez votre administrateur."

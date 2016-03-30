@@ -23,6 +23,7 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
+    private _loggedOut: boolean = false;
     
 
     static $inject: [string] = ["$q", "$log", "$http", "localization"];
@@ -39,12 +40,12 @@ export class AuthSvc implements IAuth {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: err ? err.Message : this.localization.get("Auth_Error_NoUser")
+                    message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
 
                 //TODO uncomment this once the settings provider is implemented
-                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false") { 
-                if (1 == 1) {
+                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
+                if (!this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success(
                         (token: string) => { this.onTokenSuccess(token, defer, false); }
@@ -104,6 +105,7 @@ export class AuthSvc implements IAuth {
                     }
                     this.pendingLogout = null;
                     SessionTokenHelper.setToken(null);
+                    this._loggedOut = true;
                     deferred.resolve();
                 });
         }
@@ -115,7 +117,7 @@ export class AuthSvc implements IAuth {
         if (!err)
             return "";
 
-        return err.Message ? err.Message : this.localization.get('Login_Error_Failed'); // TODO: generic message
+        return err.Message ? err.Message : this.localization.get('Login_Auth_LoginFailed'); // TODO: generic message
     }
 
     private onTokenSuccess(token: string, deferred: any, isSaml: boolean) {
@@ -144,11 +146,11 @@ export class AuthSvc implements IAuth {
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {
-                        deferred.reject({ message: this.localization.get('Error_License_Verification') });
+                        deferred.reject({ message: this.localization.get('Login_Auth_LicenseVerificationFailed') });
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: this.localization.get('Error_SessionToken_Faled')});
+            deferred.reject({ statusCode: 500, message: this.localization.get('Login_Auth_SessionTokenRetrievalFailed') });
         }
     }
 
@@ -174,10 +176,10 @@ export class AuthSvc implements IAuth {
             .error((err: any, statusCode: number) => {
                 var msg = null;
                 if (statusCode === 404) { // NotFound
-                    msg = this.localization.get('Error_License_NotFound');
+                    msg = this.localization.get('Login_Auth_LicenseNotFound_Verbose');
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = this.localization.get('Error_License_MaxReached');
+                    msg = this.localization.get('Login_Auth_LicenseLimitReached');
                 }
 
                 deferred.reject(msg);

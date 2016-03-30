@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ApplicationLabels_en-US.csv" />
+    <None Include="Data\ApplicationLabels_fr-CA.csv" />
     <None Include="ExecTemplates.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

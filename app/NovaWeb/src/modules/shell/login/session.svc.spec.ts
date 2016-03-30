@@ -146,6 +146,44 @@ describe("SessionSvc", () => {
         }))
     });
 
+    describe("loginWithSaml", () => {
+        it("return current user from auth service", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
+            // Arrange
+
+            // Act
+            var error: any;
+            var result = session.loginWithSaml(true).then(() => { }, (err) => error = err);
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBe(undefined, "error is set");
+            expect(session.currentUser).toBeDefined();
+            expect(session.currentUser.Login).toBe("admin", "current user is not admin");
+        }))
+
+        it("return current user after logging in without session override", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+            // Arrange
+            spyOn(auth, "getCurrentUser").and.callFake(function () {
+                var deferred = $q.defer();
+                deferred.reject();
+                return deferred.promise;
+            });
+            var loginInfo: ILoginInfo = new ILoginInfo();
+            loginInfo.samlLogin = true;
+            loginInfo.loginSuccessful = false;
+            
+            // Act
+            var error: any;
+            var result = session.ensureAuthenticated().then(() => { }, (err) => error = err);
+            (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
+            
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBe(undefined, "error is set");
+        }))
+    });
+
     describe("logout", () => {
         it("complete logout successfully", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
             // Arrange
@@ -310,6 +348,26 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.fieldError).toBe(true, "field error is false");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
             expect(loginCtrl.errorMsg).toBe("unexpected status code");
+        }));
+    });
+
+    describe("goToForgetPasswordScreen", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+            loginCtrl.enableSAMLScreen = true;
+            loginCtrl.enableChangePasswordScreen = true;
+
+            // Act
+            var result = loginCtrl.goToForgetPasswordScreen();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.isInLoginForm).toBe(false, "isInLoginForm");
+            expect(loginCtrl.isInSAMLScreen).toBe(false, "isInSAMLScreen");
+            expect(loginCtrl.isInChangePasswordScreen).toBe(false, "isInChangePasswordScreen");
+            expect(loginCtrl.forgetPasswordScreenError).toBe(false, "forgetPasswordScreenError");
+            expect(loginCtrl.forgetPasswordScreenUsername).toBe(loginCtrl.novaUsername, "forgetPasswordScreenUsername");
+            expect(loginCtrl.isInForgetPasswordScreen).toBe(true, "isInForgetPasswordScreen");
         }));
     });
 });

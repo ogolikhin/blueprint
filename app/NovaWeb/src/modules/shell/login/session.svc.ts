@@ -56,7 +56,7 @@ export class SessionSvc implements ISession {
     }
 
    
-    public loginWithSaml(overrideSession: boolean = false): ng.IPromise<any> {
+    public loginWithSaml(overrideSession: boolean): ng.IPromise<any> {
         var defer = this.$q.defer();
 
         this.auth.loginWithSaml(overrideSession, this._prevLogin).then(
@@ -108,6 +108,32 @@ export class SessionSvc implements ISession {
                 if (result) {
                     if (result.loginSuccessful) {
                         done.resolve();
+                    } else if (result.samlLogin) {
+                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
+                        confirmationDialog = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
+                            template: require("./../messaging/confirmation.dialog.html"),
+                            windowClass: "nova-messaging",
+                            controller: SimpleDialogCtrl,
+                            controllerAs: "ctrl",
+                            keyboard: false, // cannot Escape ))
+                            backdrop: false,
+                            bindToController: true
+                        });
+                        confirmationDialog.result.then((confirmed: boolean) => {
+                            if (confirmed) {
+                                this.loginWithSaml(true).then(
+                                    () => {
+                                        done.resolve();
+                                    },
+                                    (error) => {
+                                        this.showLogin(done);
+                                    });
+                            } else {
+                                this.showLogin(done);
+                            }
+                        }).finally(() => {
+                            confirmationDialog = null;
+                        });
                     } else if (result.userName && result.password) {
                         var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                         confirmationDialog = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
@@ -161,6 +187,7 @@ export class ILoginInfo {
     public userName: string;
     public password: string;
     public loginSuccessful: boolean;
+    public samlLogin: boolean;
 }
 
 export class LoginCtrl {
@@ -259,8 +286,7 @@ export class LoginCtrl {
                     this.labelError = false;
                     this.fieldError = false;
                     var result: ILoginInfo = new ILoginInfo();
-                    result.userName = this.novaUsername;
-                    result.password = this.novaPassword;
+                    result.samlLogin = true;
                     result.loginSuccessful = false;
 
                     this.$uibModalInstance.close(result);

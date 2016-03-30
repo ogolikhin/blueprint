@@ -123,7 +123,6 @@ export class AuthSvc implements IAuth {
 
         var url = "/Login/SAMLHandler.ashx?action=relogin&id=" + this.samlRequestId + "&wname=" + guid + "&host=" + encodeURI(absPath);
         this.$window["notifyAuthenticationResult"] = (requestId: string, samlResponse: string): string => {
-            //console.log(requestId + ", " + samlResponse);
             if (requestId === this.samlRequestId.toString()) {
                 this.$http.post("/svc/adminstore/sessions/sso?force=" + overrideSession, angular.toJson(samlResponse), this.createRequestConfig())
                     .success(

@@ -23,6 +23,7 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
+    //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
     public get currentUser(): IUser {
         return this._currentUser;
@@ -32,7 +33,7 @@ export class SessionSvc implements ISession {
         var defer = this.$q.defer();
         this.auth.logout(this._currentUser, false).then(() => defer.resolve());
         if (this._currentUser) {
-            this._prevLogin = this._currentUser.Login;
+            this._prevLogin = "";
         }
         this._currentUser = null;
 
@@ -305,6 +306,7 @@ export class LoginCtrl {
                     this.labelError = true;
                     this.fieldError = true;
                 }
+                this.transitionToState(LoginState.LoginForm);
             });
 
         this.transitionToState(LoginState.SamlLoginForm);

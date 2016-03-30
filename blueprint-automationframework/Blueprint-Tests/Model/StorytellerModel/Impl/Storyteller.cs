@@ -57,6 +57,18 @@ namespace Model.StorytellerModel.Impl
             return artifact;
         }
 
+        public List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        {
+            var artifacts = new List<IOpenApiArtifact>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                artifacts.Add(artifact);
+            }
+            return artifacts;
+        }
+
         public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
@@ -361,6 +373,15 @@ namespace Model.StorytellerModel.Impl
             MarkArtifactAsPublished(process.Id);
 
             return publishProcessResult.Content;
+        }
+
+        public List<IDiscardArtifactResult> DiscardProcessArtifact(IOpenApiArtifact artifact,
+            List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
+            return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
         public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)

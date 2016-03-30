@@ -61,13 +61,21 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.Id != NONEXISTENT_ARTIFACT_ID)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    }
+
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    }
+                    else
+                    {
+                        _storyteller.DiscardProcessArtifact(artifact);
                     }
                 }
             }
@@ -102,12 +110,15 @@ namespace StorytellerTests
                      "that the returned artifact path links contains all process Ids in the url path.")]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process);
+
+
         }
 
         [TestCase(3, 1)]

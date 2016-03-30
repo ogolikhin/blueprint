@@ -252,7 +252,7 @@ namespace Model.OpenApiModel.Impl
             }
         }
 
-        public void Discard(IUser user = null,
+        public List<IDiscardArtifactResult> Discard(IUser user = null,
     List<HttpStatusCode> expectedStatusCodes = null,
     bool sendAuthorizationAsCookie = false)
         {
@@ -275,7 +275,7 @@ namespace Model.OpenApiModel.Impl
 
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
-            var discardResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
+            var discardResultList = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(
                 URL_DISCARD, RestRequestMethod.POST, artifactToDiscardList, expectedStatusCodes: expectedStatusCodes);
 
             var discardedResultList = discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
@@ -287,6 +287,7 @@ namespace Model.OpenApiModel.Impl
                 publishedArtifact.IsSaved = false;
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
+            return discardResultList.ConvertAll(o => (IDiscardArtifactResult)o);
         }
 
         public List<IDeleteArtifactResult> Delete(IUser user = null,
@@ -367,6 +368,7 @@ namespace Model.OpenApiModel.Impl
         /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
@@ -411,6 +413,7 @@ namespace Model.OpenApiModel.Impl
         /// <param name="artifactsToPublish">The list of artifacts to publish</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>

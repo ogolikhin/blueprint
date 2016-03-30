@@ -12,11 +12,11 @@
 </head>
 <body>
     <app id="js-enabled">
-        <div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span> Loading...</div>
+        <div class="app-loading"><span class="glyphicon glyphicon-refresh spin"></span>{{::$root.config.labels["App_LoadingMsg"]}}</div>
     </app>
     <noscript>
         <div>
-            You must enable JavaScript to use this application.
+            {{::$root.config.labels["App_PrerequisiteMsg_JavaScript"]}}
         </div>
     </noscript>
 

@@ -23,7 +23,7 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
-    
+
 
     static $inject: [string] = ["$q", "$log", "$http", "localization"];
     constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private localization: ILocalizationService) {
@@ -32,14 +32,14 @@ export class AuthSvc implements IAuth {
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
         var config = this.createRequestConfig();
-       
+
         this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
             .success((result: IUser) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: err ? err.Message : this.localization.get("Auth_Error_NoUser")
+                    message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
 
                 //TODO uncomment this once the settings provider is implemented
@@ -115,7 +115,7 @@ export class AuthSvc implements IAuth {
         if (!err)
             return "";
 
-        return err.Message ? err.Message : this.localization.get('Login_Error_Failed'); // TODO: generic message
+        return err.Message ? err.Message : this.localization.get('Login_Auth_LoginFailed'); // TODO: generic message
     }
 
     private onTokenSuccess(token: string, deferred: any, isSaml: boolean) {
@@ -130,7 +130,7 @@ export class AuthSvc implements IAuth {
                             //        deferred.reject(<IHttpError>{ message: "To continue your session, please login with the same user that the session was started with" });
                             //    });
                             //} else {
-                                //this.onLogin(user);
+                            //this.onLogin(user);
                             deferred.resolve(user);
                             //}
                         }).error((err: any, statusCode: number) => {
@@ -144,11 +144,11 @@ export class AuthSvc implements IAuth {
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {
-                        deferred.reject({ message: this.localization.get('Error_License_Verification') });
+                        deferred.reject({ message: this.localization.get('Login_Auth_LicenseVerificationFailed') });
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: this.localization.get('Error_SessionToken_Faled')});
+            deferred.reject({ statusCode: 500, message: this.localization.get('Login_Auth_SessionTokenRetrievalFailed') });
         }
     }
 
@@ -163,7 +163,7 @@ export class AuthSvc implements IAuth {
     private verifyLicense(token: string): ng.IPromise<any> {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
-       
+
         if (!requestConfig.headers) {
             requestConfig.headers = {};
         }
@@ -174,10 +174,10 @@ export class AuthSvc implements IAuth {
             .error((err: any, statusCode: number) => {
                 var msg = null;
                 if (statusCode === 404) { // NotFound
-                    msg = this.localization.get('Error_License_NotFound');
+                    msg = this.localization.get('Login_Auth_LicenseNotFound_Verbose');
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = this.localization.get('Error_License_MaxReached');
+                    msg = this.localization.get('Login_Auth_LicenseLimitReached');
                 }
 
                 deferred.reject(msg);

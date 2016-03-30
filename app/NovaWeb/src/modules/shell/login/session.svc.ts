@@ -190,23 +190,42 @@ export class ILoginInfo {
     public samlLogin: boolean;
 }
 
+export enum LoginState {
+    LoginForm,
+    ForgetPasswordForm,
+    ChangePasswordForm,
+    SamlLoginForm
+}
+
 export class LoginCtrl {
+
     public labelError: boolean;
     public fieldError: boolean;
 
-    public isInLoginForm: boolean;
     public errorMsg: string;
     public novaUsername: string;
     public novaPassword: string;
 
+    public formState: LoginState;
+    public get isInLoginForm(): boolean {
+        return this.formState === LoginState.LoginForm;
+    }
+    public get isInForgetPasswordScreen(): boolean {
+        return this.formState === LoginState.ForgetPasswordForm;
+    }
+    public get isInChangePasswordScreen(): boolean {
+        return this.formState === LoginState.ChangePasswordForm;
+    }
+    public get isInSAMLScreen(): boolean {
+        return this.formState === LoginState.SamlLoginForm;
+    }
+
     public enableForgetPasswordScreen: boolean;
-    public isInForgetPasswordScreen: boolean;
     public forgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
     public forgetPasswordScreenUsername: string;
 
     public enableChangePasswordScreen: boolean;
-    public isInChangePasswordScreen: boolean;
     public changePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
     public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
@@ -214,56 +233,38 @@ export class LoginCtrl {
     public changePasswordConfirmPasswordError: boolean; //if new password and confirm password don't match
 
     public enableSAMLScreen: boolean;
-    public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
     static $inject: [string] = ["$uibModalInstance", "session", "$timeout"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session:ISession, private $timeout: ng.ITimeoutService) {
-		this.isInLoginForm = true;
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
+        this.formState = LoginState.LoginForm;
         this.enableForgetPasswordScreen = false;
-        this.isInForgetPasswordScreen = false;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = true;
-        this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
         this.enableChangePasswordScreen = false;
-        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
         this.changePasswordScreenMessage = "Your password has expired. Please change your password below.";
 
         this.enableSAMLScreen = true;
-        this.isInSAMLScreen = this.enableSAMLScreen;
         this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
     }
 
     public goToForgetPasswordScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
-        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
-
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
-        this.isInForgetPasswordScreen = true;
+        this.formState = LoginState.ForgetPasswordForm;
     }
 
     public goToChangePasswordScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
-        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
-
         this.changePasswordScreenError = false;
-        this.isInChangePasswordScreen = true;
+        this.formState = LoginState.ChangePasswordForm;
     }
 
     public goToSAMLScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
-        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
-
         this.session.loginWithSaml(false).then(
             () => {
-
                 this.labelError = false;
                 this.fieldError = false;
                 var result: ILoginInfo = new ILoginInfo();
@@ -297,16 +298,11 @@ export class LoginCtrl {
                 }
             });
 
-        this.isInSAMLScreen = true;
+        this.formState = LoginState.SamlLoginForm;
     }
 
     public goToLoginScreen(): void {
-        this.isInLoginForm = true;
-        this.$timeout(()=> {
-            this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
-            this.isInChangePasswordScreen = this.enableChangePasswordScreen;
-            this.isInSAMLScreen = this.enableSAMLScreen;
-        }, 500); // I need to reset the other panels after transitioning back to the login form
+        this.formState = LoginState.LoginForm;
     }
 
     public changePassword(): void {
@@ -334,20 +330,23 @@ export class LoginCtrl {
                         this.errorMsg = "Please enter a correct Username and Password";
                         this.labelError = true;
                         this.fieldError = true;
+                        this.formState = LoginState.LoginForm;
                     } else if (error.errorCode === 2001) {
                         this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
                         this.labelError = true;
                         this.fieldError = false;
+                        this.formState = LoginState.LoginForm;
                     } else if (error.errorCode === 2002) {
                         this.errorMsg = "Your Password has expired.";
                         this.labelError = true;
                         this.fieldError = false;
                         this.enableChangePasswordScreen = true;
-                        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
+                        this.formState = LoginState.ChangePasswordForm;
                     } else {
                         this.errorMsg = error.message;
                         this.labelError = true;
                         this.fieldError = true;
+                        this.formState = LoginState.LoginForm;
                     }
                 } else if (error.statusCode === 409) {
                     this.labelError = false;

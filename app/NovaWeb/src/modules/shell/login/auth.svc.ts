@@ -105,13 +105,17 @@ export class AuthSvc implements IAuth {
     }
 
 
-    public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<any> {
-        var deferred = this.$q.defer<IUser>();
-
-        var guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    private generateGuid(): string {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
             var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    }
+
+    public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<any> {
+        var deferred = this.$q.defer<IUser>();
+
+        var guid: string = this.generateGuid();
 
         this.$window.name = guid;
 
@@ -120,8 +124,8 @@ export class AuthSvc implements IAuth {
         var absPath = this.getAppBaseUrl();
 
         var url = "/Login/SAMLHandler.ashx?action=relogin&id=" + this.samlRequestId + "&wname=" + guid + "&host=" + encodeURI(absPath);
-
         this.$window["notifyAuthenticationResult"] = (requestId: string, samlResponse: string): string => {
+            //console.log(requestId + ", " + samlResponse);
             if (requestId === this.samlRequestId.toString()) {
                 this.$http.post("/svc/adminstore/sessions/sso?force=" + overrideSession, angular.toJson(samlResponse), this.createRequestConfig())
                     .success(

@@ -169,15 +169,18 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - iteration
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
+                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
@@ -217,15 +220,18 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - iteration
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
+                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
@@ -266,15 +272,18 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < initialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
+                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
@@ -292,15 +301,18 @@ namespace StorytellerTests
             Logger.WriteDebug("The number of user stories generated is: {0}", userStoriesFirstBatch.Count);
 
             // Add UserTasks - AdditionalUserTaskExpected
-            preconditionId = process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+            precondition = process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName));
 
             // Find outgoing process link for precondition task
-            processLink = process.GetOutgoingLinkForShape(preconditionId);
+            processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < additionalUserTaskExpectedCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
+                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process

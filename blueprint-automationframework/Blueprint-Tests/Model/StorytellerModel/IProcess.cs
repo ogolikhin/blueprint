@@ -137,6 +137,12 @@ namespace Model.StorytellerModel
         /// The Property values for the Process
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
+
+        /// <summary>
+        /// The Process Type of the Process
+        /// </summary>
+        ProcessType ProcessType { get; set; }
+
         #endregion Properties
 
         #region Methods
@@ -151,11 +157,11 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Add a Branch to a User Decision Point
         /// </summary>
-        /// <param name="decisionPointId">Artifact Id of the user decision point</param>
+        /// <param name="decisionPoint">The user decision point</param>
         /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="destinationId">The artifact Id of the following process shape</param>
         /// <returns>The user task created</returns>
-        IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+        IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(IProcessShape decisionPoint, double orderIndex, int destinationId);
 
         /// <summary>
         /// Add a Link to a Process
@@ -169,37 +175,37 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Add a User Decision Point with a Branch After an Existing Shape
         /// </summary>
-        /// <param name="idOfPreviousShape">The artifact Id of the shape before the insertion point</param>
+        /// <param name="previousShape">The shape before the insertion point</param>
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPointWithBranchAfterShape(int idOfPreviousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddUserDecisionPointWithBranchAfterShape(IProcessShape previousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a User Decision Point with a Branch Before an Existing Shape
         /// </summary>
-        /// <param name="idOfNextShape">The artifact Id of the shape after the insertion point</param>
+        /// <param name="nextShape">The shape after the insertion point</param>
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPointWithBranchBeforeShape(int idOfNextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddUserDecisionPointWithBranchBeforeShape(IProcessShape nextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a System Decision Point with a Branch Before an Existing System Task
         /// </summary>
-        /// <param name="idOfNextSystemTaskShape">The artifact Id of the system task after the insertion point</param>
+        /// <param name="nextSystemTaskShape">The system task after the insertion point</param>
         /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
         /// <returns>The system decision point that was added</returns>
-        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(int idOfNextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(IProcessShape nextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a Branch to a System Decision Point
         /// </summary>
-        /// <param name="decisionPointId">Artifact Id of the system decision point</param>
+        /// <param name="decisionPoint">The system decision point</param>
         /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
         /// <param name="destinationId">The artifact Id of the following process shape</param>
-        void AddBranchWithSystemTaskToSystemDecisionPoint(int decisionPointId, double orderIndex, int destinationId);
+        void AddBranchWithSystemTaskToSystemDecisionPoint(IProcessShape decisionPoint, double orderIndex, int destinationId);
 
         /// <summary>
         /// Get the Process Shape by the Shape Name
@@ -232,16 +238,17 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Get the Incoming Process Link for a Shape
         /// </summary>
-        /// <param name="shapeId">The artifact Id of the shape</param>
+        /// <param name="processShape">The process shape</param>
         /// <returns>The incoming process link</returns>
-        ProcessLink GetIncomingLinkForShape(int shapeId);
+        ProcessLink GetIncomingLinkForShape(IProcessShape processShape);
 
         /// <summary>
         /// Get the Outgoing Process Link for a Shape
         /// </summary>
-        /// <param name="shapeId">The artifact Id of the shape</param>
+        /// <param name="processShape">The process shape</param>
+        /// <param name="orderIndex">(optional) The order index of the link to find</param>
         /// <returns>The outgoing process link</returns>
-        ProcessLink GetOutgoingLinkForShape(int shapeId);
+        ProcessLink GetOutgoingLinkForShape(IProcessShape processShape, double? orderIndex = null);
 
         /// <summary>
         /// Get the Shape Following an Existing Shape

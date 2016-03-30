@@ -110,6 +110,26 @@ namespace Model.StorytellerModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
+        public ProcessType ProcessType
+        {
+            get
+            {
+                // Must lower the case of the first character to create lower case property name
+                var clientTypePropertyName = PropertyTypePredefined.ClientType.ToString().LowerCaseFirstCharacter();
+
+                var processType = (ProcessType)Convert.ToInt32(PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
+
+                return processType;
+            } 
+            set
+            {
+                // Must lower the case of the first character to create lower case property name
+                var clientTypePropertyName = PropertyTypePredefined.ClientType.ToString().LowerCaseFirstCharacter();
+
+                PropertyValues[clientTypePropertyName].Value = value;
+            }
+        }
+
         #endregion Public Properties
 
         #region Constructors
@@ -141,7 +161,7 @@ namespace Model.StorytellerModel.Impl
             // Add a user task
             var userTask = AddUserTask(processLink);
 
-            var userLink = GetOutgoingLinkForShape(userTask.Id);
+            var userLink = GetOutgoingLinkForShape(userTask);
 
             // Add a system task to be paired with the user task just created
             AddSystemTask(userLink);
@@ -150,7 +170,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         public IProcessShape AddUserDecisionPointWithBranchBeforeShape(
-            int idOfNextShape, 
+            IProcessShape nextShape, 
             double orderIndexOfBranch, 
             int? idOfBranchMergePoint = null)
         {
@@ -165,7 +185,7 @@ namespace Model.StorytellerModel.Impl
             */
 
             // Find the incoming link for the next shape
-            var processLink = GetIncomingLinkForShape(idOfNextShape);
+            var processLink = GetIncomingLinkForShape(nextShape);
 
             // Add user decision point before next shape
             var userDecisionPoint = AddUserDecisionPoint(processLink);
@@ -177,7 +197,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         public IProcessShape AddUserDecisionPointWithBranchAfterShape(
-            int idOfPreviousShape, 
+            IProcessShape previousShape, 
             double orderIndexOfBranch, 
             int? idOfBranchMergePoint = null)
         {
@@ -192,7 +212,7 @@ namespace Model.StorytellerModel.Impl
             */
 
             // Find the outgoing link for the previous shape
-            var outgoingLinkForPreviousShape = GetOutgoingLinkForShape(idOfPreviousShape);
+            var outgoingLinkForPreviousShape = GetOutgoingLinkForShape(previousShape);
 
             var shapeAfterNewUserDecisionPoint = GetProcessShapeTypeById(outgoingLinkForPreviousShape.DestinationId);
 
@@ -208,7 +228,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         public IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(
-            int idOfNextSystemTaskShape, 
+            IProcessShape nextSystemTaskShape, 
             double orderIndexOfBranch, 
             int? idOfBranchMergePoint = null)
         {
@@ -223,25 +243,25 @@ namespace Model.StorytellerModel.Impl
             */
 
             // Find the outgoing link for the next system taskshape
-            var outgoingProcessLink = GetOutgoingLinkForShape(idOfNextSystemTaskShape);
+            var outgoingProcessLink = GetOutgoingLinkForShape(nextSystemTaskShape);
 
             // Determine the artifact Id of the branch end point
             int branchEndPointId = idOfBranchMergePoint ?? outgoingProcessLink.DestinationId;
 
             // Find the incoming link for the next system taskshape
-            var incomingProcessLink = GetIncomingLinkForShape(idOfNextSystemTaskShape);
+            var incomingProcessLink = GetIncomingLinkForShape(nextSystemTaskShape);
 
             // Add user decision point before next shape
             var systemDecisionPoint = AddSystemDecisionPoint(incomingProcessLink);
 
             // Add new branch to system decision point
-            AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint.Id, orderIndexOfBranch, branchEndPointId);
+            AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint, orderIndexOfBranch, branchEndPointId);
 
             return systemDecisionPoint;
         }
 
         public void AddBranchWithSystemTaskToSystemDecisionPoint(
-            int decisionPointId, 
+            IProcessShape decisionPoint, 
             double orderIndex, 
             int destinationId)
         {
@@ -256,7 +276,10 @@ namespace Model.StorytellerModel.Impl
             */
 
             // Add a process link to the system decision point
-            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
+
+            ThrowIf.ArgumentNull(decisionPoint, nameof(decisionPoint));
+
+            var processLink = AddLink(decisionPoint.Id, destinationId, orderIndex);
 
             // Add default link label            
             processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
@@ -267,7 +290,7 @@ namespace Model.StorytellerModel.Impl
 
 
         public IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(
-            int decisionPointId, 
+            IProcessShape decisionPoint, 
             double orderIndex, 
             int destinationId)
         {
@@ -281,8 +304,10 @@ namespace Model.StorytellerModel.Impl
                       +-------[UT]--+--[ST]--+
             */
 
+            ThrowIf.ArgumentNull(decisionPoint, nameof(decisionPoint));
+
             // Add a process link to the user decision point
-            var processLink = AddLink(decisionPointId, destinationId, orderIndex);
+            var processLink = AddLink(decisionPoint.Id, destinationId, orderIndex);
 
             // Add default link label
             processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
@@ -321,20 +346,28 @@ namespace Model.StorytellerModel.Impl
             return shapesFound.ConvertAll(p => (IProcessShape) p);
         }
 
-        public ProcessLink GetIncomingLinkForShape(int shapeId)
+        public ProcessLink GetIncomingLinkForShape(IProcessShape processShape)
         {
+            ThrowIf.ArgumentNull(processShape, nameof(processShape)); 
+
             // Find the incoming link for the process shape
-            var link = Links.ToList().Find(l => l.DestinationId == shapeId);
+            var link = Links.ToList().Find(l => l.DestinationId == processShape.Id);
 
             return link;
         }
 
-        public ProcessLink GetOutgoingLinkForShape(int shapeId)
+        public ProcessLink GetOutgoingLinkForShape(IProcessShape processShape, double? orderIndex = null)
         {
-            // Find the outgoing link for the process shape
-            var link = Links.ToList().Find(l => l.SourceId == shapeId);
+            ThrowIf.ArgumentNull(processShape, nameof(processShape));
 
-            return link;
+            // Find all outgoing links for shape
+            var links = Links.FindAll(l => l.SourceId == processShape.Id);
+
+            // Find the outgoing link for the process shape
+            var processLink = orderIndex == null ? links.FirstOrDefault() 
+                : links.Find(link => link.Orderindex == orderIndex);
+
+            return processLink;
         }
 
         public IProcessShape GetNextShape(IProcessShape shape)
@@ -848,7 +881,7 @@ namespace Model.StorytellerModel.Impl
             IProcessShape userDecisionPoint)
         {
             // Find outgoing process link for new user decision point
-            var linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint.Id);
+            var linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint);
 
             // Find process shape immediately after the added user decision point
             var processShapeAfterUserDecisionPoint = GetProcessShapeTypeById(linkAferUserDecisionPoint.DestinationId);
@@ -872,7 +905,7 @@ namespace Model.StorytellerModel.Impl
                 AddUserAndSystemTask(linkAferUserDecisionPoint);
 
                 // Find updated outgoing process link for user decision point
-                linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint.Id);
+                linkAferUserDecisionPoint = GetOutgoingLinkForShape(userDecisionPoint);
 
                 // Add default link label
                 linkAferUserDecisionPoint.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) DefaultOrderIndex + 1);
@@ -897,7 +930,7 @@ namespace Model.StorytellerModel.Impl
             Assert.NotNull(idOfBranchMergePoint, "The Id of the branch merge point is null.");
 
             // Add a branch with a user/system task to user decision point
-            AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecisionPoint.Id, orderIndexOfBranch,
+            AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecisionPoint, orderIndexOfBranch,
                     (int)idOfBranchMergePoint);
         }
 

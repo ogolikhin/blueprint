@@ -117,7 +117,7 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
 
             // Remove the process link between the precondition and the default user task
             returnedProcess.Links.Remove((ProcessLink)processLink);

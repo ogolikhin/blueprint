@@ -158,7 +158,7 @@ namespace StorytellerTests
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var returnedUserDecision = process.GetNextShape(precondition);
+            var returnedUserDecision = returnedProcess.GetNextShape(precondition);
 
             // Get link for specified branch by order index
             var branchLink = returnedProcess.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);
@@ -189,7 +189,7 @@ namespace StorytellerTests
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Get user decision shape in process
-            var returnedUserDecision = process.GetNextShape(precondition);
+            var returnedUserDecision = returnedProcess.GetNextShape(precondition);
 
             // Get link for specified branch by order index
             var branchLink = returnedProcess.GetOutgoingLinkForShape(returnedUserDecision, orderIndexOfUserDecisionBranch);

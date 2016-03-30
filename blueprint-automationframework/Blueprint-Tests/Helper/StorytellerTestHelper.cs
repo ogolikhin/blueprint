@@ -181,11 +181,6 @@ namespace Helper
             {
                 AssertStoryLinksAreEqual((StoryLink)propertyValue1.Value, (StoryLink)propertyValue2.Value);
             }
-            // TODO: To be removed when link labels removed from backend model
-            else if (propertyValue1.PropertyName != "LinkLabels")
-            {
-                Assert.AreEqual(propertyValue1.Value, propertyValue2.Value, "Property values do not match: {0} != {1} for Property name: {2}", propertyValue1.Value, propertyValue2.Value, propertyValue1.PropertyName);
-            }
         }
 
         /// <summary>

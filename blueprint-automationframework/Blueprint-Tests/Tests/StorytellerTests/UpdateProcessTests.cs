@@ -22,6 +22,7 @@ namespace StorytellerTests
     public class UpdateProcessTests
     {
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
@@ -34,16 +35,22 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
             _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
 
-            // Get a valid token for the user.
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
@@ -346,10 +353,11 @@ namespace StorytellerTests
             var branchEndPoint = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Add decision point with branch after precondition
-            returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+
+            var decisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add branch to decision point with task
-            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(preconditionTask.Id, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+            var newUserTask = returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(decisionPoint.Id, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
             var newSystemTask = returnedProcess.GetNextShape(newUserTask);
 
@@ -542,7 +550,7 @@ namespace StorytellerTests
             VerifyImageRowsFromDb(updatedImageId);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The new system decision point added after the default UT.")]
         public void AddSystemDecisionWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -568,7 +576,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add two new system decision points to the default process. The two system decision points added one after the other after the default UT.")]
         public void AddTwoSystemDecisionsWithBranchAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -600,7 +608,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT.")]
         public void AddSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -629,7 +637,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with an additonal branch which also contains a system decision point.")]
         public void AddSystemDecisionWithBranchWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -664,7 +672,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: one contains a system decision point along with branches and system tasks and the other contains just a system task")]
         public void AddSystemDecisionWithBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -702,7 +710,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: each of them contains a system decision point along with branches and system tasks")]
         public void AddSystemDecisionWithTwoBranchesWithSystemDecisionAfterDefaultUserTask_VerifyReturnedProcess()
         {
@@ -749,7 +757,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
-        [Test]
+        [TestCase]
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: each of them contains a system decision point along with branches and system tasks")]
         public void AddTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
         {

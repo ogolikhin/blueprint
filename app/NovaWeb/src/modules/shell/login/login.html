@@ -5,7 +5,7 @@
         'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
         }">
         <div class="modal-panel" id="modal-login-form">
-            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
+            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form" onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();">
                 <div class="nova-login-message" ng-class="{error: ctrl.labelError}"><span ng-bind-html="ctrl.errorMsg"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
                     <input type="text" class="nova-form-control required" id="nova-username" name="novaUsername" ng-model="ctrl.novaUsername" ng-trim="false">
@@ -16,7 +16,7 @@
                     <label for="nova-password" class="nova-label"><i class="fonticon-lock"></i> Password</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath" ng-if="ctrl.enableForgetPasswordScreen">
-                    <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">Forgot password?</a>
+                    <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">Forgot Password?</a>
                 </div>
                 <div class="nova-form-group nova-form-buttons">
                     <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreen()" ng-if="ctrl.enableChangePasswordScreen">Change Password</button>
@@ -33,10 +33,10 @@
                     <label for="nova-username-forgot" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath">
-                    <a href="#" ng-click="ctrl.goToLoginScreen()">Go back to login</a>
+                    <a href="#" ng-click="ctrl.goToLoginScreen()">Go back to Login</a>
                 </div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-primary" type="submit">Reset password</button>
+                    <button class="btn btn-primary" type="submit">Reset Password</button>
                 </div>
             </form>
         </div>

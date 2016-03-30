@@ -241,11 +241,11 @@ export class LoginCtrl {
         this.enableForgetPasswordScreen = false;
         this.errorMsg = "Please enter your Username and Password";
 
-        this.enableForgetPasswordScreen = true;
+        this.enableForgetPasswordScreen = false;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
         this.enableChangePasswordScreen = false;
-        this.changePasswordScreenMessage = "Your password has expired. Please change your password below.";
+        this.changePasswordScreenMessage = "Your Password has expired. Please change your Password below.";
 
         this.enableSAMLScreen = true;
         this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
@@ -332,7 +332,7 @@ export class LoginCtrl {
                         this.fieldError = true;
                         this.formState = LoginState.LoginForm;
                     } else if (error.errorCode === 2001) {
-                        this.errorMsg = "Your account has been disabled. <br>Please contact your administrator.";
+                        this.errorMsg = "Your account has been disabled. <br>Please contact your Administrator.";
                         this.labelError = true;
                         this.fieldError = false;
                         this.formState = LoginState.LoginForm;

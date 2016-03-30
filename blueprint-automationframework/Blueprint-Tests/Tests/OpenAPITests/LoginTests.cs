@@ -139,25 +139,25 @@ namespace OpenAPITests
 
         #endregion Private Functions
 
-        [Test]
+        [TestCase]
         public void LoginWithInvalidPassword_401Error()
         {
             LoginWithInvalidCredentials(_user.Username);
         }
 
-        [Test]
+        [TestCase]
         public void LoginWithInvalidUser_401Error()
         {
             LoginWithInvalidCredentials("wrong-user");
         }
 
-        [Test]
+        [TestCase]
         public void LoginWithValidCredentials_OK()
         {
             LoginWithValidCredentials(_user);
         }
 
-        [Test]
+        [TestCase]
         public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
         {
             RestResponse response = null;

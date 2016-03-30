@@ -11,7 +11,7 @@ export interface IUser {
 export interface IAuth {
     getCurrentUser(): ng.IPromise<IUser>;
 
-    login(userName: string, password: string, overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
+    login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser>;
 
     loginWithSaml(overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
 
@@ -24,8 +24,6 @@ export interface IHttpInterceptorConfig extends ng.IRequestConfig {
 
 export class AuthSvc implements IAuth {
 
-    //TODO: grab this from the config when implemented
-    private _enableSAML: boolean = true; 
     private samlRequestId = 0;
     private _loggedOut: boolean = false;
 
@@ -50,7 +48,7 @@ export class AuthSvc implements IAuth {
                 if (!this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success((token: string) => {
-                            this.onTokenSuccess(token, defer, this._enableSAML, "");
+                            this.onTokenSuccess(token, defer, false, "");
                         }).error((err) => {
                             defer.reject(error);
                         });
@@ -63,7 +61,7 @@ export class AuthSvc implements IAuth {
         return defer.promise;
     }
 
-    public login(userName: string, password: string, overrideSession: boolean, prevLogin: string): ng.IPromise<IUser> {
+    public login(userName: string, password: string, overrideSession: boolean): ng.IPromise<IUser> {
         var encUserName: string = userName ? AuthSvc.encode(userName) : "";
         var encPassword: string = password ? AuthSvc.encode(password) : "";
 
@@ -71,7 +69,7 @@ export class AuthSvc implements IAuth {
 
         this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
             .success((token: string) => {
-                this.onTokenSuccess(token, deferred, this._enableSAML, prevLogin);
+                this.onTokenSuccess(token, deferred, false, "");
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,

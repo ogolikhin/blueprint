@@ -42,7 +42,7 @@ export class SessionSvc implements ISession {
     public login(username: string, password: string, overrideSession: boolean): ng.IPromise<any> {
         var defer = this.$q.defer();
         
-        this.auth.login(username, password, overrideSession, this._prevLogin).then(
+        this.auth.login(username, password, overrideSession).then(
             (user) => {
                 
                 this._currentUser = user;

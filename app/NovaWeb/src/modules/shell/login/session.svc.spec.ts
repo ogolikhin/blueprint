@@ -256,8 +256,7 @@ describe("LoginCtrl", () => {
                 var deferred = $q.defer();
                 var error = {
                     statusCode: 401,
-                    errorCode: 2003,
-                    message: "Username and password cannot be empty"
+                    errorCode: 2003
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -273,7 +272,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(true, "field error is false");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Username and password cannot be empty", "error message is incorrect");
+            expect(loginCtrl.errorMsg).toBe("Username and Password cannot be empty", "error message is incorrect");
         }));
 
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {

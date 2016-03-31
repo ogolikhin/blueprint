@@ -177,8 +177,7 @@ namespace StorytellerTests
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
-                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+                var processShape = process.GetNextShape(userTask);
 
                 processLink = process.GetOutgoingLinkForShape(processShape);
             }
@@ -228,8 +227,7 @@ namespace StorytellerTests
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
-                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+                var processShape = process.GetNextShape(userTask);
 
                 processLink = process.GetOutgoingLinkForShape(processShape);
             }
@@ -249,7 +247,7 @@ namespace StorytellerTests
 
             // Assert that there is one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
-                    {
+            {
                 var userStoryCounter = userStories.Count(us => us.ProcessTaskId.Equals(shape.Id));
 
                 Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
@@ -280,8 +278,7 @@ namespace StorytellerTests
             for (int i = 0; i < initialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
-                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+                var processShape = process.GetNextShape(userTask);
 
                 processLink = process.GetOutgoingLinkForShape(processShape);
             }
@@ -309,8 +306,7 @@ namespace StorytellerTests
             for (int i = 0; i < additionalUserTaskExpectedCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                var outgoingLinkForUserTask = process.GetOutgoingLinkForShape(userTask);
-                var processShape = process.GetProcessShapeById(outgoingLinkForUserTask.DestinationId);
+                var processShape = process.GetNextShape(userTask);
 
                 processLink = process.GetOutgoingLinkForShape(processShape);
             }

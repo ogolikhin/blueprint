@@ -117,7 +117,7 @@ namespace Model.StorytellerModel.Impl
                 // Must lower the case of the first character to create lower case property name
                 var clientTypePropertyName = PropertyTypePredefined.ClientType.ToString().LowerCaseFirstCharacter();
 
-                var processType = (ProcessType)Convert.ToInt32(PropertyValues[clientTypePropertyName].Value, CultureInfo.InvariantCulture);
+                var processType = (ProcessType)PropertyValues[clientTypePropertyName].Value.ToInt32Invariant();
 
                 return processType;
             } 
@@ -364,7 +364,7 @@ namespace Model.StorytellerModel.Impl
             var links = Links.FindAll(l => l.SourceId == processShape.Id);
 
             // Find the outgoing link for the process shape
-            var processLink = orderIndex == null ? links.FirstOrDefault() 
+            var processLink = orderIndex == null ? links.First() 
                 : links.Find(link => link.Orderindex == orderIndex);
 
             return processLink;

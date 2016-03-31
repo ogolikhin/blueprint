@@ -17,7 +17,8 @@ namespace FileStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper statusControllerHelper;
+        internal readonly StatusControllerHelper _statusControllerHelper;
+        internal readonly string _preAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -29,15 +30,16 @@ namespace FileStore.Controllers
                         },
                         "FileStore",
                         new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus
-                    )
+                        WebApiConfig.LogSourceStatus), 
+                        WebApiConfig.StatusCheckPreauthorizedKey
                   )
         {
         }
 
-        internal StatusController(StatusControllerHelper scHelper)
+        internal StatusController(StatusControllerHelper scHelper, string preAuthorizedKey)
         {
-            statusControllerHelper = scHelper;
+            _statusControllerHelper = scHelper;
+            _preAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -51,9 +53,15 @@ namespace FileStore.Controllers
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]
-        public async Task<IHttpActionResult> GetStatus()
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            ServiceStatus serviceStatus = await statusControllerHelper.GetStatus();
+            //Check pre-authorized key
+            if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
+            {
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized));
+            }
+
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
 
             if (serviceStatus.NoErrors)
             {

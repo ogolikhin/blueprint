@@ -15,7 +15,7 @@ namespace ConfigControl.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper statusControllerHelper;
+        internal readonly StatusControllerHelper _statusControllerHelper;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -33,7 +33,7 @@ namespace ConfigControl.Controllers
 
         internal StatusController(StatusControllerHelper scHelper)
         {
-            statusControllerHelper = scHelper;
+            _statusControllerHelper = scHelper;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace ConfigControl.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            ServiceStatus serviceStatus = await statusControllerHelper.GetStatus();
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
 
             if (serviceStatus.NoErrors)
             {

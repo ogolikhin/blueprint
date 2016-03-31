@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,16 +13,14 @@ namespace ServiceLibrary.Helpers
     {
         public static string ToJSON(this object o)
         {
-
             var sb = new StringBuilder();
-            using (var sw = new StringWriter(sb))
-                using (var writer = new JsonTextWriter(sw))
-                {
-                    writer.QuoteChar = '\'';
-                    JsonSerializer ser = new JsonSerializer();
-                    ser.Serialize(writer, o);
-                }
-
+            var sw = new StringWriter(sb, CultureInfo.InvariantCulture);
+            using (var writer = new JsonTextWriter(sw))
+            {
+                writer.QuoteChar = '\'';
+                JsonSerializer ser = new JsonSerializer();
+                ser.Serialize(writer, o);
+            }
             return sb.ToString();
         }
     }

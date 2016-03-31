@@ -25,6 +25,7 @@ export class SessionSvc implements ISession {
     private _currentUser: IUser;
     //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
+
     public get currentUser(): IUser {
         return this._currentUser;
     }
@@ -45,17 +46,14 @@ export class SessionSvc implements ISession {
         
         this.auth.login(username, password, overrideSession).then(
             (user) => {
-                
                 this._currentUser = user;
                 defer.resolve();
-                
             },
             (error) => {
                 defer.reject(error);
         });
         return defer.promise;
     }
-
    
     public loginWithSaml(overrideSession: boolean): ng.IPromise<any> {
         var defer = this.$q.defer();
@@ -74,7 +72,7 @@ export class SessionSvc implements ISession {
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser) {
+        if (this._currentUser || this._modalInstance) {
             return this.$q.resolve();
         }
         var defer = this.$q.defer();
@@ -329,8 +327,12 @@ export class LoginCtrl {
             this.labelError = false;
             this.fieldError = false;
             var result: ILoginInfo = new ILoginInfo();
-            result.userName = this.novaUsername;
-            result.password = this.novaPassword;
+            if (this.novaUsername) {
+                result.userName = this.novaUsername;
+                result.password = this.novaPassword;
+            } else {
+                result.samlLogin = true;
+            }
             result.loginSuccessful = false;
 
             this.$uibModalInstance.close(result);

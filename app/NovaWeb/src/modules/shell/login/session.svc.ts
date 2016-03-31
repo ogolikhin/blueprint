@@ -111,8 +111,8 @@ export class SessionSvc implements ISession {
 
 export class SimpleDialogCtrl extends ConfirmationDialogCtrl {
 
-    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, localization: ILocalizationService) {
-        super($uibModalInstance, localization);
+    constructor(localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
+        super(localization, $uibModalInstance);
         this.acceptButtonName = localization.get('App_Button_Yes');
         this.cancelButtonName = localization.get('App_Button_No');
         this.msg = localization.get('Login_Session_DuplicateSession_Verbose');
@@ -152,8 +152,8 @@ export class LoginCtrl {
     public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout", "localization"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService, private localization: ILocalizationService) {
+    static $inject: [string] = ["localization", "$uibModalInstance", "auth", "$timeout"];
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService) {
         this.isInLoginForm = true;
         this.errorMsg = localization.get('Login_Session_EnterCredentials');
 

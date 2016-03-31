@@ -8,8 +8,8 @@ export class ConfirmationDialogCtrl {
     public cancelButtonName: string = "Cancel";
     public hasCloseButton: boolean = true;
 
-    static $inject: [string] = ["$uibModalInstance","localization"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private localization: ILocalizationService) {
+    static $inject: [string] = ["localization","$uibModalInstance"];
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
     }
 
     public accept() {

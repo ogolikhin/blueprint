@@ -24,7 +24,7 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 }
 export class LocalizationServiceMock implements ILocalizationService {
     public get(name: string): string {
-        return '';
+        return name;
     }
 }
 
@@ -34,7 +34,7 @@ describe("ConfirmationDialogCtrl", () => {
             // Arrange
             var serviceInstanceMock = new ModalServiceInstanceMock();
             var localizationMock = new LocalizationServiceMock();
-            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock, localizationMock);
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(localizationMock, serviceInstanceMock);
             
             // Act
             confirmationDialogCtrl.accept();
@@ -49,7 +49,7 @@ describe("ConfirmationDialogCtrl", () => {
             // Arrange
             var serviceInstanceMock = new ModalServiceInstanceMock();
             var localizationMock = new LocalizationServiceMock();
-            var confirmationDialogCtrl = new ConfirmationDialogCtrl(serviceInstanceMock, localizationMock);
+            var confirmationDialogCtrl = new ConfirmationDialogCtrl(localizationMock, serviceInstanceMock);
             
             // Act
             confirmationDialogCtrl.cancel();

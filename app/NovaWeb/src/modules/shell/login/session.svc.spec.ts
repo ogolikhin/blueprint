@@ -1,7 +1,15 @@
 ﻿import "angular";
 import "angular-mocks"
+import {ILocalizationService} from "../../core/localization";
 import {ISession, SessionSvc, ILoginInfo, LoginCtrl, SimpleDialogCtrl} from "./session.svc";
 import {IUser, IAuth} from "./auth.svc";
+
+
+export class LocalizationServiceMock implements ILocalizationService {
+    public get(name: string): string {
+        return name;
+    }
+}
 
 export class AuthSvcMock implements IAuth {
 
@@ -39,7 +47,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public instanceMock: ModalServiceInstanceMock;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller();
+        var ctrl = new options.controller(new LocalizationServiceMock());
         return this.instanceMock;
     }
 }
@@ -53,7 +61,7 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
         this.opened = this.openedDeffered.promise;
         this.rendered = this.openedDeffered.promise;
     }
-
+    
     public close(result?: any): void {
 
         this.resultDeffered.resolve(result);
@@ -74,9 +82,11 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 
 describe("SessionSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
         $provide.service("session", SessionSvc);
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
+    
     }));
 
     describe("ensureAuthenticated", () => {
@@ -94,7 +104,7 @@ describe("SessionSvc", () => {
             expect(session.currentUser.Login).toBe("admin", "current user is not admin");
         }))
 
-        it("return current user after logging in with session override", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return current user after logging in with session override", inject((localization: ILocalizationService, $rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             spyOn(auth, "getCurrentUser").and.callFake(function () {
                 var deferred = $q.defer();
@@ -165,6 +175,7 @@ describe("LoginCtrl", () => {
         $provide.service("loginCtrl", LoginCtrl);
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
+        $provide.service("localization", LocalizationServiceMock);
     }));
 
     describe("login", () => {
@@ -190,7 +201,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     statusCode: 401,
                     errorCode: 2000,
-                    message: "Please enter a correct Username and Password"
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -206,7 +216,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(true, "field error is false");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Please enter a correct Username and Password", "error message is incorrect");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
         }));
 
         it("return empty username or password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {
@@ -242,7 +252,6 @@ describe("LoginCtrl", () => {
                 var error = {
                     errorCode: 2001,
                     statusCode: 401,
-                    message: "Your account has been disabled.<br>Please contact your Administrator."
                 };
                 deferred.reject(error);
                 return deferred.promise;
@@ -258,7 +267,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Your account has been disabled.<br>Please contact your Administrator.");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled");
         }));
 
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {

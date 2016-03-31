@@ -62,15 +62,15 @@ namespace Model.Factories
         /// <returns>A new user object.</returns>
         public static IUser CreateUserOnly(string username, string password, UserSource source = UserSource.Database)
         {
-            User user = null;
+            User user;
 
             if (source == UserSource.Database)
             {
-                user = new DatabaseUser() { Username = username, Password = password, StartTimestamp = DateTime.Now };
+                user = new DatabaseUser { Username = username, Password = password, StartTimestamp = DateTime.Now };
             }
             else if (source == UserSource.Windows)
             {
-                user = new WindowsUser() { Username = username, Password = password };
+                user = new WindowsUser { Username = username, Password = password };
             }
             else
             {
@@ -79,7 +79,7 @@ namespace Model.Factories
 
             // Generate random data for the rest of the user properties.
             user.Department = RandomGenerator.RandomAlphaNumeric(10);
-            user.Email = I18NHelper.FormatInvariant("{0}.{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
+            user.Email = I18NHelper.FormatInvariant("{0}@{1}.com", user.Username, RandomGenerator.RandomAlphaNumeric(10));
             user.Enabled = true;
             user.FirstName = RandomGenerator.RandomAlphaNumeric(10);
             user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;

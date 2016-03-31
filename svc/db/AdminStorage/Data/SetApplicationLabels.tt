@@ -79,15 +79,23 @@ DROP TABLE #tempAppLabels
 			// Skip over header line.
 			csvParser.ReadLine();
 
-			while (!csvParser.EndOfData)
+			if (!csvParser.EndOfData)
 			{
-				string[] fields = csvParser.ReadFields();
-				if (fields.Length == 3)
+				// Get Locale - which is always the second line
+				string[] locale = csvParser.ReadFields();
+			
+				while (!csvParser.EndOfData)
 				{
-					// Escape any quotes
-					fields[2] = fields[2].Replace("'","''");
+					string[] csvLine = csvParser.ReadFields();
+					if (csvLine.Length == 2)
+					{
+						// Escape any quotes
+						csvLine[1] = csvLine[1].Replace("'","''");
+					}
+
+					string[] fields = {csvLine[0], locale[1], csvLine[1]};
+					appLabels.Add(fields);
 				}
-				appLabels.Add(fields);
 			}
 		}
 

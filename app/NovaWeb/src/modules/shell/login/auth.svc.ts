@@ -134,7 +134,7 @@ export class AuthSvc implements IAuth {
 
                 return null;
             } else {
-                return "Wrong request id. Please click 'Retry' in Blueprint";
+                return this.localization.get("Login_Auth_IncorrectRequestId");
             }
         };
 
@@ -201,7 +201,7 @@ export class AuthSvc implements IAuth {
                         .success((user: IUser) => {
                             if (isSaml && prevLogin && prevLogin !== user.Login) {
                                 this.internalLogout(token).finally(() => {
-                                    deferred.reject({ message: "To continue your session, please login with the same user that the session was started with" });
+                                    deferred.reject({ message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser") });
                                 });
                             } else {
                                 //this.onLogin(user);

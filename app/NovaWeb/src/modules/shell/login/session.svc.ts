@@ -234,7 +234,7 @@ export class LoginCtrl {
     static $inject: [string] = ["localization","$uibModalInstance", "session", "$timeout"];
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
         this.formState = LoginState.LoginForm;
-        this.errorMsg = "Please enter your Username and Password";
+        this.errorMsg = localization.get('Login_Session_EnterCredentials');
 
         this.enableForgetPasswordScreen = false;
         
@@ -317,7 +317,7 @@ export class LoginCtrl {
                         this.enableChangePasswordScreen = true;
                 this.transitionToState(LoginState.ChangePasswordForm);
                     } else if (error.errorCode === 2003) {
-                        this.errorMsg = "Username and Password cannot be empty";
+                        this.errorMsg = this.localization.get('Login_Session_CredentialsCannotBeEmpty');
                         this.labelError = true;
                         this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);

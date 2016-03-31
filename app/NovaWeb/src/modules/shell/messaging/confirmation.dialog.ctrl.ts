@@ -3,9 +3,9 @@ import {ILocalizationService} from "../../core/localization";
 
 export class ConfirmationDialogCtrl {
     public msg: string;
-    public title: string = "Confirmation";
-    public acceptButtonName: string = "Ok";
-    public cancelButtonName: string = "Cancel";
+    public title: string = this.localization.get('App_DialogTitle_Confirmation');
+    public acceptButtonName: string = this.localization.get('App_Button_Ok');
+    public cancelButtonName: string = this.localization.get('App_Button_Cancel');
     public hasCloseButton: boolean = true;
 
     static $inject: [string] = ["localization","$uibModalInstance"];

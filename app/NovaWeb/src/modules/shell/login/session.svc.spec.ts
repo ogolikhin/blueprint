@@ -282,7 +282,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(true, "field error is false");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Username and Password cannot be empty", "error message is incorrect");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_CredentialsCannotBeEmpty", "error message is incorrect");
         }));
 
         it("return account disabled error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, auth: IAuth, $q: ng.IQService) => {

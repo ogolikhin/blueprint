@@ -23,8 +23,7 @@ namespace AdminStore.Controllers
         [TestInitialize]
         public void Initialize()
         {
-            var configRepo = new Mock<IConfigRepository>();
-            var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
+
         }
 
 

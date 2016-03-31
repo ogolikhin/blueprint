@@ -112,7 +112,6 @@
     <Content Include="Procedures\GetConfigSettings.sql" />
     <Content Include="Procedures\GetSession.sql" />
     <Content Include="Procedures\SelectSessions.sql" />
-    <Content Include="Scripts\ApplicationLabels.txt" />
     <Content Include="Scripts\CompatibilityLevel.sql" />
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />

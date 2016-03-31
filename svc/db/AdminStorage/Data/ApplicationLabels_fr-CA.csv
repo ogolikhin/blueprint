@@ -9,6 +9,7 @@ App_LoadingMsg,"Chargement …"
 App_PrerequisiteMsg_JavaScript,"Vous devez activer JavaScript pour utiliser cette application"
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signé en tant"
+
 Login_Auth_CannotGetUser,"Vous ne pouvez pas obtenir l'utilisateur actuel"
 Login_Auth_IncorrectRequestId,"Mauvais demande id . S'il vous plaît cliquer sur 'Retry' dans Blueprint"
 Login_Auth_LoginFailed,"Échec de la connexion"
@@ -41,3 +42,5 @@ Login_Session_EnterSamlCredentials_Verbose,"S'il vous plaît authentifier en uti
 Login_Session_CredentialsInvalid,"S'il vous plaît entrer un nom d'utilisateur correct et mot de passe"
 Login_Session_AccountDisabled,"Votre compte a été désactivé. <br> S'il vous plaît contactez votre administrateur."
 Login_Session_PasswordHasExpired,"Votre mot de passe a expiré."
+
+Input_Required,"Obligatoire"

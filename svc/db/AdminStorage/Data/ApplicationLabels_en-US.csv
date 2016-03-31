@@ -9,6 +9,7 @@ App_LoadingMsg,"Loading …"
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
+
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
 Login_Auth_LoginFailed,"Login Failed"
@@ -41,3 +42,5 @@ Login_Session_EnterSamlCredentials_Verbose,"Please authenticate using your corpo
 Login_Session_CredentialsInvalid,"Please enter a correct Username and Password"
 Login_Session_AccountDisabled,"Your account has been disabled. <br>Please contact your administrator."
 Login_Session_PasswordHasExpired,"Your Password has expired."
+
+Input_Required,"Required"

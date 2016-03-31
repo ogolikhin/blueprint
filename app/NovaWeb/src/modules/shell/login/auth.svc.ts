@@ -1,5 +1,6 @@
 ﻿import "angular";
 import {SessionTokenHelper} from "./session.token.helper";
+import {ILocalizationService} from "../../core/localization";
 
 export interface IUser {
     DisplayName: string;
@@ -27,8 +28,9 @@ export class AuthSvc implements IAuth {
     private samlRequestId = 0;
     private _loggedOut: boolean = false;
 
-    static $inject: [string] = ["$q", "$log", "$http", "$window"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService) {
+
+    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
@@ -41,7 +43,7 @@ export class AuthSvc implements IAuth {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: err ? err.Message : "Cannot get current user"
+                    message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
                 //TODO uncomment this once the settings provider is implemented
                 //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
@@ -52,7 +54,7 @@ export class AuthSvc implements IAuth {
                         }).error((err) => {
                             defer.reject(error);
                         });
-                    
+
                 } else {
                     defer.reject(error);
                 }
@@ -132,7 +134,7 @@ export class AuthSvc implements IAuth {
 
                 return null;
             } else {
-                return "Wrong request id. Please click 'Retry' in Blueprint";
+                return this.localization.get("Login_Auth_IncorrectRequestId");
             }
         };
 
@@ -174,7 +176,7 @@ export class AuthSvc implements IAuth {
         if (!err)
             return "";
 
-        return err.Message ? err.Message : "Login Failed"; // TODO: generic message
+        return err.Message ? err.Message : this.localization.get('Login_Auth_LoginFailed'); // TODO: generic message
     }
 
     private internalLogout(token: string): ng.IPromise<any> {
@@ -199,11 +201,11 @@ export class AuthSvc implements IAuth {
                         .success((user: IUser) => {
                             if (isSaml && prevLogin && prevLogin !== user.Login) {
                                 this.internalLogout(token).finally(() => {
-                                    deferred.reject({ message: "To continue your session, please login with the same user that the session was started with" });
+                                    deferred.reject({ message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser") });
                                 });
                             } else {
                                 //this.onLogin(user);
-                                deferred.resolve(user);
+                            deferred.resolve(user);
                             }
                         }).error((err: any, statusCode: number) => {
                             var error = {
@@ -216,11 +218,11 @@ export class AuthSvc implements IAuth {
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {
-                        deferred.reject({ message: "Cannot verify license" });
+                        deferred.reject({ message: this.localization.get('Login_Auth_LicenseVerificationFailed') });
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: "Cannot get Session Token" });
+            deferred.reject({ statusCode: 500, message: this.localization.get('Login_Auth_SessionTokenRetrievalFailed') });
         }
     }
 
@@ -243,10 +245,10 @@ export class AuthSvc implements IAuth {
             .error((err: any, statusCode: number) => {
                 var msg = null;
                 if (statusCode === 404) { // NotFound
-                    msg = "No licenses found or Blueprint is using an invalid server license. Please contact your Blueprint administrator";
+                    msg = this.localization.get('Login_Auth_LicenseNotFound_Verbose');
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = "The maximum concurrent license limit has been reached. Please contact your Blueprint Administrator.";
+                    msg = this.localization.get('Login_Auth_LicenseLimitReached');
                 }
 
                 deferred.reject(msg);

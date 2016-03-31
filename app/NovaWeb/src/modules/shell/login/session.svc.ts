@@ -1,4 +1,5 @@
 ﻿import "angular";
+import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
 import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
 
@@ -16,8 +17,8 @@ export interface ISession {
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal"];
-    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService) {
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization"];
+    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -113,7 +114,7 @@ export class SessionSvc implements ISession {
                 backdrop: false,
                 bindToController: true
             });
-            
+
             this._modalInstance.result.then((result: ILoginInfo) => {
                 
                 if (result) {
@@ -167,12 +168,13 @@ export class SessionSvc implements ISession {
     }
 }
 
-export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
-    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
-        super($uibModalInstance);
-        this.acceptButtonName = "Yes";
-        this.cancelButtonName = "No";
-        this.msg = "This user is already logged into Blueprint in another browser/session.<br><br>Do you want to override the previous session?";
+export class SimpleDialogCtrl extends ConfirmationDialogCtrl {
+
+    constructor(localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
+        super(localization, $uibModalInstance);
+        this.acceptButtonName = localization.get('App_Button_Yes');
+        this.cancelButtonName = localization.get('App_Button_No');
+        this.msg = localization.get('Login_Session_DuplicateSession_Verbose');
     }
 }
 
@@ -229,19 +231,22 @@ export class LoginCtrl {
     public enableSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "session", "$timeout"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
+    static $inject: [string] = ["localization","$uibModalInstance", "session", "$timeout"];
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
         this.formState = LoginState.LoginForm;
-        this.errorMsg = "Please enter your Username and Password";
+        this.errorMsg = localization.get('Login_Session_EnterCredentials');
 
         this.enableForgetPasswordScreen = false;
-        this.forgetPasswordScreenMessage = "Please enter your Username";
+        
+        this.forgetPasswordScreenMessage = localization.get('Login_Session_EnterUsername');
 
         this.enableChangePasswordScreen = false;
-        this.changePasswordScreenMessage = "Your Password has expired. Please change your Password below.";
+        
+        this.changePasswordScreenMessage = localization.get('Login_Session_PasswordHasExpired_ChangePasswordPrompt');
 
         this.enableSAMLScreen = true;
-        this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
+        
+        this.SAMLScreenMessage = localization.get('Login_Session_EnterSamlCredentials_Verbose');
     }
 
     private transitionToState(state: LoginState) {
@@ -294,52 +299,52 @@ export class LoginCtrl {
     }
 
     private handleLoginErrors(error) {
-        if (error.statusCode === 401) {
-            if (error.errorCode === 2000) {
-                this.errorMsg = "Please enter a correct Username and Password";
-                this.labelError = true;
-                this.fieldError = true;
+                if (error.statusCode === 401) {
+                    if (error.errorCode === 2000) {
+                        this.errorMsg = this.localization.get('Login_Session_CredentialsInvalid');
+                        this.labelError = true;
+                        this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
-            } else if (error.errorCode === 2001) {
-                this.errorMsg = "Your account has been disabled.<br>Please contact your Administrator.";
-                this.labelError = true;
-                this.fieldError = false;
+                    } else if (error.errorCode === 2001) {
+                        this.errorMsg = this.localization.get('Login_Session_AccountDisabled');
+                        this.labelError = true;
+                        this.fieldError = false;
                 this.transitionToState(LoginState.LoginForm);
-            } else if (error.errorCode === 2002) {
-                this.errorMsg = "Your Password has expired.";
-                this.labelError = true;
-                this.fieldError = false;
-                this.enableChangePasswordScreen = true;
+                    } else if (error.errorCode === 2002) {
+                        this.errorMsg = this.localization.get('Login_Session_PasswordHasExpired');
+                        this.labelError = true;
+                        this.fieldError = false;
+                        this.enableChangePasswordScreen = true;
                 this.transitionToState(LoginState.ChangePasswordForm);
-            } else if (error.errorCode === 2003) {
-                this.errorMsg = "Username and Password cannot be empty";
-                this.labelError = true;
-                this.fieldError = true;
+                    } else if (error.errorCode === 2003) {
+                        this.errorMsg = this.localization.get('Login_Session_CredentialsCannotBeEmpty');
+                        this.labelError = true;
+                        this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
-            } else {
-                this.errorMsg = error.message;
-                this.labelError = true;
-                this.fieldError = true;
+                    } else {
+                        this.errorMsg = error.message;
+                        this.labelError = true;
+                        this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
-            }
-        } else if (error.statusCode === 409) {
-            this.labelError = false;
-            this.fieldError = false;
-            var result: ILoginInfo = new ILoginInfo();
+                    }
+                } else if (error.statusCode === 409) {
+                    this.labelError = false;
+                    this.fieldError = false;
+                    var result: ILoginInfo = new ILoginInfo();
             if (this.novaUsername) {
-                result.userName = this.novaUsername;
-                result.password = this.novaPassword;
+                    result.userName = this.novaUsername;
+                    result.password = this.novaPassword;
             } else {
                 result.samlLogin = true;
             }
             result.loginSuccessful = false;
 
-            this.$uibModalInstance.close(result);
-        } else {
-            this.errorMsg = error.message;
-            this.labelError = true;
-            this.fieldError = true;
-        }
+                    this.$uibModalInstance.close(result);
+                } else {
+                    this.errorMsg = error.message;
+                    this.labelError = true;
+                    this.fieldError = true;
+                }
     }
 
     public login(): void {

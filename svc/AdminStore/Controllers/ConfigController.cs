@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Models;
 using AdminStore.Repositories;
+using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using sl = ServiceLibrary.Repositories.ConfigControl;
@@ -20,17 +22,19 @@ namespace AdminStore.Controllers
     public class ConfigController : ApiController
     {
         internal readonly IConfigRepository _configRepo;
+        internal readonly IApplicationSettingsRepository _appSettingsRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly sl.IServiceLogRepository _log;
 
-        public ConfigController() : this(new SqlConfigRepository(), new HttpClientProvider(), new sl.ServiceLogRepository())
+        public ConfigController() : this(new SqlConfigRepository(), new ApplicationSettingsRepository(),  new HttpClientProvider(), new sl.ServiceLogRepository())
         {
 
         }
 
-        internal ConfigController(IConfigRepository configRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
+        internal ConfigController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
         {
             _configRepo = configRepo;
+            _appSettingsRepo = settingsRepo;
             _httpClientProvider = httpClientProvider;
             _log = log;
         }
@@ -84,26 +88,28 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("config.js"), SessionRequired]
+        [Route("config.js"), NoSessionRequired]
         [ResponseType(typeof(string))]
         public async Task<IHttpActionResult> GetConfig()
         {
             try
             {
-                Dictionary<string, Dictionary<string, string>> settings;
-                var uri = new Uri(WebApiConfig.ConfigControl);
-                var http = _httpClientProvider.Create(uri);
-                var request = new HttpRequestMessage { RequestUri = new Uri(uri, "settings/false"), Method = HttpMethod.Get };
-                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                var result = await http.SendAsync(request);
-                result.EnsureSuccessStatusCode();
-                settings = await result.Content.ReadAsAsync<Dictionary<string, Dictionary<string, string>>>();
                 var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
+
+                var settings = await _appSettingsRepo.GetSettings();
+
                 var labels = await _configRepo.GetLabels(locale);
-                var config = "window.config = { settings: {" + SerializeSettings(settings) + "}, labels: {" + SerializeLabels(labels) + "} };";
-                var log = "console.log('Configuration for locale " + locale + " loaded successfully.');";
+
+                var config = new
+                {
+                    settings = settings.ToDictionary(it => it.Key, it => it.Value),
+                    labels = labels.ToDictionary(it => it.Key, it => it.Text),
+                }.ToJSON();
+
+                var script = $"window.config={config};";
+
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = new StringContent(config + log, Encoding.UTF8, "text/plain");
+                response.Content = new StringContent(script, Encoding.UTF8, "text/plain");
                 return ResponseMessage(response);
             }
             catch (Exception ex)
@@ -111,29 +117,6 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceConfig, ex);
                 return InternalServerError();
             }
-        }
-
-        private string SerializeSettings(Dictionary<string, Dictionary<string, string>> settings)
-        {
-            var str = new StringBuilder();
-            foreach (var group in settings)
-            {
-                foreach (var setting in group.Value)
-                {
-                    str.AppendFormat("'{0}':{{'{1}', '{2}'}},", setting.Key, setting.Value, group.Key);
-                }
-            }
-            return str.Length == 0 ? string.Empty : str.ToString(0, str.Length - 1);
-        }
-
-        private string SerializeLabels(IEnumerable<ApplicationLabel> labels)
-        {
-            var str = new StringBuilder();
-            foreach (var l in labels)
-            {
-                str.AppendFormat("'{0}':'{1}',", l.Key, l.Text);
-            }
-            return str.Length == 0 ? string.Empty : str.ToString(0, str.Length - 1);
         }
     }
 }

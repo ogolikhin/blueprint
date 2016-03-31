@@ -20,6 +20,14 @@ namespace AdminStore.Controllers
     [TestClass]
     public class ConfigControllerTests
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            var configRepo = new Mock<IConfigRepository>();
+            var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
+        }
+
+
         #region Constuctor
 
         [TestMethod]
@@ -32,6 +40,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsInstanceOfType(controller._configRepo, typeof(SqlConfigRepository));
+            Assert.IsInstanceOfType(controller._appSettingsRepo, typeof(ApplicationSettingsRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
             Assert.IsInstanceOfType(controller._log, typeof(sl.ServiceLogRepository));
         }
@@ -59,7 +68,7 @@ namespace AdminStore.Controllers
         public async Task GetConfigSettings_HttpClientThrowsException_ReturnsInternalServerError()
         {
             // Arrange
-            var controller = CreateController(null);
+            var controller = CreateController();
 
             // Act
             IHttpActionResult result = await controller.GetConfigSettings();
@@ -76,17 +85,20 @@ namespace AdminStore.Controllers
         public async Task GetConfig_NoLocale_ReturnsHeadersAndContent()
         {
             // Arrange
-            var settings = new Dictionary<string, Dictionary<string, string>> { { "Group", new Dictionary<string, string> { { "Key", "Value" } } } };
+            var settings =  new Dictionary<string, string> { { "Key", "Value" } };
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "Key", Locale = "en-US", Text = "Text" } };
-            var controller = CreateController(settings, labels);
+            var controller = CreateController(appSettings:settings, labels: labels);
 
             // Act
             var result = await controller.GetConfig() as ResponseMessageResult;
 
+
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'Key':'Text'} };console.log('Configuration for locale en-US loaded successfully.');",
-                 await result.Response.Content.ReadAsStringAsync());
+
+            var content = await result.Response.Content.ReadAsStringAsync();
+
+            Assert.AreEqual(content, "window.config={'settings':{'Key':'Value'},'labels':{'Key':'Text'}};");
         }
 
         [TestMethod]
@@ -94,9 +106,9 @@ namespace AdminStore.Controllers
         {
             // Arrange
             string locale = "en-CA";
-            var settings = new Dictionary<string, Dictionary<string, string>> { { "Group", new Dictionary<string, string> { { "Key", "Value" } } } };
+            var settings = new Dictionary<string, string> { { "Key", "Value" } } ;
             IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "KeyCA", Locale = locale, Text = "TextCA" } };
-            var controller = CreateController(settings, labels, locale);
+            var controller = CreateController(appSettings:settings, labels:labels, locale:locale);
             controller.Request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(locale));
 
             // Act
@@ -104,15 +116,16 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(@"window.config = { settings: {'Key':{'Value', 'Group'}}, labels: {'KeyCA':'TextCA'} };console.log('Configuration for locale " + locale + @" loaded successfully.');",
-                await result.Response.Content.ReadAsStringAsync());
+            var content = await result.Response.Content.ReadAsStringAsync();
+            Assert.AreEqual( @"window.config={'settings':{'Key':'Value'},'labels':{'KeyCA':'TextCA'}};", content);
+            
         }
 
         [TestMethod]
         public async Task GetConfig_HttpClientThrowsException_ReturnsInternalServerError()
         {
             // Arrange
-            var controller = CreateController(null);
+            var controller = CreateController();
 
             // Act
             IHttpActionResult result = await controller.GetConfig();
@@ -125,41 +138,53 @@ namespace AdminStore.Controllers
         public async Task GetConfig_EmptySettingsAndLabels_ReturnsHeadersAndContent()
         {
             // Arrange
-            var settings = new Dictionary<string, Dictionary<string, string>>();
+            var settings = new Dictionary<string,string>();
             IEnumerable<ApplicationLabel> labels = new ApplicationLabel[] { };
-            var controller = CreateController(settings, labels);
+            var controller = CreateController(appSettings:settings, labels:labels);
 
             // Act
             var result = await controller.GetConfig() as ResponseMessageResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(@"window.config = { settings: {}, labels: {} };console.log('Configuration for locale en-US loaded successfully.');",
-                await result.Response.Content.ReadAsStringAsync());
+            var content = await result.Response.Content.ReadAsStringAsync();
+            Assert.AreEqual(content, @"window.config={'settings':{},'labels':{}};");
         }
 
         #endregion GetConfig
 
-        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> settings, IEnumerable<ApplicationLabel> labels = null, string locale = "en-US")
+        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> globalSettings = null, Dictionary<string, string> appSettings=null, IEnumerable<ApplicationLabel> labels = null, string locale = "en-US")
         {
             var configRepo = new Mock<IConfigRepository>();
+            var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
             IHttpClientProvider httpClientProvider;
-            if (settings == null)
+            if (globalSettings == null)
             {
                 httpClientProvider = new TestHttpClientProvider(request => { throw new Exception(); });
             }
             else
             {
-                var content = new ObjectContent(settings.GetType(), settings, new JsonMediaTypeFormatter());
+                var content = new ObjectContent(globalSettings.GetType(), globalSettings, new JsonMediaTypeFormatter());
                 httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWithOrdinal("settings/false") ?
                      new HttpResponseMessage(HttpStatusCode.OK) { Content = content } : null);
             }
+            if (appSettings == null)
+            {
+                appSettingsRepo.Setup(it => it.GetSettings()).Throws(new ApplicationException());
+            }
+            else
+            {
+                appSettingsRepo.Setup(it => it.GetSettings())
+                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting() {Key = i.Key, Value = i.Value}));
+            }
+
             if (labels != null)
             {
                 configRepo.Setup(r => r.GetLabels(locale)).ReturnsAsync(labels);
             }
+
             var logMock = new Mock<sl.IServiceLogRepository>();
-            var controller = new ConfigController(configRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(configRepo.Object, appSettingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             return controller;

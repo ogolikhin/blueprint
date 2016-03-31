@@ -1,9 +1,9 @@
 ﻿<div class="navbar navbar-default navbar-fixed-top" ng-if="app.currentUser">
     <div class="navbar-header">
-        <span class="navbar-brand nova-title">Blueprint</span>
+        <span class="navbar-brand nova-title">{{::$root.config.labels["App_Header_Name"]}}</span>
     </div>
     <div>
-        <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link">{{app.currentUser.DisplayName}}</a>
+        <p class="navbar-text navbar-right">{{::$root.config.labels["App_Header_SignedInAs"]}} <a href="#" class="navbar-link">{{app.currentUser.DisplayName}}</a>
             <a style="padding-right:30px;" ng-click="app.logout($event)" class="glyphicon glyphicon-log-out btn-menu">
             </a>
         </p>

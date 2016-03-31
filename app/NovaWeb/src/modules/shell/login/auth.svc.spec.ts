@@ -116,7 +116,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme",false).then((responce) => { user = responce; }, (err) => error = err);
+            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -230,6 +230,81 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
+    describe("loginWithSaml", () => {
+        it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=true", angular.toJson("PHNhbWx"))
+                .respond(200, "6be473a999a140d894805746bf54c129"
+                );
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(200);
+            $httpBackend.expectGET("/svc/adminstore/users/loginuser")
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.loginWithSaml(true, "").then((responce) => { user = responce; }, (err) => error = err);
+            $window["notifyAuthenticationResult"]("1","PHNhbWx");
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBe(undefined, "responce got error");
+            expect(user.Login).toBe("admin", "user login does not match");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("respond with saml error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=false", angular.toJson("PHNhbWx"))
+                .respond(401, {Message: "saml login error"});
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.loginWithSaml(false, "").then((responce) => { user = responce; }, (err) => error = err);
+            $window["notifyAuthenticationResult"]("1", "PHNhbWx");
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe("saml login error");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("reject with wrong user error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/adminstore/sessions/sso?force=true", angular.toJson("PHNhbWx"))
+                .respond(200, "6be473a999a140d894805746bf54c129"
+                );
+            $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
+                .respond(200);
+            $httpBackend.expectGET("/svc/adminstore/users/loginuser")
+                .respond(200, <IUser>{
+                    DisplayName: "Default Instance Admin", Login: "admin"
+                }
+            );
+            $httpBackend.expectDELETE("/svc/adminstore/sessions")
+                .respond(200);
+
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.loginWithSaml(true, "notAdmin").then((responce) => { user = responce; }, (err) => error = err);
+            $window["notifyAuthenticationResult"]("1", "PHNhbWx");
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe("To continue your session, please login with the same user that the session was started with");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

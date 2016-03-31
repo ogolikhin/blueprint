@@ -8,6 +8,10 @@ export interface ISession {
     currentUser: IUser;
 
     logout(): ng.IPromise<any>;
+
+    login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
+
+    loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {
@@ -19,6 +23,9 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
+    //TODO investigate neccessity to save previous login (session expiration for saml)
+    private _prevLogin: string;
+
     public get currentUser(): IUser {
         return this._currentUser;
     }
@@ -26,13 +33,46 @@ export class SessionSvc implements ISession {
     public logout(): ng.IPromise<any> {
         var defer = this.$q.defer();
         this.auth.logout(this._currentUser, false).then(() => defer.resolve());
+        if (this._currentUser) {
+            this._prevLogin = "";
+        }
         this._currentUser = null;
 
         return defer.promise;
     }
 
+    public login(username: string, password: string, overrideSession: boolean): ng.IPromise<any> {
+        var defer = this.$q.defer();
+        
+        this.auth.login(username, password, overrideSession).then(
+            (user) => {
+                this._currentUser = user;
+                defer.resolve();
+            },
+            (error) => {
+                defer.reject(error);
+        });
+        return defer.promise;
+    }
+   
+    public loginWithSaml(overrideSession: boolean): ng.IPromise<any> {
+        var defer = this.$q.defer();
+
+        this.auth.loginWithSaml(overrideSession, this._prevLogin).then(
+            (user) => {
+                this._currentUser = user;
+                defer.resolve();
+
+            },
+            (error) => {
+                defer.reject(error);
+            });
+
+        return defer.promise;
+    }
+
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser) {
+        if (this._currentUser || this._modalInstance) {
             return this.$q.resolve();
         }
         var defer = this.$q.defer();
@@ -50,6 +90,18 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
+    private createConfirmationDialog(): ng.ui.bootstrap.IModalServiceInstance{
+        return this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
+            template: require("./../messaging/confirmation.dialog.html"),
+            windowClass: "nova-messaging",
+            controller: SimpleDialogCtrl,
+            controllerAs: "ctrl",
+            keyboard: false, // cannot Escape ))
+            backdrop: false,
+            bindToController: true
+        });
+    }
+
     private showLogin(done: ng.IDeferred<any>): void {
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
@@ -61,28 +113,35 @@ export class SessionSvc implements ISession {
                 backdrop: false,
                 bindToController: true
             });
-
+            
             this._modalInstance.result.then((result: ILoginInfo) => {
+                
                 if (result) {
-                    if (result.userInfo) {
-                        this._currentUser = result.userInfo;
+                    if (result.loginSuccessful) {
                         done.resolve();
-                    } else if (result.userName && result.password) {
-                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
-                        confirmationDialog = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-                            template: require("./../messaging/confirmation.dialog.html"),
-                            windowClass: "nova-messaging",
-                            controller: SimpleDialogCtrl,
-                            controllerAs: "ctrl",
-                            keyboard: false, // cannot Escape ))
-                            backdrop: false,
-                            bindToController: true
-                        });
+                    } else if (result.samlLogin) {
+                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
-                                this.auth.login(result.userName, result.password, true).then(
-                                    (user) => {
-                                        this._currentUser = user;
+                                this.loginWithSaml(true).then(
+                                    () => {
+                                        done.resolve();
+                                    },
+                                    (error) => {
+                                        this.showLogin(done);
+                                    });
+                            } else {
+                                this.showLogin(done);
+                            }
+                        }).finally(() => {
+                            confirmationDialog = null;
+                        });
+                    } else if (result.userName && result.password) {
+                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
+                        confirmationDialog.result.then((confirmed: boolean) => {
+                            if (confirmed) {
+                                this.login(result.userName, result.password, true).then(
+                                    () => {
                                         done.resolve();
                                     },
                                     (error) => {
@@ -120,26 +179,47 @@ export class SimpleDialogCtrl extends ConfirmationDialogCtrl{
 export class ILoginInfo {
     public userName: string;
     public password: string;
-    public userInfo: IUser;
+    public loginSuccessful: boolean;
+    public samlLogin: boolean;
+}
+
+export enum LoginState {
+    LoginForm,
+    ForgetPasswordForm,
+    ChangePasswordForm,
+    SamlLoginForm
 }
 
 export class LoginCtrl {
+
     public labelError: boolean;
     public fieldError: boolean;
 
-    public isInLoginForm: boolean;
     public errorMsg: string;
     public novaUsername: string;
     public novaPassword: string;
 
+    public formState: LoginState;
+    public transitionFromState: LoginState;
+    public get isInLoginForm(): boolean {
+        return this.formState === LoginState.LoginForm || this.transitionFromState === LoginState.LoginForm;
+    }
+    public get isInForgetPasswordScreen(): boolean {
+        return this.formState === LoginState.ForgetPasswordForm || this.transitionFromState === LoginState.ForgetPasswordForm;
+    }
+    public get isInChangePasswordScreen(): boolean {
+        return this.formState === LoginState.ChangePasswordForm || this.transitionFromState === LoginState.ChangePasswordForm;
+    }
+    public get isInSAMLScreen(): boolean {
+        return this.formState === LoginState.SamlLoginForm || this.transitionFromState === LoginState.SamlLoginForm;
+    }
+
     public enableForgetPasswordScreen: boolean;
-    public isInForgetPasswordScreen: boolean;
     public forgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
     public forgetPasswordScreenUsername: string;
 
     public enableChangePasswordScreen: boolean;
-    public isInChangePasswordScreen: boolean;
     public changePasswordScreenError: boolean;
     public changePasswordScreenMessage: string;
     public changePasswordCurrentPasswordError: boolean; //if the user doesn't put the correct current password
@@ -147,61 +227,62 @@ export class LoginCtrl {
     public changePasswordConfirmPasswordError: boolean; //if new password and confirm password don't match
 
     public enableSAMLScreen: boolean;
-    public isInSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["$uibModalInstance", "auth", "$timeout"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private auth: IAuth, private $timeout: ng.ITimeoutService) {
-        this.isInLoginForm = true;
+    static $inject: [string] = ["$uibModalInstance", "session", "$timeout"];
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
+        this.formState = LoginState.LoginForm;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = false;
-        this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
         this.forgetPasswordScreenMessage = "Please enter your Username";
 
         this.enableChangePasswordScreen = false;
-        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
         this.changePasswordScreenMessage = "Your Password has expired. Please change your Password below.";
 
         this.enableSAMLScreen = true;
-        this.isInSAMLScreen = this.enableSAMLScreen;
         this.SAMLScreenMessage = "Please authenticate using your corporate credentials in the popup window that has opened. If you do not see the window, please ensure your popup blocker is disabled and then click the Retry button.<br><br>You will be automatically logged in after you are authenticated.";
     }
 
-    public goToForgetPasswordScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
-        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
+    private transitionToState(state: LoginState) {
+        this.transitionFromState = this.formState;
+        this.formState = state;
+        this.$timeout(() => {
+            this.transitionFromState = state;
+        }, 200); // both panels need to be visible during the transition
+    }
 
+    public goToForgetPasswordScreen(): void {
         this.forgetPasswordScreenError = false;
         this.forgetPasswordScreenUsername = this.novaUsername;
-        this.isInForgetPasswordScreen = true;
+        this.transitionToState(LoginState.ForgetPasswordForm);
     }
 
     public goToChangePasswordScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
-        if(this.enableSAMLScreen) this.isInSAMLScreen = false;
-
         this.changePasswordScreenError = false;
-        this.isInChangePasswordScreen = true;
+        this.transitionToState(LoginState.ChangePasswordForm);
     }
 
     public goToSAMLScreen(): void {
-        this.isInLoginForm = false;
-        if(this.enableForgetPasswordScreen) this.isInForgetPasswordScreen = false;
-        if(this.enableChangePasswordScreen) this.isInChangePasswordScreen = false;
+        this.session.loginWithSaml(false).then(
+            () => {
+                this.labelError = false;
+                this.fieldError = false;
+                var result: ILoginInfo = new ILoginInfo();
+                result.loginSuccessful = true;
 
-        this.isInSAMLScreen = true;
+                this.$uibModalInstance.close(result);
+            },
+            (error) => {
+                this.handleLoginErrors(error);
+                this.transitionToState(LoginState.LoginForm);
+            });
+
+        this.transitionToState(LoginState.SamlLoginForm);
     }
 
     public goToLoginScreen(): void {
-        this.isInLoginForm = true;
-        this.$timeout(()=> {
-            this.isInForgetPasswordScreen = this.enableForgetPasswordScreen;
-            this.isInChangePasswordScreen = this.enableChangePasswordScreen;
-            this.isInSAMLScreen = this.enableSAMLScreen;
-        }, 500); // I need to reset the other panels after transitioning back to the login form
+        this.transitionToState(LoginState.LoginForm);
     }
 
     public changePassword(): void {
@@ -212,54 +293,67 @@ export class LoginCtrl {
         // TODO: back-end not ready yet
     }
 
+    private handleLoginErrors(error) {
+        if (error.statusCode === 401) {
+            if (error.errorCode === 2000) {
+                this.errorMsg = "Please enter a correct Username and Password";
+                this.labelError = true;
+                this.fieldError = true;
+                this.transitionToState(LoginState.LoginForm);
+            } else if (error.errorCode === 2001) {
+                this.errorMsg = "Your account has been disabled.<br>Please contact your Administrator.";
+                this.labelError = true;
+                this.fieldError = false;
+                this.transitionToState(LoginState.LoginForm);
+            } else if (error.errorCode === 2002) {
+                this.errorMsg = "Your Password has expired.";
+                this.labelError = true;
+                this.fieldError = false;
+                this.enableChangePasswordScreen = true;
+                this.transitionToState(LoginState.ChangePasswordForm);
+            } else if (error.errorCode === 2003) {
+                this.errorMsg = "Username and Password cannot be empty";
+                this.labelError = true;
+                this.fieldError = true;
+                this.transitionToState(LoginState.LoginForm);
+            } else {
+                this.errorMsg = error.message;
+                this.labelError = true;
+                this.fieldError = true;
+                this.transitionToState(LoginState.LoginForm);
+            }
+        } else if (error.statusCode === 409) {
+            this.labelError = false;
+            this.fieldError = false;
+            var result: ILoginInfo = new ILoginInfo();
+            if (this.novaUsername) {
+                result.userName = this.novaUsername;
+                result.password = this.novaPassword;
+            } else {
+                result.samlLogin = true;
+            }
+            result.loginSuccessful = false;
+
+            this.$uibModalInstance.close(result);
+        } else {
+            this.errorMsg = error.message;
+            this.labelError = true;
+            this.fieldError = true;
+        }
+    }
+
     public login(): void {
-        this.auth.login(this.novaUsername, this.novaPassword, false).then(
-            (user: IUser) => {
+        this.session.login(this.novaUsername, this.novaPassword, false).then(
+            () => {
                 this.labelError = false;
                 this.fieldError = false;
                 var result: ILoginInfo = new ILoginInfo();
-                result.userInfo = user;
-
+                result.loginSuccessful = true;
+                
                 this.$uibModalInstance.close(result);
             },
             (error) => {
-                if (error.statusCode === 401) {
-                    if (error.errorCode === 2000) {
-                        this.errorMsg = "Please enter a correct Username and Password";
-                        this.labelError = true;
-                        this.fieldError = true;
-                    } else if (error.errorCode === 2001) {
-                        this.errorMsg = "Your account has been disabled.<br>Please contact your Administrator.";
-                        this.labelError = true;
-                        this.fieldError = false;
-                    } else if (error.errorCode === 2002) {
-                        this.errorMsg = "Your Password has expired.";
-                        this.labelError = true;
-                        this.fieldError = false;
-                        this.enableChangePasswordScreen = true;
-                        this.isInChangePasswordScreen = this.enableChangePasswordScreen;
-                    } else if (error.errorCode === 2003) {
-                        this.errorMsg = "Username and Password cannot be empty";
-                        this.labelError = true;
-                        this.fieldError = true;
-                    } else {
-                        this.errorMsg = error.message;
-                        this.labelError = true;
-                        this.fieldError = true;
-                    }
-                } else if (error.statusCode === 409) {
-                    this.labelError = false;
-                    this.fieldError = false;
-                    var result: ILoginInfo = new ILoginInfo();
-                    result.userName = this.novaUsername;
-                    result.password = this.novaPassword;
-
-                    this.$uibModalInstance.close(result);
-                } else {
-                    this.errorMsg = error.message;
-                    this.labelError = true;
-                    this.fieldError = true;
-                }
+                this.handleLoginErrors(error);
             });
     }
 }

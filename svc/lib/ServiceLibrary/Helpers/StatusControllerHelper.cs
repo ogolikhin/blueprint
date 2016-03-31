@@ -99,6 +99,9 @@ namespace ServiceLibrary.Helpers
         public string ServiceName;
 
         [JsonProperty]
+        public string AccessInfo;
+
+        [JsonProperty]
         public string AssemblyFileVersion;
 
         private List<StatusResponse> _statusResponses;

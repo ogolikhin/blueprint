@@ -32,7 +32,7 @@ namespace ServiceLibrary.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var cmd = "Test";
-            var repository = new SqlStatusRepository(cxn.Object, "Test");
+            var repository = new SqlStatusRepository(cxn.Object, "DatabaseAddress", "Test");
             IEnumerable<string> result = new[] { "7.0.0.0" };
             cxn.SetupQueryAsync(cmd, null, result);
 

@@ -38,17 +38,20 @@ namespace ServiceLibrary.Helpers
             serviceStatus.AssemblyFileVersion = GetAssemblyFileVersion();
 
             //Get status responses from each repo, store the tasks.
-            List<Task<bool>> StatusResults = new List<Task<bool>>();
+            List<Task<StatusResponse>> statusResponses = new List<Task<StatusResponse>>();
             foreach (IStatusRepository statusRepo in StatusRepos)
             {
-                StatusResults.Add(TryGetStatusResponse(serviceStatus, statusRepo));
+                statusResponses.Add(TryGetStatusResponse(statusRepo));
             }
 
             //Await the status check task results.
             serviceStatus.NoErrors = true;
-            foreach (var result in StatusResults)
+            foreach (var result in statusResponses)
             {
-                serviceStatus.NoErrors &= await result;
+                var statusResult = await result;
+                serviceStatus.StatusResponses.Add(statusResult);
+
+                serviceStatus.NoErrors &= statusResult.NoErrors;
             }
 
             return serviceStatus;
@@ -57,21 +60,24 @@ namespace ServiceLibrary.Helpers
         /// <summary>
         /// Modifies serviceStatus in place, returns whether status was successfully obtained.
         /// </summary>
-        private async Task<bool> TryGetStatusResponse(ServiceStatus serviceStatus, IStatusRepository statusRepo)
+        private async Task<StatusResponse> TryGetStatusResponse(IStatusRepository statusRepo)
         {
+            var responseData = new StatusResponse() { Name = statusRepo.Name, AccessInfo = statusRepo.AccessInfo };
+
             try
             {
                 var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
-                serviceStatus.StatusResponses[statusRepo.Name] = result;
+                responseData.Result = result;
+                responseData.NoErrors = true;
             }
             catch (Exception ex)
             {
                 await Log.LogError(LogSource, ex);
-                serviceStatus.StatusResponses[statusRepo.Name] = "ERROR";
-                return false;
+                responseData.Result = $"ERROR: {ex.ToString()}";
+                responseData.NoErrors = false;
             }
 
-            return true;
+            return responseData;
         }
 
         private static string GetAssemblyFileVersion()
@@ -95,16 +101,16 @@ namespace ServiceLibrary.Helpers
         [JsonProperty]
         public string AssemblyFileVersion;
 
-        private Dictionary<string, string> _statusResponses;
+        private List<StatusResponse> _statusResponses;
 
         [JsonProperty]
-        public Dictionary<string, string> StatusResponses
+        public List<StatusResponse> StatusResponses
         {
             get
             {
                 if (_statusResponses == null)
                 {
-                    _statusResponses = new Dictionary<string, string>();
+                    _statusResponses = new List<StatusResponse>();
                 }
                 return _statusResponses;
             }
@@ -115,5 +121,20 @@ namespace ServiceLibrary.Helpers
 
         [JsonProperty]
         public string Errors;
+    }
+
+    public class StatusResponse
+    {
+        [JsonProperty]
+        public string Name;
+
+        [JsonProperty]
+        public string AccessInfo;
+
+        [JsonProperty]
+        public string Result;
+
+        [JsonProperty]
+        public bool NoErrors;
     }
 }

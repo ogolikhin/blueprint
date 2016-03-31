@@ -104,7 +104,7 @@ describe("AuthSvc", () => {
 
             // Assert
             expect(error.statusCode).toBe(401, "error.statusCode is not 401");
-            expect(error.message).toBe("Login_Auth_LoginFailed", "error.message does not match");
+            expect(error.message).toBe("Login Failed", "error.message does not match");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

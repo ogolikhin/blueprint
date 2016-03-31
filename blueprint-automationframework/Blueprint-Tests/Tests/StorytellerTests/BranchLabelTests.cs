@@ -201,6 +201,129 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
         }
 
+        [TestCase(1, 0.0)]
+        [TestCase(5, 0.0)]
+        [TestCase(30, 0.0)]
+        [TestCase(1, 1.0)]
+        [TestCase(5, 1.0)]
+        [TestCase(30, 1.0)]
+        [Description("Add a randomized system decision branch label for a specific branch and verify that the label is returned " +
+             "after saving the process.")]
+        public void AddSystemDecisionBranchWithPlainTextLabelOfVaryingLength_VerifyReturnedBranchLabel(
+    int lengthOfLabelSent,
+    double orderIndexOfSystemDecisionBranch)
+        {
+            var process = CreateProcessWithSingleSystemDecision();
+
+            // Get default user task shape
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Get system decision shape in process
+            var systemDecision = process.GetNextShape(defaultUserTask);
+
+            // Get link for specified branch by order index
+            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+
+            // Set a randomized link label for the specified branch
+            branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [TestCase(5, 0.0, ProcessType.BusinessProcess)]
+        [TestCase(5, 1.0, ProcessType.UserToSystemProcess)]
+        [Description("Add a randomized system decision label for different process types and verify the returned label" +
+                     "is returned after saving the process.")]
+        public void AddSystemDecisionBranchLabelForDifferentProcessTypes_VerifyReturnedBranchLabelIsPresent(
+            int lengthOfLabelSent,
+            double orderIndexOfSystemDecisionBranch,
+            ProcessType processType)
+        {
+            var process = CreateProcessWithSingleSystemDecision();
+
+            // Get default user task shape
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Get system decision shape in process
+            var systemDecision = process.GetNextShape(defaultUserTask);
+
+            // Get link for specified branch by order index
+            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+
+            // Set a randomized link label for the specified branch
+            branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
+
+            // Set the process type
+            process.ProcessType = processType;
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+        }
+
+        [TestCase(5, 0.0)]
+        [TestCase(5, 1.0)]
+        [Description("Modify a system decision branch label and verify that the returned label is changed " +
+                     "after saving the process.")]
+        public void ModifySystemDecisionBranchLabel_VerifyReturnedBranchLabelIsModified(
+            int lengthOfLabelSent,
+            double orderIndexOfSystemDecisionBranch)
+        {
+            var process = CreateProcessWithSingleSystemDecision();
+
+            // Save the process
+            _storyteller.UpdateProcess(_user, process);
+
+            // Get the process
+            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+
+            // Get default user task shape
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Get system decision shape in process
+            var systemDecision = process.GetNextShape(defaultUserTask);
+
+            // Get link for specified branch by order index
+            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+
+            // Set a randomized link label for the specified branch
+            branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
+
+            // Update and Verify the returned process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+        }
+
+        [TestCase(0.0)]
+        [TestCase(1.0)]
+        [Description("Delete a system decision branch label and verify that the returned label is null " +
+                     "after saving the process.")]
+        public void DeleteSystemDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
+            double orderIndexOfSystemDecisionBranch)
+        {
+            var process = CreateProcessWithSingleSystemDecision();
+
+            // Save the process
+            _storyteller.UpdateProcess(_user, process);
+
+            // Get the process
+            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+
+            // Get default user task shape
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Get system decision shape in process
+            var systemDecision = process.GetNextShape(defaultUserTask);
+
+            // Get link for specified branch by order index
+            var branchLink = process.GetOutgoingLinkForShape(systemDecision, orderIndexOfSystemDecisionBranch);
+
+            // Clear the link label for the specified branch
+            branchLink.Label = null;
+
+            // Update and Verify the returned process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+        }
+
         /// <summary>
         /// Create a Process that Contains a Single User Decision
         /// </summary>
@@ -224,6 +347,33 @@ namespace StorytellerTests
                 preconditionTask,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
+
+            return process;
+        }
+
+        /// <summary>
+        /// Create a Process that Contains a Single System Decision
+        /// </summary>
+        /// <returns>The created process</returns>
+        private IProcess CreateProcessWithSingleSystemDecision()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for the system decision point
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Add System Decision point with branch to end
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             return process;
         }

@@ -79,7 +79,7 @@ namespace Common
             return Convert.ToString(value, CultureInfo.InvariantCulture);
         }
 
-        public static int ToInt32Invariant(object value)
+        public static int ToInt32Invariant(this object value)
         {
             return Convert.ToInt32(value, CultureInfo.InvariantCulture);
         }

@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BranchLabelTests.cs" />
     <Compile Include="UpdateProcessValidationTests.cs" />
     <Compile Include="UpdateProcessNegativeTests.cs" />
     <Compile Include="UpdateProcessTests.cs" />

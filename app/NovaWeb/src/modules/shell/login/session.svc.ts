@@ -234,7 +234,6 @@ export class LoginCtrl {
     static $inject: [string] = ["$uibModalInstance", "session", "$timeout"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
         this.formState = LoginState.LoginForm;
-        this.enableForgetPasswordScreen = false;
         this.errorMsg = "Please enter your Username and Password";
 
         this.enableForgetPasswordScreen = false;
@@ -252,7 +251,7 @@ export class LoginCtrl {
         this.formState = state;
         this.$timeout(() => {
             this.transitionFromState = state;
-        }, 500); // both panels need to be visible during the transition
+        }, 200); // both panels need to be visible during the transition
     }
 
     public goToForgetPasswordScreen(): void {

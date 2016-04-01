@@ -59,7 +59,8 @@
 .nova-form-control[required] ~ .nova-label::before {
   bottom: -$font-size-smallest;
   color: $gray;
-  content: 'Required';
+  content: attr(required);
+  text-transform: lowercase;
   display: block;
   font-size: $font-size-micro;
   position: absolute;

@@ -9,7 +9,7 @@ namespace Utilities.Factories
         public const string UpperCaseAndNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public const string UpperAndLowerCaseAndNumbers = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
 
         /// <summary>

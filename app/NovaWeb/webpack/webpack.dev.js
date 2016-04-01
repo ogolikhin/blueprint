@@ -6,11 +6,14 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var webpack = require('webpack');
 var path = require('path');
 
+var backend = process.env.npm_config_backend || process.env.npm_package_config_backend || "http://localhost:9801";
+console.log({backend: backend});
+
 var url = require('url'),
    proxy = require('proxy-middleware');
-var proxyOptions = url.parse('http://localhost:9801/svc');
+var proxyOptions = url.parse(backend + '/svc');
 proxyOptions.route = '/svc';
-var loginProxyOptions = url.parse('http://localhost:9801/Login/WinLogin.aspx');
+var loginProxyOptions = url.parse(backend + '/Login/WinLogin.aspx');
 loginProxyOptions.route = '/Login/WinLogin.aspx';
 
 var del = require('del');
@@ -66,7 +69,10 @@ module.exports = {
              { from: '**/*.view.html' },
              { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
              { from: './unsupported-browser', to: './static' }
-         ])
+         ]),
+         new webpack.DefinePlugin({
+             VERSION: JSON.stringify(require('../package.json').version)
+         })
     ],
     module:{
         loaders: loaders

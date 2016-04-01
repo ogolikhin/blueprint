@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using AdminStore.Models;
@@ -23,9 +24,9 @@ namespace AdminStore.Repositories
 
         public virtual async Task<IEnumerable<ApplicationLabel>> GetLabels(string locale)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@Locale", locale);
-            return await _connectionWrapper.QueryAsync<ApplicationLabel>("GetApplicationLabels", prm, commandType: CommandType.StoredProcedure);
+                var prm = new DynamicParameters();
+                prm.Add("@Locale", locale);
+                return await _connectionWrapper.QueryAsync<ApplicationLabel>("GetApplicationLabels", prm, commandType: CommandType.StoredProcedure);
         }
     }
 }

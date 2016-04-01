@@ -54,7 +54,10 @@ module.exports = {
             { from: '**/*.view.html' },
             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
             { from: './unsupported-browser', to: './static' }
-         ])
+         ]),
+         new webpack.DefinePlugin({
+             VERSION: JSON.stringify(require('../package.json').version)
+         })
     ],
     module:{
         loaders: loaders

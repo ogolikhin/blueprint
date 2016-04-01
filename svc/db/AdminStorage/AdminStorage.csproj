@@ -49,6 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\DefaultConfigSettings.sql" />
+    <Content Include="Data\SetApplicationLabels.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SetApplicationLabels.tt</DependentUpon>
+    </Content>
+    <Content Include="Data\SetApplicationLabels.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SetApplicationLabels.sql</LastGenOutput>
+    </Content>
     <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
     <Content Include="AdminStorage_Instance.sql">
       <DependentUpon>AdminStorage_Instance.tt</DependentUpon>
@@ -77,6 +86,15 @@
     <Content Include="Migration\7.0.1.0\7.0.1.0.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>7.0.1.0.sql</LastGenOutput>
+    </Content>
+    <Content Include="Migration\7.1.0.0\7.1.0.0.sql">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>7.1.0.0.tt</DependentUpon>
+    </Content>
+    <Content Include="Migration\7.1.0.0\7.1.0.0.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>7.1.0.0.sql</LastGenOutput>
     </Content>
     <Content Include="Procedures\DeleteLogs.sql" />
     <Content Include="Procedures\ExtendSession.sql" />
@@ -110,6 +128,8 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\ApplicationLabels_en-US.csv" />
+    <None Include="Data\ApplicationLabels_fr-CA.csv" />
     <None Include="ExecTemplates.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

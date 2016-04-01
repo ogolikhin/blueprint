@@ -21,7 +21,7 @@
                 <div class="nova-form-group nova-form-buttons">
                     <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreen()" ng-if="ctrl.enableChangePasswordScreen">{{::$root.config.labels["Login_ChangePasswordButton"]}}</button>
                     <button class="btn btn-primary" type="submit">{{::$root.config.labels["Login_LoginButton"]}}</button>
-                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{::$root.config.labels["Login_SamlLink"]}}</a></div>
+                    <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</a></div>
                 </div>
             </form>
         </div>
@@ -44,7 +44,7 @@
             <form name="novaLoginSAML" role="form">
                 <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-primary">Retry</button>
+                    <button class="btn btn-primary" ng-click="ctrl.doSamlLogin()">{{::$root.config.labels["Login_Retry"]}}</button>
                     <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_LoginPrompt"]}}</a></div>
                 </div>
             </form>
@@ -53,7 +53,7 @@
             <form name="novaLoginChangePassword" ng-submit="ctrl.changePassword()" role="form">
                 <div class="nova-login-message" ng-class="{error: ctrl.changePasswordScreenError}"><span ng-bind-html="ctrl.changePasswordScreenMessage"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordCurrentPasswordError}">
-                    <input type="password" class="nova-form-control required"  id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword">
+                    <input type="password" class="nova-form-control required" id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword">
                     <label for="nova-current-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_CurrentPassword"]}}</label>
                 </div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordNewPasswordError}">
@@ -77,7 +77,7 @@
 </div>
 <div class="modal-footer" >
     <div>
-        &reg;{{::$root.year}} {{::$root.config.labels["Login_BlueprintCopyRight"]}} <br>
+        &copy;{{::$root.year}} {{::$root.config.labels["Login_BlueprintCopyRight"]}} <br>
         {{::$root.config.labels["Login_Version"]}} {{::$root.version}}
     </div>
 </div>

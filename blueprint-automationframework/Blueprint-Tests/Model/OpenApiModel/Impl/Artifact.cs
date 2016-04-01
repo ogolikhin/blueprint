@@ -204,6 +204,7 @@ namespace Model.OpenApiModel.Impl
             Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
                 "The returned ResultCode was '{0}' but '{1}' was expected",
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+
         }
 
         public void Publish(IUser user = null,
@@ -250,6 +251,10 @@ namespace Model.OpenApiModel.Impl
                 publishedArtifact.IsPublished = true;
                 Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
             }
+
+            Assert.That(publishedResultList.Count().Equals(artifactToPublishList.Count()),
+                "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
+                artifactToPublishList.Count(), publishedResultList.Count());
         }
 
         public List<IDiscardArtifactResult> Discard(IUser user = null,
@@ -287,6 +292,11 @@ namespace Model.OpenApiModel.Impl
                 publishedArtifact.IsSaved = false;
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
+
+            Assert.That(discardedResultList.Count().Equals(artifactToDiscardList.Count()),
+                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
+                artifactToDiscardList.Count(), discardedResultList.Count());
+
             return discardResultList.ConvertAll(o => (IDiscardArtifactResult)o);
         }
 

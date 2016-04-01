@@ -29,8 +29,8 @@ export class AuthSvc implements IAuth {
     private _loggedOut: boolean = false;
 
 
-    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService) {
+    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "$rootScope"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private $rootScope: ng.IRootScopeService) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
@@ -45,9 +45,8 @@ export class AuthSvc implements IAuth {
                     statusCode: statusCode,
                     message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
-                //TODO uncomment this once the settings provider is implemented
-                //if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
-                if (!this._loggedOut) {
+
+                if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success((token: string) => {
                             this.onTokenSuccess(token, defer, false, "");

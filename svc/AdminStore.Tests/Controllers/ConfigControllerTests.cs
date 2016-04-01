@@ -174,12 +174,12 @@ namespace AdminStore.Controllers
             else
             {
                 appSettingsRepo.Setup(it => it.GetSettings())
-                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting() {Key = i.Key, Value = i.Value}));
+                    .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value}));
             }
 
             if (labels != null)
             {
-                configRepo.Setup(r => r.GetLabels(locale)).ReturnsAsync(labels);
+                configRepo.Setup(r => r.GetLabels(It.IsAny<string>())).ReturnsAsync(labels.Select(it => { it.Locale = "en-US"; return it; }));
             }
 
             var logMock = new Mock<sl.IServiceLogRepository>();

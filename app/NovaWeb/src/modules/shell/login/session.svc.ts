@@ -231,8 +231,8 @@ export class LoginCtrl {
     public enableSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["localization","$uibModalInstance", "session", "$timeout"];
-    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService) {
+    static $inject: [string] = ["localization","$uibModalInstance", "session", "$timeout", "$rootScope"];
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private $rootScope: ng.IRootScopeService) {
         this.formState = LoginState.LoginForm;
         this.errorMsg = localization.get('Login_Session_EnterCredentials');
 
@@ -268,7 +268,7 @@ export class LoginCtrl {
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
-    public goToSAMLScreen(): void {
+    public doSamlLogin(): void {
         this.session.loginWithSaml(false).then(
             () => {
                 this.labelError = false;
@@ -283,6 +283,22 @@ export class LoginCtrl {
                 this.transitionToState(LoginState.LoginForm);
             });
 
+    }
+
+    public get isFederatedAuthenticationEnabled(): boolean {
+        return this.$rootScope["config"].settings.IsFederatedAuthenticationEnabled  === "true";
+    }
+
+    public get samlPrompt(): string {
+        var prompt: string = this.$rootScope["config"].settings.FederatedAuthenticationPrompt;
+        if (!prompt || prompt == "") {
+            prompt = this.localization.get('Login_SamlLink');
+        }
+        return prompt;
+    }
+
+    public goToSAMLScreen(): void {
+        this.doSamlLogin();
         this.transitionToState(LoginState.SamlLoginForm);
     }
 

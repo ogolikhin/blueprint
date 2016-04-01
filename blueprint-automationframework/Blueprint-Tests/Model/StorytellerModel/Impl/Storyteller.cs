@@ -7,6 +7,7 @@ using Common;
 using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -394,12 +395,58 @@ namespace Model.StorytellerModel.Impl
 
         #endregion Implemented from IStoryteller
 
-        #region Private Methods
+        #region Static Methods
 
         /// <summary>
-        /// Mark the Artifact as Published (Indicates artifact has no pending changes)
+        /// Discard the added process artifact(s) from Blueprint
         /// </summary>
-        /// <param name="artifactId">The id of the artifact to be published</param>
+        /// <param name="artifactsToDiscard">The process artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<IDiscardArtifactResult> DiscardProcessArtifacts(List<IOpenApiArtifact> artifactsToDiscard,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            return OpenApiArtifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes,
+                sendAuthorizationAsCookie);
+        }
+
+        /// <summary>
+        /// Publish Process Artifact(s) (Used when publishing a single process artifact OR a list of artifacts)
+        /// </summary>
+        /// <param name="artifactsToPublish">The list of process artifacts to publish</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<IPublishArtifactResult> PublishProcessArtifacts(List<OpenApiArtifact> artifactsToPublish,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool shouldKeepLock = false,
+            bool sendAuthorizationAsCookie = false)
+        {
+            return OpenApiArtifact.PublishArtifacts(artifactsToPublish, address, user, expectedStatusCodes,
+                shouldKeepLock, sendAuthorizationAsCookie);
+        }
+
+        #endregion Static Methods
+
+            #region Private Methods
+
+            /// <summary>
+            /// Mark the Artifact as Published (Indicates artifact has no pending changes)
+            /// </summary>
+            /// <param name="artifactId">The id of the artifact to be published</param>
         private void MarkArtifactAsPublished(int artifactId)
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);

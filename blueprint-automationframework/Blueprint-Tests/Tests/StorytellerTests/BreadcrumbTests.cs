@@ -7,6 +7,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Model.OpenApiModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using Utilities;
 
 namespace StorytellerTests
@@ -62,21 +63,43 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete all the artifacts that were added.
+                var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
+                var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && artifact.IsPublished)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                         Logger.WriteDebug("deleting process artifact which is published!");
-
                     }
 
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) &&  !artifact.IsPublished)
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) &&  !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
                     {
-                        _storyteller.DiscardProcessArtifact(artifact);
-                        Logger.WriteDebug("discarding process artifact which is saved!");
+                        savedArtifactsListPrimaryUser.Add(artifact);
+                    }
+
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    {
+                        savedArtifactsListSecondaryUser.Add(artifact);
                     }
                 }
+
+                if (!(savedArtifactsListPrimaryUser.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
+                    Logger.WriteDebug("discarding all process artifacts which are saved!");
+                }
+
+                if (!(savedArtifactsListSecondaryUser.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
+                    Logger.WriteDebug("discarding all process artifacts which are saved!");
+                }
+
+                // Clear all possible List Items
+                savedArtifactsListPrimaryUser.Clear();
+                savedArtifactsListSecondaryUser.Clear();
+                _storyteller.Artifacts.Clear();
             }
 
             if (_adminStore != null)

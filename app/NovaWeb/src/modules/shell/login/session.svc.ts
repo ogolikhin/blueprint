@@ -290,7 +290,7 @@ export class LoginCtrl {
     }
 
     public get samlPrompt(): string {
-        var prompt: string = this.$rootScope["config"].settings.FederatedAuthenticationLoginMessage;
+        var prompt: string = this.$rootScope["config"].settings.FederatedAuthenticationPrompt;
         if (!prompt || prompt == "") {
             prompt = this.localization.get('Login_SamlLink');
         }

@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;

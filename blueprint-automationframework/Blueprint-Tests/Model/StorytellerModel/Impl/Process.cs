@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Common;
 using Model.OpenApiModel;
 using Newtonsoft.Json;
@@ -1023,7 +1021,8 @@ namespace Model.StorytellerModel.Impl
         /// <param name="sourceShape">The source shape</param>
         /// <param name="targetShapes">The list of target shapes where the branches for the source shape terminate</param>
         /// <param name="ignoreLowestBranch">(optional) Flag to ignore the branch with the lowest order index 
-        /// when finding links</param>
+        /// when finding links.  Used when deleting decision points and lowest order index link should
+        /// be preserved</param>
         /// <returns>The list of process links between the source shape and the target shapes</returns>
         private IEnumerable<ProcessLink> GetLinksBetween(IProcessShape sourceShape,List<IProcessShape> targetShapes, bool ignoreLowestBranch = false)
         {
@@ -1039,7 +1038,7 @@ namespace Model.StorytellerModel.Impl
 
             foreach (var link in nextLinks)
             {
-                if (!targetShapes.Select(s => s.Id == link.DestinationId).Any())
+                if (targetShapes.Find(s => s.Id == link.DestinationId) == null)
                 {
                     var nextShape = GetProcessShapeById(link.DestinationId);
                     var linksBetweenShapes = GetLinksBetween(nextShape, targetShapes);
@@ -1057,8 +1056,9 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         /// <param name="sourceShape">The source shape</param>
         /// <param name="targetShapes">The list of target shapes where the branches for the source shape terminate</param>
-        /// <param name="ignoreLowestBranch">(optional) Flag to ignore the branch with the lowest order index 
-        /// when finding links</param>
+        /// <param name="ignoreLowestBranch">(optional) Flag to ignore the branch with the lowest order index
+        /// when finding links.  Used when deleting decision points and lowest order index link should
+        /// be preserved</param>
         /// <returns>The list of process shapes between the source shape and the target shapes</returns>
         private IEnumerable<ProcessShape> GetShapesBetween(IProcessShape sourceShape, List<IProcessShape> targetShapes, bool ignoreLowestBranch = false) 
         {
@@ -1068,7 +1068,7 @@ namespace Model.StorytellerModel.Impl
 
             foreach (var link in links)
             {
-                if (!targetShapes.Select(s => s.Id == link.DestinationId).Any())
+                if (targetShapes.Find(s => s.Id == link.DestinationId) == null)
                 {
                     var shape = GetProcessShapeById(link.DestinationId);
                     processShapes.Add((ProcessShape) shape);
@@ -1088,7 +1088,7 @@ namespace Model.StorytellerModel.Impl
             var userTaskIncomingProcessLink = GetIncomingLinkForShape(userTask);
 
             // Remove the user task from the list of process shapes
-            Shapes.Remove((ProcessShape)userTask);
+            DeleteShapesAndOutgoingLinks(new List<IProcessShape> { userTask });
 
             // Set destination id for the user task incoming link to the id of the next shape
             userTaskIncomingProcessLink.DestinationId = nextShape.Id;

@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -77,10 +74,9 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [TestCase]
-        [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
-                     "returned process has the same Id as the process artifact Id and that the numbers of " +
-                     "shapes, links, artifact path links and property values are as expected.")]
-        public void GetDefaultProcess_VerifyReturnedProcess()
+        [Description("Delete a user and system task and verify that the user and system task are not" +
+                     "present in the returned process.")]
+        public void DeleteUserAndSYstemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);

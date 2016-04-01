@@ -18,12 +18,15 @@ describe("AuthSvc", () => {
     }));
 
     describe("getCurrentUser", () => {
-        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
             $httpBackend.expectPOST("/Login/WinLogin.aspx","")
                 .respond(401);
+            $rootScope["config"]={
+                settings: { DisableWindowsIntegratedSignIn: "false" }
+            };
 
             // Act
 
@@ -38,7 +41,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("succeed with SSO login after failing to get user info", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
+        it("succeed with SSO login after failing to get user info", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
@@ -51,6 +54,9 @@ describe("AuthSvc", () => {
                     DisplayName: "Default Instance Admin", Login: "admin"
                 }
             );
+            $rootScope["config"] = {
+                settings: { DisableWindowsIntegratedSignIn: "false" }
+            };
 
             // Act
             var error: any;

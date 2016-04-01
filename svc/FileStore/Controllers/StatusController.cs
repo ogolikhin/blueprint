@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using FileStore;
 using FileStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
@@ -17,7 +16,7 @@ namespace FileStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper _statusControllerHelper;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
         internal readonly string _preAuthorizedKey;
 
         public StatusController()
@@ -36,7 +35,7 @@ namespace FileStore.Controllers
         {
         }
 
-        internal StatusController(StatusControllerHelper scHelper, string preAuthorizedKey)
+        internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
             _statusControllerHelper = scHelper;
             _preAuthorizedKey = preAuthorizedKey;
@@ -58,7 +57,7 @@ namespace FileStore.Controllers
             //Check pre-authorized key
             if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
             {
-                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized));
+                return Unauthorized();
             }
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();

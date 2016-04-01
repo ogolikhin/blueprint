@@ -21,6 +21,7 @@ namespace AdminStore.Controllers
     [RoutePrefix("config")]
     public class ConfigController : ApiController
     {
+        const string defaultLocale = "en-US";
         internal readonly IConfigRepository _configRepo;
         internal readonly IApplicationSettingsRepository _appSettingsRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
@@ -96,9 +97,9 @@ namespace AdminStore.Controllers
             {
                 //TODO: Use the locale set by client
                 //Apr 1, 2016:: Currently use default (en-US) locale all the time
-                //var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
+                //var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue(defaultLocale)).Value;
 
-                var locale = new StringWithQualityHeaderValue("en-US").Value;
+                var locale = new StringWithQualityHeaderValue(defaultLocale).Value;
 
                 var settings = await _appSettingsRepo.GetSettings();
 

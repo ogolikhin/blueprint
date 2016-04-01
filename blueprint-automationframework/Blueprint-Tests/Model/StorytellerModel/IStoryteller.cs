@@ -23,6 +23,15 @@ namespace Model.StorytellerModel
         IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Create and Save Multiple Process Artifacts
+        /// </summary>
+        /// <param name="project">The project where the process artifacts are to be added</param>
+        /// <param name="user">The user credentials for the request to create the process artifacts</param>
+        /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
+        /// <returns>The list of the saved artifact objects</returns>
+        List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
+
+        /// <summary>
         /// Create and Publish Multiple Process Artifacts
         /// </summary>
         /// <param name="project">The project where the process artifacts are to be added</param>
@@ -136,6 +145,16 @@ namespace Model.StorytellerModel
         /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Discard a process artifact
+        /// </summary>
+        /// <param name="artifact">The artifact to be discarded</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The List of DiscardArtifactResult after the call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<IDiscardArtifactResult> DiscardProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Delete a process artifact

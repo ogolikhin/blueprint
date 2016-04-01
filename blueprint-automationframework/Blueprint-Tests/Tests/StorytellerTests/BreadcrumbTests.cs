@@ -7,6 +7,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Model.OpenApiModel;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using Utilities;
 
 namespace StorytellerTests
@@ -61,15 +62,44 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
                 // Delete all the artifacts that were added.
+                var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
+                var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    if (artifact.Id != NONEXISTENT_ARTIFACT_ID)
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && artifact.IsPublished)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                        Logger.WriteDebug("deleting process artifact which is published!");
+                    }
+
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) &&  !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    {
+                        savedArtifactsListPrimaryUser.Add(artifact);
+                    }
+
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    {
+                        savedArtifactsListSecondaryUser.Add(artifact);
                     }
                 }
+
+                if (!(savedArtifactsListPrimaryUser.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
+                    Logger.WriteDebug("discarding all process artifacts which are saved!");
+                }
+
+                if (!(savedArtifactsListSecondaryUser.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
+                    Logger.WriteDebug("discarding all process artifacts which are saved!");
+                }
+
+                // Clear all possible List Items
+                savedArtifactsListPrimaryUser.Clear();
+                savedArtifactsListSecondaryUser.Clear();
+                _storyteller.Artifacts.Clear();
             }
 
             if (_adminStore != null)
@@ -102,12 +132,15 @@ namespace StorytellerTests
                      "that the returned artifact path links contains all process Ids in the url path.")]
         public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process);
+
+
         }
 
         [TestCase(3, 1)]
@@ -121,7 +154,8 @@ namespace StorytellerTests
             int numberOfArtifacts, 
             int nonexistentArtifactIndex)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -144,7 +178,7 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(nonexistentArtifactIndexes,nameof(nonexistentArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // Inject nonexistent artifact id into artifact ids list used for breadcrumb
@@ -170,7 +204,7 @@ namespace StorytellerTests
             int numberOfArtifacts, 
             int inaccessibleArtifactIndex)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
@@ -182,8 +216,9 @@ namespace StorytellerTests
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { inaccessibleArtifactIndex });
 
-            // Must be published after assert so that the artifact is deletable in teardown by primary user
-            inaccessibleArtifact.Publish(_secondaryUser);
+            // Must be save after assert so that the artifact is deletable in teardown by primary user
+            // Save the inaccessibleArtifact
+            inaccessibleArtifact.Save(_secondaryUser);
         }
 
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb")]
@@ -197,7 +232,7 @@ namespace StorytellerTests
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndPublishProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
             // create and inject artifact ids created by another user
@@ -212,10 +247,10 @@ namespace StorytellerTests
 
             AssertBreadcrumb(numberOfArtifacts, artifacts, process, inaccessibleArtifactIndexes.ToList());
 
-            // Must be published after assert so that the artifact is deletable in teardown by primary user
+            // Save the inaccessibleArtifact
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                artifacts[inaccessibleArtifactIndex].Publish(_secondaryUser);
+                artifacts[inaccessibleArtifactIndex].Save(_secondaryUser);
             }
         }
 

@@ -21,7 +21,7 @@
                 <div class="nova-form-group nova-form-buttons">
                     <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreen()" ng-if="ctrl.enableChangePasswordScreen">{{::$root.config.labels["Login_ChangePasswordButton"]}}</button>
                     <button class="btn btn-primary" type="submit">{{::$root.config.labels["Login_LoginButton"]}}</button>
-                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{::$root.config.labels["Login_SamlLink"]}}</a></div>
+                    <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</a></div>
                 </div>
             </form>
         </div>

@@ -94,7 +94,11 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
+                //TODO: Use the locale set by client
+                //Apr 1, 2016:: Currently use default (en-US) locale all the time
+                //var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue("en-US")).Value;
+
+                var locale = new StringWithQualityHeaderValue("en-US").Value;
 
                 var settings = await _appSettingsRepo.GetSettings();
 

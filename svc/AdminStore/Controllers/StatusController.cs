@@ -15,7 +15,7 @@ namespace AdminStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper _statusControllerHelper;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
         internal readonly string _preAuthorizedKey;
 
         public StatusController()
@@ -32,7 +32,7 @@ namespace AdminStore.Controllers
         {
         }
 
-        internal StatusController(StatusControllerHelper scHelper, string preAuthorizedKey)
+        internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
             _statusControllerHelper = scHelper;
             _preAuthorizedKey = preAuthorizedKey;
@@ -54,7 +54,7 @@ namespace AdminStore.Controllers
             //Check pre-authorized key
             if(_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
             {
-                return ResponseMessage( Request.CreateResponse(HttpStatusCode.Unauthorized) );
+                return Unauthorized();
             }
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();

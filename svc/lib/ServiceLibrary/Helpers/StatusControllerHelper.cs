@@ -13,7 +13,12 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ServiceLibrary.Helpers
 {
-    public class StatusControllerHelper
+    public interface IStatusControllerHelper
+    {
+        Task<ServiceStatus> GetStatus();
+    }
+
+    public class StatusControllerHelper : IStatusControllerHelper
     {
         private const int GET_STATUS_TIMEOUT = 50;
 

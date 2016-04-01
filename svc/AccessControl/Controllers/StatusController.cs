@@ -15,7 +15,7 @@ namespace AccessControl.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper _statusControllerHelper;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -28,7 +28,7 @@ namespace AccessControl.Controllers
         {
         }
 
-        internal StatusController(StatusControllerHelper scHelper)
+        internal StatusController(IStatusControllerHelper scHelper)
         {
             _statusControllerHelper = scHelper;
         }

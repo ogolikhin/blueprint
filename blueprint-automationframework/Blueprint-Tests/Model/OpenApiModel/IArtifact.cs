@@ -63,7 +63,8 @@ namespace Model.OpenApiModel
         /// <param name="user">The user to authenticate to Blueprint. If null, attempts to delete using the credentials</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        void Discard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <returns>The DiscardedArtifactResult list after discard artifact call</returns>
+        List<IDiscardArtifactResult> Discard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Delete the artifact on Blueprint server.

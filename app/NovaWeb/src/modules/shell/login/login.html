@@ -44,7 +44,7 @@
             <form name="novaLoginSAML" role="form">
                 <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-primary">{{::$root.config.labels["Login_Retry"]}}</button>
+                    <button class="btn btn-primary" ng-click="ctrl.doSamlLogin()">{{::$root.config.labels["Login_Retry"]}}</button>
                     <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_LoginPrompt"]}}</a></div>
                 </div>
             </form>

@@ -268,7 +268,7 @@ export class LoginCtrl {
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
-    public goToSAMLScreen(): void {
+    public doSamlLogin(): void {
         this.session.loginWithSaml(false).then(
             () => {
                 this.labelError = false;
@@ -283,6 +283,10 @@ export class LoginCtrl {
                 this.transitionToState(LoginState.LoginForm);
             });
 
+    }
+
+    public goToSAMLScreen(): void {
+        this.doSamlLogin();
         this.transitionToState(LoginState.SamlLoginForm);
     }
 

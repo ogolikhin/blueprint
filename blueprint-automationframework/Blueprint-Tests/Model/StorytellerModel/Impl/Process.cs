@@ -998,7 +998,7 @@ namespace Model.StorytellerModel.Impl
         {
             foreach (var shape in shapesToDelete)
             {
-                Shapes.RemoveAll(s => s == shape);
+                Shapes.RemoveAll(s => s.Id == shape.Id);
                 Links.RemoveAll(l => l.SourceId == shape.Id);
             }
         }
@@ -1028,6 +1028,7 @@ namespace Model.StorytellerModel.Impl
         {
             var nextLinks = GetNextLinks(sourceShape);
 
+            // TODO: Add assert that this should only be done for Decision Points once we create specific process shape types
             if (ignoreLowestBranch)
             {
                 nextLinks = nextLinks.OrderBy(l => l.Orderindex).ToList();
@@ -1038,6 +1039,10 @@ namespace Model.StorytellerModel.Impl
 
             foreach (var link in nextLinks)
             {
+                // The link destination is not found in the target shapes,
+                // then the next shape is retrieved and the links between it
+                // and the target shapes are recursively added to the list
+                // of links
                 if (targetShapes.Find(s => s.Id == link.DestinationId) == null)
                 {
                     var nextShape = GetProcessShapeById(link.DestinationId);

@@ -76,7 +76,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Delete a user and system task and verify that the user and system task are not" +
                      "present in the returned process.")]
-        public void DeleteUserAndSYstemTask_VerifyReturnedProcess()
+        public void DeleteUserAndSystemTask_VerifyReturnedProcess()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);

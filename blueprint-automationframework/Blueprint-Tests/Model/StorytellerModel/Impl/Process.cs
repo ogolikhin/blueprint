@@ -430,12 +430,30 @@ namespace Model.StorytellerModel.Impl
         public void DeleteUserAndSystemTaskWithAllBranches(IProcessShape userTask, IProcessShape mergePointShape)
         {
             // Get the shapes to be deleted
-            var shapesToDelete = GetShapesBetween(userTask, new List<IProcessShape> { mergePointShape});
+            var shapesToDelete = GetShapesBetween(userTask, new List<IProcessShape> { mergePointShape });
 
             // Delete all shapes and outgoing links for the shapes
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             DeleteUserTask(userTask, mergePointShape);
+        }
+
+        public void DeleteUserDecisionWithBranchesNotOfTheLowestOrder(IProcessShape userDecision, IProcessShape mergePointShape)
+        {
+            // Get user decision outgoing process link of the lowest order
+            var outgoingUserDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(userDecision, DefaultOrderIndex);
+
+            // Get the user task after the decision point on the lowest order branch
+            var userTask = GetProcessShapeById(outgoingUserDecisionProcessLinkOfLowestOrder.DestinationId);
+
+            // Get the shapes to be deleted
+            var shapesToDelete = GetShapesBetween(userDecision, new List<IProcessShape> { mergePointShape }, ignoreLowestBranch: true);
+
+            // Delete all shapes and outgoing links for the shapes
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            // Delete the user decision and update the process link to have the user task as the merge point
+            DeleteUserDecision(userDecision, userTask);
         }
 
         #endregion Public Methods
@@ -1087,16 +1105,36 @@ namespace Model.StorytellerModel.Impl
         /// Delete a Single User Task and Update the Process Link
         /// </summary>
         /// <param name="userTask">The user task to be deleted</param>
-        /// <param name="nextShape">The shape that will immediately follow the deleted user task</param>
+        /// <param name="nextShape">The shape that will immediately follows the deleted user task</param>
         private void DeleteUserTask(IProcessShape userTask, IProcessShape nextShape)
         {
-            var userTaskIncomingProcessLink = GetIncomingLinkForShape(userTask);
+            DeleteProcessShape(userTask, nextShape);
+        }
 
-            // Remove the user task from the list of process shapes
-            DeleteShapesAndOutgoingLinks(new List<IProcessShape> { userTask });
+        /// <summary>
+        /// Delete a Single User Decision and Update the Process Link
+        /// </summary>
+        /// <param name="userDecision">The user decision to be deleted</param>
+        /// <param name="nextShape">The shape that immediately follows the deleted user decision</param>
+        private void DeleteUserDecision(IProcessShape userDecision, IProcessShape nextShape)
+        {
+            DeleteProcessShape(userDecision, nextShape);
+        }
+
+        /// <summary>
+        /// Delete a Single Process Shape and Update the Process Link
+        /// </summary>
+        /// <param name="processShapeToDelete">The process shape to be deleted</param>
+        /// <param name="nextShape">The shape that immediately follows the deleted process shape</param>
+        private void DeleteProcessShape(IProcessShape processShapeToDelete, IProcessShape nextShape)
+        {
+            var processShapeIncomingProcessLink = GetIncomingLinkForShape(processShapeToDelete);
+
+            // Remove the process shape from the list of process shapes
+            DeleteShapesAndOutgoingLinks(new List<IProcessShape> { processShapeToDelete });
 
             // Set destination id for the user task incoming link to the id of the next shape
-            userTaskIncomingProcessLink.DestinationId = nextShape.Id;
+            processShapeIncomingProcessLink.DestinationId = nextShape.Id;
         }
 
         #endregion Private Methods

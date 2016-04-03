@@ -158,17 +158,22 @@ namespace Model.StorytellerModel
         /// Add a Branch to a User Decision Point
         /// </summary>
         /// <param name="decisionPoint">The user decision point</param>
-        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="orderIndex">Order index of the added branch (Indicates display order 
+        /// in the process graph)</param>
         /// <param name="destinationId">The artifact Id of the following process shape</param>
         /// <returns>The user task created</returns>
-        IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(IProcessShape decisionPoint, double orderIndex, int destinationId);
+        IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(
+            IProcessShape decisionPoint, 
+            double orderIndex, 
+            int destinationId);
 
         /// <summary>
         /// Add a Link to a Process
         /// </summary>
         /// <param name="sourceId">The artifact Id of the link source</param>
         /// <param name="destinationId">The artifact Id of the link destination</param>
-        /// <param name="orderIndex">The order index of the link (Indicates display order in the process graph)</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
         /// <returns>The process link that was added</returns>
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
 
@@ -176,36 +181,55 @@ namespace Model.StorytellerModel
         /// Add a User Decision Point with a Branch After an Existing Shape
         /// </summary>
         /// <param name="previousShape">The shape before the insertion point</param>
-        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
-        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates 
+        /// display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where 
+        /// the branch terminates</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPointWithBranchAfterShape(IProcessShape previousShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddUserDecisionPointWithBranchAfterShape(
+            IProcessShape previousShape, 
+            double orderIndexOfBranch, 
+            int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a User Decision Point with a Branch Before an Existing Shape
         /// </summary>
         /// <param name="nextShape">The shape after the insertion point</param>
-        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
-        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates
+        ///  display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where
+        ///  the branch terminates</param>
         /// <returns>The user decision point that was added</returns>
-        IProcessShape AddUserDecisionPointWithBranchBeforeShape(IProcessShape nextShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddUserDecisionPointWithBranchBeforeShape(
+            IProcessShape nextShape, 
+            double orderIndexOfBranch, 
+            int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a System Decision Point with a Branch Before an Existing System Task
         /// </summary>
         /// <param name="nextSystemTaskShape">The system task after the insertion point</param>
-        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates display order in the process graph)</param>
-        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where the branch terminates</param>
+        /// <param name="orderIndexOfBranch">The order index of the added branch (Indicates
+        ///  display order in the process graph)</param>
+        /// <param name="idOfBranchMergePoint">(optional) The artifact Id of the shape where
+        ///  the branch terminates</param>
         /// <returns>The system decision point that was added</returns>
-        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(IProcessShape nextSystemTaskShape, double orderIndexOfBranch, int? idOfBranchMergePoint = null);
+        IProcessShape AddSystemDecisionPointWithBranchBeforeSystemTask(
+            IProcessShape nextSystemTaskShape, 
+            double orderIndexOfBranch, 
+            int? idOfBranchMergePoint = null);
 
         /// <summary>
         /// Add a Branch to a System Decision Point
         /// </summary>
         /// <param name="decisionPoint">The system decision point</param>
-        /// <param name="orderIndex">Order index of the added branch (Indicates display order in the process graph)</param>
+        /// <param name="orderIndex">Order index of the added branch (Indicates display order
+        ///  in the process graph)</param>
         /// <param name="destinationId">The artifact Id of the following process shape</param>
-        void AddBranchWithSystemTaskToSystemDecisionPoint(IProcessShape decisionPoint, double orderIndex, int destinationId);
+        void AddBranchWithSystemTaskToSystemDecisionPoint(
+            IProcessShape decisionPoint, 
+            double orderIndex, 
+            int destinationId);
 
         /// <summary>
         /// Get the Process Shape by the Shape Name
@@ -264,11 +288,21 @@ namespace Model.StorytellerModel
         void DeleteUserAndSystemTask(IProcessShape userTask);
 
         /// <summary>
-        /// Delete a User Task and Associated System Task Including All Subsequent System Decision Branches and Shapes
+        /// Delete a User Task and Associated System Task Including All Subsequent System 
+        /// Decision Branches and Shapes
         /// </summary>
         /// <param name="userTask">The user task to delete</param>
         /// <param name="mergePointShape">The shape where all the associated branches terminate</param>
         void DeleteUserAndSystemTaskWithAllBranches(IProcessShape userTask, IProcessShape mergePointShape);
+
+        /// <summary>
+        /// Delete a User Decision with all Branches that are Not of the Lowest Order
+        /// </summary>
+        /// <param name="userDecision">The user decision point to be deleted</param>
+        /// <param name="mergePointShape">The shape where all the associated branches terminate</param>
+        void DeleteUserDecisionWithBranchesNotOfTheLowestOrder(
+            IProcessShape userDecision,
+            IProcessShape mergePointShape);
 
         #endregion Methods
     }

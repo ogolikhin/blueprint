@@ -257,6 +257,19 @@ namespace Model.StorytellerModel
         /// <returns>The shape following the existing shape</returns>
         IProcessShape GetNextShape(IProcessShape shape);
 
+        /// <summary>
+        /// Delete a User and Associated System task
+        /// </summary>
+        /// <param name="userTask">The user task to be deleted</param>
+        void DeleteUserAndSystemTask(IProcessShape userTask);
+
+        /// <summary>
+        /// Delete a User Task and Associated System Task Including All Subsequent System Decision Branches and Shapes
+        /// </summary>
+        /// <param name="userTask">The user task to delete</param>
+        /// <param name="mergePointShape">The shape where all the associated branches terminate</param>
+        void DeleteUserAndSystemTaskWithAllBranches(IProcessShape userTask, IProcessShape mergePointShape);
+
         #endregion Methods
     }
 }

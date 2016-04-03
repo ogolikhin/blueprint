@@ -413,6 +413,31 @@ namespace Model.StorytellerModel.Impl
             return (ProcessShapeType)shapeType;
         }
 
+        public void DeleteUserAndSystemTask(IProcessShape userTask)
+        {
+            var systemTask = GetNextShape(userTask);
+            var shapeAfterSystemTask = GetNextShape(systemTask);
+
+            // Get the shapes to be deleted
+            var shapesToDelete = GetShapesBetween(userTask, new List<IProcessShape> { shapeAfterSystemTask });
+
+            // Delete all shapes and outgoing links for the shapes
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            DeleteUserTask(userTask, shapeAfterSystemTask);
+        }
+
+        public void DeleteUserAndSystemTaskWithAllBranches(IProcessShape userTask, IProcessShape mergePointShape)
+        {
+            // Get the shapes to be deleted
+            var shapesToDelete = GetShapesBetween(userTask, new List<IProcessShape> { mergePointShape});
+
+            // Delete all shapes and outgoing links for the shapes
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            DeleteUserTask(userTask, mergePointShape);
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -962,6 +987,116 @@ namespace Model.StorytellerModel.Impl
             string formatString = "<div>{0}</div>";
 
             return I18NHelper.FormatInvariant(formatString, plainTextString);
+        }
+
+
+        /// <summary>
+        /// Delete Shapes and Ougoing Links from Shapes
+        /// </summary>
+        /// <param name="shapesToDelete">The shapes to delete</param>
+        private void DeleteShapesAndOutgoingLinks(IEnumerable<IProcessShape> shapesToDelete)
+        {
+            foreach (var shape in shapesToDelete)
+            {
+                Shapes.RemoveAll(s => s.Id == shape.Id);
+                Links.RemoveAll(l => l.SourceId == shape.Id);
+            }
+        }
+
+        /// <summary>
+        /// Find all the Outgoing Links from a Process Shape
+        /// </summary>
+        /// <param name="processShape">The process shape</param>
+        /// <returns>The outgoing process links for the process shape</returns>
+        private List<ProcessLink> GetNextLinks(IProcessShape processShape)
+        {
+            var nextLinks = Links.FindAll(l => l.SourceId == processShape.Id);
+
+            return nextLinks;
+        }
+
+        /// <summary>
+        /// Find all the Links Between a Source Shape and a List of Target Shapes
+        /// </summary>
+        /// <param name="sourceShape">The source shape</param>
+        /// <param name="targetShapes">The list of target shapes where the branches for the source shape terminate</param>
+        /// <param name="ignoreLowestBranch">(optional) Flag to ignore the branch with the lowest order index 
+        /// when finding links.  Used when deleting decision points and lowest order index link should
+        /// be preserved</param>
+        /// <returns>The list of process links between the source shape and the target shapes</returns>
+        private IEnumerable<ProcessLink> GetLinksBetween(IProcessShape sourceShape,List<IProcessShape> targetShapes, bool ignoreLowestBranch = false)
+        {
+            var nextLinks = GetNextLinks(sourceShape);
+
+            // TODO: Add assert that this should only be done for Decision Points once we create specific process shape types
+            if (ignoreLowestBranch)
+            {
+                nextLinks = nextLinks.OrderBy(l => l.Orderindex).ToList();
+                nextLinks.Remove(nextLinks.First());
+            }
+
+            var additionalLinks = new List<ProcessLink>();
+
+            foreach (var link in nextLinks)
+            {
+                // The link destination is not found in the target shapes,
+                // then the next shape is retrieved and the links between it
+                // and the target shapes are recursively added to the list
+                // of links
+                if (targetShapes.Find(s => s.Id == link.DestinationId) == null)
+                {
+                    var nextShape = GetProcessShapeById(link.DestinationId);
+                    var linksBetweenShapes = GetLinksBetween(nextShape, targetShapes);
+                    additionalLinks.AddRange(linksBetweenShapes);
+                }
+            }
+
+            nextLinks.AddRange(additionalLinks);
+
+            return nextLinks;
+        }
+
+        /// <summary>
+        /// Find all the Shapes Between a Source Shape and a List of Target Shapes
+        /// </summary>
+        /// <param name="sourceShape">The source shape</param>
+        /// <param name="targetShapes">The list of target shapes where the branches for the source shape terminate</param>
+        /// <param name="ignoreLowestBranch">(optional) Flag to ignore the branch with the lowest order index
+        /// when finding links.  Used when deleting decision points and lowest order index link should
+        /// be preserved</param>
+        /// <returns>The list of process shapes between the source shape and the target shapes</returns>
+        private IEnumerable<ProcessShape> GetShapesBetween(IProcessShape sourceShape, List<IProcessShape> targetShapes, bool ignoreLowestBranch = false) 
+        {
+            var links = GetLinksBetween(sourceShape, targetShapes, ignoreLowestBranch);
+
+            var processShapes = new List<ProcessShape>();
+
+            foreach (var link in links)
+            {
+                if (targetShapes.Find(s => s.Id == link.DestinationId) == null)
+                {
+                    var shape = GetProcessShapeById(link.DestinationId);
+                    processShapes.Add((ProcessShape) shape);
+                }
+            }
+
+            return processShapes;
+        }
+
+        /// <summary>
+        /// Delete a Single User Task and Update the Process Link
+        /// </summary>
+        /// <param name="userTask">The user task to be deleted</param>
+        /// <param name="nextShape">The shape that will immediately follow the deleted user task</param>
+        private void DeleteUserTask(IProcessShape userTask, IProcessShape nextShape)
+        {
+            var userTaskIncomingProcessLink = GetIncomingLinkForShape(userTask);
+
+            // Remove the user task from the list of process shapes
+            DeleteShapesAndOutgoingLinks(new List<IProcessShape> { userTask });
+
+            // Set destination id for the user task incoming link to the id of the next shape
+            userTaskIncomingProcessLink.DestinationId = nextShape.Id;
         }
 
         #endregion Private Methods

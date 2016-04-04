@@ -443,9 +443,9 @@ namespace Model.StorytellerModel.Impl
             // Get user decision outgoing process link of the lowest order
             var outgoingUserDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(userDecision, DefaultOrderIndex);
 
-            // Get the user task after the decision point on the lowest order branch
-            var userTask = GetProcessShapeById(outgoingUserDecisionProcessLinkOfLowestOrder.DestinationId);
-
+            // Get the user task after the decision point on the lowest order branch.
+            var userTaskOnLowestOrderBranchOfUserDecision = GetProcessShapeById(outgoingUserDecisionProcessLinkOfLowestOrder.DestinationId);
+            
             // Get the shapes to be deleted
             var shapesToDelete = GetShapesBetween(userDecision, new List<IProcessShape> { mergePointShape }, ignoreLowestBranch: true);
 
@@ -453,7 +453,7 @@ namespace Model.StorytellerModel.Impl
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             // Delete the user decision and update the process link to have the user task as the merge point
-            DeleteUserDecision(userDecision, userTask);
+            DeleteUserDecision(userDecision, userTaskOnLowestOrderBranchOfUserDecision);
         }
 
         #endregion Public Methods

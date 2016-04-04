@@ -1,5 +1,21 @@
 var loaders = require("./loaders");
 var webpack = require('webpack');
+
+// Do not use code coverage when started with --debug parameter
+var postLoaders = [
+      {
+          test: /^((?!\.spec\.ts).)*.ts$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'istanbul-instrumenter'
+      }
+];
+function isDebug(argument) {
+    return argument === '--debug';
+}
+if (process.argv.some(isDebug)) {   
+    postLoaders = [];
+}
+
 module.exports = {
   entry: ['./src/index.ts'],
   output: {
@@ -24,13 +40,7 @@ module.exports = {
   ],
   module: {
     loaders: loaders,
-    postLoaders: [
-      {
-        test: /^((?!\.spec\.ts).)*.ts$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'istanbul-instrumenter'
-      }
-    ]
+    postLoaders: postLoaders
   }
 };
 

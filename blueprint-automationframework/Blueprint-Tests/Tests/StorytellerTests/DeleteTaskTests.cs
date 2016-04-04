@@ -15,6 +15,7 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class DeleteTaskTests
     {
+        private const int NumberOfAdditionalUserTasks = 5;
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
@@ -119,7 +120,49 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        // TODO move to DeleteTaskValidationTests.cs soon
+        [TestCase(NumberOfAdditionalUserTasks)]
+        [Description("Delete the user and accompanying system task multiple times and verify that " +
+                     "the user and system task are not present in the returned process.")]
+        public void DeleteMultipleUserAndSystemTasks_VerifyReturnedProcess(int iteration)
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add multiple user task with associated system tasks
+            for (int i = 0; i < iteration; i++)
+            {
+                var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+                var processShape = process.GetNextShape(userTask);
+
+                preconditionOutgoingLink = process.GetOutgoingLinkForShape(processShape);
+            }
+
+            // Save the process
+            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+
+            // Delete multiple user tasks with associated system tasks except the default User Task and its associated system task
+            var userTasksToBeDeleted = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+
+            foreach (var userTask in userTasksToBeDeleted)
+            {
+                if (!(userTask.Name.Equals(Process.DefaultUserTaskName)))
+                {
+                    returnedProcess.DeleteUserAndSystemTask(userTask);
+                }
+            }
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
         [TestCase]
         [Description("Add an additonal User Task and generate User Storiese for the updated process then " +
                      "delete a user and associated system task. Verify that the deleting user task doesn't" +

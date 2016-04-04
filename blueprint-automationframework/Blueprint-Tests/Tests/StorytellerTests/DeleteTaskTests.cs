@@ -37,12 +37,14 @@ namespace StorytellerTests
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken),
+                "The user didn't get an Access Control token!");
 
             // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
             _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken),
+                "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
@@ -155,9 +157,6 @@ namespace StorytellerTests
 
             returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
-            //// Update, Verify, and publish the modified process
-            // StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
-
             // save process with deleted user task and associated system task
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
 
@@ -170,17 +169,22 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {  
                 // Delete the process artifact that were added from the test.
-                var artifact = _storyteller.Artifacts.Find(a => a.IsPublished && a.Id.Equals(returnedProcess.Id));
+                var artifact = _storyteller.Artifacts
+                    .Find(a => a.IsPublished && a.Id.Equals(returnedProcess.Id));
 
                 // Delete with existing child artifacts which are any existing user story artifact(s)
-                var deleteArtifacts = _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                var deleteArtifacts = _storyteller.DeleteProcessArtifact(artifact,
+                    deleteChildren: _deleteChildren);
                 deletedChildArtfacts = deleteArtifacts
                     .FindAll(d => !d.ArtifactId.Equals(returnedProcess.Id)).Count();
             }
 
             // Assert that total number of user stories on blueprint main experience is still same as
             // the total number of user stories generated prior to the single user task deletion
-            Assert.That(totalUserStoriesPriorToUserTaskDeletion.Equals(deletedChildArtfacts), "After a single User Task Deletion, total number of user stories {0} is expected but {1} user stories were remained.", totalUserStoriesPriorToUserTaskDeletion, deletedChildArtfacts);
+            Assert.That(totalUserStoriesPriorToUserTaskDeletion.Equals(deletedChildArtfacts),
+                "After a single User Task Deletion, total number of user stories {0} is expected" +
+                " but {1} user stories were remained.", totalUserStoriesPriorToUserTaskDeletion,
+                deletedChildArtfacts);
         }
     }
 }

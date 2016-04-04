@@ -117,7 +117,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Delete user decision with branch before the end shape and verify that the returned " +
                      "process has the user decision with all branches except the lowest order branch removed .")]
-        public void DeleteUserDecisionWithBranchBeforeEnd_VerifyReturnedProcess()
+        public void DeleteUserDecisionWithBranchAfterDefaultSystemTask_VerifyReturnedProcess()
         {
             /*
             If you start with this:
@@ -132,19 +132,22 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Find the end shape
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            // Find default system task
+            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
-            // Find incoming process link for end shape
-            var endIncomingLink = process.GetIncomingLinkForShape(endShape);
+            // Find outgoing process link for default system task
+            var defaultSystemTaskOutgoingLink = process.GetOutgoingLinkForShape(defaultSystemTask);
 
             // Add Decision point with branch and 2 user tasks
-            var userDecision = process.AddUserDecisionPointWithBranchBeforeShape(endShape, endIncomingLink.Orderindex + 1);
+            var userDecision = process.AddUserDecisionPointWithBranchAfterShape(defaultSystemTask, defaultSystemTaskOutgoingLink.Orderindex + 1);
 
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
+
+            // Find the end shape
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
@@ -182,15 +185,24 @@ namespace StorytellerTests
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add Decision point with branch to end
+            // Add Decision point <UD2> with branch after precondition
             var secondUserDecisionInProcess = process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 branchEndPoint.Id);
 
-            // Add decision point before decision point; will have same branch order index as previous added branch
-            var firstUserDecisionInProcess = process.AddUserDecisionPointWithBranchBeforeShape(
-                secondUserDecisionInProcess, 
+            // Find updatedoutgoing process link for precondition
+            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            // Add new user and system task before decision point
+            process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Find updatedoutgoing process link for precondition
+            preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            // Add decision point <UD1> after precondition
+            var firstUserDecisionInProcess = process.AddUserDecisionPointWithBranchAfterShape(
+                preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
                 secondUserDecisionInProcess.Id);
 
@@ -238,8 +250,11 @@ namespace StorytellerTests
             // Find the outgoing link for the precondition
             var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
 
-            // Add Decision point with branch
-            var innerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            // Merge point for the bothr user decisions is the process end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add Decision point <UD2> with branch 
+            var innerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Find the updated outgoing link for the precondition
             preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
@@ -250,16 +265,13 @@ namespace StorytellerTests
             // Find the updated outgoing link for the precondition
             preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
 
-            // Add an outer user decision point after the precondition and before the new user/system task
-            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            // Add an outer user decision point <UD1> after the precondition and before the new user/system task
+            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(innerUserDecision.Name);
-
-            // Merge point for the inner user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
@@ -297,8 +309,11 @@ namespace StorytellerTests
             // Find the outgoing link for the precondition
             var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
 
-            // Add Decision point with branch
-            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            // Merge point for the bothr user decisions is the process end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add Decision point <UD2> with branch
+            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Find the updated outgoing link for the precondition
             preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
@@ -309,16 +324,13 @@ namespace StorytellerTests
             // Find the updated outgoing link for the precondition
             preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
 
-            // Add an outer user decision point after the precondition and before the new user/system task
-            var outerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
+            // Add an outer user decision point <UD1> after the precondition and before the new user/system task
+            var outerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(outerUserDecision.Name);
-
-            // Merge point for the outer user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
@@ -407,7 +419,7 @@ namespace StorytellerTests
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add decision point with branch after precondition
+            // Add decision point <UD1> with branch after precondition
             var userDecision = process.AddUserDecisionPointWithBranchAfterShape(
                 preconditionTask, 
                 preconditionOutgoingLink.Orderindex + 1, 
@@ -423,7 +435,7 @@ namespace StorytellerTests
 
             var newSystemTask = process.GetNextShape(newUserTask);
 
-            // Add second user decision point with branch to end after new system task
+            // Add second user decision point <UD2> with branch to end after new system task
             var secondUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
                 newSystemTask, 
                 preconditionOutgoingLink.Orderindex + 1, 

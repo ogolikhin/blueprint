@@ -1105,7 +1105,7 @@ namespace Model.StorytellerModel.Impl
         /// Delete a Single User Task and Update the Process Link
         /// </summary>
         /// <param name="userTask">The user task to be deleted</param>
-        /// <param name="nextShape">The shape that will immediately follows the deleted user task</param>
+        /// <param name="nextShape">The shape that immediately follows the deleted user task</param>
         private void DeleteUserTask(IProcessShape userTask, IProcessShape nextShape)
         {
             DeleteProcessShape(userTask, nextShape);

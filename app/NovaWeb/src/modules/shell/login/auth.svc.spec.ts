@@ -9,12 +9,18 @@ export class LocalizationServiceMock implements ILocalizationService {
     }
 }
 
+export class WindowMock {
+    public location = { origin: "http://localhost:9876" };
+    public open() {}
+}
+
 describe("AuthSvc", () => {
     var $httpBackend: ng.IHttpBackendService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("auth", AuthSvc);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("$window", WindowMock);
     }));
 
     describe("getCurrentUser", () => {

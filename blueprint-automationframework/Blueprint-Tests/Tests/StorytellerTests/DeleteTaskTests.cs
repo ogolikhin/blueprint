@@ -5,6 +5,9 @@ using NUnit.Framework;
 using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Model.OpenApiModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StorytellerTests
 {
@@ -47,11 +50,22 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsList = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    }
+                    else
+                    {
+                        savedArtifactsList.Add(artifact);
+                    }
+                }
+                if (!(savedArtifactsList.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
             }
 
@@ -100,7 +114,73 @@ namespace StorytellerTests
             returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
+        // TODO move to DeleteTaskValidationTests.cs soon
+        [TestCase]
+        [Description("Add an additonal User Task and generate User Storiese for the updated process then " +
+                     "delete a user and associated system task. Verify that the deleting user task doesn't" +
+                     "delete user stories generated prior to the User Task deletion.")]
+        public void GenerateUserStoriesDeleteUserAndSystemTask_VerifyUserStoriesExistence()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user/system Task immediately after the precondition
+            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Save the process
+            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+
+            // Publish the process prior to user story generation
+            _storyteller.PublishProcess(_user, returnedProcess);
+
+            // Generate User Story artfact(s) from the Process artifact
+            var userStoriesPriorToUserTaskDeletion = _storyteller.GenerateUserStories(_user, returnedProcess);
+
+            // Get the total number of user stories generated from the process
+            int totalUserStoriesPriorToUserTaskDeletion = userStoriesPriorToUserTaskDeletion.Count();
+
+            // Delete a single User Task with a associated system task
+            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+
+            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+
+            //// Update, Verify, and publish the modified process
+            // StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+
+            // save process with deleted user task and associated system task
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // publish process
+            _storyteller.PublishProcess(_user, returnedProcess);
+
+            // checking the total number of user story artifacts from blueprint 
+            // by using delete the process artifact returned body type
+            int deletedChildArtfacts = 0;
+            if (_storyteller.Artifacts != null)
+            {  
+                // Delete the process artifact that were added from the test.
+                var artifact = _storyteller.Artifacts.Find(a => a.IsPublished && a.Id.Equals(returnedProcess.Id));
+
+                // Delete with existing child artifacts which are any existing user story artifact(s)
+                var deleteArtifacts = _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                deletedChildArtfacts = deleteArtifacts
+                    .FindAll(d => !d.ArtifactId.Equals(returnedProcess.Id)).Count();
+            }
+
+            // Assert that total number of user stories on blueprint main experience is still same as
+            // the total number of user stories generated prior to the single user task deletion
+            Assert.That(totalUserStoriesPriorToUserTaskDeletion.Equals(deletedChildArtfacts), "After a single User Task Deletion, total number of user stories {0} is expected but {1} user stories were remained.", totalUserStoriesPriorToUserTaskDeletion, deletedChildArtfacts);
         }
     }
 }

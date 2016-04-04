@@ -70,6 +70,7 @@ namespace ServiceLibrary.Models
         /// <remarks>
         /// Populated from LicenseActivitiyDetails Table.
         /// </remarks>
+        [JsonProperty] // Required for deserializer to work properly !
         public IDictionary<int, int> ActiveLicenses { get; private set; }
 
         /// <summary>

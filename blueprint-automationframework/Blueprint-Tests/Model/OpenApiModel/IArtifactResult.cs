@@ -1,24 +1,34 @@
-﻿namespace Model.OpenApiModel
+﻿using System.Net;
+
+namespace Model.OpenApiModel
 {
     public interface IArtifactResult<T>
     { 
         T Artifact { get; set; }
         string Message { get; set; }
-        string ResultCode { get; set; }
+        HttpStatusCode ResultCode { get; set; }
     }
 
     public interface IPublishArtifactResult
     {
-        string ArtifactId { get; set; }
-        string ProjectId { get; set; }
+        int ArtifactId { get; set; }
+        int ProjectId { get; set; }
         string Message { get; set; }
-        string ResultCode { get; set; }
+        HttpStatusCode ResultCode { get; set; }
+    }
+
+    public interface IDiscardArtifactResult
+    {
+        int ArtifactId { get; set; }
+        int ProjectId { get; set; }
+        string Message { get; set; }
+        HttpStatusCode ResultCode { get; set; }
     }
 
     public interface IDeleteArtifactResult
     {
-        string ArtifactId { get; set; }
+        int ArtifactId { get; set; }
         string Message { get; set; }
-        string ResultCode { get; set; }
+        HttpStatusCode ResultCode { get; set; }
     }
 }

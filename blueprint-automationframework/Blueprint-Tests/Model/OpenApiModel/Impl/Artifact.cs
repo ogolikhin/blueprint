@@ -4,7 +4,9 @@ using NUnit.Framework;
 using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using Utilities;
 using Utilities.Facades;
 
@@ -12,10 +14,11 @@ namespace Model.OpenApiModel.Impl
 {
     public class ArtifactBase : IArtifactBase
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+        public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
         private const string SearchPath = "/svc/shared/artifacts/search";
 
         #region Properties
+
         public BaseArtifactType BaseArtifactType { get; set; }
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
         public int Id { get; set; }
@@ -30,6 +33,10 @@ namespace Model.OpenApiModel.Impl
         public bool AreAttachmentsReadOnly { get; set; }
         public bool AreDocumentReferencesReadOnly { get; set; }
         public string Address { get; set; }
+        public IUser CreatedBy { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsSaved { get; set; }
+
         #endregion Properties
 
         public IList<IArtifactBase> SearchArtifactsByName(IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null)
@@ -45,7 +52,7 @@ namespace Model.OpenApiModel.Impl
                 tokenValue = string.Empty;
             }
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> {
+            var queryParameters = new Dictionary<string, string> {
                 { "name", searchSubstring }
             };
 
@@ -79,105 +86,95 @@ namespace Model.OpenApiModel.Impl
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
         #region Constants
+
         private const string SVC_PATH = "api/v1/projects";
         private const string URL_ARTIFACTS = "artifacts";
         private const string URL_PUBLISH = "api/v1/vc/publish";
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
+        
         #endregion Constants
 
         #region Properties
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
-        public List<OpenApiProperty> Properties { get; } = new List<OpenApiProperty>();
+        public List<OpenApiProperty> Properties { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiComment>>))]
-        public List<OpenApiComment> Comments { get; } = new List<OpenApiComment>();
+        public List<OpenApiComment> Comments { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
-        public List<OpenApiTrace> Traces { get; } = new List<OpenApiTrace>();
+        public List<OpenApiTrace> Traces { get; set; }
 
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
-        public List<OpenApiAttachment> Attachments { get; } = new List<OpenApiAttachment>();
+        public List<OpenApiAttachment> Attachments { get; set; }
+        
         #endregion Properties
 
         #region Constructors
+        
         /// <summary>
         /// Constructor in order to use it as generic type
         /// </summary>
         public OpenApiArtifact()
         {
+            IsSaved = false;
+            IsPublished = false;
+
             //Required for deserializing OpenApiArtifact
+            Properties = new List<OpenApiProperty>();
+            Comments = new List<OpenApiComment>();
+            Traces = new List<OpenApiTrace>();
+            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="address">The URI address of the artifact.</param>
-        public OpenApiArtifact(string address)
+        public OpenApiArtifact(string address) : this()
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            this.Address = address;
+            Address = address;
         }
 
-        public OpenApiArtifact(string address, int id, int projectId)
+        public OpenApiArtifact(string address, int id, int projectId) : this()
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            this.Address = address;
-            this.Id = id;
-            this.ProjectId = projectId;
+            Address = address;
+            Id = id;
+            ProjectId = projectId;
         }
+
         #endregion Constructors
 
         #region Methods
 
-        public IOpenApiArtifact AddArtifact(
-            IOpenApiArtifact artifact,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public void Save(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS);
-
-            if (expectedStatusCodes == null)
+            if (user == null)
             {
-                expectedStatusCodes = new List<HttpStatusCode> {HttpStatusCode.Created};
+                Assert.NotNull(CreatedBy, "No user is available to perform Save.");
+                user = CreatedBy;
             }
 
-            OpenApiArtifact artifactObject = (OpenApiArtifact)artifact;
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
-                path, RestRequestMethod.POST, artifactObject, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
 
-            Logger.WriteDebug("Result Code: {0}", artifactResult.ResultCode);
-            Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            //TODO Assertion to check Message
-            const string expectedMsg = "Success";
-            Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
-
-            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture),
-                "The returned ResultCode was '{0}' but '{1}' was expected",
-                artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
-
-            //add back address
-            artifactResult.Artifact.Address = artifact.Address;
-
-            return artifactResult.Artifact;
-        }
-
-        public void Save(
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, this.ProjectId, URL_ARTIFACTS);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, ProjectId, URL_ARTIFACTS);
 
             if (expectedStatusCodes == null)
             {
@@ -186,137 +183,295 @@ namespace Model.OpenApiModel.Impl
 
             OpenApiArtifact artifactObject = this;
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             IArtifactResult<IOpenApiArtifact> artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiArtifactResult, OpenApiArtifact>(
                 path, RestRequestMethod.POST, artifactObject, expectedStatusCodes: expectedStatusCodes);
+
+            // When artifact is saved, set IsPublished flag to false since changes have been saved but not published
+            if (artifactResult.ResultCode == HttpStatusCode.Created)
+            {
+                IsSaved = true;
+            }
 
             Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
             Id = artifactResult.Artifact.Id;
 
-            Assert.That(artifactResult.ResultCode == ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture),
+            const string expectedMsg = "Success";
+            Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
+
+            Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
                 "The returned ResultCode was '{0}' but '{1}' was expected",
                 artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+
         }
 
-        public void Publish(IUser user,
+        public void Publish(IUser user = null,
             bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform Publish.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var additionalHeaders = new Dictionary<string, string>();
 
             if (shouldKeepLock)
             {
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            string path = URL_PUBLISH;
+            var artifactToPublishList = new List<OpenApiArtifact> { new OpenApiArtifact(Address, Id, ProjectId) };
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            OpenApiArtifact artifactToPublish = new OpenApiArtifact();
-            artifactToPublish.Id = Id;
-            artifactToPublish.ProjectId = ProjectId;
-            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact> { artifactToPublish };
-            List<PublishArtifactResult> publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-            Logger.WriteDebug("Result Code for Publish artifact: {0}", publishResultList[0].ResultCode);
-            Assert.That(publishResultList[0].ResultCode == ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture),
-                "The returned ResultCode was '{0}' but '{1}' was expected", publishResultList[0].ResultCode, ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
+            var publishResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
+                URL_PUBLISH, RestRequestMethod.POST, artifactToPublishList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            var publishedResultList = publishResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
+            foreach (var publishedResult in publishedResultList)
+            {
+                var publishedArtifact = artifactToPublishList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                publishedArtifact.IsPublished = true;
+                Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
+            }
+
+            Assert.That(publishedResultList.Count().Equals(artifactToPublishList.Count()),
+                "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
+                artifactToPublishList.Count(), publishedResultList.Count());
         }
 
-        public List<IPublishArtifactResult> PublishArtifacts(
-            List<IOpenApiArtifact> artifactList,
-            IUser user,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IDiscardArtifactResult> Discard(IUser user = null,
+    List<HttpStatusCode> expectedStatusCodes = null,
+    bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
-            ThrowIf.ArgumentNull(user, nameof(user));
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-
-            if (shouldKeepLock)
+            if (user == null)
             {
-                additionalHeaders.Add("KeepLock", "true");
+                Assert.NotNull(CreatedBy, "No user is available to perform Discard.");
+                user = CreatedBy;
             }
 
-            string path = URL_PUBLISH;
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
 
-            if (expectedStatusCodes == null)
+            if (sendAuthorizationAsCookie)
             {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
             }
 
-            List<OpenApiArtifact> artifactObjectList = new List<OpenApiArtifact>();
+            var artifactToDiscardList = new List<OpenApiArtifact> { new OpenApiArtifact(Address, Id, ProjectId) };
 
-            foreach (IOpenApiArtifact artifact in artifactList)
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
+            var discardResultList = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(
+                URL_DISCARD, RestRequestMethod.POST, artifactToDiscardList, expectedStatusCodes: expectedStatusCodes);
+
+            var discardedResultList = discardResultList.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            // When each artifact is successfully discarded, set IsSaved flag to false
+            foreach (var discardedResult in discardedResultList)
             {
-                OpenApiArtifact artifactElement = new OpenApiArtifact(artifact.Address);
-                artifactElement.Id = artifact.Id;
-                artifactElement.ProjectId = artifact.ProjectId;
-                artifactObjectList.Add(artifactElement);
+                var publishedArtifact = artifactToDiscardList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            Assert.That(discardedResultList.Count().Equals(artifactToDiscardList.Count()),
+                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
+                artifactToDiscardList.Count(), discardedResultList.Count());
 
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(
-                path, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
-
-            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+            return discardResultList.ConvertAll(o => (IDiscardArtifactResult)o);
         }
 
-        public List<IDeleteArtifactResult> DeleteArtifact(IOpenApiArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool deleteChildren = false)
+        public List<IDeleteArtifactResult> Delete(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false,
+            bool deleteChildren = false)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
+                user = CreatedBy;
+            }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
+
             if (deleteChildren)
             {
                 path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
             }
 
-            Dictionary<string, string> additionalHeaders = new Dictionary<string, string>();
-            additionalHeaders.Add("Accept", "application/json");
-
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, token: user.Token?.OpenApiToken);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
+                path,
+                RestRequestMethod.DELETE, 
+                expectedStatusCodes: expectedStatusCodes);
 
             foreach (var deletedArtifact in artifactResults)
             {
                 Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}", path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
             }
+
             return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
-        public void Delete(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public int GetVersion(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetVersion.");
+                user = CreatedBy;
+            }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
-                path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
 
-            Logger.WriteDebug("DELETE {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResults[0].Message, artifactResults[0].ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResults[0].ResultCode);
-        }
-
-        public bool IsArtifactPublished(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, ProjectId, URL_ARTIFACTS, Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
-            //for unpublished artifact Version is -1
-            return (returnedArtifact.Version != -1);
+            return returnedArtifact.Version;
         }
 
         #endregion Methods
+
+        #region Static Methods
+
+        /// <summary>
+        /// Discard the added artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<IDiscardArtifactResult> DiscardArtifacts(List<IOpenApiArtifact> artifactsToDiscard,
+            string address,            
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactObjectList = artifactsToDiscard.Select(artifact => new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiArtifact>>(URL_DISCARD, RestRequestMethod.POST, artifactObjectList, expectedStatusCodes: expectedStatusCodes);
+
+            var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            foreach (var discardedResult in discardedResultList)
+            {
+                var discardedArtifact = artifactObjectList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                discardedArtifact.IsSaved = false;
+            }
+
+            return artifactResults.ConvertAll(o => (IDiscardArtifactResult)o);
+        }
+
+        /// <summary>
+        /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts)
+        /// </summary>
+        /// <param name="artifactsToPublish">The list of artifacts to publish</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<IPublishArtifactResult> PublishArtifacts(List<OpenApiArtifact> artifactsToPublish,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool shouldKeepLock = false,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (shouldKeepLock)
+            {
+                additionalHeaders.Add("KeepLock", "true");
+            }
+
+            // TODO:  Implement ICloneable for IOpenApiArtifact
+            var artifactObjectList = (from IOpenApiArtifact artifact in artifactsToPublish select new OpenApiArtifact(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<OpenApiArtifact>>(URL_PUBLISH, RestRequestMethod.POST, artifactObjectList, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            var publishedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+
+            foreach (var publishedResult in publishedResultList)
+            {
+                var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                publishedArtifact.IsSaved = false;
+                publishedArtifact.IsPublished = true;
+            }
+
+            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+        }
+
+        #endregion Static Methods
     }
 }

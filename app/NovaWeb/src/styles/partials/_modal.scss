@@ -1,6 +1,6 @@
 .modal-content {
   border: 0;
-  @include rounded-corners(0 0 $border-radius-amount $border-radius-amount);
+  @include rounded-corners($border-radius-amount $border-radius-amount $border-radius-amount $border-radius-amount);
 }
 
 .modal-header {
@@ -9,6 +9,7 @@
 
   .modal-title {
     color: $white;
+    font-size: $font-size-bigger;
   }
 }
 
@@ -17,6 +18,14 @@
   margin: 0;
 
   .modal-header{
+    padding: 10px;
+
+    .modal-title {
+      .fonticon-information::before {
+        vertical-align: bottom;
+      }
+    }
+
     .modal-close {
       color: $blue-lightest;
       cursor: pointer;
@@ -25,6 +34,10 @@
 
       &:hover {
         color: $white;
+      }
+
+      .fonticon-close::before {
+        font-size: 1rem;
       }
     }
   }
@@ -79,6 +92,44 @@
   }
 
   .modal-body {
+    .modal-panel-container {
+      min-height: 330px;
+      overflow: hidden;
+      position: relative;
+
+      &.modal-panel-not-login .modal-panel {
+        -webkit-transition-duration: .5s;
+        -moz-transition-duration: .5s;
+        -o-transition-duration: .5s;
+        transition-duration: .5s;
+        -ms-transform: translate(-120%, 0); /* IE 9 */
+        -webkit-transform: translate(-120%, 0); /* Safari */
+        transform: translate(-120%, 0); /* Standard syntax */
+      }
+
+      &.modal-panel-login .modal-panel {
+        -webkit-transition-duration: .5s;
+        -moz-transition-duration: .5s;
+        -o-transition-duration: .5s;
+        transition-duration: .5s;
+        -ms-transform: translate(0, 0); /* IE 9 */
+        -webkit-transform: translate(0, 0); /* Safari */
+        transform: translate(0, 0); /* Standard syntax */
+      }
+    }
+
+    .modal-panel {
+      background: $white;
+      left: 120%;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+
+    .modal-panel:first-child {
+      left: 0;
+    }
+
     .nova-login-message {
       box-sizing: content-box;
       font-size: $font-size-smallest;
@@ -91,7 +142,14 @@
       }
     }
 
-    .nova-forgot-password {
+    #modal-login-saml {
+      .nova-login-message {
+        font-size: $font-size-smaller;
+        text-align: left;
+      }
+    }
+
+    .nova-form-beneath {
       margin-top: -12px;
 
       a {

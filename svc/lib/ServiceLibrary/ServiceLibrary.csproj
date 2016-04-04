@@ -80,6 +80,7 @@
     <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LogHelper.cs" />

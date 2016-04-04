@@ -18,6 +18,7 @@ namespace StorytellerTests
     public class UpdateProcessValidationTests
     {
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
@@ -29,15 +30,21 @@ namespace StorytellerTests
         public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
 
-            // Get a valid token for the user.
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
@@ -49,7 +56,7 @@ namespace StorytellerTests
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
 
@@ -93,8 +100,8 @@ namespace StorytellerTests
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
                 );
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
@@ -110,7 +117,7 @@ namespace StorytellerTests
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask.Id);
+            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
 
             // Remove the process link between the precondition and the default user task
             returnedProcess.Links.Remove((ProcessLink)processLink);
@@ -129,8 +136,8 @@ namespace StorytellerTests
                 "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
                 );
 
-            // Publish the process artifact so teardown can properly delete the process
-            _storyteller.PublishProcessArtifact(_user, returnedProcess);
+            // Publish the process so teardown can properly delete the process
+            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         #endregion Tests

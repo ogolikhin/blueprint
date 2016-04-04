@@ -71,10 +71,9 @@ namespace Model
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">Id of the project</param>
         /// <param name="baseArtifactTypeName">Name of the base artifact type (Actor, Process, Storyboard)</param>
-        /// <param name="user">The user to authenticate to the ArtifactStore.</param>
-        /// <param name="expectedStatusCodes">A list of expected status codes.</param>
+        /// <param name="user">(optional) The user to authenticate to the the server with.  Defaults to no authentication.</param>
         /// <returns>Id of the specified artifact type from the specified project.</returns>
-        int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user);
+        int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user = null);
 
         #endregion Methods
     }

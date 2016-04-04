@@ -13,9 +13,10 @@ namespace OpenAPITests
     [Category(Categories.OpenApi)]
     public class ArtifactTests
     {
-        private IUser _user = null;
-        private IProject _project = null;
-        private IOpenApiArtifact _artifact = null;
+        private IUser _user;
+        private IProject _project;
+        private IOpenApiArtifact _artifact;
+
 
         [SetUp]
         public void SetUp()
@@ -29,8 +30,8 @@ namespace OpenAPITests
         {
             if (_user != null)
             {
-                // TODO Investigate how to remove user after publishing artifact with the particular Database User
-                //_user.DeleteUser(deleteFromDatabase: true);
+                // TODO Add teardown to remove published artifact(s) before deleteting users
+                _user.DeleteUser(deleteFromDatabase: true);
                 _user = null;
             }
         }
@@ -54,11 +55,37 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            var artifact = _artifact.AddArtifact(_artifact, _user);
+             _artifact.Save();
 
-            Assert.NotNull(artifact.Properties, "Properties should not be null!");
+            Assert.NotNull(_artifact.Properties, "Properties should not be null!");
 
             // TODO more assertion?
+        }
+
+        [Test]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        public void DiscardArtifact_Actor()
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+
+            //Create Description property
+            IOpenApiProperty property = new OpenApiProperty();
+            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+
+            //Set to add in root of the project
+            _artifact.ParentId = _artifact.ProjectId;
+
+            //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+            _artifact.Save();
+
+            //Adding all artifact(s) to publish
+            List<IOpenApiArtifact> artifactList = new List<IOpenApiArtifact>();
+            artifactList.Add(_artifact);
+            // TODO more assertion?
+
+            //Discard the artifact     
+            _artifact.Discard();
         }
 
         [Test]
@@ -76,15 +103,12 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //Add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact = _artifact.AddArtifact(_artifact, _user);
+            _artifact.Save();
 
-            //Adding all artifact(s) to publish
-            List<IOpenApiArtifact> _artifactList = new List<IOpenApiArtifact>();
-            _artifactList.Add(_artifact);
             // TODO more assertion?
 
-            //Publish artifact(s)     
-            _artifact.PublishArtifacts(_artifactList, _user);
+            //Publish artifact     
+            _artifact.Publish();
         }
 
         /// <summary>
@@ -109,7 +133,8 @@ namespace OpenAPITests
             _artifact.ParentId = _artifact.ProjectId;
 
             //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            _artifact.AddArtifact(_artifact, _user);
+            _artifact.Save();
+
             // TODO more assertion?
         }
     }

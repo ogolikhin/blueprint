@@ -1,42 +1,83 @@
 ﻿<div class="modal-header"></div>
-<div class="modal-body" ng-if="!ctrl.isInForgetPasswordScreen">
-    <form name="novaLoginForm" ng-submit="ctrl.login()" role="form">
-        <div class="nova-login-message" ng-class="{error: ctrl.labelError}"><span ng-bind-html="ctrl.errorMsg"></span></div>
-        <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
-            <input type="text" class="nova-form-control required" id="nova-username" name="novaUsername" ng-model="ctrl.novaUsername" ng-trim="false">
-            <label for="nova-username" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
+<div class="modal-body">
+    <div class="modal-panel-container" ng-class="{
+        'modal-panel-login': ctrl.isInLoginForm,
+        'modal-panel-not-login': ctrl.isInForgetPasswordScreen || ctrl.isInChangePasswordScreen || ctrl.isInSAMLScreen
+        }">
+        <div class="modal-panel" id="modal-login-form">
+            <form name="novaLoginForm" ng-submit="ctrl.login()" role="form" onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();">
+                <div class="nova-login-message" ng-class="{error: ctrl.labelError}"><span ng-bind-html="ctrl.errorMsg"></span></div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
+                    <input type="text" class="nova-form-control required" id="nova-username" name="novaUsername" ng-model="ctrl.novaUsername" ng-trim="false">
+                    <label for="nova-username" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-bp-actor"></i>{{::$root.config.labels["Login_Username"]}}</label>
+                </div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
+                    <input type="password" class="nova-form-control required" id="nova-password" name="novaPassword" ng-model="ctrl.novaPassword">
+                    <label for="nova-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_Password"]}}</label>
+                </div>
+                <div class="nova-form-group nova-form-beneath" ng-if="ctrl.enableForgetPasswordScreen">
+                    <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">{{::$root.config.labels["Login_ForgotPassword"]}}</a>
+                </div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-white" type="button" ng-click="ctrl.goToChangePasswordScreen()" ng-if="ctrl.enableChangePasswordScreen">{{::$root.config.labels["Login_ChangePasswordButton"]}}</button>
+                    <button class="btn btn-primary" type="submit">{{::$root.config.labels["Login_LoginButton"]}}</button>
+                    <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled"><a href="#" ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</a></div>
+                </div>
+            </form>
         </div>
-        <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
-            <input type="password" class="nova-form-control required" id="nova-password" name="novaPassword" ng-model="ctrl.novaPassword">
-            <label for="nova-password" class="nova-label"><i class="fonticon-lock"></i> Password</label>
+        <div class="modal-panel" id="modal-login-forget-password" ng-if="ctrl.isInForgetPasswordScreen">
+            <form name="novaLoginForgetPassword" ng-submit="ctrl.resetPassword()" role="form">
+                <div class="nova-login-message" ng-class="{error: ctrl.forgetPasswordScreenError}"><span ng-bind-html="ctrl.forgetPasswordScreenMessage"></span></div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.forgetPasswordScreenError}">
+                    <input type="text" class="nova-form-control required" id="nova-username-forgot" name="novaUsername" ng-model="ctrl.forgetPasswordScreenUsername" ng-trim="false">
+                    <label for="nova-username-forgot" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-bp-actor"></i>{{::$root.config.labels["Login_Username"]}}</label>
+                </div>
+                <div class="nova-form-group nova-form-beneath">
+                    <a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_GoBackToLogin"]}}</a>
+                </div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-primary" type="submit">{{::$root.config.labels["Login_ResetPassword"]}}</button>
+                </div>
+            </form>
         </div>
-        <div class="nova-form-group nova-forgot-password" ng-if="ctrl.enableForgetPasswordScreen">
-            <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">Forgot password?</a>
+        <div class="modal-panel" id="modal-login-saml" ng-if="ctrl.isInSAMLScreen">
+            <form name="novaLoginSAML" role="form">
+                <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-primary" ng-click="ctrl.doSamlLogin()">{{::$root.config.labels["Login_Retry"]}}</button>
+                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_LoginPrompt"]}}</a></div>
+                </div>
+            </form>
         </div>
-        <div class="nova-form-group nova-form-buttons">
-            <button class="btn btn-primary" type="submit">Login</button>
-            <div class="nova-login-to">Login to blueprint.toronto</div>
+        <div class="modal-panel" id="modal-login-change-password" ng-if="ctrl.isInChangePasswordScreen">
+            <form name="novaLoginChangePassword" ng-submit="ctrl.changePassword()" role="form">
+                <div class="nova-login-message" ng-class="{error: ctrl.changePasswordScreenError}"><span ng-bind-html="ctrl.changePasswordScreenMessage"></span></div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordCurrentPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-current-password" name="novaCurrentPassword" ng-model="ctrl.novaCurrentPassword">
+                    <label for="nova-current-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_CurrentPassword"]}}</label>
+                </div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordNewPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-new-password" name="novaNewPassword" ng-model="ctrl.novaNewPassword">
+                    <label for="nova-new-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_NewPassword"]}}</label>
+                </div>
+                <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.changePasswordConfirmPasswordError}">
+                    <input type="password" class="nova-form-control required" id="nova-confirm-new-password" name="novaConfirmNewPassword" ng-model="ctrl.novaConfirmNewPassword">
+                    <label for="nova-confirm-new-password" class="nova-label" ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_ChangePassword_ConfirmPassword"]}}</label>
+                </div>
+                <div class="nova-form-group nova-form-beneath">
+                    &nbsp;
+                </div>
+                <div class="nova-form-group nova-form-buttons">
+                    <button class="btn btn-white" type="button" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["App_Button_Cancel"]}}</button>
+                    <button class="btn btn-primary" type="submit">{{::$root.config.labels["App_Button_Ok"]}}</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
-<div class="modal-body" ng-if="ctrl.isInForgetPasswordScreen">
-    <form name="novaLoginForm" ng-submit="ctrl.resetPassword()" role="form">
-        <div class="nova-login-message" ng-class="{error: ctrl.labelError}"><span ng-bind-html="ctrl.errorMsg"></span></div>
-        <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.fieldError}">
-            <input type="text" class="nova-form-control required" id="nova-username-forgot" name="novaUsername" ng-model="ctrl.novaUsername">
-            <label for="nova-username-forgot" class="nova-label"><i class="fonticon-bp-actor"></i> Username</label>
-        </div>
-        <div class="nova-form-group nova-forgot-password">
-            <a href="#" ng-click="ctrl.goToLoginScreen()">Go back to login</a>
-        </div>
-        <div class="nova-form-group nova-form-buttons">
-            <button class="btn btn-primary" type="submit">Reset password</button>
-        </div>
-    </form>
-</div>
-<div class="modal-footer">
+<div class="modal-footer" >
     <div>
-        &reg;2016 Blueprint Software Systems Inc. All rights reserved<br>
-        Version: 6.3 (6.3.0.188)
+        &copy;{{::$root.year}} {{::$root.config.labels["Login_BlueprintCopyRight"]}} <br>
+        {{::$root.config.labels["Login_Version"]}} {{::$root.version}}
     </div>
 </div>

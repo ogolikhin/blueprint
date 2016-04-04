@@ -47,6 +47,7 @@ namespace Model.Factories
         /// <summary>
         /// Get the project object with the name specified, or the first project from BP database.
         /// </summary>
+        /// <param name="user">The user making the REST request.</param>
         /// <param name="projectName">(optional) The name of the project.</param>
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
         public static IProject GetProject(IUser user, string projectName = null)
@@ -55,7 +56,7 @@ namespace Model.Factories
 
             string path = I18NHelper.FormatInvariant("{0}", SVC_PROJECTS_PATH);
 
-            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password);
+            RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.OpenApiToken);
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
 
             if (projects.Count == 0)

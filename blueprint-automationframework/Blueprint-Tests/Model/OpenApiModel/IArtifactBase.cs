@@ -96,6 +96,9 @@ namespace Model.OpenApiModel
         bool AreAttachmentsReadOnly { get; set; }
         bool AreDocumentReferencesReadOnly { get; set; }
         string Address { get; set; }
+        IUser CreatedBy { get; set; }
+        bool IsPublished { get; set; }
+        bool IsSaved { get; set; }
 
         /// <summary>
         /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.

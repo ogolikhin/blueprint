@@ -49,7 +49,16 @@ Use
 ```
 gulp dev
 ```
-to build the project and start a browser-sync dev server with live-reload on default port (8000). Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc
+to build the project and start a browser-sync dev server with live-reload on default port (8000). Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc.
+
+You can override default backend url from command line:
+```
+npm run dev --backend=http://titan.blueprintsys.net
+```
+or 'permanently' in the user profile
+```
+npm config set nova:backend http://titan.blueprintsys.net
+```
 
 Use
 ```

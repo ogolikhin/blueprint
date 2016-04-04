@@ -16,6 +16,7 @@ namespace StorytellerTests
         private const int NumberOfAdditionalUserTasks = 5;
 
         private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
@@ -24,40 +25,47 @@ namespace StorytellerTests
         private bool _deleteChildren;
 
         #region SetUp and Teardown
-        [SetUp]
-        public void SetUp()
+
+        [TestFixtureSetUp]
+        public void ClassSetUp()
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
+
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             _session = _adminStore.AddSession(_user.Username, _user.Password);
             _user.SetToken(_session.SessionId);
+
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
-            if (_storyteller.GetUserStoryArtifactType(_user, _project.Id) == null )
-            {
-                Assert.Ignore("StorytellerPack is not installed successfully on the environment. Omitting.");
-            }
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
-        [TearDown]
-        public void TearDown()
+        [TestFixtureTearDown]
+        public void ClassTearDown()
         {
             if (_storyteller.Artifacts != null)
             {
                 // Delete all the artifacts that were added.
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, _user, deleteChildren: _deleteChildren);
+                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
                 }
             }
+
             if (_user != null)
             {
                 _user.DeleteUser();
                 _user = null;
             }
         }
+
         #endregion SetUp and TearDown
 
         #region Tests
@@ -70,7 +78,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
             
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
@@ -100,7 +108,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
@@ -161,22 +169,24 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - iteration
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var processShape = process.GetNextShape(userTask);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
              _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Find number of UserTasks from the published Process
@@ -209,22 +219,24 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - iteration
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < iteration; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var processShape = process.GetNextShape(userTask);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
             _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             // Checking Object: The Process that contains shapes including user task shapes
@@ -235,7 +247,7 @@ namespace StorytellerTests
 
             // Assert that there is one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
-                    {
+            {
                 var userStoryCounter = userStories.Count(us => us.ProcessTaskId.Equals(shape.Id));
 
                 Assert.That(!userStoryCounter.Equals(0), "No UserStory matches with the UserTask whose ID: {0} is created", shape.Id);
@@ -258,22 +270,24 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTasks - InitialUserTaskExpected - DEFAULTUSERTASK_COUNT since default UT counts
-            var preconditionId = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName).Id;
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
-            var processLink = process.GetOutgoingLinkForShape(preconditionId);
+            var processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < initialUserTaskExpectedCount - _defaultUserTaskCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var processShape = process.GetNextShape(userTask);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
-            process = _storyteller.UpdateProcess(_user, process);
+            _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
 
             // Get the process artifact
             process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -284,22 +298,24 @@ namespace StorytellerTests
             Logger.WriteDebug("The number of user stories generated is: {0}", userStoriesFirstBatch.Count);
 
             // Add UserTasks - AdditionalUserTaskExpected
-            preconditionId = process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName)).Id;
+            precondition = process.Shapes.Find(p => p.Name.Equals(Process.DefaultPreconditionName));
 
             // Find outgoing process link for precondition task
-            processLink = process.GetOutgoingLinkForShape(preconditionId);
+            processLink = process.GetOutgoingLinkForShape(precondition);
 
             for (int i = 0; i < additionalUserTaskExpectedCount; i++)
             {
                 var userTask = process.AddUserAndSystemTask(processLink);
-                processLink = process.GetOutgoingLinkForShape(process.GetOutgoingLinkForShape(userTask.Id).DestinationId);
+                var processShape = process.GetNextShape(userTask);
+
+                processLink = process.GetOutgoingLinkForShape(processShape);
             }
 
             // Update the process
-            process = _storyteller.UpdateProcess(_user, process);
+            _storyteller.UpdateProcess(_user, process);
 
             // Publish the Process artifact
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
 
             // Get the process artifact
             process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -331,7 +347,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -339,15 +355,15 @@ namespace StorytellerTests
             // Create target artifact for inline trace
             IOpenApiArtifact linkedArtifact = ArtifactFactory.CreateOpenApiArtifact(project: _project,
                 user: _user, artifactType: BaseArtifactType.Actor);
-            linkedArtifact.Save(user: _user);
-            linkedArtifact.Publish(user: _user);
+            linkedArtifact.Save();
+            linkedArtifact.Publish();
 
             //get text with inline trace to the specified artifact
             var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
             
             //delete artifact which is target for inline trace
-            linkedArtifact.Delete(user: _user);
-            linkedArtifact.Publish(user: _user);
+            linkedArtifact.Delete();
+            linkedArtifact.Publish();
 
             // Generate User Stories from the Process
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
@@ -370,7 +386,7 @@ namespace StorytellerTests
             var processArtifact = _storyteller.CreateAndSaveProcessArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Process);
 
             // Publish the Process artifact; enable recursive delete flag
-            _storyteller.PublishProcessArtifacts(_user);
+            processArtifact.Publish();
             _deleteChildren = true;
 
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
@@ -397,17 +413,16 @@ namespace StorytellerTests
         /// <returns>Text with inline traces</returns>
         private static string GetTextForInlineTrace(List<IOpenApiArtifact> artifacts)
         {
-            var text = String.Empty;
+            var text = string.Empty;
             foreach (var artifact in artifacts)
             {
                 text = text + I18NHelper.FormatInvariant("<a " +
-                "href=\"{0}?ArtifactId={1}\" target=\"_blank\" artifactid=\"{1}\"" +
+                "href=\"{0}?ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
                 " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\"" +
-                " text=\"{2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\">{2}</a>&nbsp;",
+                " text=\"{1}: {2}\" canclick=\"True\" canedit=\"False\" isvalid=\"True\"><span style=\"text-decoration: underline;\">{1}: {2}</span></a>&nbsp;",
                 artifact.Address, artifact.Id, artifact.Name);
             }
-            text = "<p>" + text + "</p>";
-            return text;
+            return "<p>"+text+"</p>";
         }
     }
 }

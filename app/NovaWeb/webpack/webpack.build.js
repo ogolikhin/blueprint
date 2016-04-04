@@ -11,7 +11,7 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css']
+        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css', 'bowser']
     },
     output: {
         filename: 'app.js',
@@ -54,7 +54,10 @@ module.exports = {
             { from: '**/*.view.html' },
             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
             { from: './unsupported-browser', to: './static' }
-         ])
+         ]),
+         new webpack.DefinePlugin({
+             VERSION: JSON.stringify(require('../package.json').version)
+         })
     ],
     module:{
         loaders: loaders

@@ -88,8 +88,6 @@
     <Compile Include="EventSources\EventSourcesTests.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
-    <Compile Include="Helpers\TestsForHelpers\UnitTest1.cs" />
-    <Compile Include="Helpers\TestsForHelpers\UnitTest2.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

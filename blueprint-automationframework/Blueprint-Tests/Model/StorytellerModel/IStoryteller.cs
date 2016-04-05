@@ -32,6 +32,14 @@ namespace Model.StorytellerModel
         List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
+        /// Create and Publish a single Process Artifact
+        /// </summary>
+        /// <param name="project">The project where the process artifact is to be added</param>
+        /// <param name="user">The user credentials for the request to create the process artifacts</param>
+        /// <returns>the published artifact objects</returns>
+        IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user);
+
+        /// <summary>
         /// Create and Publish Multiple Process Artifacts
         /// </summary>
         /// <param name="project">The project where the process artifacts are to be added</param>

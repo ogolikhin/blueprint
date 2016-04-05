@@ -1,15 +1,14 @@
-﻿using System.Linq;
-using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using Utilities.Factories;
+using System.Collections.Generic;
+using System.Linq;
+using Model.OpenApiModel;
 
 namespace StorytellerTests
 {
@@ -52,11 +51,22 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsList = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    }
+                    else
+                    {
+                        savedArtifactsList.Add(artifact);
+                    }
+                }
+                if (!(savedArtifactsList.Count().Equals(0)))
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
             }
 
@@ -105,7 +115,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -135,7 +145,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase(5, 0.0)]
@@ -167,7 +177,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase(0.0)]
@@ -198,7 +208,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase(1, 0.0)]
@@ -228,7 +238,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -258,7 +268,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase(5, 0.0)]
@@ -290,7 +300,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase(0.0)]
@@ -321,7 +331,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         /// <summary>

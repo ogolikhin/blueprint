@@ -8,6 +8,7 @@ using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel;
 using Model.OpenApiModel.Impl;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -70,6 +71,16 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
+        public IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user)
+        {
+            var publishedArtfiactList = CreateAndPublishProcessArtifacts(project, user, 1);
+
+            Assert.That(publishedArtfiactList.Count().Equals(1),"The expected number of published artifact" +
+                                                                " was 1 but response object contains {0} artifacts",
+                                                                publishedArtfiactList.Count());
+            return publishedArtfiactList[0];
+        }
+
         public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
@@ -77,6 +88,7 @@ namespace Model.StorytellerModel.Impl
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                MarkArtifactAsPublished(artifact.Id);
                 artifact.Publish(user);
                 artifacts.Add(artifact);
             }

@@ -120,7 +120,7 @@ namespace StorytellerTests
             returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -140,7 +140,7 @@ namespace StorytellerTests
             returnedProcess.ProcessType = ProcessType.UserToSystemProcess;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -163,7 +163,7 @@ namespace StorytellerTests
             returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -186,7 +186,7 @@ namespace StorytellerTests
             returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
             // Updatea and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -209,7 +209,7 @@ namespace StorytellerTests
             returnedProcess.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -234,7 +234,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -256,7 +256,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchBeforeShape(endShape, endIncomingLink.Orderindex + 1);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -280,7 +280,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchBeforeShape(newUserTask, endIncomingLink.Orderindex + 1, endShape.Id);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -314,7 +314,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -342,7 +342,7 @@ namespace StorytellerTests
             returnedProcess.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id); 
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -375,7 +375,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(newSystemTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -408,7 +408,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchAfterShape(precondition, preconditionOutgoingLink.Orderindex + 1, newUserTask.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -435,7 +435,7 @@ namespace StorytellerTests
             returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint, preconditionOutgoingLink.Orderindex + 1, userDecisionPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -456,7 +456,7 @@ namespace StorytellerTests
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -477,7 +477,7 @@ namespace StorytellerTests
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName).AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -498,7 +498,7 @@ namespace StorytellerTests
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AddAssociatedArtifact(includedProcessArtifact);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
             // Get the process using GetProcess
             var processReturnedFromGet = _storyteller.GetProcess(_user, returnedProcess.Id);
@@ -507,7 +507,7 @@ namespace StorytellerTests
             processReturnedFromGet.GetProcessShapeByShapeName(Process.DefaultUserTaskName).AssociatedArtifact = null;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(processReturnedFromGet, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(processReturnedFromGet, _storyteller, _user);
         }
 
         [TestCase((uint)4096, "4KB_File.jpg", "application/json;charset=utf-8")]
@@ -577,7 +577,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -615,7 +615,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -644,7 +644,7 @@ namespace StorytellerTests
             process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint,defaultUserTaskOutgoingProcessLink.Orderindex+2,branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -679,7 +679,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -717,7 +717,7 @@ namespace StorytellerTests
             process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 3, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -764,7 +764,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 4, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         [TestCase]
@@ -805,7 +805,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, newUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
         }
 
         /// <summary>

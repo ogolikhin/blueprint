@@ -1,7 +1,7 @@
 'use strict';
 
 var gulp = require('gulp-npm-run')(require('gulp-help')(require('gulp')), {
-    exclude: ['postinstall'], // the test script is excluded 
+    exclude: ['postinstall', 'test:spec'], // the test script is excluded 
     //include: { 'necessary': 'a must-have task, because...' }, // just a helpful description 
     require: ['build'], // maybe because other tasks depend it 
     requireStrict: false,

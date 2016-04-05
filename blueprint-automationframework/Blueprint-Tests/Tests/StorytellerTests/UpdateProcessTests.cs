@@ -860,11 +860,12 @@ namespace StorytellerTests
            --[UT]--+--[ST]--+--
 
            It becomes this:
-                        +------[ST]-----------+
-                        |                     |
-           --[UT]--+--<SD>--+--<SD>--+--[ST]--+--[UT]--+--[ST]--+--
-                                |                               |
-                                +----------------[ST]-----------+
+
+            --[UT]--+--<SD>--+--<SD>--+--[ST]--+--[UT]--+--[ST]--+--
+                        |        |             |                 |
+                        |        +----------------[ST]-----------+
+                        |                      |
+                        +------[ST]------------+
             */
 
             // Create and get the default process
@@ -892,7 +893,7 @@ namespace StorytellerTests
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
 
             // Add a System Decision point with branch (second System Decision point) and close the loop before the branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);

@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Http.Results;
 using FileStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -14,48 +16,76 @@ namespace FileStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusRepository StatusRepo;
-        internal readonly IServiceLogRepository Log;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
+        internal readonly string _preAuthorizedKey;
 
         public StatusController()
-            : this(new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "GetStatus"), new ServiceLogRepository())
+            : this(new StatusControllerHelper(
+                        new List<IStatusRepository>
+                        {
+                            new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
+                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
+                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
+                        },
+                        "FileStore",
+                        new ServiceLogRepository(),
+                        WebApiConfig.LogSourceStatus), 
+                        WebApiConfig.StatusCheckPreauthorizedKey
+                  )
         {
         }
 
-        internal StatusController(IStatusRepository statusRepo, IServiceLogRepository log)
+        internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
-            StatusRepo = statusRepo;
-            Log = log;
+            _statusControllerHelper = scHelper;
+            _preAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
         /// GetStatus
         /// </summary>
         /// <remarks>
-        /// Returns the current status of FileStore service.
+        /// Returns the current status of the service.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(void))]
-        public async Task<IHttpActionResult> GetStatus()
+        [ResponseType(typeof(ServiceStatus))]
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            try
+            //Check pre-authorized key
+            if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
             {
-                var result = await StatusRepo.GetStatus();
-                if (result)
-                {
-                    return Ok();
-                }
-                return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
+                return Unauthorized();
             }
-            catch (Exception ex)
+
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+
+            if (serviceStatus.NoErrors)
             {
-                await Log.LogError(WebApiConfig.LogSourceStatus, ex);
-                return InternalServerError();
+                return Ok(serviceStatus);
             }
+            else
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
+            }
+        }
+
+        /// <summary>
+        /// GetStatusUpCheck
+        /// </summary>
+        /// <remarks>
+        /// Returns 200 OK. Used to 'ping' the service.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet, NoCache]
+        [Route("upcheck"), NoSessionRequired]
+        [ResponseType(typeof(ServiceStatus))]
+        public IHttpActionResult GetStatusUpCheck()
+        {
+            return Ok();
         }
     }
 }

@@ -371,6 +371,7 @@ END
 GO
 
 
+
 /******************************************************************************************************************************
 Name:			SetSchemaVersion
 
@@ -410,10 +411,7 @@ GO
 /******************************************************************************************************************************
 Name:			GetStatus
 
-Description: //TODO: 
-			
-Change History:
-Date			Name					Change
+Description:	Returns the version of the database.
 
 ******************************************************************************************************************************/
 
@@ -424,7 +422,7 @@ GO
 CREATE PROCEDURE [dbo].[GetStatus] 
 AS
 BEGIN
-	SELECT COUNT(*) from [dbo].[Sessions];
+	SELECT [SchemaVersion] FROM [dbo].[DbVersionInfo] WHERE [Id] = 1;
 END
 GO 
 

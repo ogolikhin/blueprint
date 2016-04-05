@@ -23,15 +23,23 @@ var executionEnvironmentDetector = (function () {
         }
         else if (/Windows\sNT\s6.1/i.test(ua) ||
             /Windows\sNT\s6.2/i.test(ua) ||
-            /Windows\sNT\s6.3/i.test(ua)) {
+            /Windows\sNT\s6.3/i.test(ua) ||
+            /Windows\sNT\s10/i.test(ua)) { // in Windows 10 Microsoft jumped from 6.3 (Windows 8.1) to 10.0
             browser.win7plus = true;
+
+            if (/Windows\sNT\s10/i.test(ua)) { // we also want to detect Windows 10 separately from Windows 7/8/8.1 as the Edge browser works only on Windows 10
+                browser.win10plus = true;
+            }
         }
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
         if (bowser.mobile) {
             browser.blueprintSupportedBrowser = false;
         }
-        else if (browser.msie && browser.version >= 9 && browser.win7plus) {
+        else if (browser.msie && browser.version >= 11 && browser.win7plus) {
+            browser.blueprintSupportedBrowser = true;
+        }
+        else if (browser.msedge && browser.win10plus) {
             browser.blueprintSupportedBrowser = true;
         }
         else if (browser.firefox && browser.version >= 19 && browser.win7plus) {

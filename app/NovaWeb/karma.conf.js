@@ -17,7 +17,13 @@ module.exports = function (config) {
         autoWatchBatchDelay: 300,
         files: [
             './node_modules/phantomjs-polyfill/bind-polyfill.js',
-            './src/test.ts'
+            './src/test.ts',
+            // This is an edge case for javascript tests when we load script here.
+            // An alternative is to use requireJS for loading in test files.
+            // DO NOT DO IT ANYMORE!!!
+            './node_modules/bowser/bowser.js',
+            './src/unsupported-browser/unsupported-browser.js',
+            './src/unsupported-browser/unsupported-browser.spec.js',
         ],
         babelPreprocessor: {
             options: {

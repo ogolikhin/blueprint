@@ -86,7 +86,6 @@ namespace AdminStore.Controllers
 
         private static StatusController CreateController(IStatusControllerHelper statusControllerHelper, string preAuthorizedKey)
         {
-            var logMock = new Mock<IServiceLogRepository>();
             var controller = new StatusController(statusControllerHelper, preAuthorizedKey)
             {
                 Request = new HttpRequestMessage(),

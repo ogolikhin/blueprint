@@ -281,6 +281,9 @@ namespace Model.StorytellerModel
         /// <returns>The shape following the existing shape</returns>
         IProcessShape GetNextShape(IProcessShape shape);
 
+        void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
+            IProcessShape branchMergePointShape);
+
         /// <summary>
         /// Delete a User and Associated System task
         /// </summary>

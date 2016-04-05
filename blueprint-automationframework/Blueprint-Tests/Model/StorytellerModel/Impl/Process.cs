@@ -413,6 +413,40 @@ namespace Model.StorytellerModel.Impl
             return (ProcessShapeType)shapeType;
         }
 
+        public void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
+    IProcessShape branchMergePointShape)
+        {
+            // Get system decision outgoing process link of the specified branch
+            var outgoingSystemDecisionProcessLink = GetOutgoingLinkForShape(systemDecision, orderIndex);
+
+            // Get the target process shape after the system decision point on the specified branch.
+            var targetProcessShape = GetProcessShapeById(outgoingSystemDecisionProcessLink.DestinationId);
+
+            var shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+
+            // TODO Updates as adding more test cases
+            // (Probably not necessary at all) Possible target process shape types:
+            // 1) system task 2) system decision point 
+            if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemTask))
+            {
+                // Find the shapes to delete, including all branches before merge point
+                shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+            }
+
+            if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemDecision))
+            {
+                // Find the shapes to delete, including all branches before merge point
+                shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+            }
+
+            // Add the system task to the list of shapes to delete
+            shapesToDelete.Add((ProcessShape)targetProcessShape);
+
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            DeleteProcessLink(outgoingSystemDecisionProcessLink);
+        }
+
         public void DeleteUserAndSystemTask(IProcessShape userTask)
         {
             var systemTask = GetNextShape(userTask);
@@ -1210,6 +1244,14 @@ namespace Model.StorytellerModel.Impl
             };
 
             return AssociatedArtifact;
+        }
+
+        public bool IsEqualToType(ProcessShapeType processShapeType)
+        {
+            string clientType = PropertyTypeName.clientType.ToString();
+            return
+                Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
+                    (int) processShapeType);
         }
     }
 

@@ -33,7 +33,7 @@ $navbar-color: #01206a;
       color: $white;
       font-size: $font-size-smallest;
       line-height: $navbar-height;
-      margin-left: 15px;
+      margin: 0 0 0 15px;
       white-space: nowrap;
 
       span {
@@ -42,14 +42,24 @@ $navbar-color: #01206a;
       }
 
       .signed-in-as {
-        font-weight: 800;
+        font-weight: 700;
         font-style: normal;
+        margin: 0 4px;
       }
 
-      .glyphicon {
+      .fonticon, .fonticon::before {
         color: $white;
-        font-size: $font-size-root;
+        cursor: pointer;
+        display: inline-block;
+        font-size: $font-size-biggest;
+        margin-top: -3px;
         text-decoration: none;
+        vertical-align: middle;
+      }
+
+      .fonticon-help {
+        margin-left: 8px;
+        margin-right: 8px;
       }
     }
   }

@@ -17,6 +17,7 @@ namespace StorytellerTests
         private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IProject _project;
         private bool _deleteChildren = true;
 
@@ -74,6 +75,7 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask1_VerifyReturnedProcess()
@@ -90,6 +92,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask2_VerifyReturnedProcess()
@@ -106,6 +109,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask3_VerifyReturnedProcess()
@@ -125,6 +129,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask4_VerifyReturnedProcess()
@@ -144,6 +149,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask5_VerifyReturnedProcess()
@@ -163,6 +169,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask6_VerifyReturnedProcess()
@@ -182,6 +189,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask7_VerifyReturnedProcess()
@@ -201,6 +209,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask8_VerifyReturnedProcess()
@@ -220,6 +229,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask9_VerifyReturnedProcess()
@@ -239,6 +249,7 @@ namespace StorytellerTests
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
         [Description("")]
         public void MoveUserAndSystemTask10_VerifyReturnedProcess()

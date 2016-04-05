@@ -6,43 +6,7 @@
             <a style="padding-right:30px;" ng-click="app.logout($event)" class="glyphicon glyphicon-log-out btn-menu"></a>
         </div>
     </div>
-    <div class="collapse navbar-collapse">
-
-        <ul class="nav navbar-nav">
-            <li><a href="#">Project</a></li>
-            <li dropdown>
-                <a href="#" dropdown-toggle>Open <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Action #1</a></li>
-                    <li><a href="#">Action #2</a></li>
-                </ul>
-            </li>
-            <li dropdown>
-                <a href="#" dropdown-toggle>Save <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Action #1</a></li>
-                    <li><a href="#">Action #2</a></li>
-                </ul>
-            </li>
-            <li dropdown>
-                <a href="#" dropdown-toggle>Discard <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Action #1</a></li>
-                    <li><a href="#">Action #2</a></li>
-                </ul>
-            </li>
-            <li><a href="#">Restore</a></li>
-            <li><a href="#">Publish</a></li>
-            <li dropdown>
-                <a href="#" dropdown-toggle>Delete <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Action #1</a></li>
-                    <li><a href="#">Action #2</a></li>
-                </ul>
-            </li>
-
-        </ul>
-    </div>
+    <toolbar></toolbar>
 </nav>
 <div ng-show="app.currentUser">
     <ui-view></ui-view>

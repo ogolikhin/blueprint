@@ -304,6 +304,14 @@ namespace Model.StorytellerModel
             IProcessShape userDecision,
             IProcessShape mergePointShape);
 
+        /// <summary>
+        /// Delete a User Decision Branch
+        /// </summary>
+        /// <param name="userDecision">The user decision containing the branch</param>
+        /// <param name="orderIndex">The order index of the branch</param>
+        /// <param name="branchMergePointShape">The end point of the branch</param>
+        void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
+
         #endregion Methods
     }
 }

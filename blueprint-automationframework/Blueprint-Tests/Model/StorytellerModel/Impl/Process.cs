@@ -424,7 +424,7 @@ namespace Model.StorytellerModel.Impl
             // Delete all shapes and outgoing links for the shapes
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
-            DeleteUserTask(userTask, shapeAfterSystemTask);
+            DeleteUserTaskAndUpdateProcessLink(userTask, shapeAfterSystemTask);
         }
 
         public void DeleteUserAndSystemTaskWithAllBranches(IProcessShape userTask, IProcessShape mergePointShape)
@@ -435,7 +435,7 @@ namespace Model.StorytellerModel.Impl
             // Delete all shapes and outgoing links for the shapes
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
-            DeleteUserTask(userTask, mergePointShape);
+            DeleteUserTaskAndUpdateProcessLink(userTask, mergePointShape);
         }
 
         public void DeleteUserDecisionWithBranchesNotOfTheLowestOrder(IProcessShape userDecision, IProcessShape mergePointShape)
@@ -453,7 +453,26 @@ namespace Model.StorytellerModel.Impl
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             // Delete the user decision and update the process link to have the user task as the merge point
-            DeleteUserDecision(userDecision, userTaskOnLowestOrderBranchOfUserDecision);
+            DeleteUserDecisionAndUpdateProcessLink(userDecision, userTaskOnLowestOrderBranchOfUserDecision);
+        }
+
+        public void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape)
+        {
+            // Get user decision outgoing process link of the specified branch
+            var outgoingUserDecisionProcessLink = GetOutgoingLinkForShape(userDecision, orderIndex);
+
+            // Get the user task after the decision point on the specified branch.
+            var userTask = GetProcessShapeById(outgoingUserDecisionProcessLink.DestinationId);
+
+            // Find the shapes to delete, including all branches before merge point
+            var shapesToDelete = GetShapesBetween(userTask, new List<IProcessShape> { branchMergePointShape }).ToList();
+
+            // Add the user task to the list of shapes to delete
+            shapesToDelete.Add((ProcessShape)userTask);
+
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            DeleteProcessLink(outgoingUserDecisionProcessLink);
         }
 
         #endregion Public Methods
@@ -1106,9 +1125,9 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         /// <param name="userTask">The user task to be deleted</param>
         /// <param name="nextShape">The shape that immediately follows the deleted user task</param>
-        private void DeleteUserTask(IProcessShape userTask, IProcessShape nextShape)
+        private void DeleteUserTaskAndUpdateProcessLink(IProcessShape userTask, IProcessShape nextShape)
         {
-            DeleteProcessShape(userTask, nextShape);
+            DeleteProcessShapeAndUpdateProcessLink(userTask, nextShape);
         }
 
         /// <summary>
@@ -1116,9 +1135,9 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         /// <param name="userDecision">The user decision to be deleted</param>
         /// <param name="nextShape">The shape that immediately follows the deleted user decision</param>
-        private void DeleteUserDecision(IProcessShape userDecision, IProcessShape nextShape)
+        private void DeleteUserDecisionAndUpdateProcessLink(IProcessShape userDecision, IProcessShape nextShape)
         {
-            DeleteProcessShape(userDecision, nextShape);
+            DeleteProcessShapeAndUpdateProcessLink(userDecision, nextShape);
         }
 
         /// <summary>
@@ -1126,7 +1145,7 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         /// <param name="processShapeToDelete">The process shape to be deleted</param>
         /// <param name="nextShape">The shape that immediately follows the deleted process shape</param>
-        private void DeleteProcessShape(IProcessShape processShapeToDelete, IProcessShape nextShape)
+        private void DeleteProcessShapeAndUpdateProcessLink(IProcessShape processShapeToDelete, IProcessShape nextShape)
         {
             var processShapeIncomingProcessLink = GetIncomingLinkForShape(processShapeToDelete);
 
@@ -1135,6 +1154,15 @@ namespace Model.StorytellerModel.Impl
 
             // Set destination id for the user task incoming link to the id of the next shape
             processShapeIncomingProcessLink.DestinationId = nextShape.Id;
+        }
+
+        /// <summary>
+        /// Delete a Process Link
+        /// </summary>
+        /// <param name="processLink">The process link to be deleted</param>
+        private void DeleteProcessLink(ProcessLink processLink)
+        {
+            Links.Remove(processLink);
         }
 
         #endregion Private Methods

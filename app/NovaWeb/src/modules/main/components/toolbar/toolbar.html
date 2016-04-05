@@ -1,32 +1,32 @@
-﻿<div class="collapse navbar-collapse">
-
+﻿<div class="navbar-toolbar"><!-- TODO: localization -->
     <ul class="nav navbar-nav">
-        <li><a href="#" ng-click="$ctrl.execute($event)" >Project</a></li>
-        <li dropdown>
-            <a href="#" dropdown-toggle>Open <b class="caret"></b></a>
+        <li><a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-project"></i><span>Project</span></a></li>
+        <li uib-dropdown>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-folder"></i><b class="caret"></b><span>Open</span></a>
             <ul class="dropdown-menu">
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #1</a></li>
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #2</a></li>
             </ul>
         </li>
-        <li dropdown>
-            <a href="#" dropdown-toggle>Save <b class="caret"></b></a>
+        <li uib-dropdown>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-save-1"></i><b class="caret"></b><span>Save</span></a>
             <ul class="dropdown-menu">
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #1</a></li>
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #2</a></li>
             </ul>
         </li>
-        <li dropdown>
-            <a href="#" dropdown-toggle>Discard <b class="caret"></b></a>
+        <li uib-dropdown>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-error"></i><b class="caret"></b><span>Discard</span></a>
             <ul class="dropdown-menu">
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #1</a></li>
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #2</a></li>
             </ul>
         </li>
-        <li><a href="#" ng-click="$ctrl.execute($event)">Restore</a></li>
-        <li><a href="#" ng-click="$ctrl.execute($event)">Publish</a></li>
-        <li dropdown>
-            <a href="#" dropdown-toggle>Delete <b class="caret"></b></a>
+        <li><a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-restore"></i><span>Restore</span></a></li>
+        <li><a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-upload-cloud"></i><span>Publish</span></a></li>
+        <li class="separator"></li>
+        <li uib-dropdown>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-delete"></i><b class="caret"></b><span>Delete</span></a>
             <ul class="dropdown-menu">
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #1</a></li>
                 <li><a href="#" ng-click="$ctrl.execute($event)">Action #2</a></li>

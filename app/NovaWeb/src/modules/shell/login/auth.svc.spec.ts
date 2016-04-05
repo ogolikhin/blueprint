@@ -2,10 +2,25 @@
 import "angular-mocks"
 import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
+import {IConfigValueHelper} from "../../core/config.value.helper";
 
 export class LocalizationServiceMock implements ILocalizationService {
     public get(name: string): string {
         return name;
+    }
+}
+
+export class ConfigValueHelperMock implements IConfigValueHelper {
+    getBooleanValue(setting: string, fallBack?: boolean) {
+        if (setting === "DisableWindowsIntegratedSignIn") {
+            return false;
+        } else {
+            return undefined;
+        }
+    }
+
+    getStringValue(setting: string, fallBack?: string) {
+        return undefined;
     }
 }
 
@@ -21,6 +36,7 @@ describe("AuthSvc", () => {
         $provide.service("auth", AuthSvc);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("$window", WindowMock);
+        $provide.service("configValueHelper", ConfigValueHelperMock);
     }));
 
     describe("getCurrentUser", () => {

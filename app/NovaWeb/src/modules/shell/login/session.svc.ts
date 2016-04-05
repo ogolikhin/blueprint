@@ -2,6 +2,7 @@
 import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
 import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
+import {IConfigValueHelper} from "../../core/config.value.helper";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
@@ -231,8 +232,8 @@ export class LoginCtrl {
     public enableSAMLScreen: boolean;
     public SAMLScreenMessage: string;
 
-    static $inject: [string] = ["localization","$uibModalInstance", "session", "$timeout", "$rootScope"];
-    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private $rootScope: ng.IRootScopeService) {
+    static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
+    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         this.formState = LoginState.LoginForm;
         this.errorMsg = localization.get('Login_Session_EnterCredentials');
 
@@ -286,11 +287,11 @@ export class LoginCtrl {
     }
 
     public get isFederatedAuthenticationEnabled(): boolean {
-        return this.$rootScope["config"].settings.IsFederatedAuthenticationEnabled  === "true";
+        return this.configValueHelper.getBooleanValue("IsFederatedAuthenticationEnabled") === true;
     }
 
     public get samlPrompt(): string {
-        var prompt: string = this.$rootScope["config"].settings.FederatedAuthenticationPrompt;
+        var prompt: string = this.configValueHelper.getStringValue("FederatedAuthenticationPrompt");
         if (!prompt || prompt == "") {
             prompt = this.localization.get('Login_SamlLink');
         }

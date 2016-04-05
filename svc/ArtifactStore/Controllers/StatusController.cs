@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Http.Results;
+using ArtifactStore;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -13,48 +16,63 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly IStatusRepository StatusRepo;
-        internal readonly IServiceLogRepository Log;
+        internal readonly StatusControllerHelper statusControllerHelper;
 
         public StatusController()
-            : this(new SqlStatusRepository(WebApiConfig.ArtifactStorage, "GetStatus"), new ServiceLogRepository())
+            : this(new StatusControllerHelper(
+                        new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage")},
+                        "ArtifactStore",
+                        new ServiceLogRepository(),
+                        WebApiConfig.LogSourceStatus
+                    )
+                  )
         {
         }
 
-        internal StatusController(IStatusRepository statusRepo, IServiceLogRepository log)
+        internal StatusController(StatusControllerHelper scHelper)
         {
-            StatusRepo = statusRepo;
-            Log = log;
+            statusControllerHelper = scHelper;
         }
 
         /// <summary>
         /// GetStatus
         /// </summary>
         /// <remarks>
-        /// Returns the current status of ArtifactStore service.
+        /// Returns the current status of the service.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        /// <response code="503">Service Unavailable.</response>
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
-        [ResponseType(typeof(void))]
+        [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus()
         {
-            try
+            ServiceStatus serviceStatus = await statusControllerHelper.GetStatus();
+
+            if (serviceStatus.NoErrors)
             {
-                var result = await StatusRepo.GetStatus();
-                if (result)
-                {
-                    return Ok();
-                }
-                return new StatusCodeResult(HttpStatusCode.ServiceUnavailable, Request);
+                return Ok(serviceStatus);
             }
-            catch (Exception ex)
+            else
             {
-                await Log.LogError(WebApiConfig.LogSourceStatus, ex);
-                return InternalServerError();
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
             }
+        }
+
+        /// <summary>
+        /// GetStatusUpCheck
+        /// </summary>
+        /// <remarks>
+        /// Returns 200 OK. Used to 'ping' the service.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet, NoCache]
+        [Route("upcheck"), NoSessionRequired]
+        [ResponseType(typeof(ServiceStatus))]
+        public IHttpActionResult GetStatusUpCheck()
+        {
+            return Ok();
         }
     }
 }

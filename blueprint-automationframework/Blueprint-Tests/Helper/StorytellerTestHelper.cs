@@ -97,13 +97,15 @@ namespace Helper
             return returnedProcess;
         }
 
+
         /// <summary>
-        /// Updates, verifies and publishes the process returned from UpdateProcess and GetProcess
+        /// Updates and verifies the process returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="user">The user that updates the process</param>
-        public static void UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        /// <returns> The process returned from Get Process </returns>
+        public static IProcess UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
             ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
@@ -126,6 +128,20 @@ namespace Helper
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
             AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
+
+            return processReturnedFromGet;
+        }
+
+        /// <summary>
+        /// Updates, verifies and publishes the process returned from UpdateProcess and GetProcess
+        /// </summary>
+        /// <param name="processToVerify">The process to verify</param>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="user">The user that updates the process</param>
+        public static void UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        {
+            // Update and verify the process
+            var processReturnedFromGet = UpdateAndVerifyProcess(processToVerify, storyteller, user);
 
             // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcess(user, processReturnedFromGet);

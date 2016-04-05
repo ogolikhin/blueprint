@@ -1,5 +1,5 @@
 #unsupported-browser-container {
-  background: $white;
+  background: #fff;
   display: block;
   height: 100%;
   left: 0;
@@ -20,7 +20,7 @@
 
   h1 {
     background: url('/novaweb/static/logo-blueprint-blue.png') left no-repeat;
-    border-bottom: solid 1px $brand-primary;
+    border-bottom: solid 1px #1c285c;
     border-left: 0;
     border-right: 0;
     border-top: 0;
@@ -32,7 +32,7 @@
 
   h2 {
     background: url('/novaweb/static/icon-exclamation.png') 12px no-repeat;
-    font-size: $font-size-bigger;
+    font-size: 18px;
     margin: 16px 0;
     padding: 16px 12px 16px 74px;
   }
@@ -42,23 +42,23 @@
     padding: 0 12px 12px 74px;
 
     h3 {
-      font-size: $font-size-bigger;
+      font-size: 18px;
       margin: 0;
 
       span {
-        color: $gray-light;
+        color: #aaa;
         display: block;
-        font-size: $font-size-smaller;
+        font-size: 14px;
       }
     }
 
     p {
-      font-size: $font-size-smaller;
+      font-size: 14px;
       margin: 0 0 32px;
     }
 
     ul {
-      font-size: $font-size-smaller;
+      font-size: 14px;
     }
 
     button {
@@ -77,9 +77,11 @@
     }
 
     .supported-platform {
+      box-sizing: border-box;
       float: left;
       margin: 0 0 32px;
       min-width: 50%;
+      min-width: 40%\9; //IE8- hack
       padding: 0 10px 0 50px;
 
       &.windows {

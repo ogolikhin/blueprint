@@ -22,7 +22,7 @@ namespace ConfigControl
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(8, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(9, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "settings/true");
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log/CLog");
@@ -31,6 +31,7 @@ namespace ConfigControl
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log/SQLTraceLog");
             config.AssertAction<LogController>("GetLog", HttpMethod.Get, "log/GetLog");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
+            config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
         }
 
         [TestMethod]

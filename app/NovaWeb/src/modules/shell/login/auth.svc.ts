@@ -1,6 +1,7 @@
 ﻿import "angular";
 import {SessionTokenHelper} from "./session.token.helper";
 import {ILocalizationService} from "../../core/localization";
+import {IConfigValueHelper} from "../../core/config.value.helper";
 
 export interface IUser {
     DisplayName: string;
@@ -29,8 +30,8 @@ export class AuthSvc implements IAuth {
     private _loggedOut: boolean = false;
 
 
-    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "$rootScope"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private $rootScope: ng.IRootScopeService) {
+    static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "configValueHelper"];
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private configValueHelper: IConfigValueHelper) {
     }
 
     public getCurrentUser(): ng.IPromise<IUser> {
@@ -45,8 +46,7 @@ export class AuthSvc implements IAuth {
                     statusCode: statusCode,
                     message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
-
-                if (this.$rootScope["config"].settings.DisableWindowsIntegratedSignIn === "false" && !this._loggedOut) { 
+                if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) { 
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success((token: string) => {
                             this.onTokenSuccess(token, defer, false, "");

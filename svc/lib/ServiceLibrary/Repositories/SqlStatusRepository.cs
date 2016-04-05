@@ -6,23 +6,26 @@ namespace ServiceLibrary.Repositories
 {
     public class SqlStatusRepository : IStatusRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
-        private readonly string _cmd;
+        public string Name { get; set; }
+        public string AccessInfo { get; set; }
 
-        public SqlStatusRepository(string cxn, string cmd)
-            : this(new SqlConnectionWrapper(cxn), cmd)
+        internal readonly ISqlConnectionWrapper _connectionWrapper;
+
+        public SqlStatusRepository(string cxn, string name)
+            : this(new SqlConnectionWrapper(cxn), cxn, name)
         {
         }
 
-        internal SqlStatusRepository(ISqlConnectionWrapper connectionWrapper, string cmd)
+        internal SqlStatusRepository(ISqlConnectionWrapper connectionWrapper, string accessInfo, string name)
         {
             _connectionWrapper = connectionWrapper;
-            _cmd = cmd;
+            Name = name;
+            AccessInfo = accessInfo;
         }
 
-        public async Task<bool> GetStatus()
+        public async Task<string> GetStatus(int timeout)
         {
-            return (await _connectionWrapper.QueryAsync<int>(_cmd, commandType: CommandType.StoredProcedure)).Single() >= 0;
+            return (await _connectionWrapper.QueryAsync<string>("GetStatus", commandType: CommandType.StoredProcedure, commandTimeout: timeout)).Single();
         }
     }
 }

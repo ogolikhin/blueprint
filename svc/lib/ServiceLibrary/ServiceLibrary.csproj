@@ -79,6 +79,7 @@
     <Compile Include="EventSources\StandardLogEventSource.cs" />
     <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
+    <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
+    <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />
     <Compile Include="Repositories\SqlStatusRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IStatusRepository.cs" />

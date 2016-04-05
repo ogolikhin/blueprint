@@ -1,18 +1,7 @@
 ﻿import "angular";
 import "angular-mocks"
-import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
-
-export class LocalizationServiceMock implements ILocalizationService {
-    public get(name: string): string {
-        return name;
-    }
-}
-
-export class WindowMock {
-    public location = { origin: "http://localhost:9876" };
-    public open() {}
-}
+import {LocalizationServiceMock, ConfigValueHelperMock, WindowMock} from "./mocks.spec";
 
 describe("AuthSvc", () => {
     var $httpBackend: ng.IHttpBackendService;
@@ -21,10 +10,11 @@ describe("AuthSvc", () => {
         $provide.service("auth", AuthSvc);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("$window", WindowMock);
+        $provide.service("configValueHelper", ConfigValueHelperMock);
     }));
 
     describe("getCurrentUser", () => {
-        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService, $rootScope: ng.IRootScopeService) => {
+        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
@@ -79,7 +69,7 @@ describe("AuthSvc", () => {
 
      
 
-        it("resolve successfully", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("resolve successfully", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(200, <IUser>{
@@ -102,7 +92,7 @@ describe("AuthSvc", () => {
     });
 
     describe("login", () => {
-        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("reject on error with default error message", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             var status: number = 401;
             var message: string = "Login Failed";
@@ -121,7 +111,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200, "6be473a999a140d894805746bf54c129"
@@ -147,7 +137,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("respond with error from missing token", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("respond with error from missing token", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200);
@@ -165,7 +155,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("respond with loginuser error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("respond with loginuser error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             //unicode to test encode function
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("Карл") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
@@ -191,7 +181,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("respond with no licenses error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("respond with no licenses error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             //exotic unicode to test encode function
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("𐊇𐊈𐊉") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
@@ -214,7 +204,7 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("respond with license limit error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("respond with license limit error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(200, <IUser>{
@@ -238,7 +228,7 @@ describe("AuthSvc", () => {
     });
 
     describe("logout", () => {
-        it("complete logout", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, localization: ILocalizationService) => {
+        it("complete logout", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
             $httpBackend.expectDELETE("/svc/adminstore/sessions")
                 .respond(200);

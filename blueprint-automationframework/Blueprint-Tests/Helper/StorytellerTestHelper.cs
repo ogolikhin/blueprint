@@ -105,7 +105,7 @@ namespace Helper
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="user">The user that updates the process</param>
         /// <returns> The process returned from Get Process </returns>
-        public static IProcess UpdateVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        public static IProcess UpdateAndVerifyProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
             ThrowIf.ArgumentNull(processToVerify, nameof(processToVerify));
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
@@ -141,7 +141,7 @@ namespace Helper
         public static void UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
             // Update and verify the process
-            var processReturnedFromGet = UpdateVerifyProcess(processToVerify, storyteller, user);
+            var processReturnedFromGet = UpdateAndVerifyProcess(processToVerify, storyteller, user);
 
             // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcess(user, processReturnedFromGet);

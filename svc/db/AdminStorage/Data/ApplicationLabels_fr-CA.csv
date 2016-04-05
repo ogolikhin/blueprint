@@ -9,6 +9,7 @@ App_LoadingMsg,"Chargement …"
 App_PrerequisiteMsg_JavaScript,"Vous devez activer JavaScript pour utiliser cette application"
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signé en tant"
+App_Header_Welcome,"Bienvenue"
 
 Login_Auth_CannotGetUser,"Vous ne pouvez pas obtenir l'utilisateur actuel"
 Login_Auth_IncorrectRequestId,"Mauvais demande id . S'il vous plaît cliquer sur 'Retry' dans Blueprint"

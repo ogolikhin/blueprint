@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System;
+using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -74,33 +75,187 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [TestCase]
-        [Description("Delete a user and system task and verify that the user and system task are not" +
-                     "present in the returned process.")]
-        public void DeleteUserAndSystemTask_VerifyReturnedProcess()
+        [Description("")]
+        public void MoveUserAndSystemTask1_VerifyReturnedProcess()
         {
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            /*
+            If you start with this:
+                [S]--[P]--+--[[UT1]--+--[ST2]]--+--[UT3]--+--[ST4]--+--[E]
 
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            It becomes this:
+                [S]--[P]--+--[UT3]--+--[ST4]--+--[[UT1]--+--[ST2]]--+--[E]
+            */
 
-            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+            throw new NotImplementedException();
+        }
 
-            // Add user/system Task immediately after the precondition
-            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask2_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[[UT3]--+--[ST4]]--+--[E]
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
-            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+            It becomes this:
+                [S]--[P]--+--[[UT3]--+--[ST4]]--+--[UT1]--+--[ST2]--+--[E]
+            */
 
-            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+            throw new NotImplementedException();
+        }
 
-            // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask3_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                              |                           |
+                              +----+--[UT3]--+--[ST4]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--+--[E]
+                              |                                               |
+                              +----+--[UT5]--+--[ST6]--+----------------------+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask4_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                              |                           |
+                              +----+--[UT3]--+--[ST4]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT3]--+--[ST4]--+--[UT1]--+--[ST2]--+--+--[E]
+                              |                                               |
+                              +----+--[UT5]--+--[ST6]--+----------------------+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask5_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                              |                           |
+                              +----+--[UT3]--+--[ST4]--+--+
+
+            It becomes this:
+                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                                                  |                           |
+                                                  +----+--[UT5]--+--[ST6]--+--+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask6_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                              |                           |
+                              +----+--[UT3]--+--[ST4]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
+                              |                           |
+                              +----+--[UT5]--+--[ST6]--+--+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask7_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                                                  |                           |
+                                                  +----+--[UT5]--+--[ST6]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
+                              |                                               |
+                              +----+--[UT5]--+--[ST6]--+--[UT3]--+--[ST4]--+--+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask8_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
+                                                  |                           |
+                                                  +----+--[UT5]--+--[ST6]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
+                              |                                               |
+                              +----+--[UT3]--+--[ST4]--+--[UT5]--+--[ST6]--+--+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask9_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
+                              |                           |
+                              +----+--[UT5]--+--[ST6]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
+                              |                                               |
+                              +----+--[UT3]--+--[ST4]--+--[UT5]--+--[ST6]--+--+
+            */
+
+            throw new NotImplementedException();
+        }
+
+        [TestCase]
+        [Description("")]
+        public void MoveUserAndSystemTask10_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
+                              |                           |
+                              +----+--[UT5]--+--[ST6]--+--+
+
+            It becomes this:
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
+                              |                                               |
+                              +----+--[UT5]--+--[ST6]--+--[UT3]--+--[ST4]--+--+
+            */
+
+            throw new NotImplementedException();
         }
     }
 }

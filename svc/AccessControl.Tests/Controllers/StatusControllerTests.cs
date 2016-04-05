@@ -70,7 +70,6 @@ namespace AccessControl.Controllers
 
         private static StatusController CreateController(IStatusControllerHelper statusControllerHelper)
         {
-            var logMock = new Mock<IServiceLogRepository>();
             var controller = new StatusController(statusControllerHelper)
             {
                 Request = new HttpRequestMessage(),

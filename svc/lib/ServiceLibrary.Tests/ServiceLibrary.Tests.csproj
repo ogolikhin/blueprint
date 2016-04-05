@@ -96,7 +96,6 @@
     <Compile Include="Repositories\ConfigControl\StatusRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConnectionWrapperMock.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepositoryTests.cs" />
-    <Compile Include="Repositories\SqlStatusRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">

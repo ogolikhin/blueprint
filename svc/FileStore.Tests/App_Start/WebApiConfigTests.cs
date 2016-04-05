@@ -22,7 +22,7 @@ namespace FileStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(6, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(7, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<FilesController>("GetFileHead", HttpMethod.Head, "files/1");
             config.AssertAction<FilesController>("GetFileContent", HttpMethod.Get, "files/1");
             config.AssertAction<FilesController>("PostFile", HttpMethod.Post, "files");
@@ -31,6 +31,7 @@ namespace FileStore
             config.AssertAction<FilesController>("DeleteFile", HttpMethod.Delete, "files/1");
             config.AssertAction<FilesController>("DeleteFile", HttpMethod.Delete, "files/1?expired=2016-01-01T00:00:00");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
+            config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
         }
 
         public void Register_GetAndHeadMethods_HaveNoCacheAttribute()

@@ -17,8 +17,10 @@ body {
   background-position: center 44%, top;
   background-size: 84%, 100%;
   color: $body-color;
+  overflow: hidden;
 }
 
+@import 'partials/navbar';
 @import 'partials/modal';
 @import 'partials/form';
 @import 'partials/button';
@@ -39,7 +41,7 @@ body {
 $sidebar-size: 250px;
 
 #wrapper {
-  margin-top: 50px;
+  margin-top: 90px;
   padding-left: $sidebar-size;
   padding-right: $sidebar-size;
   transition: all 0.4s ease 0s;

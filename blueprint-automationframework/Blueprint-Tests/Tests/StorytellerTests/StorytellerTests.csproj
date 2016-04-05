@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeleteUserDecisionTests.cs" />
     <Compile Include="DeleteTaskTests.cs" />
     <Compile Include="BranchLabelTests.cs" />
     <Compile Include="UpdateProcessValidationTests.cs" />

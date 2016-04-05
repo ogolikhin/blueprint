@@ -1,13 +1,12 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -25,66 +24,96 @@ namespace AdminStore.Controllers
             var controller = new StatusController();
 
             // Assert
-            Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
-            Assert.IsInstanceOfType(controller.Log, typeof(ServiceLogRepository));
+            Assert.IsInstanceOfType(controller._statusControllerHelper, typeof(StatusControllerHelper));
         }
 
         #endregion Constructor
 
         #region GetStatus
 
+
         [TestMethod]
-        public async Task GetStatus_RepositoryReturnsTrue_ReturnsOk()
+        public async Task GetStatus_PreAuthorizedKeysDoNotMatch_ReturnsUnauthorized()
         {
             // Arrange
-            var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
-            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
             // Act
-            IHttpActionResult result = await controller.GetStatus();
+            IHttpActionResult result = await controller.GetStatus("NOTmypreauthorizedkey");
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
         [TestMethod]
-        public async Task GetStatus_RepositoryReturnsFalse_ReturnsServiceUnavailable()
+        public async Task GetStatus_HelperReturnsGoodStatus_ReturnsOkWithCorrectContent()
         {
             // Arrange
-            var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
-            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
             // Act
-            var result = await controller.GetStatus() as StatusCodeResult;
+            OkNegotiatedContentResult<ServiceStatus> result = await controller.GetStatus("mypreauthorizedkey") as OkNegotiatedContentResult<ServiceStatus>;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
-            Assert.AreEqual(controller.Request, result.Request);
+            Assert.AreEqual("MyServiceName", result.Content.ServiceName);
         }
 
         [TestMethod]
-        public async Task GetStatus_RepositoryThrowsException_LogsAndReturnsInternalServerError()
+        public async Task GetStatus_HelperReturnsWithErrors_ReturnsInternalServerErrorWithCorrectContent()
         {
             // Arrange
-            var statusRepo = new Mock<IStatusRepository>();
-            var log = new Mock<IServiceLogRepository>();
-            var exception = new Exception();
-            statusRepo.Setup(r => r.GetStatus()).Throws(exception);
-            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = false, ServiceName="MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
             // Act
-            IHttpActionResult result = await controller.GetStatus();
+            ResponseMessageResult result = await controller.GetStatus("mypreauthorizedkey") as ResponseMessageResult;
 
             // Assert
-            log.Verify(l => l.LogError(WebApiConfig.LogSourceStatus, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.InternalServerError, result.Response.StatusCode);
+
+            var content = await result.Response.Content.ReadAsAsync<ServiceStatus>();
+            Assert.AreEqual("MyServiceName", content.ServiceName);
+        }
+
+
+
+        private static StatusController CreateController(IStatusControllerHelper statusControllerHelper, string preAuthorizedKey)
+        {
+            var logMock = new Mock<IServiceLogRepository>();
+            var controller = new StatusController(statusControllerHelper, preAuthorizedKey)
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
+
+            return controller;
         }
 
         #endregion GetStatus
+
+        #region StatusUpcheck
+        [TestMethod]
+        public void GetStatusUpcheck_ReturnsOk()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
+
+            // Act
+            IHttpActionResult result = controller.GetStatusUpCheck();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+        #endregion
     }
 }

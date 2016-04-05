@@ -14,10 +14,9 @@ namespace ServiceLibrary.Repositories
         {
             // Arrange
             string cxn = "data source=(local)";
-            string cmd = "command";
 
             // Act
-            var repository = new SqlStatusRepository(cxn, cmd);
+            var repository = new SqlStatusRepository(cxn, "test");
 
             // Assert
             Assert.AreEqual(cxn, repository._connectionWrapper.CreateConnection().ConnectionString);
@@ -28,39 +27,21 @@ namespace ServiceLibrary.Repositories
         #region GetStatus
 
         [TestMethod]
-        public async Task GetStatus_QueryReturnsNonNegative_ReturnsTrue()
+        public async Task GetStatus_QueryReturnsVersion_ReturnsCorrectVersionString()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var cmd = "Test";
-            var repository = new SqlStatusRepository(cxn.Object, cmd);
-            IEnumerable<int> result = new[] { 0 };
+            var repository = new SqlStatusRepository(cxn.Object, "DatabaseAddress", "Test");
+            IEnumerable<string> result = new[] { "7.0.0.0" };
             cxn.SetupQueryAsync(cmd, null, result);
 
             // Act
-            bool status = await repository.GetStatus();
+            string status = await repository.GetStatus(100);
 
             // Assert
             cxn.Verify();
-            Assert.IsTrue(status);
-        }
-
-        [TestMethod]
-        public async Task GetStatus_QueryReturnsNegative_ReturnsFalse()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var cmd = "cmd";
-            var repository = new SqlStatusRepository(cxn.Object, cmd);
-            IEnumerable<int> result = new[] { -1 };
-            cxn.SetupQueryAsync(cmd, null, result);
-
-            // Act
-            bool status = await repository.GetStatus();
-
-            // Assert
-            cxn.Verify();
-            Assert.IsFalse(status);
+            Assert.AreEqual(status, "7.0.0.0");
         }
 
         #endregion GetStatus

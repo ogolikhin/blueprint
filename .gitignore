@@ -23,6 +23,7 @@ bower_components/
 *.user
 *.userosscache
 *.sln.docstates
+*.orig
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -227,4 +228,3 @@ FakesAssemblies/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
-/prototype/prototype.iml

@@ -1,0 +1,56 @@
+//dimensions
+$navbar-height: 40px;
+$navbar-color: #01206a;
+
+.navbar {
+  border: 0;
+  margin: 0;
+  padding: 0;
+
+  .navbar-header {
+    background: $navbar-color url('images/bp_logo_white.svg') 12px no-repeat;
+    background-size: 120px;
+    border: 0;
+    float: none;
+    height: $navbar-height;
+    margin: 0;
+    padding: 0;
+
+    .navbar-brand {
+      background: $brand-secondary;
+      border: 0;
+      color: $white;
+      display: none; //we don't want to show "blueprint Blueprint". It will be used for other products
+      font-size: $font-size-smaller;
+      font-weight: 600;
+      height: $navbar-height;
+      line-height: $navbar-height;
+      margin: 0 0 0 144px;
+      padding: 0 32px;
+    }
+
+    .navbar-right {
+      color: $white;
+      font-size: $font-size-smallest;
+      line-height: $navbar-height;
+      margin-left: 15px;
+      white-space: nowrap;
+
+      span {
+        font-weight: 600;
+        font-style: italic;
+      }
+
+      .signed-in-as {
+        font-weight: 800;
+        font-style: normal;
+      }
+
+      .glyphicon {
+        color: $white;
+        font-size: $font-size-root;
+        text-decoration: none;
+      }
+    }
+  }
+}

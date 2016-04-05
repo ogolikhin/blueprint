@@ -88,8 +88,9 @@ namespace Model.StorytellerModel.Impl
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
-                MarkArtifactAsPublished(artifact.Id);
+                MarkArtifactAsSaved(artifact.Id);
                 artifact.Publish(user);
+                MarkArtifactAsPublished(artifact.Id);
                 artifacts.Add(artifact);
             }
 
@@ -453,12 +454,12 @@ namespace Model.StorytellerModel.Impl
 
         #endregion Static Methods
 
-            #region Private Methods
+        #region Private Methods
 
-            /// <summary>
-            /// Mark the Artifact as Published (Indicates artifact has no pending changes)
-            /// </summary>
-            /// <param name="artifactId">The id of the artifact to be published</param>
+        /// <summary>
+        /// Mark the Artifact as Published (Indicates artifact has no pending changes)
+        /// </summary>
+        /// <param name="artifactId">The id of the artifact to be published</param>
         private void MarkArtifactAsPublished(int artifactId)
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);

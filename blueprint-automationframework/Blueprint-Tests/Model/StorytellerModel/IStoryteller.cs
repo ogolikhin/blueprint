@@ -36,7 +36,7 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="project">The project where the process artifact is to be added</param>
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
-        /// <returns>the published artifact objects</returns>
+        /// <returns>the published artifact object</returns>
         IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user);
 
         /// <summary>

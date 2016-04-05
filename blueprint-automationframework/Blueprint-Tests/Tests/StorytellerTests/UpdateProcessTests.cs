@@ -419,7 +419,7 @@ namespace StorytellerTests
             var userDecisionPoint = returnedProcess.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add decision point before decision point; will have same branch order index as previous added branch
-            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint, preconditionOutgoingLink.Orderindex + 1);
+            returnedProcess.AddUserDecisionPointWithBranchBeforeShape(userDecisionPoint, preconditionOutgoingLink.Orderindex + 1, userDecisionPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);

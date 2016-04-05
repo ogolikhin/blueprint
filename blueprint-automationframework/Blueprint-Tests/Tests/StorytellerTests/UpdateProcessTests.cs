@@ -806,6 +806,16 @@ namespace StorytellerTests
         [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT. Generate User Story")]
         public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
         {
+            /*
+            You start with this:
+            --[UT]--+--[ST]--+--
+
+            It becomes this:
+            --[UT]--+--<SD>--+--[ST]--+--
+                        |             |
+                        +-------[ST]--+
+             */
+
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
@@ -822,10 +832,7 @@ namespace StorytellerTests
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
             // Add System Decision point with branch merging to branchEndPoint
-            var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
-
-            // Add additonal branch to the System Decision point
-            process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
@@ -845,9 +852,21 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches: each of them contains a system decision point along with branches and system tasks. Generate User Story")]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with additonal branch. Add another system decision point immediately after 1st one (Nested SD). Generate User Story")]
         public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
         {
+            /*
+           You start with this:
+           --[UT]--+--[ST]--+--
+
+           It becomes this:
+                        +------[ST]-----------+
+                        |                     |
+           --[UT]--+--<SD>--+--<SD>--+--[ST]--+--[UT]--+--[ST]--+--
+                                |                               |
+                                +----------------[ST]-----------+
+            */
+
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
@@ -872,19 +891,12 @@ namespace StorytellerTests
             // Add a System Decision point with branch (first System Decision point) and close the loop before the addedUserTask
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
 
-            // find the outgoing process link from the addedUserTask
-            var newUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(addedUserTask);
-
-            // Find next system task
-            var systemTask = process.GetNextShape(addedUserTask);
-
             // Add a System Decision point with branch (second System Decision point) and close the loop before the branchEndPoint
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTask, newUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
 
-            System.Threading.Thread.Sleep(10000);
             // Find number of UserTasks from the published Process
             process = _storyteller.GetProcess(_user, process.Id);
 

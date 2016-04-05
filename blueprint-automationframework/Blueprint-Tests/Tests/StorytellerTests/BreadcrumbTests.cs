@@ -62,7 +62,7 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
                 var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
                 var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())

@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.SqlServer.Server;
 
@@ -10,19 +12,20 @@ namespace Logging.Database.Utility
 {
     internal sealed class EventEntryDataReader : IDataReader, IConvertible
     {
-        private readonly string instanceName;
-        private IEnumerator<EventEntry> enumerator;
-        private int recordsAffected;
-        private SqlDataRecord currentRecord;
+        private readonly string _instanceName;
+        private IEnumerator<EventEntry> _enumerator;
+        private int _recordsAffected;
+        private SqlDataRecord _currentRecord;
 
         public EventEntryDataReader(IEnumerable<EventEntry> collection, string instanceName)
         {
-            enumerator = collection.GetEnumerator();
-            this.instanceName = instanceName;
+            _enumerator = collection.GetEnumerator();
+            this._instanceName = instanceName;
         }
 
         #region IDataReader
 
+        [ExcludeFromCodeCoverage]
         public int Depth
         {
             get
@@ -35,7 +38,7 @@ namespace Logging.Database.Utility
         {
             get
             {
-                return enumerator == null;
+                return _enumerator == null;
             }
         }
 
@@ -43,7 +46,7 @@ namespace Logging.Database.Utility
         {
             get
             {
-                return recordsAffected;
+                return _recordsAffected;
             }
         }
 
@@ -55,6 +58,7 @@ namespace Logging.Database.Utility
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public object this[string name]
         {
             get
@@ -63,6 +67,7 @@ namespace Logging.Database.Utility
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public object this[int i]
         {
             get
@@ -74,9 +79,10 @@ namespace Logging.Database.Utility
         public void Close()
         {
             Dispose();
-            enumerator = null;
+            _enumerator = null;
         }
 
+        [ExcludeFromCodeCoverage]
         public DataTable GetSchemaTable()
         {
             throw new NotImplementedException();
@@ -89,11 +95,11 @@ namespace Logging.Database.Utility
 
         public bool Read()
         {
-            bool result = enumerator.MoveNext();
+            bool result = _enumerator.MoveNext();
             if (result)
             {
-                recordsAffected++;
-                currentRecord = enumerator.Current.ToSqlDataRecord(instanceName);
+                _recordsAffected++;
+                _currentRecord = _enumerator.Current.ToSqlDataRecord(_instanceName);
             }
 
             return result;
@@ -101,84 +107,100 @@ namespace Logging.Database.Utility
 
         public void Dispose()
         {
-            enumerator.Dispose();
+            _enumerator.Dispose();
         }
 
+        [ExcludeFromCodeCoverage]
         public bool GetBoolean(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public byte GetByte(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public char GetChar(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public IDataReader GetData(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public string GetDataTypeName(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public DateTime GetDateTime(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public decimal GetDecimal(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public double GetDouble(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public Type GetFieldType(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public float GetFloat(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public Guid GetGuid(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public short GetInt16(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public int GetInt32(int i)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public long GetInt64(int i)
         {
             throw new NotImplementedException();
@@ -194,6 +216,7 @@ namespace Logging.Database.Utility
             return Array.IndexOf(EventEntryExtensions.Fields, name);
         }
 
+        [ExcludeFromCodeCoverage]
         public string GetString(int i)
         {
             throw new NotImplementedException();
@@ -201,14 +224,16 @@ namespace Logging.Database.Utility
 
         public object GetValue(int i)
         {
-            return currentRecord.GetValue(i);
+            return _currentRecord.GetValue(i);
         }
 
+        [ExcludeFromCodeCoverage]
         public int GetValues(object[] values)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public bool IsDBNull(int i)
         {
             throw new NotImplementedException();
@@ -218,66 +243,79 @@ namespace Logging.Database.Utility
 
         #region IConvertible
 
+        [ExcludeFromCodeCoverage]
         public TypeCode GetTypeCode()
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public bool ToBoolean(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public byte ToByte(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public char ToChar(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public DateTime ToDateTime(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public decimal ToDecimal(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public double ToDouble(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public short ToInt16(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public int ToInt32(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public long ToInt64(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public sbyte ToSByte(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public float ToSingle(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public string ToString(IFormatProvider provider)
         {
             throw new NotImplementedException();
@@ -287,26 +325,29 @@ namespace Logging.Database.Utility
         {
             var list = new List<SqlDataRecord>();
 
-            while (enumerator.MoveNext())
+            while (_enumerator.MoveNext())
             {
-                list.Add(enumerator.Current.ToSqlDataRecord(instanceName));
+                list.Add(_enumerator.Current.ToSqlDataRecord(_instanceName));
             }
 
-            enumerator.Reset();
+            _enumerator.Reset();
 
             return list;
         }
 
+        [ExcludeFromCodeCoverage]
         public ushort ToUInt16(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public uint ToUInt32(IFormatProvider provider)
         {
             throw new NotImplementedException();
         }
 
+        [ExcludeFromCodeCoverage]
         public ulong ToUInt64(IFormatProvider provider)
         {
             throw new NotImplementedException();

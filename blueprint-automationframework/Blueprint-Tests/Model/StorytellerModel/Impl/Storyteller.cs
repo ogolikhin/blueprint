@@ -8,6 +8,7 @@ using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel;
 using Model.OpenApiModel.Impl;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -70,6 +71,16 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
+        public IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user)
+        {
+            var publishedArtfiactList = CreateAndPublishProcessArtifacts(project, user, 1);
+
+            Assert.That(publishedArtfiactList.Count().Equals(1),"The expected number of published artifact" +
+                                                                " was 1 but response object contains {0} artifacts",
+                                                                publishedArtfiactList.Count());
+            return publishedArtfiactList[0];
+        }
+
         public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
             var artifacts = new List<IOpenApiArtifact>();
@@ -77,7 +88,9 @@ namespace Model.StorytellerModel.Impl
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 var artifact = CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+                MarkArtifactAsSaved(artifact.Id);
                 artifact.Publish(user);
+                MarkArtifactAsPublished(artifact.Id);
                 artifacts.Add(artifact);
             }
 
@@ -441,12 +454,12 @@ namespace Model.StorytellerModel.Impl
 
         #endregion Static Methods
 
-            #region Private Methods
+        #region Private Methods
 
-            /// <summary>
-            /// Mark the Artifact as Published (Indicates artifact has no pending changes)
-            /// </summary>
-            /// <param name="artifactId">The id of the artifact to be published</param>
+        /// <summary>
+        /// Mark the Artifact as Published (Indicates artifact has no pending changes)
+        /// </summary>
+        /// <param name="artifactId">The id of the artifact to be published</param>
         private void MarkArtifactAsPublished(int artifactId)
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);

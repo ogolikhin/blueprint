@@ -6,6 +6,7 @@ using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 
 namespace StorytellerTests
 {
@@ -18,7 +19,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -48,11 +48,22 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsList = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
+                    }
+                    else
+                    {
+                        savedArtifactsList.Add(artifact);
+                    }
+                }
+                if (savedArtifactsList.Any())
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
             }
 
@@ -101,9 +112,6 @@ namespace StorytellerTests
                 "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, returnedProcess.ArtifactPathLinks.Count);
             Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
                 "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
-
-            // Publish the process so teardown can properly delete the process
-            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
@@ -121,9 +129,6 @@ namespace StorytellerTests
             var returnedProcess = processList.Find(p => p.Name == artifact.Name);
 
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
-
-            // Publish the process so teardown can properly delete the process
-            _storyteller.PublishProcess(_user, returnedProcess);
         }
 
         [TestCase]
@@ -132,6 +137,7 @@ namespace StorytellerTests
             IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
             artifact.Publish(_user);
+            artifact.IsPublished = true;
 
             Assert.DoesNotThrow(() =>
             {

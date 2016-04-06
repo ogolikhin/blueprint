@@ -23,10 +23,10 @@ or
 npm run dev
 ```
 
-## npm install --save-dev
+### npm install --save-dev
 package.json file that is used to install node-modules currently includes webpackage, karma, gulp, typescript, typings and components we need for the prototype. Please adjust this as needed going forward
 
-## npm install --save
+### npm install --save
 we also using npm for grabbing open source client side libraries (bower is not used anymore)
 Note that for client side libraries that are not open source (example mxgraph), we will not be using bower
 
@@ -60,20 +60,34 @@ or 'permanently' in the user profile
 npm config set nova:backend http://titan.blueprintsys.net
 ```
 
+## unit testing
+Note: all unit test are located together with the code using next pattern: [name_of_file_under_test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
+
+You may need to install karma-chrome-launcher: `npm i karma-chrome-launcher` to run (and debug) unit tests in Chrome browser
+
 Use
 ```
 gulp test
 ```
-to run unit tests using Karma and PhantomJS. 
-Note: all unit test are located together with the code using next pattern: [name_of_file_under_test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
+to run all unit tests using Karma and PhantomJS. 
 
 Use
 ```
-gulp serve
+gulp test:debug
 ```
-to build the project in production version and run it with browser-sync server.
+to run all unit tests using Karma and Chrome.
+Cancel the task to close the browser instance.
 
-Note: you also can run all these tasks (except serve) using
+Use
+```
+npm run test:spec --spec=auth.svc
+```
+to run all tests from auth.svc.spec.ts file using Karma and Chrome. Karma will watch for the changes in the spec and related files to transpile the changes and re-run unit tests.
+
+Cancel the script in shell to close the Chrome instance. 
+
+## npm scripts
+Note: you also can run all these tasks (except test:spec) using
 ```
 npm run {dev | test | build}
 ```

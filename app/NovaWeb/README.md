@@ -61,7 +61,7 @@ npm config set nova:backend http://titan.blueprintsys.net
 ```
 
 ## unit testing
-Note: all unit test are located together with the code using next pattern: [name_of_file_under_test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
+Note: all unit test are located together with the code using next pattern: [name-of-file-under-test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
 
 You may need to install karma-chrome-launcher: `npm i karma-chrome-launcher` to run (and debug) unit tests in Chrome browser
 

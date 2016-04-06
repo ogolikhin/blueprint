@@ -71,12 +71,12 @@ namespace Model
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.
-        /// (Runs: GET /status)
+        /// (Runs: GET /status/upcheck)
         /// </summary>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The status code returned by AdminStore.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+        HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets setting from ConfigControl .

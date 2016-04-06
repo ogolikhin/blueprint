@@ -211,7 +211,7 @@ namespace Logging.Database.Sinks
             //If still pending events after all retries, discard batch and log.
             if (initialCount != collection.Count)
             {
-                SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(string.Format("{0} EventData entries are discarded due to too many failed retries", collection.Count));
+                SemanticLoggingEventSource.Log.CustomSinkUnhandledFault(I18NHelper.FormatInvariant("{0} EventData entries are discarded due to too many failed retries", collection.Count));
             }
         }
 

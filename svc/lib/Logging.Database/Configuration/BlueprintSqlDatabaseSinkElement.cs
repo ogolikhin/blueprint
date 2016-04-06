@@ -7,16 +7,16 @@ using Logging.Database.Utility;
 
 namespace Logging.Database.Configuration
 {
-    internal class BlueprintSqlDatabaseSinkElement : ISinkElement
+    public class BlueprintSqlDatabaseSinkElement : ISinkElement
     {
-        private readonly XName sinkName = XName.Get("blueprintSqlDatabaseSink", "http://schemas.blueprintsys.com/sinks/blueprintSqlDatabaseSink");
+        private readonly XName _sinkName = XName.Get("blueprintSqlDatabaseSink", "http://schemas.blueprintsys.com/sinks/blueprintSqlDatabaseSink");
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Validated with Guard class")]
         public bool CanCreateSink(XElement element)
         {
             Guard.ArgumentNotNull(element, "element");
 
-            return element.Name == sinkName;
+            return element.Name == _sinkName;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "Validated with Guard class")]

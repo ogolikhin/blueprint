@@ -2,6 +2,7 @@ import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "../shell";
+import {Toolbar} from "./components/toolbar/toolbar";
 import {Sidebar} from "./components/sidebar/sidebar";
 import {config as routesConfig} from "./main.state";
 
@@ -18,4 +19,5 @@ export function config($rootScope: ng.IRootScopeService) {
 angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap"])
     .run(config)
     .component("sidebar", new Sidebar())
+    .component("toolbar", new Toolbar())
     .config(routesConfig);

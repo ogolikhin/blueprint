@@ -22,7 +22,7 @@ namespace AccessControl
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(9, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(10, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<LicensesController>("GetActiveLicenses", HttpMethod.Get, "licenses/active");
             config.AssertAction<LicensesController>("GetLockedLicenses", HttpMethod.Get, "licenses/locked");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1&consumerType=1");
@@ -35,6 +35,7 @@ namespace AccessControl
             config.AssertAction<SessionsController>("PutSession", HttpMethod.Put, "sessions?op=op&aid=1");
             config.AssertAction<SessionsController>("DeleteSession", HttpMethod.Delete, "sessions");
             config.AssertAction<StatusController>("GetStatus", HttpMethod.Get, "status");
+            config.AssertAction<StatusController>("GetStatusUpCheck", HttpMethod.Get, "status/upcheck");
         }
 
         [TestMethod]

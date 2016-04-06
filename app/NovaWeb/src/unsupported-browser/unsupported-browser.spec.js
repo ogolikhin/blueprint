@@ -362,6 +362,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -382,6 +383,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -402,6 +404,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -422,6 +425,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -442,12 +446,34 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
         expect(browserInfo.firefox).toBeTruthy();
         expect(browserInfo.name).toEqual("Firefox");
         expect(browserInfo.version).toEqual("24.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("Windows Vista - Internet Explorer 8.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; InfoPath.1; SV1; .NET CLR 3.8.36217; WOW64; en-US)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeTruthy();
+        expect(browserInfo.name).toEqual("Internet Explorer");
+        expect(browserInfo.version).toEqual("8.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
@@ -462,6 +488,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -482,6 +509,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -502,6 +530,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -522,6 +551,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -542,6 +572,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -562,12 +593,55 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
         expect(browserInfo.msie).toBeTruthy();
         expect(browserInfo.name).toEqual("Internet Explorer");
         expect(browserInfo.version).toEqual("8.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("Windows 7 - Internet Explorer 9.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0; .NET CLR 2.0.50727; SLCC2; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; Zune 4.0; Tablet PC 2.0; InfoPath.3; .NET4.0C; .NET4.0E)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeTruthy();
+        expect(browserInfo.name).toEqual("Internet Explorer");
+        expect(browserInfo.version).toEqual("9.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("Windows 7 - Internet Explorer 10.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeTruthy();
+        expect(browserInfo.name).toEqual("Internet Explorer");
+        expect(browserInfo.version).toEqual("10.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
@@ -582,6 +656,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -602,6 +677,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -622,6 +698,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -642,6 +719,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -650,6 +728,27 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("32.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("Windows 8 - Internet Explorer 10.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0; Touch)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeTruthy();
+        expect(browserInfo.name).toEqual("Internet Explorer");
+        expect(browserInfo.version).toEqual("10.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows 8 - Firefox 27", function () {
@@ -662,6 +761,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -682,6 +782,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -702,6 +803,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -722,11 +824,54 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeFalsy();
         expect(browserInfo.tablet).toBeFalsy();
 
         expect(browserInfo.firefox).toBeTruthy();
         expect(browserInfo.name).toEqual("Firefox");
         expect(browserInfo.version).toEqual("35.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("Windows 10 - Internet Explorer 11.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeTruthy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeTruthy();
+        expect(browserInfo.name).toEqual("Internet Explorer");
+        expect(browserInfo.version).toEqual("11.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("Windows 10 - Microsoft Edge", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.win7plus).toBeTruthy();
+        expect(browserInfo.win10plus).toBeTruthy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.msie).toBeFalsy();
+        expect(browserInfo.name).toEqual("Microsoft Edge");
+        expect(browserInfo.msedge).toBeTruthy();
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
     });

@@ -1,5 +1,6 @@
 //dimensions
 $navbar-height: 40px;
+$navbar-toolbar-height: 46px;
 $navbar-color: #01206a;
 
 .navbar {
@@ -33,7 +34,7 @@ $navbar-color: #01206a;
       color: $white;
       font-size: $font-size-smallest;
       line-height: $navbar-height;
-      margin-left: 15px;
+      margin: 0 0 0 15px;
       white-space: nowrap;
 
       span {
@@ -42,14 +43,71 @@ $navbar-color: #01206a;
       }
 
       .signed-in-as {
-        font-weight: 800;
+        font-weight: 700;
         font-style: normal;
+        margin: 0 4px;
       }
 
-      .glyphicon {
+      .fonticon, .fonticon::before {
         color: $white;
-        font-size: $font-size-root;
+        cursor: pointer;
+        display: inline-block;
+        font-size: $font-size-biggest;
+        margin-top: -3px;
         text-decoration: none;
+        vertical-align: middle;
+      }
+
+      .fonticon-help {
+        margin-left: 8px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .navbar-toolbar {
+    background: $gray-lighter;
+    height: $navbar-toolbar-height;
+
+    .navbar-nav {
+      float: left;
+      margin: 0;
+
+      > li {
+        float: left;
+      }
+
+      > .separator {
+        background: $gray-light;
+        border-left: solid 1px lighten($gray-light, 16);
+        border-right: solid 1px lighten($gray-light, 16);
+        height: $navbar-toolbar-height;
+        width: 3px;
+      }
+    }
+
+    > ul > li > a {
+      box-sizing: border-box;
+      color: $gray-dark;
+      height: $navbar-toolbar-height;
+      line-height: normal;
+      padding: 6px 0 0;
+      text-align: center;
+      width: 44px;
+
+      .fonticon::before {
+        font-size: $font-size-biggest;
+          margin: 0;
+      }
+
+      .caret {
+        margin: 0;
+      }
+
+      span {
+        display: block;
+        font-size: $font-size-micro;
+        margin-top: -3px;
       }
     }
   }

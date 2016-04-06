@@ -1,24 +1,41 @@
 ﻿//import "./sidebar.scss"
 
-export class Sidebar implements ng.IComponentOptions {
-    public template: string = require("./sidebar.html");
 
-    public controller: Function = SidebarCtrl;
+
+interface ISidebarController {
+    location: string;
+    isToggled: boolean;
+    toggle(evt: ng.IAngularEvent): void
 }
 
-class SidebarCtrl {
 
+export class Sidebar implements ng.IComponentOptions { 
+    public template: string;
+    public controller: Function;
+    public bindings: any; 
+    public transclude: boolean = true;
+    constructor() {
+        this.template = require("./sidebar.html");
+        this.controller = SidebarCtrl;
+        this.bindings = {
+            visible: "=",
+            alignment: "@"
+        };
+    }
+}
 
-    public leftToggled: boolean;
-    public toggleLeft(evt: ng.IAngularEvent)
-    {
-        evt.preventDefault();
-        this.leftToggled = !this.leftToggled;
+class SidebarCtrl implements ISidebarController{
+
+    public location: string;
+    private loc: string;
+    public isToggled: boolean;
+    constructor() {
+        this.isToggled = false;
     }
 
-    public rightToggled: boolean;
-    public toggleRight(evt: ng.IAngularEvent) {
+    public toggle(evt: ng.IAngularEvent)
+    {
         evt.preventDefault();
-        this.rightToggled = !this.rightToggled;
+        this.isToggled = !this.isToggled;
     }
 }

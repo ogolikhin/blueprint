@@ -1,43 +1,12 @@
-﻿<div id="wrapper" ng-class="{'active-left': $ctrl.leftToggled, 'active-right': $ctrl.rightToggled}">
-
-    <!-- Sidebar -->
-    <div id="sidebar-wrapper-left">
-        Left: {{$ctrl.leftToggled}}
+﻿<div ng-class="{show: $ctrl.isToggled, left: $ctrl.alignment == 'left', right: $ctrl.alignment == 'right' }" ng-transclude>
+    <div class="content-header">
+        <h1 id="home" >
+            <a id="menu-toggle-left" ng-click="$ctrl.toggle($event)" class="glyphicon glyphicon-align-justify btn-menu toggle ">
+                <i class="fa fa-bars"></i>
+            </a>
+        </h1>
     </div>
 
-    <!-- Sidebar -->
-    <div id="sidebar-wrapper-right">
-        Right: {{$ctrl.rightToggled}}
-    </div>
-
-    <!-- Page content -->
-    <div id="page-content-wrapper">
-        <div class="content-header">
-            <h1 id="home">
-                <a id="menu-toggle-left" ng-click="$ctrl.toggleLeft($event)" class="glyphicon glyphicon-align-justify btn-menu toggle">
-                    <i class="fa fa-bars"></i>
-                </a>
-                <a id="menu-toggle-right" ng-click="$ctrl.toggleRight($event)" class="glyphicon glyphicon-align-justify btn-menu toggle">
-                    <i class="fa fa-bars"></i>
-                </a>
-                Sidebar Template
-            </h1>
-        </div>
-
-        <div class="page-content inset">
-            <div class="row">
-
-                <div class="jumbotron text-center">
-                    <p>This is a sidebar navigation responsive template built off of Bootstrap 3.0 and simple sidebar template.</p>
-                    <p>
-                        <a class="btn btn-default">Click On Me!</a>
-                        <a class="btn btn-info">Tweet Me!</a>
-                    </p>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
+    This is {{$ctrl.alignment.toUpperCase()}} sidebar navigation and template.
 
 </div>

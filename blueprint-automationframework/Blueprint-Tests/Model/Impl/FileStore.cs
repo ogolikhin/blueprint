@@ -142,11 +142,11 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IFileStore.GetStatus"/>
-        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IFileStore.GetStatusUpcheck"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, token:string.Empty);
-            var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+            var path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 

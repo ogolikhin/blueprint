@@ -5,6 +5,9 @@ using NUnit.Framework;
 using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using System.Collections.Generic;
+using Model.OpenApiModel;
+using System.Linq;
 
 namespace StorytellerTests
 {
@@ -17,7 +20,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -47,11 +49,22 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsList = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
+                    }
+                    else
+                    {
+                        savedArtifactsList.Add(artifact);
+                    }
+                }
+                if (savedArtifactsList.Any())
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
             }
 
@@ -120,7 +133,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionBranch(userDecisionWithBranchToBeDeleted, orderIndexOfBranch, branchEndPoint);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -195,7 +208,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionBranch(returnedFirstUserDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -270,7 +283,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionBranch(returnedFirstUserDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
     }
 }

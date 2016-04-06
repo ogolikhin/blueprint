@@ -422,7 +422,7 @@ namespace Model.StorytellerModel.Impl
             // Get the target process shape after the system decision point on the specified branch.
             var targetProcessShape = GetProcessShapeById(outgoingSystemDecisionProcessLink.DestinationId);
 
-            var shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+            List<ProcessShape> shapesToDelete;
 
             // TODO Updates as adding more test cases
             // (Probably not necessary at all) Possible target process shape types:
@@ -432,10 +432,14 @@ namespace Model.StorytellerModel.Impl
                 // Find the shapes to delete, including all branches before merge point
                 shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
             }
-
-            if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemDecision))
+            else if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemDecision))
             {
                 // Find the shapes to delete, including all branches before merge point
+                shapesToDelete =
+                    GetShapesBetween(targetProcessShape, new List<IProcessShape> {branchMergePointShape}).ToList();
+            }
+            else
+            {
                 shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
             }
 

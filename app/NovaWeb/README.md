@@ -23,6 +23,12 @@ or
 npm run dev
 ```
 
+##### Synchronize Node.JS Install Version with Visual Studio 2015 if you are going to use Task runner from VS2015:
+http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/
+
+##### If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
+add the following path %APPDATA%\npm to system environment variable PATH (it's better to add it before path to nodejs, it will simplify npm update later).
+
 ### npm install --save-dev
 package.json file that is used to install node-modules currently includes webpackage, karma, gulp, typescript, typings and components we need for the prototype. Please adjust this as needed going forward
 
@@ -92,9 +98,3 @@ Note: you also can run all these tasks (except test:spec) using
 npm run {dev | test | build}
 ```
 as npm scripts defined in package.json 
-
-# Synchronize Node.JS Install Version with Visual Studio 2015:
-http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/
-
-# If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
-add the following path %APPDATA%\npm to system environment variable PATH.

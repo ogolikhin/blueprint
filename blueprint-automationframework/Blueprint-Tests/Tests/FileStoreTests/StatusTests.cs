@@ -18,6 +18,7 @@ namespace FileStoreTests
         }
 
         [Test]
+        [Description("Calls the /status/upcheck endpoint for FileStore and verifies that it returns 200 OK")]
         public void StatusUpcheck_OK()
         {
             Assert.DoesNotThrow(() =>

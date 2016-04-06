@@ -159,6 +159,7 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
+        /// <seealso cref="IAdminStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);

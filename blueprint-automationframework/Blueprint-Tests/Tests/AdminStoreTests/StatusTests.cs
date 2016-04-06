@@ -12,6 +12,7 @@ namespace AdminStoreTests
         private IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
 
         [Test]
+        [Description("Calls the /status/upcheck endpoint for AdminStore and verifies that it returns 200 OK")]
         public void GetStatusUpcheck_OK()
         {
             Assert.DoesNotThrow(() =>

@@ -8,7 +8,7 @@ export class ConfirmationDialogCtrl {
     public cancelButtonName: string = this.localization.get("App_Button_Cancel");
     public hasCloseButton: boolean = true;
 
-    static $inject: [string] = ["localization","$uibModalInstance"];
+    static $inject: [string] = ["localization", "$uibModalInstance"];
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
     }
 

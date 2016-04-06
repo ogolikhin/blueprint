@@ -37,7 +37,7 @@ export class AuthSvc implements IAuth {
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
         var config = this.createRequestConfig();
-       
+
         this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
             .success((result: IUser) => {
                 defer.resolve(result);
@@ -46,7 +46,7 @@ export class AuthSvc implements IAuth {
                     statusCode: statusCode,
                     message: err ? err.Message : this.localization.get("Login_Auth_CannotGetUser")
                 };
-                if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) { 
+                if (this.configValueHelper.getBooleanValue("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
                     this.$http.post<any>("/Login/WinLogin.aspx", "", config)
                         .success((token: string) => {
                             this.onTokenSuccess(token, defer, false, "");
@@ -92,7 +92,7 @@ export class AuthSvc implements IAuth {
             origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
         }
 
-        return origin + "/";;
+        return origin + "/";
     }
 
 
@@ -174,8 +174,9 @@ export class AuthSvc implements IAuth {
     }
 
     public getLoginErrorMessage(err: any): string {
-        if (!err)
+        if (!err) {
             return "";
+        }
 
         return err.Message ? err.Message : this.localization.get("Login_Auth_LoginFailed"); // TODO: generic message
     }
@@ -238,7 +239,7 @@ export class AuthSvc implements IAuth {
     private verifyLicense(token: string): ng.IPromise<any> {
         var deferred: ng.IDeferred<any> = this.$q.defer();
         let requestConfig = this.createRequestConfig();
-       
+
         requestConfig.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
 
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
@@ -303,14 +304,12 @@ export class AuthSvc implements IAuth {
 
             if (c < 128) {
                 output += String.fromCharCode(c);
-            }
-            else if ((c > 127) && (c < 2048)) {
+            } else if ((c > 127) && (c < 2048)) {
                 /* tslint:disable:no-bitwise */
                 output += String.fromCharCode((c >> 6) | 192);
                 output += String.fromCharCode((c & 63) | 128);
                 /* tslint:enable:no-bitwise */
-            }
-            else {
+            } else {
                 /* tslint:disable:no-bitwise */
                 output += String.fromCharCode((c >> 12) | 224);
                 output += String.fromCharCode(((c >> 6) & 63) | 128);

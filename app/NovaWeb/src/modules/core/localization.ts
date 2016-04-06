@@ -10,6 +10,6 @@ export class LocalizationService implements ILocalizationService {
         
     }
     get(name : string): string {
-        return  this.scope['config'].labels[name] || '';
+        return  this.scope["config"].labels[name] || "";
     }
 }

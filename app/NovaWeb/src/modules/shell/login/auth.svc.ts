@@ -177,7 +177,7 @@ export class AuthSvc implements IAuth {
         if (!err)
             return "";
 
-        return err.Message ? err.Message : this.localization.get('Login_Auth_LoginFailed'); // TODO: generic message
+        return err.Message ? err.Message : this.localization.get("Login_Auth_LoginFailed"); // TODO: generic message
     }
 
     private internalLogout(token: string): ng.IPromise<any> {
@@ -219,11 +219,11 @@ export class AuthSvc implements IAuth {
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {
-                        deferred.reject({ message: this.localization.get('Login_Auth_LicenseVerificationFailed') });
+                        deferred.reject({ message: this.localization.get("Login_Auth_LicenseVerificationFailed") });
                     }
                 });
         } else {
-            deferred.reject({ statusCode: 500, message: this.localization.get('Login_Auth_SessionTokenRetrievalFailed') });
+            deferred.reject({ statusCode: 500, message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed") });
         }
     }
 
@@ -246,10 +246,10 @@ export class AuthSvc implements IAuth {
             .error((err: any, statusCode: number) => {
                 var msg = null;
                 if (statusCode === 404) { // NotFound
-                    msg = this.localization.get('Login_Auth_LicenseNotFound_Verbose');
+                    msg = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
 
                 } else if (statusCode === 403) { // Forbidden
-                    msg = this.localization.get('Login_Auth_LicenseLimitReached');
+                    msg = this.localization.get("Login_Auth_LicenseLimitReached");
                 }
 
                 deferred.reject(msg);

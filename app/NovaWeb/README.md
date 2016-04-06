@@ -36,7 +36,7 @@ package.json file that is used to install node-modules currently includes webpac
 we also using npm for grabbing open source client side libraries (bower is not used anymore)
 Note that for client side libraries that are not open source (example mxgraph), we will not be using bower
 
-## gulp 
+## Development
 We have number of gulp tasks:
 
 Use
@@ -66,7 +66,7 @@ or 'permanently' in the user profile
 npm config set nova:backend http://titan.blueprintsys.net
 ```
 
-## unit testing
+## Unit testing
 Note: all unit test are located together with the code using next pattern: [name-of-file-under-test].spec.ts, see src\modules\shell\login\auth.svc.spec.ts for example.
 
 You may need to install karma-chrome-launcher: `npm i karma-chrome-launcher` to run (and debug) unit tests in Chrome browser
@@ -90,11 +90,13 @@ npm run test:spec --spec=auth.svc
 ```
 to run all tests from auth.svc.spec.ts file using Karma and Chrome. Karma will watch for the changes in the spec and related files to transpile the changes and re-run unit tests.
 
+You cannot run it from VS2015 task runner because it require parameter to specify spec file.
+
 Cancel the script in shell to close the Chrome instance. 
 
 ## npm scripts
-Note: you also can run all these tasks (except test:spec) using
+Note: you also can run all these tasks using
 ```
-npm run {dev | test | build}
+npm run {dev | test | test:debug | test:spec | build}
 ```
 as npm scripts defined in package.json 

@@ -140,7 +140,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, orderIndexOfBranch, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -274,7 +274,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 2, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(returnedProcess, _storyteller, _user);
         }
     }
 }

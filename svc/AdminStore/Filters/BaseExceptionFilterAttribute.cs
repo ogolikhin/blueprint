@@ -28,19 +28,21 @@ namespace AdminStore.Filters
             else if (ex is AuthenticationException)
             {
                 statusCode  = HttpStatusCode.Unauthorized;
-                errorCode = (ex as AuthenticationException).ErrorCode;
+                errorCode = ((AuthenticationException) ex).ErrorCode;
             }
             else if (ex is ResourceNotFoundException)
             {
                 statusCode = HttpStatusCode.NotFound;
-                errorCode = (ex as ResourceNotFoundException).ErrorCode;
+                errorCode = ((ResourceNotFoundException) ex).ErrorCode;
             }
             else
             {
                 statusCode = HttpStatusCode.InternalServerError;
 
                 var loggableController = context?.ActionContext?.ControllerContext?.Controller;
-                await GetLog(loggableController)?.LogError(GetLogSource(loggableController), ex);
+                var log = GetLog(loggableController);
+                if(log != null)
+                    await log.LogError(GetLogSource(loggableController), ex);
             }
 
             var error = new HttpError(ex.Message);

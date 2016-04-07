@@ -10,7 +10,7 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Helper;
 using System.Net;
-using Utilities;
+using Common;
 
 namespace StorytellerTests
 {
@@ -23,6 +23,9 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
+
+        public static readonly string MinimumNumberBranchValidationFormat = "Decision shape with Id {0} contains less than the minimum of 2 outgoing links.";
+
         #region Setup and Cleanup
 
         [TestFixtureSetUp]
@@ -91,8 +94,9 @@ namespace StorytellerTests
         #region Tests
 
         [TestCase]
-        [Description("Deleting an only available additional branch from system decision and verify that " +
-                     "the returned response contains error message when save the invalid process model")]
+        [Description("Deleting a branch from system decision containing only 2 branches." +
+                     "verify that the returned response contains error message " +
+                     "stating that decision shape requres an minimum of 2 branches")]
         public void DeleteOnlyAdditonalBranchFromSystemDecision_VerifyUpdateProcessReturnsValidationError()
         {
             /*
@@ -136,18 +140,22 @@ namespace StorytellerTests
 
             // Get and deserialize response
             var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
-            // Assert that the deserialized response indicates that the process name is required
-            Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.MinimumNumberBranchValidationPart1 + systemDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.MinimumNumberBranchValidationPart1 + systemDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2, deserializedResponse.Message
+            var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
+                systemDecisionForDeletionProcess.Id);
+
+            // Assert that the response error message that the current process shape to be saved contains 
+            // less than the mininum of 2 outgoing links
+            Assert.That(response.Contains(expectedMessage),
+                "Expected response message: {0} => Actual response message {1}", expectedMessage, response
                 );
 
         }
 
         [TestCase]
-        [Description("Deleting an only available additional branch from user decision and verify that " +
-                     "the returned response contains error message when save the invalid process model")]
+        [Description("Deleting a branch from user decision containing only 2 branches." +
+                     "verify that the returned response contains error message " +
+                     "stating that decision shape requres an minimum of 2 branches")]
         public void DeleteOnlyAdditonalBranchFromUserDecision_VerifyUpdateProcessReturnsValidationError()
         {
             /*
@@ -187,25 +195,19 @@ namespace StorytellerTests
 
             // Get and deserialize response
             var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
-            // Assert that the deserialized response indicates that the process name is required
-            Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.MinimumNumberBranchValidationPart1 + userDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.MinimumNumberBranchValidationPart1 + userDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2, deserializedResponse.Message
+            var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
+                userDecisionForDeletionProcess.Id);
+
+            // Assert that the response error message that the current process shape to be saved contains 
+            // less than the mininum of 2 outgoing links
+            Assert.That(response.Contains(expectedMessage),
+                "Expected response message: {0} => Actual response message {1}", expectedMessage, response
                 );
 
         }
 
         #endregion Tests
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public class ProcessValidationResponse
-        {
-            public static readonly string MinimumNumberBranchValidationPart1 = "Decision shape with Id ";
-            public static readonly string MinimumNumberBranchValidationPart2 = " contains less than the minimum of 2 outgoing links.";
-            public string Message { get; set; }
-        }
     }
 }

@@ -360,7 +360,7 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(processShape, nameof(processShape));
 
-            // Find the incoming link for the process shape
+            // Find the incoming links for the process shape
             var links = Links.FindAll(l => l.DestinationId == processShape.Id);
 
             return links;

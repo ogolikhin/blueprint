@@ -144,11 +144,11 @@ namespace Helper
             var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
 
             // Get default process
-            var returnedProcess = storyteller.GetProcess(user, addedProcessArtifact.Id);
+            var process = storyteller.GetProcess(user, addedProcessArtifact.Id);
 
-            Assert.IsNotNull(returnedProcess, "The process returned from GetProcess() was null.");
+            Assert.IsNotNull(process, "The process returned from GetProcess() was null.");
 
-            return returnedProcess;
+            return process;
         }
 
         /// <summary>

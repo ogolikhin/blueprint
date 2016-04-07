@@ -97,7 +97,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("40.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Android 4.4 - Galaxy Tab", function () {
@@ -163,7 +163,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("37.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("iOS 5.1", function () {
@@ -207,7 +207,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("iPad");
         expect(browserInfo.version).toEqual("6.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("iOS 7 - Chrome Mobile iOS 40", function () {
@@ -229,7 +229,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("40.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("iOS 7 - Mobile Safari 7.0", function () {
@@ -251,7 +251,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("iPad");
         expect(browserInfo.ios).toBeTruthy();
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Linux - Firefox 31.0", function () {
@@ -292,6 +292,27 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
+    it("Mac OS X 10.7.5 - Chrome 28", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.osx).toBeTruthy();
+        expect(browserInfo.osx10_9plus).toBeFalsy();
+        expect(browserInfo.tablet).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.name).toEqual("Chrome");
+        expect(browserInfo.version).toEqual("28.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
     it("Mac OS X 10.9 - Safari 7.0", function () {
         // Arrange
         var userAgent =
@@ -302,6 +323,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.osx).toBeTruthy();
+        expect(browserInfo.osx10_9plus).toBeTruthy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -309,7 +331,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Safari");
         expect(browserInfo.version).toEqual("7.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Mac OS X 10.10 - Chrome 41", function () {
@@ -322,6 +344,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.osx).toBeTruthy();
+        expect(browserInfo.osx10_9plus).toBeTruthy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser
@@ -329,7 +352,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("41.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
     });
 
     it("Mac OS X 10.10 - Firefox 33.0", function () {
@@ -342,6 +365,7 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - OS
         expect(browserInfo.osx).toBeTruthy();
+        expect(browserInfo.osx10_9plus).toBeTruthy();
         expect(browserInfo.tablet).toBeFalsy();
 
         // Assert - Browser

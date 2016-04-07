@@ -6,20 +6,29 @@ var executionEnvironmentDetector = (function () {
     executionEnvironmentDetector.prototype.getBrowserInfo = function () {
         var ua = window.navigator !== undefined ? window.navigator.userAgent: "";
         return this.getBrowserInfoUserAgent(ua, bowser);
-        };
+    };
     executionEnvironmentDetector.prototype.getBrowserInfoUserAgent = function (ua, browser) {
+        function getFirstMatch(regex) {
+            var match = ua.match(regex);
+            return (match && match.length > 1 && match[1]) || '';
+        }
+
         if (/tablet pc/i.test(ua)) {
             browser.tablet = false;
-            }
+        }
         if(browser.osversion !== undefined)
             browser.osMajorVersion = parseInt(browser.osversion.split(".")[0], 10);
         if (browser.ios) {
             if (/safari/i.test(ua)) {
                 browser.safari = true;
-                }
             }
+        }
         if (/Mac\sOS\sX/i.test(ua)) {
             browser.osx = true;
+            var osxVersion = getFirstMatch(/Mac\sOS\sX\s(\d+([_.]\d+)?)/i).replace(/_/g, ".");
+            osxVersion = osxVersion.split(".");
+            if(parseInt(osxVersion[0], 10) >= 11 ||
+                (osxVersion.length == 2 && parseInt(osxVersion[0], 10) == 10 && parseInt(osxVersion[1], 10) >= 9)) browser.osx10_9plus = true;
         }
         else if (/Windows\sNT\s6.1/i.test(ua) ||
             /Windows\sNT\s6.2/i.test(ua) ||
@@ -33,35 +42,26 @@ var executionEnvironmentDetector = (function () {
         }
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
-        if (bowser.mobile) {
+        if (bowser.mobile || bowser.tablet) {
             browser.blueprintSupportedBrowser = false;
         }
-        else if (browser.msie && browser.version >= 11 && browser.win7plus) {
+        else if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
         else if (browser.msedge && browser.win10plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.firefox && browser.version >= 19 && browser.win7plus) {
+        else if (browser.firefox && parseInt(browser.version, 10) >= 19 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && browser.version >= 26 && browser.win7plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 25 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.safari && browser.version >= 7 && browser.osx) { 
-            browser.blueprintSupportedBrowser = true;
-        }
-        else if (browser.chrome && browser.version >= 35 && browser.ios && browser.osMajorVersion >= 6) { 
-            browser.blueprintSupportedBrowser = true;
-        }
-        else if (browser.safari && browser.version >= 6 && browser.ios && browser.osMajorVersion >= 6) { 
-            browser.blueprintSupportedBrowser = true;
-        }
-        else if (browser.chrome && browser.version >= 35 && browser.osMajorVersion >= 4) {
+        else if (browser.chrome && browser.osx && browser.osx10_9plus) {
             browser.blueprintSupportedBrowser = true;
         }
         return browser;
-        };
+    };
     executionEnvironmentDetector.prototype.isSupportedVersion = function() {
         return this.getBrowserInfo().blueprintSupportedBrowser;
         };

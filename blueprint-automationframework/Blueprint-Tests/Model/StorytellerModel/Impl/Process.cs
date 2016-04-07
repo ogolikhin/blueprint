@@ -536,20 +536,20 @@ namespace Model.StorytellerModel.Impl
 
             IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
-            // Find previous shape outgoing link
-            var previousShapeOutgoingLink = GetOutgoingLinkForShape(sourceShape);
+            // Find source shape outgoing link
+            var sourceShapeOutgoingLink = GetOutgoingLinkForShape(sourceShape);
+
+            // Find shape after source shape before move
+            var sourceShapeNextShapeBeforeMove = GetNextShape(sourceShape);
 
             // Update destination to userTask Id
-            previousShapeOutgoingLink.DestinationId = userTaskToMove.Id;
-
-            // Find shape after previous shape before move
-            var previousShapeNextShapeBeforeMove = GetNextShape(sourceShape);
+            sourceShapeOutgoingLink.DestinationId = userTaskToMove.Id;
 
             var systemTaskOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
 
             // Update the system task outgoing link destination Id to be the Id of the original
             // previous shape destination Id
-            systemTaskOutgoingLink.DestinationId = previousShapeNextShapeBeforeMove.Id;
+            systemTaskOutgoingLink.DestinationId = sourceShapeNextShapeBeforeMove.Id;
         }
 
         #endregion Public Methods

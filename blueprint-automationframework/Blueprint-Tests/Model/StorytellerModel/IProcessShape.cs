@@ -74,6 +74,13 @@ namespace Model.StorytellerModel
         /// <returns>The artifact reference to the associated artifact</returns>
         ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact);
 
+        /// <summary>
+        /// Verify if the Process is specific processShapeType
+        /// </summary>
+        /// <param name="processShapeType">The processShapeType</param>
+        /// <returns>Returns true if the process's processShapeType equals to the processShapeType passed as parameter</returns>
+        bool IsTypeOf(ProcessShapeType processShapeType);
+
         #endregion Methods
     }
 }

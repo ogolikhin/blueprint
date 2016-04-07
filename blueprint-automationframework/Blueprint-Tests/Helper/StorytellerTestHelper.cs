@@ -167,6 +167,10 @@ namespace Helper
                               +-------[UT3]--+--[ST4]--+
             */
 
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
             // Create and get the default process
             var process = CreateAndGetDefaultProcess(storyteller, project, user);
 
@@ -208,6 +212,10 @@ namespace Helper
                                      |              |
                                      +----+--[ST2]--+
             */
+
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process 
             var process = CreateAndGetDefaultProcess(storyteller, project, user);
@@ -253,6 +261,9 @@ namespace Helper
                                |                        |    |                        |
                                +-------[UT5]--+--[ST6]--+    +-------[UT7]--+--[ST8]--+
             */
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process with one user decision
             var process = CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user, updateProcess: false);
@@ -299,6 +310,10 @@ namespace Helper
             /*
                 [S]--[P]--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--[E]
             */
+
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process
             var process = CreateAndGetDefaultProcess(storyteller, project, user);

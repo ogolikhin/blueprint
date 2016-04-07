@@ -5,6 +5,7 @@ import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
 import {ISession, SessionSvc} from "./login/session.svc";
+import {Logger} from "./logger.ts";
 
 angular.module("app.shell",
     [
@@ -15,7 +16,8 @@ angular.module("app.shell",
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
-    .service("session", SessionSvc);
+    .service("session", SessionSvc)
+    .config(Logger);
 
 //TODO: move to other file
 export class AuthenticationRequired {

@@ -98,6 +98,7 @@
     <Compile Include="Models\ServiceLogModel.cs" />
     <Compile Include="Models\LogLevelEnum.cs" />
     <Compile Include="Models\Session.cs" />
+    <Compile Include="Repositories\ConfigControl\ILoggable.cs" />
     <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />

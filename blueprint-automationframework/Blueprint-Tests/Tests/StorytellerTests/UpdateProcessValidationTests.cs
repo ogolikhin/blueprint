@@ -103,13 +103,15 @@ namespace StorytellerTests
             returnedProcess.Name = string.Empty;
 
             // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.InternalServerError});
+            var response = _storyteller.UpdateProcessReturnResponseOnly(
+                _user, 
+                returnedProcess, 
+                new List<HttpStatusCode> { HttpStatusCode.BadRequest});
+
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
             // Assert that the deserialized response indicates that the process name is required
-            Assert.That( deserializedResponse.Message == ProcessValidationResponse.NameRequired,
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.NameRequired, deserializedResponse.Message
-                );
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NameRequired);
         }
 
         [TestCase]
@@ -131,32 +133,105 @@ namespace StorytellerTests
             returnedProcess.Links.Remove((ProcessLink)processLink);
 
             // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.InternalServerError });
+            var response = _storyteller.UpdateProcessReturnResponseOnly(
+                _user, 
+                returnedProcess, 
+                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
             // Asser that the deserialized response indicates that an orphaned shape was found
-            Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.OrphanedShapes),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
-                );
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.OrphanedShapes);
 
             // Assert that the shape id of the orphaned shape is the one expected
-            Assert.That(deserializedResponse.Message.Contains(processLink.DestinationId.ToString(CultureInfo.InvariantCulture)),
-                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.OrphanedShapes, deserializedResponse.Message
-                );
+            AssertValidationResponse(deserializedResponse, processLink.DestinationId.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [TestCase]
+        [Description("Delete the only user task in a process.  Verify that the returned process has a validation" +
+                     "error indicating that a process must have at least 1 user task.")]
+        public void DeleteTheOnlyUserTaskInProcess_VerifyGetProcessReturnsValidationError()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            process.DeleteUserAndSystemTask(defaultUserTask);
+
+            // Get and deserialize response
+            var response = _storyteller.UpdateProcessReturnResponseOnly(
+                _user,
+                process,
+                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+
+            // Assert that the deserialized response indicates that no user tasks were found
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoUserTasksFound);
+
+            // Assert that the deserialized response indicates that no system tasks were found
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoSystemTasksFound);
+        }
+
+        [TestCase]
+        [Description("Delete the only user task in a process.  Verify that the returned process has a validation" +
+             "error indicating that a process must have at least 1 user task.")]
+        public void DeleteTheOnlyUserTaskBetweenTwoUserDecisionsInProcess_VerifyGetProcessReturnsValidationError()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            process.DeleteUserAndSystemTask(defaultUserTask);
+
+            // Get and deserialize response
+            var response = _storyteller.UpdateProcessReturnResponseOnly(
+                _user,
+                process,
+                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+
+            // Assert that the deserialized response indicates that no user tasks were found
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoUserTasksFound);
+
+            // Assert that the deserialized response indicates that no system tasks were found
+            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoSystemTasksFound);
         }
 
         #endregion Tests
+
+        #region Private Methods
+
+        private static void AssertValidationResponse(ProcessValidationResponse deserializedResponse, string expectedContent)
+        {
+            Assert.That(
+                deserializedResponse.Message.Contains(expectedContent),
+                "Response message should have included: {0} => But Actual response message was: {1}",
+                expectedContent,
+                deserializedResponse.Message);
+        }
+
+        #endregion Private Methods
     }
 
     /// <summary>
-    /// 
+    /// The Update Process Validation Response Message
     /// </summary>
     public class ProcessValidationResponse
     {
+
+        public static readonly string NoUserTasksFound = "No User Task shapes provided";
+
+        public static readonly string NoSystemTasksFound = "No System Task shapes provided";
+
         public static readonly string NameRequired = "Name is required for Process";
 
         public static readonly string OrphanedShapes = "Orphaned shapes discovered";
 
+        // The message returned in the update process validation response
         public string Message { get; set; }
     }
 }

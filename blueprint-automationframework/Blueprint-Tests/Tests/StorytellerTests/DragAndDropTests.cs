@@ -74,21 +74,21 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask1_VerifyReturnedProcess()
+        [Description("Move a user and system task to a different location in the process tree.  Verify that the returned process" +
+                     "has the user and system task in the new location.")]
+        public void MoveUserAndSystemTask_VerifyReturnedProcess()
         {
             /*
             If you start with this:
-                [S]--[P]--+--[[UT1]--+--[ST2]]--+--[UT3]--+--[ST4]--+--[E]
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--[E]
 
 
             It becomes this:
-                [S]--[P]--+--[UT3]--+--[ST4]--+--[[UT1]--+--[ST2]]--+--[E]
+                [S]--[P]--+--[UT3]--+--[ST4]--+--[UT1]--+--[ST2]--+--[E]
             */
 
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(_storyteller, _project, _user);
 
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
@@ -98,183 +98,6 @@ namespace StorytellerTests
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask2_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--[UT1]--+--[ST2]--+--[[UT3]--+--[ST4]]--+--[E]
-
-
-            It becomes this:
-                [S]--[P]--+--[[UT3]--+--[ST4]]--+--[UT1]--+--[ST2]--+--[E]
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask3_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                              |                           |
-                              +----+--[UT3]--+--[ST4]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--+--[E]
-                              |                                               |
-                              +----+--[UT5]--+--[ST6]--+----------------------+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask4_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                              |                           |
-                              +----+--[UT3]--+--[ST4]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT3]--+--[ST4]--+--[UT1]--+--[ST2]--+--+--[E]
-                              |                                               |
-                              +----+--[UT5]--+--[ST6]--+----------------------+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask5_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                              |                           |
-                              +----+--[UT3]--+--[ST4]--+--+
-
-            It becomes this:
-                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                                                  |                           |
-                                                  +----+--[UT5]--+--[ST6]--+--+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask6_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                              |                           |
-                              +----+--[UT3]--+--[ST4]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
-                              |                           |
-                              +----+--[UT5]--+--[ST6]--+--+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask7_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                                                  |                           |
-                                                  +----+--[UT5]--+--[ST6]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
-                              |                                               |
-                              +----+--[UT5]--+--[ST6]--+--[UT3]--+--[ST4]--+--+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask8_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--[UT3]--+--[ST4]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[E]
-                                                  |                           |
-                                                  +----+--[UT5]--+--[ST6]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
-                              |                                               |
-                              +----+--[UT3]--+--[ST4]--+--[UT5]--+--[ST6]--+--+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask9_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
-                              |                           |
-                              +----+--[UT5]--+--[ST6]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
-                              |                                               |
-                              +----+--[UT3]--+--[ST4]--+--[UT5]--+--[ST6]--+--+
-            */
-
-            throw new NotImplementedException();
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase]
-        [Description("")]
-        public void MoveUserAndSystemTask10_VerifyReturnedProcess()
-        {
-            /*
-            If you start with this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
-                              |                           |
-                              +----+--[UT5]--+--[ST6]--+--+
-
-            It becomes this:
-                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+----------------------+--[E]
-                              |                                               |
-                              +----+--[UT5]--+--[ST6]--+--[UT3]--+--[ST4]--+--+
-            */
-
-            throw new NotImplementedException();
         }
     }
 }

@@ -432,15 +432,12 @@ namespace Model.StorytellerModel.Impl
             // Get the target process shape after the system decision point on the specified branch.
             var targetProcessShape = GetProcessShapeById(outgoingSystemDecisionProcessLink.DestinationId);
 
-
-
             // TODO Updates if there will be different implementation getting shapes based on differnt starting shape types
             // e.g. (Probably not necessary at all) Possible target process shape types:
             // 1) system task 2) system decision point 
 
             // Find the shapes to delete, including all branches before merge point
             List<ProcessShape> shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
-
 
             // Add the system task to the list of shapes to delete
             shapesToDelete.Add((ProcessShape)targetProcessShape);
@@ -514,6 +511,9 @@ namespace Model.StorytellerModel.Impl
 
         public void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape)
         {
+            ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
+            ThrowIf.ArgumentNull(destinationShape, nameof(destinationShape));
+
             IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             var nextShapeIncomingLinks = GetIncomingLinksForShape(destinationShape);
@@ -525,14 +525,17 @@ namespace Model.StorytellerModel.Impl
                 links.DestinationId = userTaskToMove.Id;
             }
 
-            var systemTaskToMoveOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
+            var systemTaskOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
 
             // Update the system task outgoing link destination Id to be the Id of the destination shape
-            systemTaskToMoveOutgoingLink.DestinationId = destinationShape.Id;
+            systemTaskOutgoingLink.DestinationId = destinationShape.Id;
         }
 
         public void MoveUserAndSystemTaskAfterShape(IProcessShape userTaskToMove, IProcessShape sourceShape)
         {
+            ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
+            ThrowIf.ArgumentNull(sourceShape, nameof(sourceShape));
+
             IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             // Find previous shape outgoing link
@@ -544,32 +547,11 @@ namespace Model.StorytellerModel.Impl
             // Find shape after previous shape before move
             var previousShapeNextShapeBeforeMove = GetNextShape(sourceShape);
 
-
-            var systemTaskToMoveOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
+            var systemTaskOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
 
             // Update the system task outgoing link destination Id to be the Id of the original
             // previous shape destination Id
-            systemTaskToMoveOutgoingLink.DestinationId = previousShapeNextShapeBeforeMove.Id;
-        }
-
-        private IProcessShape RemoveUserAndSystemTask(IProcessShape userTaskToMove)
-        {
-            // Find all user task incoming links
-            var userTaskIncomingLinks = GetIncomingLinksForShape(userTaskToMove);
-
-            var systemTaskToMove = GetNextShape(userTaskToMove);
-
-            // Find the new destination shape for all incoming links to the user task before the move
-            var nextTaskAfterSystemTaskToMove = GetNextShape(systemTaskToMove);
-
-            // Update all incoming links to user Task to so destination Id is to the shape after userTask
-            // before the move
-            foreach (var links in userTaskIncomingLinks)
-            {
-                links.DestinationId = nextTaskAfterSystemTaskToMove.Id;
-            }
-
-            return systemTaskToMove;
+            systemTaskOutgoingLink.DestinationId = previousShapeNextShapeBeforeMove.Id;
         }
 
         #endregion Public Methods
@@ -1260,6 +1242,33 @@ namespace Model.StorytellerModel.Impl
         private void DeleteProcessLink(ProcessLink processLink)
         {
             Links.Remove(processLink);
+        }
+
+        /// <summary>
+        /// Remove a User and System Task
+        /// </summary>
+        /// <param name="userTaskToRemove">The user task to remove</param>
+        /// <returns>The system task process shape that was removed</returns>
+        private IProcessShape RemoveUserAndSystemTask(IProcessShape userTaskToRemove)
+        {
+            ThrowIf.ArgumentNull(userTaskToRemove, nameof(userTaskToRemove));
+
+            // Find all user task incoming links
+            var userTaskIncomingLinks = GetIncomingLinksForShape(userTaskToRemove);
+
+            var systemTaskToRemove = GetNextShape(userTaskToRemove);
+
+            // Find the new destination shape for all incoming links to the user task before the remove
+            var nextTaskAfterSystemTaskToRemove = GetNextShape(systemTaskToRemove);
+
+            // Update all incoming links to user Task to so destination Id is to the shape after userTask
+            // before the remove
+            foreach (var links in userTaskIncomingLinks)
+            {
+                links.DestinationId = nextTaskAfterSystemTaskToRemove.Id;
+            }
+
+            return systemTaskToRemove;
         }
 
         #endregion Private Methods

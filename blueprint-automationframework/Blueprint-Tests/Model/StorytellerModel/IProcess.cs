@@ -321,8 +321,18 @@ namespace Model.StorytellerModel
         /// <param name="branchMergePointShape">The end point of the branch</param>
         void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
 
+        /// <summary>
+        /// Move a User and System Task to Before a Shape
+        /// </summary>
+        /// <param name="userTaskToMove">The user task to move</param>
+        /// <param name="destinationShape">The shape that will follow the moved user and system task</param>
         void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape);
 
+        /// <summary>
+        /// Move a User and System Task to After a Shape
+        /// </summary>
+        /// <param name="userTaskToMove">The user task to move</param>
+        /// <param name="sourceShape">The shape that will precede the moved user and system task</param>
         void MoveUserAndSystemTaskAfterShape(IProcessShape userTaskToMove, IProcessShape sourceShape);
 
         #endregion Methods

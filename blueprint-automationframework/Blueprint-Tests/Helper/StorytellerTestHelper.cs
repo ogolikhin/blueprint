@@ -74,31 +74,6 @@ namespace Helper
         }
 
         /// <summary>
-        /// Create and Get the Default Process
-        /// </summary>
-        /// <param name="storyteller">The storyteller instance</param>
-        /// <param name="project">The project where the process artifact is created</param>
-        /// <param name="user">The user creating the process artifact</param>
-        /// <returns>The created process</returns>
-        public static IProcess CreateAndGetDefaultProcess(IStoryteller storyteller, IProject project, IUser user)
-        {
-            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
-            ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            // Create default process artifact
-            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
-
-            // Get default process
-            var returnedProcess = storyteller.GetProcess(user, addedProcessArtifact.Id);
-
-            Assert.IsNotNull(returnedProcess, "The process returned from GetProcess() was null.");
-
-            return returnedProcess;
-        }
-
-
-        /// <summary>
         /// Updates and verifies the process returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
@@ -147,6 +122,42 @@ namespace Helper
             storyteller.PublishProcess(user, processReturnedFromGet);
         }
 
+
+        /// <summary>
+        /// Create and Get the Default Process
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcess(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[E]
+            */
+
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create default process artifact
+            var addedProcessArtifact = storyteller.CreateAndSaveProcessArtifact(project, BaseArtifactType.Process, user);
+
+            // Get default process
+            var returnedProcess = storyteller.GetProcess(user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(returnedProcess, "The process returned from GetProcess() was null.");
+
+            return returnedProcess;
+        }
+
+        /// <summary>
+        /// Create and Get the Default Process With One Added User Decision
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
         public static IProcess CreateAndGetDefaultProcessWithOneUserDecision(IStoryteller storyteller, IProject project, IUser user)
         {
             /*
@@ -176,6 +187,13 @@ namespace Helper
             return updatedProcess;
         }
 
+        /// <summary>
+        /// Create and Get the Default Process With One Added System Decision
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
         public static IProcess CreateAndGetDefaultProcessWithOneSystemDecision(IStoryteller storyteller, IProject project, IUser user)
         {
             /*
@@ -208,6 +226,13 @@ namespace Helper
             return updatedProcess;
         }
 
+        /// <summary>
+        /// Create and Get the Default Process With Two Sequential User Decisions Added
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
         public static IProcess CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(IStoryteller storyteller, IProject project, IUser user)
         {
             /*
@@ -233,6 +258,36 @@ namespace Helper
                 preconditionTask,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
+
+            // Save the process
+            var updatedProcess = storyteller.UpdateProcess(user, process);
+
+            return updatedProcess;
+        }
+
+        /// <summary>
+        /// Create and Get the Default Process With Two Sequential User Tasks Added
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcessWithTwoSequentialUserTasks(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[UT3]--+--[ST4]--+--[E]
+            */
+
+            // Create and get the default process
+            var process = CreateAndGetDefaultProcess(storyteller, project, user);
+
+            // Get the end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find outgoing process link for precondition
+            var endPointIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            process.AddUserAndSystemTask(endPointIncomingLink);
 
             // Save the process
             var updatedProcess = storyteller.UpdateProcess(user, process);

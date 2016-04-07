@@ -413,6 +413,24 @@ namespace Model.StorytellerModel.Impl
             return (ProcessShapeType)shapeType;
         }
 
+        public void DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(IProcessShape systemDecision, IProcessShape mergePointShape)
+        {
+            // Get system decision outgoing process link of the lowest order
+            var outgoingSystemDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(systemDecision, DefaultOrderIndex);
+
+            // Get the system task after the decision point on the lowest order branch.
+            var systemTaskOnLowestOrderBranchOfSystemDecision = GetProcessShapeById(outgoingSystemDecisionProcessLinkOfLowestOrder.DestinationId);
+
+            // Get the shapes to be deleted
+            var shapesToDelete = GetShapesBetween(systemDecision, new List<IProcessShape> { mergePointShape }, ignoreLowestBranch: true);
+
+            // Delete all shapes and outgoing links for the shapes
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            // Delete the system decision and update the process link to have the user task as the merge point
+            DeleteSystemDecisionAndUpdateProcessLink(systemDecision, systemTaskOnLowestOrderBranchOfSystemDecision);
+        }
+
         public void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
     IProcessShape branchMergePointShape)
         {
@@ -1145,6 +1163,17 @@ namespace Model.StorytellerModel.Impl
             }
 
             return processShapes;
+        }
+
+
+        /// <summary>
+        /// Delete a Single System Decision and Update the Process Link
+        /// </summary>
+        /// <param name="systemDecision">The system decision to be deleted</param>
+        /// <param name="nextShape">The shape that immediately follows the deleted system decision</param>
+        private void DeleteSystemDecisionAndUpdateProcessLink(IProcessShape systemDecision, IProcessShape nextShape)
+        {
+            DeleteProcessShapeAndUpdateProcessLink(systemDecision, nextShape);
         }
 
         /// <summary>

@@ -161,7 +161,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetStatus"/>
-        public string GetStatus(string preAuthorizedKey = "K1NP0S73NOUUOSD80COU", List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);

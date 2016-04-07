@@ -63,7 +63,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
-        string GetStatus(string preAuthorizedKey = "K1NP0S73NOUUOSD80COU", List<HttpStatusCode> expectedStatusCodes = null);
+        string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets the current status of the File Store service.

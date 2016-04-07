@@ -53,6 +53,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonConstants.cs" />
     <Compile Include="IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />

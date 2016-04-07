@@ -187,16 +187,19 @@ namespace StorytellerTests
 
             var firstUserDecision = process.GetNextShape(precondition);
 
+            // Find the outgoing link of the lowest order from the first user decision
             var userDecisionOutgoingLinkOfLowestOrder = process.GetOutgoingLinkForShape(
                 firstUserDecision,
                 Process.DefaultOrderIndex);
 
+            // The user task to delete us the shape immediately after the first user decision on the lowest order branch
             var userTaskIdToDelete = userDecisionOutgoingLinkOfLowestOrder.DestinationId;
 
             var userTaskToDelete = process.GetProcessShapeById(userTaskIdToDelete);
 
             process.DeleteUserAndSystemTask(userTaskToDelete);
 
+            // Find all the user decisions in the process
             var userDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
 
             var secondUserDecision = userDecisions.Find(ud => ud.Id != firstUserDecision.Id);

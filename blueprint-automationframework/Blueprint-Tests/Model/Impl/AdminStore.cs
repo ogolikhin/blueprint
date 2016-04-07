@@ -149,6 +149,7 @@ namespace Model.Impl
                 throw;
             }
         }
+
         public ISession GetSession(int? userId)
         {
             throw new NotImplementedException();
@@ -159,13 +160,31 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
+        /// <seealso cref="IAdminStore.GetStatus"/>
+        public string GetStatus(string preAuthorizedKey = "K1NP0S73NOUUOSD80COU", List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (preAuthorizedKey != null)
+            {
+                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
+            }
+
+            Logger.WriteInfo("Getting AdminStore status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            return response.Content;
+        }
+
         /// <seealso cref="IAdminStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
 
-            Logger.WriteInfo("Getting AdminStore status...");
+            Logger.WriteInfo("Getting AdminStore status upcheck...");
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
             return response.StatusCode;
         }

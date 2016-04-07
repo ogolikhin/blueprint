@@ -90,7 +90,7 @@ namespace StorytellerTests
         [TestCase(1)]
         [Description("Delete a branch from a user decision point that has more than 2 conditions and verify that the " +
                      "returned process still contains the user decision with all branches except the deleted branch.")]
-        public void DeleteBranchfromUserDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
+        public void DeleteBranchFromUserDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
         {
             /*
             If you start with this:
@@ -140,7 +140,7 @@ namespace StorytellerTests
         [Description("Delete a branch from a user decision point that has a nested user decision on one of its branches." +
                      "Verify that the returned process has the branch deleted along with the nested user decision and " +
                      "associated branches.")]
-        public void DeleteBranchfromUserDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
+        public void DeleteBranchFromUserDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
         {
             /*
             If you start with this:
@@ -215,7 +215,7 @@ namespace StorytellerTests
         [Description("Delete a branch from a user decision point that has a nested system decision on one of its branches." +
              "Verify that the returned process has the branch deleted along with the nested system decision and " +
              "associated branches.")]
-        public void DeleteBranchfromUserDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
+        public void DeleteBranchFromUserDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
         {
             /*
             If you start with this:

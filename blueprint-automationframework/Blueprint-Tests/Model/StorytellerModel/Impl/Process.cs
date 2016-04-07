@@ -422,26 +422,15 @@ namespace Model.StorytellerModel.Impl
             // Get the target process shape after the system decision point on the specified branch.
             var targetProcessShape = GetProcessShapeById(outgoingSystemDecisionProcessLink.DestinationId);
 
-            List<ProcessShape> shapesToDelete;
 
-            // TODO Updates as adding more test cases
-            // (Probably not necessary at all) Possible target process shape types:
+
+            // TODO Updates if there will be different implementation getting shapes based on differnt starting shape types
+            // e.g. (Probably not necessary at all) Possible target process shape types:
             // 1) system task 2) system decision point 
-            if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemTask))
-            {
-                // Find the shapes to delete, including all branches before merge point
-                shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
-            }
-            else if (targetProcessShape.IsEqualToType(ProcessShapeType.SystemDecision))
-            {
-                // Find the shapes to delete, including all branches before merge point
-                shapesToDelete =
-                    GetShapesBetween(targetProcessShape, new List<IProcessShape> {branchMergePointShape}).ToList();
-            }
-            else
-            {
-                shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
-            }
+
+            // Find the shapes to delete, including all branches before merge point
+            List<ProcessShape> shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+
 
             // Add the system task to the list of shapes to delete
             shapesToDelete.Add((ProcessShape)targetProcessShape);
@@ -1250,7 +1239,7 @@ namespace Model.StorytellerModel.Impl
             return AssociatedArtifact;
         }
 
-        public bool IsEqualToType(ProcessShapeType processShapeType)
+        public bool IsTypeOf(ProcessShapeType processShapeType)
         {
             string clientType = PropertyTypeName.clientType.ToString();
             return

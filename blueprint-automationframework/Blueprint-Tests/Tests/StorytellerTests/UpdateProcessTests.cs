@@ -5,6 +5,7 @@ using Helper;
 using Model;
 using Model.Factories;
 using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -805,6 +806,37 @@ namespace StorytellerTests
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+        }
+
+        [TestCase]
+        [Description("Add new User Task to the default process. Save, do not publish changes." +
+                     "Get discussions for this User Task returns no errors. Regression for bug 178131.")]
+        public void GetDiscussionsForSavedUnpublishedUserTask_ThrowsNoErrors()
+        {
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user/system Task immediately after the precondition
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Save changes without publishing
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Get newly added User Task
+            var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
+            Assert.DoesNotThrow(() =>
+            {
+                OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemID: unpublishedUserTask.Id,
+                includeDraft: true, user: _user);
+            }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");
         }
 
         /// <summary>

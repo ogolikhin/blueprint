@@ -17,7 +17,6 @@ namespace StorytellerTests
         private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IProject _project;
         private bool _deleteChildren = true;
 
@@ -89,7 +88,16 @@ namespace StorytellerTests
                 [S]--[P]--+--[UT3]--+--[ST4]--+--[[UT1]--+--[ST2]]--+--[E]
             */
 
-            throw new NotImplementedException();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            process.MoveUserAndSystemTaskBeforeShape(defaultUserTask, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]

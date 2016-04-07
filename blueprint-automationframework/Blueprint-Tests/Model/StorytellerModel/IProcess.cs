@@ -315,6 +315,10 @@ namespace Model.StorytellerModel
         /// <param name="branchMergePointShape">The end point of the branch</param>
         void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
 
+        void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape);
+
+        void MoveUserAndSystemTaskAfterShape(IProcessShape userTaskToMove, IProcessShape sourceShape);
+
         #endregion Methods
     }
 }

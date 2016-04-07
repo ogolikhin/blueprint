@@ -356,6 +356,16 @@ namespace Model.StorytellerModel.Impl
             return link;
         }
 
+        public List<ProcessLink> GetIncomingLinksForShape(IProcessShape processShape)
+        {
+            ThrowIf.ArgumentNull(processShape, nameof(processShape));
+
+            // Find the incoming link for the process shape
+            var links = Links.FindAll(l => l.DestinationId == processShape.Id);
+
+            return links;
+        }
+
         public ProcessLink GetOutgoingLinkForShape(IProcessShape processShape, double? orderIndex = null)
         {
             ThrowIf.ArgumentNull(processShape, nameof(processShape));
@@ -507,6 +517,66 @@ namespace Model.StorytellerModel.Impl
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             DeleteProcessLink(outgoingUserDecisionProcessLink);
+        }
+
+        public void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape)
+        {
+            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+
+            var nextShapeIncomingLinks = GetIncomingLinksForShape(destinationShape);
+
+            // Update all incoming links to the destination shape so that the destination Id is the the
+            // user task that was moved
+            foreach (var links in nextShapeIncomingLinks)
+            {
+                links.DestinationId = userTaskToMove.Id;
+            }
+
+            var systemTaskToMoveOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
+
+            // Update the system task outgoing link destination Id to be the Id of the destination shape
+            systemTaskToMoveOutgoingLink.DestinationId = destinationShape.Id;
+        }
+
+        public void MoveUserAndSystemTaskAfterShape(IProcessShape userTaskToMove, IProcessShape sourceShape)
+        {
+            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+
+            // Find previous shape outgoing link
+            var previousShapeOutgoingLink = GetOutgoingLinkForShape(sourceShape);
+
+            // Update destination to userTask Id
+            previousShapeOutgoingLink.DestinationId = userTaskToMove.Id;
+
+            // Find shape after previous shape before move
+            var previousShapeNextShapeBeforeMove = GetNextShape(sourceShape);
+
+
+            var systemTaskToMoveOutgoingLink = GetOutgoingLinkForShape(systemTaskToMove);
+
+            // Update the system task outgoing link destination Id to be the Id of the original
+            // previous shape destination Id
+            systemTaskToMoveOutgoingLink.DestinationId = previousShapeNextShapeBeforeMove.Id;
+        }
+
+        private IProcessShape RemoveUserAndSystemTask(IProcessShape userTaskToMove)
+        {
+            // Find all user task incoming links
+            var userTaskIncomingLinks = GetIncomingLinksForShape(userTaskToMove);
+
+            var systemTaskToMove = GetNextShape(userTaskToMove);
+
+            // Find the new destination shape for all incoming links to the user task before the move
+            var nextTaskAfterSystemTaskToMove = GetNextShape(systemTaskToMove);
+
+            // Update all incoming links to user Task to so destination Id is to the shape after userTask
+            // before the move
+            foreach (var links in userTaskIncomingLinks)
+            {
+                links.DestinationId = nextTaskAfterSystemTaskToMove.Id;
+            }
+
+            return systemTaskToMove;
         }
 
         #endregion Public Methods

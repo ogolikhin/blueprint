@@ -123,7 +123,7 @@ namespace Helper
             // Get the process using GetProcess
             var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
 
-            Assert.IsNotNull(processReturnedFromGet, "GetPRocess() returned a null process.");
+            Assert.IsNotNull(processReturnedFromGet, "GetProcess() returned a null process.");
 
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
@@ -145,6 +145,99 @@ namespace Helper
 
             // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcess(user, processReturnedFromGet);
+        }
+
+        public static IProcess CreateAndGetDefaultProcessWithOneUserDecision(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+--[E]
+                              |                        |
+                              +-------[UT3]--+--[ST4]--+
+            */
+
+            // Create and get the default process
+            var process = CreateAndGetDefaultProcess(storyteller, project, user);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            // Get the branch end point
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add Decision point with branch to end
+            process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Save the process
+            var updatedProcess = storyteller.UpdateProcess(user, process);
+
+            return updatedProcess;
+        }
+
+        public static IProcess CreateAndGetDefaultProcessWithOneSystemDecision(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+            [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
+                                     |              |
+                                     +----+--[ST2]--+
+            */
+
+            // Create and get the default process
+            var process = CreateAndGetDefaultProcess(storyteller, project, user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Add System Decision point with branch merging to branchEndPoint
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Save the process
+            var updatedProcess = storyteller.UpdateProcess(user, process);
+
+            return updatedProcess;
+        }
+
+        public static IProcess CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--<UD2>--+--[UT3]--+--[ST4]--+--[E]
+                               |                        |    |                        |
+                               +-------[UT5]--+--[ST6]--+    +-------[UT7]--+--[ST8]--+
+            */
+
+            // Create and get the default process
+            var process = CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            // Determine the branch endpoint
+            var branchEndPoint = process.GetNextShape(preconditionTask);
+
+            // Add Decision point with branch after precondition
+            process.AddUserDecisionPointWithBranchAfterShape(
+                preconditionTask,
+                preconditionOutgoingLink.Orderindex + 1,
+                branchEndPoint.Id);
+
+            // Save the process
+            var updatedProcess = storyteller.UpdateProcess(user, process);
+
+            return updatedProcess;
         }
 
         #endregion Public Methods

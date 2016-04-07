@@ -8,9 +8,9 @@ export class SimpleDialogCtrl extends ConfirmationDialogCtrl {
 
     constructor(localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
         super(localization, $uibModalInstance);
-        this.acceptButtonName = localization.get('App_Button_Yes');
-        this.cancelButtonName = localization.get('App_Button_No');
-        this.msg = localization.get('Login_Session_DuplicateSession_Verbose');
+        this.acceptButtonName = localization.get("App_Button_Yes");
+        this.cancelButtonName = localization.get("App_Button_No");
+        this.msg = localization.get("Login_Session_DuplicateSession_Verbose");
     }
 }
 
@@ -74,19 +74,19 @@ export class LoginCtrl {
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         this.formState = LoginState.LoginForm;
-        this.errorMsg = localization.get('Login_Session_EnterCredentials');
+        this.errorMsg = localization.get("Login_Session_EnterCredentials");
 
         this.enableForgetPasswordScreen = false;
 
-        this.forgetPasswordScreenMessage = localization.get('Login_Session_EnterUsername');
+        this.forgetPasswordScreenMessage = localization.get("Login_Session_EnterUsername");
 
         this.enableChangePasswordScreen = false;
 
-        this.changePasswordScreenMessage = localization.get('Login_Session_PasswordHasExpired_ChangePasswordPrompt');
+        this.changePasswordScreenMessage = localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
 
         this.enableSAMLScreen = true;
 
-        this.SAMLScreenMessage = localization.get('Login_Session_EnterSamlCredentials_Verbose');
+        this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
     }
 
     private transitionToState(state: LoginState) {
@@ -132,7 +132,7 @@ export class LoginCtrl {
     public get samlPrompt(): string {
         var prompt: string = this.configValueHelper.getStringValue("FederatedAuthenticationPrompt");
         if (!prompt || prompt == "") {
-            prompt = this.localization.get('Login_SamlLink');
+            prompt = this.localization.get("Login_SamlLink");
         }
         return prompt;
     }
@@ -166,23 +166,23 @@ export class LoginCtrl {
     private handleLoginErrors(error) {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
-                this.errorMsg = this.localization.get('Login_Session_CredentialsInvalid');
+                this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
                 this.labelError = true;
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2001) {
-                this.errorMsg = this.localization.get('Login_Session_AccountDisabled');
+                this.errorMsg = this.localization.get("Login_Session_AccountDisabled");
                 this.labelError = true;
                 this.fieldError = false;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2002) {
-                this.errorMsg = this.localization.get('Login_Session_PasswordHasExpired');
+                this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
                 this.labelError = true;
                 this.fieldError = false;
                 this.enableChangePasswordScreen = true;
                 this.transitionToState(LoginState.ChangePasswordForm);
             } else if (error.errorCode === 2003) {
-                this.errorMsg = this.localization.get('Login_Session_CredentialsCannotBeEmpty');
+                this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
                 this.labelError = true;
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);

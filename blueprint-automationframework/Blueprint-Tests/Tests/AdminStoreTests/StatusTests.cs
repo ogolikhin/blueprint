@@ -1,9 +1,7 @@
-﻿using System.Net;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using CustomAttributes;
 using Model;
 using Model.Factories;
-using System.Collections.Generic;
 
 namespace AdminStoreTests
 {
@@ -14,11 +12,12 @@ namespace AdminStoreTests
         private IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
 
         [Test]
-        public void GetStatus_OK()
+        [Description("Calls the /status/upcheck endpoint for AdminStore and verifies that it returns 200 OK")]
+        public void GetStatusUpcheck_OK()
         {
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.GetStatus();
+                _adminStore.GetStatusUpcheck();
             });
         }
     }

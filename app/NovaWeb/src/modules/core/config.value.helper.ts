@@ -7,8 +7,8 @@ export interface IConfigValueHelper {
 export class ConfigValueHelper implements IConfigValueHelper {
     static $inject: [string] = ["$rootScope"];
     constructor(private scope: ng.IRootScopeService) {
-        
     }
+
     getBooleanValue(setting: string, fallBack: boolean = undefined): boolean {
         var value: string = this.scope["config"].settings[setting];
         if (!value) {
@@ -24,6 +24,7 @@ export class ConfigValueHelper implements IConfigValueHelper {
             }
         }
     }
+
     getStringValue(setting: string, fallBack?: string) {
         var value: string = this.scope["config"].settings[setting];
         if (!value) {

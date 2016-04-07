@@ -45,7 +45,7 @@ export class SessionSvc implements ISession {
 
     public login(username: string, password: string, overrideSession: boolean): ng.IPromise<any> {
         var defer = this.$q.defer();
-        
+
         this.auth.login(username, password, overrideSession).then(
             (user) => {
                 this._currentUser = user;
@@ -56,7 +56,7 @@ export class SessionSvc implements ISession {
         });
         return defer.promise;
     }
-   
+
     public loginWithSaml(overrideSession: boolean): ng.IPromise<any> {
         var defer = this.$q.defer();
 
@@ -92,7 +92,7 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
-    private createConfirmationDialog(): ng.ui.bootstrap.IModalServiceInstance{
+    private createConfirmationDialog(): ng.ui.bootstrap.IModalServiceInstance {
         return this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
             template: require("./../messaging/confirmation.dialog.html"),
             windowClass: "nova-messaging",
@@ -117,7 +117,7 @@ export class SessionSvc implements ISession {
             });
 
             this._modalInstance.result.then((result: ILoginInfo) => {
-                
+
                 if (result) {
                     if (result.loginSuccessful) {
                         done.resolve();
@@ -158,8 +158,7 @@ export class SessionSvc implements ISession {
                     } else {
                         this.showLogin(done);
                     }
-                }
-                else {
+                } else {
                     this.showLogin(done);
                 }
             }).finally(() => {

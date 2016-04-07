@@ -282,6 +282,15 @@ namespace Model.StorytellerModel
         IProcessShape GetNextShape(IProcessShape shape);
 
         /// <summary>
+        /// Delete a System Decision Branch
+        /// </summary>
+        /// <param name="systemDecision">The system decision containing the branch</param>
+        /// <param name="orderIndex">The order index of the branch</param>
+        /// <param name="branchMergePointShape">The end point of the branch</param>
+        void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
+            IProcessShape branchMergePointShape);
+
+        /// <summary>
         /// Delete a User and Associated System task
         /// </summary>
         /// <param name="userTask">The user task to be deleted</param>
@@ -303,6 +312,14 @@ namespace Model.StorytellerModel
         void DeleteUserDecisionWithBranchesNotOfTheLowestOrder(
             IProcessShape userDecision,
             IProcessShape mergePointShape);
+
+        /// <summary>
+        /// Delete a User Decision Branch
+        /// </summary>
+        /// <param name="userDecision">The user decision containing the branch</param>
+        /// <param name="orderIndex">The order index of the branch</param>
+        /// <param name="branchMergePointShape">The end point of the branch</param>
+        void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
 
         #endregion Methods
     }

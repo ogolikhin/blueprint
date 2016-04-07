@@ -91,6 +91,7 @@
     <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConfigRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />

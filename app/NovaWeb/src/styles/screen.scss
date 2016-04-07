@@ -39,15 +39,82 @@ body {
 
 //sidebar
 $sidebar-size: 250px;
+$wrapper-height: $navbar-height + $navbar-toolbar-height;
 
 #wrapper {
-  margin-top: 86px;
-/*
-  padding-left: $sidebar-size;
-  padding-right: $sidebar-size;
-*/
-  transition: all 0.4s ease 0s;
+  align-content: stretch;
+  align-items: stretch;
+  display: flex;
+  height: calc(100% - #{$wrapper-height});
+  margin-top: $wrapper-height;
+  overflow: hidden;
 }
+
+pagecontent {
+  flex-grow: 2;
+  order: 2;
+}
+
+sidebar {
+  background: $white;
+  flex-basis: 0;
+  position: relative;
+  transition: width 250ms ease, flex-basis 250ms ease;
+  width: 0;
+
+  > .sidebar-toggle {
+    display: block;
+    position: absolute;
+  }
+
+  > .sidebar-content {
+    display: none;
+  }
+
+  &.sidebar-left {
+    order: 1;
+
+    .sidebar-toggle {
+      right: -40px;
+    }
+
+    &.show {
+      > .sidebar-toggle {
+        right: 40px;
+      }
+
+      > .sidebar-content {
+        display: block;
+      }
+    }
+  }
+
+  &.sidebar-right {
+    order: 3;
+
+    .sidebar-toggle {
+      left: -40px;
+    }
+
+    &.show {
+      .sidebar-toggle {
+        left: 40px;
+      }
+
+      > .sidebar-content {
+        display: block;
+      }
+    }
+  }
+
+  &.show {
+    flex-basis: $sidebar-size;
+    width: $sidebar-size;
+  }
+
+}
+
+/*
 ////////////////////////////// by DL
 @mixin transition ($value) { 
     -webkit-transition: $value; -moz-transition: $value; -ms-transition: $value; -o-transition: $value; transition: $value; }
@@ -57,13 +124,8 @@ $sidebar-size: 250px;
 } 
 
 sidebar {
-  background: rgba(247, 247, 247, 1);
-  overflow-y: auto;
-  z-index: 1000;
-  height:100%; 
-  display:block;
   > div {
-        position:absolute; 
+        position:absolute;
         z-index:2; 
         top:0;  
         margin-top: 86px;
@@ -88,9 +150,7 @@ sidebar {
             }
      }
 }
-sidebar .btn-menu {
-    position: absolute;
-}
+*/
 ////////////////////////////////
 
 

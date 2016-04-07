@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -180,11 +181,25 @@ namespace StorytellerTests
         public void DeleteTheOnlyUserTaskBetweenTwoUserDecisionsInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(_storyteller, _project, _user);
 
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            process.DeleteUserAndSystemTask(defaultUserTask);
+            var firstUserDecision = process.GetNextShape(precondition);
+
+            var userDecisionOutgoingLinkOfLowestOrder = process.GetOutgoingLinkForShape(
+                firstUserDecision,
+                Process.DefaultOrderIndex);
+
+            var userTaskIdToDelete = userDecisionOutgoingLinkOfLowestOrder.DestinationId;
+
+            var userTaskToDelete = process.GetProcessShapeById(userTaskIdToDelete);
+
+            process.DeleteUserAndSystemTask(userTaskToDelete);
+
+            var userDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+
+            var secondUserDecision = userDecisions.Find(ud => ud.Id != firstUserDecision.Id);
 
             // Get and deserialize response
             var response = _storyteller.UpdateProcessReturnResponseOnly(
@@ -194,11 +209,13 @@ namespace StorytellerTests
 
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
-            // Assert that the deserialized response indicates that no user tasks were found
-            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoUserTasksFound);
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                ProcessValidationResponse.TwoSequentialUserDecisionsNotAllowed,
+                firstUserDecision.Id,
+                secondUserDecision.Id);
 
-            // Assert that the deserialized response indicates that no system tasks were found
-            AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoSystemTasksFound);
+            // Assert that the deserialized response indicates that an invalid link between two user decisions was found
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
         }
 
         #endregion Tests
@@ -222,6 +239,7 @@ namespace StorytellerTests
     /// </summary>
     public class ProcessValidationResponse
     {
+        public static readonly string TwoSequentialUserDecisionsNotAllowed = "Invalid link detected: User Decision with id {0} is directly linked with another User Decision with id {1}.";
 
         public static readonly string NoUserTasksFound = "No User Task shapes provided";
 

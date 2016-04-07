@@ -242,7 +242,7 @@ namespace Helper
             */
 
             // Create and get the default process
-            var process = CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user);
+            var process = CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -252,6 +252,9 @@ namespace Helper
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetNextShape(preconditionTask);
+
+            // Add user and system task before existing user decision
+            process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Add Decision point with branch after precondition
             process.AddUserDecisionPointWithBranchAfterShape(

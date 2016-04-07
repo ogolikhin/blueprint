@@ -20,7 +20,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -58,14 +57,14 @@ namespace StorytellerTests
                 {
                     if (artifact.IsPublished)
                     {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
                     }
                     else
                     {
                         savedArtifactsList.Add(artifact);
                     }
                 }
-                if (!(savedArtifactsList.Count().Equals(0)))
+                if (savedArtifactsList.Any())
                 {
                     Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
@@ -219,7 +218,7 @@ namespace StorytellerTests
 
             // Delete with existing child artifacts which are any existing user story artifact(s)
             var deletedArtifacts = _storyteller.DeleteProcessArtifact(artifact,
-                    deleteChildren: _deleteChildren);
+                    deleteChildren: true);
                 deletedChildArtfacts = deletedArtifacts
                     .FindAll(d => !d.ArtifactId.Equals(returnedProcess.Id)).Count();
 

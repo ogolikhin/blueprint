@@ -100,19 +100,19 @@ namespace Logging.Database.Utility
             return "";
         }
 
-        internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
-        {
-            var eventSchema = entry.Schema;
+        //internal static DateTimeOffset GetTimestamp(EventEntry entry, string payloadItem)
+        //{
+        //    var eventSchema = entry.Schema;
 
-            for (int i = 0; i < entry.Payload.Count; i++)
-            {
-                if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
-                {
-                    return entry.Payload[i] == null ? entry.Timestamp : I18NHelper.DateTimeOffsetParseInvariant(entry.Payload[i].ToString());
-                }
-            }
+        //    for (int i = 0; i < entry.Payload.Count; i++)
+        //    {
+        //        if (eventSchema.Payload[i].EqualsOrdinalIgnoreCase(payloadItem))
+        //        {
+        //            return entry.Payload[i] == null ? entry.Timestamp : I18NHelper.DateTimeOffsetParseInvariant(entry.Payload[i].ToString());
+        //        }
+        //    }
 
-            return entry.Timestamp;
-        }
+        //    return entry.Timestamp;
+        //}
     }
 }

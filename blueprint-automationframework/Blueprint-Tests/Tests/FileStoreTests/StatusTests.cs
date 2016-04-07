@@ -1,5 +1,4 @@
-﻿using System.Net;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -19,12 +18,13 @@ namespace FileStoreTests
         }
 
         [Test]
-        public void Status_OK()
+        [Description("Calls the /status/upcheck endpoint for FileStore and verifies that it returns 200 OK")]
+        public void StatusUpcheck_OK()
         {
-            // Add the file to Filestore.
-            var response = _filestore.GetStatus();
-
-            Assert.That(response == HttpStatusCode.OK, "File store service status is not OK!");
+            Assert.DoesNotThrow(() =>
+            {
+                _filestore.GetStatusUpcheck();
+            });
         }
     }
 }

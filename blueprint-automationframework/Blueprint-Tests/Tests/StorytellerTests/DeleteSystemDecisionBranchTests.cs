@@ -20,7 +20,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -56,7 +55,7 @@ namespace StorytellerTests
                 {
                     if (artifact.IsPublished)
                     {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
                     }
                     else
                     {
@@ -87,12 +86,11 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-
         [TestCase(0)]
         [TestCase(1)]
         [Description("Delete a branch from a system decision point that has more than 2 conditions and verify that the " +
                      "returned process still contains the system decision with all branches except the deleted branch.")]
-        public void DeleteBranchfromSystemDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
+        public void DeleteBranchFromSystemDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
         {
             /*
             If you start with this:
@@ -132,16 +130,150 @@ namespace StorytellerTests
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
-            var systemDecisionPointToBeDeleted = returnedProcess.GetProcessShapeByShapeName(systemDecisionPoint.Name);
+            var systemDecisionPointForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(systemDecisionPoint.Name);
 
             // Merge point for the outer user decision is the process end point
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the specified system decision branch - work in progress
-            returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointToBeDeleted, orderIndexOfBranch, endShape);
+            returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, orderIndexOfBranch, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+        }
+
+        [TestCase]
+        [Description("Delete a branch from a system decision point that has a nested system decision on one of the" +
+                     " branches and verify that the returned process still contains the system decision with all" +
+                     " branches except the deleted branch.")]
+        public void DeleteBranchFromSystemDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+            [S]--[P]--+--[UT1]--+--<SD1>--+-------[ST1]--------+--[E]
+                                     |                         |
+                                     +----+-------[ST2]--------+
+                                     |                         |
+                                     +--<SD2>--+--[ST3]--------+
+                                          |                    |
+                                          +----+--[ST4]--------+
+            It becomes this:
+            [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
+                                     |              |
+                                     +----+--[ST2]--+
+            */
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Add additonal branch on the root System Decision point
+            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+
+            // Get the link between the system decision point and the System task on the third branch
+            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 2));
+
+            // Get the System Task shape on the third branch for adding the additional System Decision Point
+            var systemTaskOnTheThirdBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+
+            // Add a System Decision point on the third branch that merges to branchEndPoint
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Save the process
+            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+
+            var systemDecisionPointForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(rootSystemDecisionPoint.Name);
+
+            // Merge point for the outer user decision is the process end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the specified system decision branch - work in progress
+            returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 2, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+        }
+
+
+        [TestCase]
+        [Description("Delete a branch from a system decision point that has a nested user decision on one of the" +
+                     " branches and verify that the returned process still contains the system decision with all" +
+                     " branches except the deleted branch.")]
+        public void DeleteBranchFromSystemDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
+        {
+            /*
+            If you start with this:
+            [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]---+-----------------------------+--[E]
+                                     |                                             |
+                                     +----+--[ST2]---+-----------------------------|
+                                     |                                             |
+                                     +----+--[ST3]---+--<UD1>--+--[UT2]--+--[ST4]--+
+                                                          |                        |
+                                                          +----+--[UT3]--+--[ST5]--+
+            It becomes this:
+            [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
+                                     |              |
+                                     +----+--[ST2]--+
+            */
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Add additonal branch on the root System Decision point
+            process.AddBranchWithSystemTaskToSystemDecisionPoint(rootSystemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
+            
+            // Get the link between the system decision point and the System task on the third branch
+            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 2));
+
+            // Get the System Task shape on the third branch for adding the additional System Decision Point
+            var systemTaskOnTheThirdBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+
+            // Add a user decision point <UD1> with branch to end after new system task
+            process.AddUserDecisionPointWithBranchAfterShape(systemTaskOnTheThirdBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+
+            // Save the process
+            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+
+            var systemDecisionPointForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(rootSystemDecisionPoint.Name);
+
+            // Merge point for the outer user decision is the process end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the specified system decision branch - work in progress
+            returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 2, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
     }
 }

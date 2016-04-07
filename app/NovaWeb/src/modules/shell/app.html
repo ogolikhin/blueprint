@@ -2,8 +2,9 @@
     <div class="navbar-header">
         <div class="navbar-brand">{{::$root.config.labels["App_Header_Name"]}}</div>
         <div class="navbar-right">
-            <span>{{::$root.config.labels["App_Header_SignedInAs"]}}</span> <span class="signed-in-as">{{app.currentUser.DisplayName}}</span>
-            <a style="padding-right:30px;" ng-click="app.logout($event)" class="glyphicon glyphicon-log-out btn-menu"></a>
+            <span>{{::$root.config.labels["App_Header_Welcome"]}}</span> <span class="signed-in-as">{{app.currentUser.DisplayName}}</span>
+            <a ng-click="app.logout($event)" class="fonticon fonticon-sign-out"></a>
+            <a href="#" class="fonticon fonticon-help"></a>
         </div>
     </div>
     <toolbar></toolbar>

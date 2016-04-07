@@ -79,7 +79,7 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="processShapeType">The processShapeType</param>
         /// <returns>Returns true if the process's processShapeType equals to the processShapeType passed as parameter</returns>
-        bool IsEqualToType(ProcessShapeType processShapeType);
+        bool IsTypeOf(ProcessShapeType processShapeType);
 
         #endregion Methods
     }

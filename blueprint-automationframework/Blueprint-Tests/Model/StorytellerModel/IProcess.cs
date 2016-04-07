@@ -281,6 +281,12 @@ namespace Model.StorytellerModel
         /// <returns>The shape following the existing shape</returns>
         IProcessShape GetNextShape(IProcessShape shape);
 
+        /// <summary>
+        /// Delete a System Decision Branch
+        /// </summary>
+        /// <param name="systemDecision">The system decision containing the branch</param>
+        /// <param name="orderIndex">The order index of the branch</param>
+        /// <param name="branchMergePointShape">The end point of the branch</param>
         void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
             IProcessShape branchMergePointShape);
 

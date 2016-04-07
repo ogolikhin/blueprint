@@ -41,11 +41,59 @@ body {
 $sidebar-size: 250px;
 
 #wrapper {
-  margin-top: 90px;
+  margin-top: 86px;
+/*
   padding-left: $sidebar-size;
   padding-right: $sidebar-size;
+*/
   transition: all 0.4s ease 0s;
 }
+////////////////////////////// by DL
+@mixin transition ($value) { 
+    -webkit-transition: $value; -moz-transition: $value; -ms-transition: $value; -o-transition: $value; transition: $value; }
+@mixin transform ($value) {
+    
+    transform:$value; -ms-transform:$value; -webkit-transform:$value; -o-transform:$value; -moz-transform:$value; 
+} 
+
+sidebar {
+  background: rgba(247, 247, 247, 1);
+  overflow-y: auto;
+  z-index: 1000;
+  height:100%; 
+  display:block;
+  > div {
+        position:absolute; 
+        z-index:2; 
+        top:0;  
+        margin-top: 86px;
+        padding:10px;
+        width: $sidebar-size; 
+        height:100%; 
+        @include transition(-webkit-transform ease 255ms); 
+        @include transition(transform ease 255ms);
+            &.left { background:$white; left: $sidebar-size*-1; 
+                 .btn-menu {right:-40px;}
+            }
+            &.show.left { @include transform(translate3d($sidebar-size, 0, 0)); box-shadow: 0px 7px 10px #888888;
+                 .btn-menu {right:10px;}
+            }
+                    
+            &.right { background:$white; right: $sidebar-size*-1; 
+                 .btn-menu {left:-40px;}
+            }
+
+            &.show.right { @include transform(translate3d($sidebar-size*-1, 0, 0)); box-shadow: 0px -7px 10px #888888;
+                 .btn-menu {left:10px;}
+            }
+     }
+}
+sidebar .btn-menu {
+    position: absolute;
+}
+////////////////////////////////
+
+
 
 #sidebar-wrapper-left {
   margin-left: -$sidebar-size;

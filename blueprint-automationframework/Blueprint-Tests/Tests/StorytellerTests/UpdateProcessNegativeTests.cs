@@ -6,6 +6,8 @@ using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Linq;
+using System.Collections.Generic;
 using Utilities;
 
 namespace StorytellerTests
@@ -21,7 +23,6 @@ namespace StorytellerTests
         private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
-        private bool _deleteChildren = true;
 
         #region Setup and Cleanup
 
@@ -51,11 +52,22 @@ namespace StorytellerTests
         {
             if (_storyteller.Artifacts != null)
             {
-                // TODO: implement discard artifacts for test cases that doesn't publish artifacts
-                // Delete all the artifacts that were added.
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsList = new List<IOpenApiArtifact>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    _storyteller.DeleteProcessArtifact(artifact, deleteChildren: _deleteChildren);
+                    if (artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
+                    }
+                    else
+                    {
+                        savedArtifactsList.Add(artifact);
+                    }
+                }
+                if (savedArtifactsList.Any())
+                {
+                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
                 }
             }
 
@@ -108,9 +120,6 @@ namespace StorytellerTests
             // Verify returned process does not contain a story link
             Assert.IsNull(modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value,
                 "The story link was saved using UpdateProcess but should not have been saved");
-
-            // Publish the process so teardown can properly delete the process
-            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         [TestCase]

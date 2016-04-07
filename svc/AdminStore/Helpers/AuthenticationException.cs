@@ -23,13 +23,13 @@ namespace AdminStore.Helpers
 
         public HttpError CreateHttpError()
         {
-            return new HttpError(Message) {{"ErrorCode", ErrorCode}};
+            return new HttpError(Message) {{ AdminStoreConstants.ErrorCodeName, ErrorCode}};
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ErrorCode", ErrorCode);
+            info.AddValue(AdminStoreConstants.ErrorCodeName, ErrorCode);
         }
     }
 }

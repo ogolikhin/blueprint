@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using System.Security.Authentication;
+using AdminStore.Helpers;
+using AuthenticationException = System.Security.Authentication.AuthenticationException;
 
 namespace AdminStore.Saml
 {
@@ -48,7 +49,7 @@ namespace AdminStore.Saml
         {
             base.GetObjectData(info, context);
             //TODO use reflection to get property name
-            info.AddValue("ErrorCode", ErrorCode);
+            info.AddValue(AdminStoreConstants.ErrorCodeName, ErrorCode);
         }
     }
 }

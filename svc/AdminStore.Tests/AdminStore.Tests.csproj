@@ -84,6 +84,7 @@
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ConfigControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
+    <Compile Include="Filters\BaseExceptionFilterAttributeTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />
@@ -91,11 +92,13 @@
     <Compile Include="Repositories\AuthenticationRepositoryTests.cs" />
     <Compile Include="Repositories\SamlRepositoryTests.cs" />
     <Compile Include="Repositories\SqlConfigRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlInstanceRepositoryTests.cs" />
     <Compile Include="Repositories\SqlSettingsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlUserRepositoryTests.cs" />
     <Compile Include="Repositories\LdapRepositoryTests.cs" />
     <Compile Include="Saml\SamlCertificateValidatorTests.cs" />
     <Compile Include="Saml\SamlIssuerNameRegistryTests.cs" />
+    <Compile Include="Utilities\ContextUtil.cs" />
     <Compile Include="Utilities\SamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

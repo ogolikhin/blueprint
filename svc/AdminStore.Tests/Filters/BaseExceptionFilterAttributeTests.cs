@@ -25,8 +25,6 @@ namespace AdminStore.Filters
             request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
             var contextAction = ContextUtil.GetActionExecutedContext(request, null, "Controller", typeof(InstanceController));
 
-            var mockLog = new Mock<IServiceLogRepository>(); 
-
             var controller = new InstanceController();
             contextAction.ActionContext.ControllerContext.Controller = controller;
             contextAction.Exception = ex;

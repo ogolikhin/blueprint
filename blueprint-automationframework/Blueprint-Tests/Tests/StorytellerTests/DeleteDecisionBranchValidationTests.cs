@@ -9,6 +9,8 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Helper;
+using System.Net;
+using Utilities;
 
 namespace StorytellerTests
 {
@@ -89,9 +91,9 @@ namespace StorytellerTests
         #region Tests
 
         [TestCase]
-        [Description("Deleting an only available branch from system decision and verify that " +
-                     "the returned response contains error message when save process call gets made")]
-        public void DeleteOnlyBranchFromSystemDecision_VerifyUpdateProcessReturnsValidationError()
+        [Description("Deleting an only available additional branch from system decision and verify that " +
+                     "the returned response contains error message when save the invalid process model")]
+        public void DeleteOnlyAdditonalBranchFromSystemDecision_VerifyUpdateProcessReturnsValidationError()
         {
             /*
             If you start with this:
@@ -99,8 +101,8 @@ namespace StorytellerTests
                                      |                         |
                                      +----+-------[ST2]--------+
      
-            This test validatates if saving the process after deleting only additional branch
-            returns the 400 error so that it prevents the process ends up like the invalid graph below:
+            This test validatates if the saving process API call returns the bad request (HTTP 400) error
+            to prevent the process from updating with the invalid graph below:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
 
             */
@@ -120,31 +122,33 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
-            var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+            // Add a System Decision point with branch merging to branchEndPoint
+            var systemDecision = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
-            // Get the link between the system decision point and the System task on the second branch
-            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+            // Get the system decison after saving the process
+            var systemDecisionForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(systemDecision.Name);
 
-            // Get the System Task shape on the second branch from the System Decision
-            var systemTaskOnTheSecondBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+            // Delete the specified system decision branch
+            returnedProcess.DeleteSystemDecisionBranch(systemDecisionForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint);
 
-            // Delete the specified system decision branch - work in progress
-            //returnedProcess.DeleteSystemDecisionBranch(systemDecisionPointForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape);
+            // Get and deserialize response
+            var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
 
-            // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
-
+            // Assert that the deserialized response indicates that the process name is required
+            Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.MinimumNumberBranchValidationPart1 + systemDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2),
+                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.MinimumNumberBranchValidationPart1 + systemDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2, deserializedResponse.Message
+                );
 
         }
 
         [TestCase]
-        [Description("Deleting an only available branch from user decision and verify that " +
-                     "the returned response contains error message when save process call gets made")]
-        public void DeleteOnlyBranchFromUserDecision_VerifyUpdateProcessReturnsValidationError()
+        [Description("Deleting an only available additional branch from user decision and verify that " +
+                     "the returned response contains error message when save the invalid process model")]
+        public void DeleteOnlyAdditonalBranchFromUserDecision_VerifyUpdateProcessReturnsValidationError()
         {
             /*
             If you start with this:
@@ -152,8 +156,8 @@ namespace StorytellerTests
                                |                        |
                                +--[UT3]--+--[ST4]-------+
 
-            This test validatates if saving the process after deleting only additional branch
-            returns the 400 error so that it prevents the process ends up like the invalid graph below:
+            This test validatates if the saving process API call returns the bad request (HTTP 400) error
+            to prevent the process from updating with the invalid graph below:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
             */
 
@@ -169,29 +173,39 @@ namespace StorytellerTests
             // Find the branch endpoint for the new branch
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Find the outgoing process link from the default SystemTask
-            var defaultSystemTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(preconditionTask);
-
-            // Add decision point with branch to end
+            // Add user decision with branch to end
             var userDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1);
 
             // Save the process
             var returnedProcess = _storyteller.UpdateProcess(_user, process);
 
-            // Get the link between the user decision and the user task on the second branch
-            var branchingProcessLink = process.Links.Find(l => l.Orderindex.Equals(preconditionOutgoingLink.Orderindex + 1));
-
-            // Get the User Task shape on the second branch from the User Decision
-            var userTaskOnTheSecondBranch = process.GetProcessShapeById(branchingProcessLink.DestinationId);
+            // Get the user decison after saving the process
+            var userDecisionForDeletionProcess = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
             // Delete the specified user decision branch - work in progress
-            //returnedProcess.DeleteUserDecisionBranch(systemDecisionPointForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, endShape);
+            returnedProcess.DeleteUserDecisionBranch(userDecisionForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, branchEndPoint);
 
-            // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            // Get and deserialize response
+            var response = _storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+
+            // Assert that the deserialized response indicates that the process name is required
+            Assert.That(deserializedResponse.Message.Contains(ProcessValidationResponse.MinimumNumberBranchValidationPart1 + userDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2),
+                "Expected response message: {0} => Actual response message {1}", ProcessValidationResponse.MinimumNumberBranchValidationPart1 + userDecisionForDeletionProcess.Id + ProcessValidationResponse.MinimumNumberBranchValidationPart2, deserializedResponse.Message
+                );
+
         }
 
         #endregion Tests
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public class ProcessValidationResponse
+        {
+            public static readonly string MinimumNumberBranchValidationPart1 = "Decision shape with Id ";
+            public static readonly string MinimumNumberBranchValidationPart2 = " contains less than the minimum of 2 outgoing links.";
+            public string Message { get; set; }
+        }
     }
 }

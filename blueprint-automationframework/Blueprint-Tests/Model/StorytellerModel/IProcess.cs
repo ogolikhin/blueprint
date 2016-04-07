@@ -267,6 +267,13 @@ namespace Model.StorytellerModel
         ProcessLink GetIncomingLinkForShape(IProcessShape processShape);
 
         /// <summary>
+        /// Get the Incoming Process Links for a Shape
+        /// </summary>
+        /// <param name="processShape">The process shape</param>
+        /// <returns>The incoming process links</returns>
+        List<ProcessLink> GetIncomingLinksForShape(IProcessShape processShape);
+
+        /// <summary>
         /// Get the Outgoing Process Link for a Shape
         /// </summary>
         /// <param name="processShape">The process shape</param>

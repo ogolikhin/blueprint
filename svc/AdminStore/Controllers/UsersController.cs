@@ -15,12 +15,6 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
-    public class ResetPostContent
-    {
-        public string NewPass;
-        public string OldPass;
-    }
-
     [RoutePrefix("users")]
     public class UsersController : ApiController
     {
@@ -87,8 +81,8 @@ namespace AdminStore.Controllers
         /// <response code="400">Bad request. The new password is not valid.</response>
         /// <response code="401">Unauthorized. The old password is not valid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache]
-        [Route("reset")]
+        [HttpPost]
+        [Route("reset"), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [BaseExceptionFilter]
         public async Task PostReset(string login, [FromBody]ResetPostContent body)

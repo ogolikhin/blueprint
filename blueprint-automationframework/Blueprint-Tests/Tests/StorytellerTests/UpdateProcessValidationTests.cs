@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -11,6 +12,7 @@ using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using Utilities;
 
 namespace StorytellerTests
@@ -98,18 +100,20 @@ namespace StorytellerTests
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Modify default process Name
-            returnedProcess.Name = string.Empty;
+            process.Name = string.Empty;
 
-            // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(
-                _user, 
-                returnedProcess, 
-                new List<HttpStatusCode> { HttpStatusCode.BadRequest});
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                   // Get and deserialize response
+                   _storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process)
+                );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that the process name is required
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NameRequired);
@@ -122,24 +126,26 @@ namespace StorytellerTests
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
             // Find precondition task
-            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var processLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+            var processLink = process.GetOutgoingLinkForShape(preconditionTask);
 
             // Remove the process link between the precondition and the default user task
-            returnedProcess.Links.Remove((ProcessLink)processLink);
+            process.Links.Remove((ProcessLink)processLink);
 
-            // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(
-                _user, 
-                returnedProcess, 
-                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                   // Get and deserialize response
+                   _storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process)
+                );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Asser that the deserialized response indicates that an orphaned shape was found
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.OrphanedShapes);
@@ -160,13 +166,15 @@ namespace StorytellerTests
 
             process.DeleteUserAndSystemTask(defaultUserTask);
 
-            // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(
-                _user,
-                process,
-                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                   // Get and deserialize response
+                   _storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process)
+                );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that no user tasks were found
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoUserTasksFound);
@@ -176,8 +184,9 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("Delete the only user task in a process.  Verify that the returned process has a validation" +
-             "error indicating that a process must have at least 1 user task.")]
+        [Description("Delete the only user task in a process that is betwen two user decisions.  Verify that " +
+                     " the returned process has a validation error indicating that a process must have " +
+                     "at least 1 user task.")]
         public void DeleteTheOnlyUserTaskBetweenTwoUserDecisionsInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
@@ -204,13 +213,15 @@ namespace StorytellerTests
 
             var secondUserDecision = userDecisions.Find(ud => ud.Id != firstUserDecision.Id);
 
-            // Get and deserialize response
-            var response = _storyteller.UpdateProcessReturnResponseOnly(
-                _user,
-                process,
-                new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                   // Get and deserialize response
+                   _storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process)
+                );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(response);
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             var expectedValidationResponseContent = I18NHelper.FormatInvariant(
                 ProcessValidationResponse.TwoSequentialUserDecisionsNotAllowed,

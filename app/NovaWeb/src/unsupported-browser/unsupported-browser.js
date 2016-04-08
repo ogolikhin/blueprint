@@ -42,7 +42,7 @@ var executionEnvironmentDetector = (function () {
         }
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
-        if (bowser.mobile || bowser.tablet) {
+        if (bowser.mobile) {
             browser.blueprintSupportedBrowser = false;
         }
         else if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {

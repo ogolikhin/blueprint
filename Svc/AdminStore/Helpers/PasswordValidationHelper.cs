@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -36,10 +37,14 @@ namespace AdminStore.Helpers
             int length = password.Length;
             if (length > PasswordMaximumLength || length < PasswordMinimumLength)
             {
-                string passwordLengthMessage = isPasswordRequired
-                    ? $"Password must be between {PasswordMinimumLength} and {PasswordMaximumLength} characters"
-                    : $"Password must be between {PasswordMinimumLength} and {PasswordMaximumLength} characters, or left blank";
-                errorMessage += passwordLengthMessage + Environment.NewLine;
+                if (isPasswordRequired)
+                {
+                    errorMessage += String.Format(CultureInfo.CurrentCulture, "Password must be between {0} and {1} characters" + Environment.NewLine, PasswordMinimumLength, PasswordMaximumLength);
+                }
+                else
+                {
+                    errorMessage += String.Format(CultureInfo.CurrentCulture, "Password must be between {0} and {1} characters, or left blank" + Environment.NewLine, PasswordMinimumLength, PasswordMaximumLength);
+                }
 
                 valid = false;
             }

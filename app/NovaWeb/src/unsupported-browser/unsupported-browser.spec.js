@@ -100,7 +100,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("Android 4.4 - Galaxy Tab", function () {
+    it("Android 4.4 - Chrome 28", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (Linux; Android 4.4.2; en-ca; SAMSUNG SM-T330NU Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/1.5 Chrome/28.0.1500.94 Safari/537.36";
@@ -122,7 +122,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("Android 4.4 - Appium", function () {
+    it("Android 4.4 - Chrome 30", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (Linux; Android 4.4.2; Android SDK built for x86 Build/KK) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Safari/537.36";
@@ -134,7 +134,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.android).toBeTruthy();
         expect(browserInfo.osversion).toEqual("4.4.2");
         expect(browserInfo.osMajorVersion).toEqual(4);
-        //expect(browserInfo.tablet).toBeTruthy();
+        expect(browserInfo.tablet).toBeTruthy();
 
         // Assert - Browser
         expect(browserInfo.chrome).toBeTruthy();
@@ -144,7 +144,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("Android 5.0 - Appium", function () {
+    it("Android 5.0 - Chrome 37", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (Linux; Android 5.0; Android SDK built for x86_64 Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/37.0.0.0 Safari/537.36";
@@ -156,7 +156,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.android).toBeTruthy();
         expect(browserInfo.osversion).toEqual("5.0");
         expect(browserInfo.osMajorVersion).toEqual(5);
-        //expect(browserInfo.tablet).toBeTruthy();
+        expect(browserInfo.tablet).toBeTruthy();
 
         // Assert - Browser
         expect(browserInfo.chrome).toBeTruthy();
@@ -166,7 +166,29 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("iOS 5.1", function () {
+    it("Android 5.0 - Chrome 49", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Linux; Android 5.1.1; SHIELD Tablet Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.android).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("5.1.1");
+        expect(browserInfo.osMajorVersion).toEqual(5);
+        expect(browserInfo.tablet).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.name).toEqual("Chrome");
+        expect(browserInfo.version).toEqual("49.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("iPad iOS 5.1", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (iPad; CPU OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko ) Version/5.1 Mobile/9B176 Safari/7534.48.3";
@@ -182,13 +204,12 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - Browser
         expect(browserInfo.safari).toBeTruthy();
-        expect(browserInfo.name).toEqual("iPad");
         expect(browserInfo.version).toEqual("5.1");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("iOS 6", function () {
+    it("iPad iOS 6", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5355d Safari/8536.25";
@@ -204,13 +225,12 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - Browser
         expect(browserInfo.safari).toBeTruthy();
-        expect(browserInfo.name).toEqual("iPad");
         expect(browserInfo.version).toEqual("6.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("iOS 7 - Chrome Mobile iOS 40", function () {
+    it("iPad iOS 7 - Chrome 40", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/11D257 Safari/9537.53";
@@ -226,13 +246,12 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - Browser
         expect(browserInfo.chrome).toBeTruthy();
-        expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("40.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("iOS 7 - Mobile Safari 7.0", function () {
+    it("iPad iOS 7 - Mobile Safari 7.0", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D257 Safari/9537.53";
@@ -248,8 +267,114 @@ describe('executionEnvironmentDetector', function() {
 
         // Assert - Browser
         expect(browserInfo.safari).toBeTruthy();
-        expect(browserInfo.name).toEqual("iPad");
+        expect(browserInfo.version).toEqual("7.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("iPhone iOS 8 - Mobile Safari 8.0", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/8.0 Mobile/11A465 Safari/9537.53";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("8.0");
+        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.tablet).toBeFalsy();
+        expect(browserInfo.mobile).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.safari).toBeTruthy();
+        expect(browserInfo.version).toEqual("8.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("iPad iOS 8 - Chrome 30", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) CriOS/30.0.1599.12 Mobile/11A465 Safari/8536.25 (3B92C18B-D9DE-4CB7-A02A-22FD2AF17C8F)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.ios).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("8.0");
+        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.tablet).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.version).toEqual("30.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
+    it("iPad iOS 8 - Mobile Safari 7", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.ios).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("8.0");
+        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.tablet).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.safari).toBeTruthy();
+        expect(browserInfo.version).toEqual("7.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("iPad iOS 8 - Chrome 40", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (iPad; CPU OS 8_1_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.ios).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("8.1.2");
+        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.tablet).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.version).toEqual("40.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("iPhone iOS 8 - Chrome 41", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/41.0.2272.58 Mobile/12F70 Safari/600.1.4 (000797)";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.ios).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("8.3");
+        expect(browserInfo.osMajorVersion).toEqual(8);
+        expect(browserInfo.tablet).toBeFalsy();
+        expect(browserInfo.mobile).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.version).toEqual("41.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
@@ -604,7 +729,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Firefox");
         expect(browserInfo.version).toEqual("35.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows 7 - Internet Explorer 8.0", function () {
@@ -751,7 +876,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Chrome");
         expect(browserInfo.version).toEqual("32.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows 8 - Internet Explorer 10.0", function () {
@@ -793,7 +918,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Firefox");
         expect(browserInfo.version).toEqual("27.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows 8.1 - Chrome 40", function () {
@@ -855,7 +980,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Firefox");
         expect(browserInfo.version).toEqual("35.0");
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows 10 - Internet Explorer 11.0", function () {
@@ -897,7 +1022,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.name).toEqual("Microsoft Edge");
         expect(browserInfo.msedge).toBeTruthy();
 
-        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("Windows Phone - IE Mobile 9.0", function () {

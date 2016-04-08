@@ -16,8 +16,16 @@ var executionEnvironmentDetector = (function () {
         if (/tablet pc/i.test(ua)) {
             browser.tablet = false;
         }
-        if(browser.osversion !== undefined)
+        if(browser.android) {
+            if (!browser.mobile) {
+                browser.tablet = true;
+            } else if (!(/Mobile/i.test(ua))) { //in case bowser thinks it's mobile but the UA has 'mobile' in it
+                browser.tablet = true;
+            }
+        }
+        if (browser.osversion !== undefined) {
             browser.osMajorVersion = parseInt(browser.osversion.split(".")[0], 10);
+        }
         if (browser.ios) {
             if (/safari/i.test(ua)) {
                 browser.safari = true;
@@ -42,22 +50,26 @@ var executionEnvironmentDetector = (function () {
         }
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
-        if (bowser.mobile) {
+        if (browser.mobile) {
             browser.blueprintSupportedBrowser = false;
         }
         else if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.msedge && browser.win10plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.firefox && parseInt(browser.version, 10) >= 19 && browser.win7plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.osx && browser.osx10_9plus) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && parseInt(browser.version, 10) >= 25 && browser.win7plus) {
+        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.ios && browser.osMajorVersion >= 8) {
             browser.blueprintSupportedBrowser = true;
         }
-        else if (browser.chrome && browser.osx && browser.osx10_9plus) {
+        else if (!browser.chrome && browser.safari && parseInt(browser.version, 10) >= 7 && browser.ios && browser.osMajorVersion >= 8) {
+            //Chrome UA in iOS has "Safari" too, so we need to make sure that is not Chrome when we test Safari
+            browser.blueprintSupportedBrowser = true;
+        }
+        else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.android && browser.osMajorVersion >= 5) {
             browser.blueprintSupportedBrowser = true;
         }
         return browser;

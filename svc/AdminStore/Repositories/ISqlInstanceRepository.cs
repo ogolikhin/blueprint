@@ -9,8 +9,8 @@ namespace AdminStore.Repositories
 {
     public interface ISqlInstanceRepository
     {
-        Task<InstanceItem> GetInstanceFolderAsync(int id);
+        Task<InstanceItem> GetInstanceFolderAsync(int folderId);
 
-        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id);
+        Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId);
     }
 }

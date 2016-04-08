@@ -6,6 +6,7 @@ using System.Web.Http.Description;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
@@ -44,7 +45,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var session = Request.Properties["Session"] as Session;
+                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
                 var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
                 if (loginUser == null)
                 {

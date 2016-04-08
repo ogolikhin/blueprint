@@ -7,6 +7,8 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System.Collections.Generic;
 using System.Web.Http.Description;
 using System.Threading.Tasks;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
 {
@@ -53,12 +55,12 @@ namespace AdminStore.Controllers
         /// Get Instance Folder
         /// </summary>
         /// <remarks>
-        /// Returns an instance folder for the specified id.
+        /// Returns child instance folders and live projects that the user has the read permission.
+        /// If an instance folder for the specified id is not found, the empty collection is returned.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request. The session token is missing or malformed.</response>
         /// <response code="401">Unauthorized. The session token is invalid.</response>
-        /// <response code="404">Not found. An instance folder for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("folders/{id:int:min(1)}/children"), SessionRequired]
@@ -66,7 +68,8 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolderChildren")]
         public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
         {
-            return await _instanceRepository.GetInstanceFolderChildrenAsync(id);
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await _instanceRepository.GetInstanceFolderChildrenAsync(id, session.UserId);
         }
     }
 }

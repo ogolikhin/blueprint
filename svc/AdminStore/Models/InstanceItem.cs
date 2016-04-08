@@ -26,7 +26,7 @@ namespace AdminStore.Models
     [JsonConverter(typeof(StringEnumConverter))]
     public enum InstanceItemTypeEnum
     {
-        Folder,
-        Project
+        Folder = 0,
+        Project = 1
     }
 }

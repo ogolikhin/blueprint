@@ -24,28 +24,34 @@ namespace AdminStore.Repositories
             _connectionWrapper = connectionWrapper;
         }
 
-        public async Task<InstanceItem> GetInstanceFolderAsync(int id)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId)
         {
-            if (id < 1)
-                throw new ArgumentOutOfRangeException(nameof(id));
+            if (folderId < 1)
+                throw new ArgumentOutOfRangeException(nameof(folderId));
 
             var prm = new DynamicParameters();
-            prm.Add("@folderId", id);
+            prm.Add("@folderId", folderId);
             var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if(folder == null)
-                throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", id), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);
 
             folder.Type = InstanceItemTypeEnum.Folder;
             return folder;
         }
 
-        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int id)
+        public async Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId)
         {
-            if (id < 1)
-                throw new ArgumentOutOfRangeException(nameof(id));
+            if (folderId < 1)
+                throw new ArgumentOutOfRangeException(nameof(folderId));
+            if (userId < 1)
+                throw new ArgumentOutOfRangeException(nameof(userId));
 
-            await Task.Delay(1);
-            throw new NotImplementedException();
+            var prm = new DynamicParameters();
+            prm.Add("@folderId", folderId);
+            prm.Add("@userId", userId);
+
+            return  ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
+                ?? Enumerable.Empty <InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
     }
 }

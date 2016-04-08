@@ -32,7 +32,7 @@ namespace AdminStore.Controllers
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
-            _controller.Request.Properties["Session"] = session;
+            _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
         }
 
         #region Constuctor

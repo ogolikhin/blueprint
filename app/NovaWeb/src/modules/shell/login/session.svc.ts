@@ -14,6 +14,8 @@ export interface ISession {
     login(username: string, password: string, overrideSession: boolean): ng.IPromise<any>;
 
     loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
+
+    resetPassword(login: string, oldPassword: string, newPassword: string);
 }
 
 export class SessionSvc implements ISession {
@@ -165,6 +167,19 @@ export class SessionSvc implements ISession {
                 this._modalInstance = null;
             });
         }
+    }
+
+    public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
+        var defer = this.$q.defer();
+
+        this.auth.resetPassword(login, oldPassword, newPassword).then(
+            () => {
+                defer.resolve();
+            },
+            (error) => {
+                defer.reject(error);
+            });
+        return defer.promise;
     }
 }
 

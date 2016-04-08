@@ -13,5 +13,10 @@
 
         //Resource errors
         public const int ResourceNotFound = 3000;
+
+        //Password reset errors
+        public const int EmptyPassword = 4000;
+        public const int SamePassword = 4001;
+        public const int TooSimplePassword = 4002;
     }
 }

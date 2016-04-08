@@ -5,7 +5,6 @@ import "../shell";
 import {PageContent} from "./components/content/pagecontent";
 import {Toolbar} from "./components/toolbar/toolbar";
 import {Sidebar} from "./components/sidebar/sidebar";
-import {ProjectExplorer} from "./components/projectexplorer/projectexplorer";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope"];
@@ -22,6 +21,5 @@ angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap"])
     .run(config)
     .component("pagecontent", new PageContent())
     .component("sidebar", new Sidebar())
-    .component("projectexplorer", new ProjectExplorer())
     .component("toolbar", new Toolbar())
     .config(routesConfig);

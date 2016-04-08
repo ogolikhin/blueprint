@@ -22,5 +22,13 @@ namespace Model.OpenApiModel
         /// <param name="propertyName">property Name</param>
         /// <param name="propertyValue">(optional) property Name</param>
         OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null);
+
+        /// <summary>
+        /// Set a custom value on the  the specific artifact w </summary>
+        /// <param name="project">project</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <param name="propertyValue">(optional) property Name</param>
+        OpenApiProperty SetPropertyValue(IProject project, BaseArtifactType artifactType, string propertyValue = null);
+
     }
 }

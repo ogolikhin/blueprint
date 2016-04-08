@@ -18,7 +18,7 @@ namespace Model.OpenApiModel.Impl
         Group
     }
 
-        public class OpenApiProperty : IOpenApiProperty
+    public class OpenApiProperty : IOpenApiProperty
     {
         public int PropertyTypeId { get; set; }
         public string Name { get; set; }
@@ -87,6 +87,21 @@ namespace Model.OpenApiModel.Impl
                     }
                 }
             }
+            return property;
+        }
+        public OpenApiProperty SetPropertyValue(IProject project, BaseArtifactType artifactType,
+    string propertyValue = null)
+        {
+            OpenApiProperty property = new OpenApiProperty
+            {
+                PropertyTypeId = 1,
+                Name = "",
+                BasePropertyType = "",
+                TextOrChoiceValue = "",
+                IsReadOnly = false,
+                IsRichText = false
+            };
+
             return property;
         }
     }

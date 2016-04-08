@@ -50,6 +50,7 @@ namespace OpenAPITests
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty();
             _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+            //_artifact.Properties.Add(property.SetPropertyValue(_project, BaseArtifactType.Actor, "value"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;

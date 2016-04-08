@@ -37,17 +37,93 @@ body {
 
 /////////////////////////////////////////
 
-//sidebar
+//sidebars
 $sidebar-size: 250px;
+$wrapper-height: $navbar-height + $navbar-toolbar-height;
 
 #wrapper {
-  margin-top: 86px;
-/*
-  padding-left: $sidebar-size;
-  padding-right: $sidebar-size;
-*/
-  transition: all 0.4s ease 0s;
+  display: block;
+  height: calc(100% - #{$wrapper-height});
+  margin-top: $wrapper-height;
+  overflow: hidden;
 }
+
+pagecontent {
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  padding: 0;
+  transition: all .4s ease;
+  width: 100%;
+}
+
+.project-explorer-visible pagecontent {
+  padding-left: $sidebar-size;
+}
+
+.utility-panel-visible pagecontent {
+  padding-right: $sidebar-size;
+}
+
+sidebar {
+  background: $white;
+  display: block;
+  height: calc(100% - #{$wrapper-height});
+  position: fixed;
+  top: $wrapper-height;
+  transition: all .4s ease;
+  width: $sidebar-size;
+  z-index: 1000;
+
+  .toggle {
+    position: absolute;
+  }
+
+  &.project-explorer {
+    left: 0;
+    margin-left: -$sidebar-size;
+
+    .toggle {
+      right: -30px;
+    }
+
+    &.show {
+      left: $sidebar-size;
+
+      .toggle {
+        right: 20px;
+      }
+    }
+  }
+
+  &.utility-panel {
+    margin-right: -$sidebar-size;
+    right: 0;
+
+    .toggle {
+      left: -30px;
+    }
+
+    &.show {
+      right: $sidebar-size;
+
+      .toggle {
+        left: 20px;
+      }
+    }
+  }
+}
+
+.breadcrumbs {
+  background: $gray-lightest;
+  padding-left: 50px;
+}
+
+.project-explorer-visible .breadcrumbs {
+  padding-left: 10px;
+}
+
+/*
 ////////////////////////////// by DL
 @mixin transition ($value) { 
     -webkit-transition: $value; -moz-transition: $value; -ms-transition: $value; -o-transition: $value; transition: $value; }
@@ -57,13 +133,8 @@ $sidebar-size: 250px;
 } 
 
 sidebar {
-  background: rgba(247, 247, 247, 1);
-  overflow-y: auto;
-  z-index: 1000;
-  height:100%; 
-  display:block;
   > div {
-        position:absolute; 
+        position:absolute;
         z-index:2; 
         top:0;  
         margin-top: 86px;
@@ -87,9 +158,6 @@ sidebar {
                  .btn-menu {left:10px;}
             }
      }
-}
-sidebar .btn-menu {
-    position: absolute;
 }
 ////////////////////////////////
 
@@ -192,3 +260,5 @@ sidebar .btn-menu {
     padding: 15px;
   }
 }
+
+*/

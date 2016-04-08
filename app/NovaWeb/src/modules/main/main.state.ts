@@ -8,8 +8,8 @@ export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider:
 }
 
 class MainCtrl {
-    public static $inject: [string] = ["$log"];
-    constructor(private $log: ng.ILogService) {
+    public static $inject: [string] = ["$element", "$log"];
+    constructor(private $element, private $log: ng.ILogService) {
     }
 }
 

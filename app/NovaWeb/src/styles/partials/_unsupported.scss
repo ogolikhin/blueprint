@@ -14,6 +14,7 @@
     margin: 0 auto;
 
     td {
+      padding: 0 20px;
       vertical-align: middle;
     }
   }
@@ -59,6 +60,7 @@
 
     ul {
       font-size: 14px;
+      padding: 0 0 0 32px;
     }
 
     button {
@@ -80,9 +82,12 @@
       box-sizing: border-box;
       float: left;
       margin: 0 0 32px;
-      min-width: 50%;
-      min-width: 40%\9; //IE8- hack
       padding: 0 10px 0 50px;
+      width: 320px;
+
+      &:last-of-type {
+        margin-bottom: 48px;
+      }
 
       &.windows {
         background: url('/novaweb/static/icon-windows.png') top left no-repeat;

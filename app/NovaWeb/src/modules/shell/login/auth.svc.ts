@@ -18,6 +18,8 @@ export interface IAuth {
     loginWithSaml(overrideSession: boolean, prevLogin: string): ng.IPromise<IUser>;
 
     logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any>;
+
+    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
 }
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {
@@ -254,6 +256,28 @@ export class AuthSvc implements IAuth {
                 }
 
                 deferred.reject(msg);
+            });
+
+        return deferred.promise;
+    }
+
+    public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
+        var encUserName: string = login ? AuthSvc.encode(login) : "";
+        var encOldPassword: string = oldPassword ? AuthSvc.encode(oldPassword) : "";
+        var encNewPassword: string = newPassword ? AuthSvc.encode(newPassword) : "";
+
+        var deferred = this.$q.defer<any>();
+
+        this.$http.post<any>("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }), this.createRequestConfig())
+            .success(() => {
+                deferred.resolve();
+            }).error((err: any, statusCode: number) => {
+                var error = {
+                    statusCode: statusCode,
+                    message: this.getLoginErrorMessage(err),
+                    errorCode: err.ErrorCode
+                };
+                deferred.reject(error);
             });
 
         return deferred.promise;

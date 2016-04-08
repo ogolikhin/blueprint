@@ -20,5 +20,22 @@ namespace AdminStore.Repositories
         /// <returns>An <see cref="P:AdminStore.Models.LoginUser"/> object that specifies the authentificated user.</returns>
         /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
         Task<AuthenticationUser> AuthenticateSamlUserAsync(string samlResponse);
+
+        /// <summary>
+        /// Authenticates user with provided credentials
+        /// </summary>
+        /// <param name="login"></param>
+        /// <param name="password"></param>
+        /// <returns>An <see cref="P:AdminStore.Models.LoginUser"/> object that specifies the authentificated user.</returns>
+        /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
+        Task<AuthenticationUser> AuthenticateUserForResetAsync(string login, string password);
+
+        /// <summary>
+        /// Resets the password for the user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="newPassword"></param>
+        /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
+        Task ResetPassword(AuthenticationUser user, string newPassword);
     }
 }

@@ -156,6 +156,17 @@ export class LoginCtrl {
             //error
         }
 
+        this.session.resetPassword(this.novaUsername, this.novaCurrentPassword, this.novaNewPassword).then(
+            () => {
+                this.labelError = false;
+                this.fieldError = false;
+
+                this.transitionToState(LoginState.LoginForm);
+            },
+            (error) => {
+                this.handlePasswordRestErrors(error);
+            }
+        );
         // TODO: back-end not ready yet
     }
 
@@ -163,35 +174,55 @@ export class LoginCtrl {
         // TODO: back-end not ready yet
     }
 
+    private handlePasswordRestErrors(error) {
+        if (error.statusCode === 401) {
+            if (error.errorCode === 2000) {
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_CredentialsInvalid');
+            } else if (error.errorCode === 2001) {
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_AccountDisabled');
+            } else if (error.errorCode === 2003) {
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_CredentialsCannotBeEmpty');
+            } else {
+                this.changePasswordScreenMessage = "authorization exception: "+error.message;
+            }
+            this.changePasswordScreenError = true;
+            this.changePasswordCurrentPasswordError = true;
+        } else if (error.statusCode === 400) {
+            this.changePasswordScreenMessage = "bad request: "+error.message;
+            this.changePasswordScreenError = true;
+            this.changePasswordCurrentPasswordError = true;
+        } else {
+            this.changePasswordScreenError = false;
+            this.changePasswordCurrentPasswordError = false;
+        }
+        
+    }
+
     private handleLoginErrors(error) {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
-                this.labelError = true;
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2001) {
                 this.errorMsg = this.localization.get("Login_Session_AccountDisabled");
-                this.labelError = true;
                 this.fieldError = false;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2002) {
                 this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
-                this.labelError = true;
                 this.fieldError = false;
                 this.enableChangePasswordScreen = true;
                 this.transitionToState(LoginState.ChangePasswordForm);
             } else if (error.errorCode === 2003) {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
-                this.labelError = true;
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else {
                 this.errorMsg = error.message;
-                this.labelError = true;
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             }
+            this.labelError = true;
         } else if (error.statusCode === 409) {
             this.labelError = false;
             this.fieldError = false;

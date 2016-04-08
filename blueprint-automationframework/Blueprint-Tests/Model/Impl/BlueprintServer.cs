@@ -143,6 +143,24 @@ namespace Model.Impl
             return response;
         }
 
+        /// <seealso cref="IBlueprintServer.GetStatus"/>
+        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(_address, string.Empty);
+            const string path = "svc/status";
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (preAuthorizedKey != null)
+            {
+                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
+            }
+
+            Logger.WriteInfo("Getting status for all Blueprint services...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            return response.Content;
+        }
+
         #endregion Public functions
 
 

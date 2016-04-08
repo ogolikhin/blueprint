@@ -142,12 +142,32 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IFileStore.GetStatus"/>
+        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(_address, token: string.Empty);
+            var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (preAuthorizedKey != null)
+            {
+                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
+            }
+
+            Logger.WriteInfo("Getting FileStore status...");
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+            return response.Content;
+        }
+
         /// <seealso cref="IFileStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(_address, token:string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
 
+            Logger.WriteInfo("Getting FileStore status upcheck...");
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             return response.StatusCode;

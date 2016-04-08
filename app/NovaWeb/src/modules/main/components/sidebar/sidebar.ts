@@ -1,8 +1,4 @@
-﻿//import "./sidebar.scss"
-
-
-
-interface ISidebarController {
+﻿interface ISidebarController {
     isToggled: boolean;
     toggle(evt: ng.IAngularEvent): void
 }
@@ -27,6 +23,7 @@ class SidebarCtrl implements ISidebarController {
 
     constructor(private $element) {
         this.isToggled = false;
+        console.log(this)
     }
 
     public toggle(evt: ng.IAngularEvent) {

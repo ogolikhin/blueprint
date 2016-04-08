@@ -428,7 +428,7 @@ namespace Model.StorytellerModel.Impl
             // Get system decision outgoing process link of the lowest order
             var outgoingSystemDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(systemDecision, DefaultOrderIndex);
 
-            // Get the system task after the decision point on the lowest order branch.
+            // Get the system task or system decision after the system decision on the lowest order branch.
             var systemTaskOnLowestOrderBranchOfSystemDecision = GetProcessShapeById(outgoingSystemDecisionProcessLinkOfLowestOrder.DestinationId);
 
             // Get the shapes to be deleted
@@ -437,7 +437,7 @@ namespace Model.StorytellerModel.Impl
             // Delete all shapes and outgoing links for the shapes
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
-            // Delete the system decision and update the process link to have the user task as the merge point
+            // Delete the system decision and update the process link to have the system task or system shape on the lowest order branch
             DeleteSystemDecisionAndUpdateProcessLink(systemDecision, systemTaskOnLowestOrderBranchOfSystemDecision);
         }
 

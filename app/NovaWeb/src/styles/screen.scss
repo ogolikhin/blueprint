@@ -37,81 +37,84 @@ body {
 
 /////////////////////////////////////////
 
-//sidebar
+//sidebars
 $sidebar-size: 250px;
 $wrapper-height: $navbar-height + $navbar-toolbar-height;
 
 #wrapper {
-  align-content: stretch;
-  align-items: stretch;
-  display: flex;
+  display: block;
   height: calc(100% - #{$wrapper-height});
   margin-top: $wrapper-height;
   overflow: hidden;
 }
 
 pagecontent {
-  flex-grow: 2;
-  order: 2;
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  padding: 0;
+  transition: all .4s ease;
+  width: 100%;
+}
+
+.project-explorer-visible pagecontent {
+  padding-left: $sidebar-size;
+}
+
+.utility-panel-visible pagecontent {
+  padding-right: $sidebar-size;
+}
+
+projectexplorer {
+  background: $white;
+  display: block;
+  height: calc(100% - #{$wrapper-height});
+  left: 0;
+  margin-left: -$sidebar-size;
+  position: fixed;
+  top: $wrapper-height;
+  transition: all .4s ease;
+  width: $sidebar-size;
+  z-index: 1000;
+
+  .toggle {
+    position: absolute;
+    right: -30px;
+  }
+
+  &.show {
+    left: $sidebar-size;
+
+    .toggle {
+      right: 20px;
+    }
+  }
 }
 
 sidebar {
   background: $white;
-  flex-basis: 0;
-  position: relative;
-  transition: width 250ms ease, flex-basis 250ms ease;
-  width: 0;
+  display: block;
+  height: calc(100% - #{$wrapper-height});
+  margin-right: -$sidebar-size;
+  position: fixed;
+  right: 0;
+  top: $wrapper-height;
+  transition: all .4s ease;
+  width: $sidebar-size;
+  z-index: 1000;
 
-  > .sidebar-toggle {
-    display: block;
+  .toggle {
+    left: -30px;
     position: absolute;
   }
 
-  > .sidebar-content {
-    display: none;
-  }
-
-  &.sidebar-left {
-    order: 1;
-
-    .sidebar-toggle {
-      right: -40px;
-    }
-
-    &.show {
-      > .sidebar-toggle {
-        right: 40px;
-      }
-
-      > .sidebar-content {
-        display: block;
-      }
-    }
-  }
-
-  &.sidebar-right {
-    order: 3;
-
-    .sidebar-toggle {
-      left: -40px;
-    }
-
-    &.show {
-      .sidebar-toggle {
-        left: 40px;
-      }
-
-      > .sidebar-content {
-        display: block;
-      }
-    }
-  }
-
   &.show {
-    flex-basis: $sidebar-size;
-    width: $sidebar-size;
-  }
+    right: $sidebar-size;
 
+    .toggle {
+      left: 20px;
+    }
+  }
 }
 
 /*

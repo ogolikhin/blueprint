@@ -809,6 +809,116 @@ namespace StorytellerTests
         }
 
         [TestCase]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with two additonal branches after the default UT. Generate User Story")]
+        public void GenerateUserStoryForSystemDecisionWithTwoBranchesAfterDefaultUserTask_VerifyReturnedProcess()
+        {
+            /*
+            You start with this:
+            --[UT]--+--[ST]--+--
+
+            It becomes this:
+            --[UT]--+--<SD>--+--[ST]--+--
+                        |             |
+                        +-------[ST]--+
+             */
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the target SystemTask
+            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Add System Decision point with branch merging to branchEndPoint
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+
+            // Find number of UserTasks from the published Process
+            process = _storyteller.GetProcess(_user, process.Id);
+
+            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+
+            // Generate User Story artfact(s) from the Process artifact
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
+
+            Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
+
+            // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
+            Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
+        }
+
+        [TestCase]
+        [Description("Add a new system decision point to the default process. The system decision point gets added with additonal branch. Add another system decision point immediately after 1st one (Nested SD). Generate User Story")]
+        public void GenerateUserStoryForTwoSystemDecisionsWithBranchesOnMainBranch_VerifyReturnedProcess()
+        {
+            /*
+           You start with this:
+           --[UT]--+--[ST]--+--
+
+           It becomes this:
+
+            --[UT]--+--<SD>--+--<SD>--+--[ST]--+--[UT]--+--[ST]--+--
+                        |        |             |                 |
+                        |        +----------------[ST]-----------+
+                        |                      |
+                        +------[ST]------------+
+            */
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the branch end point for system decision points
+            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the default UserTask
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the outgoing process link from the default UserTask
+            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Find the default SystemTask
+            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find the outgoing process link from the default SystemTask
+            var defaultSystemTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultSystemTask);
+
+            // Add a new User Task with System Task before the end Point
+            var addedUserTask = process.AddUserAndSystemTask(defaultSystemTaskOutgoingProcessLink);
+
+            // Add a System Decision point with branch (first System Decision point) and close the loop before the addedUserTask
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, addedUserTask.Id);
+
+            // Add a System Decision point with branch (second System Decision point) and close the loop before the branchEndPoint
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+
+            // Find number of UserTasks from the published Process
+            process = _storyteller.GetProcess(_user, process.Id);
+
+            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
+
+            // Generate User Story artfact(s) from the Process artifact
+            List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
+
+            Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
+
+            // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
+            Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
+        }
+
+        [TestCase]
         [Description("Add new User Task to the default process. Save, do not publish changes." +
                      "Get discussions for this User Task returns no errors. Regression for bug 178131.")]
         public void GetDiscussionsForSavedUnpublishedUserTask_ThrowsNoErrors()

@@ -29,8 +29,8 @@ namespace Model.StorytellerModel.Impl
 
         public const string EndName = "End";
 
+        public const double DefaultOrderIndex = 0;
 
-        private const double DefaultOrderIndex = 0;
 
         private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
@@ -53,8 +53,6 @@ namespace Model.StorytellerModel.Impl
         private const string StoryLinks = "StoryLinks";
 
         private const string ItemLabel = "ItemLabel";
-
-        private const string LinkLabels = "LinkLabels";
 
         public const string ImageId = "ImageId";
 

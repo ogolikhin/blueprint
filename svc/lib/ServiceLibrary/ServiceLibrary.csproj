@@ -79,6 +79,7 @@
     <Compile Include="EventSources\StandardLogEventSource.cs" />
     <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
+    <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\UnhandledExceptionFilterAttribute.cs" />

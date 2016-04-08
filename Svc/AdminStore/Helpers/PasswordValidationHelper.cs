@@ -39,8 +39,7 @@ namespace AdminStore.Helpers
                 string passwordLengthMessage = isPasswordRequired
                     ? $"Password must be between {PasswordMinimumLength} and {PasswordMaximumLength} characters"
                     : $"Password must be between {PasswordMinimumLength} and {PasswordMaximumLength} characters, or left blank";
-                errorMessage += String.Format(passwordLengthMessage, PasswordMinimumLength, PasswordMaximumLength);
-                errorMessage += Environment.NewLine;
+                errorMessage += passwordLengthMessage + Environment.NewLine;
 
                 valid = false;
             }

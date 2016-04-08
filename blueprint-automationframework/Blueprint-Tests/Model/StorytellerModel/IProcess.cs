@@ -289,15 +289,6 @@ namespace Model.StorytellerModel
         IProcessShape GetNextShape(IProcessShape shape);
 
         /// <summary>
-        /// Delete a System Decision with all Branches that are Not of the Lowest Order
-        /// </summary>
-        /// <param name="systemDecision">The system decision point to be deleted</param>
-        /// <param name="mergePointShape">The shape where all the associated branches terminate</param>
-        void DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(
-            IProcessShape systemDecision,
-            IProcessShape mergePointShape);
-
-        /// <summary>
         /// Delete a System Decision Branch
         /// </summary>
         /// <param name="systemDecision">The system decision containing the branch</param>

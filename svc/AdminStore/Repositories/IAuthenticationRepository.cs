@@ -34,8 +34,9 @@ namespace AdminStore.Repositories
         /// Resets the password for the user
         /// </summary>
         /// <param name="user"></param>
+        /// <param name="oldPassword"></param>
         /// <param name="newPassword"></param>
         /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
-        Task ResetPassword(AuthenticationUser user, string newPassword);
+        Task ResetPassword(AuthenticationUser user, string oldPassword, string newPassword);
     }
 }

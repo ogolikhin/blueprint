@@ -174,15 +174,20 @@ namespace AdminStore.Repositories
             }
         }
 
-        public async Task ResetPassword(AuthenticationUser user, string newPassword)
+        public async Task ResetPassword(AuthenticationUser user, string oldPassword, string newPassword)
         {
-            if (user == null)
-            {
-                throw new AuthenticationException($"No user provided for password reset");
-            }
             if (string.IsNullOrEmpty(newPassword))
             {
-                throw new AuthenticationException($"Password reset failed, new password hash is empty");
+                throw new BadRequestException("Password reset failed, new password cannot be empty", ErrorCodes.EmptyPassword);
+            }
+            if (oldPassword == newPassword)
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
+            }
+            string errorMsg;
+            if (!PasswordValidationHelper.ValidatePassword(newPassword, true, out errorMsg))
+            {
+                throw new BadRequestException("Password reset failed, new password is invalid", ErrorCodes.TooSimplePassword);
             }
 
             Guid newGuid = Guid.NewGuid();

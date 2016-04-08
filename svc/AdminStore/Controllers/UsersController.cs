@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Filters;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -89,41 +90,14 @@ namespace AdminStore.Controllers
         [HttpPost, NoCache]
         [Route("reset")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> PostReset(string login, [FromBody]ResetPostContent body)
+        [BaseExceptionFilter]
+        public async Task PostReset(string login, [FromBody]ResetPostContent body)
         {
-            try
-            {
-                //var body = JsonConvert.DeserializeObject<ResetPostContent>(content);
-                var decodedLogin = SystemEncryptions.Decode(login);
-                var decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
-                var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
-
-                if (decodedNewPassword == decodedOldPassword)
-                {
-                    return BadRequest();
-                }
-
-                var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
-
-                string errorMsg;
-                if (!PasswordValidationHelper.ValidatePassword(decodedNewPassword, true, out errorMsg))
-                {
-                    return BadRequest();
-                }
-
-                await _authenticationRepository.ResetPassword(user, decodedNewPassword);
-                
-                return Ok();
-            }
-            catch (AuthenticationException ex)
-            {
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError()));
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceUsers, ex);
-                return InternalServerError();
-            }
+            var decodedLogin = SystemEncryptions.Decode(login);
+            var decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
+            var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
+            var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
+            await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
         }
     }
 }

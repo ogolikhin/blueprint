@@ -35,11 +35,6 @@ body {
 
 @import 'partials/unsupported';
 
-/////////////////////////////////////////
-
-//sidebars
-$sidebar-size: 250px;
-$wrapper-height: $navbar-height + $navbar-toolbar-height;
 
 #wrapper {
   display: block;
@@ -65,63 +60,9 @@ pagecontent {
   padding-right: $sidebar-size;
 }
 
-sidebar {
-  background: $white;
-  display: block;
-  height: calc(100% - #{$wrapper-height});
-  position: fixed;
-  top: $wrapper-height;
-  transition: all .4s ease;
-  width: $sidebar-size;
-  z-index: 1000;
+@import 'partials/sidebar';
+@import 'partials/breadcrumbs';
 
-  .toggle {
-    position: absolute;
-  }
-
-  &.project-explorer {
-    left: 0;
-    margin-left: -$sidebar-size;
-
-    .toggle {
-      right: -30px;
-    }
-
-    &.show {
-      left: $sidebar-size;
-
-      .toggle {
-        right: 20px;
-      }
-    }
-  }
-
-  &.utility-panel {
-    margin-right: -$sidebar-size;
-    right: 0;
-
-    .toggle {
-      left: -30px;
-    }
-
-    &.show {
-      right: $sidebar-size;
-
-      .toggle {
-        left: 20px;
-      }
-    }
-  }
-}
-
-.breadcrumbs {
-  background: $gray-lightest;
-  padding-left: 50px;
-}
-
-.project-explorer-visible .breadcrumbs {
-  padding-left: 10px;
-}
 
 /*
 ////////////////////////////// by DL

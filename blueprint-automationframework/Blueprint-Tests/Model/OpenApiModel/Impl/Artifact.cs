@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
+using Model.Impl;
 
 namespace Model.OpenApiModel.Impl
 {
@@ -93,7 +94,8 @@ namespace Model.OpenApiModel.Impl
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
-        
+        private static string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
+
         #endregion Constants
 
         #region Properties
@@ -470,6 +472,46 @@ namespace Model.OpenApiModel.Impl
             }
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+        }
+
+        /// <summary>
+        /// Get discussions for the specified artifact/subartifact
+        /// </summary>
+        /// <param name="address">server address</param>
+        /// <param name="itemID">id of artifact/subartifact</param>
+        /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Discussion for artifact/subartifact</returns>
+        public static IDiscussion GetDiscussions(string address, int itemID, bool includeDraft, IUser user, List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var queryParameters = new Dictionary<string, string> {
+                { "includeDraft", includeDraft.ToString() }
+            };
+
+            string path = I18NHelper.FormatInvariant(URL_DISCUSSIONS, itemID);
+            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var response = restApi.SendRequestAndDeserializeObject<Discussion>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return response;
         }
 
         #endregion Static Methods

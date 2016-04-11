@@ -5,6 +5,7 @@ using Helper;
 using Model;
 using Model.Factories;
 using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -915,6 +916,39 @@ namespace StorytellerTests
 
             // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
             Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
+        }
+
+        [TestCase]
+        [Description("Add new User Task to the default process. Save, do not publish changes." +
+                     "Get discussions for this User Task returns no errors. Regression for bug 178131.")]
+        public void GetDiscussionsForSavedUnpublishedUserTask_ThrowsNoErrors()
+        {
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user/system Task immediately after the precondition
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Save changes without publishing
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Get newly added User Task
+            var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
+            Assert.DoesNotThrow(() =>
+            {
+                var discussions = OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemID: unpublishedUserTask.Id,
+                includeDraft: true, user: _user);
+                Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
+                Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");
+            }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");
         }
 
         /// <summary>

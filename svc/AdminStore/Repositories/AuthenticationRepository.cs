@@ -137,6 +137,66 @@ namespace AdminStore.Repositories
             return user;
         }
 
+        public async Task<AuthenticationUser> AuthenticateUserForResetAsync(string login, string password)
+        {
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+            {
+                throw new AuthenticationException("Username and password cannot be empty", ErrorCodes.EmptyCredentials);
+            }
+            var user = await _userRepository.GetUserByLoginAsync(login);
+            if (user == null)
+            {
+                await _log.LogInformation(WebApiConfig.LogSourceSessions, I18NHelper.FormatInvariant("Could not get user with login '{0}'", login));
+                throw new AuthenticationException("Invalid username or password", ErrorCodes.InvalidCredentials);
+            }
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+            if (instanceSettings.IsSamlEnabled.GetValueOrDefault())
+            {
+                // Fallback is allowed by default (value is null)
+                if (!user.IsFallbackAllowed.GetValueOrDefault(true))
+                {
+                    throw new AuthenticationException("User must be authenticated via Federated Authentication mechanism", ErrorCodes.FallbackIsDisabled);
+                }
+            }
+            switch (user.Source)
+            {
+                case UserGroupSource.Database:
+                    var authenticationStatus = AuthenticateDatabaseUser(user, password, 0);
+                    if (authenticationStatus == AuthenticationStatus.Success)
+                    {
+                        return user;
+                    }
+                    throw new AuthenticationException("Password reset is not authorized", ErrorCodes.InvalidCredentials);
+                case UserGroupSource.Windows:
+                     throw new AuthenticationException($"Cannot reset password for ldap user {login}", ErrorCodes.LdapIsDisabled);
+                default:
+                    throw new AuthenticationException($"Authentication provider could not be found for login: {login}");
+            }
+        }
+
+        public async Task ResetPassword(AuthenticationUser user, string oldPassword, string newPassword)
+        {
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be empty", ErrorCodes.EmptyPassword);
+            }
+            if (oldPassword == newPassword)
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
+            }
+            string errorMsg;
+            if (!PasswordValidationHelper.ValidatePassword(newPassword, true, out errorMsg))
+            {
+                throw new BadRequestException("Password reset failed, new password is invalid", ErrorCodes.TooSimplePassword);
+            }
+
+            Guid newGuid = Guid.NewGuid();
+            user.UserSalt = newGuid;
+            user.Password = HashingUtilities.GenerateSaltedHash(newPassword, user.UserSalt);
+
+            await _userRepository.UpdateUserOnPasswordResetAsync(user);
+        }
+
         private AuthenticationStatus AuthenticateDatabaseUser(AuthenticationUser user, string password, int passwordExpirationInDays = 0)
         {
             var hashedPassword = HashingUtilities.GenerateSaltedHash(password, user.UserSalt);

@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(11, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(12, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
@@ -36,6 +36,7 @@ namespace AdminStore
             config.AssertAction<UsersController>("GetLoginUser", HttpMethod.Get, "users/loginuser");
             config.AssertAction<InstanceController>("GetInstanceFolder", HttpMethod.Get, "instance/folders/1");
             config.AssertAction<InstanceController>("GetInstanceFolderChildren", HttpMethod.Get, "instance/folders/1/children");
+            config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
         }
 
         [TestMethod]

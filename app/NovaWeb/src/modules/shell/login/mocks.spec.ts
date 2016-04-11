@@ -61,6 +61,12 @@ export class AuthSvcMock implements IAuth {
         deferred.resolve();
         return deferred.promise;
     }
+
+    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
 }
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {

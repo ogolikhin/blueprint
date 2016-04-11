@@ -34,6 +34,10 @@ namespace AdminStore.Filters
             {
                 statusCode = HttpStatusCode.NotFound;
                 errorCode = ((ResourceNotFoundException) ex).ErrorCode;
+            }else if (ex is BadRequestException)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                errorCode = ((BadRequestException)ex).ErrorCode;
             }
             else
             {

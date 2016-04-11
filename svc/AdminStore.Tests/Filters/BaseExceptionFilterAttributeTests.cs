@@ -3,20 +3,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Http;
 using System.Web.Http.Hosting;
 using System.Web.Http;
-using Moq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Controllers;
-using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Filters
 {
     [TestClass]
     public class BaseExceptionFilterAttributeTests
     {
-        private void TestOnExceptionAsync(Exception ex, HttpStatusCode expectedStatusCode)
+        private async Task TestOnExceptionAsync(Exception ex, HttpStatusCode expectedStatusCode)
         {
             //Arrange
             var filter = new BaseExceptionFilterAttribute();
@@ -25,44 +23,47 @@ namespace AdminStore.Filters
             request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
             var contextAction = ContextUtil.GetActionExecutedContext(request, null, "Controller", typeof(InstanceController));
 
+
             var controller = new InstanceController();
             contextAction.ActionContext.ControllerContext.Controller = controller;
             contextAction.Exception = ex;
 
-            Task.Run(async () =>
-            {
-                //Act
-                await filter.OnExceptionAsync(contextAction, CancellationToken.None);
+            //Act
+            await filter.OnExceptionAsync(contextAction, CancellationToken.None);
 
-                //Assert
-                Assert.IsTrue(contextAction.Response.StatusCode == expectedStatusCode);
-
-            }).GetAwaiter().GetResult();
+            //Assert
+            Assert.IsTrue(contextAction.Response.StatusCode == expectedStatusCode);
         }
 
         [TestMethod]
-        public void OnExceptionAsync_NotImplementedException()
+        public async Task OnExceptionAsync_NotImplementedException()
         {
 
-            TestOnExceptionAsync(new NotImplementedException(), HttpStatusCode.NotImplemented);
+            await TestOnExceptionAsync(new NotImplementedException(), HttpStatusCode.NotImplemented);
         }
 
         [TestMethod]
-        public void OnExceptionAsync_AuthenticationException()
+        public async Task OnExceptionAsync_AuthenticationException()
         {
-            TestOnExceptionAsync(new AuthenticationException(string.Empty), HttpStatusCode.Unauthorized);
+            await TestOnExceptionAsync(new AuthenticationException(string.Empty), HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
-        public void OnExceptionAsync_ResourceNotFoundException()
+        public async Task OnExceptionAsync_ResourceNotFoundException()
         {
-            TestOnExceptionAsync(new ResourceNotFoundException(), HttpStatusCode.NotFound);
+            await TestOnExceptionAsync(new ResourceNotFoundException(), HttpStatusCode.NotFound);
         }
 
         [TestMethod]
-        public void OnExceptionAsync_UnknownException()
+        public async Task OnExceptionAsync_BadRequestException()
         {
-            TestOnExceptionAsync(new Exception(), HttpStatusCode.InternalServerError);
+            await TestOnExceptionAsync(new BadRequestException(), HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task OnExceptionAsync_UnknownException()
+        {
+            await TestOnExceptionAsync(new Exception(), HttpStatusCode.InternalServerError);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
+using Model.Impl;
 
 namespace Model.OpenApiModel.Impl
 {
@@ -482,7 +483,8 @@ namespace Model.OpenApiModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        public static void GetDiscussions(string address, int itemID, bool includeDraft, IUser user, List<HttpStatusCode> expectedStatusCodes = null,
+        /// <returns>Discussion for artifact/subartifact</returns>
+        public static IDiscussion GetDiscussions(string address, int itemID, bool includeDraft, IUser user, List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -502,12 +504,14 @@ namespace Model.OpenApiModel.Impl
 
             string path = I18NHelper.FormatInvariant(URL_DISCUSSIONS, itemID);
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            restApi.SendRequestAndDeserializeObject<Object>(
+            var response = restApi.SendRequestAndDeserializeObject<Discussion>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
+
+            return response;
         }
 
         #endregion Static Methods

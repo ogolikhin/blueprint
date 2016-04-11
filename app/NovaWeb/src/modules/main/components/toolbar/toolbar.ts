@@ -1,9 +1,8 @@
-﻿//import "./toolbar.scss"
-import {ILocalizationService} from "../../../core/localization";
+﻿import {ILocalizationService} from "../../../core/localization";
 
 interface IToolbarController {
     add(): void;
-    clear(): void
+    clear(): void;
     execute(evt: ng.IAngularEvent): void;
 }
 
@@ -16,25 +15,25 @@ export class Toolbar implements ng.IComponentOptions {
     constructor() {
         this.template = require("./toolbar.html");
         this.controller = ToolbarCtrl;
-        this.require = '^parent';
+        this.require = "^parent";
     }
 }
 
-class ToolbarCtrl implements IToolbarController{
+class ToolbarCtrl implements IToolbarController {
 
-    static $inject = ['localization', '$window'] 
+    static $inject = ["localization", "$window"];
 
     constructor(private localization: ILocalizationService, private $window: ng.IWindowService) {
     }
-    add(): void {
-        
-    }
-    clear(): void {
 
+    add(): void {
     }
+
+    clear(): void {
+    }
+
     execute(evt: any): void {
         evt.preventDefault();
         alert(evt.currentTarget.innerText);
     }
-
 }

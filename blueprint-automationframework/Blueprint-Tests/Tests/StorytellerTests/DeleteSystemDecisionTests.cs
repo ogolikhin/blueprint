@@ -342,8 +342,11 @@ namespace StorytellerTests
                 StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
                     _storyteller, _project, _user);
 
+            // Find the default UserTask
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
             // Find the system decision to delete from the updated process
-            var rootSystemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+            var rootSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
 
             // Find the branch end point for system decision points
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);

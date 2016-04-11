@@ -87,6 +87,10 @@ export class LoginCtrl {
         this.enableSAMLScreen = true;
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
+
+        if(!this.novaCurrentPassword) this.novaCurrentPassword = '';
+        if(!this.novaNewPassword) this.novaNewPassword = '';
+        if(!this.novaConfirmNewPassword) this.novaConfirmNewPassword = '';
     }
 
     private transitionToState(state: LoginState) {
@@ -147,21 +151,24 @@ export class LoginCtrl {
     }
 
     public changePassword(): void {
+        this.changePasswordScreenError = false;
+        this.changePasswordCurrentPasswordError = false;
+        this.changePasswordNewPasswordError = false;
+        this.changePasswordConfirmPasswordError = false;
+
         if (this.novaNewPassword.length < 8) {
-            this.changePasswordScreenMessage = "New password must be at least 8 characters long";
+            this.changePasswordScreenMessage = this.localization.get('Login_Session_NewPasswordMinLength');
             this.changePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
-            this.changePasswordConfirmPasswordError = true;
             return;
         } else if (this.novaNewPassword.length > 128) {
-            this.changePasswordScreenMessage = "New password must be at most 128 characters long";
+            this.changePasswordScreenMessage = this.localization.get('Login_Session_NewPasswordMaxLength');
             this.changePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
-            this.changePasswordConfirmPasswordError = true;
             return;
         }
         if (this.novaNewPassword != this.novaConfirmNewPassword) {
-            this.changePasswordScreenMessage = "Confirm password does not match new password";
+            this.changePasswordScreenMessage = this.localization.get('Login_Session_PasswordConfirmMismatch');
             this.changePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
             this.changePasswordConfirmPasswordError = true;
@@ -170,13 +177,10 @@ export class LoginCtrl {
 
         this.session.resetPassword(this.novaUsername, this.novaCurrentPassword, this.novaNewPassword).then(
             () => {
-                this.changePasswordScreenMessage = "Password changed successfully";
-                this.errorMsg = "Password changed successfully";
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_PasswordChangedSuccessfully');
+                this.errorMsg = this.localization.get('Login_Session_PasswordChangedSuccessfully');
                 this.labelError = false;
                 this.fieldError = false;
-                this.changePasswordScreenError = false;
-                this.changePasswordNewPasswordError = false;
-                this.changePasswordConfirmPasswordError = false;
 
                 this.transitionToState(LoginState.LoginForm);
             },
@@ -193,11 +197,11 @@ export class LoginCtrl {
     private handlePasswordResetErrors(error) {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
-                this.changePasswordScreenMessage = this.localization.get('Login_Session_CredentialsInvalid');
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_EnterCurrentPassword');
             } else if (error.errorCode === 2001) {
                 this.changePasswordScreenMessage = this.localization.get('Login_Session_AccountDisabled');
             } else if (error.errorCode === 2003) {
-                this.changePasswordScreenMessage = this.localization.get('Login_Session_CredentialsCannotBeEmpty');
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_CurrentPasswordCannotBeEmpty');
             } else {
                 this.changePasswordScreenMessage = "authorization exception: "+error.message;
             }
@@ -206,19 +210,23 @@ export class LoginCtrl {
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
         } else if (error.statusCode === 400) {
+            this.changePasswordScreenError = true;
+            this.changePasswordCurrentPasswordError = false;
+            this.changePasswordNewPasswordError = false;
+            this.changePasswordConfirmPasswordError = false;
             if (error.errorCode === 4000) {
-                this.changePasswordScreenMessage = "New password cannot be empty";
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_NewPasswordCannotBeEmpty');
+                this.changePasswordNewPasswordError = true;
             } else if (error.errorCode === 4001) {
-                this.changePasswordScreenMessage = "New password cannot be the same as the old one";
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_NewPasswordSameAsOld');
+                this.changePasswordCurrentPasswordError = true;
+                this.changePasswordNewPasswordError = true;
             } else if (error.errorCode === 4002) {
-                this.changePasswordScreenMessage = "New password must contain at least one capital letter, number and symbol";
+                this.changePasswordScreenMessage = this.localization.get('Login_Session_NewPasswordCriteria');
+                this.changePasswordNewPasswordError = true;
             } else {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
-            this.changePasswordScreenError = true;
-            this.changePasswordCurrentPasswordError = false;
-            this.changePasswordNewPasswordError = true;
-            this.changePasswordConfirmPasswordError = true;
         } else {
             this.changePasswordScreenError = false;
             this.changePasswordCurrentPasswordError = false;

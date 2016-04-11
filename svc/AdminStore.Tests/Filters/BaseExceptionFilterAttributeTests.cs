@@ -8,12 +8,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Controllers;
+using ServiceLibrary.Repositories.ConfigControl;
+using Moq;
 
 namespace AdminStore.Filters
 {
     [TestClass]
     public class BaseExceptionFilterAttributeTests
     {
+        private Mock<IServiceLogRepository> _mockServiceLogRepository ;
+        private Mock<ApiController> _mockController;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            _mockController = new Mock<ApiController>();
+        }
+
         private async Task TestOnExceptionAsync(Exception ex, HttpStatusCode expectedStatusCode)
         {
             //Arrange
@@ -23,9 +35,7 @@ namespace AdminStore.Filters
             request.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
             var contextAction = ContextUtil.GetActionExecutedContext(request, null, "Controller", typeof(InstanceController));
 
-
-            var controller = new InstanceController();
-            contextAction.ActionContext.ControllerContext.Controller = controller;
+            contextAction.ActionContext.ControllerContext.Controller = _mockController.Object;
             contextAction.Exception = ex;
 
             //Act
@@ -61,9 +71,19 @@ namespace AdminStore.Filters
         }
 
         [TestMethod]
-        public async Task OnExceptionAsync_UnknownException()
+        public async Task OnExceptionAsync_UnknownException_LogError()
         {
-            await TestOnExceptionAsync(new Exception(), HttpStatusCode.InternalServerError);
+            //Arrange
+            var exception = new Exception();
+            var logSource = "source";
+            _mockController.As<ILoggable>().SetupGet(c => c.LogSource).Returns(logSource);
+            _mockController.As<ILoggable>().SetupGet(c => c.Log).Returns(_mockServiceLogRepository.Object);
+
+            //Act
+            await TestOnExceptionAsync(exception, HttpStatusCode.InternalServerError);
+
+            //Assert
+            _mockServiceLogRepository.Verify(l => l.LogError(logSource, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         }
     }
 }

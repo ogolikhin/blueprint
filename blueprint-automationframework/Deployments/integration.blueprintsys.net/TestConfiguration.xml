@@ -4,8 +4,8 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://integration.blueprintsys.net" />
-    <Service name="AccessControl" address="http://integration.blueprintsys.net:82" />
-    <Service name="ConfigControl" address="http://integration.blueprintsys.net:82" />
+    <Service name="AccessControl" address="http://integration.blueprintsys.net:83" />
+    <Service name="ConfigControl" address="http://integration.blueprintsys.net:83" />
     <Service name="FileStore"     address="http://integration.blueprintsys.net" />
     <Service name="Storyteller"   address="http://integration.blueprintsys.net" />
   </BlueprintServices>

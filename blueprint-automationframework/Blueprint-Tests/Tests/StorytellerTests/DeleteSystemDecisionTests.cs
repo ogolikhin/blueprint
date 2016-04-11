@@ -157,7 +157,7 @@ namespace StorytellerTests
                      "outer branch of another sytem decision. Verfiy that the returned process has" +
                      "the inner system decision removed with all branches except the main branch." +
                      "The outer system decision and branch must remain present.")]
-        public void DeleteInnerSystenDecisionContainedWithinMainBranchOfOuterSystemDecision_VerifyReturnedProcess()
+        public void DeleteInnerSystemDecisionContainedWithinMainBranchOfOuterSystemDecision_VerifyReturnedProcess()
         {
             /*
             If you start with this:
@@ -183,11 +183,7 @@ namespace StorytellerTests
             var targetLink = returnedProcess.GetIncomingLinkForShape(defaultSystemTask);
 
             // Find the inner system decision before the defaut system task
-            var innerSystemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).Find(
-                    sd => sd.Id.Equals(targetLink.SourceId));
-
-            // Find the inner system decision to delete from the updated process
-            var innerSystemDecisionToDelete = returnedProcess.GetProcessShapeByShapeName(innerSystemDecision.Name);
+            var innerSystemDecisionToDelete = returnedProcess.GetProcessShapeById(targetLink.SourceId);
 
             // Find the branch end point for system decision points
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
@@ -227,10 +223,7 @@ namespace StorytellerTests
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Find the inner system decision before the defaut system task
-            var outerSystemDecision = returnedProcess.GetNextShape(defaultUserTask);
-
-            // Find the outer system decision to delete from the updated process
-            var outerSystemDecisionToDelete = returnedProcess.GetProcessShapeByShapeName(outerSystemDecision.Name);
+            var outerSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
 
             // Find the branch end point for system decision points
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
@@ -254,7 +247,7 @@ namespace StorytellerTests
                                   |              |
                                   +----+--[ST2]--+
                                   |              |
-                                  +----+--[ST3]--+
+                                  +----+--[ST3]--+    <--- additionalBranches: 1
 
             It becomes this:
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
@@ -262,7 +255,7 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess =
                 StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions(
-                    _storyteller, _project, _user, 1);
+                    _storyteller, _project, _user, additionalBranches: 1);
 
             // Find the system decision to delete from the updated process
             var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
@@ -300,14 +293,11 @@ namespace StorytellerTests
             */
             // Create and get the default process with System Decision which contains another System Decision on the second branch
             var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainsSystemDecisionOnBranch(
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
                     _storyteller, _project, _user);
 
             // Find the default UserTask
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing process link from the default user task
             var defaultUserTaskOutgoingProcessLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask);
@@ -317,6 +307,9 @@ namespace StorytellerTests
 
             // Find the system decision on the second branch for deletion
             var nestedSystemDecisionToDelete = returnedProcess.GetProcessShapeById(branchingProcessLink.DestinationId);
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the nested system decision that merges before the end point
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(nestedSystemDecisionToDelete, endShape);
@@ -346,14 +339,14 @@ namespace StorytellerTests
             */
             // Create and get the default process with System Decision which contains another System Decision on the second branch
             var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainsSystemDecisionOnBranch(
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
                     _storyteller, _project, _user);
-
-            // Find the branch end point for system decision points
-            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the system decision to delete from the updated process
             var rootSystemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the root system decision that merges before the end point
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(rootSystemDecisionToDelete, endShape);

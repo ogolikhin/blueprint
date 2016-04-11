@@ -17,7 +17,7 @@ namespace Helper
         /// <summary>
         /// Asserts that the two Processes are identical.
         /// </summary>
-        /// <param name="process1">First Process</param>
+        /// <param name="process1">First Process</param>CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions
         /// <param name="process2">Second Process being compared to the first</param>
         /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
         /// <exception cref="AssertionException">If process1 is not identical to process2</exception>
@@ -186,15 +186,8 @@ namespace Helper
             // Add Decision point with branch to end
             process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -235,15 +228,8 @@ namespace Helper
             // Add System Decision point with branch merging to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -252,10 +238,10 @@ namespace Helper
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="project">The project where the process artifact is created</param>
         /// <param name="user">The user creating the process artifact</param>
-        /// <param name="additionalBranch">The number of additional branch for the system decision</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the system decision (main branch and first additional branch created with the system decision)</param>
         /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
         /// <returns>The created process</returns>
-        public static IProcess CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions(IStoryteller storyteller, IProject project, IUser user, int additionalBranch, bool updateProcess = true)
+        public static IProcess CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions(IStoryteller storyteller, IProject project, IUser user, int additionalBranches, bool updateProcess = true)
         {
             /*
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--[E]
@@ -270,41 +256,31 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(storyteller, project, user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
+                updateProcess: false);
 
             // Find the default UserTask
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
-
-            // Find the branch end point for system decision points
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
-
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
-
-            // Add System Decision point with branch merging to branchEndPoint
-            var systemDecision = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape.Id);
 
             // branchOrderIndex for existing system decision
             var defaultAdditionalBranchOrderIndex = defaultUserTaskOutgoingProcessLink.Orderindex + 2;
 
-            for (int i = 0; i < additionalBranch; i++)
+            // Find the System Decision point with branch merging to branchEndPoint
+            var systemDecision = process.GetProcessShapeById(defaultUserTaskOutgoingProcessLink.DestinationId);
+
+            // Find the branch end point for system decision points
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            for (int i = 0; i < additionalBranches; i++)
             {
-                // Add additonal branch to the System Decision
-                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + additionalBranch, endShape.Id);
+                // Add branch to the existing System Decision
+                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + additionalBranches, endShape.Id);
             }
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -330,13 +306,11 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(storyteller, project, user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
+                updateProcess: false);
 
             // Find the default UserTask
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find the default SystemTask
-            var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
 
             // Find the branch end point for system decision points
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
@@ -344,23 +318,15 @@ namespace Helper
             // Find the outgoing process link from the default user task
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add the system decision before the defaut system task
-            var innerSystemDecision = process.AddSystemDecisionPointWithBranchBeforeSystemTask(defaultSystemTask,
-                defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape.Id);
+            // Find the system decision before the defaut system task
+            var innerSystemDecision = process.GetProcessShapeById(defaultUserTaskOutgoingProcessLink.DestinationId);
 
             // Add the system decision before the added system decision
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(innerSystemDecision,
                 defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
 
@@ -372,7 +338,7 @@ namespace Helper
         /// <param name="user">The user creating the process artifact</param>
         /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
         /// <returns>The created process</returns>
-        public static IProcess CreateAndGetDefaultProcessWithSystemDecisionContainsSystemDecisionOnBranch(IStoryteller storyteller, IProject project, IUser user, bool updateProcess = true)
+        public static IProcess CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(IStoryteller storyteller, IProject project, IUser user, bool updateProcess = true)
         {
             /*
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]---------+--[E]
@@ -415,15 +381,8 @@ namespace Helper
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheSecondBranch,
                 defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -470,15 +429,8 @@ namespace Helper
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -530,20 +482,11 @@ namespace Helper
             // Find the second system task on the main branch added with additonal user task 
             var secondSystemTaskOnMainBranch = process.GetNextShape(addedUserTask);
 
-            endShape = process.GetProcessShapeByShapeName(Process.EndName);
-
             // Add the second System Decision with branch merging to addedUserTask
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(secondSystemTaskOnMainBranch, defaultUserTaskOutgoingProcessLink.Orderindex + 1, endShape.Id);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         /// <summary>
@@ -575,15 +518,8 @@ namespace Helper
 
             process.AddUserAndSystemTask(endPointIncomingLink);
 
-            if (!updateProcess)
-            {
-                return process;
-            }
-
-            // Save the process
-            var updatedProcess = storyteller.UpdateProcess(user, process);
-
-            return updatedProcess;
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
         #endregion Public Methods

@@ -127,7 +127,8 @@ export class AuthSvc implements IAuth {
                     .error((err: any, statusCode: number) => {
                         var error = {
                             statusCode: statusCode,
-                            message: this.getLoginErrorMessage(err)
+                            message: this.getLoginErrorMessage(err),
+                            errorCode: err.ErrorCode
                         };
                         deferred.reject(error);
                     });

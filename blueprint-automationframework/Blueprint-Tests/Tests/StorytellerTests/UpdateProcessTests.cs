@@ -944,8 +944,10 @@ namespace StorytellerTests
             var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
             Assert.DoesNotThrow(() =>
             {
-                OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemID: unpublishedUserTask.Id,
+                var discussions = OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemID: unpublishedUserTask.Id,
                 includeDraft: true, user: _user);
+                Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
+                Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");
             }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");
         }
 

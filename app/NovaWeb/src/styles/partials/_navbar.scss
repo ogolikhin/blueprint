@@ -1,8 +1,3 @@
-//dimensions
-$navbar-height: 40px;
-$navbar-toolbar-height: 46px;
-$navbar-color: #01206a;
-
 .navbar {
   border: 0;
   margin: 0;
@@ -69,6 +64,7 @@ $navbar-color: #01206a;
   .navbar-toolbar {
     background: $gray-lighter;
     height: $navbar-toolbar-height;
+    padding: 0 0 0 6px;
 
     .navbar-nav {
       float: left;
@@ -93,9 +89,8 @@ $navbar-color: #01206a;
         color: $gray-dark;
         height: $navbar-toolbar-height;
         line-height: normal;
-        padding: 6px 0 0;
+        padding: 6px 4px 0;
         text-align: center;
-        width: 44px;
 
         .fonticon::before {
           font-size: $font-size-biggest;
@@ -108,8 +103,10 @@ $navbar-color: #01206a;
 
         span {
           display: block;
-          font-size: $font-size-micro;
+          font-size: $font-size-nano;
+          font-weight: 700;
           margin-top: -3px;
+          white-space: nowrap;
         }
       }
 

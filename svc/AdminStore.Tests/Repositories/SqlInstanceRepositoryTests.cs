@@ -18,12 +18,12 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            int id = 99;
-            InstanceItem[] result = { new InstanceItem { Id = id, Name = "Blueprint", ParentFolderId = 88} };
-            cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", id } }, result);
+            int folderId = 99;
+            InstanceItem[] result = { new InstanceItem { Id = folderId, Name = "Blueprint", ParentFolderId = 88} };
+            cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", folderId } }, result);
 
             // Act
-            var folder = await repository.GetInstanceFolderAsync(id);
+            var folder = await repository.GetInstanceFolderAsync(folderId);
 
             // Assert
             cxn.Verify();
@@ -38,19 +38,19 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            int id = 99;
+            int folderId = 99;
             InstanceItem[] result = null;
-            cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", id } }, result);
+            cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", folderId } }, result);
 
             // Act
-            var folder = await repository.GetInstanceFolderAsync(id);
+            var folder = await repository.GetInstanceFolderAsync(folderId);
 
             // Assert
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetInstanceFolderAsync_InvalidId()
+        public async Task GetInstanceFolderAsync_InvalidFolderId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -58,6 +58,61 @@ namespace AdminStore.Repositories
 
             // Act
             var folder = await repository.GetInstanceFolderAsync(0);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task GetInstanceFolderChildrenAsync_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int folderId = 99;
+            int userId = 10;
+            InstanceItem[] result =
+            {
+                new InstanceItem { Id = 10, Name = "z", Type = InstanceItemTypeEnum.Project },
+                new InstanceItem { Id = 11, Name = "y", Type = InstanceItemTypeEnum.Project },
+                new InstanceItem { Id = 12, Name = "b", Type = InstanceItemTypeEnum.Folder },
+                new InstanceItem { Id = 13, Name = "a", Type = InstanceItemTypeEnum.Folder },
+            };
+            cxn.SetupQueryAsync("GetInstanceFolderChildren", new Dictionary<string, object> { { "folderId", folderId }, { "userId", userId } }, result);
+
+            // Act
+            var children = await repository.GetInstanceFolderChildrenAsync(folderId, userId);
+
+            // Assert
+            cxn.Verify();
+            var expected = result.OrderBy(i => i.Type).ThenBy(i => i.Name).Select(i => i.Id).ToList();
+            var actual = children.Select(i => i.Id).ToList();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceFolderChildrenAsync_InvalidFolderId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceFolderChildrenAsync(0, 10);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceFolderChildrenAsync_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceFolderChildrenAsync(10, 0);
 
             // Assert
         }

@@ -47,7 +47,7 @@ namespace ServiceLibrary.Attributes
 
             try
             {
-                actionContext.Request.Properties["Session"] = await GetAccessAsync(actionContext.Request);
+                actionContext.Request.Properties[ServiceConstants.SessionProperty] = await GetAccessAsync(actionContext.Request);
             }
             catch (ArgumentNullException)
             {

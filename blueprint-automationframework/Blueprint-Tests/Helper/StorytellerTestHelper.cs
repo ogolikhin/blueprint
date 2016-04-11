@@ -261,6 +261,9 @@ namespace Helper
                                |                        |    |                        |
                                +-------[UT5]--+--[ST6]--+    +-------[UT7]--+--[ST8]--+
             */
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
             ThrowIf.ArgumentNull(project, nameof(project));
@@ -277,6 +280,9 @@ namespace Helper
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetNextShape(preconditionTask);
+
+            // Add user and system task before existing user decision
+            process.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Add Decision point with branch after precondition
             process.AddUserDecisionPointWithBranchAfterShape(

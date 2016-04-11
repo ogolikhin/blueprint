@@ -6,6 +6,9 @@ using System.Data.SqlClient;
 using System.Globalization;
 using Model.Factories;
 using Utilities;
+using System.Net;
+using Utilities.Facades;
+using Model.Impl;
 
 namespace Model.OpenApiModel.Impl
 {
@@ -20,6 +23,16 @@ namespace Model.OpenApiModel.Impl
 
     public class OpenApiProperty : IOpenApiProperty
     {
+        #region Constants
+
+        private const string SVC_PATH = "api/v1/projects";
+        private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
+        public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
+        #endregion Constants
+
+        #region Properties
+
         public int PropertyTypeId { get; set; }
         public string Name { get; set; }
         public string BasePropertyType { get; set; }
@@ -30,79 +43,71 @@ namespace Model.OpenApiModel.Impl
         public List<UsersAndGroups> UsersAndGroups { get; set; }
         public List<object> Choices { get; }
         public string DateValue { get; set; }
+        public string Address { get; set; }
 
-        /// TODO: need to be updated for future script update
+        #endregion Properties
+
         /// <summary>
-        /// Create a property object based on the information from DB</summary>
-        /// <param name="project">project Id</param>
-        /// <param name="propertyName">property Name</param>
-        /// <param name="propertyValue">(optional) property Name</param>
-        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
-        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null)
+        /// Constructor.
+        /// </summary>
+        /// <param name="address">The address of the OpenApiPropertyProperty.</param>
+        public OpenApiProperty(string address)
         {
-            ThrowIf.ArgumentNull(project, nameof(project));
-
-            OpenApiProperty property = null;
-
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
-            {
-                string query = "SELECT PropertyTypeId, RichText, Name FROM dbo.TipPropertyTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
-                Logger.WriteDebug("Running: {0}", query);
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-                    cmd.Parameters.Add("@Project_ItemId", SqlDbType.Int).Value = project.Id;
-                    cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = propertyName;
-                    cmd.CommandType = CommandType.Text;
-
-                    try
-                    {
-                        SqlDataReader reader;
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Read();
-                            }
-                            string querybasePropertyType = "Text";
-                            string querytextOrChoiceValue = propertyValue ?? "DefaultValue";
-                            int querypropertyTypeId = int.Parse(reader["PropertyTypeId"].ToString(), CultureInfo.InvariantCulture);
-                            string queryname = reader["Name"].ToString();
-
-                            property = new OpenApiProperty
-                            {
-                                PropertyTypeId = querypropertyTypeId,
-                                Name = queryname,
-                                BasePropertyType = querybasePropertyType,
-                                TextOrChoiceValue = querytextOrChoiceValue,
-                                IsRichText = true,
-                                IsReadOnly = false
-                            };
-                        }
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Logger.WriteError("No Property is available which matches with condition. Exception details - {0}", ex);
-                    }
-                }
-            }
-            return property;
+            Address = address;
         }
-        public OpenApiProperty SetPropertyValue(IProject project, BaseArtifactType artifactType,
-    string propertyValue = null)
+
+        /// TODO: Is there any way to improve the performance for get artifactTypes call
+        public OpenApiProperty SetPropertyAttribute(
+            IProject project,
+            IUser user,
+            BaseArtifactType baseArtifactType,
+            string propertyName,
+            string propertyValue = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false
+            )
         {
-            OpenApiProperty property = new OpenApiProperty
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
             {
-                PropertyTypeId = 1,
-                Name = "",
-                BasePropertyType = "",
-                TextOrChoiceValue = "",
-                IsReadOnly = false,
-                IsRichText = false
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
+            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PATH, project.Id, URL_ARTIFACTTYPES);
+
+            var artifactTypes = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+
+            // Retrieve the deserialized artifact type list for the project 
+            var deserializedArtifactTypes = Deserialization.DeserializeObject<List<ArtifactType>>(artifactTypes.Content);
+
+            // Retrive the deserialized artifactType for the selected base artifact type
+            var deserializedArtifactTypeForBaseArtifactType = deserializedArtifactTypes.Find(at => at.BaseArtifactType.Equals(baseArtifactType));
+
+            // Retrieve the deserialized property for the selected base artifact type
+            var deserializedReturnedProperty = deserializedArtifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
+
+            // Created and update the property based on information from get artifact types call and user parameter
+            var updatedProperty = new OpenApiProperty(Address)
+            {
+                PropertyTypeId = deserializedReturnedProperty.Id,
+                Name = deserializedReturnedProperty.Name,
+                BasePropertyType = deserializedReturnedProperty.BasePropertyType,
+                // Set the value for the property with propertyValue parameter
+                TextOrChoiceValue = propertyValue ?? deserializedReturnedProperty.DefaultValue,
+                IsRichText = deserializedReturnedProperty.IsRichText,
+                IsReadOnly = deserializedReturnedProperty.IsReadOnly
             };
 
-            return property;
+            return updatedProperty;
         }
     }
 

@@ -48,10 +48,11 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
-            //_artifact.Properties.Add(property.SetPropertyValue(_project, BaseArtifactType.Actor, "value"));
-
+            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            
+            //Set property value
+            _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
+            
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
@@ -71,8 +72,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "DescriptionValue"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
@@ -97,8 +98,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(_project, "Description", "DescriptionValue"));
+            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "DescriptionValue"));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
@@ -127,8 +128,8 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
-            IOpenApiProperty property = new OpenApiProperty();
-            _artifact.Properties.Add(property.GetProperty(_project, "Description", text));
+            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: text));
 
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;

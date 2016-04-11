@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="DeleteDecisionBranchValidationTests.cs" />
     <Compile Include="DeleteSystemDecisionBranchTests.cs" />
+    <Compile Include="DeleteSystemDecisionTests.cs" />
     <Compile Include="DragAndDropTests.cs" />
     <Compile Include="DeleteUserDecisionBranchTests.cs" />
     <Compile Include="DeleteUserDecisionTests.cs" />

@@ -15,5 +15,7 @@ namespace AdminStore.Repositories
         Task<int> GetEffectiveUserLicenseAsync(int userId);
 
         Task UpdateUserOnInvalidLoginAsync(AuthenticationUser login);
+
+        Task UpdateUserOnPasswordResetAsync(AuthenticationUser user);
     }
 }

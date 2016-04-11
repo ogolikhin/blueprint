@@ -19,6 +19,7 @@ namespace AdminStore.Controllers
     {
         private Mock<ISqlUserRepository> _usersRepoMock;
         private Mock<IServiceLogRepository> _logMock;
+        private Mock<IAuthenticationRepository> _authRepoMock;
         private UsersController _controller;
 
         [TestInitialize]
@@ -27,7 +28,8 @@ namespace AdminStore.Controllers
             var session = new Session { UserId = 1 };
             _usersRepoMock = new Mock<ISqlUserRepository>();
             _logMock = new Mock<IServiceLogRepository>();
-            _controller = new UsersController(_usersRepoMock.Object, _logMock.Object)
+            _authRepoMock = new Mock<IAuthenticationRepository>();
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

@@ -11,7 +11,6 @@ using System.Linq;
 
 namespace StorytellerTests
 {
-    [Ignore]
     [TestFixture]
     [Category(Categories.Storyteller)]
     public class DeleteSystemDecisionTests
@@ -102,10 +101,20 @@ namespace StorytellerTests
             It becomes this:
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-            // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            // Create and get the default process with one system decision
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(_storyteller, _project, _user);
+
+            // Find the system decision to delete from the updated process
+            var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+
+            // Find the branch end shape for system decision
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the specified system decision
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -122,14 +131,24 @@ namespace StorytellerTests
                                   +----+--[ST2]--+           +----+--[ST4]--+
             
             It becomes this:
-            [S]--[P]--+--[UT1]--+--[ST1]--+--[UT2]--[SD2]--+--[ST3]--+--[E]
-                                                      |              |          |
+            [S]--[P]--+--[UT1]--+--[ST1]--+--[UT2]--<SD2>--+--[ST3]--+--[E]
+                                                      |              |
                                                       +----+--[ST4]--+  
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-            // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialSystemDecisions(_storyteller, _project, _user);
+
+            // Find the first system decision to delete from the updated process
+            var firstSystemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
+
+            // Merge point for first system decision is the second system decision on the process
+            var mergePointForFirstSystemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Find(
+                    ut => !ut.Name.Equals(Process.DefaultUserTaskName));
+
+            // Delete the first system decision that merges before the added user task
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(firstSystemDecisionToDelete, mergePointForFirstSystemDecision);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
 
@@ -138,7 +157,7 @@ namespace StorytellerTests
                      "outer branch of another sytem decision. Verfiy that the returned process has" +
                      "the inner system decision removed with all branches except the main branch." +
                      "The outer system decision and branch must remain present.")]
-        public void DeleteInnerSystenDecisionContainedWithinMainBranchOfOuterSystemDecision_VerifyReturnedProcess()
+        public void DeleteInnerSystemDecisionContainedWithinMainBranchOfOuterSystemDecision_VerifyReturnedProcess()
         {
             /*
             If you start with this:
@@ -153,10 +172,27 @@ namespace StorytellerTests
                                   |              |
                                   +----+--[ST3]--+            
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-            // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            // Create and get the default process with inner and outer system decisions
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(_storyteller,
+                _project, _user);
+
+            // Find the default SystemTask
+            var defaultSystemTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+
+            // Find link between the inner system decision and the default system task
+            var targetLink = returnedProcess.GetIncomingLinkForShape(defaultSystemTask);
+
+            // Find the inner system decision before the defaut system task
+            var innerSystemDecisionToDelete = returnedProcess.GetProcessShapeById(targetLink.SourceId);
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the inner system decision that merges before the end point
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(innerSystemDecisionToDelete, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -179,10 +215,24 @@ namespace StorytellerTests
                                   |              |
                                   +----+--[ST2]--+            
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            // Create and get the default process with inner and outer system decisions
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(_storyteller,
+                _project, _user);
+
             // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the inner system decision before the defaut system task
+            var outerSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the outer system decision that merges before the end point
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(outerSystemDecisionToDelete, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
         [TestCase]
@@ -197,44 +247,24 @@ namespace StorytellerTests
                                   |              |
                                   +----+--[ST2]--+
                                   |              |
-                                  +----+--[ST3]--+
+                                  +----+--[ST3]--+    <--- additionalBranches: 1
 
             It becomes this:
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
-
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var returnedProcess =
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions(
+                    _storyteller, _project, _user, additionalBranches: 1);
 
-            // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
+            // Find the system decision to delete from the updated process
+            var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the branch end point for system decision points
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
-
-            // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
-
-            // Add System Decision point with branch merging to branchEndPoint
-            var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
-
-            // Add additonal branch to the System Decision point
-            process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecisionPoint, defaultUserTaskOutgoingProcessLink.Orderindex + 2, branchEndPoint.Id);
-
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
-
-            // Verified 
-            var systemDecisionPointToDelete = returnedProcess.GetProcessShapeByShapeName(systemDecisionPoint.Name);
-
-            // Merge point for the outer user decision is the process end point
-            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Delete the specified system decision
-            returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(systemDecisionPointToDelete, endShape);
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
@@ -261,10 +291,31 @@ namespace StorytellerTests
                                   |              |
                                   +----+--[ST2]--+
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            // Create and get the default process with System Decision which contains another System Decision on the second branch
+            var returnedProcess =
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
+                    _storyteller, _project, _user);
+
             // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the outgoing process link from the default user task
+            var defaultUserTaskOutgoingProcessLink = returnedProcess.GetOutgoingLinkForShape(defaultUserTask);
+
+            // Find the link between the system decision point and the System task on the second branch
+            var branchingProcessLink = returnedProcess.Links.Find(l => l.Orderindex.Equals(defaultUserTaskOutgoingProcessLink.Orderindex + 1));
+
+            // Find the system decision on the second branch for deletion
+            var nestedSystemDecisionToDelete = returnedProcess.GetProcessShapeById(branchingProcessLink.DestinationId);
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the nested system decision that merges before the end point
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(nestedSystemDecisionToDelete, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
 
@@ -286,10 +337,25 @@ namespace StorytellerTests
             It becomes this:
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            // Create and get the default process with System Decision which contains another System Decision on the second branch
+            var returnedProcess =
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
+                    _storyteller, _project, _user);
+
             // Find the default UserTask
-            process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+
+            // Find the system decision to delete from the updated process
+            var rootSystemDecisionToDelete = returnedProcess.GetNextShape(defaultUserTask);
+
+            // Find the branch end point for system decision points
+            var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
+
+            // Delete the root system decision that merges before the end point
+            returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(rootSystemDecisionToDelete, endShape);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
     }
 }

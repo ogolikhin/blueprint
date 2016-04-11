@@ -59,5 +59,14 @@ namespace AdminStore.Repositories
             prm.Add("@LastInvalidLogonTimeStamp", user.LastInvalidLogonTimeStamp);
             await _connectionWrapper.ExecuteAsync("UpdateUserOnInvalidLogin", prm, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task UpdateUserOnPasswordResetAsync(AuthenticationUser user)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@Login", user.Login);
+            prm.Add("@Password", user.Password);
+            prm.Add("@UserSALT", user.UserSalt);
+            await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", prm, commandType: CommandType.StoredProcedure);
+        }
     }
 }

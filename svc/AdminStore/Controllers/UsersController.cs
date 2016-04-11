@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Security.Authentication;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Filters;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
+using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -15,15 +19,17 @@ namespace AdminStore.Controllers
     [RoutePrefix("users")]
     public class UsersController : ApiController
     {
+        internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
         internal readonly IServiceLogRepository _log;
 
-        public UsersController() : this(new SqlUserRepository(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new ServiceLogRepository())
         {
         }
 
-        internal UsersController(ISqlUserRepository userRepository, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, IServiceLogRepository log)
         {
+            _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
             _log = log;
         }
@@ -64,6 +70,29 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
             }
+        }
+
+        /// <summary>
+        /// PostResetPassword
+        /// </summary>
+        /// <remarks>
+        /// Reset password to the new provided one.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad request. The new password is not valid.</response>
+        /// <response code="401">Unauthorized. The old password is not valid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("reset"), NoSessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [BaseExceptionFilter]
+        public async Task PostReset(string login, [FromBody]ResetPostContent body)
+        {
+            var decodedLogin = SystemEncryptions.Decode(login);
+            var decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
+            var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
+            var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
+            await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
         }
     }
 }

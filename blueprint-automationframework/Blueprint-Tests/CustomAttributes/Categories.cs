@@ -22,6 +22,8 @@ namespace CustomAttributes
         /// </summary>
         public const string InjectsErrorsIntoAccessControl = "InjectsErrorsIntoAccessControl";
 
+        public const string LoggingDatabase = "LoggingDatabase";
+
         public const string OpenApi = "OpenApi";
         public const string Storyteller = "Storyteller";
     }

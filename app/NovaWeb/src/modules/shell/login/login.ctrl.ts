@@ -167,7 +167,12 @@ export class LoginCtrl {
         this.changePasswordNewPasswordError = false;
         this.changePasswordConfirmPasswordError = false;
 
-        if (this.novaNewPassword.length < 8) {
+        if (this.novaCurrentPassword.length === 0) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_CurrentPasswordCannotBeEmpty");
+            this.changePasswordScreenError = true;
+            this.changePasswordCurrentPasswordError = true;
+            return;
+        } else if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.changePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;

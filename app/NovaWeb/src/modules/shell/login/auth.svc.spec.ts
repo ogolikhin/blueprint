@@ -319,5 +319,57 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
+
+    });
+
+    describe("resetPassword", () => {
+        it("respond with success", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            var login = "admin";
+            var oldPassword = "changeme";
+            var newPassword = "123EWQ!@#";
+
+            var encUserName = AuthSvc.encode(login);
+            var encOldPassword = AuthSvc.encode(oldPassword);
+            var encNewPassword = AuthSvc.encode(newPassword);
+            $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }))
+                .respond(200);
+            
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.resetPassword(login, oldPassword, newPassword).then(() => {}, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBe(undefined, "responce got error");
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("respond with error", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $window: ng.IWindowService) => {
+            // Arrange
+            var login = "admin";
+            var oldPassword = "changeme";
+            var newPassword = "123EWQ!@#";
+            var errorMsg = "unauthorized error";
+
+            var encUserName = AuthSvc.encode(login);
+            var encOldPassword = AuthSvc.encode(oldPassword);
+            var encNewPassword = AuthSvc.encode(newPassword);
+            $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }))
+                .respond(401, { Message: errorMsg});
+            
+            // Act
+            var error: any;
+            var user: IUser;
+            var result = auth.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error.message).toBe(errorMsg);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
     });
 });

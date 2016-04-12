@@ -3,6 +3,7 @@ import "angular-mocks"
 import {ILocalizationService} from "../../core/localization";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {IUser, IAuth} from "./auth.svc";
+import {ISession} from "./session.svc";
 
 export class LocalizationServiceMock implements ILocalizationService {
     public get(name: string): string {
@@ -27,6 +28,48 @@ export class ConfigValueHelperMock implements IConfigValueHelper {
 export class WindowMock {
     public location = { origin: "http://localhost:9876" };
     public open() { }
+}
+
+export class SessionSvcMock implements ISession {
+
+    public static $inject = ["$q"];
+    public currentUser: IUser;
+
+    constructor(private $q: ng.IQService) {
+    }
+
+    public ensureAuthenticated() {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public logout() {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public login(username: string, password: string, overrideSession: boolean) {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public loginWithSaml(overrideSession: boolean) {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public resetPassword(login: string, oldPassword: string, newPassword: string) {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
 }
 
 export class AuthSvcMock implements IAuth {

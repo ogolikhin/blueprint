@@ -203,6 +203,7 @@ export class LoginCtrl {
     }
 
     private handlePasswordResetErrors(error) {
+        this.changePasswordScreenError = true;
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_EnterCurrentPassword");
@@ -213,12 +214,10 @@ export class LoginCtrl {
             } else {
                 this.changePasswordScreenMessage = "authorization exception: " + error.message;
             }
-            this.changePasswordScreenError = true;
             this.changePasswordCurrentPasswordError = true;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
         } else if (error.statusCode === 400) {
-            this.changePasswordScreenError = true;
             this.changePasswordCurrentPasswordError = false;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
@@ -236,7 +235,7 @@ export class LoginCtrl {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
         } else {
-            this.changePasswordScreenError = false;
+            this.changePasswordScreenMessage = error.message;
             this.changePasswordCurrentPasswordError = false;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;

@@ -189,6 +189,8 @@ export class LoginCtrl {
                 this.fieldError = false;
 
                 this.transitionToState(LoginState.LoginForm);
+
+                this.enableChangePasswordScreen = false;
             },
             (error) => {
                 this.handlePasswordResetErrors(error);
@@ -255,6 +257,7 @@ export class LoginCtrl {
                 this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
                 this.fieldError = false;
                 this.enableChangePasswordScreen = true;
+                this.changePasswordScreenError = true;
                 this.transitionToState(LoginState.ChangePasswordForm);
             } else if (error.errorCode === 2003) {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");

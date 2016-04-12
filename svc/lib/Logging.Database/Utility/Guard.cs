@@ -59,5 +59,22 @@ namespace Logging.Database.Utility
                 }
             }
         }
+
+        /// <summary>
+        /// Throws an exception if the argumentValue is less than lowerValue.
+        /// </summary>
+        /// <typeparam name="T">A type that implements <see cref="IComparable"/>.</typeparam>
+        /// <param name="lowerValue">The lower value accepted as valid.</param>
+        /// <param name="argumentValue">The argument value to test.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Validation error.</exception>
+        public static void ArgumentGreaterOrEqualThan<T>(T lowerValue, T argumentValue, string argumentName) where T : struct, IComparable
+        {
+            if (argumentValue.CompareTo((T)lowerValue) < 0)
+            {
+                throw new ArgumentOutOfRangeException(argumentName, argumentValue, I18NHelper.FormatInvariant("The size of '{0}' should be greater or equal to '{1}'.", argumentName, lowerValue));
+            }
+        }
+
     }
 }

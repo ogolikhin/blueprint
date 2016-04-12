@@ -118,6 +118,11 @@ export class LoginCtrl {
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
+    public goToChangePasswordScreenBecauseExpired(): void {
+        this.changePasswordScreenError = true;
+        this.transitionToState(LoginState.ChangePasswordForm);
+    }
+
     public doSamlLogin(): void {
         this.session.loginWithSaml(false).then(
             () => {
@@ -255,9 +260,11 @@ export class LoginCtrl {
             } else if (error.errorCode === 2002) {
                 this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
                 this.fieldError = false;
+                if (this.enableChangePasswordScreen) {
+                    this.transitionToState(LoginState.ChangePasswordForm);
+                }
                 this.enableChangePasswordScreen = true;
                 this.changePasswordScreenError = true;
-                this.transitionToState(LoginState.ChangePasswordForm);
             } else if (error.errorCode === 2003) {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
                 this.fieldError = true;

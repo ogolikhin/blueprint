@@ -221,7 +221,21 @@ describe("LoginCtrl", () => {
         }));
     });
 
-    describe("goToChangePasswordScreen", () => {
+    describe("goToChangePasswordScreenBecauseExpired", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+
+            // Act
+            var result = loginCtrl.goToChangePasswordScreenBecauseExpired();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.changePasswordScreenError).toBe(true, "changePasswordScreenError");
+            expect(loginCtrl.isInChangePasswordScreen).toBe(true, "isInChangePasswordScreen");
+        }));
+    });
+
+    describe("goToUpdatePasswordScreen", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
 

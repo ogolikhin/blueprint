@@ -1,3 +1,9 @@
 ﻿<a ng-click="$ctrl.toggle($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
-<div class="sidebar-title">{{$ctrl.label}}</div>
-<div class="sidebar-content">Sidebar is visible: {{$ctrl.isToggled}}</div>
+<div class="sidebar-content" ng-if="$ctrl.type == 'utility-panel'">
+	<div class="sidebar-title">Utility Panel</div>
+	<accordion header-height="33px"></accordion>
+</div>
+<div class="sidebar-content" ng-if="$ctrl.type == 'project-explorer'">
+	<div class="sidebar-title">Project Explorer</div>
+	<div class="sidebar-content">Project explorer content</div>
+</div>

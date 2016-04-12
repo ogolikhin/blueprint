@@ -43,7 +43,7 @@ module.exports = function (config) {
         webpack: webpackConfig,
         reporters: [
             'dots',
-            'spec',
+            //'spec',
             'coverage'
         ],
         coverageReporter: {

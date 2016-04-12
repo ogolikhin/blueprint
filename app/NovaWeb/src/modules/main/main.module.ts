@@ -5,6 +5,7 @@ import "../shell";
 import {PageContent} from "./components/content/pagecontent";
 import {Toolbar} from "./components/toolbar/toolbar";
 import {Sidebar} from "./components/sidebar/sidebar";
+import {Accordion} from "./components/accordion/accordion";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope"];
@@ -20,6 +21,7 @@ export function config($rootScope: ng.IRootScopeService) {
 angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap"])
     .run(config)
     .component("pagecontent", new PageContent())
-    .component("sidebar", new Sidebar())
     .component("toolbar", new Toolbar())
+    .component("sidebar", new Sidebar())
+    .component("accordion", new Accordion())
     .config(routesConfig);

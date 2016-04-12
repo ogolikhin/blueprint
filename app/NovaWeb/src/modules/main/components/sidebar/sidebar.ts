@@ -1,6 +1,5 @@
 ﻿interface ISidebarController {
     isToggled: boolean;
-    label: string;
     type: string;
     toggle(evt: ng.IAngularEvent): void;
 }
@@ -23,24 +22,12 @@ export class Sidebar implements ng.IComponentOptions {
 class SidebarCtrl implements ISidebarController {
     static $inject: [string] = ["$scope", "$element"];
     public isToggled: boolean;
-    public label: string;
     public type: string;
 
     constructor(private $scope, private $element) {
         this.isToggled = false;
         if (!this.type) {
             this.type = "sidebar";
-        }
-
-        switch (this.type) {
-            case "utility-panel":
-                this.label = "Utility Panel";
-                break;
-            case "project-explorer":
-                this.label = "Project Explorer";
-                break;
-            default:
-                this.label = "Sidebar";
         }
     }
 

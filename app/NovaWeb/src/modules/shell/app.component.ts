@@ -49,8 +49,9 @@ export class AppController {
 
         //Note: Hiding the URL bar is no longer possible in most browsers (security feature).
         //Note2: Chrome ignores 'width' if you don't also specify 'height
-        var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no";
-        windowFeatures += ", width = " + width + ", height=" + height + ", top=" + top + ", left=" + left;
+        /* tslint:disable */
+        var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height=" + height + ", top=" + top + ", left=" + left;
+        /*tslint:enable*/
 
         return window.open(url, title, windowFeatures);
     }

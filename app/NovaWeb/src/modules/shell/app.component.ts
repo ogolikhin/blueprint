@@ -35,7 +35,22 @@ export class AppController {
         evt.preventDefault();
 
         //We want to open a new window, not a tab, to match old Silverlight behaviour.
-        //Note: Hiding the URL bar is no longer possible in most browsers (security feature).
-        window.open(this.configValueHelper.getStringValue("HelpURL"), "_blank", "menubar=no, location=no, resizable=yes, scrollbars=yes, titlebar=no");
+        this.popUpWindowInCenterOfParent(this.configValueHelper.getStringValue("HelpURL"), "_blank", 1300, 800)
     }
+
+    private popUpWindowInCenterOfParent(url:string, title:string, width:number, height:number)
+    {
+        //Calculate position for new window based on parent's center. http://stackoverflow.com/a/5681473
+        var parentLeft : number = window.screenLeft ? window.screenLeft : window.screenX;
+        var parentTop: number = window.screenTop ? window.screenTop : window.screenY;
+        var parentCenterX: number = parentLeft + (window.outerWidth / 2)
+        var parentCenterY: number = parentTop + (window.outerHeight / 2)
+        var left : number = parentCenterX - (width / 2);
+        var top: number = parentCenterY - (height / 2);
+
+        //Note: Hiding the URL bar is no longer possible in most browsers (security feature).
+        //Note2: Chrome ignores 'width' if you don't also specify 'height
+        return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, titlebar=no, scrollbars=no, resizable=yes, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+    }
+
 }

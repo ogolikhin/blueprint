@@ -6,23 +6,10 @@ If you haven't installed node.js please install it first (latest LTS version fro
 devsetup
 ```
 
-We don't have full list of required npm packages yet, so run
-```
-npm i
-```
-after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
-
-In order to run nova prototype simply run (see Workflow section below for other tasks):
-```
-gulp dev
-```
-or
-```
-npm run dev
-```
+We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
 
 ### Notes for Windows environment:
-* Synchronize Node.JS Install Version with Visual Studio 2015 if you are going to use Task runner from VS2015
+* Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015
 [link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
 
 * If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
@@ -42,17 +29,20 @@ Use `typings install {library-name} --ambient --save` to install TypeScript defi
 
 ## Development
 ### Standards
-1. Difference with existing code standards: TypeScript [Coding Standards](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=M15zPSIw%2b8V38RkXKY7kVTZ0wsb%2brsHTC0x3J28C%2bhs%3d&docid=0c8dac94f55404e1680e2a2146c6350c2).
+1. Difference with existing TypeScript [Coding Standards](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=M15zPSIw%2b8V38RkXKY7kVTZ0wsb%2brsHTC0x3J28C%2bhs%3d&docid=0c8dac94f55404e1680e2a2146c6350c2):
   * Use lower-case hyphen separated name convention for file and folder names!
-  * Use ES2015/TS import/export to defined dependencies (instead of TS references)  
+    * For example _class CustomPropertiesSvc_ should be located in `custom-properties.svc.ts` file
+  * Use ES2015/TS import/export to defined dependencies (instead of TS references)
+  * Use Angular 1.5 components instead of separated view and controller. Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
+  * Avoid using $scope object.
 2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). We will have separate document explaining how to create and maintain localization strings for Nova client.
  
 Some of these rules are enforced by tslint (for `npm run dev` or `gulp dev` task only). Please, pay attention for tslint warning messages and fix them when working with the code.
 
 ### Workflow
-We have number of npm scripts for main develop activities (looks at `scripts` section of package.json). They also available as gulp tasks to support Task Runners for VS or VS Code.
+We have number of npm scripts for main developer activities (look at `scripts` section of package.json). They also available as gulp tasks to support Task Runners in VS/VS Code.
 
-* Use `gulp help` to see list of available tasks or looks at `scripts` section of package.json for npm scripts.
+* Use `gulp help` to see list of available tasks or look at `scripts` section of package.json for npm scripts.
 * Use `gulp build` or `npm run build` to build production version in the dist folder.
 * Use `gulp dev` or `npm run dev` to build the project and start a browser-sync dev server with live-reload on default port (8000). Currently there are no server components but we are using proxy to redirect all /svc calls to http://localhost:9801/svc.
 

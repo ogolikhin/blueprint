@@ -105,6 +105,11 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
+        public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
+
+        [SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
@@ -137,6 +142,7 @@ namespace Model.StorytellerModel.Impl
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
             ArtifactPathLinks = new List<ArtifactPathLink>();
+            DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
@@ -1408,6 +1414,36 @@ namespace Model.StorytellerModel.Impl
         /// The link to navigate to the artifact
         /// </summary>
         public string Link { get; set; }
+    }
+
+    public class DecisionBranchDestinationLink
+    {
+        /*
+        [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                       |                        |
+                       +-------[UT3]--+--[ST4]--+
+        */
+        /// <summary>
+        /// The Id of the shape after the merging point
+        /// (e.g. endShape ID in the picture)
+        /// </summary>
+        public int DestinationId { get; set; }
+
+        /// <summary>
+        /// Label of Merging point. Currently null
+        /// </summary>
+        public string Label { get; set; }
+
+        /// <summary>
+        /// The Orderindex of the merging branch with respect to the source decision
+        /// (e.g. orderindex value of the merging branch of UD1)
+        /// </summary>
+        public int Orderindex { get; set; }
+
+        /// <summary>
+        /// The Id of source decision (e.g. UD1)
+        /// </summary>
+        public int SourceId { get; set; }
     }
 
     public class PropertyValueInformation

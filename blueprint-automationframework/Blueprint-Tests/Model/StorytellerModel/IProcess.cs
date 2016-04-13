@@ -134,6 +134,11 @@ namespace Model.StorytellerModel
         List<ArtifactPathLink> ArtifactPathLinks { get; }
 
         /// <summary>
+        /// Decision branch destination links for decision shapes in the Process.  This supports breadcrumb navigation.
+        /// </summary>
+        List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; }
+
+        /// <summary>
         /// The Property values for the Process
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }

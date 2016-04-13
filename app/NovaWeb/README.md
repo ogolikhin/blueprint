@@ -33,7 +33,7 @@ Use `typings install {library-name} --ambient --save` to install TypeScript defi
   * Use lower-case hyphen separated name convention for file and folder names!
     * For example _class CustomPropertiesSvc_ should be located in `custom-properties.svc.ts` file
   * Use ES2015/TS import/export to defined dependencies (instead of TS references)
-  * Use Angular 1.5 components instead of separated view and controller. Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
+  * Use [Angular 1.5 components](https://code.angularjs.org/1.5.3/docs/guide/component) instead of separated view and controller. Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
   * Avoid using $scope object.
 2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). We will have separate document explaining how to create and maintain localization strings for Nova client.
  

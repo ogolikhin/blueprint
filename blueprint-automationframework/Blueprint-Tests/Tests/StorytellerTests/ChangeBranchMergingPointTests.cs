@@ -87,7 +87,6 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Change the merging point of the second branch of system decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]
@@ -130,7 +129,6 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Change the merging point of the second branch of user decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]

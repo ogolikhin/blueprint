@@ -34,6 +34,7 @@ export class SessionSvcMock implements ISession {
 
     public static $inject = ["$q"];
     public currentUser: IUser;
+    public lastError: Error;
 
     constructor(private $q: ng.IQService) {
     }

@@ -97,6 +97,11 @@ export class LoginCtrl {
         if (!this.novaConfirmNewPassword) {
             this.novaConfirmNewPassword = "";
         }
+        if (session.lastError && session.lastError.message) {
+            this.errorMsg = session.lastError.message;
+            this.labelError = true;
+            this.fieldError = true;
+        }
     }
 
     private transitionToState(state: LoginState) {

@@ -4,7 +4,7 @@
         <div class="navbar-right">
             <span>{{::$root.config.labels["App_Header_Welcome"]}}</span> <span class="signed-in-as">{{app.currentUser.DisplayName}}</span>
             <a ng-click="app.logout($event)" class="fonticon fonticon-sign-out"></a>
-            <a href="#" class="fonticon fonticon-help"></a>
+            <a ng-click="app.navigateToHelpUrl($event)" class="fonticon fonticon-help"></a>
         </div>
     </div>
     <toolbar></toolbar>

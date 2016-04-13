@@ -118,6 +118,11 @@ export class LoginCtrl {
         this.transitionToState(LoginState.ChangePasswordForm);
     }
 
+    public goToChangePasswordScreenBecauseExpired(): void {
+        this.changePasswordScreenError = true;
+        this.transitionToState(LoginState.ChangePasswordForm);
+    }
+
     public doSamlLogin(): void {
         this.session.loginWithSaml(false).then(
             () => {
@@ -162,7 +167,12 @@ export class LoginCtrl {
         this.changePasswordNewPasswordError = false;
         this.changePasswordConfirmPasswordError = false;
 
-        if (this.novaNewPassword.length < 8) {
+        if (this.novaCurrentPassword.length === 0) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_CurrentPasswordCannotBeEmpty");
+            this.changePasswordScreenError = true;
+            this.changePasswordCurrentPasswordError = true;
+            return;
+        } else if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.changePasswordScreenError = true;
             this.changePasswordNewPasswordError = true;
@@ -189,6 +199,8 @@ export class LoginCtrl {
                 this.fieldError = false;
 
                 this.transitionToState(LoginState.LoginForm);
+
+                this.enableChangePasswordScreen = false;
             },
             (error) => {
                 this.handlePasswordResetErrors(error);
@@ -201,6 +213,7 @@ export class LoginCtrl {
     }
 
     private handlePasswordResetErrors(error) {
+        this.changePasswordScreenError = true;
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_EnterCurrentPassword");
@@ -211,12 +224,10 @@ export class LoginCtrl {
             } else {
                 this.changePasswordScreenMessage = "authorization exception: " + error.message;
             }
-            this.changePasswordScreenError = true;
             this.changePasswordCurrentPasswordError = true;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
         } else if (error.statusCode === 400) {
-            this.changePasswordScreenError = true;
             this.changePasswordCurrentPasswordError = false;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
@@ -234,7 +245,7 @@ export class LoginCtrl {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
         } else {
-            this.changePasswordScreenError = false;
+            this.changePasswordScreenMessage = error.message;
             this.changePasswordCurrentPasswordError = false;
             this.changePasswordNewPasswordError = false;
             this.changePasswordConfirmPasswordError = false;
@@ -254,10 +265,17 @@ export class LoginCtrl {
             } else if (error.errorCode === 2002) {
                 this.errorMsg = this.localization.get("Login_Session_PasswordHasExpired");
                 this.fieldError = false;
+                if (this.enableChangePasswordScreen) {
+                    this.transitionToState(LoginState.ChangePasswordForm);
+                }
                 this.enableChangePasswordScreen = true;
-                this.transitionToState(LoginState.ChangePasswordForm);
+                this.changePasswordScreenError = true;
             } else if (error.errorCode === 2003) {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
+                this.fieldError = true;
+                this.transitionToState(LoginState.LoginForm);
+            } else if (error.errorCode === 2004) {
+                this.errorMsg = this.localization.get("Login_Session_SamlError");
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else {
@@ -279,6 +297,15 @@ export class LoginCtrl {
             result.loginSuccessful = false;
 
             this.$uibModalInstance.close(result);
+        } else if (error.statusCode === 400) {
+            this.fieldError = true;
+            if (error.errorCode === 2004) {
+                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.transitionToState(LoginState.LoginForm);
+            } else {
+                this.errorMsg = error.message;
+                this.labelError = true;
+            }
         } else {
             this.errorMsg = error.message;
             this.labelError = true;

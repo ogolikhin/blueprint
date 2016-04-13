@@ -57,7 +57,7 @@ describe("SessionSvc", () => {
             // Arrange
             spyOn(auth, "getCurrentUser").and.callFake(function () {
                 var deferred = $q.defer();
-                deferred.reject();
+                deferred.resolve();  //simulate invalid response
                 return deferred.promise;
             });
             var loginInfo: ILoginInfo = new ILoginInfo();
@@ -96,7 +96,7 @@ describe("SessionSvc", () => {
                 var deferred = $q.defer();
                 deferred.reject();
                 return deferred.promise;
-    });
+            });
             var loginInfo: ILoginInfo = new ILoginInfo();
             loginInfo.samlLogin = true;
             loginInfo.loginSuccessful = false;
@@ -110,6 +110,50 @@ describe("SessionSvc", () => {
 
             // Assert
             expect(error).toBe(undefined, "error is set");
+        }))
+
+        it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+            // Arrange
+            var errorMsg = "login error";
+            spyOn(auth, "loginWithSaml").and.callFake(function () {
+                var deferred = $q.defer();
+                deferred.reject({ message: errorMsg });
+                return deferred.promise;
+            });
+
+            // Act
+            var error: any;
+            var result = session.loginWithSaml(true).then(() => { }, (err) => error = err);
+
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.message).toBe(errorMsg);
+        }))
+    });
+
+    describe("login", () => {
+        it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+            // Arrange
+            var errorMsg = "login error";
+            var userName = "admin";
+            var password = "changeme";
+            spyOn(auth, "login").and.callFake(function () {
+                var deferred = $q.defer();
+                deferred.reject({ message: errorMsg});
+                return deferred.promise;
+            });
+
+            // Act
+            var error: any;
+            var result = session.login(userName, password, true).then(() => { }, (err) => error = err);
+            
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.message).toBe(errorMsg);
         }))
     });
 
@@ -125,5 +169,42 @@ describe("SessionSvc", () => {
             // Assert
             expect(error).toBe(undefined, "error is set");
         }));
+    });
+
+    describe("resetPassword", () => {
+        it("return success", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
+            // Arrange
+            var login = "admin";
+            var oldPassword = "changeme";
+            var newPassword = "123EWQ!@#";
+
+            // Act
+            var error: any;
+            var result = session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBe(undefined, "error is set");
+        }))
+
+        it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService) => {
+            // Arrange
+            var login = "admin";
+            var oldPassword = "changeme";
+            var newPassword = "123EWQ!@#";
+            spyOn(auth, "resetPassword").and.callFake(function () {
+                var deferred = $q.defer();
+                deferred.reject({message: "error"});
+                return deferred.promise;
+            });
+
+            // Act
+            var error: any;
+            var result = session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBeDefined();
+        }))
     });
 });

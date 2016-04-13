@@ -209,8 +209,7 @@ export class AuthSvc implements IAuth {
                                     deferred.reject({ message: this.localization.get("Login_Auth_SamlContinueSessionWithOriginalUser") });
                                 });
                             } else {
-                                //this.onLogin(user);
-                            deferred.resolve(user);
+                                deferred.resolve(user);
                             }
                         }).error((err: any, statusCode: number) => {
                             var error = {
@@ -220,6 +219,7 @@ export class AuthSvc implements IAuth {
                             deferred.reject(error);
                         });
                 }, (msg: string) => {
+                    this.internalLogout(token);
                     if (msg) {
                         deferred.reject({ message: msg });
                     } else {

@@ -15,7 +15,7 @@ export interface ISession {
 
     loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 
-    resetPassword(login: string, oldPassword: string, newPassword: string);
+    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {

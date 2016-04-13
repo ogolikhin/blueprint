@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Web.Http;
 using AdminStore.Helpers;
 using AuthenticationException = System.Security.Authentication.AuthenticationException;
 
@@ -51,5 +52,15 @@ namespace AdminStore.Saml
             //TODO use reflection to get property name
             info.AddValue(AdminStoreConstants.ErrorCodeName, ErrorCode);
         }
+
+        public HttpError CreateHttpError(int errorCode=-1)
+        {
+            if (errorCode < 0)
+            {
+                errorCode = (int)ErrorCode;
+            }
+            return new HttpError(Message) { { AdminStoreConstants.ErrorCodeName, errorCode } };
+        }
+
     }
 }

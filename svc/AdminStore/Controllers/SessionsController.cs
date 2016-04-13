@@ -167,9 +167,9 @@ namespace AdminStore.Controllers
                 await _log.LogInformation(WebApiConfig.LogSourceSessions, ex.Message);
                 if (ex.ErrorCode == FederatedAuthenticationErrorCode.WrongFormat)
                 {
-                    return BadRequest();
+                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.CreateHttpError(ErrorCodes.FederatedAuthenticationException)));
                 }
-                return Unauthorized();
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.CreateHttpError(ErrorCodes.FederatedAuthenticationException)));
             }
             catch (AuthenticationException ex)
             {

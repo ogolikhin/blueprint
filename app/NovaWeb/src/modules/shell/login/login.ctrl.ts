@@ -274,6 +274,10 @@ export class LoginCtrl {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsCannotBeEmpty");
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
+            } else if (error.errorCode === 2004) {
+                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.fieldError = true;
+                this.transitionToState(LoginState.LoginForm);
             } else {
                 this.errorMsg = error.message;
                 this.fieldError = true;
@@ -293,6 +297,15 @@ export class LoginCtrl {
             result.loginSuccessful = false;
 
             this.$uibModalInstance.close(result);
+        } else if (error.statusCode === 400) {
+            this.fieldError = true;
+            if (error.errorCode === 2004) {
+                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.transitionToState(LoginState.LoginForm);
+            } else {
+                this.errorMsg = error.message;
+                this.labelError = true;
+            }
         } else {
             this.errorMsg = error.message;
             this.labelError = true;

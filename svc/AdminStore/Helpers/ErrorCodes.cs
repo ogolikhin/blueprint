@@ -10,6 +10,7 @@
         public const int AccountIsLocked = 2001;
         public const int PasswordExpired = 2002;
         public const int EmptyCredentials = 2003;
+        public const int FederatedAuthenticationException = 2004;
 
         //Resource errors
         public const int ResourceNotFound = 3000;

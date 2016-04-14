@@ -1,4 +1,6 @@
-﻿using Model.Impl;
+﻿using System;
+using System.Data.SqlClient;
+using Model.Impl;
 using TestConfig;
 using Utilities;
 
@@ -15,10 +17,35 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(databaseName, nameof(databaseName));
 
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-
-            IDatabase database = new MsSqlDatabase(testConfig.Databases[databaseName].ConnectionString);
+            IDatabase database = new MsSqlDatabase(GetConnectionString(databaseName));
             return database;
         }
+
+        /// <summary>
+        /// Gets the database connection string
+        /// </summary>
+        /// <param name="databaseName">The database name from the TestConfiguration.</param>
+        /// <returns>The database connection string.</returns>
+        public static string GetConnectionString(string databaseName)
+        {
+            ThrowIf.ArgumentNull(databaseName, nameof(databaseName));
+
+            TestConfiguration testConfig = TestConfiguration.GetInstance();
+
+            var connectionString = testConfig.Databases[databaseName].ConnectionString;
+
+            try
+            {
+                var builder = new SqlConnectionStringBuilder();
+                builder.ConnectionString = connectionString;
+            }
+            catch (ArgumentException e)
+            {
+                throw new ArgumentException("The value does not represent a connection string", e);
+            }
+
+            return connectionString;
+        }
+
     }
 }

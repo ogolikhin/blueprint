@@ -21,23 +21,30 @@ namespace AdminStore.Filters
             var ex = context.Exception;
             HttpStatusCode statusCode;
             int? errorCode = null;
-            if (ex is NotImplementedException)
+
+            if (ex is AuthenticationException)
+            {
+                statusCode = HttpStatusCode.Unauthorized;
+                errorCode = ((AuthenticationException)ex).ErrorCode;
+            }
+            else if (ex is NotImplementedException)
             {
                 statusCode = HttpStatusCode.NotImplemented;
             }
-            else if (ex is AuthenticationException)
+            else if (ex is BadRequestException)
             {
-                statusCode  = HttpStatusCode.Unauthorized;
-                errorCode = ((AuthenticationException) ex).ErrorCode;
+                statusCode = HttpStatusCode.BadRequest;
+                errorCode = ((BadRequestException)ex).ErrorCode;
             }
             else if (ex is ResourceNotFoundException)
             {
                 statusCode = HttpStatusCode.NotFound;
                 errorCode = ((ResourceNotFoundException) ex).ErrorCode;
-            }else if (ex is BadRequestException)
+            }
+            else if (ex is AuthorizationException)
             {
-                statusCode = HttpStatusCode.BadRequest;
-                errorCode = ((BadRequestException)ex).ErrorCode;
+                statusCode = HttpStatusCode.Forbidden;
+                errorCode = ((AuthorizationException)ex).ErrorCode;
             }
             else
             {

@@ -52,8 +52,7 @@ Login_Session_PasswordConfirmMismatch,"Ensure your new password and confirmation
 Login_Session_NewPasswordMaxLength,"New password must be at most 128 characters long."
 Login_Session_NewPasswordMinLength,"New password must be at least 8 characters long."
 Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
-Login_Session_NewPasswordSameAsOld,"Ensure your new password is different from the current one."
+Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
 Login_Session_NewPasswordCriteria,"New password must contain at least one capital letter, number and symbol."
-Login_Session_SamlError,"There is a problem with federated authentication. Please contact your administrator."
 
 Input_Required,"Required"

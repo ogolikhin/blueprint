@@ -314,10 +314,6 @@ export class LoginCtrl {
             this.errorMsg = error.message;
             this.labelError = true;
             this.fieldError = false;
-        } else if (error.statusCode === 500) {
-            this.errorMsg = error.message;
-            this.labelError = true;
-            this.fieldError = false;
         } else {
             this.errorMsg = error.message;
             this.labelError = true;

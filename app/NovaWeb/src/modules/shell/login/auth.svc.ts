@@ -244,22 +244,24 @@ export class AuthSvc implements IAuth {
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {
-                var msg;
+                var error = {};
 
                 if (statusCode === 404) { // NotFound
-                    msg = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
-
+                    error = {
+                        statusCode: statusCode,
+                        message: this.localization.get("Login_Auth_LicenseNotFound_Verbose")
+                    }
                 } else if (statusCode === 403) { // Forbidden
-                    msg = this.localization.get("Login_Auth_LicenseLimitReached");
+                    error = {
+                        statusCode: statusCode,
+                        message: this.localization.get("Login_Auth_LicenseLimitReached")
+                    }
                 } else { // Other error
-                    statusCode = 500;
-                    msg = this.localization.get("Login_Auth_LicenseVerificationFailed");
+                    error = {
+                        statusCode: statusCode,
+                        message: err ? err.Message : ""
+                    }
                 }
-
-                var error = {
-                    statusCode: statusCode,
-                    message: msg
-                };
 
                 deferred.reject(error);
             });

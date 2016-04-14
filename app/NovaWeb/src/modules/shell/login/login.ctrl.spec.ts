@@ -207,31 +207,6 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.errorMsg).toBe("Login_Auth_LicenseNotFound_Verbose");
         }));
 
-        it("return license verification error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
-            // Arrange
-            spyOn(session, "login").and.callFake(function () {
-                var deferred = $q.defer();
-                var error = {
-                    statusCode: 500,
-                    message: "Login_Auth_LicenseVerificationFailed"
-                };
-                deferred.reject(error);
-                return deferred.promise;
-            });
-
-            // Act
-            var error: any;
-            loginCtrl.novaUsername = "admin";
-            loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
-            $rootScope.$digest();
-
-            // Assert
-            expect(loginCtrl.fieldError).toBe(false, "field error is true");
-            expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Auth_LicenseVerificationFailed");
-        }));
-
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {

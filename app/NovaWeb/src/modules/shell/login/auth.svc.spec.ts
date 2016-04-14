@@ -191,6 +191,8 @@ describe("AuthSvc", () => {
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(404);
+            $httpBackend.expectDELETE("/svc/adminstore/sessions")
+                .respond(200);
 
             // Act
             var error: any;
@@ -213,6 +215,8 @@ describe("AuthSvc", () => {
             );
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(403);
+            $httpBackend.expectDELETE("/svc/adminstore/sessions")
+                .respond(200);
 
             // Act
             var error: any;

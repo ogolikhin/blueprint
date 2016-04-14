@@ -9,6 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonUtilities", "..\Commo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\Blueprint-Tests\Common\Common.csproj", "{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8D5A514B-D46D-416D-90DA-5835DADFD5AD}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\AlmostAllRules.ruleset = ..\..\AlmostAllRules.ruleset
+		..\..\Blueprint-Tests.Common.props = ..\..\Blueprint-Tests.Common.props
+		..\..\..\NuGet.config = ..\..\..\NuGet.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

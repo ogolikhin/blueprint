@@ -217,6 +217,8 @@ export class LoginCtrl {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_EnterCurrentPassword");
+            } else if (error.errorCode === 1001) {
+                this.changePasswordScreenMessage = this.localization.get("Login_Auth_FederatedFallbackDisabled");
             } else if (error.errorCode === 2001) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_AccountDisabled");
             } else if (error.errorCode === 2003) {
@@ -258,6 +260,10 @@ export class LoginCtrl {
                 this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
+            } else if (error.errorCode === 1001) {
+                this.errorMsg = this.localization.get("Login_Auth_FederatedFallbackDisabled");
+                this.fieldError = false;
+                this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2001) {
                 this.errorMsg = this.localization.get("Login_Session_AccountDisabled");
                 this.fieldError = false;
@@ -275,7 +281,7 @@ export class LoginCtrl {
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else {
@@ -300,12 +306,20 @@ export class LoginCtrl {
         } else if (error.statusCode === 400) {
             this.fieldError = true;
             if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
                 this.transitionToState(LoginState.LoginForm);
             } else {
                 this.errorMsg = error.message;
                 this.labelError = true;
             }
+        } else if (error.statusCode === 404) {
+            this.errorMsg = error.message;
+            this.labelError = true;
+            this.fieldError = false;
+        } else if (error.statusCode === 403) {
+            this.errorMsg = error.message;
+            this.labelError = true;
+            this.fieldError = false;
         } else {
             this.errorMsg = error.message;
             this.labelError = true;

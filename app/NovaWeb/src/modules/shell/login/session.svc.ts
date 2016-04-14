@@ -106,7 +106,7 @@ export class SessionSvc implements ISession {
         });
     }
 
-    private showLogin(done: ng.IDeferred<any>): void {
+    private showLogin(done: ng.IDeferred<any>, error?: Error): void {
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                 template: require("./login.html"),
@@ -132,7 +132,7 @@ export class SessionSvc implements ISession {
                                         done.resolve();
                                     },
                                     (error) => {
-                                        this.showLogin(done);
+                                        this.showLogin(done, error);
                                     });
                             } else {
                                 this.showLogin(done);
@@ -149,7 +149,7 @@ export class SessionSvc implements ISession {
                                         done.resolve();
                                     },
                                     (error) => {
-                                        this.showLogin(done);
+                                        this.showLogin(done, error);
                                     });
                             } else {
                                 this.showLogin(done);

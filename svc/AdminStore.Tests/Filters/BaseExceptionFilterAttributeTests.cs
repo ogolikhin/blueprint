@@ -71,6 +71,12 @@ namespace AdminStore.Filters
         }
 
         [TestMethod]
+        public async Task OnExceptionAsync_AuthorizationException()
+        {
+            await TestOnExceptionAsync(new AuthorizationException(), HttpStatusCode.Forbidden);
+        }
+
+        [TestMethod]
         public async Task OnExceptionAsync_UnknownException_LogError()
         {
             //Arrange

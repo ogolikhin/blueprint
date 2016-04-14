@@ -21,6 +21,9 @@ namespace AdminStore.Models
 
         [JsonProperty]
         public InstanceItemTypeEnum Type { get; set; }
+
+        [JsonIgnore]
+        public bool? IsAccesible { get; set; }
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

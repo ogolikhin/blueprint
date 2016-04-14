@@ -113,11 +113,8 @@ export class SessionSvc implements ISession {
     }
 
     private showLogin(done: ng.IDeferred<any>, error?: Error): void {
-        if (error) {
-            this._lastError = error;
-        } else {
-            this._lastError = undefined;
-        }
+        this._lastError = error;
+
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                 template: require("./login.html"),

@@ -100,7 +100,7 @@ export class LoginCtrl {
         if (session.lastError && session.lastError.message) {
             this.errorMsg = session.lastError.message;
             this.labelError = true;
-            this.fieldError = true;
+            this.fieldError = false;
         }
     }
 

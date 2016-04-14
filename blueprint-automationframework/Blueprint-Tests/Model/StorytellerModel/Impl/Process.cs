@@ -290,6 +290,9 @@ namespace Model.StorytellerModel.Impl
 
             // Add a system task to the branch and return the system task shape object
             AddSystemTask(processLink);
+
+            // Add a DecisionBranchDestinationLink to track added branch merging point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
         }
 
 
@@ -316,6 +319,9 @@ namespace Model.StorytellerModel.Impl
             // Add default link label
             processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
 
+            // Add a DecisionBranchDestinationLink to track added branch merging point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
+
             // Add a user task to the branch and return the user task shape object
             return AddUserAndSystemTask(processLink);
         }
@@ -335,6 +341,42 @@ namespace Model.StorytellerModel.Impl
             Links.Add(processLink);
 
             return processLink;
+        }
+
+        public DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
+        {
+            // Create a DecisionBranchDestinationLink
+            var decisionBranchDestinationLink = new DecisionBranchDestinationLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = orderIndex,
+                SourceId = sourceId
+            };
+
+            if (DecisionBranchDestinationLinks == null)
+            {
+                DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
+            }
+            DecisionBranchDestinationLinks.Add(decisionBranchDestinationLink);
+
+            return decisionBranchDestinationLink;
+        }
+
+        public void ChangeBranchMergingPoint(IProcessShape decisionPoint, double orderIndex, ProcessLink branchMergingLink, IProcessShape mergingPoint)
+        {
+            ThrowIf.ArgumentNull(decisionPoint, nameof(decisionPoint));
+            ThrowIf.ArgumentNull(branchMergingLink, nameof(branchMergingLink));
+            ThrowIf.ArgumentNull(mergingPoint, nameof(mergingPoint));
+
+            // Update destination id of the merging link with id of the next shape
+            branchMergingLink.DestinationId = mergingPoint.Id;
+
+            // Find the DecisionBranchDestinationLink to update
+            var targetDecisionBranchDestinationLink = DecisionBranchDestinationLinks.Find(dbd => dbd.Orderindex.Equals(orderIndex));
+
+            // Update the destination id of the DecisionBranchDestinationLink with id of the next shape
+            targetDecisionBranchDestinationLink.DestinationId = mergingPoint.Id;
         }
 
         public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
@@ -1438,7 +1480,7 @@ namespace Model.StorytellerModel.Impl
         /// The Orderindex of the merging branch with respect to the source decision
         /// (e.g. orderindex value of the merging branch of UD1)
         /// </summary>
-        public int Orderindex { get; set; }
+        public double Orderindex { get; set; }
 
         /// <summary>
         /// The Id of source decision (e.g. UD1)

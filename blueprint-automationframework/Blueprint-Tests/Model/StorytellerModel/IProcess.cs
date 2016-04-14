@@ -183,6 +183,28 @@ namespace Model.StorytellerModel
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
+        /// Add a DecisionBranchDestinationLink to a Process
+        /// </summary>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="sourceId">The Id of the source decision</param>
+        /// <returns>The DecisionBranchDestinationLink that was added</returns>
+        DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId,
+            double orderIndex, int sourceId);
+
+        /// <summary>
+        /// Change a branch merging point of the decision
+        /// </summary>
+        /// <param name="decisionPoint">The user or system decision point</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="branchMergingLink">The existing merging link for the branch</param>
+        /// <param name="mergingPoint">The new merging shape</param>
+        void ChangeBranchMergingPoint(IProcessShape decisionPoint, double orderIndex,
+            ProcessLink branchMergingLink, IProcessShape mergingPoint);
+
+        /// <summary>
         /// Add a User Decision Point with a Branch After an Existing Shape
         /// </summary>
         /// <param name="previousShape">The shape before the insertion point</param>

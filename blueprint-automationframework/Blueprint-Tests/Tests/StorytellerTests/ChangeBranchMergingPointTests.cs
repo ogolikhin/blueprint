@@ -87,7 +87,6 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Change the merging point of the second branch of system decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]
@@ -111,12 +110,15 @@ namespace StorytellerTests
             var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
 
             // Find the outgoing link for start shape
-            var outgoingLinkTForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+            var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
+
+            // Find the system decision
+            var systemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the link from the system decision to second branch
             var secondBranchLinkFromSystemDecision =
-                returnedProcess.Links.Find(l => l.Orderindex.Equals(outgoingLinkTForStartShape.Orderindex + 1));
-
+                returnedProcess.Links.Find(l => l.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 1));
+            
             // Find the outgoing link for the system task from the second branch
             var outgoingLinkForSystemTaskFromSecondBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(secondBranchLinkFromSystemDecision.DestinationId));
 
@@ -124,13 +126,12 @@ namespace StorytellerTests
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Change the second branch merging point of the system decision to the endShape
-            outgoingLinkForSystemTaskFromSecondBranch.DestinationId = endShape.Id;
+            returnedProcess.ChangeBranchMergingPoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Change the merging point of the second branch of user decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]
@@ -173,19 +174,18 @@ namespace StorytellerTests
             // Locate the end shape for changing the merging point of user decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
-            // Change the second branch merging point of the use decision to the endShape
-            outgoingLinkForSystemTaskFromSecondBranch.DestinationId = endShape.Id;
+            // Change the second branch merging point of the user decision to the endShape
+            returnedProcess.ChangeBranchMergingPoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Save the process with a system decision which contains two additional branches beside the main branch. " +
                      "Each additional branch merges to different locations. Verify that returned process after the save " +
                      "contains valid merging point information.")]
-        public void SystemDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+        public void ChangeMergingPointForSystemDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following change:
@@ -224,26 +224,34 @@ namespace StorytellerTests
             var systemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
             // Find the sytem task From the third branch
-            var systmeTaskFromThirdBranch =
+            var systemTaskFromThirdBranch =
                 returnedProcess.GetProcessShapeById(
                     returnedProcess.Links.Find(l => l.SourceId.Equals(systemDecision.Id) && l.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 2)).DestinationId);
 
             // Find the outgoing link for the system task from the third branch
-            var outgoingLinkForSystemTaskFromThirdBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(systmeTaskFromThirdBranch.Id));
+            var outgoingLinkForSystemTaskFromThirdBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(systemTaskFromThirdBranch.Id));
 
-            // Change the third branch merging point of the use decision to the endShape
-            outgoingLinkForSystemTaskFromThirdBranch.DestinationId = endShape.Id;
+            // Change the third branch merging point of the system decision to the endShape
+            returnedProcess.ChangeBranchMergingPoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
-            // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            // Update the process
+            var updatedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+       
+            var thirdDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
+                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 2));
+
+            Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
+                "The expected destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point is {0} but {1} is returned.",
+                endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Save the process with a user decision which contains two additional branches beside the main branch. " +
              "Each additional branch merges to different locations. Verify that returned process after the save " +
              "contains valid merging point information.")]
-        public void UserDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+        public void ChangeMergingPointForUserDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following process:
@@ -293,11 +301,20 @@ namespace StorytellerTests
             // Find the outgoing link for the system task from the third branch
             var outgoingLinkForSystemTaskFromThirdBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(systemTaskFromThirdBranch.Id));
 
-            // Change the third branch merging point of the use decision to the endShape
-            outgoingLinkForSystemTaskFromThirdBranch.DestinationId = endShape.Id;
+            // Change the third branch merging point of the user decision to the endShape
+            returnedProcess.ChangeBranchMergingPoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
-            // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            // Update the process
+            var updatedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+
+            var thirdDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
+                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 2));
+
+            Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
+                "The expected destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point is {0} but {1} is returned.",
+                endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
         #endregion Tests
 

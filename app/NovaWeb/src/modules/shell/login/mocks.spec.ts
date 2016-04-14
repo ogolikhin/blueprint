@@ -34,6 +34,7 @@ export class SessionSvcMock implements ISession {
 
     public static $inject = ["$q"];
     public currentUser: IUser;
+    public lastError: Error;
 
     constructor(private $q: ng.IQService) {
     }
@@ -113,8 +114,8 @@ export class AuthSvcMock implements IAuth {
 }
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
-    public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) {
+    public static $inject = ["$q", "$timeout"];
+    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
 
@@ -122,7 +123,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller(new LocalizationServiceMock());
+        var ctrl = new options.controller(new LocalizationServiceMock(), this.instanceMock, new SessionSvcMock(this.$q), this.$timeout, new ConfigValueHelperMock());
         return this.instanceMock;
     }
 }

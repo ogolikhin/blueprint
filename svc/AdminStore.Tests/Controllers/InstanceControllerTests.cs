@@ -55,5 +55,29 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(children, result);
         }
+
+        [TestMethod]
+        public async Task GetInstanceProjectAsync_Success()
+        {
+            //Arrange
+            var userId = 88;
+            var session = new Session { UserId = userId };
+            var projectId = 99;
+            var project = new InstanceItem { Id = projectId };
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetInstanceProjectAsync(projectId, userId)).ReturnsAsync(project);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            //Act
+            var result = await instanceController.GetInstanceProjectAsync(projectId);
+
+            //Assert
+            Assert.AreSame(project, result);
+        }
     }
 }

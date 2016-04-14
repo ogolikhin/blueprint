@@ -114,6 +114,7 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\AdminStoreConstants.cs" />
+    <Compile Include="Helpers\AuthorizationException.cs" />
     <Compile Include="Helpers\BadRequestException.cs" />
     <Compile Include="Helpers\ResourceNotFoundException.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />

@@ -16,8 +16,8 @@
   <Databases>
     <!-- Remember to change the Data Source, Initial Catalog and User ID & Password to match your environment. -->
     <Database name="Blueprint"     connection_string="Data Source=localhost;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AdminStore"    connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AccessControl" connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
     <Database name="FileStore"     connection_string="Data Source=localhost;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
   </Databases>
   

@@ -24,7 +24,7 @@ namespace ServiceLibrary.Attributes
         private const string AccessControl = "AccessControl";
         private const string BadRequestMessage = "Token is missing or malformed.";
         private const string UnauthorizedMessage = "Token is invalid.";
-        private const string InternalServerErrorMessage = "An error occured.";
+        private const string InternalServerErrorMessage = "An error occurred.";
         private const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
 
         internal readonly IHttpClientProvider _httpClientProvider;

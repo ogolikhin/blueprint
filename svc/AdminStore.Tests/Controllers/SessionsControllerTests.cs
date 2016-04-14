@@ -277,18 +277,31 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const string samlResponse = "samlResponse";
+            var httpRequestMessage = new HttpRequestMessage();
+            Exception exception = null;
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             var logMock = new Mock<IServiceLogRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.Unknown));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object);
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            {
+                Request = httpRequestMessage
+            };
 
             // Act
-            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+            try
+            {
+                await controller.PostSessionSingleSignOn(samlResponse);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
+            Assert.AreEqual(((HttpResponseException)exception).Response.StatusCode, HttpStatusCode.Unauthorized);
         }
 
         [TestMethod]
@@ -315,18 +328,31 @@ namespace AdminStore.Controllers
         {
             // Arrange
             const string samlResponse = "samlResponse";
+            var httpRequestMessage = new HttpRequestMessage();
+            Exception exception = null;
 
             var authenticationRepositoryMock = new Mock<IAuthenticationRepository>();
             var logMock = new Mock<IServiceLogRepository>();
             authenticationRepositoryMock.Setup(m => m.AuthenticateSamlUserAsync(samlResponse)).Throws(new FederatedAuthenticationException(FederatedAuthenticationErrorCode.WrongFormat));
 
-            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object);
+            var controller = new SessionsController(authenticationRepositoryMock.Object, new HttpClientProvider(), logMock.Object)
+            {
+                Request = httpRequestMessage
+            };
 
             // Act
-            IHttpActionResult result = await controller.PostSessionSingleSignOn(samlResponse);
+            try
+            {
+                await controller.PostSessionSingleSignOn(samlResponse);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(BadRequestResult));
+            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
+            Assert.AreEqual(((HttpResponseException)exception).Response.StatusCode, HttpStatusCode.BadRequest);
         }
 
         [TestMethod]

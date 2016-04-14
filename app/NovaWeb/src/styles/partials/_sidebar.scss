@@ -29,6 +29,10 @@ sidebar {
     }
   }
 
+  .sidebar-content {
+    height: 100%;
+  }
+
   &.project-explorer {
     left: 0;
     margin-left: -$sidebar-size;

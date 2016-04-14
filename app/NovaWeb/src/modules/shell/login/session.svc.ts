@@ -8,6 +8,7 @@ export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
     currentUser: IUser;
+    lastError: Error;
 
     logout(): ng.IPromise<any>;
 
@@ -15,7 +16,7 @@ export interface ISession {
 
     loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 
-    resetPassword(login: string, oldPassword: string, newPassword: string);
+    resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
 }
 
 export class SessionSvc implements ISession {
@@ -27,11 +28,16 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
+    private _lastError: Error;
     //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
 
     public get currentUser(): IUser {
         return this._currentUser;
+    }
+
+    public get lastError(): Error {
+        return this._lastError;
     }
 
     public logout(): ng.IPromise<any> {
@@ -106,7 +112,9 @@ export class SessionSvc implements ISession {
         });
     }
 
-    private showLogin(done: ng.IDeferred<any>): void {
+    private showLogin(done: ng.IDeferred<any>, error?: Error): void {
+        this._lastError = error;
+
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                 template: require("./login.html"),
@@ -132,7 +140,7 @@ export class SessionSvc implements ISession {
                                         done.resolve();
                                     },
                                     (error) => {
-                                        this.showLogin(done);
+                                        this.showLogin(done, error);
                                     });
                             } else {
                                 this.showLogin(done);
@@ -149,7 +157,7 @@ export class SessionSvc implements ISession {
                                         done.resolve();
                                     },
                                     (error) => {
-                                        this.showLogin(done);
+                                        this.showLogin(done, error);
                                     });
                             } else {
                                 this.showLogin(done);

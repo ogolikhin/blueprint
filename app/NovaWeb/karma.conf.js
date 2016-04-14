@@ -4,6 +4,9 @@ var webpackConfig = require('./webpack/webpack.test.js');
 require('phantomjs-polyfill');
 webpackConfig.entry = {};
 
+//webpackConfig.module.loaders[1].loader = 'style!css';
+//webpackConfig.module.loaders[2].loader = 'style!css!sass';
+
 module.exports = function (config) {
     config.set({
         basePath: '',
@@ -43,7 +46,7 @@ module.exports = function (config) {
         webpack: webpackConfig,
         reporters: [
             'dots',
-            'spec',
+            //'spec',
             'coverage'
         ],
         coverageReporter: {

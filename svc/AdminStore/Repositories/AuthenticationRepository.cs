@@ -78,7 +78,7 @@ namespace AdminStore.Repositories
             return user;
         }
 
-        private async Task ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, AuthenticationUser user, InstanceSettings instanceSettings)
+        private async Task<AuthenticationUser> ProcessAuthenticationStatus(AuthenticationStatus authenticationStatus, AuthenticationUser user, InstanceSettings instanceSettings)
         {
             switch (authenticationStatus)
             {
@@ -100,6 +100,7 @@ namespace AdminStore.Repositories
                 case AuthenticationStatus.Error:
                     throw new AuthenticationException("Authentication Error");
             }
+            return user;
         }
 
         public async Task<AuthenticationUser> AuthenticateSamlUserAsync(string samlResponse)
@@ -162,13 +163,9 @@ namespace AdminStore.Repositories
             {
                 case UserGroupSource.Database:
                     var authenticationStatus = AuthenticateDatabaseUser(user, password, 0);
-                    if (authenticationStatus == AuthenticationStatus.Success)
-                    {
-                        return user;
-                    }
-                    throw new AuthenticationException("Password reset is not authorized", ErrorCodes.InvalidCredentials);
+                    return await ProcessAuthenticationStatus(authenticationStatus, user, instanceSettings);
                 case UserGroupSource.Windows:
-                     throw new AuthenticationException($"Cannot reset password for ldap user {login}", ErrorCodes.LdapIsDisabled);
+                    throw new AuthenticationException($"Cannot reset password for ldap user {login}", ErrorCodes.LdapIsDisabled);
                 default:
                     throw new AuthenticationException($"Authentication provider could not be found for login: {login}");
             }

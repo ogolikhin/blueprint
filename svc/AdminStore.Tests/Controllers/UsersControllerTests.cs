@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -104,5 +105,67 @@ namespace AdminStore.Controllers
         }
 
         #endregion GetLoginUser
+
+        #region PostReset
+
+        [TestMethod]
+        public async Task PostReset_RepositoryReturnsSuccessfully()
+        {
+            // Arrange
+            Exception exception = null;
+            var loginUser = new AuthenticationUser();
+            var newPass = SystemEncryptions.EncodeTo64UTF8("123EWQ!@#");
+            var oldPass = SystemEncryptions.EncodeTo64UTF8("changeme");
+            _authRepoMock
+                .Setup(repo => repo.ResetPassword(It.IsAny<AuthenticationUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
+            _authRepoMock
+               .Setup(repo => repo.AuthenticateUserForResetAsync(It.IsAny<string>(), It.IsAny<string>()))
+               .ReturnsAsync(loginUser);
+
+            // Act
+            try
+            {
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), new ResetPostContent {NewPass = newPass, OldPass = oldPass});
+            }
+            catch (Exception ex)
+            { 
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public async Task PostReset_RepositoryReturnsNull_UnauthorizedResult()
+        {
+            // Arrange
+            Exception exception = null;
+            var loginUser = new AuthenticationUser();
+            var newPass = SystemEncryptions.EncodeTo64UTF8("123EWQ!@#");
+            var oldPass = SystemEncryptions.EncodeTo64UTF8("changeme");
+            _authRepoMock
+                .Setup(repo => repo.ResetPassword(It.IsAny<AuthenticationUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new AuthenticationException(""));
+            _authRepoMock
+               .Setup(repo => repo.AuthenticateUserForResetAsync(It.IsAny<string>(), It.IsAny<string>()))
+               .ReturnsAsync(loginUser);
+
+            // Act
+            try
+            {
+                await _controller.PostReset(SystemEncryptions.EncodeTo64UTF8("admin"), new ResetPostContent { NewPass = newPass, OldPass = oldPass });
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsInstanceOfType(exception, typeof(AuthenticationException));
+        }
+
+        #endregion PostReset
     }
 }

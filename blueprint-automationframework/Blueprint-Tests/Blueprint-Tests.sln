@@ -27,8 +27,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminStoreTests", "Tests\Ad
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{914E1E01-37A9-4BAC-9C35-6167A8A69FE2}"
 	ProjectSection(SolutionItems) = preProject
-		AlmostAllRules.ruleset = AlmostAllRules.ruleset
-		Blueprint-Tests.Common.props = Blueprint-Tests.Common.props
+		..\AlmostAllRules.ruleset = ..\AlmostAllRules.ruleset
+		..\Blueprint-Tests.Common.props = ..\Blueprint-Tests.Common.props
+		..\..\NuGet.config = ..\..\NuGet.config
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControlDoubleTests", "Tests\AccessControlDoubleTests\AccessControlDoubleTests.csproj", "{0D55D8E0-BF1F-4FEE-836C-8B7B330253CE}"

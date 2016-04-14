@@ -3,6 +3,7 @@ import "angular-mocks"
 import {ILocalizationService} from "../../core/localization";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {IUser, IAuth} from "./auth.svc";
+import {ISession} from "./session.svc";
 
 export class LocalizationServiceMock implements ILocalizationService {
     public get(name: string): string {
@@ -27,6 +28,49 @@ export class ConfigValueHelperMock implements IConfigValueHelper {
 export class WindowMock {
     public location = { origin: "http://localhost:9876" };
     public open() { }
+}
+
+export class SessionSvcMock implements ISession {
+
+    public static $inject = ["$q"];
+    public currentUser: IUser;
+    public lastError: Error;
+
+    constructor(private $q: ng.IQService) {
+    }
+
+    public ensureAuthenticated() {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public logout() {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public login(username: string, password: string, overrideSession: boolean) {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public loginWithSaml(overrideSession: boolean) {
+        var deferred = this.$q.defer<any>();
+        this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public resetPassword(login: string, oldPassword: string, newPassword: string) {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
 }
 
 export class AuthSvcMock implements IAuth {
@@ -70,8 +114,8 @@ export class AuthSvcMock implements IAuth {
 }
 
 export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
-    public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) {
+    public static $inject = ["$q", "$timeout"];
+    constructor(private $q: ng.IQService, private $timeout: ng.ITimeoutService) {
         this.instanceMock = new ModalServiceInstanceMock(this.$q);
     }
 
@@ -79,7 +123,7 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller(new LocalizationServiceMock());
+        var ctrl = new options.controller(new LocalizationServiceMock(), this.instanceMock, new SessionSvcMock(this.$q), this.$timeout, new ConfigValueHelperMock());
         return this.instanceMock;
     }
 }

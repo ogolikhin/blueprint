@@ -250,17 +250,17 @@ export class AuthSvc implements IAuth {
                     error = {
                         statusCode: statusCode,
                         message: this.localization.get("Login_Auth_LicenseNotFound_Verbose")
-                    }
+                    };
                 } else if (statusCode === 403) { // Forbidden
                     error = {
                         statusCode: statusCode,
                         message: this.localization.get("Login_Auth_LicenseLimitReached")
-                    }
+                    };
                 } else { // Other error
                     error = {
                         statusCode: statusCode,
                         message: err ? err.Message : ""
-                    }
+                    };
                 }
 
                 deferred.reject(error);

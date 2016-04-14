@@ -1,12 +1,8 @@
 ﻿using Common;
 using Model.Impl;
-using System;
 using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
 using Utilities.Factories;
 using System.Linq;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using Utilities;
 using Utilities.Facades;
@@ -49,8 +45,12 @@ namespace Model.Factories
         /// </summary>
         /// <param name="user">The user making the REST request.</param>
         /// <param name="projectName">(optional) The name of the project.</param>
+        /// <param name="shouldRetrieveArtifactTypes">(optional) Define if ArtifactType list needs to be retrieved.
+        ///  By default, set to true</param>
+        /// <param name="shouldRetrievePropertyTypes">(optional) Define if Property values also need to be retrieved
+        ///  as part of ArtifactType list. By default, set to false</param>
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
-        public static IProject GetProject(IUser user, string projectName = null)
+        public static IProject GetProject(IUser user, string projectName = null, bool shouldRetrieveArtifactTypes = true, bool shouldRetrievePropertyTypes = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -64,18 +64,19 @@ namespace Model.Factories
                 Logger.WriteError("No project available on the test server {0}", _address);
                 throw new DataException("No project available on the test server");
             }
-            Project prj;
-            if (projectName == null)
-            {
-                prj = projects.First();
-            }
-            else
-            {
-                prj = projects.First(t => (t.Name == projectName));
-            }
-            
 
+            // Get project from blueprint
+            Project prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
+
+            // Create a project object in memeory using the constructor
             IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};
+
+            if (shouldRetrieveArtifactTypes)
+            {
+                project.GetAllArtifactTypes(address: _address, user: user,
+                    shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
+            }
+
             return project;
         }
     }

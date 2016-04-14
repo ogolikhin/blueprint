@@ -1,5 +1,6 @@
 ﻿using Model.OpenApiModel.Impl;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Model.OpenApiModel
 {
@@ -15,12 +16,19 @@ namespace Model.OpenApiModel
         List<object> Choices { get; }
         string DateValue { get; set; }
 
-        /// TODO: need to be updated for future script update
+        /// TODO: Is there any way to improve the performance for get artifactTypes call
         /// <summary>
-        /// Create a property object based on the information from DB </summary>
-        /// <param name="project">project</param>
-        /// <param name="propertyName">property Name</param>
-        /// <param name="propertyValue">(optional) property Name</param>
-        OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null);
+        /// Set a property value for the property of the specific artifact</summary>
+        /// <param name="project">the target project</param>
+        /// <param name="user">blueprint user</param>
+        /// <param name="baseArtifactType">base artifact Type</param>
+        /// <param name="propertyName">the name of the property want to edit</param>
+        /// <param name="propertyValue">(Optional) property value for the property. If null, the default value will be used if available</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        OpenApiProperty SetPropertyAttribute(IProject project, IUser user, BaseArtifactType baseArtifactType,
+            string propertyName, string propertyValue = null, List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false);
+
     }
 }

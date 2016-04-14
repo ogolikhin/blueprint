@@ -69,6 +69,7 @@
     <Compile Include="OpenApiModel\Impl\Attachment.cs" />
     <Compile Include="OpenApiModel\Impl\Comment.cs" />
     <Compile Include="OpenApiModel\Impl\Property.cs" />
+    <Compile Include="OpenApiModel\Impl\PropertyType.cs" />
     <Compile Include="OpenApiModel\Impl\Trace.cs" />
     <Compile Include="OpenApiModel\IProperty.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />

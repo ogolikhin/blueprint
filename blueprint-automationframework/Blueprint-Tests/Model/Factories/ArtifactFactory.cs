@@ -27,8 +27,8 @@ namespace Model.Factories
             artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
 
             artifact.ProjectId = project.Id;
-            artifact.ArtifactTypeId = project.GetArtifactTypeId(address: address, projectId: project.Id, baseArtifactTypeName: artifactType,
-                user: user);
+
+            artifact.ArtifactTypeId = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType)).Id;
 
             //TODO: Move this to Save method and get CreatedBy from the result of the OpenAPI call
             artifact.CreatedBy = user;

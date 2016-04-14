@@ -10,8 +10,8 @@
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 
-  <!-- <script src="https://code.jquery.com/jquery-1.12.2.js"></script> -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js"></script>
+  <script src="angular-perfect-scrollbar-2.js"></script>
   <script src="dragdrop.js"></script>
   <script src="ag-grid.js"></script>
   <script src="app.js"></script>
@@ -31,19 +31,28 @@
       height: calc(100% - 50px);
     }
     #centerPane {
-      width: calc(50% - 10px);
+      width: 50%;
       background: #cecece;
       color: #fff;
       position: relative;
+      float: left;
+      box-sizing: border-box;
+      border: solid 1px gray;
+      height: 100%;
     }
     #leftPane, #rightPane {
-      width: calc(25% - 5px);
+      width: 25%;
+      height: 100%;
+      float:left;
+    }
+    #leftPane {
+      overflow: hidden;
     }
     #rightPane {
       background: #fff;
     }
 
-    /* styles related to the ree */
+    /* styles related to the tree */
     .ag-body {
       background-color: #474747;
       color: #fff;
@@ -105,9 +114,29 @@
     .mychild.ag-cell-focus.excel::before {
       color: #fff;
     }
-
     .over {
       background-color: darkred;
+    }
+
+    /* custom scrollbar */
+    #leftPane {
+      height: 100%;
+      position: relative;
+    }
+    #center,
+    #borderLayout_eRootPanel,
+    #borderLayout_eGridPanel,
+    .ag-scrolls,
+    .ag-body,
+    .ag-body-viewport-wrapper,
+    .ag-body-viewport {
+      height: auto !important;
+      overflow: visible !important;
+    }
+    /* .always-visible make the scrollbar+track always visible */
+    .always-visible.ps-container > .ps-scrollbar-x-rail,
+    .always-visible.ps-container > .ps-scrollbar-y-rail {
+      opacity: 0.6;
     }
 
     /* styles related to accordion */
@@ -183,7 +212,8 @@
     }
     #rightPane ul li div.content {
       font-size: 14px;
-      overflow: auto;
+      overflow: hidden;
+      position: relative;
       margin: 0;
       height: 0;
       opacity: 0;
@@ -224,38 +254,6 @@
 			}
 		}
 	*/
-
-    /* styles related to panes splitter */
-    .split {
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;
-
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .gutter {
-      background-color: #eee;
-
-      background-repeat: no-repeat;
-      background-position: 50%;
-    }
-
-    .gutter.gutter-horizontal {
-      background-image: url('grips/vertical.png');
-      cursor: ew-resize;
-    }
-
-    .gutter.gutter-vertical {
-      background-image: url('grips/horizontal.png');
-      cursor: ns-resize;
-    }
-
-    .split.split-horizontal, .gutter.gutter-horizontal {
-      height: 100%;
-      float: left;
-    }
   </style>
 </head>
 <body ng-app="example" ng-controller="exampleCtrl">
@@ -265,63 +263,39 @@
   - <a href="javascript:void(0)" onclick="closeRight()">[close right]</a> | <a href="javascript:void(0)" onclick="openRight()">[open right]</a>
 </div>
 <div id="main-container">
-  <div id="leftPane" ag-grid="gridOptions" class="mygrid split split-horizontal"></div>
-  <div id="centerPane" ui-on-drop="onDrop($data)" droppable class="split split-horizontal">Drop zone</div>
-  <div id="rightPane" class="split split-horizontal"><div class="utility-panel">
+  <div id="leftPane" style="width:25%" ag-grid="gridOptions" not-on-mobile="perfect-scrollbar" class="mygrid always-visible scrollable"></div>
+  <div id="centerPane" ui-on-drop="onDrop($data)" droppable>Drop zone</div>
+  <div id="rightPane" style="width:25%"><div class="utility-panel">
     <ul bp-accordion header-height="33px">
       <li>
         <input type="radio" name="accordion" checked="checked" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Discussion</h2>
-        <div class="content">This page was written in HTML and CSS. The CSS was compiled from SASS. I used Normalize as my CSS reset and -prefix-free to save myself some headaches. I haven't quite gotten the hang of Slim for compiling into HTML, but someday I'll use it since its syntax compliments that of SASS. Regardless, this could all be done in plain HTML and CSS.</div>
+        <div class="content scrollable" not-on-mobile="perfect-scrollbar">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ullamcorper nulla eu mattis elementum. Mauris in commodo est. Aenean fringilla ligula et turpis mollis auctor. Pellentesque consequat dapibus velit ut scelerisque. Vivamus placerat, est sed rutrum dapibus, risus ex blandit massa, id pretium lacus sapien ac libero. Phasellus bibendum ullamcorper risus vitae fermentum. In ac imperdiet eros, aliquam auctor dui. Aenean euismod fermentum malesuada.</div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Attachment</h2>
-        <div class="content">Using the sibling and checked selectors, we can determine the styling of sibling elements based on the checked state of the checkbox input element. One use, as demonstrated here, is an entirely CSS and HTML accordion element. Media queries are used to make the element responsive to different screen sizes. Using the sibling and checked selectors, we can determine the styling of sibling elements based on the checked state of the checkbox input element. One use, as demonstrated here, is an entirely CSS and HTML accordion element. Media queries are used to make the element responsive to different screen sizes. Using the sibling and checked selectors, we can determine the styling of sibling elements based on the checked state of the checkbox input element. One use, as demonstrated here, is an entirely CSS and HTML accordion element. Media queries are used to make the element responsive to different screen sizes.</div>
+        <div class="content scrollable" not-on-mobile="perfect-scrollbar">In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio.<br><br>
+          In felis libero, aliquet varius placerat nec, vehicula a lorem. Pellentesque nunc leo, auctor bibendum leo et, consectetur hendrerit arcu. Fusce feugiat venenatis eros quis pretium. Pellentesque rhoncus eros eleifend tellus facilisis, sed laoreet velit vehicula. Praesent consequat gravida ipsum a efficitur. Donec erat purus, cursus nec sapien ut, accumsan consequat enim. Nam pretium ex quam, eget laoreet enim fermentum vitae. Suspendisse auctor nisi id risus fringilla sollicitudin.</div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Relationships</h2>
-        <div class="content">By making the open state default for when :checked isn't detected, we can make this system accessable for browsers that don't recognize :checked. The fallback is simply an open accordion. The accordion can be manipulated with Javascript (if needed) by changing the "checked" property of the input element.</div>
+        <div class="content scrollable" not-on-mobile="perfect-scrollbar">Integer auctor ex nibh, sit amet ornare ante consectetur nec. Nam ut interdum mauris. Maecenas dignissim tortor felis, eu suscipit sem gravida non. Nulla vestibulum velit placerat ex eleifend pulvinar. Mauris magna sem, pellentesque non elit eget, consequat venenatis lectus. Aenean faucibus tempus dapibus. Fusce aliquet risus vitae tellus iaculis tempus. Nunc imperdiet eget ligula eget efficitur. Proin bibendum quam et risus finibus mollis. Mauris leo eros, malesuada et lectus eu, elementum rutrum massa. Vivamus vel scelerisque nisi. Donec iaculis libero a condimentum volutpat. Praesent rutrum tortor orci, quis varius enim euismod nec. Suspendisse consectetur, justo at tempus sagittis, ante augue tempor est, a egestas odio enim sed erat. Quisque finibus commodo ex, sit amet pellentesque nisl elementum et. Aliquam vel tincidunt eros.</div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Another item</h2>
-        <div class="content">
-          <input type="text" size="20" style="width: 250px"><br><br>
-          <textarea rows="10" style="width: 250px"></textarea><br><br>
-          <select multiple size="5" style="width: 250px">
-            <option>Option 1
-            <option>Option 2
-            <option>Option 3
-            <option>Option 4
-            <option>Option 5
-            <option>Option 6
-          </select><br><br>
-          <select style="width: 250px">
-            <option>Option 1
-            <option>Option 2
-            <option>Option 3
-            <option>Option 4
-            <option>Option 5
-            <option>Option 6
-          </select>
-        </div>
+        <div class="content scrollable" not-on-mobile="perfect-scrollbar">Suspendisse eu urna est. Etiam nec risus libero. Sed libero risus, convallis in blandit vel, sollicitudin vitae ligula. Suspendisse vel orci et leo tempus eleifend sed et enim. Praesent tempus porttitor suscipit. Donec aliquam interdum ipsum eget ullamcorper. Nunc faucibus est ac augue gravida tincidunt. Phasellus non tellus non massa ornare dapibus ac et ligula. Aliquam sit amet lectus vel felis placerat tempor et nec augue. Aenean vestibulum iaculis enim eu semper. Etiam elit neque, vehicula et nibh sed, ultricies luctus risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam placerat pretium pharetra.<br><br>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio.</div>
       </li>
     </ul></div></div>
 </div>
 </body>
-<script src="split.js"></script>
 <script>
-  Split(['#leftPane', '#centerPane', "#rightPane"], {
-    sizes: [25, 50, 25],
-    minSize: 200
-  });
-
   function parseWidth(str) {
     var regex = /\d+(\.\d+)?%/g;
 
@@ -338,24 +312,24 @@
     if(rightOpen) {
       var width = document.getElementById('rightPane').style.width;
       width = 100 - parseFloat(parseWidth(width));
-      width = "calc(" + width + "% - 15px)";
+      width = width + "% ";
       document.getElementById('centerPane').style.width = width;
     } else {
-      document.getElementById('centerPane').style.width = "calc(100% - 20px)";
+      document.getElementById('centerPane').style.width = "100%";
     }
     leftOpen = false;
     return false;
   }
 
   function openLeft() {
-    document.getElementById('leftPane').style.width = "calc(25% - 5px)";
+    document.getElementById('leftPane').style.width = "25%";
     if(rightOpen) {
       var width = document.getElementById('rightPane').style.width;
       width = 75 - parseFloat(parseWidth(width));
-      width = "calc(" + width + "% - 10px)";
+      width = width + "%";
       document.getElementById('centerPane').style.width = width;
     } else {
-      document.getElementById('centerPane').style.width = "calc(75% - 15px)";
+      document.getElementById('centerPane').style.width = "75%";
     }
     leftOpen = true;
     return false;
@@ -366,24 +340,24 @@
     if(leftOpen) {
       var width = document.getElementById('leftPane').style.width;
       width = 100 - parseFloat(parseWidth(width));
-      width = "calc(" + width + "% - 15px)";
+      width = width + "%";
       document.getElementById('centerPane').style.width = width;
     } else {
-      document.getElementById('centerPane').style.width = "calc(100% - 20px)";
+      document.getElementById('centerPane').style.width = "100%";
     }
     rightOpen = false;
     return false;
   }
 
   function openRight() {
-    document.getElementById('rightPane').style.width = "calc(25% - 5px)";
+    document.getElementById('rightPane').style.width = "25%";
     if(leftOpen) {
       var width = document.getElementById('leftPane').style.width;
       width = 75 - parseFloat(parseWidth(width));
-      width = "calc(" + width + "% - 10px)";
+      width = width + "%";
       document.getElementById('centerPane').style.width = width;
     } else {
-      document.getElementById('centerPane').style.width = "calc(75% - 15px)";
+      document.getElementById('centerPane').style.width = "75%";
     }
     rightOpen = true;
     return false;

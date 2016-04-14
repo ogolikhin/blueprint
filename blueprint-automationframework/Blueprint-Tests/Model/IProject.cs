@@ -70,16 +70,17 @@ namespace Model
         void UpdateProject();
 
         /// <summary>
-        /// Get the all artifactTypes for the project
+        /// Get the all artifactTypes for the project, update the ArtifactTypes of the project and return the same list
         /// Runs api/v1/projects/projectId/metadata/artifactTypes with optional parameter based on optional boolean parameter
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
-        /// <param name="isPropertyTypesRetrieveRequired">(optional) Defines whether or not to include property types.</param>
+        /// <param name="shouldRetrievePropertyTypes">(optional) Defines whether or not to include property types.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        void GetAllArtifactTypes(string address, IUser user,
-            bool isPropertyTypesRetrieveRequired = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <returns>a artifact type list which is retrieved for the project</returns>
+        List<ArtifactType> GetAllArtifactTypes(string address, IUser user,
+            bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         #endregion Methods
     }

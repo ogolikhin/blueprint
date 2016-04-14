@@ -129,10 +129,10 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public void GetAllArtifactTypes(
+        public List<ArtifactType> GetAllArtifactTypes(
             string address,
             IUser user,
-            bool isPropertyTypesRetrieveRequired = false,
+            bool shouldRetrievePropertyTypes = false,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false
             )
@@ -150,7 +150,7 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
-            var path = isPropertyTypesRetrieveRequired ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
+            var path = shouldRetrievePropertyTypes ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
                 : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
 
             // Retrieve the artifact type list for the project 
@@ -168,6 +168,8 @@ namespace Model.Impl
             }
 
             ArtifactTypes = artifactTypes;
+
+            return artifactTypes.ConvertAll(o => (ArtifactType) o);
         }
 
         #endregion Public Methods

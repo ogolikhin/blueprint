@@ -17,9 +17,6 @@ namespace Model.OpenApiModel.Impl
 
     public class OpenApiProperty : IOpenApiProperty
     {
-        #region Constants
-
-        #endregion Constants
 
         #region Properties
 
@@ -92,7 +89,7 @@ namespace Model.OpenApiModel.Impl
             if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
             {
                 project.GetAllArtifactTypes(user: user, address: Address,
-                    isPropertyTypesRetrieveRequired: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+                    shouldRetrievePropertyTypes: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
             }
 
             // Retrive the artifactType for the selected base artifact type

@@ -57,6 +57,8 @@
     <Compile Include="IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
+    <Compile Include="IPrimitiveFolder.cs" />
+    <Compile Include="Impl\PrimitiveFolder.cs" />
     <Compile Include="OpenApiModel\IArtifact.cs" />
     <Compile Include="OpenApiModel\IArtifactBase.cs" />
     <Compile Include="OpenApiModel\IArtifactResult.cs" />

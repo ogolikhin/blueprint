@@ -17,15 +17,16 @@ namespace OpenAPITests
         private IProject _project;
         private IOpenApiArtifact _artifact;
 
+        #region Setup and Cleanup
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject(_user);
+            _project = ProjectFactory.GetProject(_user, isPropertyTypesGenerationRequired: true);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
             if (_user != null)
@@ -35,12 +36,14 @@ namespace OpenAPITests
                 _user = null;
             }
         }
+        
+        #endregion Setup and Cleanup
 
         /// <summary>
         /// Create an "Actor" type artifact under the existing project.
         /// </summary>
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
-        [Test]
+        [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         public void AddArtifact_Actor()
         {
@@ -52,7 +55,7 @@ namespace OpenAPITests
             
             //Set property value
             _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
-            
+
             //Set to add in root of the project
             _artifact.ParentId = _artifact.ProjectId;
 
@@ -64,7 +67,7 @@ namespace OpenAPITests
             // TODO more assertion?
         }
 
-        [Test]
+        [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         public void DiscardArtifact_Actor()
         {
@@ -90,7 +93,7 @@ namespace OpenAPITests
             _artifact.Discard();
         }
 
-        [Test]
+        [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         public void PublishArtifact_Actor()
         {

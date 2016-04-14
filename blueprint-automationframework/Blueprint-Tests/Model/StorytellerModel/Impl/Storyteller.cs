@@ -186,11 +186,11 @@ namespace Model.StorytellerModel.Impl
 
         public int GetProcessArtifactTypeId(IUser user, IProject project)
         {
+            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
             BaseArtifactType processTypeName = BaseArtifactType.Process;
 
-            return project.GetArtifactTypeId(address: Address, user: user, baseArtifactTypeName: processTypeName,
-                projectId: project.Id);
+            return project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(processTypeName)).Id;
         }
 
         public IProcess GetProcessWithBreadcrumb(IUser user, List<int> artifactIds, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

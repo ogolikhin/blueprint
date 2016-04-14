@@ -27,6 +27,7 @@ namespace Model.Impl
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<PropertyType>>))]
+        [JsonProperty("PropertyTypes")]
         public List<PropertyType> PropertyTypes { get; set; }
 
         #endregion Properties

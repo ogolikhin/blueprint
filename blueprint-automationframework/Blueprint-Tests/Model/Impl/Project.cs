@@ -3,10 +3,12 @@ using System.Runtime.Serialization;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Common;
 using Utilities;
 using Utilities.Facades;
-using Model.OpenApiModel;
+
 
 namespace Model.Impl
 {
@@ -20,6 +22,8 @@ namespace Model.Impl
         /// </summary>
         private const string SVC_PROJECTS_PATH = "/api/v1/projects";
         private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
+        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
 
         /// <summary>
         /// Id of the project
@@ -44,10 +48,22 @@ namespace Model.Impl
         /// </summary>
         public string Location { get; set; }
 
+        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactType>>))]
+        public List<ArtifactType> ArtifactTypes { get; set; }
+
         #endregion Properties
 
+        #region Constructors
 
-        #region Methods
+        public Project()
+        {
+            ArtifactTypes = new List<ArtifactType>();
+        }
+
+        #endregion Constructors
+
+        #region Public Methods
 
         /// <summary>
         /// Creates a new project on the Blueprint server.
@@ -113,21 +129,48 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user = null)
+        public void GetAllArtifactTypes(
+            string address,
+            IUser user,
+            bool isPropertyTypesGenerationRequired = false,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false
+            )
         {
-            ThrowIf.ArgumentNull(projectId, nameof(projectId));
-            ThrowIf.ArgumentNull(baseArtifactTypeName, nameof(baseArtifactTypeName));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, projectId, URL_ARTIFACTTYPES);
+            string tokenValue = user.Token?.OpenApiToken;
+            var cookies = new Dictionary<string, string>();
 
-            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token?.OpenApiToken);
-            List<ArtifactType> artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET);
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
 
-            ArtifactType artifactType = artifactTypes.First(t => (t.BaseArtifactType == baseArtifactTypeName));
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
-            return artifactType.Id;
+            var path = isPropertyTypesGenerationRequired ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
+                : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
+
+            // Retrieve the artifact type list for the project 
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+
+            // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
+            if (ArtifactTypes.Any())
+            {
+                ArtifactTypes.Clear();
+
+                foreach (var artifactType in artifactTypes)
+                { 
+                    ArtifactTypes.Add(artifactType);   
+                }
+            }
+
+            ArtifactTypes = artifactTypes;
         }
 
-        #endregion Methods
+        #endregion Public Methods
+
     }
 }

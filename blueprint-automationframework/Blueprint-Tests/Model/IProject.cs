@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.Impl;
+using System.Net;
 
 namespace Model
 {
@@ -27,8 +28,12 @@ namespace Model
         /// </summary>
         string Location { get; set; }
 
+        /// <summary>
+        /// Artifact type list for the project
+        /// </summary>
+        List<ArtifactType> ArtifactTypes { get; }
+        
         #endregion Properties
-
 
         #region Methods
 
@@ -65,15 +70,16 @@ namespace Model
         void UpdateProject();
 
         /// <summary>
-        /// Gets the id of the specified artifact type from the specified project.
-        /// Runs api/v1/projects/projectId/metadata/artifactTypes
+        /// Get the all artifactTypes for the project
+        /// Runs api/v1/projects/projectId/metadata/artifactTypes with optional parameter based on optional boolean parameter
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
-        /// <param name="projectId">Id of the project</param>
-        /// <param name="baseArtifactTypeName">Name of the base artifact type (Actor, Process, Storyboard)</param>
-        /// <param name="user">(optional) The user to authenticate to the the server with.  Defaults to no authentication.</param>
-        /// <returns>Id of the specified artifact type from the specified project.</returns>
-        int GetArtifactTypeId(string address, int projectId, BaseArtifactType baseArtifactTypeName, IUser user = null);
+        /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
+        /// <param name="isPropertyTypesGenerationRequired">(optional) Defines whether or not to include property types.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        void GetAllArtifactTypes(string address, IUser user,
+            bool isPropertyTypesGenerationRequired = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         #endregion Methods
     }

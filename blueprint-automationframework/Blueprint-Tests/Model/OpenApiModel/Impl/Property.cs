@@ -1,14 +1,8 @@
-﻿using Common;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using Model.Factories;
-using Utilities;
+﻿using System.Collections.Generic;
+using System.Linq;
+
 using System.Net;
-using Utilities.Facades;
-using Model.Impl;
+using Utilities;
 
 namespace Model.OpenApiModel.Impl
 {
@@ -24,10 +18,6 @@ namespace Model.OpenApiModel.Impl
     public class OpenApiProperty : IOpenApiProperty
     {
         #region Constants
-
-        private const string SVC_PATH = "api/v1/projects";
-        private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
-        public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         #endregion Constants
 
@@ -56,7 +46,6 @@ namespace Model.OpenApiModel.Impl
             Address = address;
         }
 
-        /// TODO: Is there any way to improve the performance for get artifactTypes call
         public OpenApiProperty SetPropertyAttribute(
             IProject project,
             IUser user,
@@ -67,47 +56,52 @@ namespace Model.OpenApiModel.Impl
             bool sendAuthorizationAsCookie = false
             )
         {
-
-            ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-
-            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PATH, project.Id, URL_ARTIFACTTYPES);
-
-            var artifactTypes = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
-
-            // Retrieve the deserialized artifact type list for the project 
-            var deserializedArtifactTypes = Deserialization.DeserializeObject<List<ArtifactType>>(artifactTypes.Content);
-
-            // Retrive the deserialized artifactType for the selected base artifact type
-            var deserializedArtifactTypeForBaseArtifactType = deserializedArtifactTypes.Find(at => at.BaseArtifactType.Equals(baseArtifactType));
-
             // Retrieve the deserialized property for the selected base artifact type
-            var deserializedReturnedProperty = deserializedArtifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
+            var returnedPropertyType = GetPropertyType(project, user, baseArtifactType, propertyName,
+                expectedStatusCodes, sendAuthorizationAsCookie);
 
             // Created and update the property based on information from get artifact types call and user parameter
             var updatedProperty = new OpenApiProperty(Address)
             {
-                PropertyTypeId = deserializedReturnedProperty.Id,
-                Name = deserializedReturnedProperty.Name,
-                BasePropertyType = deserializedReturnedProperty.BasePropertyType,
+                PropertyTypeId = returnedPropertyType.Id,
+                Name = returnedPropertyType.Name,
+                BasePropertyType = returnedPropertyType.BasePropertyType,
                 // Set the value for the property with propertyValue parameter
-                TextOrChoiceValue = propertyValue ?? deserializedReturnedProperty.DefaultValue,
-                IsRichText = deserializedReturnedProperty.IsRichText,
-                IsReadOnly = deserializedReturnedProperty.IsReadOnly
+                TextOrChoiceValue = propertyValue ?? returnedPropertyType.DefaultValue,
+                IsRichText = returnedPropertyType.IsRichText,
+                IsReadOnly = returnedPropertyType.IsReadOnly
             };
 
             return updatedProperty;
+        }
+
+        private PropertyType GetPropertyType(
+            IProject project,
+            IUser user,
+            BaseArtifactType baseArtifactType,
+            string propertyName,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false
+            )
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Generate ArtifactType lists for the project if the target project doesn't contains any artifact types 
+            // or only contain artifact type  without property information
+            if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
+            {
+                project.GetAllArtifactTypes(user: user, address: Address,
+                    isPropertyTypesGenerationRequired: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+            }
+
+            // Retrive the artifactType for the selected base artifact type
+            var artifactTypeForBaseArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(baseArtifactType));
+
+            // Retrieve the property for the selected base artifact type based on the property name
+            var returnedProperty = artifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
+
+            return returnedProperty;
         }
     }
 

@@ -121,12 +121,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Certificates\samlTestCertificate.pfx">
+    <EmbeddedResource Include="Certificates\samlTestCertificate.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Certificates\dummyCertificate.pfx">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Certificates\dummyCertificate.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

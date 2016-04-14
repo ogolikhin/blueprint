@@ -97,11 +97,6 @@ export class LoginCtrl {
         if (!this.novaConfirmNewPassword) {
             this.novaConfirmNewPassword = "";
         }
-        if (session.lastError && session.lastError.message) {
-            this.errorMsg = session.lastError.message;
-            this.labelError = true;
-            this.fieldError = false;
-        }
     }
 
     private transitionToState(state: LoginState) {
@@ -280,7 +275,7 @@ export class LoginCtrl {
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
                 this.fieldError = true;
                 this.transitionToState(LoginState.LoginForm);
             } else {
@@ -305,12 +300,20 @@ export class LoginCtrl {
         } else if (error.statusCode === 400) {
             this.fieldError = true;
             if (error.errorCode === 2004) {
-                this.errorMsg = this.localization.get("Login_Session_SamlError");
+                this.errorMsg = this.localization.get("Login_Auth_FederatedAuthFailed");
                 this.transitionToState(LoginState.LoginForm);
             } else {
                 this.errorMsg = error.message;
                 this.labelError = true;
             }
+        } else if (error.statusCode === 404) {
+            this.errorMsg = error.message;
+            this.labelError = true;
+            this.fieldError = false;
+        } else if (error.statusCode === 403) {
+            this.errorMsg = error.message;
+            this.labelError = true;
+            this.fieldError = false;
         } else {
             this.errorMsg = error.message;
             this.labelError = true;

@@ -92,7 +92,7 @@ namespace Model.OpenApiModel.Impl
             if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
             {
                 project.GetAllArtifactTypes(user: user, address: Address,
-                    isPropertyTypesGenerationRequired: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+                    isPropertyTypesRetrieveRequired: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
             }
 
             // Retrive the artifactType for the selected base artifact type

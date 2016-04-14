@@ -132,7 +132,7 @@ namespace Model.Impl
         public void GetAllArtifactTypes(
             string address,
             IUser user,
-            bool isPropertyTypesGenerationRequired = false,
+            bool isPropertyTypesRetrieveRequired = false,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false
             )
@@ -150,7 +150,7 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
-            var path = isPropertyTypesGenerationRequired ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
+            var path = isPropertyTypesRetrieveRequired ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
                 : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
 
             // Retrieve the artifact type list for the project 

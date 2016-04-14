@@ -45,12 +45,12 @@ namespace Model.Factories
         /// </summary>
         /// <param name="user">The user making the REST request.</param>
         /// <param name="projectName">(optional) The name of the project.</param>
-        /// <param name="isArtifactTypesGenerationRequired">(optional) Define if ArtifactType list needs to be populated.
+        /// <param name="isArtifactTypesRetrieveRequired">(optional) Define if ArtifactType list needs to be retrieved.
         ///  By default, set to true</param>
-        /// <param name="isPropertyTypesGenerationRequired">(optional) Define if Property values also need to be populated
+        /// <param name="isPropertyTypesRetrieveRequired">(optional) Define if Property values also need to be retrieved
         ///  as part of ArtifactType list. By default, set to false</param>
         /// <returns>The first valid project object that retrieved from Blueprint server or valid project object with the project name specified </returns>
-        public static IProject GetProject(IUser user, string projectName = null, bool isArtifactTypesGenerationRequired = true, bool isPropertyTypesGenerationRequired = false)
+        public static IProject GetProject(IUser user, string projectName = null, bool isArtifactTypesRetrieveRequired = true, bool isPropertyTypesRetrieveRequired = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -71,10 +71,10 @@ namespace Model.Factories
             // Create a project object in memeory using the constructor
             IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};
 
-            if (isArtifactTypesGenerationRequired)
+            if (isArtifactTypesRetrieveRequired)
             {
                 project.GetAllArtifactTypes(address: _address, user: user,
-                    isPropertyTypesGenerationRequired: isPropertyTypesGenerationRequired);
+                    isPropertyTypesRetrieveRequired: isPropertyTypesRetrieveRequired);
             }
 
             return project;

@@ -75,11 +75,11 @@ namespace Model
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
-        /// <param name="isPropertyTypesGenerationRequired">(optional) Defines whether or not to include property types.</param>
+        /// <param name="isPropertyTypesRetrieveRequired">(optional) Defines whether or not to include property types.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         void GetAllArtifactTypes(string address, IUser user,
-            bool isPropertyTypesGenerationRequired = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+            bool isPropertyTypesRetrieveRequired = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         #endregion Methods
     }

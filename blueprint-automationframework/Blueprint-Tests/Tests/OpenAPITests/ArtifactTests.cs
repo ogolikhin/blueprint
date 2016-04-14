@@ -23,7 +23,7 @@ namespace OpenAPITests
         public void SetUp()
         {
             _user = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject(_user, isPropertyTypesGenerationRequired: true);
+            _project = ProjectFactory.GetProject(_user, isPropertyTypesRetrieveRequired: true);
         }
 
         [TestFixtureTearDown]

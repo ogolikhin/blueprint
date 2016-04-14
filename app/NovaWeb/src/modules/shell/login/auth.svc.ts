@@ -218,13 +218,9 @@ export class AuthSvc implements IAuth {
                             };
                             deferred.reject(error);
                         });
-                }, (msg: string) => {
+                }, (err: any) => {
                     this.internalLogout(token);
-                    if (msg) {
-                        deferred.reject({ message: msg });
-                    } else {
-                        deferred.reject({ message: this.localization.get("Login_Auth_LicenseVerificationFailed") });
-                    }
+                    deferred.reject(err);
                 });
         } else {
             deferred.reject({ statusCode: 500, message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed") });
@@ -248,15 +244,24 @@ export class AuthSvc implements IAuth {
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {
-                var msg = null;
+                var msg;
+
                 if (statusCode === 404) { // NotFound
                     msg = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
 
                 } else if (statusCode === 403) { // Forbidden
                     msg = this.localization.get("Login_Auth_LicenseLimitReached");
+                } else { // Other error
+                    statusCode = 500;
+                    msg = this.localization.get("Login_Auth_LicenseVerificationFailed");
                 }
 
-                deferred.reject(msg);
+                var error = {
+                    statusCode: statusCode,
+                    message: msg
+                };
+
+                deferred.reject(error);
             });
 
         return deferred.promise;

@@ -144,7 +144,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("Android 5.0 - Chrome 37", function () {
+    it("Android 5.0 - Chrome 37 - Tablet", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (Linux; Android 5.0; Android SDK built for x86_64 Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/37.0.0.0 Safari/537.36";
@@ -157,6 +157,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.osversion).toEqual("5.0");
         expect(browserInfo.osMajorVersion).toEqual(5);
         expect(browserInfo.tablet).toBeTruthy();
+        expect(browserInfo.mobile).toBeFalsy();
 
         // Assert - Browser
         expect(browserInfo.chrome).toBeTruthy();
@@ -166,7 +167,30 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
-    it("Android 5.0 - Chrome 49", function () {
+    it("Android 5.0 - Chrome 49 - Tablet", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Linux: Android 5.0.2; Nexus 7 Build/LRX22G) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.android).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("5.0.2");
+        expect(browserInfo.osMajorVersion).toEqual(5);
+        expect(browserInfo.tablet).toBeTruthy();
+        expect(browserInfo.mobile).toBeFalsy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.name).toEqual("Chrome");
+        expect(browserInfo.version).toEqual("49.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("Android 5.1 - Chrome 49 - Tablet", function () {
         // Arrange
         var userAgent =
             "Mozilla/5.0 (Linux; Android 5.1.1; SHIELD Tablet Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
@@ -179,6 +203,7 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.osversion).toEqual("5.1.1");
         expect(browserInfo.osMajorVersion).toEqual(5);
         expect(browserInfo.tablet).toBeTruthy();
+        expect(browserInfo.mobile).toBeFalsy();
 
         // Assert - Browser
         expect(browserInfo.chrome).toBeTruthy();
@@ -186,6 +211,29 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("49.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+    });
+
+    it("Android 5.1 - Chrome 43 - Phone", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (Linux; Android 5.1; Nexus 5 Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.38 Mobile Safari/537.36";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.android).toBeTruthy();
+        expect(browserInfo.osversion).toEqual("5.1");
+        expect(browserInfo.osMajorVersion).toEqual(5);
+        expect(browserInfo.tablet).toBeFalsy();
+        expect(browserInfo.mobile).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.name).toEqual("Chrome");
+        expect(browserInfo.version).toEqual("43.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
     it("iPad iOS 5.1", function () {

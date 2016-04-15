@@ -51,9 +51,15 @@ var executionEnvironmentDetector = (function () {
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
         if (browser.mobile) {
-            browser.blueprintSupportedBrowser = false;
+            if (!browser.tablet) {
+                browser.blueprintSupportedBrowser = false;
+                return browser;
+            } else {
+                browser.mobile = false;
+            }
         }
-        else if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
+
+        if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
         else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.win7plus) {

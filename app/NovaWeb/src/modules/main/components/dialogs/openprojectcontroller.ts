@@ -1,6 +1,6 @@
 ﻿import "angular";
 //import {ILocalizationService} from "../../../core/localization";
-import {IDialogParams, BaseDialogController} from "./dialog.svc";
+import {IDialogOptions, BaseDialogController} from "./dialog.svc";
 
 export class OpenProjectController extends BaseDialogController {
 
@@ -8,7 +8,7 @@ export class OpenProjectController extends BaseDialogController {
 
     static $inject = ["$uibModalInstance", "params"];
 
-    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, params: IDialogParams) {
+    constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, params: IDialogOptions) {
         super($uibModalInstance, params);
         this.hasCloseButton = true;
     }

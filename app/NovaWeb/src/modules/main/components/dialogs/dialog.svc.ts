@@ -7,12 +7,12 @@ export enum DialogTypeEnum {
     Confirm
 }
 
-export interface IDialogController {
-    template?: string;
-    controller?: any;
+export interface IDialogTemplate {
+    template: string;
+    controller: any;
 }
 
-export interface IDialogParams {
+export interface IDialogOptions {
     header?: string;
     message?: string;
     cancelButton?: string;
@@ -20,7 +20,7 @@ export interface IDialogParams {
 }
 
 export interface IDialogService {
-    open(params: IDialogParams, layout?: IDialogController): ng.IPromise<any>;
+    open(params: IDialogOptions, layout?: IDialogTemplate): ng.IPromise<any>;
     alert(message: string): ng.IPromise<any>;
     confirm(message: string): ng.IPromise<any>;
 }
@@ -34,9 +34,9 @@ export class DialogService implements IDialogService {
     private template: string = require("./dialog.html");
     private controller: any = BaseDialogController;
 
-    public params: IDialogParams = {};
+    public params: IDialogOptions = {};
 
-    private defaultParams: IDialogParams = {
+    private defaultParams: IDialogOptions = {
         cancelButton: this.localization.get("App_Button_Cancel") || "Cancel",
         okButton: this.localization.get("App_Button_Ok") || "Ok"
     };
@@ -48,10 +48,10 @@ export class DialogService implements IDialogService {
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
     }
 
-    private initialize(params: IDialogParams, dialogController?: IDialogController ) {
-        dialogController = dialogController || {};
-        this.template = dialogController.template || require("./dialog.html");
-        this.controller = dialogController.controller || BaseDialogController;
+    private initialize(params: IDialogOptions, dialogTemplate?: IDialogTemplate ) {
+        dialogTemplate = dialogTemplate || <IDialogTemplate>{};
+        this.template = dialogTemplate.template || require("./dialog.html");
+        this.controller = dialogTemplate.controller || BaseDialogController;
 
         this.params = angular.extend({}, this.defaultParams);
         angular.extend(this.params, params);
@@ -73,7 +73,7 @@ export class DialogService implements IDialogService {
     };
 
 
-    public open(params: IDialogParams, dialogController?: IDialogController): ng.IPromise<any> {
+    public open(params: IDialogOptions, dialogController?: IDialogTemplate): ng.IPromise<any> {
         this.dialogType = DialogTypeEnum.General;
         this.initialize(params, dialogController);
         return this.openInternal().result;
@@ -112,7 +112,7 @@ export class BaseDialogController {
 
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogParams) {
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogOptions) {
         this.$instance = $uibModalInstance;
     }
 

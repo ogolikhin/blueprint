@@ -4,12 +4,19 @@ App_Button_Yes,"Yes"
 App_Button_No,"No"
 App_Button_Ok,"OK"
 App_Button_Cancel,"Cancel"
+App_Button_Open,"Open"
+
 App_DialogTitle_Confirmation,"Confirmation"
 App_LoadingMsg,"Loading …"
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
+
+App_Project, "Project"
+
+App_Project_Open,"Open project"
+
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

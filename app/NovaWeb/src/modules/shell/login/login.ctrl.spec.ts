@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks"
 import {SessionSvc} from "./session.svc";
-import {LoginCtrl} from "./login.ctrl";
+import {LoginCtrl, LoginState} from "./login.ctrl";
 import {LocalizationServiceMock, ConfigValueHelperMock, AuthSvcMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
 
 
@@ -103,7 +103,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled", "error message is incorrect");
         }));
 
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -128,7 +128,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_PasswordHasExpired");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_PasswordHasExpired", "error message is incorrect");
         }));
 
         it("return password expired error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -153,7 +153,7 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Auth_FederatedFallbackDisabled");
+            expect(loginCtrl.errorMsg).toBe("Login_Auth_FederatedFallbackDisabled", "error message is incorrect");
         }));
 
         it("return unexpected error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
@@ -358,7 +358,31 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.fieldError).toBe(false, "field error is true");
             expect(loginCtrl.labelError).toBe(true, "label error is false");
-            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_AccountDisabled", "error message is incorrect");
+        }));
+
+        it("return account in AD but not in BP", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+            // Arrange
+            spyOn(session, "loginWithSaml").and.callFake(function () {
+                var deferred = $q.defer();
+                var error = {
+                    errorCode: 2000,
+                    statusCode: 401,
+                };
+                deferred.reject(error);
+                return deferred.promise;
+            });
+
+            // Act
+            var error: any;
+            var result = loginCtrl.goToSAMLScreen();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.fieldError).toBe(false, "field error is true");
+            expect(loginCtrl.labelError).toBe(true, "label error is false");
+            expect(loginCtrl.formState).toBe(LoginState.LoginForm, "form is not back at login");
+            expect(loginCtrl.errorMsg).toBe("Login_Session_ADUserNotInDB", "error message is incorrect");
         }));
 
         it("return session override error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {

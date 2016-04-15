@@ -236,6 +236,25 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
     });
 
+    it("Chrome OS - Chrome 41 - Chromebook", function () {
+        // Arrange
+        var userAgent =
+            "Mozilla/5.0 (X11; CrOS x86_64 6680.78.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.102 Safari/537.36";
+
+        // Act
+        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+
+        // Assert - OS
+        expect(browserInfo.chromeBook).toBeTruthy();
+
+        // Assert - Browser
+        expect(browserInfo.chrome).toBeTruthy();
+        expect(browserInfo.name).toEqual("Chrome");
+        expect(browserInfo.version).toEqual("41.0");
+
+        expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+    });
+
     it("iPad iOS 5.1", function () {
         // Arrange
         var userAgent =

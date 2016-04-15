@@ -72,7 +72,9 @@ export class LoginCtrl {
     public SAMLScreenMessage: string;
 
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
+    /* tslint:disable */
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+        /* tslint:enable */
         this.formState = LoginState.LoginForm;
         this.errorMsg = localization.get("Login_Session_EnterCredentials");
 
@@ -135,7 +137,6 @@ export class LoginCtrl {
             },
             (error) => {
                 this.handleLoginErrors(error);
-                this.transitionToState(LoginState.LoginForm);
             });
 
     }
@@ -257,8 +258,13 @@ export class LoginCtrl {
     private handleLoginErrors(error) {
         if (error.statusCode === 401) {
             if (error.errorCode === 2000) {
-                this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
-                this.fieldError = true;
+                if (this.formState === LoginState.SamlLoginForm) {
+                    this.errorMsg = this.localization.get("Login_Session_ADUserNotInDB");
+                    this.fieldError = false;
+                } else {
+                    this.errorMsg = this.localization.get("Login_Session_CredentialsInvalid");
+                    this.fieldError = true;
+                }
                 this.transitionToState(LoginState.LoginForm);
             } else if (error.errorCode === 1001) {
                 this.errorMsg = this.localization.get("Login_Auth_FederatedFallbackDisabled");

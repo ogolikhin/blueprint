@@ -76,33 +76,6 @@ namespace LoggingDatabaseTests
 
         }
 
-        [TestCase()]
-        [Description("When cannot connect to database then flush should be faulted")]
-        public static void WhenCannotconnectToDatabaseThenFlushShouldBeFaulted()
-        {
-            const string validNotExisting = @"Data Source=(localdb)\v11.0; AttachDBFilename='|DataDirectory|\DoesNotExist.mdf';Initial Catalog=SemanticLoggingTests;Integrated Security=True";
-
-            using (var sink = new BlueprintSqlDatabaseSink("test", validNotExisting, "tableName", "storedProcedureName", Buffering.DefaultBufferingInterval, Buffering.DefaultBufferingCount, Buffering.DefaultMaxBufferSize, TimeSpan.FromSeconds(20)))
-            using (var collectErrorsListener = new MockEventListener())
-            {
-                collectErrorsListener.EnableEvents(SemanticLoggingEventSource.Log, EventLevel.Error, Keywords.All);
-
-                sink.OnNext(EventEntryTestHelper.Create());
-                try
-                {
-                    Assert.IsTrue(sink.FlushAsync().Wait(TimeSpan.FromSeconds(10)), "FlushAsync was not called within the specified time interval");
-                    Assert.Fail("Exception should be thrown.");
-                }
-                catch (AggregateException ex)
-                {
-                    Assert.IsInstanceOf(typeof(FlushFailedException), ex.InnerException, I18NHelper.FormatInvariant("Inner exception is not exected type. Expecting: FlushFailedException Actual: {0}", ex.InnerException.GetType().FullName));
-                }
-
-                Assert.IsTrue(collectErrorsListener.WrittenEntries.Any(x => x.EventId == 1), "Invalid event returned");
-            }
-
-        }
-
         [TestCase(null, "connectionString", "tableName", "storedProcedureName", Description = "Testing instanceName set to null")]
         [TestCase("instanceName", null, "tableName", "storedProcedureName", Description = "Testing connectionString set to null")]
         [TestCase("instanceName", "connectionString", null, "storedProcedureName", Description = "Testing tableName set to null")]

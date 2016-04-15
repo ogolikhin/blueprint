@@ -46,6 +46,9 @@ namespace Logging.Database.Sinks
             Guard.ArgumentNotNullOrEmpty(tableName, "tableName");
             Guard.ArgumentNotNullOrEmpty(storedProcedureName, "storedProcedureName");
             Guard.ArgumentIsValidTimeout(onCompletedTimeout, "onCompletedTimeout");
+            Guard.ArgumentGreaterOrEqualThan(500, maxBufferSize, "maxBufferSize");
+            Guard.ArgumentGreaterOrEqualThan(0, bufferingCount, "bufferingCount");
+            Guard.ArgumentIsValidTimeout(bufferingInterval, "bufferingInterval");
             ValidateSqlConnectionString(connectionString, "connectionString");
 
             this.instanceName = instanceName;

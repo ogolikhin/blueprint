@@ -1,10 +1,6 @@
 ﻿<div class="modal-header">
     <a href="#" ng-if="ctrl.hasCloseButton" class="modal-close" ng-click="ctrl.cancel()"><i class="fonticon-close"></i></a>
-    <h3 class="modal-title"><i ng-class="{
-        'fonticon-information':ctrl.type===2,
-        'fonticon-question':ctrl.type===1,
-                               }"
-                               ></i><span ng-bind="ctrl.params.header"></span></h3>
+    <h3 class="modal-title"><i class="fonticon-information" ></i><span ng-bind="ctrl.params.header"></span></h3>
 </div>
 <div class="modal-body">
     <div class="nova-message"><span ng-bind-html="ctrl.params.message"></span></div>

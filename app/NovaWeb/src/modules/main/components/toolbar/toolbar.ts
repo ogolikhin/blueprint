@@ -1,5 +1,5 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
-import {IDialogParams, IDialogService} from "../dialogs/dialog.svc";
+import {IDialogController, IDialogParams, IDialogService} from "../dialogs/dialog.svc";
 import {OpenProjectController} from "../dialogs/openprojectcontroller";
 
 
@@ -41,16 +41,17 @@ class ToolbarCtrl implements IToolbarController {
         }
         evt.preventDefault();
         var element = evt.currentTarget;
-        this.dialogService.alert("Selected Action is "+(element.id || element.innerText));
+        this.dialogService.alert("Selected Action is " + (element.id || element.innerText));
     }
 
     public openProject() {
-        this.dialogService.open(<IDialogParams>{
-            template: "./openprojectdialog.html",
-            controller: OpenProjectController,
+        this.dialogService.open(< IDialogParams > {
             okButton: this.localization.get("App_Button_Open")
-        }).then((id:number) => {
-            this.dialogService.alert("Project is selected: "+ id);
+        }, <IDialogController>{
+            template: require("../dialogs/openprojectdialog.html"),
+            controller: OpenProjectController,
+        }).then((id: number) => {
+            this.dialogService.alert("Project is selected: " + id);
         });
     }
 
@@ -59,7 +60,7 @@ class ToolbarCtrl implements IToolbarController {
             .then((confirmed: boolean) => {
                 if (confirmed) {
                     this.dialogService.alert("Delete is confirmed");
-                } 
+                }
             });
     }
 

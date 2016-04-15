@@ -24,7 +24,6 @@ export interface IDialogService {
 
 export class DialogService implements IDialogService {
 
-    public hasCloseButton: boolean = true;
 
     private dialogType: DialogTypeEnum;
 
@@ -33,7 +32,7 @@ export class DialogService implements IDialogService {
     public params: IDialogParams = {};
 
     private defaultParams: IDialogParams = {
-        template: "./dialog.html",
+        template: require("./dialog.html"),
         controller: BaseDialogController,
         cancelButton: this.localization.get("App_Button_Cancel") || "Cancel",
         okButton: this.localization.get("App_Button_Ok") || "Ok"
@@ -53,8 +52,9 @@ export class DialogService implements IDialogService {
     }
 
     private openInternal = () => {
+        /* tslint:disable*/
         var instance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-            template: require(this.params.template),
+            template: this.params.template,
             controller: this.params.controller,
             controllerAs: "ctrl",
             windowClass: "nova-messaging",
@@ -66,6 +66,7 @@ export class DialogService implements IDialogService {
                 }
             }
         });
+        /* tslint:enable*/
         return instance;
     };
 
@@ -104,6 +105,8 @@ export class DialogService implements IDialogService {
 export class BaseDialogController {
 
     static $inject = ["$uibModalInstance", "params"];
+
+    public hasCloseButton: boolean;
 
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 

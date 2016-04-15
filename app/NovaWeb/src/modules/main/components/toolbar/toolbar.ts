@@ -41,16 +41,16 @@ class ToolbarCtrl implements IToolbarController {
         }
         evt.preventDefault();
         var element = evt.currentTarget;
-        this.dialogService.alert("Selected Action is "+(element.id || element.innerText));
+        this.dialogService.alert("Selected Action is " + (element.id || element.innerText));
     }
 
     public openProject() {
         this.dialogService.open(<IDialogParams>{
-            template: "./openprojectdialog.html",
+            template: require("../dialogs/openprojectdialog.html"),
             controller: OpenProjectController,
             okButton: this.localization.get("App_Button_Open")
-        }).then((id:number) => {
-            this.dialogService.alert("Project is selected: "+ id);
+        }).then((id: number) => {
+            this.dialogService.alert("Project is selected: " + id);
         });
     }
 
@@ -59,7 +59,7 @@ class ToolbarCtrl implements IToolbarController {
             .then((confirmed: boolean) => {
                 if (confirmed) {
                     this.dialogService.alert("Delete is confirmed");
-                } 
+                }
             });
     }
 

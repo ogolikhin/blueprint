@@ -72,7 +72,9 @@ export class LoginCtrl {
     public SAMLScreenMessage: string;
 
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "configValueHelper"];
+    /* tslint:disable */
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
+        /* tslint:enable */
         this.formState = LoginState.LoginForm;
         this.errorMsg = localization.get("Login_Session_EnterCredentials");
 

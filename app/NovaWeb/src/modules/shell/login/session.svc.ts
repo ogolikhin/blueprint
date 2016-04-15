@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
-import {IConfigValueHelper} from "../../core/config.value.helper";
+//import {IConfigValueHelper} from "../../core/config.value.helper";
 import {SimpleDialogCtrl, LoginCtrl, ILoginInfo} from "./login.ctrl";
 
 export interface ISession {
@@ -121,10 +121,11 @@ export class SessionSvc implements ISession {
             this._modalInstance.result.then((result: ILoginInfo) => {
 
                 if (result) {
+                    var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.samlLogin) {
-                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
+                        confirmationDialog = this.createConfirmationDialog();
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
@@ -141,7 +142,7 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
+                        confirmationDialog = this.createConfirmationDialog();
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(

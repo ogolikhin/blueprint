@@ -1,4 +1,7 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
+import {IDialogParams, IDialogService} from "../dialogs/dialog.svc";
+import {OpenProjectController} from "../dialogs/openprojectcontroller";
+
 
 interface IToolbarController {
     add(): void;
@@ -21,9 +24,9 @@ export class Toolbar implements ng.IComponentOptions {
 
 class ToolbarCtrl implements IToolbarController {
 
-    static $inject = ["localization", "$window"];
+    static $inject = ["localization", "dialogService" ];
 
-    constructor(private localization: ILocalizationService, private $window: ng.IWindowService) {
+    constructor(private localization: ILocalizationService, private dialogService: IDialogService) {
     }
 
     add(): void {
@@ -33,7 +36,31 @@ class ToolbarCtrl implements IToolbarController {
     }
 
     execute(evt: any): void {
+        if (!evt) {
+            return;
+        }
         evt.preventDefault();
-        alert(evt.currentTarget.innerText);
+        var element = evt.currentTarget;
+        this.dialogService.alert("Selected Action is "+(element.id || element.innerText));
     }
+
+    public openProject() {
+        this.dialogService.open(<IDialogParams>{
+            template: "./openprojectdialog.html",
+            controller: OpenProjectController,
+            okButton: this.localization.get("App_Button_Open")
+        }).then((id:number) => {
+            this.dialogService.alert("Project is selected: "+ id);
+        });
+    }
+
+    public deleteArtifact() {
+        this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.")
+            .then((confirmed: boolean) => {
+                if (confirmed) {
+                    this.dialogService.alert("Delete is confirmed");
+                } 
+            });
+    }
+
 }

@@ -1,10 +1,9 @@
 ﻿<div class="navbar-toolbar"><!-- TODO: localization -->
     <ul class="nav navbar-nav">
         <li uib-dropdown>
-            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>Project</span></a>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>{{::$root.config.labels["App_Project"]}}</span></a>
             <ul class="dropdown-menu">
-                <li><a href="#" ng-click="$ctrl.execute($event)">Action #1</a></li>
-                <li><a href="#" ng-click="$ctrl.execute($event)">Action #2</a></li>
+                <li><a href="#"  id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Project_Open"]}}</a></li>
             </ul>
         </li>
         <li>
@@ -21,7 +20,7 @@
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-delete"></i><span>Delete</span></a>
+            <a href="#" ng-click="$ctrl.deleteArtifact()"><i class="fonticon fonticon-delete"></i><span>Delete</span></a>
         </li>
     </ul>
 </div>

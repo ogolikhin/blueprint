@@ -45,11 +45,11 @@ class ToolbarCtrl implements IToolbarController {
     }
 
     public openProject() {
-        this.dialogService.open(<IDialogController>{
+        this.dialogService.open(< IDialogParams > {
+            okButton: this.localization.get("App_Button_Open")
+        }, <IDialogController>{
             template: require("../dialogs/openprojectdialog.html"),
             controller: OpenProjectController,
-        }, < IDialogParams > {
-            okButton: this.localization.get("App_Button_Open")
         }).then((id: number) => {
             this.dialogService.alert("Project is selected: " + id);
         });

@@ -1,5 +1,6 @@
 ﻿using System;
 using Model.Impl;
+using Utilities;
 using Utilities.Factories;
 
 namespace Model.Factories
@@ -18,18 +19,13 @@ namespace Model.Factories
         /// <summary>
         /// Creates a new session for specified user.
         /// </summary>
-        /// <paran name=user>IUser object.</paran>
+        /// <paran name="user">IUser object.</paran>
         /// <returns>A new Session object.</returns>
         public static ISession CreateSession(IUser user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException("user");
-            }
-            else
-            {
-                return new Session(user.UserId, user.Username, 3, true);
-            }
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            return new Session(user.UserId, user.Username, 3, true);
         }
     }
 }

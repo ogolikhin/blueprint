@@ -90,15 +90,15 @@ namespace LoggingDatabaseTests
                 sink.OnNext(EventEntryTestHelper.Create());
                 try
                 {
-                    Assert.IsTrue(sink.FlushAsync().Wait(TimeSpan.FromSeconds(5)));
+                    Assert.IsTrue(sink.FlushAsync().Wait(TimeSpan.FromSeconds(10)), "FlushAsync was not called within the specified time interval");
                     Assert.Fail("Exception should be thrown.");
                 }
                 catch (AggregateException ex)
                 {
-                    Assert.IsInstanceOf(typeof(FlushFailedException), ex.InnerException);
+                    Assert.IsInstanceOf(typeof(FlushFailedException), ex.InnerException, I18NHelper.FormatInvariant("Inner exception is not exected type. Expecting: FlushFailedException Actual: {0}", ex.InnerException.GetType().FullName));
                 }
 
-                Assert.IsTrue(collectErrorsListener.WrittenEntries.Any(x => x.EventId == 1));
+                Assert.IsTrue(collectErrorsListener.WrittenEntries.Any(x => x.EventId == 1), "Invalid event returned");
             }
 
         }

@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using ServiceLibrary.Repositories.ConfigControl;
-
-namespace AdminStore.Controllers
+﻿namespace ServiceLibrary.Repositories.ConfigControl
 {
     public interface ILoggable
     {

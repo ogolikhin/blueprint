@@ -7,6 +7,8 @@ using AdminStore.Saml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {

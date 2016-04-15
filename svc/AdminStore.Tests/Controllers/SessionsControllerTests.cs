@@ -4,6 +4,7 @@ using AdminStore.Repositories;
 using AdminStore.Saml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;

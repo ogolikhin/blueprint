@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using AdminStore.Models;
 using Dapper;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 using System.Data;
 using System.Linq;
 using AdminStore.Helpers;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {

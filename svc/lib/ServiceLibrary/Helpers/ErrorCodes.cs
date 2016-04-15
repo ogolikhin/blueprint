@@ -1,4 +1,4 @@
-﻿namespace AdminStore.Helpers
+﻿namespace ServiceLibrary.Helpers
 {
     public class ErrorCodes
     {

@@ -3,14 +3,14 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using AdminStore.Controllers;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Web.Http;
-using AdminStore.Helpers;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Exceptions;
 
-namespace AdminStore.Filters
+namespace ServiceLibrary.Filters
 {
     public class BaseExceptionFilterAttribute : ExceptionFilterAttribute
     {
@@ -58,7 +58,7 @@ namespace AdminStore.Filters
 
             var error = new HttpError(ex.Message);
             if (errorCode.HasValue)
-                error[AdminStoreConstants.ErrorCodeName] = errorCode;
+                error[ServiceConstants.ErrorCodeName] = errorCode;
 
             context.Response = context.Request.CreateErrorResponse(statusCode, error);
         }

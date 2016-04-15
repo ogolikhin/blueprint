@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
-using AdminStore.Helpers;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {

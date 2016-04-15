@@ -260,8 +260,8 @@ namespace Model.OpenApiModel.Impl
         }
 
         public List<IDiscardArtifactResult> Discard(IUser user = null,
-    List<HttpStatusCode> expectedStatusCodes = null,
-    bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
             if (user == null)
             {

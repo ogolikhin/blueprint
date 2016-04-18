@@ -265,7 +265,7 @@ namespace Helper
             var outgoingLinkForFirstUserTask = process.GetOutgoingLinkForShape(firstUserTask);
 
             // branchOrderIndex for existing system decision
-            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 1;
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 2;
 
             // Find the System Decision point with branch merging to branchEndPoint
             var systemDecision = process.GetProcessShapeById(outgoingLinkForFirstUserTask.DestinationId);
@@ -276,7 +276,7 @@ namespace Helper
             for (int i = 0; i < additionalBranches; i++)
             {
                 // Add branch to the existing System Decision
-                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + additionalBranches, endShape.Id);
+                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + i, endShape.Id);
             }
 
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
@@ -351,24 +351,18 @@ namespace Helper
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(storyteller, project, user);
+            // Create and get the default process with a system decision
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
+                updateProcess: false);
 
             // Find the first UserTask
             var firstUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find the target SystemTask
-            var targetSystemTask = process.GetNextShape(firstUserTask);
 
             // Find the branch end point for system decision points
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the outgoing link for the first user task
             var outgoingLinkForFirstUserTask = process.GetOutgoingLinkForShape(firstUserTask);
-
-            // Add the system decision before the target system task
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask,
-                outgoingLinkForFirstUserTask.Orderindex + 1, endShape.Id);
 
             // Get the link between the system decision point and the System task on the second branch
             var secondBranchLink = process.Links.Find(l => l.Orderindex.Equals(outgoingLinkForFirstUserTask.Orderindex + 1));
@@ -471,12 +465,12 @@ namespace Helper
             var secondUserTask = process.GetNextShape(firstSystemTask);
 
             // branchOrderIndex for existing system decision
-            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 1;
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForFirstUserTask.Orderindex + 2;
 
             for (int i = 0; i < additionalBranches; i++)
             {
                 // Add branch to the existing System Decision
-                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + additionalBranches, secondUserTask.Id);
+                process.AddBranchWithSystemTaskToSystemDecisionPoint(systemDecision, defaultAdditionalBranchOrderIndex + i, secondUserTask.Id);
             }
 
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
@@ -579,12 +573,12 @@ namespace Helper
             var secondUserTask = process.GetNextShape(firstSystemTask);
 
             // branchOrderIndex for existing system decision
-            var defaultAdditionalBranchOrderIndex = outgoingLinkForPrecondition.Orderindex + 1;
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForPrecondition.Orderindex + 2;
 
             for (int i = 0; i < additionalBranches; i++)
             {
                 // Add branch to the existing User Decision
-                process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, defaultAdditionalBranchOrderIndex + additionalBranches, secondUserTask.Id);
+                process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, defaultAdditionalBranchOrderIndex + i, secondUserTask.Id);
             }
 
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.

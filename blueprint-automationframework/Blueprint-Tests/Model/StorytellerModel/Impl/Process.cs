@@ -105,8 +105,8 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
-        public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        public List<ProcessLink> DecisionBranchDestinationLinks { get; set; }
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -142,7 +142,7 @@ namespace Model.StorytellerModel.Impl
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
             ArtifactPathLinks = new List<ArtifactPathLink>();
-            DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
+            DecisionBranchDestinationLinks = new List<ProcessLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
@@ -343,10 +343,10 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
-        public DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
+        public ProcessLink AddDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
         {
             // Create a DecisionBranchDestinationLink
-            var decisionBranchDestinationLink = new DecisionBranchDestinationLink
+            var decisionBranchDestinationLink = new ProcessLink
             {
                 DestinationId = destinationId,
                 Label = null,
@@ -356,7 +356,7 @@ namespace Model.StorytellerModel.Impl
 
             if (DecisionBranchDestinationLinks == null)
             {
-                DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
+                DecisionBranchDestinationLinks = new List<ProcessLink>();
             }
             DecisionBranchDestinationLinks.Add(decisionBranchDestinationLink);
 
@@ -426,11 +426,13 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
-        public IProcessShape GetNextShape(IProcessShape shape)
+        public IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null)
         {
-            // Find the outgoing link for the process shape
-            var outgoingLink = Links.ToList().Find(l => l.SourceId == shape.Id);
+            // Find the outgoing link for the proess shape
+            var links = Links.FindAll(l => l.SourceId == shape.Id);
 
+            var outgoingLink = orderIndex == null ? links.First() : links.Find(link => link.Orderindex == orderIndex);
+            
             // Return the next shape which is located via the link destination Id
             return GetProcessShapeById(outgoingLink.DestinationId);
         }
@@ -1404,23 +1406,49 @@ namespace Model.StorytellerModel.Impl
 
     public class ProcessLink
     {
-        /// <summary>		
-        /// Source Id for the process link		
+        /*
+        /// This class is also used to represents DecisionBranchDestinationLink
+        /// The Id of the shape after the merging point
+        /// (e.g. endShape ID in the picture)	
+        [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                       |                        |
+                       +-------[UT3]--+--[ST4]--+
+        */
+        /// <summary>
+        /// ProcessLink:		
+        /// Source Id for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Id of source decision (e.g. UD1)
         /// </summary>
         public int SourceId { get; set; }
 
         /// <summary>		
-        /// Destination Id for the process link		
+        /// As ProcessLink:
+        /// Destination Id for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Id of the shape after the merging point
+        /// (e.g. endShape ID in the picture)	
         /// </summary>
         public int DestinationId { get; set; }
 
         /// <summary>		
-        /// Order index for the process link (Order in which the links are drawn for decision points)		
+        /// ProcessLink:
+        /// Order index for the process link (Order in which the links are drawn for decision points)
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Orderindex of the merging branch with respect to the source decision
+        /// (e.g. orderindex value of the merging branch of UD1)	
         /// </summary>
         public double Orderindex { get; set; }
 
         /// <summary>		
-        /// Label for the process link		
+        /// ProcessLink:
+        /// Label for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// Label for the DecisionBranchDestinationLink		
         /// </summary>
         public string Label { get; set; }
     }
@@ -1456,36 +1484,6 @@ namespace Model.StorytellerModel.Impl
         /// The link to navigate to the artifact
         /// </summary>
         public string Link { get; set; }
-    }
-
-    public class DecisionBranchDestinationLink
-    {
-        /*
-        [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
-                       |                        |
-                       +-------[UT3]--+--[ST4]--+
-        */
-        /// <summary>
-        /// The Id of the shape after the merging point
-        /// (e.g. endShape ID in the picture)
-        /// </summary>
-        public int DestinationId { get; set; }
-
-        /// <summary>
-        /// Label of Merging point. Currently null
-        /// </summary>
-        public string Label { get; set; }
-
-        /// <summary>
-        /// The Orderindex of the merging branch with respect to the source decision
-        /// (e.g. orderindex value of the merging branch of UD1)
-        /// </summary>
-        public double Orderindex { get; set; }
-
-        /// <summary>
-        /// The Id of source decision (e.g. UD1)
-        /// </summary>
-        public int SourceId { get; set; }
     }
 
     public class PropertyValueInformation

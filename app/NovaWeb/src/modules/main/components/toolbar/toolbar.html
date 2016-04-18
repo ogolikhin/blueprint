@@ -4,6 +4,14 @@
             <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>{{::$root.config.labels["App_Project"]}}</span></a>
             <ul class="dropdown-menu">
                 <li><a href="#"  id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Project_Open"]}}</a></li>
+                <li class="dropdown-submenu">
+                    <a href="#" ng-click="$ctrl.showSubLevel($event)">Open recent</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #1</a></li>
+                        <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #2</a></li>
+                        <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
+                    </ul>
+                </li>
             </ul>
         </li>
         <li>

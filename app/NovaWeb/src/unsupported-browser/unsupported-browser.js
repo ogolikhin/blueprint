@@ -1,7 +1,10 @@
 "use strict";
 
 var executionEnvironmentDetector = (function () {
+    executionEnvironmentDetector.prototype.userBrowser = {};
+
     function executionEnvironmentDetector() {
+        this.userBrowser = this.getBrowserInfo();
     }
     executionEnvironmentDetector.prototype.getBrowserInfo = function () {
         var ua = window.navigator !== undefined ? window.navigator.userAgent: "";
@@ -81,17 +84,22 @@ var executionEnvironmentDetector = (function () {
         return browser;
     };
     executionEnvironmentDetector.prototype.isSupportedVersion = function() {
-        return this.getBrowserInfo().blueprintSupportedBrowser;
-        };
+        return this.userBrowser.blueprintSupportedBrowser;
+    };
+    executionEnvironmentDetector.prototype.isMobileDevice = function() {
+        return this.userBrowser.tablet;
+    };
     return executionEnvironmentDetector;
 }());
 
 var appBootstrap = (function() {
+    var executionEnvironment = new executionEnvironmentDetector();
+
     function appBootstrap() {
     }
     
     appBootstrap.prototype.isSupportedVersion = (function () {
-        if (new executionEnvironmentDetector().isSupportedVersion()) {
+        if (executionEnvironment.isSupportedVersion()) {
             return true;
         }
 
@@ -116,7 +124,13 @@ var appBootstrap = (function() {
     }());
 
     appBootstrap.prototype.initApp = function() {
-        var app = angular.module("app", ["app.main"])
+        var app = angular.module("app", ["app.main"]);
+
+        if (executionEnvironment.isMobileDevice()) {
+            document.body.className += " tablet";
+        } else {
+            document.body.className += " desktop";
+        }
 
         angular.bootstrap(document, ["app"], {
             strictDi: true

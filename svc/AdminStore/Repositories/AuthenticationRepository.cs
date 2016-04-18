@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Saml;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories.ConfigControl;
 

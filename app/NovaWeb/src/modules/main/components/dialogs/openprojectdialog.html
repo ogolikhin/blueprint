@@ -1,0 +1,15 @@
+﻿<div class="modal-header">
+    <a href="#" ng-if="ctrl.hasCloseButton" class="modal-close" ng-click="ctrl.cancel()"><i class="fonticon-close"></i></a>
+    <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
+</div>
+<div class="modal-body" style="height:400px;width:400px">
+
+    HELLO
+    
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-secondaary" ng-click="ctrl.cancel()"><span ng-bind="ctrl.params.cancelButton"></span></button>
+        <button class="btn btn-primary" ng-click="ctrl.accept()"><span ng-bind="ctrl.params.okButton"></span></button>
+    </div>
+</div>

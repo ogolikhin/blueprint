@@ -79,6 +79,13 @@
     <Compile Include="EventSources\StandardLogEventSource.cs" />
     <Compile Include="EventSources\CLogEventSource.cs" />
     <Compile Include="EventSources\BlueprintEventSource.cs" />
+    <Compile Include="Exceptions\AuthenticationException.cs" />
+    <Compile Include="Exceptions\AuthorizationException.cs" />
+    <Compile Include="Exceptions\BadRequestException.cs" />
+    <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
+    <Compile Include="Exceptions\ResourceNotFoundException.cs" />
+    <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
+    <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />

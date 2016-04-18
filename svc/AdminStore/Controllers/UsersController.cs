@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using AdminStore.Filters;
+using ServiceLibrary.Filters;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
-using Newtonsoft.Json;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;

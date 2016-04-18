@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Web.Http;
-using AdminStore.Helpers;
+using ServiceLibrary.Helpers;
 using AuthenticationException = System.Security.Authentication.AuthenticationException;
 
 namespace AdminStore.Saml
@@ -50,7 +50,7 @@ namespace AdminStore.Saml
         {
             base.GetObjectData(info, context);
             //TODO use reflection to get property name
-            info.AddValue(AdminStoreConstants.ErrorCodeName, ErrorCode);
+            info.AddValue(ServiceConstants.ErrorCodeName, ErrorCode);
         }
 
         public HttpError CreateHttpError(int errorCode=-1)
@@ -59,7 +59,7 @@ namespace AdminStore.Saml
             {
                 errorCode = (int)ErrorCode;
             }
-            return new HttpError(Message) { { AdminStoreConstants.ErrorCodeName, errorCode } };
+            return new HttpError(Message) { { ServiceConstants.ErrorCodeName, errorCode } };
         }
 
     }

@@ -1,6 +1,6 @@
 agGrid.initialiseAgGridWithAngular1(angular);
 
-var app = angular.module("example", ["agGrid", "dragDrop", "angular-perfect-scrollbar-2"]);
+var app = angular.module("example", ["ngAnimate", "ui.bootstrap", "agGrid", "dragDrop", "angular-perfect-scrollbar-2", "720kb.tooltips"]);
 
 app.controller("exampleCtrl", function($scope, $http) {
   var rowData = null;
@@ -214,6 +214,54 @@ app.directive('bpAccordion', function() {
     restrict: 'A',
     scope: {
       headerHeight: "@"
+    },
+    link: link
+  };
+});
+
+//CUSTOM DIRECTIVE FOR TOOLTIP
+app.directive('bpTooltip', function() {
+  function link(scope, element, attrs) {
+
+    var realLink = function() {
+      if(element && element.length) {
+        var elem = element[0];
+        elem.removeAttribute('bp-tooltip');
+        if(scope.tooltipContent) {
+          var tt = document.createElement('DIV');
+          tt.innerHTML = scope.tooltipContent;
+          tt.className = 'bp-tooltip';
+
+          elem.className += ' bp-tooltip-container';
+          elem.appendChild(tt);
+
+          elem.addEventListener('mousemove', function fn(e) {
+            var tooltip = elem.querySelectorAll('.bp-tooltip')[0];
+            if(e.clientX > document.body.clientWidth / 2) {
+              tooltip.style.left = '';
+              tooltip.style.right = (document.body.clientWidth - (e.clientX - 10)) + 'px';
+            } else {
+              tooltip.style.right = '';
+              tooltip.style.left = e.clientX + 10 + 'px';
+            }
+            if(e.clientY > document.body.clientHeight / 2) {
+              tooltip.style.top = '';
+              tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 10)) + 'px';
+            } else {
+              tooltip.style.bottom = '';
+              tooltip.style.topY + 10 + 'px';
+            }
+          });
+        }
+      }
+    };
+
+    realLink();
+  }
+  return {
+    restrict: 'A',
+    scope: {
+      tooltipContent: "@"
     },
     link: link
   };

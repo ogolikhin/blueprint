@@ -134,6 +134,12 @@ namespace Model.StorytellerModel
         List<ArtifactPathLink> ArtifactPathLinks { get; }
 
         /// <summary>
+        /// Decision branch destination links for decision shapes in the Process. This list contains list of merging point
+        /// information for all available decisions in the process. The list is empty if the process contain only main branch
+        /// </summary>
+        List<ProcessLink> DecisionBranchDestinationLinks { get; }
+
+        /// <summary>
         /// The Property values for the Process
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
@@ -176,6 +182,28 @@ namespace Model.StorytellerModel
         /// in the process graph)</param>
         /// <returns>The process link that was added</returns>
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
+
+        /// <summary>
+        /// Add a DecisionBranchDestinationLink (ProcessLink) to a Process
+        /// </summary>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="sourceId">The Id of the source decision</param>
+        /// <returns>The DecisionBranchDestinationLink (ProcessLink) that was added</returns>
+        ProcessLink AddDecisionBranchDestinationLink(int destinationId,
+            double orderIndex, int sourceId);
+
+        /// <summary>
+        /// Change a branch merging point of the decision
+        /// </summary>
+        /// <param name="decisionPoint">The user or system decision point</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="branchMergingLink">The existing merging link for the branch</param>
+        /// <param name="mergingPoint">The new merging shape</param>
+        void ChangeBranchMergingPoint(IProcessShape decisionPoint, double orderIndex,
+            ProcessLink branchMergingLink, IProcessShape mergingPoint);
 
         /// <summary>
         /// Add a User Decision Point with a Branch After an Existing Shape
@@ -285,8 +313,18 @@ namespace Model.StorytellerModel
         /// Get the Shape Following an Existing Shape
         /// </summary>
         /// <param name="shape">The existing shape</param>
+        /// <param name="orderIndex">(optional) The order index of the link to find</param>
         /// <returns>The shape following the existing shape</returns>
-        IProcessShape GetNextShape(IProcessShape shape);
+        IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null);
+
+        /// <summary>
+        /// Get the DecisionBranchDestinationLink for the decision
+        /// </summary>
+        /// <param name="decisionShape">The source decision shape for the DecisionBranchDestinationLink looking for</param>
+        /// <param name="orderIndex">The order index of the branch based from the shource decision shape</param>
+        /// <returns>The DecisionBranchDestinationLinks the source decision</returns>
+        ProcessLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex);
 
         /// <summary>
         /// Delete a System Decision with all Branches that are Not of the Lowest Order

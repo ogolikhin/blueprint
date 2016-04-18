@@ -105,6 +105,11 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        public List<ProcessLink> DecisionBranchDestinationLinks { get; set; }
+
+        [SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
@@ -137,6 +142,7 @@ namespace Model.StorytellerModel.Impl
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
             ArtifactPathLinks = new List<ArtifactPathLink>();
+            DecisionBranchDestinationLinks = new List<ProcessLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
@@ -284,6 +290,9 @@ namespace Model.StorytellerModel.Impl
 
             // Add a system task to the branch and return the system task shape object
             AddSystemTask(processLink);
+
+            // Add a DecisionBranchDestinationLink to track added branch merging point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
         }
 
 
@@ -310,6 +319,9 @@ namespace Model.StorytellerModel.Impl
             // Add default link label
             processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
 
+            // Add a DecisionBranchDestinationLink to track added branch merging point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
+
             // Add a user task to the branch and return the user task shape object
             return AddUserAndSystemTask(processLink);
         }
@@ -329,6 +341,42 @@ namespace Model.StorytellerModel.Impl
             Links.Add(processLink);
 
             return processLink;
+        }
+
+        public ProcessLink AddDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
+        {
+            // Create a DecisionBranchDestinationLink
+            var decisionBranchDestinationLink = new ProcessLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = orderIndex,
+                SourceId = sourceId
+            };
+
+            if (DecisionBranchDestinationLinks == null)
+            {
+                DecisionBranchDestinationLinks = new List<ProcessLink>();
+            }
+            DecisionBranchDestinationLinks.Add(decisionBranchDestinationLink);
+
+            return decisionBranchDestinationLink;
+        }
+
+        public void ChangeBranchMergingPoint(IProcessShape decisionPoint, double orderIndex, ProcessLink branchMergingLink, IProcessShape mergingPoint)
+        {
+            ThrowIf.ArgumentNull(decisionPoint, nameof(decisionPoint));
+            ThrowIf.ArgumentNull(branchMergingLink, nameof(branchMergingLink));
+            ThrowIf.ArgumentNull(mergingPoint, nameof(mergingPoint));
+
+            // Update destination id of the merging link with id of the next shape
+            branchMergingLink.DestinationId = mergingPoint.Id;
+
+            // Find the DecisionBranchDestinationLink to update
+            var targetDecisionBranchDestinationLink = DecisionBranchDestinationLinks.Find(dbd => dbd.Orderindex.Equals(orderIndex));
+
+            // Update the destination id of the DecisionBranchDestinationLink with id of the next shape
+            targetDecisionBranchDestinationLink.DestinationId = mergingPoint.Id;
         }
 
         public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
@@ -378,13 +426,22 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
-        public IProcessShape GetNextShape(IProcessShape shape)
+        public IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null)
         {
-            // Find the outgoing link for the process shape
-            var outgoingLink = Links.ToList().Find(l => l.SourceId == shape.Id);
+            // Find the outgoing link for the proess shape
+            var links = Links.FindAll(l => l.SourceId == shape.Id);
 
+            var outgoingLink = orderIndex == null ? links.First() : links.Find(link => link.Orderindex == orderIndex);
+            
             // Return the next shape which is located via the link destination Id
             return GetProcessShapeById(outgoingLink.DestinationId);
+        }
+
+        public ProcessLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex)
+        {
+            return DecisionBranchDestinationLinks.Find(
+                dbd => dbd.SourceId.Equals(decisionShape.Id) && dbd.Orderindex.Equals(orderIndex));
         }
 
         public IProcessShape GetProcessShapeByShapeName(string shapeName)
@@ -1356,23 +1413,49 @@ namespace Model.StorytellerModel.Impl
 
     public class ProcessLink
     {
-        /// <summary>		
-        /// Source Id for the process link		
+        /*
+        /// This class is also used to represents DecisionBranchDestinationLink
+        /// The Id of the shape after the merging point
+        /// (e.g. endShape ID in the picture)	
+        [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                       |                        |
+                       +-------[UT3]--+--[ST4]--+
+        */
+        /// <summary>
+        /// ProcessLink:		
+        /// Source Id for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Id of source decision (e.g. UD1)
         /// </summary>
         public int SourceId { get; set; }
 
         /// <summary>		
-        /// Destination Id for the process link		
+        /// As ProcessLink:
+        /// Destination Id for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Id of the shape after the merging point
+        /// (e.g. endShape ID in the picture)	
         /// </summary>
         public int DestinationId { get; set; }
 
         /// <summary>		
-        /// Order index for the process link (Order in which the links are drawn for decision points)		
+        /// ProcessLink:
+        /// Order index for the process link (Order in which the links are drawn for decision points)
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// The Orderindex of the merging branch with respect to the source decision
+        /// (e.g. orderindex value of the merging branch of UD1)	
         /// </summary>
         public double Orderindex { get; set; }
 
         /// <summary>		
-        /// Label for the process link		
+        /// ProcessLink:
+        /// Label for the process link
+        /// 
+        /// DecisionBranchDestinationLink:
+        /// Label for the DecisionBranchDestinationLink		
         /// </summary>
         public string Label { get; set; }
     }

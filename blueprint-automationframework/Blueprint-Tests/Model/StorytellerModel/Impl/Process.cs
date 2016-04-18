@@ -437,6 +437,13 @@ namespace Model.StorytellerModel.Impl
             return GetProcessShapeById(outgoingLink.DestinationId);
         }
 
+        public ProcessLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex)
+        {
+            return DecisionBranchDestinationLinks.Find(
+                dbd => dbd.SourceId.Equals(decisionShape.Id) && dbd.Orderindex.Equals(orderIndex));
+        }
+
         public IProcessShape GetProcessShapeByShapeName(string shapeName)
         {
             // Find the process shape by the process shape name

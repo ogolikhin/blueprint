@@ -318,6 +318,15 @@ namespace Model.StorytellerModel
         IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null);
 
         /// <summary>
+        /// Get the DecisionBranchDestinationLink for the decision
+        /// </summary>
+        /// <param name="decisionShape">The source decision shape for the DecisionBranchDestinationLink looking for</param>
+        /// <param name="orderIndex">The order index of the branch based from the shource decision shape</param>
+        /// <returns>The DecisionBranchDestinationLinks the source decision</returns>
+        ProcessLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex);
+
+        /// <summary>
         /// Delete a System Decision with all Branches that are Not of the Lowest Order
         /// </summary>
         /// <param name="systemDecision">The system decision point to be deleted</param>

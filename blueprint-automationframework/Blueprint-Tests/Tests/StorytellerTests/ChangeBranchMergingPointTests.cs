@@ -133,8 +133,9 @@ namespace StorytellerTests
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
 
-            var secondDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
-                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 1));
+            var secondDecisionBranchDestinationLink =
+                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
+                    outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
@@ -191,8 +192,9 @@ namespace StorytellerTests
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
 
-            var secondDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
-                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 1));
+            var secondDecisionBranchDestinationLink =
+                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
+                    outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
@@ -257,8 +259,9 @@ namespace StorytellerTests
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
 
-            var thirdDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
-                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 2));
+            var thirdDecisionBranchDestinationLink =
+                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
+                    outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",
@@ -326,8 +329,9 @@ namespace StorytellerTests
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
 
-            var thirdDecisionBranchDestinationLink = updatedProcess.DecisionBranchDestinationLinks.Find(
-                dbd => dbd.Orderindex.Equals(outgoingLinkForStartShape.Orderindex + 2));
+            var thirdDecisionBranchDestinationLink =
+                updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
+                    outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",

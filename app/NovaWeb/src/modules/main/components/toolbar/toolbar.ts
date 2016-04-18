@@ -46,6 +46,7 @@ class ToolbarCtrl implements IToolbarController {
     }
 
     showSubLevel(evt: any): void {
+        // this is needed to allow tablets to show submenu (as touch devices don't understand hover)
         if (!evt) {
             return;
         }

@@ -7,6 +7,7 @@ interface IToolbarController {
     add(): void;
     clear(): void;
     execute(evt: ng.IAngularEvent): void;
+    showSubLevel(evt: ng.IAngularEvent): void;
 }
 
 
@@ -42,6 +43,15 @@ class ToolbarCtrl implements IToolbarController {
         evt.preventDefault();
         var element = evt.currentTarget;
         this.dialogService.alert("Selected Action is " + (element.id || element.innerText));
+    }
+
+    showSubLevel(evt: any): void {
+        // this is needed to allow tablets to show submenu (as touch devices don't understand hover)
+        if (!evt) {
+            return;
+        }
+        evt.preventDefault();
+        evt.stopImmediatePropagation();
     }
 
     public openProject() {

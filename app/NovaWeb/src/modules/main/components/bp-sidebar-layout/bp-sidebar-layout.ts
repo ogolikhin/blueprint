@@ -25,7 +25,7 @@ export class BpSidebarLayout implements ng.IComponentOptions {
             "content-left": "bpSidebarLayoutContentLeft",
             "content-center": "bpSidebarLayoutContentCenter",
             "content-right": "bpSidebarLayoutContentRight"
-        }
+        };
     }
 }
 

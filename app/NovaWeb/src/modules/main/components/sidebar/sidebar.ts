@@ -6,7 +6,7 @@
     toggleRight(evt: ng.IAngularEvent): void;
 }
 
-export class BpSidebar implements ng.IComponentOptions {
+export class BpSidebarLayout implements ng.IComponentOptions {
     public template: string;
     public controller: Function;
     public bindings: any;
@@ -19,11 +19,11 @@ export class BpSidebar implements ng.IComponentOptions {
             type: "@"
         };
         this.transclude = {
-            "header-left" : "bpSidebarHeaderLeft",
-            "content-left" : "bpSidebarContentLeft",
-            "content-center" : "bpSidebarContentCenter",
-            "header-right" : "bpSidebarHeaderRight",
-            "content-right" : "bpSidebarContentRight"
+            "header-left" : "bpSidebarLayoutHeaderLeft",
+            "content-left": "bpSidebarLayoutContentLeft",
+            "content-center": "bpSidebarLayoutContentCenter",
+            "header-right": "bpSidebarLayoutHeaderRight",
+            "content-right": "bpSidebarLayoutContentRight"
         }
     }
 }
@@ -38,7 +38,7 @@ class SidebarCtrl implements ISidebarController {
         this.isLeftToggled = true;
         this.isRightToggled = true;
         if (!this.type) {
-            this.type = "sidebar";
+            this.type = "bpSidebarLayout";
         }
     }
 

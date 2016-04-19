@@ -1,21 +1,23 @@
-﻿<!-- <bp-sidebar> (by transclusion)-->
+﻿<!-- <bp-sidebar-layout> (by transclusion)-->
 <div class="bp-sidebar-wrapper" ng-class="{'project-explorer-visible': $ctrl.isLeftToggled, 'utility-panel-visible': $ctrl.isRightToggled}">
-    <sidebar class="project-explorer">
+
+    <div class="sidebar project-explorer">
         <div class="sidebar-content">
             <a ng-click="$ctrl.toggleLeft($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
             <div class="sidebar-title" ng-transclude="header-left"></div>
             <div class="sidebar-content" ng-transclude="content-left"></div>
         </div>
-    </sidebar>
+    </div>
 
     <div class="content-center" ng-transclude="content-center"></div>
 
-    <sidebar class="utility-panel">
+    <div class="sidebar utility-panel">
         <div class="sidebar-content">
             <a ng-click="$ctrl.toggleRight($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
             <div class="sidebar-title" ng-transclude="header-right"></div>
             <div class="sidebar-content" ng-transclude="content-right"></div>
         </div>
-    </sidebar>
+    </div>
+
 </div>
-<!-- </bp-sidebar> -->
+<!-- </bp-sidebar-layout> -->

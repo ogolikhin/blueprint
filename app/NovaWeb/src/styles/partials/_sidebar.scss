@@ -1,4 +1,4 @@
-bp-sidebar .content-center {
+bp-sidebar-layout .content-center {
     transition: all .4s ease;
 }
 
@@ -8,7 +8,7 @@ bp-sidebar .content-center {
         padding-left: $sidebar-size; 
     }
 
-    .project-explorer {
+    .sidebar.project-explorer {
       left: $sidebar-size;
 
       .sidebar-toggle {
@@ -25,7 +25,7 @@ bp-sidebar .content-center {
         padding-right: $sidebar-size; 
     }
 
-    .utility-panel {
+    .sidebar.utility-panel {
       right: $sidebar-size;
 
       .sidebar-toggle {
@@ -35,7 +35,7 @@ bp-sidebar .content-center {
     }
 }
 
-sidebar {
+.sidebar {
   background: $white;
   display: block;
   height: calc(100% - #{$wrapper-height});

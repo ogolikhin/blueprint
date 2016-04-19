@@ -86,8 +86,29 @@ var executionEnvironmentDetector = (function () {
     executionEnvironmentDetector.prototype.isSupportedVersion = function() {
         return this.userBrowser.blueprintSupportedBrowser;
     };
-    executionEnvironmentDetector.prototype.isMobileDevice = function() {
-        return this.userBrowser.tablet;
+    executionEnvironmentDetector.prototype.isTouchDevice = function() {
+        return this.userBrowser.tablet || this.userBrowser.mobile;
+    };
+    executionEnvironmentDetector.prototype.isWindows = function() {
+        return this.userBrowser.win7plus;
+    };
+    executionEnvironmentDetector.prototype.isMacOSX = function() {
+        return this.userBrowser.osx;
+    };
+    executionEnvironmentDetector.prototype.isiOS = function() {
+        return this.userBrowser.ios;
+    };
+    executionEnvironmentDetector.prototype.isAndroid = function() {
+        return this.userBrowser.android;
+    };
+    executionEnvironmentDetector.prototype.isIE = function() {
+        return this.userBrowser.msie;
+    };
+    executionEnvironmentDetector.prototype.isChrome = function() {
+        return this.userBrowser.chrome;
+    };
+    executionEnvironmentDetector.prototype.isSafari = function() {
+        return this.userBrowser.safari;
     };
     return executionEnvironmentDetector;
 }());
@@ -126,10 +147,29 @@ var appBootstrap = (function() {
     appBootstrap.prototype.initApp = function() {
         var app = angular.module("app", ["app.main"]);
 
-        if (executionEnvironment.isMobileDevice()) {
-            document.body.className += " tablet";
-        } else {
-            document.body.className += " desktop";
+        if (executionEnvironment.isTouchDevice()) {
+            document.body.className += " is-touch";
+        }
+        if (executionEnvironment.isAndroid()) {
+            document.body.className += " is-android";
+        }
+        if (executionEnvironment.isiOS()) {
+            document.body.className += " is-ios";
+        }
+        if (executionEnvironment.isWindows()) {
+            document.body.className += " is-windows";
+        }
+        if (executionEnvironment.isMacOSX()) {
+            document.body.className += " is-macosx";
+        }
+        if (executionEnvironment.isChrome()) {
+            document.body.className += " is-chrome";
+        }
+        if (executionEnvironment.isIE()) {
+            document.body.className += " is-msie";
+        }
+        if (executionEnvironment.isSafari()) {
+            document.body.className += " is-safari";
         }
 
         angular.bootstrap(document, ["app"], {

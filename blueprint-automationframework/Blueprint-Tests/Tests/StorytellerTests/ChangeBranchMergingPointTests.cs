@@ -140,6 +140,17 @@ namespace StorytellerTests
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
+
+            // Total number of branches from the process
+            var systemDecisions = updatedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranches = systemDecisions.Sum(sd => updatedProcess.GetOutgoingLinksForShape(sd).Count() - 1);
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(updatedProcess.DecisionBranchDestinationLinks.Count.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, updatedProcess.DecisionBranchDestinationLinks.Count());
         }
 
         [TestCase]
@@ -191,7 +202,6 @@ namespace StorytellerTests
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
-
             var secondDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
@@ -199,6 +209,17 @@ namespace StorytellerTests
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
+
+            // Total number of branches from the process
+            var userDecisions = updatedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranches = userDecisions.Sum(ud => updatedProcess.GetOutgoingLinksForShape(ud).Count() - 1);
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(updatedProcess.DecisionBranchDestinationLinks.Count.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, updatedProcess.DecisionBranchDestinationLinks.Count());
         }
 
         [TestCase]
@@ -266,6 +287,17 @@ namespace StorytellerTests
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
+
+            // Total number of branches from the process
+            var systemDecisions = updatedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranches = systemDecisions.Sum(sd => updatedProcess.GetOutgoingLinksForShape(sd).Count() - 1);
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(updatedProcess.DecisionBranchDestinationLinks.Count.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, updatedProcess.DecisionBranchDestinationLinks.Count());
         }
 
         [TestCase]
@@ -328,7 +360,6 @@ namespace StorytellerTests
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
-
             var thirdDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 2);
@@ -336,6 +367,17 @@ namespace StorytellerTests
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
                 "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
+
+            // Total number of branches from the process
+            var userDecisions = updatedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranches = userDecisions.Sum(ud => updatedProcess.GetOutgoingLinksForShape(ud).Count() - 1);
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(updatedProcess.DecisionBranchDestinationLinks.Count.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, updatedProcess.DecisionBranchDestinationLinks.Count());
         }
         #endregion Tests
 

@@ -137,7 +137,7 @@ namespace Model.StorytellerModel
         /// Decision branch destination links for decision shapes in the Process. This list contains list of merging point
         /// information for all available decisions in the process. The list is empty if the process contain only main branch
         /// </summary>
-        List<ProcessLink> DecisionBranchDestinationLinks { get; }
+        List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; }
 
         /// <summary>
         /// The Property values for the Process
@@ -190,8 +190,8 @@ namespace Model.StorytellerModel
         /// <param name="orderIndex">The order index of the link (Indicates display order 
         /// in the process graph)</param>
         /// <param name="sourceId">The Id of the source decision</param>
-        /// <returns>The DecisionBranchDestinationLink (ProcessLink) that was added</returns>
-        ProcessLink AddDecisionBranchDestinationLink(int destinationId,
+        /// <returns>The DecisionBranchDestinationLink that was added</returns>
+        DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId,
             double orderIndex, int sourceId);
 
         /// <summary>
@@ -308,6 +308,13 @@ namespace Model.StorytellerModel
         /// <param name="orderIndex">(optional) The order index of the link to find</param>
         /// <returns>The outgoing process link</returns>
         ProcessLink GetOutgoingLinkForShape(IProcessShape processShape, double? orderIndex = null);
+
+        /// <summary>
+        /// Get the Outgoing Process Links for a Shape
+        /// </summary>
+        /// <param name="processShape">The process shape</param>
+        /// <returns>The outgoing process links</returns>
+        List<ProcessLink> GetOutgoingLinksForShape(IProcessShape processShape);
 
         /// <summary>
         /// Get the Shape Following an Existing Shape

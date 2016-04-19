@@ -12,14 +12,14 @@ export class BpSidebarLayout implements ng.IComponentOptions {
     public template: string;
     public controller: Function;
     public bindings: any;
-    public transclude;
+    public transclude: any;
 
     constructor() {
         this.template = require("./bp-sidebar-layout.html");
         this.controller = BpSidebarLayoutCtrl;
         this.bindings = {
             leftPanelTitle: "@",
-            rightPanelTitle: "@"
+            rightPanelTitle: "@",
         };
         this.transclude = {
             "content-left": "bpSidebarLayoutContentLeft",

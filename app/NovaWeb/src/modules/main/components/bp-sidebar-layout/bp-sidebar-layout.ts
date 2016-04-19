@@ -1,9 +1,11 @@
 ﻿interface ISidebarController {
     isLeftToggled: boolean;
     isRightToggled: boolean;
-    type: string;
     toggleLeft(evt: ng.IAngularEvent): void;
     toggleRight(evt: ng.IAngularEvent): void;
+
+    leftPanelTitle: string;
+    rightPanelTitle: string;
 }
 
 export class BpSidebarLayout implements ng.IComponentOptions {
@@ -16,13 +18,12 @@ export class BpSidebarLayout implements ng.IComponentOptions {
         this.template = require("./bp-sidebar-layout.html");
         this.controller = BpSidebarLayoutCtrl;
         this.bindings = {
-            type: "@"
+            leftPanelTitle: "@",
+            rightPanelTitle: "@"
         };
         this.transclude = {
-            "header-left" : "bpSidebarLayoutHeaderLeft",
             "content-left": "bpSidebarLayoutContentLeft",
             "content-center": "bpSidebarLayoutContentCenter",
-            "header-right": "bpSidebarLayoutHeaderRight",
             "content-right": "bpSidebarLayoutContentRight"
         }
     }
@@ -32,14 +33,13 @@ class BpSidebarLayoutCtrl implements ISidebarController {
     static $inject: [string] = ["$scope", "$element"];
     public isLeftToggled: boolean;
     public isRightToggled: boolean;
-    public type: string;
+
+    public leftPanelTitle: string;
+    public rightPanelTitle: string;
 
     constructor(private $scope, private $element) {
         this.isLeftToggled = true;
         this.isRightToggled = true;
-        if (!this.type) {
-            this.type = "bpSidebarLayout";
-        }
     }
 
     public toggleLeft(evt: ng.IAngularEvent) {

@@ -10,10 +10,12 @@ export class SessionTokenInterceptor {
         }
 
         var token = SessionTokenHelper.getSessionToken();
-        if (!config.headers) {
-            config.headers = {};
+        if (token) {
+            if (!config.headers) {
+                config.headers = {};
+            }
+            config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
         }
-        config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = token;
         return config;
     };
 }

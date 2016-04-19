@@ -266,19 +266,76 @@
 		}
 	*/
 
-    .bp-tooltip-container:hover .bp-tooltip {
-      display: block;
+    @keyframes animate-tooltip {
+      0% {
+        opacity: 0; }
+      30% {
+        opacity: .5; }
+      60% {
+        opacity: .8; }
+      90% {
+        opacity: 1; }
     }
 
+    .bp-tooltip-trigger:hover {
+      cursor: default;
+    }
+    .bp-tooltip-trigger:hover .bp-tooltip {
+      display: block;
+      opacity: 1;
+    }
     .bp-tooltip {
       position: fixed;
-      white-space: nowrap;
       display: none;
-      background: #ffffcc;
-      color: black;
-      border: 1px solid black;
-      padding: 5px;
+      opacity: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
       z-index: 1000;
+      animation: animate-tooltip 0.65s
+    }
+    .bp-tooltip-content {
+      white-space: nowrap;
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 5px;
+      margin: 0;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: normal;
+    }
+    .bp-tooltip-top-tip:after {
+      bottom: 100%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(0, 0, 0, 0);
+      border-bottom-color: #000;
+      border-width: 5px;
+      margin-left: -5px;
+    }
+    .bp-tooltip-bottom-tip:after {
+      top: 100%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(0, 0, 0, 0);
+      border-top-color: #000;
+      border-width: 5px;
+      margin-left: -5px;
+    }
+    .bp-tooltip-left-tip:after {
+      left: 8px;
+    }
+    .bp-tooltip-right-tip:after {
+      left: calc(100% - 13px);
     }
   </style>
 </head>
@@ -311,7 +368,7 @@
             <option>Item #7</option>
             <option>Item #8</option>
           </select>
-          <span class="btn-group pull-right" uib-dropdown is-open="status.isopen">
+          <span class="btn-group" uib-dropdown dropdown-append-to-body on-toggle="alert('here')" is-open="status.isopen">
             <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
               Button dropdown <span class="caret"></span>
             </button>
@@ -330,7 +387,7 @@
         <i></i>
         <h2 class="header">Attachment</h2>
         <div class="content-wrapper" perfect-scrollbar><div class="content">In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque <span tooltips tooltip-template="This is a custom tooltip" tooltip-side="left" style="color:red;font-weight:bold;">metus</span> dolor, vehicula at nisi et, porttitor gravida odio.<br><br>
-          In felis libero, aliquet varius placerat nec, vehicula a lorem. Pellentesque nunc leo, auctor bibendum leo et, consectetur hendrerit arcu. Fusce feugiat venenatis eros quis pretium. Pellentesque rhoncus eros eleifend tellus facilisis, sed laoreet velit vehicula. Praesent consequat gravida ipsum a efficitur. Donec erat purus, cursus nec sapien ut, accumsan consequat enim. Nam pretium ex quam, eget laoreet enim fermentum vitae. Suspendisse auctor nisi id risus fringilla sollicitudin.</div></div>
+          In felis libero, aliquet varius placerat nec, vehicula a lorem. Pellentesque nunc leo, auctor bibendum leo et, consectetur hendrerit arcu. Fusce feugiat venenatis eros quis pretium. Pellentesque rhoncus eros eleifend tellus facilisis, sed laoreet velit vehicula. Praesent consequat gravida ipsum a efficitur. Donec erat purus, cursus nec sapien ut, accumsan consequat enim. Nam pretium ex quam, eget laoreet enim fermentum vitae. Suspendisse auctor nisi id risus fringilla sollicitudin.<br><br><input type="date"></div></div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
@@ -342,7 +399,7 @@
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Another item</h2>
-        <div class="content-wrapper" perfect-scrollbar><div class="content"><a href="#" tooltip-placement="bottom" uib-tooltip="This is another tooltip. Let's see if it gets cut by the scrolling of the utility panel component">Suspendisse eu urna est.</a> Etiam nec risus libero. Sed libero risus, convallis in blandit vel, sollicitudin vitae ligula. Suspendisse vel orci et leo tempus eleifend sed et enim. Praesent tempus porttitor suscipit.  <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">Donec</span> aliquam interdum ipsum eget ullamcorper. Nunc faucibus est ac augue gravida tincidunt. Phasellus non tellus non massa ornare dapibus ac et ligula. Aliquam sit amet lectus vel felis placerat tempor et nec augue. Aenean vestibulum iaculis enim eu semper. Etiam elit neque, vehicula et nibh sed, ultricies luctus risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam placerat pretium pharetra.<br><br>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio.</div></div>
+        <div class="content-wrapper" perfect-scrollbar><div class="content"><a href="#" tooltip-placement="top" uib-tooltip="This is another tooltip. Let's see if it gets cut by the scrolling of the utility panel component" tooltip-append-to-body="true">Suspendisse eu urna est.</a> Etiam nec risus libero. Sed libero risus, convallis in blandit vel, sollicitudin vitae ligula. Suspendisse vel orci et leo tempus eleifend sed et enim. Praesent tempus porttitor suscipit.  <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">Donec</span> aliquam interdum ipsum eget ullamcorper. Nunc faucibus est ac augue gravida tincidunt. Phasellus non tellus non massa ornare dapibus ac et ligula. Aliquam sit amet lectus vel felis placerat tempor et nec augue. Aenean vestibulum iaculis enim eu semper. Etiam elit neque, vehicula et nibh sed, ultricies luctus risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam placerat pretium pharetra.<br><br>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio. <a href="#" tooltip-placement="auto bottom" uib-tooltip="This is another tooltip. Let's see if it gets cut by the scrolling of the utility panel component" tooltip-append-to-body="true">Suspendisse eu urna est.</a></div></div>
       </li>
     </ul></div></div>
 </div>

@@ -135,7 +135,7 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public void GetConfigJs_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
+        public void GetConfigJs_AccessControlErrorAllMethods_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
@@ -145,6 +145,7 @@ namespace AdminStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
                 Assert.DoesNotThrow(() => { _adminStore.GetConfigJs(session); },
                     "GetConfigJs should NOT return an error if AccessControl returns a {0} error!", accessControlError);
@@ -224,20 +225,6 @@ namespace AdminStoreTests
 
                 Assert.Throws<Http401UnauthorizedException>(() => { _adminStore.GetSession(session.UserId); },
                     "GetSession should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
-            }
-        }
-
-        [Test, TestCaseSource(nameof(StatusCodes))]
-        public void GetConfigJs_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
-        {
-            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
-            {
-                ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-
-                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
-
-                Assert.Throws<Http401UnauthorizedException>(() => { _adminStore.GetConfigJs(session); },
-                    "GetConfigJs should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }
 

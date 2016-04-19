@@ -1542,7 +1542,7 @@ namespace Model.StorytellerModel.Impl
 
         /// <summary>		
         /// The Id of the shape after the merging point
-        /// e.g. endShape ID in the picture)
+        /// (e.g. endShape ID in the picture)
         /// </summary>
         public int DestinationId { get; set; }
 

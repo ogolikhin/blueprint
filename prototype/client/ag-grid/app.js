@@ -117,7 +117,7 @@ app.controller("exampleCtrl", function($scope, $http) {
       item.eRow.setAttribute("droppable", "true");
     },
     icons: {
-      groupExpanded: '<span class="myicon"><i class="fa fa-folder-open"/i></span>',
+      groupExpanded: '<span class="myicon"><i class="fa fa-folder-open"/></span>',
       groupContracted: '<span class="myicon"><i class="fa fa-folder"/></span>'
     },
     onRowClicked: rowClicked,
@@ -249,7 +249,7 @@ app.directive('bpTooltip', function() {
               tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 10)) + 'px';
             } else {
               tooltip.style.bottom = '';
-              tooltip.style.topY + 10 + 'px';
+              tooltip.style.top = e.clientY + 10 + 'px';
             }
           });
         }

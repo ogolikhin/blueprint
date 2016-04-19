@@ -13,8 +13,8 @@ export class BpSidebarLayout implements ng.IComponentOptions {
     public transclude;
 
     constructor() {
-        this.template = require("./sidebar.html");
-        this.controller = SidebarCtrl;
+        this.template = require("./bp-sidebar-layout.html");
+        this.controller = BpSidebarLayoutCtrl;
         this.bindings = {
             type: "@"
         };
@@ -28,7 +28,7 @@ export class BpSidebarLayout implements ng.IComponentOptions {
     }
 }
 
-class SidebarCtrl implements ISidebarController {
+class BpSidebarLayoutCtrl implements ISidebarController {
     static $inject: [string] = ["$scope", "$element"];
     public isLeftToggled: boolean;
     public isRightToggled: boolean;

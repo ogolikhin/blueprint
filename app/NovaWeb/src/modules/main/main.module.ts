@@ -4,7 +4,7 @@ import "angular-ui-bootstrap";
 import "../shell";
 import {PageContent} from "./components/content/pagecontent";
 import {Toolbar} from "./components/toolbar/toolbar";
-import {BpSidebarLayout} from "./components/sidebar/sidebar";
+import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
 import {Accordion} from "./components/accordion/accordion";
 import {config as routesConfig} from "./main.state";
 

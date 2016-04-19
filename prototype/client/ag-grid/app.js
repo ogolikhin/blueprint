@@ -243,34 +243,68 @@ app.directive('bpAccordion', function() {
 //CUSTOM DIRECTIVE FOR TOOLTIP
 app.directive('bpTooltip', function() {
   function link(scope, element, attrs) {
+    function hasClass(el, className) {
+      if (el.classList)
+        return el.classList.contains(className)
+      else
+        return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+    }
+
+    function addClass(el, className) {
+      if (el.classList)
+        el.classList.add(className)
+      else if (!hasClass(el, className)) el.className += " " + className
+    }
+
+    function removeClass(el, className) {
+      if (el.classList)
+        el.classList.remove(className)
+      else if (hasClass(el, className)) {
+        var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+        el.className=el.className.replace(reg, ' ')
+      }
+    }
 
     var realLink = function() {
       if(element && element.length) {
         var elem = element[0];
         elem.removeAttribute('bp-tooltip');
         if(scope.tooltipContent) {
-          var tt = document.createElement('DIV');
-          tt.innerHTML = scope.tooltipContent;
-          tt.className = 'bp-tooltip';
+          var tooltip = document.createElement('DIV');
+          tooltip.className = 'bp-tooltip';
 
-          elem.className += ' bp-tooltip-container';
-          elem.appendChild(tt);
+          var tooltipContent = document.createElement('DIV');
+          tooltipContent.className = 'bp-tooltip-content';
+          tooltipContent.innerHTML = scope.tooltipContent;
+
+          tooltip.appendChild(tooltipContent);
+
+          elem.className += ' bp-tooltip-trigger';
+          elem.appendChild(tooltip);
 
           elem.addEventListener('mousemove', function fn(e) {
             var tooltip = elem.querySelectorAll('.bp-tooltip')[0];
             if(e.clientX > document.body.clientWidth / 2) {
               tooltip.style.left = '';
-              tooltip.style.right = (document.body.clientWidth - (e.clientX - 10)) + 'px';
+              tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + 'px';
+              removeClass(tooltip, 'bp-tooltip-left-tip');
+              addClass(tooltip, 'bp-tooltip-right-tip');
             } else {
               tooltip.style.right = '';
-              tooltip.style.left = e.clientX + 10 + 'px';
+              tooltip.style.left = (e.clientX - 8) + 'px';
+              removeClass(tooltip, 'bp-tooltip-right-tip');
+              addClass(tooltip, 'bp-tooltip-left-tip');
             }
             if(e.clientY > document.body.clientHeight / 2) {
               tooltip.style.top = '';
-              tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 10)) + 'px';
+              tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 15)) + 'px';
+              removeClass(tooltip, 'bp-tooltip-top-tip');
+              addClass(tooltip, 'bp-tooltip-bottom-tip');
             } else {
               tooltip.style.bottom = '';
-              tooltip.style.top = e.clientY + 10 + 'px';
+              tooltip.style.top = e.clientY + 26 + 'px';
+              removeClass(tooltip, 'bp-tooltip-bottom-tip');
+              addClass(tooltip, 'bp-tooltip-top-tip');
             }
           });
         }

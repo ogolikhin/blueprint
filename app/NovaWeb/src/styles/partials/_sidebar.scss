@@ -15,7 +15,7 @@ sidebar {
     font-size: $font-size-root;
     font-weight: 600;
     height: $breadcrumbs-height;
-    padding: 13px 10px 0;
+    padding: 13px 15px 0;
   }
 
   .sidebar-toggle {
@@ -37,8 +37,12 @@ sidebar {
     left: 0;
     margin-left: -$sidebar-size;
 
+    .sidebar-title {
+      padding-right: 36px;
+    }
+
     .sidebar-toggle {
-      right: -44px;
+      right: -47px;
     }
 
     &.show {
@@ -61,7 +65,7 @@ sidebar {
     }
 
     .sidebar-toggle {
-      left: -44px;
+      left: -47px;
     }
 
     &.show {

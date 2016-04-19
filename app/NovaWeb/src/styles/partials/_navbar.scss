@@ -4,7 +4,7 @@
   padding: 0;
 
   .navbar-header {
-    background: $navbar-color url('images/bp_logo_white.svg') 12px no-repeat;
+    background: $navbar-color url('images/bp_logo_white.svg') 9px no-repeat;
     background-size: 120px;
     border: 0;
     float: none;
@@ -56,7 +56,7 @@
 
       .fonticon-help {
         margin-left: 8px;
-        margin-right: 8px;
+        margin-right: 10px;
       }
     }
   }
@@ -64,7 +64,7 @@
   .navbar-toolbar {
     background: $gray-lighter;
     height: $navbar-toolbar-height;
-    padding: 0 0 0 6px;
+    padding: 0 0 0 12px;
 
     .navbar-nav {
       float: left;

@@ -206,10 +206,10 @@ app.directive('bpAccordion', function() {
             var accordionHeaderHeight = parseInt(scope.headerHeight, 10);
             var compensationForClosedHeaders = accordionHeaderHeight * (numberOfClosedElements / numberOfOpenElements);
             accordionElement.style.height = "calc(" + (100 / numberOfOpenElements).toString() + "% - " + compensationForClosedHeaders.toString() + "px)";
-            accordionElement.querySelectorAll(".content")[0].style.height = "calc(100% - " + accordionHeaderHeight + "px)";
+            accordionElement.querySelectorAll(".content-wrapper")[0].style.height = "calc(100% - " + accordionHeaderHeight + "px)";
           } else {
             accordionElement.style.height = "auto";
-            accordionElement.querySelectorAll(".content")[0].style.height = "0";
+            accordionElement.querySelectorAll(".content-wrapper")[0].style.height = "0";
           }
         }
       }

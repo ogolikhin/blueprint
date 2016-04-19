@@ -217,7 +217,7 @@
       height: 33px;
       box-sizing: border-box;
     }
-    .utility-panel > ul li div.content {
+    .utility-panel > ul li div.content-wrapper {
       font-size: 14px;
       overflow: hidden;
       position: relative;
@@ -226,7 +226,8 @@
       opacity: 0;
       z-index: 2;
     }
-    .is-touch .utility-panel > ul li div.content {
+    .is-touch .utility-panel > ul li div.content-wrapper div.content {
+      height: 100%;
       overflow: auto;
     }
 
@@ -298,7 +299,7 @@
         <input type="radio" name="accordion" checked="checked" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Discussion</h2>
-        <div class="content" perfect-scrollbar>Lorem ipsum dolor sit amet, <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">consectetur</span> adipiscing elit. Nunc ullamcorper nulla eu mattis elementum. <span tooltips tooltip-template="This is a custom tooltip" style="color:red;font-weight:bold;">Pellentesque consequat</span> dapibus velit ut scelerisque. Vivamus placerat, est sed rutrum dapibus, risus ex blandit massa, id pretium lacus sapien ac libero. Phasellus bibendum ullamcorper risus vitae fermentum. Mauris in commodo est. Aenean fringilla ligula et turpis mollis auctor. In ac imperdiet eros, aliquam auctor dui. Aenean euismod fermentum malesuada.<br>
+        <div class="content-wrapper" perfect-scrollbar><div class="content">Lorem ipsum dolor sit amet, <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">consectetur</span> adipiscing elit. Nunc ullamcorper nulla eu mattis elementum. <span tooltips tooltip-template="This is a custom tooltip" style="color:red;font-weight:bold;">Pellentesque consequat</span> dapibus velit ut scelerisque. Vivamus placerat, est sed rutrum dapibus, risus ex blandit massa, id pretium lacus sapien ac libero. Phasellus bibendum ullamcorper risus vitae fermentum. Mauris in commodo est. Aenean fringilla ligula et turpis mollis auctor. In ac imperdiet eros, aliquam auctor dui. Aenean euismod fermentum malesuada.<br>
           <select>
             <option>System dropdown</option>
             <option>Item #1</option>
@@ -310,7 +311,7 @@
             <option>Item #7</option>
             <option>Item #8</option>
           </select>
-          <div class="btn-group pull-right" uib-dropdown is-open="status.isopen">
+          <span class="btn-group pull-right" uib-dropdown is-open="status.isopen">
             <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
               Button dropdown <span class="caret"></span>
             </button>
@@ -321,27 +322,27 @@
               <li class="divider"></li>
               <li role="menuitem"><a href="#">Separated link</a></li>
             </ul>
-          </div>
-        </div>
+          </span>
+        </div></div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Attachment</h2>
-        <div class="content" perfect-scrollbar>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque <span tooltips tooltip-template="This is a custom tooltip" tooltip-side="left" style="color:red;font-weight:bold;">metus</span> dolor, vehicula at nisi et, porttitor gravida odio.<br><br>
-          In felis libero, aliquet varius placerat nec, vehicula a lorem. Pellentesque nunc leo, auctor bibendum leo et, consectetur hendrerit arcu. Fusce feugiat venenatis eros quis pretium. Pellentesque rhoncus eros eleifend tellus facilisis, sed laoreet velit vehicula. Praesent consequat gravida ipsum a efficitur. Donec erat purus, cursus nec sapien ut, accumsan consequat enim. Nam pretium ex quam, eget laoreet enim fermentum vitae. Suspendisse auctor nisi id risus fringilla sollicitudin.</div>
+        <div class="content-wrapper" perfect-scrollbar><div class="content">In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque <span tooltips tooltip-template="This is a custom tooltip" tooltip-side="left" style="color:red;font-weight:bold;">metus</span> dolor, vehicula at nisi et, porttitor gravida odio.<br><br>
+          In felis libero, aliquet varius placerat nec, vehicula a lorem. Pellentesque nunc leo, auctor bibendum leo et, consectetur hendrerit arcu. Fusce feugiat venenatis eros quis pretium. Pellentesque rhoncus eros eleifend tellus facilisis, sed laoreet velit vehicula. Praesent consequat gravida ipsum a efficitur. Donec erat purus, cursus nec sapien ut, accumsan consequat enim. Nam pretium ex quam, eget laoreet enim fermentum vitae. Suspendisse auctor nisi id risus fringilla sollicitudin.</div></div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Relationships</h2>
-        <div class="content" perfect-scrollbar>Integer auctor ex nibh, sit amet ornare ante consectetur nec. Nam ut interdum mauris. Maecenas dignissim tortor felis, eu suscipit sem gravida non. Nulla vestibulum velit placerat ex eleifend pulvinar. Mauris magna sem, pellentesque non elit eget, consequat venenatis lectus. Aenean faucibus tempus dapibus. Fusce aliquet risus vitae tellus iaculis tempus. Nunc imperdiet eget ligula eget efficitur. Proin bibendum quam et risus finibus mollis. Mauris leo eros, malesuada et lectus eu, elementum rutrum massa. Vivamus vel scelerisque nisi. Donec iaculis libero a condimentum volutpat. Praesent rutrum tortor orci, quis varius enim euismod nec. Suspendisse consectetur, justo at tempus sagittis, ante augue tempor est, a egestas odio enim sed erat. Quisque finibus commodo ex, sit amet pellentesque nisl elementum et. Aliquam vel tincidunt eros.</div>
+        <div class="content-wrapper" perfect-scrollbar><div class="content">Integer auctor ex nibh, sit amet ornare ante consectetur nec. Nam ut interdum mauris. Maecenas dignissim tortor felis, eu suscipit sem gravida non. Nulla vestibulum velit placerat ex eleifend pulvinar. Mauris magna sem, pellentesque non elit eget, consequat venenatis lectus. Aenean faucibus tempus dapibus. Fusce aliquet risus vitae tellus iaculis tempus. Nunc imperdiet eget ligula eget efficitur. Proin bibendum quam et risus finibus mollis. Mauris leo eros, malesuada et lectus eu, elementum rutrum massa. Vivamus vel scelerisque nisi. Donec iaculis libero a condimentum volutpat. Praesent rutrum tortor orci, quis varius enim euismod nec. Suspendisse consectetur, justo at tempus sagittis, ante augue tempor est, a egestas odio enim sed erat. Quisque finibus commodo ex, sit amet pellentesque nisl elementum et. Aliquam vel tincidunt eros.</div></div>
       </li>
       <li>
         <input type="radio" name="accordion" class="state"><input type="checkbox" class="pin">
         <i></i>
         <h2 class="header">Another item</h2>
-        <div class="content" perfect-scrollbar><a href="#" tooltip-placement="bottom" uib-tooltip="This is another tooltip. Let's see if it gets cut by the scrolling of the utility panel component">Suspendisse eu urna est.</a> Etiam nec risus libero. Sed libero risus, convallis in blandit vel, sollicitudin vitae ligula. Suspendisse vel orci et leo tempus eleifend sed et enim. Praesent tempus porttitor suscipit.  <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">Donec</span> aliquam interdum ipsum eget ullamcorper. Nunc faucibus est ac augue gravida tincidunt. Phasellus non tellus non massa ornare dapibus ac et ligula. Aliquam sit amet lectus vel felis placerat tempor et nec augue. Aenean vestibulum iaculis enim eu semper. Etiam elit neque, vehicula et nibh sed, ultricies luctus risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam placerat pretium pharetra.<br><br>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio.</div>
+        <div class="content-wrapper" perfect-scrollbar><div class="content"><a href="#" tooltip-placement="bottom" uib-tooltip="This is another tooltip. Let's see if it gets cut by the scrolling of the utility panel component">Suspendisse eu urna est.</a> Etiam nec risus libero. Sed libero risus, convallis in blandit vel, sollicitudin vitae ligula. Suspendisse vel orci et leo tempus eleifend sed et enim. Praesent tempus porttitor suscipit.  <span bp-tooltip tooltip-content="This is my BP Tooltip!" style="color:green;font-weight:bold;">Donec</span> aliquam interdum ipsum eget ullamcorper. Nunc faucibus est ac augue gravida tincidunt. Phasellus non tellus non massa ornare dapibus ac et ligula. Aliquam sit amet lectus vel felis placerat tempor et nec augue. Aenean vestibulum iaculis enim eu semper. Etiam elit neque, vehicula et nibh sed, ultricies luctus risus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Etiam placerat pretium pharetra.<br><br>In ipsum turpis, faucibus id elementum nec, iaculis ac libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis congue lobortis. Sed quam sapien, fringilla sit amet sollicitudin non, laoreet id nibh. Suspendisse pharetra dictum enim, vel dapibus elit congue ut. Pellentesque sed lacus tempus, varius metus et, cursus odio. Vestibulum maximus mauris ipsum, non sagittis ipsum vehicula convallis. Aliquam pretium ultrices dignissim. Maecenas vitae nunc at dui laoreet suscipit. Aliquam rhoncus felis a ex rhoncus porta. Pellentesque urna dui, gravida ornare mattis in, mollis vel ex. Cras sed nunc ligula. Donec nec pulvinar eros. Nullam nibh tortor, blandit et enim vitae, hendrerit mollis sapien. Pellentesque metus dolor, vehicula at nisi et, porttitor gravida odio.</div></div>
       </li>
     </ul></div></div>
 </div>

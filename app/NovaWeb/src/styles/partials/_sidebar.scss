@@ -2,13 +2,13 @@ bp-sidebar-layout .content-center {
     transition: all .4s ease;
 }
 
-.project-explorer-visible {
+.left-panel-visible {
 
     .content-center {
         padding-left: $sidebar-size; 
     }
 
-    .sidebar.project-explorer {
+    .sidebar.left-panel {
       left: $sidebar-size;
 
       .sidebar-toggle {
@@ -19,13 +19,13 @@ bp-sidebar-layout .content-center {
 
 }
 
-.utility-panel-visible{
+.right-panel-visible{
 
     .content-center {
         padding-right: $sidebar-size; 
     }
 
-    .sidebar.utility-panel {
+    .sidebar.right-panel {
       right: $sidebar-size;
 
       .sidebar-toggle {
@@ -70,7 +70,7 @@ bp-sidebar-layout .content-center {
     height: 100%;
   }
 
-  &.project-explorer {
+  &.left-panel {
     left: 0;
     margin-left: -$sidebar-size;
 
@@ -79,7 +79,7 @@ bp-sidebar-layout .content-center {
     }
   }
 
-  &.utility-panel {
+  &.right-panel {
     margin-right: -$sidebar-size;
     right: 0;
 

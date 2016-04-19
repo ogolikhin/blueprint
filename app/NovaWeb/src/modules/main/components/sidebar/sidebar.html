@@ -1,7 +1,7 @@
 ﻿<!-- <bp-sidebar-layout> (by transclusion)-->
-<div class="bp-sidebar-wrapper" ng-class="{'project-explorer-visible': $ctrl.isLeftToggled, 'utility-panel-visible': $ctrl.isRightToggled}">
+<div class="bp-sidebar-wrapper" ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
 
-    <div class="sidebar project-explorer">
+    <div class="sidebar left-panel">
         <div class="sidebar-content">
             <a ng-click="$ctrl.toggleLeft($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
             <div class="sidebar-title" ng-transclude="header-left"></div>
@@ -11,7 +11,7 @@
 
     <div class="content-center" ng-transclude="content-center"></div>
 
-    <div class="sidebar utility-panel">
+    <div class="sidebar right-panel">
         <div class="sidebar-content">
             <a ng-click="$ctrl.toggleRight($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
             <div class="sidebar-title" ng-transclude="header-right"></div>

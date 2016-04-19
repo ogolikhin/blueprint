@@ -35,7 +35,7 @@ namespace Helper
             Assert.AreEqual(process1.ProjectId, process2.ProjectId, "The project ids of the processes don't match");
             Assert.AreEqual(process1.TypePrefix, process2.TypePrefix, "The type prefixes of the processes don't match");
 
-            // Assert that ArtifactPathLinks counts, Link counts, Shape counts and Property counts are equal
+            // Assert that ArtifactPathLinks counts, Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
             Assert.AreEqual(process1.ArtifactPathLinks.Count, process2.ArtifactPathLinks.Count,
                 "The processes have different artifact path link counts");
             Assert.AreEqual(process1.PropertyValues.Count, process2.PropertyValues.Count,
@@ -43,6 +43,13 @@ namespace Helper
             Assert.AreEqual(process1.Links.Count, process2.Links.Count, "The processes have different link counts");
             Assert.AreEqual(process1.Shapes.Count, process2.Shapes.Count,
                 "The processes have different process shape counts");
+ 
+            // TODO This is a quick fix for tests deleting only decision from the process model
+            var process1DecisionBranchDestinationLinkCount = process1.DecisionBranchDestinationLinks?.Count ?? 0;
+            var process2DecisionBranchDestinationLinkCount = process2.DecisionBranchDestinationLinks?.Count ?? 0;
+
+            Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
+                "The processes have different decision branch destination link counts");
 
             // Assert that Process artifact path links are equal
             foreach (var process1ArtifactPathLink in process1.ArtifactPathLinks)
@@ -95,6 +102,9 @@ namespace Helper
             // Allow negative shape ids in the process being verified
             AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
 
+            // Assert that the decision branch destination links are in sync during the update opertation
+            AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromUpdate);
+
             // Get the process using GetProcess
             var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
 
@@ -103,6 +113,9 @@ namespace Helper
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
             AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
+
+            // Assert that the decision branch destination links are in sync during the get opertations
+            AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromGet);
 
             return processReturnedFromGet;
         }
@@ -889,6 +902,35 @@ namespace Helper
             Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
             Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
             Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
+        }
+
+
+        /// <summary>
+        /// Assert that DecisionBranchDestinationLinks information are up-to-dated with number of branches from the process model
+        /// </summary>
+        /// <param name="process">The process to be verified for branch merging links</param>
+        private static void AssertDecisionBranchDestinationLinksAreInsync(IProcess process)
+        {
+            // Total number of branches from the process
+            var userDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.UserDecision);
+            var systemDecisions = process.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision);
+
+            // Adding all branches from available decisions from the process
+            int totalNumberOfBranchesFromUserDecision = 
+                userDecisions.Sum(ud => process.GetOutgoingLinksForShape(ud).Count() - 1);
+
+            int totalNumberOfBranchesFromSystemDecision =
+                systemDecisions.Sum(sd => process.GetOutgoingLinksForShape(sd).Count() - 1);
+
+            int totalNumberOfBranches = totalNumberOfBranchesFromUserDecision + totalNumberOfBranchesFromSystemDecision;
+
+            var decisionBranchDesinationLinkCount = totalNumberOfBranches.Equals(0)
+                ? 0 : process.DecisionBranchDestinationLinks.Count();
+
+            // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
+            Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),
+                "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
+                totalNumberOfBranches, decisionBranchDesinationLinkCount);
         }
 
         /// <summary>

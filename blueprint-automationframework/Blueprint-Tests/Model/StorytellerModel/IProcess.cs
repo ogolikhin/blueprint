@@ -184,7 +184,7 @@ namespace Model.StorytellerModel
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
 
         /// <summary>
-        /// Add a DecisionBranchDestinationLink (ProcessLink) to a Process
+        /// Add a DecisionBranchDestinationLink to a Process
         /// </summary>
         /// <param name="destinationId">The artifact Id of the link destination</param>
         /// <param name="orderIndex">The order index of the link (Indicates display order 
@@ -329,8 +329,8 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="decisionShape">The source decision shape for the DecisionBranchDestinationLink looking for</param>
         /// <param name="orderIndex">The order index of the branch based from the shource decision shape</param>
-        /// <returns>The DecisionBranchDestinationLinks the source decision</returns>
-        ProcessLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+        /// <returns>The DecisionBranchDestinationLink the source decision</returns>
+        DecisionBranchDestinationLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
             double orderIndex);
 
         /// <summary>
@@ -381,6 +381,21 @@ namespace Model.StorytellerModel
         /// <param name="orderIndex">The order index of the branch</param>
         /// <param name="branchMergePointShape">The end point of the branch</param>
         void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
+
+        /// <summary>
+        /// Delete a DecisionBranchDestinationLink from a Process
+        /// </summary>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="sourceId">The Id of the source decision</param>
+        void DeleteDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId);
+
+        /// <summary>
+        /// Delete all available DecisionBranchDestinationLinks for the source decision
+        /// </summary>
+        /// <param name="decisionId">The Id of the source decision</param>
+        void DeleteDecisionBranchDestinationLinksForDecision(int decisionId);
 
         /// <summary>
         /// Move a User and System Task to Before a Shape

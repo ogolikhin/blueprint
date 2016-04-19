@@ -4,7 +4,7 @@ import "angular-ui-bootstrap";
 import "../shell";
 import {PageContent} from "./components/content/pagecontent";
 import {Toolbar} from "./components/toolbar/toolbar";
-import {Sidebar} from "./components/sidebar/sidebar";
+import {BpSidebar} from "./components/sidebar/sidebar";
 import {Accordion} from "./components/accordion/accordion";
 import {config as routesConfig} from "./main.state";
 
@@ -22,6 +22,6 @@ angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap"])
     .run(config)
     .component("pagecontent", new PageContent())
     .component("toolbar", new Toolbar())
-    .component("sidebar", new Sidebar())
+    .component("bpSidebar", new BpSidebar())
     .component("accordion", new Accordion())
     .config(routesConfig);

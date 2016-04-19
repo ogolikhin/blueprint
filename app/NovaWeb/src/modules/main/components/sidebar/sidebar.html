@@ -1,9 +1,21 @@
-﻿<a ng-click="$ctrl.toggle($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
-<div class="sidebar-content" ng-if="$ctrl.type == 'utility-panel'">
-	<div class="sidebar-title">Utility Panel</div>
-	<accordion header-height="33px"></accordion>
+﻿<!-- <bp-sidebar> (by transclusion)-->
+<div class="bp-sidebar-wrapper" ng-class="{'project-explorer-visible': $ctrl.isLeftToggled, 'utility-panel-visible': $ctrl.isRightToggled}">
+    <sidebar class="project-explorer">
+        <div class="sidebar-content">
+            <a ng-click="$ctrl.toggleLeft($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
+            <div class="sidebar-title" ng-transclude="header-left"></div>
+            <div class="sidebar-content" ng-transclude="content-left"></div>
+        </div>
+    </sidebar>
+
+    <div class="content-center" ng-transclude="content-center"></div>
+
+    <sidebar class="utility-panel">
+        <div class="sidebar-content">
+            <a ng-click="$ctrl.toggleRight($event)" class="sidebar-toggle"><i class="fonticon-navigation"></i></a>
+            <div class="sidebar-title" ng-transclude="header-right"></div>
+            <div class="sidebar-content" ng-transclude="content-right"></div>
+        </div>
+    </sidebar>
 </div>
-<div class="sidebar-content" ng-if="$ctrl.type == 'project-explorer'">
-	<div class="sidebar-title">Project Explorer</div>
-	<div class="sidebar-content">Project explorer content</div>
-</div>
+<!-- </bp-sidebar> -->

@@ -1,3 +1,40 @@
+bp-sidebar .content-center {
+    transition: all .4s ease;
+}
+
+.project-explorer-visible {
+
+    .content-center {
+        padding-left: $sidebar-size; 
+    }
+
+    .project-explorer {
+      left: $sidebar-size;
+
+      .sidebar-toggle {
+        color: $white;
+        right: -4px;
+      }
+    }
+
+}
+
+.utility-panel-visible{
+
+    .content-center {
+        padding-right: $sidebar-size; 
+    }
+
+    .utility-panel {
+      right: $sidebar-size;
+
+      .sidebar-toggle {
+        color: $white;
+        left: -4px;
+      }
+    }
+}
+
 sidebar {
   background: $white;
   display: block;
@@ -40,15 +77,6 @@ sidebar {
     .sidebar-toggle {
       right: -44px;
     }
-
-    &.show {
-      left: $sidebar-size;
-
-      .sidebar-toggle {
-        color: $white;
-        right: -4px;
-      }
-    }
   }
 
   &.utility-panel {
@@ -62,15 +90,6 @@ sidebar {
 
     .sidebar-toggle {
       left: -44px;
-    }
-
-    &.show {
-      right: $sidebar-size;
-
-      .sidebar-toggle {
-        color: $white;
-        left: -4px;
-      }
     }
   }
 }

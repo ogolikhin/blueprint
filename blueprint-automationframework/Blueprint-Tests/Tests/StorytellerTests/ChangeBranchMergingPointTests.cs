@@ -191,7 +191,6 @@ namespace StorytellerTests
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
-
             var secondDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
@@ -328,7 +327,6 @@ namespace StorytellerTests
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
-
             var thirdDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 2);

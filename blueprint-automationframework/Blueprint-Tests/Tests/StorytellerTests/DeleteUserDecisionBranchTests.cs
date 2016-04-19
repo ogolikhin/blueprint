@@ -86,8 +86,8 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [TestCase(0)]
         [TestCase(1)]
+        [TestCase(2)]
         [Description("Delete a branch from a user decision point that has more than 2 conditions and verify that the " +
                      "returned process still contains the user decision with all branches except the deleted branch.")]
         public void DeleteBranchFromUserDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)

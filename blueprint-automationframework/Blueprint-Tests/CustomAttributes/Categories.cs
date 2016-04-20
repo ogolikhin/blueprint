@@ -10,6 +10,11 @@ namespace CustomAttributes
         public const string AdminStore = "AdminStore";
 
         /// <summary>
+        /// This test cannot be run in parallel with other tests.
+        /// </summary>
+        public const string CannotRunInParallel = "CannotRunInParallel";
+
+        /// <summary>
         /// This test runs several operations in multiple threads.
         /// </summary>
         public const string ConcurrentTest = "ConcurrentTest";

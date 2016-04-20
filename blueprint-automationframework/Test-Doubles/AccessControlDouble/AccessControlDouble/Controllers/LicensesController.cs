@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -9,40 +8,30 @@ using CommonUtilities;
 
 namespace AccessControlDouble.Controllers
 {
-    [RoutePrefix("status")]
-    public class StatusController : BaseController
+    [RoutePrefix("licenses")]
+    public class LicensesController : BaseController
     {
         /// <summary>
-        /// Method to return current upcheck status of AccessControl Web Service.
+        /// Method to query if session exists, expect to receive session token in header Session-Token to identify user session.
+        /// Method will not extend lifetime of the session by SESSION_TIMEOUT.
+        /// This method to be used for sign in sequence only.  Session information is returned back.
         /// </summary>
-        /// <returns>200 OK if no issue is detected.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
+        /// <param name="days">The number of past days for which to return transactions.</param>
+        /// <returns>The session token for the specified user.</returns>
         [HttpGet]
-        [Route("upcheck")]
-        [ResponseType(typeof (HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetStatusUpcheck()
-        {
-            return await GetStatus();
-        }
-
-        /// <summary>
-        /// Method to return current status of AccessControl Web Service.
-        /// </summary>
-        /// <returns>200 OK if no issue is detected.</returns>
-        [HttpGet]
-        [Route("")]
+        [Route("transactions")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
+        public async Task<IHttpActionResult> GetLicenseTransactions(int days)
         {
             string thisNamespace = nameof(AccessControlDouble);
-            string thisClassName = nameof(StatusController);
-            string thisMethodName = nameof(GetStatus);
+            string thisClassName = nameof(LicensesController);
+            string thisMethodName = nameof(GetLicenseTransactions);
 
             using (HttpClient http = new HttpClient())
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                    WriteLine("Called {0}.{1}.{2}({3})", thisNamespace, thisClassName, thisMethodName, days);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.
@@ -52,12 +41,11 @@ namespace AccessControlDouble.Controllers
                 }
 
                 WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-
-                var uri = WebUtils.CreateUri(Request.RequestUri, WebApiConfig.AccessControl, WebApiConfig.SVC_PATH);
+                var uri = CreateUri();
 
                 await Task.Run(() =>
                 {
-                    WriteLine("Calling http.GetAsync()");
+                    WriteLine("Calling http.GetAsync({0})", days);
                 });
                 var result = await http.GetAsync(uri);
                 await Task.Run(() =>
@@ -68,5 +56,6 @@ namespace AccessControlDouble.Controllers
                 return ResponseMessage(result);
             }
         }
+
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using Common;
 using CustomAttributes;
@@ -19,6 +18,7 @@ namespace AccessControlDoubleTests
     [TestFixture]
     [Category(Categories.AccessControlDouble)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
+    [Category(Categories.CannotRunInParallel)]
     [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class ErrorInjectionTests
     {

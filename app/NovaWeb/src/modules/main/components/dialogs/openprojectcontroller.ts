@@ -1,14 +1,10 @@
 ﻿import "angular";
-import {SessionTokenHelper} from "../../../shell/login/session.token.helper";
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogOptions, BaseDialogController} from "./dialog.svc";
 import * as Grid from "ag-grid/main";
 import "ag-grid-enterprise/main";
 
 
-export interface IHttpInterceptorConfig extends ng.IRequestConfig {
-    ignoreInterceptor: boolean;
-}
 
 
 export class OpenProjectController extends BaseDialogController {
@@ -31,16 +27,6 @@ export class OpenProjectController extends BaseDialogController {
             Name: this.selectedItem.Name || "--empty--",
         }
     };
-
-
-    private createRequestConfig(): ng.IRequestConfig {
-        var config = <IHttpInterceptorConfig>{ ignoreInterceptor: true };
-        config.headers = {};
-        //TODO: move the token injection somewhere more appropriate
-        config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = SessionTokenHelper.getSessionToken();
-        return config;
-    }
-
 
     private columnDefinitions = [{
         headerName: this.localization.get("App_Header_Name"),
@@ -67,7 +53,7 @@ export class OpenProjectController extends BaseDialogController {
         if (node.data.children && !node.data.children.length ) {
             if (node.expanded) {
                 if (node.allChildrenCount == 0) {
-                    self.$http.get(self.getProjectUrl + "/" + node.data.Id + "/children", self.createRequestConfig())
+                    self.$http.get(self.getProjectUrl + "/" + node.data.Id + "/children")
                         .then(function (res) {
                             node.data.children = res.data;
                             node.open = true;
@@ -98,7 +84,7 @@ export class OpenProjectController extends BaseDialogController {
         var self = this;
         params.api.setHeaderHeight(0);
         params.api.sizeColumnsToFit();
-        self.$http.get(self.getProjectUrl + "/1/" + "/children", self.createRequestConfig())
+        self.$http.get(self.getProjectUrl + "/1/" + "/children")
             .then(function (res) {
                 angular.forEach(res.data, (v) => {
                     if (v.Type == "Folder")
@@ -111,6 +97,7 @@ export class OpenProjectController extends BaseDialogController {
     }; 
     public gridOptions: Grid.GridOptions = {
         columnDefs: this.columnDefinitions,
+        headerHeight: 30,
         icons: {
             groupExpanded: "<i class='fonticon-folder-open' />",
             groupContracted: "<i class='fonticon-folder' />"

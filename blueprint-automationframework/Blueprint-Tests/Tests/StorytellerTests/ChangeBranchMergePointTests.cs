@@ -242,7 +242,7 @@ namespace StorytellerTests
             // Find the system decision
             var systemDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
-            // Find the sytem task From the third branch
+            // Find the system task From the third branch
             var systemTaskFromThirdBranch =
                 returnedProcess.GetNextShape(systemDecision, outgoingLinkForStartShape.Orderindex + 2);
 
@@ -314,7 +314,7 @@ namespace StorytellerTests
             var userTaskFromThirdBranch = returnedProcess.GetNextShape(userDecision,
                 outgoingLinkForStartShape.Orderindex + 2);
 
-            // Find the sytem task From the third branch
+            // Find the system task From the third branch
             var systemTaskFromThirdBranch = returnedProcess.GetNextShape(userTaskFromThirdBranch);
 
             // Find the outgoing link for the system task from the third branch

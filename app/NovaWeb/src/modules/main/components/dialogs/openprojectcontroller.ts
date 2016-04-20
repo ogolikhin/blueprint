@@ -1,20 +1,24 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IDialogOptions, BaseDialogController} from "./dialog.svc";
+import {IDialogOptions, BaseDialogController, IDialogService} from "./dialog.svc";
+import {IProjectService} from "../../../services/project.svc";
 import * as Grid from "ag-grid/main";
 import "ag-grid-enterprise/main";
 
 export class OpenProjectController extends BaseDialogController {
 
-    private getProjectUrl: string = "svc/adminstore/instance/folders/";
     public hasCloseButton: boolean = true;
     private rowData: any = null;
     public selectedItem: any = {};
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "$http",  "params"];
-    /* tslint:disable */
-    constructor(private $scope: ng.IScope, private localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private $http: ng.IHttpService, params: IDialogOptions) {
-        /* tslint:enable */
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService",  "params"];
+    constructor(
+        private $scope: ng.IScope,
+        private localization: ILocalizationService,
+        $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+        private service: IProjectService,
+        private dialogService: IDialogService,
+        params: IDialogOptions) {
         super($uibModalInstance, params);
     };
 
@@ -23,9 +27,13 @@ export class OpenProjectController extends BaseDialogController {
     public get returnvalue(): any {
         return {
             Id: this.selectedItem.Id || -1,
-            Name: this.selectedItem.Name || "--empty--"
+            Name: this.selectedItem.Name || ""
         };
     };
+
+    private showError(error: any) {
+        this.dialogService.alert(error.message).then(() => { this.cancel(); });
+    }
 
     private columnDefinitions = [{
         headerName: this.localization.get("App_Header_Name"),
@@ -48,17 +56,16 @@ export class OpenProjectController extends BaseDialogController {
     private rowClicked = (params: any) => {
         var self = this;
         var node = params.node;
-        if (node.data.disabled) {
-            return;
-        }
         if (node.data.children && !node.data.children.length) {
             if (node.expanded) {
                 if (node.allChildrenCount === 0) {
-                    self.$http.get(self.getProjectUrl + "/" + node.data.Id + "/children")
-                        .then(function (res) {
-                            node.data.children = res.data;
+                    self.service.getFolders(node.data.Id)
+                        .then((data: any[]) => {
+                            node.data.children = data;
                             node.open = true;
                             self.gridOptions.api.setRowData(self.rowData);
+                        }, (error) => {
+                            self.showError(error);
                         });
                 }
             }
@@ -74,8 +81,7 @@ export class OpenProjectController extends BaseDialogController {
                 expanded: rowItem.open,
                 children: rowItem.children || [],
                 field: "Name",
-                // the key is used by the default group cellRenderer
-                key: rowItem.Id
+                key: rowItem.Id // the key is used by the default group cellRenderer
             };
         } else {
             return null;
@@ -86,16 +92,11 @@ export class OpenProjectController extends BaseDialogController {
         var self = this;
         params.api.setHeaderHeight(0);
         params.api.sizeColumnsToFit();
-        self.$http.get(self.getProjectUrl + "/1/" + "/children")
-            .then(function (res) {
-                angular.forEach(res.data, (v) => {
-                    if (v.Type === "Folder") {
-                        v.children = [];
-                    }
-                });
-
-                self.rowData = res.data;
-                self.gridOptions.api.setRowData(self.rowData);
+        self.service.getFolders()
+            .then(function (data) {
+                self.gridOptions.api.setRowData(self.rowData = data);
+            }, (error) => {
+                self.showError(error);
             });
     };
     public gridOptions: Grid.GridOptions = {

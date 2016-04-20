@@ -107,6 +107,7 @@ export class OpenProjectController extends BaseDialogController {
             groupContracted: "<i class='fonticon-folder' />"
         },
         suppressHorizontalScroll: true,
+        suppressContextMenu: true,
         rowBuffer: 200,
         rowHeight: 30,
         enableColResize: true,

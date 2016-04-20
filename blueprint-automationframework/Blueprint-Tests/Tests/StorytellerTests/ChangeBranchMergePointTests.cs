@@ -201,10 +201,10 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("Save the process with a system decision which contains two additional branches beside the main branch. " +
-                     "Each additional branch merges to different locations. Verify that returned process after the save " +
+        [Description("Save the process with a system decision which contains two branches beside the main branch. " +
+                     "Each branch merges to different locations. Verify that returned process after the save " +
                      "contains valid merge point information.")]
-        public void ChangeMergePointForSystemDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+        public void ChangeMergePointForSystemDecisionWithMultipleBranches_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following change:
@@ -268,10 +268,10 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("Save the process with a user decision which contains two additional branches beside the main branch. " +
-             "Each additional branch merges to different locations. Verify that returned process after the save " +
+        [Description("Save the process with a user decision which contains two branches beside the main branch. " +
+             "Each branch merges to different locations. Verify that returned process after the save " +
              "contains valid merge point information.")]
-        public void ChangeMergePointForUserDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+        public void ChangeMergePointForUserDecisionWithMultipleBranches_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following process:

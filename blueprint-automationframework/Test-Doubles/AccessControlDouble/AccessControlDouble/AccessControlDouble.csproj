@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\InjectErrorsController.cs" />
     <Compile Include="Controllers\LicensesController.cs" />
     <Compile Include="Controllers\SessionsController.cs" />

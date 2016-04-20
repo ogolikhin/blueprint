@@ -10,37 +10,8 @@ using CommonUtilities;
 namespace AccessControlDouble.Controllers
 {
     [RoutePrefix("status")]
-    public class StatusController : ApiController
+    public class StatusController : BaseController
     {
-        #region Private functions
-
-        /// <summary>
-        /// Writes a line into the log file.
-        /// </summary>
-        /// <param name="line">The line to write.</param>
-        private static void WriteLine(string line)
-        {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
-            {
-                logFile.WriteLine(line);
-            }
-        }
-
-        /// <summary>
-        /// Writes a formatted line into the log file.
-        /// </summary>
-        /// <param name="format">The format string to write.</param>
-        /// <param name="args">The format arguments.</param>
-        private static void WriteLine(string format, params Object[] args)
-        {
-            using (LogFile logFile = new LogFile(WebApiConfig.LogFile))
-            {
-                logFile.WriteLine(format, args);
-            }
-        }
-
-        #endregion Private functions
-
         /// <summary>
         /// Method to return current upcheck status of AccessControl Web Service.
         /// </summary>

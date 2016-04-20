@@ -14,6 +14,7 @@ namespace AdminStoreTests
     [TestFixture]
     [Category(Categories.AdminStore)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
+    [Category(Categories.CannotRunInParallel)]
     [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class AccessControlDoubleTests
     {

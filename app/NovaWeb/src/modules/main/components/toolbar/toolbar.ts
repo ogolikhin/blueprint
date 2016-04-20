@@ -61,8 +61,9 @@ class ToolbarCtrl implements IToolbarController {
             controller: OpenProjectController,
             css: "nova-messaging openproject"
         }).then((selected: any) => {
-            if (selected && selected.Id)
-                this.dialogService.alert("Project \"" + selected.Name + "\" is selected. Id:[" + selected.Id+"]");
+            if (selected && selected.Id) {
+                this.dialogService.alert("Project \"" + selected.Name + "\" is selected. Id:[" + selected.Id + "]");
+            }
         });
     }
 

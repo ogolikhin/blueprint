@@ -1,5 +1,5 @@
 ﻿import "angular";
-import {ILocalizationService} from "../../../core/localization";
+import {ILocalizationService} from "../core/localization";
 
 export enum DialogTypeEnum {
     General,
@@ -33,7 +33,7 @@ export class DialogService implements IDialogService {
     private defaultParams: IDialogOptions = {
         cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
         okButton: this.localization.get("App_Button_Ok", "Ok"),
-        template: require("./dialog.html"),
+        template: require("../main/components/dialogs/dialog.html"),
         controller: BaseDialogController
     };
 
@@ -103,6 +103,7 @@ export class BaseDialogController {
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogOptions) {
         this.$instance = $uibModalInstance;
     }
+    
 
     public ok = () => {
         this.$instance.close(this.returnvalue);

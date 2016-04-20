@@ -1,5 +1,5 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
-import {IDialogOptions, IDialogService} from "../dialogs/dialog.svc";
+import {IDialogOptions, IDialogService} from "../../../services/dialog.svc";
 import {OpenProjectController} from "../dialogs/openprojectcontroller";
 
 

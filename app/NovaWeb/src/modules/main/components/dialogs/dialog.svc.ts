@@ -88,6 +88,7 @@ export class DialogService implements IDialogService {
     }
 }
 
+
 export class BaseDialogController {
 
     public hasCloseButton: boolean;

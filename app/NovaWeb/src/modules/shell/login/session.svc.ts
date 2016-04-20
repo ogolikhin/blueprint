@@ -132,8 +132,8 @@ export class SessionSvc implements ISession {
                                     () => {
                                         done.resolve();
                                     },
-                                    (error) => {
-                                        this.showLogin(done, error);
+                                    (err) => {
+                                        this.showLogin(done, err);
                                     });
                             } else {
                                 this.showLogin(done);
@@ -149,8 +149,8 @@ export class SessionSvc implements ISession {
                                     () => {
                                         done.resolve();
                                     },
-                                    (error) => {
-                                        this.showLogin(done, error);
+                                    (err) => {
+                                        this.showLogin(done, err);
                                     });
                             } else {
                                 this.showLogin(done);

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Configuration;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Common;
 using CommonUtilities;
 
 namespace AccessControlDouble.Controllers

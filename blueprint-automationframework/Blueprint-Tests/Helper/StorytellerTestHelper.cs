@@ -924,8 +924,7 @@ namespace Helper
 
             int totalNumberOfBranches = totalNumberOfBranchesFromUserDecision + totalNumberOfBranchesFromSystemDecision;
 
-            var decisionBranchDesinationLinkCount = totalNumberOfBranches.Equals(0)
-                ? 0 : process.DecisionBranchDestinationLinks.Count();
+            var decisionBranchDesinationLinkCount = process.DecisionBranchDestinationLinks?.Count ?? 0;
 
             // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
             Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),

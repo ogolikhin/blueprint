@@ -509,7 +509,7 @@ namespace Model.StorytellerModel.Impl
             DeleteSystemDecisionAndUpdateProcessLink(systemDecision, systemTaskOnLowestOrderBranchOfSystemDecision);
 
             // Delete all DecisionBranchDestinationLink associated with the root userDecision
-            DeleteDecisionBranchDestinationLinksForDecision(systemDecision.Id);
+            DeleteDecisionBranchDestinationLinksForDecision(systemDecision);
 
             // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
             var decisions = shapesToDelete.ToList().
@@ -517,7 +517,7 @@ namespace Model.StorytellerModel.Impl
                 s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
             foreach (var decision in decisions)
             {
-                DeleteDecisionBranchDestinationLinksForDecision(decision.Id);
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
             }
         }
 
@@ -556,7 +556,7 @@ namespace Model.StorytellerModel.Impl
                 s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
             foreach (var decision in decisions)
             {
-                DeleteDecisionBranchDestinationLinksForDecision(decision.Id);
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
             }
         }
 
@@ -606,7 +606,7 @@ namespace Model.StorytellerModel.Impl
             DeleteUserDecisionAndUpdateProcessLink(userDecision, userTaskOnLowestOrderBranchOfUserDecision);
 
             // Delete all DecisionBranchDestinationLink associated with the root userDecision
-            DeleteDecisionBranchDestinationLinksForDecision(userDecision.Id);
+            DeleteDecisionBranchDestinationLinksForDecision(userDecision);
 
             // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
             var decisions = shapesToDelete.ToList().
@@ -614,7 +614,7 @@ namespace Model.StorytellerModel.Impl
                 s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
             foreach (var decision in decisions)
             {
-                DeleteDecisionBranchDestinationLinksForDecision(decision.Id);
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
             }
         }
 
@@ -648,7 +648,7 @@ namespace Model.StorytellerModel.Impl
                 s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
             foreach (var decision in decisions)
             {
-                DeleteDecisionBranchDestinationLinksForDecision(decision.Id);
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
             }
         }
 
@@ -662,13 +662,13 @@ namespace Model.StorytellerModel.Impl
             DecisionBranchDestinationLinks.Remove(decisionBranchDestinatilnLink);
         }
 
-        public void DeleteDecisionBranchDestinationLinksForDecision(int decisionId)
+        public void DeleteDecisionBranchDestinationLinksForDecision(IProcessShape decision)
         {
             if (DecisionBranchDestinationLinks == null)
             {
                 DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
             }
-            DecisionBranchDestinationLinks.RemoveAll(dbd => dbd.SourceId.Equals(decisionId));
+            DecisionBranchDestinationLinks.RemoveAll(dbd => dbd.SourceId.Equals(decision.Id));
         }
 
         public void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape)

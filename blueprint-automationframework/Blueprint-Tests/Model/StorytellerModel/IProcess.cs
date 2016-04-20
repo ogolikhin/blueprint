@@ -394,8 +394,8 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Delete all available DecisionBranchDestinationLinks for the source decision
         /// </summary>
-        /// <param name="decisionId">The Id of the source decision</param>
-        void DeleteDecisionBranchDestinationLinksForDecision(int decisionId);
+        /// <param name="decision">The source decision</param>
+        void DeleteDecisionBranchDestinationLinksForDecision(IProcessShape decision);
 
         /// <summary>
         /// Move a User and System Task to Before a Shape

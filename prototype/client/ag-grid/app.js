@@ -1,6 +1,6 @@
 agGrid.initialiseAgGridWithAngular1(angular);
 
-var app = angular.module("example", ["ngAnimate", "ui.bootstrap", "agGrid", "dragDrop", "angular-perfect-scrollbar-2", "720kb.tooltips"]);
+var app = angular.module("example", ["ngAnimate", "ui.bootstrap", "agGrid", "dragDrop", "angular-perfect-scrollbar-2"]);
 
 app.controller("exampleCtrl", function($scope, $http) {
   var rowData = null;

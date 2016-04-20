@@ -16,7 +16,6 @@
 .modal.in.nova-messaging,
 .modal.in.nova-login {
   margin: 0;
-
   .modal-header{
     padding: 10px;
 
@@ -53,6 +52,12 @@
     position: absolute;
     right: 0;
     top: 0;
+  }
+  &.openproject {
+      .modal-dialog {
+          max-width: 800px;
+          width:800px;
+      }
   }
 
   .modal-body {

@@ -11,3 +11,4 @@ angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .service("localization", LocalizationService)
     .service("dialogService", DialogService)
     .service("configValueHelper", ConfigValueHelper);
+

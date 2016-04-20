@@ -11,6 +11,8 @@
     "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
   },
   "dependencies": {
+    "ag-grid": "^4.0.5",
+    "ag-grid-enterprise": "^4.0.7",
     "angular": "^1.5.2",
     "angular-sanitize": "^1.5.2",
     "angular-ui-bootstrap": "^1.2.4",

@@ -2,14 +2,17 @@
     <a href="#" ng-if="ctrl.hasCloseButton" class="modal-close" ng-click="ctrl.cancel()"><i class="fonticon-close"></i></a>
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
-<div class="modal-body" style="height:400px;width:400px">
-
-    
+<div class="modal-body" style="height:400px;">
+    <div id="projectTree" style="width:70%;height:100%;float:left;border:1px dotted #e4e4e4;padding-right:5px;" ag-grid="ctrl.gridOptions" class="ag-grid"></div>
+    <div  style="width:30%; height:100%; float:right; border:1px dotted #e4e4e4">
+        <div style="padding:10px;background-color:$e4e4e4">{{ctrl.selectedItem.Name}}</div>
+        <div style="padding:10px;background-color:$e4e4e4" ng-bind-html="ctrl.selectedItem.Description"></div>
+    </div>
     
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
         <button class="btn btn-secondaary" ng-click="ctrl.cancel()"><span ng-bind="ctrl.params.cancelButton"></span></button>
-        <button class="btn btn-primary" ng-click="ctrl.accept()"><span ng-bind="ctrl.params.okButton"></span></button>
+        <button class="btn btn-primary" ng-click="ctrl.ok()"><span ng-bind="ctrl.params.okButton"></span></button>
     </div>
 </div>

@@ -7,39 +7,38 @@ export enum DialogTypeEnum {
     Confirm
 }
 
-
 export interface IDialogOptions {
+    type?: DialogTypeEnum;
     header?: string;
     message?: string;
     cancelButton?: string;
     okButton?: string;
     template?: string;
     controller?: any;
+    css?: string;
 }
 
 export interface IDialogService {
     open(params: IDialogOptions): ng.IPromise<any>;
-    alert(message: string): ng.IPromise<any>;
-    confirm(message: string): ng.IPromise<any>;
+    alert(message: string, header?: string): ng.IPromise<any>;
+    confirm(message: string, header?: string): ng.IPromise<any>;
 }
 
 export class DialogService implements IDialogService {
-
-    private dialogType: DialogTypeEnum;
 
     public static $inject = ["localization", "$uibModal"];
 
     private params: IDialogOptions = {};
 
     private defaultParams: IDialogOptions = {
-        cancelButton: this.localization.get("App_Button_Cancel","Cancel"),
-        okButton: this.localization.get("App_Button_Ok","Ok"),
+        cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
+        okButton: this.localization.get("App_Button_Ok", "Ok"),
         template: require("./dialog.html"),
         controller: BaseDialogController
     };
 
     public get type(): DialogTypeEnum {
-        return this.dialogType;
+        return this.params.type;
     }
 
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
@@ -54,7 +53,7 @@ export class DialogService implements IDialogService {
             template: this.params.template,
             controller: this.params.controller,
             controllerAs: "ctrl",
-            windowClass: "nova-messaging",
+            windowClass: this.params.css || "nova-messaging",
             resolve: {
                 params: () => {
                     return this.params;
@@ -64,49 +63,49 @@ export class DialogService implements IDialogService {
         return instance;
     };
 
-
     public open(params: IDialogOptions): ng.IPromise<any> {
-        this.dialogType = DialogTypeEnum.General;
         this.initialize(params);
         return this.openInternal().result;
     }
 
-    public alert(message: string) {
-        this.dialogType = DialogTypeEnum.Alert;
+    public alert(message: string, header?: string) {
         this.initialize({
-            header: this.localization.get("App_DialogTitle_Alert"),
+            type: DialogTypeEnum.Alert,
+            header: header || this.localization.get("App_DialogTitle_Alert"),
             message : message,
             cancelButton: null,
         });
         return this.openInternal().result;
     }
 
-    public confirm(message: string) {
-        this.dialogType = DialogTypeEnum.Confirm;
+    public confirm(message: string, header?: string) {
         this.initialize({
-            header: this.localization.get("App_DialogTitle_Confirmation"),
+            type: DialogTypeEnum.Confirm,
+            header: header || this.localization.get("App_DialogTitle_Confirmation"),
             message: message,
         });
         return this.openInternal().result;
     }
-
-
 }
+
 
 export class BaseDialogController {
 
-    static $inject = ["$uibModalInstance", "params"];
-
     public hasCloseButton: boolean;
+
+    public get returnvalue(): any {
+        return true;
+    }
 
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 
+    static $inject = ["$uibModalInstance", "params"];
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogOptions) {
         this.$instance = $uibModalInstance;
     }
 
-    public okay = () => {
-        this.$instance.close(true);
+    public ok = () => {
+        this.$instance.close(this.returnvalue);
     };
 
     public cancel = () => {

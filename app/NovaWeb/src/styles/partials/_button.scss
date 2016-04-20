@@ -16,7 +16,7 @@ button.btn {
   }
 }
 
-.btn-secondaary {
+.btn-secondary {
   background-color: $gray-light;
   border: solid 1px $gray-light;
   color: $white;
@@ -32,13 +32,13 @@ button.btn {
 
 .btn-white {
   background-color: $white;
-  border: solid 1px $gray-light;
-  color: $gray-lighter;
+  border: solid 1px $gray-lighter;
+  color: $gray-darker;
 
   &:hover,
   &:focus,
   &:active {
-    background-color: $gray-lightest;
-    color: $gray;
+    background-color: darken($gray-lightest, 2%);
+    border-color: darken($gray-lighter, 12%);
   }
 }

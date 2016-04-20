@@ -59,13 +59,16 @@ class ToolbarCtrl implements IToolbarController {
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/openprojectdialog.html"),
             controller: OpenProjectController,
-        }).then((id: number) => {
-            this.dialogService.alert("Project is selected: " + id);
+            css: "nova-messaging openproject"
+        }).then((selected: any) => {
+            if (selected && selected.Id) {
+                this.dialogService.alert("Project \"" + selected.Name + "\" is selected. Id:[" + selected.Id + "]");
+            }
         });
     }
 
     public deleteArtifact() {
-        this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.")
+        this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.", "Please confirm")
             .then((confirmed: boolean) => {
                 if (confirmed) {
                     this.dialogService.alert("Delete is confirmed");

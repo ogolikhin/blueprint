@@ -56,7 +56,8 @@ module.exports = {
             { from: './unsupported-browser', to: './static' }
          ]),
          new webpack.DefinePlugin({
-             VERSION: JSON.stringify(require('../package.json').version)
+             VERSION: JSON.stringify(require('../package.json').version),
+             BUILD_YEAR: new Date().getFullYear().toString()
          })
     ],
     module:{

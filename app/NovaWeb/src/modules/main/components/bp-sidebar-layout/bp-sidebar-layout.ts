@@ -29,7 +29,7 @@ export class BpSidebarLayout implements ng.IComponentOptions {
     }
 }
 
-class BpSidebarLayoutCtrl implements ISidebarController {
+export class BpSidebarLayoutCtrl implements ISidebarController {
     static $inject: [string] = ["$scope", "$element"];
     public isLeftToggled: boolean;
     public isRightToggled: boolean;

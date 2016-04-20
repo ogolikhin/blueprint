@@ -36,6 +36,10 @@ module.exports = {
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
       'window.jquery': 'jquery'
+    }),
+    new webpack.DefinePlugin({
+        VERSION: JSON.stringify(require('../package.json').version),
+        BUILD_YEAR: new Date().getFullYear().toString()
     })
   ],
   module: {

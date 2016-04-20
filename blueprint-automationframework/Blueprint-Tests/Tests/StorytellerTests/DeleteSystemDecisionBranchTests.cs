@@ -121,7 +121,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add additonal branch to the System Decision point
@@ -178,7 +178,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add additonal branch on the root System Decision point
@@ -245,7 +245,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Add additonal branch on the root System Decision point

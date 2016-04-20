@@ -13,7 +13,7 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class ChangeBranchMergingPointTests
+    public class ChangeBranchMergePointTests
     {
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
@@ -88,9 +88,9 @@ namespace StorytellerTests
         #region Tests
 
         [TestCase]
-        [Description("Change the merging point of the second branch of system decision. Verify that returned process after the save " +
-                     "contains valid merging point information.")]
-        public void ChangeSystemDecisionMeringPointForSecondBranch_VerifyReturnProcess()
+        [Description("Change the merge point of the second branch of system decision. Verify that returned process after the save " +
+                     "contains valid merge point information.")]
+        public void ChangeSystemDecisionMergePointForSecondBranch_VerifyReturnProcess()
         {
             /*
             If you start with this:
@@ -122,30 +122,30 @@ namespace StorytellerTests
             var outgoingLinkForSystemTaskFromSecondBranch =
                 returnedProcess.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
 
-            // Locate the end shape for changing the merging point of system decision
+            // Locate the end shape for changing the merge point of system decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
-            // Change the second branch merging point of the system decision to the endShape
-            returnedProcess.ChangeBranchMergingPoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
+            // Change the second branch merge point of the system decision to the endShape
+            returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
-            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
             var secondDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
-                "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
+                "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merge point should be {0} but {1} was returned.",
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
         [TestCase]
-        [Description("Change the merging point of the second branch of user decision. Verify that returned process after the save " +
-                     "contains valid merging point information.")]
-        public void ChangeUserDecisionMeringPointForSecondBranch_VerifyReturnProcess()
+        [Description("Change the merge point of the second branch of user decision. Verify that returned process after the save " +
+                     "contains valid merge point information.")]
+        public void ChangeUserDecisionMergePointForSecondBranch_VerifyReturnProcess()
         {
             /*
             If you start with this:
@@ -181,48 +181,48 @@ namespace StorytellerTests
             var outgoingLinkForSystemTaskFromSecondBranch =
                 returnedProcess.GetOutgoingLinkForShape(systemTaskFromSecondBranch);
 
-            // Locate the end shape for changing the merging point of user decision
+            // Locate the end shape for changing the merge point of user decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
-            // Change the second branch merging point of the user decision to the endShape
-            returnedProcess.ChangeBranchMergingPoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
+            // Change the second branch merge point of the user decision to the endShape
+            returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
-            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var secondDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 1);
 
             Assert.That(secondDecisionBranchDestinationLink.DestinationId == endShape.Id,
-                "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merging point should be {0} but {1} was returned.",
+                "The destination Id from the DecisionBranchDestinationLink for the second branch after updating merge point should be {0} but {1} was returned.",
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
         [TestCase]
         [Description("Save the process with a system decision which contains two additional branches beside the main branch. " +
                      "Each additional branch merges to different locations. Verify that returned process after the save " +
-                     "contains valid merging point information.")]
-        public void ChangeMergingPointForSystemDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+                     "contains valid merge point information.")]
+        public void ChangeMergePointForSystemDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following change:
             
-            Before the merging point change:
+            Before the merge point change:
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST2]--+--[E]
                                   |              |
                                   +----+--[ST3]--+
                                   |              |
                                   +----+--[ST4]--+    <--- additionalBranches: 1
             
-            After the merging point change:
+            After the merge point change:
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST2]--+--[E]
                                   |              |                      |
                                   +----+--[ST3]--+                      |
                                   |                                     |
                                   +----+--[ST4]--+----------------------+    <--- additionalBranches: 1
-            Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merging points
+            Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one system decision contains three branches
             var returnedProcess =
@@ -236,7 +236,7 @@ namespace StorytellerTests
             // Find the outgoing link for start shape
             var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
 
-            // Locate the end shape for changing the merging point of user decision
+            // Locate the end shape for changing the merge point of user decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the system decision
@@ -250,46 +250,46 @@ namespace StorytellerTests
             var outgoingLinkForSystemTaskFromThirdBranch =
                 returnedProcess.GetOutgoingLinkForShape(systemTaskFromThirdBranch);
 
-            // Change the third branch merging point of the system decision to the endShape
-            returnedProcess.ChangeBranchMergingPoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
+            // Change the third branch merge point of the system decision to the endShape
+            returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
-            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
             var thirdDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(systemDecision,
                     outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
-                "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",
+                "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merge point should be {0} but {1} was returned.",
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
 
         [TestCase]
         [Description("Save the process with a user decision which contains two additional branches beside the main branch. " +
              "Each additional branch merges to different locations. Verify that returned process after the save " +
-             "contains valid merging point information.")]
-        public void ChangeMergingPointForUserDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
+             "contains valid merge point information.")]
+        public void ChangeMergePointForUserDecisionWithMultipleMeringPoints_VerifyDecisionBranchDestinationLinksFromReturnProcess()
         {
             /*
             Save the following process:
             
-            Before the merging point change:
+            Before the merge point change:
             [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
                            |                        |
                            +-------[UT5]--+--[ST6]--+
                            |                        |
                            +-------[UT7]--+--[ST8]--+    <--- additionalBranches: 1
             
-            After the merging point change:
+            After the merge point change:
             [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
                            |                        |                      |
                            +-------[UT5]--+--[ST6]--+                      |
                            |                                               |
                            +-------[UT7]--+--[ST8]--+--+-------------------+    <--- additionalBranches: 1
-            Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merging points
+            Verify that returned process model contains correct values on DecisionBranchDestinationLinks, section of the process model contains information for merge points
             */
             // Create and get the process with two sequential user tasks and one user decision contains three branches
             var returnedProcess =
@@ -304,7 +304,7 @@ namespace StorytellerTests
             var outgoingLinkForStartShape = returnedProcess.GetOutgoingLinkForShape(startShape);
 
 
-            // Locate the end shape for changing the merging point of user decision
+            // Locate the end shape for changing the merge point of user decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
 
             // Find the user decision
@@ -320,19 +320,19 @@ namespace StorytellerTests
             // Find the outgoing link for the system task from the third branch
             var outgoingLinkForSystemTaskFromThirdBranch = returnedProcess.Links.Find(l => l.SourceId.Equals(systemTaskFromThirdBranch.Id));
 
-            // Change the third branch merging point of the user decision to the endShape
-            returnedProcess.ChangeBranchMergingPoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
+            // Change the third branch merge point of the user decision to the endShape
+            returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
             var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
 
-            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merging point
+            // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var thirdDecisionBranchDestinationLink =
                 updatedProcess.GetDecisionBranchDestinationLinkForDecisionShape(userDecision,
                     outgoingLinkForStartShape.Orderindex + 2);
 
             Assert.That(thirdDecisionBranchDestinationLink.DestinationId == endShape.Id,
-                "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merging point should be {0} but {1} was returned.",
+                "The destination Id from the DecisionBranchDestinationLink for the third branch after updating merge point should be {0} but {1} was returned.",
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
         #endregion Tests

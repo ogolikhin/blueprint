@@ -7,9 +7,8 @@ export enum DialogTypeEnum {
     Confirm
 }
 
-
 export interface IDialogOptions {
-    type?: DialogTypeEnum,
+    type?: DialogTypeEnum;
     header?: string;
     message?: string;
     cancelButton?: string;
@@ -21,20 +20,19 @@ export interface IDialogOptions {
 
 export interface IDialogService {
     open(params: IDialogOptions): ng.IPromise<any>;
-    alert(message: string, header?:string): ng.IPromise<any>;
-    confirm(message: string, header?:string): ng.IPromise<any>;
+    alert(message: string, header?: string): ng.IPromise<any>;
+    confirm(message: string, header?: string): ng.IPromise<any>;
 }
 
 export class DialogService implements IDialogService {
 
-    
     public static $inject = ["localization", "$uibModal"];
 
     private params: IDialogOptions = {};
 
     private defaultParams: IDialogOptions = {
-        cancelButton: this.localization.get("App_Button_Cancel","Cancel"),
-        okButton: this.localization.get("App_Button_Ok","Ok"),
+        cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
+        okButton: this.localization.get("App_Button_Ok", "Ok"),
         template: require("./dialog.html"),
         controller: BaseDialogController
     };
@@ -65,17 +63,15 @@ export class DialogService implements IDialogService {
         return instance;
     };
 
-
     public open(params: IDialogOptions): ng.IPromise<any> {
         this.initialize(params);
         return this.openInternal().result;
     }
 
     public alert(message: string, header?: string) {
-        
         this.initialize({
             type: DialogTypeEnum.Alert,
-            header: header ||this.localization.get("App_DialogTitle_Alert"),
+            header: header || this.localization.get("App_DialogTitle_Alert"),
             message : message,
             cancelButton: null,
         });
@@ -90,8 +86,6 @@ export class DialogService implements IDialogService {
         });
         return this.openInternal().result;
     }
-
-
 }
 
 export class BaseDialogController {
@@ -100,7 +94,7 @@ export class BaseDialogController {
 
     public get returnvalue(): any {
         return true;
-    } 
+    }
 
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 

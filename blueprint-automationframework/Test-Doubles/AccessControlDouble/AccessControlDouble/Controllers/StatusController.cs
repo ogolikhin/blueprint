@@ -57,7 +57,7 @@ namespace AccessControlDouble.Controllers
 
                 await Task.Run(() =>
                 {
-                    WriteLine("Calling http.GetAsync()");
+                    WriteLine("Calling http.GetAsync({0})", preAuthorizedKey ?? string.Empty);
                 });
                 var result = await http.GetAsync(uri);
                 await Task.Run(() =>

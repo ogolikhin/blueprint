@@ -88,6 +88,7 @@ namespace StorytellerTests
         #region Tests
 
         [TestCase]
+        [TestRail(96091)]
         [Description("Change the merging point of the second branch of system decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]
         public void ChangeSystemDecisionMeringPointForSecondBranch_VerifyReturnProcess()
@@ -143,6 +144,7 @@ namespace StorytellerTests
         }
 
         [TestCase]
+        [TestRail(96092)]
         [Description("Change the merging point of the second branch of user decision. Verify that returned process after the save " +
                      "contains valid merging point information.")]
         public void ChangeUserDecisionMeringPointForSecondBranch_VerifyReturnProcess()
@@ -201,6 +203,7 @@ namespace StorytellerTests
         }
 
         [TestCase]
+        [TestRail(96093)]
         [Description("Save the process with a system decision which contains two additional branches beside the main branch. " +
                      "Each additional branch merges to different locations. Verify that returned process after the save " +
                      "contains valid merging point information.")]
@@ -268,6 +271,7 @@ namespace StorytellerTests
         }
 
         [TestCase]
+        [TestRail(96094)]
         [Description("Save the process with a user decision which contains two additional branches beside the main branch. " +
              "Each additional branch merges to different locations. Verify that returned process after the save " +
              "contains valid merging point information.")]

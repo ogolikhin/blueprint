@@ -1,5 +1,5 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
-import {IDialogOptions, IDialogService} from "../dialogs/dialog.svc";
+import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {OpenProjectController} from "../dialogs/openprojectcontroller";
 
 
@@ -55,7 +55,7 @@ class ToolbarCtrl implements IToolbarController {
     }
 
     public openProject() {
-        this.dialogService.open(<IDialogOptions>{
+        this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/openprojectdialog.html"),
             controller: OpenProjectController,

@@ -108,7 +108,7 @@ namespace StorytellerTests
 
             // Create and Save the process with one system decision with two branches plus main branch
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
-                    _storyteller, _project, _user, 1);
+                    _storyteller, _project, _user, additionalBranches: 1);
 
             // Find the endShape for the system decision
             var endShape = returnedProcess.GetProcessShapeByShapeName(Process.EndName);
@@ -146,7 +146,7 @@ namespace StorytellerTests
 
             // Create the process with one system decision with three branches plus main branch
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
-                    _storyteller, _project, _user, 1, updateProcess: false);
+                    _storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find the precondition
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -206,7 +206,7 @@ namespace StorytellerTests
 
             // Create the process with one system decision with three branches plus main branch
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
-                    _storyteller, _project, _user, 1, updateProcess: false);
+                    _storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find the precondition
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

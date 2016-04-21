@@ -159,7 +159,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, 1, updateProcess: false);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find precondition
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -220,7 +220,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, 1, updateProcess: false);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
             // Find precondition
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

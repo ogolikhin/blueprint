@@ -22,11 +22,95 @@ describe("Component BpSidebarLayout", () => {
         directiveTest = new ComponentTest<BpSidebarLayoutCtrl>(layout, "bp-sidebar-layout");
     });
 
-    describe("the component is initialized", () => {
+    describe("the component is created", () => {
         it("should be visible by default", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+
+            //Assert
+            expect(vm.isLeftToggled).toBe(true);
+            expect(vm.isRightToggled).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(true);
+        });
+        it("should toggle the left side correctly", () => {
+
+            //Arrange
+            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+
+            //Act
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+
+            //Assert
+            expect(vm.isLeftToggled).toBe(false);
+            expect(vm.isRightToggled).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(false);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(true);
+        });
+        it("should toggle the right side correctly", () => {
+
+            //Arrange
+            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            
+            //Act
+            vm.toggleRight(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+
+            //Assert
+            expect(vm.isLeftToggled).toBe(true);
+            expect(vm.isRightToggled).toBe(false);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(false);
+        });
+        it("should toggle the both sides correctly", () => {
+
+            //Arrange
+            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            
+            //Act
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+            vm.toggleRight(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+
+            //Assert
+            expect(vm.isLeftToggled).toBe(false);
+            expect(vm.isRightToggled).toBe(false);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(false);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(false);
+        });
+        it("should double toggle the left side correctly", () => {
+
+            //Arrange
+            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+
+            //Act
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+
+            //Assert
+            expect(vm.isLeftToggled).toBe(true);
+            expect(vm.isRightToggled).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(true);
+            expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(true);
+        });
+        it("should double-toggle the both sides correctly", () => {
+
+            //Arrange
+            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            
+            //Act
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            directiveTest.scope.$digest();
+            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
             directiveTest.scope.$digest();
 
             //Assert

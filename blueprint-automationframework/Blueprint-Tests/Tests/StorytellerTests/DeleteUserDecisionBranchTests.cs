@@ -159,42 +159,28 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, 1, updateProcess: false);
 
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            // Find precondition
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(precondition);
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add decision point <UD1> with branch after precondition (adds 2 branches)
-            var firstUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
-                preconditionTask,
-                preconditionOutgoingLink.Orderindex + 1,
-                branchEndPoint.Id);
+            // Find the first user decision
+            var firstUserDecision = process.GetNextShape(precondition);
 
-            // Add third branch to userDecision
-            process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2,
-                branchEndPoint.Id);
+            // Find the user task from decision point outgoing process link
+            var userTaskOnThirdBranch = process.GetNextShape(firstUserDecision, preconditionOutgoingLink.Orderindex + 2);
 
-            // Outgoing process link for third decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2);
-
-            // Determine new user task from decision point outgoing process link
-            var newUserTaskOnThirdBranch = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
-
-            var newSystemTaskOnThirdBranch = process.GetNextShape(newUserTaskOnThirdBranch);
+            var systemTaskOnThirdBranch = process.GetNextShape(userTaskOnThirdBranch);
 
             // Add second user decision point <UD2> with branch to end after new system task
             process.AddUserDecisionPointWithBranchAfterShape(
-                newSystemTaskOnThirdBranch,
+                systemTaskOnThirdBranch,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
@@ -234,43 +220,29 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, 1, updateProcess: false);
 
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            // Find precondition
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(precondition);
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add decision point <UD> with branch after precondition (adds 2 branches)
-            var firstUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
-                preconditionTask,
-                preconditionOutgoingLink.Orderindex + 1,
-                branchEndPoint.Id);
+            // Find the first user decision
+            var firstUserDecision = process.GetNextShape(precondition);
 
-            // Add third branch to userDecision
-            process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2,
-                branchEndPoint.Id);
+            // Find the user task from decision point outgoing process link
+            var userTaskOnThirdBranch = process.GetNextShape(firstUserDecision, preconditionOutgoingLink.Orderindex + 2);
 
-            // Outgoing process link for third decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2);
-
-            // Determine new user task from decision point outgoing process link
-            var newUserTaskOnThirdBranch = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
-
-            var newSystemTaskOnThirdBranch = process.GetNextShape(newUserTaskOnThirdBranch);
+            var systemTaskOnThirdBranch = process.GetNextShape(userTaskOnThirdBranch);
 
             // Add system decision point <SD> with branch after user task on third branch
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(
-                newSystemTaskOnThirdBranch,
-                preconditionOutgoingLink.Orderindex + 2,
+                systemTaskOnThirdBranch,
+                preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
             // Save the process

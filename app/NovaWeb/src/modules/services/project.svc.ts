@@ -5,6 +5,18 @@ export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
 
 }
+
+export interface IProjectNode {
+    Id: number,
+    ParentFolderId: number,
+    Type: string,
+    Name: string,
+    Description? : string,
+    Children?: IProjectNode[]
+
+}
+
+
 export class ProjectService implements IProjectService {
     static $inject: [string] = ["$q", "$http", "localization"];
     constructor(
@@ -16,10 +28,10 @@ export class ProjectService implements IProjectService {
     public getFolders(id?: number): ng.IPromise<any[]> {
         var defer = this.$q.defer<any>();
         this.$http.get<any>(`svc/adminstore/instance/folders/${id || 1}/children`)
-            .success((result: any) => {
+            .success((result: IProjectNode[]) => {
                 angular.forEach(result, (it) => {
                     if (it.Type === "Folder") {
-                        it.children = [];
+                        it.Children = [];
                     }
                 });
                 defer.resolve(result);

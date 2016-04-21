@@ -1,9 +1,8 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IDialogOptions, BaseDialogController, IDialogService} from "./dialog.svc";
-import {IProjectService} from "../../../services/project.svc";
+import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
+import * as pSvc from "../../../services/project.svc";
 import * as Grid from "ag-grid/main";
-import "ag-grid-enterprise/main";
 
 export class OpenProjectController extends BaseDialogController {
 
@@ -11,14 +10,14 @@ export class OpenProjectController extends BaseDialogController {
     private rowData: any = null;
     public selectedItem: any = {};
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService",  "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params" ];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private service: IProjectService,
+        private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogOptions) {
+        params: IDialogSettings) {
         super($uibModalInstance, params);
     };
 
@@ -56,12 +55,12 @@ export class OpenProjectController extends BaseDialogController {
     private rowClicked = (params: any) => {
         var self = this;
         var node = params.node;
-        if (node.data.children && !node.data.children.length) {
+        if (node.data.Children && !node.data.Children.length) {
             if (node.expanded) {
                 if (node.allChildrenCount === 0) {
                     self.service.getFolders(node.data.Id)
-                        .then((data: any[]) => {
-                            node.data.children = data;
+                        .then((data: pSvc.IProjectNode[]) => {
+                            node.data.Children = data;
                             node.open = true;
                             self.gridOptions.api.setRowData(self.rowData);
                         }, (error) => {
@@ -75,11 +74,11 @@ export class OpenProjectController extends BaseDialogController {
     };
 
     private getNodeChildDetails(rowItem) {
-        if (rowItem.children) {
+        if (rowItem.Children) {
             return {
                 group: true,
                 expanded: rowItem.open,
-                children: rowItem.children || [],
+                children: rowItem.Children ,
                 field: "Name",
                 key: rowItem.Id // the key is used by the default group cellRenderer
             };
@@ -90,10 +89,11 @@ export class OpenProjectController extends BaseDialogController {
 
     private onGidReady = (params: any) => {
         var self = this;
+        params.api.showToolPanel(false);
         params.api.setHeaderHeight(0);
         params.api.sizeColumnsToFit();
         self.service.getFolders()
-            .then(function (data) {
+            .then((data: pSvc.IProjectNode[]) => {
                 self.gridOptions.api.setRowData(self.rowData = data);
             }, (error) => {
                 self.showError(error);
@@ -114,6 +114,7 @@ export class OpenProjectController extends BaseDialogController {
         getNodeChildDetails: this.getNodeChildDetails,
         onRowClicked: this.rowClicked,
         onGridReady: this.onGidReady,
+        showToolPanel: false
     };
 
 }

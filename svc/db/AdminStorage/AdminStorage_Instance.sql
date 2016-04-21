@@ -1077,7 +1077,7 @@ DROP TABLE #tempAppLabels
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'7.1.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.2.0';
 GO
 -- --------------------------------------------------
 

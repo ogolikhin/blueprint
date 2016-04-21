@@ -2,12 +2,12 @@
 import {ILocalizationService} from "../core/localization";
 
 export enum DialogTypeEnum {
-    General,
+    Base,
     Alert,
     Confirm
 }
 
-export interface IDialogOptions {
+export interface IDialogSettings {
     type?: DialogTypeEnum;
     header?: string;
     message?: string;
@@ -19,33 +19,30 @@ export interface IDialogOptions {
 }
 
 export interface IDialogService {
-    open(params: IDialogOptions): ng.IPromise<any>;
+    open(params: IDialogSettings): ng.IPromise<any>;
     alert(message: string, header?: string): ng.IPromise<any>;
     confirm(message: string, header?: string): ng.IPromise<any>;
+    params: IDialogSettings;
 }
 
 export class DialogService implements IDialogService {
 
     public static $inject = ["localization", "$uibModal"];
 
-    private params: IDialogOptions = {};
+    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) { }
 
-    private defaultParams: IDialogOptions = {
+    public params: IDialogSettings = {};
+
+    private defaultParams: IDialogSettings = {
+        type: DialogTypeEnum.Base,
         cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
         okButton: this.localization.get("App_Button_Ok", "Ok"),
         template: require("../main/components/dialogs/dialog.html"),
         controller: BaseDialogController
     };
 
-    public get type(): DialogTypeEnum {
-        return this.params.type;
-    }
-
-    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
-    }
-
-    private initialize(params: IDialogOptions) {
-        this.params = angular.extend({}, this.defaultParams, params);
+    private initialize(params: IDialogSettings) {
+        params = this.params = angular.extend({}, this.defaultParams, params);
     }
 
     private openInternal = () => {
@@ -63,7 +60,11 @@ export class DialogService implements IDialogService {
         return instance;
     };
 
-    public open(params: IDialogOptions): ng.IPromise<any> {
+    public get type(): DialogTypeEnum {
+        return this.params.type;
+    }
+
+    public open(params: IDialogSettings): ng.IPromise<any> {
         this.initialize(params);
         return this.openInternal().result;
     }
@@ -100,7 +101,7 @@ export class BaseDialogController {
     public $instance: ng.ui.bootstrap.IModalServiceInstance;
 
     static $inject = ["$uibModalInstance", "params"];
-    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogOptions) {
+    constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogSettings) {
         this.$instance = $uibModalInstance;
     }
     

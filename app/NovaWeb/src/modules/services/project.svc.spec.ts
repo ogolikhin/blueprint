@@ -1,9 +1,9 @@
 ﻿import "angular";
 import "angular-mocks"
 import {IProjectNode, IProjectService, ProjectService} from "./project.svc";
-import {LocalizationServiceMock, ModalServiceMock, ModalServiceInstanceMock} from "../shell/login/mocks.spec";
+import {LocalizationServiceMock} from "../shell/login/mocks.spec";
 
-describe("DialogService", () => {
+describe("ProjectService", () => {
     var $httpBackend: ng.IHttpBackendService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IDialogOptions, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
+import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
 import * as pSvc from "../../../services/project.svc";
 import * as Grid from "ag-grid/main";
 
@@ -10,14 +10,14 @@ export class OpenProjectController extends BaseDialogController {
     private rowData: any = null;
     public selectedItem: any = {};
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService",  "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params" ];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogOptions) {
+        params: IDialogSettings) {
         super($uibModalInstance, params);
     };
 

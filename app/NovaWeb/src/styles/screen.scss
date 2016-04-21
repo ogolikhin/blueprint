@@ -52,14 +52,6 @@ pagecontent {
   width: 100%;
 }
 
-.project-explorer-visible pagecontent {
-  padding-left: $sidebar-size;
-}
-
-.utility-panel-visible pagecontent {
-  padding-right: $sidebar-size;
-}
-
 @import 'partials/sidebar';
 @import 'partials/breadcrumbs';
 @import 'partials/accordion';

@@ -7,7 +7,8 @@ import "../shell";
 import {PageContent} from "./components/content/pagecontent";
 import {Toolbar} from "./components/toolbar/toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
-import {Accordion} from "./components/accordion/accordion";
+import {BpAccordion} from "./components/bp-accordion/bp-accordion";
+import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope"];
@@ -26,7 +27,8 @@ angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap", "agGrid"])
     .component("pagecontent", new PageContent())
     .component("toolbar", new Toolbar())
     .component("bpSidebarLayout", new BpSidebarLayout())
-    .component("accordion", new Accordion())
+    .component("bpAccordion", new BpAccordion())
+    .component("bpAccordionPanel", new BpAccordionPanel())
     .config(routesConfig);
 
 

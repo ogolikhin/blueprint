@@ -1,9 +1,7 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Common;
 using CommonUtilities;
 
 namespace AccessControlDouble.Controllers
@@ -57,5 +55,92 @@ namespace AccessControlDouble.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns information about the number of active licenses for each license level.
+        /// </summary>
+        /// <returns>JSON object like:  [{"LicenseLevel": 0, "Count": 0}]</returns>
+        [HttpGet]
+        [Route("active")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetLicenseTransactions()
+        {
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(LicensesController);
+            string thisMethodName = nameof(GetLicenseTransactions);
+
+            using (HttpClient http = new HttpClient())
+            {
+                await Task.Run(() =>
+                {
+                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
+                var uri = CreateUri();
+
+                await Task.Run(() =>
+                {
+                    WriteLine("Calling http.GetAsync()");
+                });
+                var result = await http.GetAsync(uri);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
+
+                return ResponseMessage(result);
+            }
+        }
+
+        /// <summary>
+        /// Returns information about the number of active licenses for the current user's license level,
+        /// excluding any active license for the current user.
+        /// </summary>
+        /// <returns>JSON object like:  [{"LicenseLevel": 0, "Count": 0}]</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
+        [HttpGet]
+        [Route("locked")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetLockedLicenses()
+        {
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(LicensesController);
+            string thisMethodName = nameof(GetLockedLicenses);
+
+            using (HttpClient http = new HttpClient())
+            {
+                await Task.Run(() =>
+                {
+                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
+                var uri = CreateUri();
+
+                await Task.Run(() =>
+                {
+                    WriteLine("Calling http.GetAsync()");
+                });
+                var result = await http.GetAsync(uri);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
+
+                return ResponseMessage(result);
+            }
+        }
     }
 }

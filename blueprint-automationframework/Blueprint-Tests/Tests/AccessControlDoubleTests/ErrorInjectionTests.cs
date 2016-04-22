@@ -19,7 +19,6 @@ namespace AccessControlDoubleTests
     [Category(Categories.AccessControlDouble)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
     [Category(Categories.CannotRunInParallel)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class ErrorInjectionTests
     {
         private readonly IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();

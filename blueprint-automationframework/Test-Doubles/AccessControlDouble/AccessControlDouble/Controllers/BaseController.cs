@@ -47,8 +47,6 @@ namespace AccessControlDouble.Controllers
             }
         }
 
-        #endregion Protected functions
-
         /// <summary>
         /// Proxies a GET request to the real AccessControl and returns the response.
         /// </summary>
@@ -249,6 +247,8 @@ namespace AccessControlDouble.Controllers
                 return ResponseMessage(result);
             }
         }
+
+        #endregion Protected functions
 
     }
 }

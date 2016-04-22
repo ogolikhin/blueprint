@@ -38,13 +38,12 @@ export class BpAccordionPanel implements ng.IComponentOptions {
     };
 }
 
-class BpAccordionCtrl implements IBpAccordionController {
+export class BpAccordionCtrl implements IBpAccordionController {
     static $inject: [string] = ["$element", "$timeout"];
     public accordionId: string;
     public accordionHeadingHeight: number;
-
+    public accordionPanels = [];
     private defaultHeadingHeight: number = 40; // default heading height for all the accordion panels
-    private accordionPanels = [];
 
     constructor(private $element, private $timeout) {
         // the accordionId is needed in case multiple accordions are present in the same page
@@ -106,7 +105,7 @@ class BpAccordionCtrl implements IBpAccordionController {
     };
 }
 
-class BpAccordionPanelCtrl implements IBpAccordionPanelController {
+export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     static $inject: [string] = ["localization", "$element"];
     public accordionGroup: any;
     public accordionGroupId: string;

@@ -1,19 +1,21 @@
 # Nova Web
 
 ## Setup
-If you haven't installed node.js please install it first (latest LTS version from https://nodejs.org). Then run `devsetup` (on Windows) to install required npm packages globally.
+If you haven't installed node.js please install it first (latest LTS version from https://nodejs.org). 
+
+**Notes for Windows environment**:
+* Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015
+[link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
+
+* If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
+add the following path %AppData%\npm to system environment variable PATH (it's better to add it before path to nodejs, it will simplify npm update later).
+
+Then run `devsetup` (on Windows) to install required npm packages globally.
 ```
 devsetup
 ```
 
 We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
-
-### Notes for Windows environment:
-* Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015
-[link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
-
-* If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
-add the following path %APPDATA%\npm to system environment variable PATH (it's better to add it before path to nodejs, it will simplify npm update later).
 
 ### npm - single package manager for front-end and dev dependencies 
 Use `npm install --save-dev` to install node-modules used in development/build or testing.
@@ -32,9 +34,9 @@ Use `typings install {library-name} --ambient --save` to install TypeScript defi
 1. Difference with existing TypeScript [Coding Standards](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=M15zPSIw%2b8V38RkXKY7kVTZ0wsb%2brsHTC0x3J28C%2bhs%3d&docid=0c8dac94f55404e1680e2a2146c6350c2):
   * Use lower-case hyphen separated name convention for file and folder names!
     * For example _class CustomPropertiesSvc_ should be located in `custom-properties.svc.ts` file
-  * Use ES2015/TS import/export to defined dependencies (instead of TS references)
+  * Use ES2015/TS import/export to define dependencies (instead of TS references)
   * Use [Angular 1.5 components](https://code.angularjs.org/1.5.3/docs/guide/component) instead of separated view and controller. Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
-  * Avoid using $scope object.
+  * Avoid using $scope object (it is possible to use it when you need to notify Angular about changes completed outside of Angular scope. For example use $scope.$applyAsync when integrating with non Angular libraries)
 2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). While the following document explains how to create and maintain localization strings for Nova client. [Nova Web Application - Localization Primer](https://github.com/BlueprintSys/blueprint/blob/develop/app/NovaWeb/doc/Nova%20Web%20Application%20-%20Localization%20Primer.docx?raw=true)
  
 Some of these rules are enforced by tslint (for `npm run dev` or `gulp dev` task only). Please, pay attention for tslint warning messages and fix them when working with the code.

@@ -4,7 +4,7 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://localhost:80/" />
-    <Service name="AccessControl" address="http://localhost:82/" />
+    <Service name="AccessControl" address="http://localhost:8182/" />
     <Service name="ConfigControl" address="http://localhost:82/" />
     <Service name="FileStore"     address="http://localhost:80/" />
     <Service name="Storyteller"   address="http://localhost:80/" />

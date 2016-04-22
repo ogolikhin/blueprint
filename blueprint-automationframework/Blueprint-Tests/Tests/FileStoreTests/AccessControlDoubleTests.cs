@@ -14,7 +14,6 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
     [Category(Categories.CannotRunInParallel)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public class AccessControlDoubleTests
     {
         private IAdminStore _adminStore;

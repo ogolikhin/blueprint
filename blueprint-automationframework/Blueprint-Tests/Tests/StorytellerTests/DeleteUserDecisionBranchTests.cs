@@ -93,14 +93,14 @@ namespace StorytellerTests
         public void DeleteBranchFromUserDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
                                |                        |
                                +--[UT3]--+--[ST4]-------+
                                |                        |
                                +--[UT5]--+--[ST6]-------+
 
-            It becomes this (Shape names depend on branch that was deleted):
+            After:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
                                 |                       |
                                 +--[UT3]--+--[ST4]------+
@@ -124,8 +124,8 @@ namespace StorytellerTests
             // Add a second branch with task to decision point
             process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             var userDecisionWithBranchToBeDeleted= returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
@@ -143,7 +143,7 @@ namespace StorytellerTests
         public void DeleteBranchFromUserDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+------------------------+--[E]
                                |                                                 |
                                +--[UT3]--+--[ST4]--------------------------------+ 
@@ -152,7 +152,7 @@ namespace StorytellerTests
                                                         |                        |
                                                         +--[UT9]--+--[ST10]------+
 
-            And becomes this if third branch is deleted:
+            After:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+------------------------+--[E]
                                |                                                 |
                                +--[UT3]--+--[ST4]--------------------------------+ 
@@ -184,8 +184,8 @@ namespace StorytellerTests
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);
@@ -204,7 +204,7 @@ namespace StorytellerTests
         public void DeleteBranchFromUserDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+-----+--[E]
                                |                             |
                                +--[UT3]--+--[ST4]------------+ 
@@ -213,7 +213,7 @@ namespace StorytellerTests
                                               |              |
                                               +----+--[ST7]--+
 
-            And becomes this if third branch is deleted:
+            After:
                 [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+-----+--[E]
                                |                             |
                                +--[UT3]--+--[ST4]------------+ 
@@ -245,8 +245,8 @@ namespace StorytellerTests
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);

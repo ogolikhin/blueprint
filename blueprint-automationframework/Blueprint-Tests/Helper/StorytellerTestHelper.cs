@@ -503,8 +503,6 @@ namespace Helper
         public static IProcess CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(IStoryteller storyteller, IProject project, IUser user, int additionalBranches, bool updateProcess = true)
         {
             /*
-
-            If you start with this:
             [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
                            |                        |
                            +--[UT3]--+--[ST4]-------+

@@ -93,14 +93,14 @@ namespace StorytellerTests
         public void DeleteBranchFromSystemDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
         {
             /*
-            If you start with this:
+            Before:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
                                      |              |
                                      +----+--[ST2]--+
                                      |              |
                                      +----+--[ST3]--+
 
-            It becomes this:
+            After:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
                                      |              |
                                      +----+--[ST2]--+
@@ -116,7 +116,7 @@ namespace StorytellerTests
             // Find the System Decision with a branch merging to endShape
             var systemDecisionForBranchDeletion = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
 
-            // Delete the specified system decision branch - work in progress
+            // Delete the specified system decision branch
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, orderIndexOfBranch, endShape);
 
             // Update and Verify the modified process
@@ -130,7 +130,7 @@ namespace StorytellerTests
         public void DeleteBranchFromSystemDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
             [S]--[P]--+--[UT1]--+--<SD1>--+-------[ST1]--------+--[E]
                                      |                         |
                                      +----+-------[ST2]--------+
@@ -138,7 +138,7 @@ namespace StorytellerTests
                                      +--<SD2>--+--[ST3]--------+
                                           |                    |
                                           +----+--[ST4]--------+
-            It becomes this:
+            After:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
                                      |              |
                                      +----+--[ST2]--+
@@ -170,8 +170,8 @@ namespace StorytellerTests
             // Add a System Decision on the third branch that merges to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(systemTaskOnTheThirdBranch, outgoingLinkForSystemTaskOnTheThirdBranch.Orderindex + 1, endShape.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             var systemDecisionForBranchDeletion = returnedProcess.GetNextShape(returnedProcess.GetNextShape(precondition));
 
@@ -179,7 +179,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, outgoingLinkForPrecondition.Orderindex + 2, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
         }
 
 
@@ -190,7 +190,7 @@ namespace StorytellerTests
         public void DeleteBranchFromSystemDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]---+-----------------------------+--[E]
                                      |                                             |
                                      +----+--[ST2]---+-----------------------------|
@@ -198,7 +198,7 @@ namespace StorytellerTests
                                      +----+--[ST3]---+--<UD1>--+--[UT2]--+--[ST4]--+
                                                           |                        |
                                                           +----+--[UT3]--+--[ST5]--+
-            It becomes this:
+            After:
             [S]--[P]--+--[UT1]--+--<SD1>--+--[ST1]--+--[E]
                                      |              |
                                      +----+--[ST2]--+
@@ -230,12 +230,12 @@ namespace StorytellerTests
             // Add a user decision point <UD1> with branch to end after new system task
             process.AddUserDecisionPointWithBranchAfterShape(systemTaskOnTheThirdBranch, outgoingLinkForSystemTaskOnTheThirdBranch.Orderindex + 1, endShape.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             var systemDecisionForBranchDeletion = returnedProcess.GetNextShape(returnedProcess.GetNextShape(precondition));
 
-            // Delete the specified system decision branch - work in progress
+            // Delete the specified system decision branch
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionForBranchDeletion, outgoingLinkForPrecondition.Orderindex + 2, endShape);
 
             // Update and Verify the modified process

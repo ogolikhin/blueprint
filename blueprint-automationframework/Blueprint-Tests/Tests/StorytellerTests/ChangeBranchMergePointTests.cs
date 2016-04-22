@@ -94,12 +94,12 @@ namespace StorytellerTests
         public void ChangeSystemDecisionMergePointForSecondBranch_VerifyReturnProcess()
         {
             /*
-            If you start with this:
+            Before:
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST2]--+--[E]
                                   |              |
                                   +----+--[ST3]--+
 
-            It becomes this:
+            After:
             [S]--[P]--+--[UT1]--<SD1>--+--[ST1]--+--+--[UT2]--+--[ST3]--+--[E]
                                   |                                     |
                                   +----+--[ST3]--+----------------------+
@@ -150,12 +150,12 @@ namespace StorytellerTests
         public void ChangeUserDecisionMergePointForSecondBranch_VerifyReturnProcess()
         {
             /*
-            If you start with this:
+            Before:
             [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
                            |                        |
                            +-------[UT5]--+--[ST6]--+
 
-            It becomes this:
+            After:
             [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--+--[UT3]--+--[ST4]--+--[E]
                            |                                               |
                            +-------[UT5]--+--[ST6]--+----------------------+

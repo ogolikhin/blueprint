@@ -490,6 +490,58 @@ namespace Helper
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
+
+        /// <summary>
+        /// Create and Get the Default Process With a User Decision that contains Multiple Condition Branches
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="additionalBranches">The number of additional branches after first two branches for the user decision (main branch and first additional branch created with the user decision)</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(IStoryteller storyteller, IProject project, IUser user, int additionalBranches, bool updateProcess = true)
+        {
+            /*
+            [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                           |                        |
+                           +--[UT3]--+--[ST4]-------+
+                           |                        |
+                           +--[UT5]--+--[ST6]-------+ <--- additionalBranches: 1
+            */
+
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one user decision
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user,
+                updateProcess: false);
+
+            // Find the precondition
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find the outgoing link for the precondition
+            var outgoingLinkForPrecondition = process.GetOutgoingLinkForShape(precondition);
+
+            // branchOrderIndex for existing system decision
+            var defaultAdditionalBranchOrderIndex = outgoingLinkForPrecondition.Orderindex + 2;
+
+            // Find the User Decision point with branch merging to branchEndPoint
+            var userDecision = process.GetNextShape(precondition);
+
+            // Find the branch end point for system decision points
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            for (int i = 0; i < additionalBranches; i++)
+            {
+                // Add branch to the existing User Decision
+                process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, defaultAdditionalBranchOrderIndex + i, endShape.Id);
+            }
+
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
+        }
+
         /// <summary>
         /// Create and Get the Default Process With Two Sequential User Tasks and One User Decision the second branch merge
         /// before the second user task
@@ -924,8 +976,7 @@ namespace Helper
 
             int totalNumberOfBranches = totalNumberOfBranchesFromUserDecision + totalNumberOfBranchesFromSystemDecision;
 
-            var decisionBranchDesinationLinkCount = totalNumberOfBranches.Equals(0)
-                ? 0 : process.DecisionBranchDestinationLinks.Count();
+            var decisionBranchDesinationLinkCount = process.DecisionBranchDestinationLinks?.Count ?? 0;
 
             // Verify that total number of DecisionBranchDestinationLinks equal to total number of branch from the process
             Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),

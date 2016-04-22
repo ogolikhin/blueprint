@@ -61,7 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangeBranchMergingPointTests.cs" />
+    <Compile Include="ChangeBranchMergePointTests.cs" />
     <Compile Include="DeleteDecisionBranchValidationTests.cs" />
     <Compile Include="DeleteSystemDecisionBranchTests.cs" />
     <Compile Include="DeleteSystemDecisionTests.cs" />

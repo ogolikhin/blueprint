@@ -19,7 +19,38 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof (HttpResponseMessage))]
         public async Task<IHttpActionResult> GetStatusUpcheck()
         {
-            return await GetStatus();
+            string thisNamespace = nameof(AccessControlDouble);
+            string thisClassName = nameof(StatusController);
+            string thisMethodName = nameof(GetStatusUpcheck);
+
+            using (HttpClient http = new HttpClient())
+            {
+                await Task.Run(() =>
+                {
+                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                });
+
+                // If the test wants to inject a custom status code, return that instead of the real value.
+                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
+                {
+                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
+                }
+
+                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
+                var uri = CreateUri();
+
+                await Task.Run(() =>
+                {
+                    WriteLine("Calling http.GetAsync()");
+                });
+                var result = await http.GetAsync(uri);
+                await Task.Run(() =>
+                {
+                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
+                });
+
+                return ResponseMessage(result);
+            }
         }
 
         /// <summary>
@@ -39,7 +70,7 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                    WriteLine("Called {0}.{1}.{2}({3})", thisNamespace, thisClassName, thisMethodName, preAuthorizedKey);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.

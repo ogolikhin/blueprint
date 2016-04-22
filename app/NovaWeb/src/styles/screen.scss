@@ -57,6 +57,128 @@ pagecontent {
 @import 'partials/accordion';
 @import 'partials/aggrid';
 
+.openproject {
+  .modal-dialog {
+
+    max-width: 817px !important;
+    width: 817px !important;
+  }
+
+  .modal-header {
+    box-sizing: border-box;
+    height: 70px;
+    padding: 20px 30px !important;
+
+    h3 {
+      line-height: 30px;
+    }
+  }
+
+  .modal-body {
+    padding: 15px 30px !important;
+    background: #f0f0f0;
+    height: 310px;
+
+    &::before {
+      content: " ";
+      display: table;
+    }
+    &::after {
+      content: " ";
+      display: table;
+      clear: both;
+    }
+  }
+
+  #projectTree {
+    width: 376px;
+    display: block;
+    height: 244px;
+    float: left;
+    margin: 0 15px 0 0;
+    border: solid 1px #e8e8e8;
+    background: $white;
+    padding-left: 10px;
+    border-radius: $border-radius-amount;
+
+    .ag-grid {
+      height: 100%;
+      width: 364px;
+    }
+
+    .ag-body-container {
+      box-sizing: border-box;
+    }
+
+    .ag-row-group {
+      padding-left: 5px;
+    }
+    .ag-row-group.ag-row-level-0 {
+      padding-left: 0;
+    }
+
+    .ag-cell-range-selected {
+      background: $brand-secondary;
+      color: #fff;
+      outline: none;
+
+      i {
+        color: #fff;
+      }
+    }
+
+    #agFilter { /* TODO: fix */
+      display: none;
+    }
+
+    #borderLayout_eGridPanel {
+      overflow: hidden !important;
+      overflow-y: auto !important;
+    }
+  }
+
+  #projectData {
+    display: block;
+    width: 350px;
+    float: left;
+    font-size: 13px;
+
+    .project-name {
+      background: #e5e5e5;
+      border-radius: $border-radius-amount;
+      line-height: 36px;
+      padding: 0 15px;
+      min-height: 36px;
+      @include text-ellipsis-flex-width(999px);
+      white-space: nowrap;
+      margin-bottom: 15px;
+    }
+
+    .project-description {
+      background: #e5e5e5;
+      margin-top: 10px;
+      border-radius: $border-radius-amount;
+      padding: 0 15px;
+
+      > div {
+        padding: 8px 0;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+div#borderLayout_eGridPanel {
+  font-size: 12px;
+
+  [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
+    font-size: 16px;
+    margin-right: 7px;
+    margin-left: 5px;
+    }
+  }
+}
 
 /*
 ////////////////////////////// by DL

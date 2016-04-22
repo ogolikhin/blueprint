@@ -50,7 +50,7 @@ export class OpenProjectController extends BaseDialogController {
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering : true
-        }];
+    }];
 
     private rowClicked = (params: any) => {
         var self = this;
@@ -89,8 +89,7 @@ export class OpenProjectController extends BaseDialogController {
 
     private onGidReady = (params: any) => {
         var self = this;
-        params.api.showToolPanel(false);
-        params.api.setHeaderHeight(0);
+        params.api.setHeaderHeight(10);
         params.api.sizeColumnsToFit();
         self.service.getFolders()
             .then((data: pSvc.IProjectNode[]) => {
@@ -101,7 +100,7 @@ export class OpenProjectController extends BaseDialogController {
     };
     public gridOptions: Grid.GridOptions = {
         columnDefs: this.columnDefinitions,
-        headerHeight: 30,
+        headerHeight: 20,
         icons: {
             groupExpanded: "<i class='fonticon-folder-open' />",
             groupContracted: "<i class='fonticon-folder' />"
@@ -109,7 +108,7 @@ export class OpenProjectController extends BaseDialogController {
         suppressHorizontalScroll: true,
         suppressContextMenu: true,
         rowBuffer: 200,
-        rowHeight: 30,
+        rowHeight: 20,
         enableColResize: true,
         getNodeChildDetails: this.getNodeChildDetails,
         onRowClicked: this.rowClicked,

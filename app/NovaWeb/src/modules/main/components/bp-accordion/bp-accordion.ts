@@ -56,6 +56,11 @@ export class BpAccordionCtrl implements IBpAccordionController {
         this.accordionPanels.push([accordionPanelId, accordionPanelHeight]);
     };
 
+    public tryToToggle = () => {
+        console.log("group tryToToggle");
+        this.redistributeHeight();
+    };
+
     public redistributeHeight = () => {
         var accordion = this.$element[0].firstChild;
         var numberOfPinnedElements = accordion.querySelectorAll("input[type=checkbox].bp-accordion-panel-pin:checked").length;
@@ -71,7 +76,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             var accordionElement = children[i];
             var accordionHeaderHeight = 0;
             for (var p = 0; p < this.accordionPanels.length; p++) {
-                if(accordionElement.id === this.accordionPanels[p][0]) {
+                if (accordionElement.id === this.accordionPanels[p][0]) {
                     accordionHeaderHeight = parseInt(this.accordionPanels[p][1], 10);
                     break;
                 }
@@ -90,13 +95,11 @@ export class BpAccordionCtrl implements IBpAccordionController {
 
         /* tslint:disable */
         var children = accordion.querySelectorAll("input[type=radio].bp-accordion-panel-state:checked, input[type=checkbox].bp-accordion-panel-pin:checked");
-        /* tslint:enable */
         for (var i = 0; i < children.length; i++) {
             var accordionElement = children[i].parentNode.parentNode;
-            /* tslint:disable */
             accordionElement.style.height = "calc(" + (100 / numberOfOpenElements) + "% - " + (compensationForClosedHeaders / numberOfOpenElements) + "px)";
-            /* tslint:enable */
         }
+        /* tslint:enable */
     };
 
     public $postLink = () => {
@@ -117,6 +120,15 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
     }
+
+    public tryToToggle = () => {
+        console.log("panel tryToToggle");
+        var panel = this.$element[0];
+        var trigger = panel.querySelectorAll("input[type=radio].bp-accordion-panel-state:checked");
+        console.log(trigger);
+        var pinner = panel.querySelectorAll("input[type=radio].bp-accordion-panel-pin:checked");
+        this.accordionGroup.tryToToggle();
+    };
 
     public $onInit = () => {
         this.accordionGroupId = this.accordionGroup.accordionId;
@@ -140,7 +152,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         trigger.style.height = this.accordionPanelHeadingHeight + "px";
         heading.style.height = this.accordionPanelHeadingHeight + "px";
 
-        trigger.addEventListener("click", this.accordionGroup.redistributeHeight);
+        trigger.addEventListener("click", this.tryToToggle);
         pinner.addEventListener("click", this.accordionGroup.redistributeHeight);
 
         this.accordionGroup.addPanelAndHeight(this.accordionPanelId, this.accordionPanelHeadingHeight);

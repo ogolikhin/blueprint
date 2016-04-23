@@ -1,5 +1,5 @@
 button.btn {
-  @include rounded-corners(3px);
+  @include rounded-corners(#{$border-radius-amount});
 }
 
 .btn-primary {

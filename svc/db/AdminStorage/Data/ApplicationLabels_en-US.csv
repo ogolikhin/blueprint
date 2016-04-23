@@ -18,6 +18,13 @@ App_Project, "Project"
 App_Project_Open,"Open project"
 App_Project_Description,"Description"
 
+App_UtilityPanel_Discussions, Discussions
+App_UtilityPanel_Properties, Properties
+App_UtilityPanel_Attachments, Attachments
+App_UtilityPanel_Relationships, Relationships
+App_UtilityPanel_History, History
+App_UtilityPanel_Reviews, Reviews
+
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
 Login_Auth_LoginFailed,"Login Failed"

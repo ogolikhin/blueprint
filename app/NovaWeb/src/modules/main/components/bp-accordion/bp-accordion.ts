@@ -1,4 +1,16 @@
 import {ILocalizationService} from "../../../core/localization";
+/*
+tslint:disable
+*/ /*
+Sample template. The parameters accordion-heading-height, accordion-panel-id, accordion-panel-class, and accordion-panel-heading-height are optional.
+<bp-accordion accordion-heading-height="33">
+    <bp-accordion-panel accordion-panel-heading="Panel heading">Panel content</bp-accordion-panel>
+    <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-id="custom-panel">Panel content</bp-accordion-panel>
+    <bp-accordion-panel accordion-panel-heading="Panel heading" accordion-panel-heading-height="66" accordion-panel-class="custom-class">Panel content</bp-accordion-panel>
+</bp-accordion>
+*/ /*
+tslint:enable
+*/
 
 interface IBpAccordionController {
     accordionId?: string;
@@ -9,6 +21,7 @@ interface IBpAccordionPanelController {
     accordionPanelId?: string;
     accordionPanelHeading?: string;
     accordionPanelHeadingHeight?: number;
+    accordionPanelClass?: string;
 }
 
 export class BpAccordion implements ng.IComponentOptions {
@@ -29,7 +42,8 @@ export class BpAccordionPanel implements ng.IComponentOptions {
     public bindings: any = {
         accordionPanelId: "@",
         accordionPanelHeading: "@",
-        accordionPanelHeadingHeight: "@"
+        accordionPanelHeadingHeight: "@",
+        accordionPanelClass: "@"
     };
     public transclude: boolean = true;
     public replace: boolean = true;
@@ -43,7 +57,9 @@ export class BpAccordionCtrl implements IBpAccordionController {
     public accordionId: string;
     public accordionHeadingHeight: number;
     public accordionPanels = [];
+
     private defaultHeadingHeight: number = 40; // default heading height for all the accordion panels
+    private currentPanel: string;
 
     constructor(private $element, private $timeout) {
         // the accordionId is needed in case multiple accordions are present in the same page
@@ -54,10 +70,40 @@ export class BpAccordionCtrl implements IBpAccordionController {
 
     public addPanelAndHeight = (accordionPanelId: string, accordionPanelHeight: number) => {
         this.accordionPanels.push([accordionPanelId, accordionPanelHeight]);
+        this.currentPanel = this.accordionPanels[0][0]; // the current panel is always the first one on init
     };
 
-    public tryToToggle = () => {
-        console.log("group tryToToggle");
+    public activateAnotherPinnedPanel = (accordionPanelId: string) => {
+        // check if other panels are open, so we can re-assign the current panel
+        var accordion = this.$element[0].firstChild;
+        /* tslint:disable */
+        var otherPinnedPanels = accordion.querySelectorAll(".bp-accordion-panel:not([id='" + accordionPanelId + "']) input[type=checkbox].bp-accordion-panel-pin:checked");
+        /* tslint:enable */
+        if (otherPinnedPanels.length !== 0) {
+            var firstPinnedPanel = otherPinnedPanels[0].parentNode;
+            var trigger = firstPinnedPanel.querySelectorAll("input[type=radio].bp-accordion-panel-state")[0];
+            trigger.checked = true;
+            this.currentPanel = firstPinnedPanel.id;
+        }
+    };
+
+    public tryToToggle = (accordionPanelId: string) => {
+        if(accordionPanelId !== this.currentPanel) {
+            this.currentPanel = accordionPanelId;
+        } else {
+            var accordion = this.$element[0].firstChild;
+            var isPanelPinned = accordion.querySelectorAll("#" + accordionPanelId + " input[type=checkbox].bp-accordion-panel-pin:checked").length;
+            if (isPanelPinned === 0) {
+                this.activateAnotherPinnedPanel(accordionPanelId);
+            }
+        }
+        this.redistributeHeight();
+    };
+
+    public pinUnpin = (accordionPanelId: string, isPinned: number) => {
+        if (isPinned === 0 && accordionPanelId === this.currentPanel) {
+            this.activateAnotherPinnedPanel(accordionPanelId);
+        }
         this.redistributeHeight();
     };
 
@@ -96,6 +142,10 @@ export class BpAccordionCtrl implements IBpAccordionController {
         /* tslint:disable */
         var children = accordion.querySelectorAll("input[type=radio].bp-accordion-panel-state:checked, input[type=checkbox].bp-accordion-panel-pin:checked");
         for (var i = 0; i < children.length; i++) {
+            // 100% / N - H * (T - N) / N
+            // T: total number of panels
+            // N: number of opened panels
+            // H: height of heading
             var accordionElement = children[i].parentNode.parentNode;
             accordionElement.style.height = "calc(" + (100 / numberOfOpenElements) + "% - " + (compensationForClosedHeaders / numberOfOpenElements) + "px)";
         }
@@ -114,6 +164,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public accordionGroupId: string;
     public accordionPanelId: string;
     public accordionPanelHeadingHeight: number;
+    public accordionPanelClass: string;
     public accordionPanelIsOpen: boolean;
 
     constructor(private localization: ILocalizationService, private $element) {
@@ -122,12 +173,14 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     }
 
     public tryToToggle = () => {
-        console.log("panel tryToToggle");
-        var panel = this.$element[0];
-        var trigger = panel.querySelectorAll("input[type=radio].bp-accordion-panel-state:checked");
-        console.log(trigger);
-        var pinner = panel.querySelectorAll("input[type=radio].bp-accordion-panel-pin:checked");
-        this.accordionGroup.tryToToggle();
+        var panel = this.$element[0].firstChild;
+        this.accordionGroup.tryToToggle(panel.id);
+    };
+
+    public pinUnpin = () => {
+        var panel = this.$element[0].firstChild;
+        var isPinned = panel.querySelectorAll("input[type=checkbox].bp-accordion-panel-pin:checked").length;
+        this.accordionGroup.pinUnpin(panel.id, isPinned);
     };
 
     public $onInit = () => {
@@ -153,7 +206,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         heading.style.height = this.accordionPanelHeadingHeight + "px";
 
         trigger.addEventListener("click", this.tryToToggle);
-        pinner.addEventListener("click", this.accordionGroup.redistributeHeight);
+        pinner.addEventListener("click", this.pinUnpin);
 
         this.accordionGroup.addPanelAndHeight(this.accordionPanelId, this.accordionPanelHeadingHeight);
     };

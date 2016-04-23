@@ -6,7 +6,7 @@ $gray:              #616161;
 $gray-pale:         #838383;
 $gray-light:        #aaa;
 $gray-lighter:      #ccc;
-$gray-lightest:     #eaeaea;
+$gray-lightest:     #e8e8e8;
 $blue-lightest:     #cae4f5;
 $white:             #fff;
 
@@ -16,7 +16,7 @@ $brand-success:     #fff;
 $brand-error:       #ff1300;
 
 //body
-$body-bg-color:     #f4f4f4;
+$body-bg-color:     #f0f0f0;
 $body-color:        $text-color;
 
 $link-color:        $brand-secondary;
@@ -48,6 +48,10 @@ $wrapper-height: $navbar-height + $navbar-toolbar-height;
 
 //utility panel
 $utility-panel-heading-height: 33px;
+
+//project picker
+$project-picker-tree: 380px;
+$project-picker-data: 350px;
 
 //other
 $border-radius-amount: 4px;

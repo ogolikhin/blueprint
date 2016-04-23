@@ -8,9 +8,15 @@
       display: none;
     }
 
+    #agHeaderCellLabel {
+      color: $brand-secondary;
+      font-weight: 600;
+    }
+
     #borderLayout_eGridPanel {
       overflow: hidden !important;
       overflow-y: auto !important;
+      padding-top: 5px;
     }
 
     [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {

@@ -59,7 +59,7 @@ class ToolbarCtrl implements IToolbarController {
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/openprojectdialog.html"),
             controller: OpenProjectController,
-            css: "nova-messaging openproject"
+            css: "nova-open-project"
         }).then((selected: any) => {
             if (selected && selected.Id) {
                 this.dialogService.alert("Project \"" + selected.Name + "\" is selected. Id:[" + selected.Id + "]");

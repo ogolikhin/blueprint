@@ -16,6 +16,7 @@ App_Header_Welcome,"Welcome"
 
 App_Project, "Project"
 App_Project_Open,"Open project"
+App_Project_Description,"Description"
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

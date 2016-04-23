@@ -1,12 +1,11 @@
 ﻿<div class="modal-header">
-    <!-- <a href="#" ng-if="ctrl.hasCloseButton" class="modal-close" ng-click="ctrl.cancel()"><i class="fonticon-close"></i></a> -->
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <div id="projectTree"><div ag-grid="ctrl.gridOptions" class="ag-grid"></div></div>
-    <div id="projectData">
+    <div class="project-tree"><div ag-grid="ctrl.gridOptions" class="ag-grid"></div></div>
+    <div class="project-data">
         <div class="project-name">{{ctrl.selectedItem.Name}}</div>
-        <div>Description</div>
+        <div>{{::$root.config.labels["App_Project_Description"]}}</div>
         <div class="project-description" ng-bind-html="ctrl.selectedItem.Description"></div>
     </div>
     

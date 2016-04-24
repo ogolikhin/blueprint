@@ -15,9 +15,9 @@ $brand-secondary:   #009cdc;
 $brand-success:     #fff;
 $brand-error:       #ff1300;
 
-//body
-$body-bg-color:     #f0f0f0;
+$body-bg-color:     #e7ebf2;
 $body-color:        $text-color;
+$modal-bg-color:    #f0f0f0;
 
 $link-color:        $brand-secondary;
 $link-hover-color:  lighten($brand-secondary, 10%);
@@ -34,6 +34,9 @@ $font-size-nano:     .5rem; //~9px
 $font-size-bigger:   1.125rem; //~18px
 $font-size-biggest:  1.25rem;  //~20px
 
+//page
+$page-min-height: 768px;
+
 //navbar
 $navbar-height: 40px;
 $navbar-toolbar-height: 46px;
@@ -45,10 +48,12 @@ $breadcrumbs-height: 48px;
 //sidebars
 $sidebar-size: 250px;
 $wrapper-height: $navbar-height + $navbar-toolbar-height;
+$left-sidebar-border: $brand-secondary;
+$right-sidebar-border: #dde1e2;
 
 //utility panel
 $utility-panel-heading-height: 31px;
-$utility-panel-border-color: #dde1e2;
+$utility-panel-border-color: $right-sidebar-border;
 
 //project picker
 $project-picker-tree: 380px;

@@ -10,6 +10,7 @@
   font-size: $font-size-smaller;
   height: $breadcrumbs-height;
   justify-content: flex-start;
+  margin: 0;
   padding: 0 50px;
 
   &::after {

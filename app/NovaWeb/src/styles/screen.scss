@@ -35,22 +35,27 @@ body {
 
 @import 'partials/unsupported';
 
-
 #wrapper {
   display: block;
   height: calc(100% - #{$wrapper-height});
+  margin-top: $wrapper-height;
   overflow: hidden;
   position: relative;
-  top: $wrapper-height;
 }
 
 pagecontent {
   box-sizing: border-box;
   display: block;
   height: 100%;
+  margin: 0;
   padding: 0;
   transition: all .4s ease;
   width: 100%;
+
+  .page-content-wrapper {
+    max-height: calc(100% - #{$breadcrumbs-height});
+    overflow: auto;
+  }
 }
 
 @import 'partials/sidebar';

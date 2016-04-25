@@ -240,6 +240,42 @@ namespace FileStoreTests
                 "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
         }
 
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "multipart/form-data; boundary=-----------------------------28947758029299", (uint)512)]
+        public void PutFileWithBadMultiPartMime_Verify500Error(
+            uint fileSize,
+            string fakeFileName,
+            string postFileType,
+            string putFileType,
+            uint chunkSize)
+        {
+            Assert.That((chunkSize > 0) && (fileSize > chunkSize), "Invalid TestCase detected!  chunkSize must be > 0 and < fileSize.");
+
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, postFileType);
+
+            byte[] fileBytes = file.Content.ToArray();
+            byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
+
+            // First POST the first chunk with a valid token.
+            file.Content = chunk;
+            IFile postedFile = _filestore.PostFile(file, _user);
+
+            byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
+            chunk = rem.Take((int)chunkSize).ToArray();
+
+            postedFile.FileType = putFileType;
+
+            // Assert that exception is thrown for subsequent PUT request with invalid token
+            var ex = Assert.Throws<Http500InternalServerErrorException>(() =>
+            {
+                _filestore.PutFile(postedFile, chunk, _user);
+            }, "FileStore should return a 500 Internal Server error when we pass an invalid multi-part mime.");
+
+            string expectedExceptionMessage = "No multipart boundary found.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
+        }
+
         [TestCase((uint)1024, "1KB_File.txt", "")]
         public void PostWithNoContentTypeHeader_VerifyBadRequest(
                 uint fileSize,

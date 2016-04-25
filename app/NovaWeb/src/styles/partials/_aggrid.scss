@@ -2,7 +2,7 @@
   .ag-grid {
     font-size: $font-size-smallest;
     height: 100%;
-    width: calc(#{$project-picker-tree} - 10px);
+    width: calc(#{$project-picker-tree} - 10px - 2px);
 
     #agFilter {
       display: none;
@@ -29,15 +29,21 @@
       height: 20px;
     }
 
-    .ag-cell i {
-      color: $brand-secondary;
+    .ag-cell {
+      @include text-ellipsis-flex-width($project-picker-tree - 20px);
+      padding-right: 10px;
+
+      i {
+        color: $brand-secondary;
+      }
     }
 
     .ag-row-group {
       padding-left: 5px;
-    }
-    .ag-row-group.ag-row-level-0 {
-      padding-left: 0;
+
+      &.ag-row-level-0 {
+        padding-left: 0;
+      }
     }
 
     .ag-cell-range-selected {

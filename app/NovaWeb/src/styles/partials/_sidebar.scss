@@ -9,8 +9,11 @@ bp-sidebar-layout {
   .content-center {
     background: $body-bg-color;
     display: block;
-    height: 100%;
+    height: calc(100% - #{$wrapper-height});
+    position: fixed;
+    top: $wrapper-height;
     transition: padding .4s ease;
+    width: 100%;
   }
 
   .left-panel-visible {
@@ -55,6 +58,10 @@ bp-sidebar-layout {
     width: $sidebar-size;
     z-index: 1000;
 
+    .sidebar-container {
+      height: 100%;
+    }
+
     .sidebar-title {
       background: $brand-secondary;
       box-sizing: border-box;
@@ -80,7 +87,7 @@ bp-sidebar-layout {
     }
 
     .sidebar-content {
-      height: 100%;
+      height: calc(100% - #{$breadcrumbs-height});
     }
 
     &.left-panel {
@@ -102,7 +109,12 @@ bp-sidebar-layout {
       margin-right: -$sidebar-size;
       right: 0;
 
+      .sidebar-content {
+        height: calc(100% - #{$breadcrumbs-height - 1px});
+      }
+
       .sidebar-title {
+        height: $breadcrumbs-height - 1px;
         padding-left: 36px;
       }
 

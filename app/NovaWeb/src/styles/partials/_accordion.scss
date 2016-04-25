@@ -1,7 +1,7 @@
 bp-accordion {
   background: $white;
   display: block;
-  height: calc(100% - #{$breadcrumbs-height});
+  height: 100%;
   margin: 0;
   overflow: hidden;
   padding: 0;
@@ -9,13 +9,18 @@ bp-accordion {
 
   .bp-accordion {
     height: 100%;
-  }
 
-  bp-accordion-panel {
-    display: block;
+    bp-accordion-panel {
+      display: block;
+      transition: height .2s ease;
 
-    &.bp-accordion-panel-open .bp-accordion-panel-heading {
-      background: $brand-secondary;
+      &.bp-accordion-panel-open .bp-accordion-panel-heading {
+        background: $brand-secondary;
+      }
+    }
+
+    &.bp-accordion-opentop bp-accordion-panel {
+      transition: none;
     }
   }
 

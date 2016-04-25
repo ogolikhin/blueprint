@@ -5,7 +5,7 @@ import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
 import {ISession, SessionSvc} from "./login/session.svc";
-import {LoggerSvc} from "./logger.svc";
+import {ServerLoggerSvc as LoggerSvc} from "./logger.svc";
 import {Logger} from "./logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 

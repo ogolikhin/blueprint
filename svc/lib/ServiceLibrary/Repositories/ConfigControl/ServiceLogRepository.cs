@@ -8,6 +8,7 @@ using ServiceLibrary.LocalLog;
 using ServiceLibrary.Models;
 using System;
 using System.Configuration;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -232,10 +233,13 @@ namespace ServiceLibrary.Repositories.ConfigControl
                 HttpResponseMessage response = await http.PostAsync("log", content);
 
                 response.EnsureSuccessStatusCode();
+                return response;
+
             }
             catch (Exception ex)
             {
                 _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }
 

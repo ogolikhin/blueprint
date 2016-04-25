@@ -18,7 +18,7 @@ interface IServerLogModel {
     StackTrace: string;
 }
 
-export class LoggerSvc implements IServerLogger {
+export class ServerLoggerSvc implements IServerLogger {
     static $inject: [string] = ["$injector"];
     constructor(private $injector: ng.auto.IInjectorService) {
     }
@@ -30,10 +30,6 @@ export class LoggerSvc implements IServerLogger {
 
         var deferred: ng.IDeferred<any> = $q.defer();
 
-        var config = <ng.IRequestConfig>{};
-        config.headers = {};
-        config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = SessionTokenHelper.getSessionToken();
-        
         var logMessage: IServerLogModel = <IServerLogModel>{
             Source: "NovaClient",
             LogLevel: level,
@@ -41,7 +37,7 @@ export class LoggerSvc implements IServerLogger {
             StackTrace: message.stack ? message.stack : ""
         };
 
-        $http.post("/svc/adminstore/log", angular.toJson(logMessage), config)
+        $http.post("/svc/adminstore/log", angular.toJson(logMessage))
             .success(() => {
                 deferred.resolve()
             })

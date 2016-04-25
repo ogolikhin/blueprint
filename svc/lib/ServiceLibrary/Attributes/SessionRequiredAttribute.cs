@@ -10,9 +10,7 @@ namespace ServiceLibrary.Attributes
 {
     public class SessionRequiredAttribute : SessionAttribute
     {
-        public SessionRequiredAttribute() : this(new HttpClientProvider())
-        {
-        }
+        public SessionRequiredAttribute() : this(new HttpClientProvider()) { }
 
         internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider):base(httpClientProvider) { }
 

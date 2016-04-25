@@ -24,6 +24,7 @@ bp-sidebar-layout {
       .sidebar-toggle {
         color: $white;
         right: -4px;
+        transition-duration: .01s;
       }
     }
   }
@@ -39,6 +40,7 @@ bp-sidebar-layout {
       .sidebar-toggle {
         color: $white;
         left: -4px;
+        transition-duration: .01s;
       }
     }
   }
@@ -68,6 +70,9 @@ bp-sidebar-layout {
       cursor: pointer;
       position: absolute;
       top: 12px;
+      transition-duration: .4s;
+      transition-property: color, left, right;
+      transition-timing-function: steps(1, end);
 
       &:hover {
         text-decoration: none;

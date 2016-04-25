@@ -5,5 +5,9 @@ body.is-touch {
     > input[type=checkbox].bp-accordion-panel-pin:checked {
       visibility: hidden;
     }
+
+    &:hover > .bp-accordion-panel-heading {
+      background: $gray-dark;
+    }
   }
 }

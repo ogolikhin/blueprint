@@ -10,7 +10,12 @@ namespace ServiceLibrary.Attributes
 {
     public class SessionRequiredAttribute : SessionAttribute
     {
-       
+        public SessionRequiredAttribute() : this(new HttpClientProvider())
+        {
+        }
+
+        internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider):base(httpClientProvider) { }
+
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
             if (actionContext.Request.Headers.Contains(BlueprintSessionTokenIgnore))

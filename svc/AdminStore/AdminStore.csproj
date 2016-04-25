@@ -112,12 +112,14 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
+    <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\AdminStoreConstants.cs" />
     <Compile Include="Helpers\BadRequestException.cs" />
     <Compile Include="Helpers\ResourceNotFoundException.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
+    <Compile Include="Models\ClientLogModel.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />

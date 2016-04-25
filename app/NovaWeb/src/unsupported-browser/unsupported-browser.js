@@ -1,7 +1,10 @@
 "use strict";
 
 var executionEnvironmentDetector = (function () {
+    executionEnvironmentDetector.prototype.userBrowser = {};
+
     function executionEnvironmentDetector() {
+        this.userBrowser = this.getBrowserInfo();
     }
     executionEnvironmentDetector.prototype.getBrowserInfo = function () {
         var ua = window.navigator !== undefined ? window.navigator.userAgent: "";
@@ -51,9 +54,15 @@ var executionEnvironmentDetector = (function () {
         browser.ua = ua;
         browser.blueprintSupportedBrowser = false;
         if (browser.mobile) {
-            browser.blueprintSupportedBrowser = false;
+            if (!browser.tablet) {
+                browser.blueprintSupportedBrowser = false;
+                return browser;
+            } else {
+                browser.mobile = false;
+            }
         }
-        else if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
+
+        if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
         else if (browser.chrome && parseInt(browser.version, 10) >= 40 && browser.win7plus) {
@@ -75,17 +84,43 @@ var executionEnvironmentDetector = (function () {
         return browser;
     };
     executionEnvironmentDetector.prototype.isSupportedVersion = function() {
-        return this.getBrowserInfo().blueprintSupportedBrowser;
-        };
+        return this.userBrowser.blueprintSupportedBrowser;
+    };
+    executionEnvironmentDetector.prototype.isTouchDevice = function() {
+        return this.userBrowser.tablet || this.userBrowser.mobile;
+    };
+    executionEnvironmentDetector.prototype.isWindows = function() {
+        return this.userBrowser.win7plus;
+    };
+    executionEnvironmentDetector.prototype.isMacOSX = function() {
+        return this.userBrowser.osx;
+    };
+    executionEnvironmentDetector.prototype.isiOS = function() {
+        return this.userBrowser.ios;
+    };
+    executionEnvironmentDetector.prototype.isAndroid = function() {
+        return this.userBrowser.android;
+    };
+    executionEnvironmentDetector.prototype.isIE = function() {
+        return this.userBrowser.msie;
+    };
+    executionEnvironmentDetector.prototype.isChrome = function() {
+        return this.userBrowser.chrome;
+    };
+    executionEnvironmentDetector.prototype.isSafari = function() {
+        return this.userBrowser.safari;
+    };
     return executionEnvironmentDetector;
 }());
 
 var appBootstrap = (function() {
+    var executionEnvironment = new executionEnvironmentDetector();
+
     function appBootstrap() {
     }
     
     appBootstrap.prototype.isSupportedVersion = (function () {
-        if (new executionEnvironmentDetector().isSupportedVersion()) {
+        if (executionEnvironment.isSupportedVersion()) {
             return true;
         }
 
@@ -110,7 +145,39 @@ var appBootstrap = (function() {
     }());
 
     appBootstrap.prototype.initApp = function() {
-        var app = angular.module("app", ["app.main"])
+        var app = angular.module("app", ["app.main"]);
+
+        if (executionEnvironment.isTouchDevice()) {
+            document.body.className += " is-touch";
+            // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
+            // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
+            document.body.style.minHeight = screen.height + "px";
+
+            window.addEventListener("orientationchange", function() {
+                document.body.style.minHeight = screen.height + "px";
+            });
+        }
+        if (executionEnvironment.isAndroid()) {
+            document.body.className += " is-android";
+        }
+        if (executionEnvironment.isiOS()) {
+            document.body.className += " is-ios";
+        }
+        if (executionEnvironment.isWindows()) {
+            document.body.className += " is-windows";
+        }
+        if (executionEnvironment.isMacOSX()) {
+            document.body.className += " is-macosx";
+        }
+        if (executionEnvironment.isChrome()) {
+            document.body.className += " is-chrome";
+        }
+        if (executionEnvironment.isIE()) {
+            document.body.className += " is-msie";
+        }
+        if (executionEnvironment.isSafari()) {
+            document.body.className += " is-safari";
+        }
 
         angular.bootstrap(document, ["app"], {
             strictDi: true

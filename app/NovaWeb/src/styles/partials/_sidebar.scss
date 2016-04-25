@@ -1,75 +1,113 @@
-sidebar {
-  background: $white;
+bp-sidebar-layout {
   display: block;
-  height: calc(100% - #{$wrapper-height});
-  position: fixed;
-  top: $wrapper-height;
-  transition: all .4s ease;
-  width: $sidebar-size;
-  z-index: 1000;
+  height: 100%;
 
-  .sidebar-title {
-    background: $brand-secondary;
-    box-sizing: border-box;
-    color: $white;
-    font-size: $font-size-root;
-    font-weight: 600;
-    height: $breadcrumbs-height;
-    padding: 13px 10px 0;
-  }
-
-  .sidebar-toggle {
-    color: $brand-secondary;
-    cursor: pointer;
-    position: absolute;
-    top: 12px;
-
-    &:hover {
-      text-decoration: none;
-    }
-  }
-
-  .sidebar-content {
+  .bp-sidebar-wrapper {
     height: 100%;
   }
 
-  &.project-explorer {
-    left: 0;
-    margin-left: -$sidebar-size;
+  .content-center {
+    background: $body-bg-color;
+    display: block;
+    height: 100%;
+    transition: padding .4s ease;
+  }
 
-    .sidebar-toggle {
-      right: -44px;
+  .left-panel-visible {
+    .content-center {
+      padding-left: $sidebar-size;
     }
 
-    &.show {
+    .sidebar.left-panel {
       left: $sidebar-size;
 
       .sidebar-toggle {
         color: $white;
         right: -4px;
+        transition-duration: .01s;
       }
     }
   }
 
-  &.utility-panel {
-    margin-right: -$sidebar-size;
-    right: 0;
-
-    .sidebar-title {
-      border-bottom: solid 1px $white;
-      padding-left: 36px;
+  .right-panel-visible {
+    .content-center {
+      padding-right: $sidebar-size;
     }
 
-    .sidebar-toggle {
-      left: -44px;
-    }
-
-    &.show {
+    .sidebar.right-panel {
       right: $sidebar-size;
 
       .sidebar-toggle {
         color: $white;
         left: -4px;
+        transition-duration: .01s;
+      }
+    }
+  }
+
+  .sidebar {
+    background: $white;
+    display: block;
+    height: calc(100% - #{$wrapper-height});
+    position: fixed;
+    top: $wrapper-height;
+    transition: all .4s ease;
+    width: $sidebar-size;
+    z-index: 1000;
+
+    .sidebar-title {
+      background: $brand-secondary;
+      box-sizing: border-box;
+      color: $white;
+      font-size: $font-size-root;
+      font-weight: 600;
+      height: $breadcrumbs-height;
+      padding: 13px 15px 0;
+    }
+
+    .sidebar-toggle {
+      color: $brand-secondary;
+      cursor: pointer;
+      position: absolute;
+      top: 12px;
+      transition-duration: .4s;
+      transition-property: color, left, right;
+      transition-timing-function: steps(1, end);
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    .sidebar-content {
+      height: 100%;
+    }
+
+    &.left-panel {
+      border-right: solid 1px $left-sidebar-border;
+      left: 0;
+      margin-left: -$sidebar-size;
+
+      .sidebar-title {
+        padding-right: 36px;
+      }
+
+      .sidebar-toggle {
+        right: -47px;
+      }
+    }
+
+    &.right-panel {
+      border-left: solid 1px $right-sidebar-border;
+      margin-right: -$sidebar-size;
+      right: 0;
+
+      .sidebar-title {
+        padding-left: 36px;
+      }
+
+      .sidebar-toggle {
+        left: -47px;
       }
     }
   }

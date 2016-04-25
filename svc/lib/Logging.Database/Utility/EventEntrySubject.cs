@@ -17,7 +17,7 @@ namespace Logging.Database.Utility
     /// This is a very basic implementation of a subject to avoid references to Rx when the
     /// end user might not want to do advanced filtering and projection of event streams.
     /// </remarks>
-    internal sealed class EventEntrySubject : IObservable<EventEntry>, IObserver<EventEntry>, IDisposable
+    public sealed class EventEntrySubject : IObservable<EventEntry>, IObserver<EventEntry>, IDisposable
     {
         private readonly object lockObject = new object();
         private volatile ReadOnlyCollection<IObserver<EventEntry>> observers = new List<IObserver<EventEntry>>().AsReadOnly();

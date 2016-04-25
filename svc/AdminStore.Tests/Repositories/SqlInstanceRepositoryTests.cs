@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
-using AdminStore.Helpers;
+using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {
@@ -115,6 +115,93 @@ namespace AdminStore.Repositories
             var folder = await repository.GetInstanceFolderChildrenAsync(10, 0);
 
             // Assert
+        }
+
+        [TestMethod]
+        public async Task GetInstanceProjectAsync_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = true} };
+            cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceProjectAsync_InvalidProjectId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceProjectAsync(0, 10);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetInstanceProjectAsync_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            var folder = await repository.GetInstanceProjectAsync(10, 0);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetInstanceProjectAsync_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = {};
+            cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetInstanceProjectAsync_Unauthorized()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            int projectId = 99;
+            int userId = 10;
+            InstanceItem[] result = { new InstanceItem { Id = projectId, Name = "My Project", ParentFolderId = 88, IsAccesible = false } };
+            cxn.SetupQueryAsync("GetInstanceProjectById", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var project = await repository.GetInstanceProjectAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.First(), project);
         }
     }
 }

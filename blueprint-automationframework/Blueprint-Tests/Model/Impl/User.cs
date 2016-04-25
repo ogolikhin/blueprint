@@ -115,7 +115,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="user">The User to compare.</param>
         /// <returns>True if the sessions are equal, otherwise false.</returns>
-        public bool Equals(IUser user)///TODO: add compare for license
+        public bool Equals(IUser user) //TODO: add compare for license
         {
             if (user == null)
             {

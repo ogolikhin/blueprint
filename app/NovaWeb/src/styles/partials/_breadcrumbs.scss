@@ -1,6 +1,6 @@
 .breadcrumbs {
   align-items: center;
-  background: $gray-lightest;
+  background: $body-bg-color;
   border-bottom: solid 1px $white;
   box-sizing: border-box;
   color: $gray-pale;
@@ -50,10 +50,10 @@
   }
 }
 
-.project-explorer-visible .breadcrumbs {
+.left-panel-visible .breadcrumbs {
   padding-left: 10px;
 }
 
-.utility-panel-visible .breadcrumbs {
+.right-panel-visible .breadcrumbs {
   padding-right: 10px;
 }

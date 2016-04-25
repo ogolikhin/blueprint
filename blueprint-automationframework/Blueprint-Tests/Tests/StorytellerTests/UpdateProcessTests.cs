@@ -637,7 +637,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
             
             // Add additonal branch to the System Decision point
@@ -666,7 +666,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -701,7 +701,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -739,7 +739,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point with branch (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point with branch (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -837,7 +837,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process

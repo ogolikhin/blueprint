@@ -1,10 +1,7 @@
-﻿using Common;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using Model.Factories;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using System.Net;
 using Utilities;
 
 namespace Model.OpenApiModel.Impl
@@ -18,8 +15,11 @@ namespace Model.OpenApiModel.Impl
         Group
     }
 
-        public class OpenApiProperty : IOpenApiProperty
+    public class OpenApiProperty : IOpenApiProperty
     {
+
+        #region Properties
+
         public int PropertyTypeId { get; set; }
         public string Name { get; set; }
         public string BasePropertyType { get; set; }
@@ -30,64 +30,75 @@ namespace Model.OpenApiModel.Impl
         public List<UsersAndGroups> UsersAndGroups { get; set; }
         public List<object> Choices { get; }
         public string DateValue { get; set; }
+        public string Address { get; set; }
 
-        /// TODO: need to be updated for future script update
+        #endregion Properties
+
         /// <summary>
-        /// Create a property object based on the information from DB</summary>
-        /// <param name="project">project Id</param>
-        /// <param name="propertyName">property Name</param>
-        /// <param name="propertyValue">(optional) property Name</param>
-        /// <exception cref="System.Data.SqlClient.SqlException">The exception that is thrown when SQL Server returns a warning or error.</exception>
-        /// <exception cref="System.InvalidOperationException">If no data is present with the requested sql</exception>
-        public OpenApiProperty GetProperty(IProject project, string propertyName, string propertyValue = null)
+        /// Constructor.
+        /// </summary>
+        /// <param name="address">The address of the OpenApiPropertyProperty.</param>
+        public OpenApiProperty(string address)
+        {
+            Address = address;
+        }
+
+        public OpenApiProperty SetPropertyAttribute(
+            IProject project,
+            IUser user,
+            BaseArtifactType baseArtifactType,
+            string propertyName,
+            string propertyValue = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false
+            )
+        {
+            // Retrieve the deserialized property for the selected base artifact type
+            var returnedPropertyType = GetPropertyType(project, user, baseArtifactType, propertyName,
+                expectedStatusCodes, sendAuthorizationAsCookie);
+
+            // Created and update the property based on information from get artifact types call and user parameter
+            var updatedProperty = new OpenApiProperty(Address)
+            {
+                PropertyTypeId = returnedPropertyType.Id,
+                Name = returnedPropertyType.Name,
+                BasePropertyType = returnedPropertyType.BasePropertyType,
+                // Set the value for the property with propertyValue parameter
+                TextOrChoiceValue = propertyValue ?? returnedPropertyType.DefaultValue,
+                IsRichText = returnedPropertyType.IsRichText,
+                IsReadOnly = returnedPropertyType.IsReadOnly
+            };
+
+            return updatedProperty;
+        }
+
+        private PropertyType GetPropertyType(
+            IProject project,
+            IUser user,
+            BaseArtifactType baseArtifactType,
+            string propertyName,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false
+            )
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-            OpenApiProperty property = null;
-
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            // Generate ArtifactType lists for the project if the target project doesn't contains any artifact types 
+            // or only contain artifact type  without property information
+            if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
             {
-                string query = "SELECT PropertyTypeId, RichText, Name FROM dbo.TipPropertyTypesView WHERE Project_ItemId = @Project_ItemId and Name = @Name;";
-                Logger.WriteDebug("Running: {0}", query);
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-                    cmd.Parameters.Add("@Project_ItemId", SqlDbType.Int).Value = project.Id;
-                    cmd.Parameters.Add("@Name", SqlDbType.NChar).Value = propertyName;
-                    cmd.CommandType = CommandType.Text;
-
-                    try
-                    {
-                        SqlDataReader reader;
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Read();
-                            }
-                            string querybasePropertyType = "Text";
-                            string querytextOrChoiceValue = propertyValue ?? "DefaultValue";
-                            int querypropertyTypeId = int.Parse(reader["PropertyTypeId"].ToString(), CultureInfo.InvariantCulture);
-                            string queryname = reader["Name"].ToString();
-
-                            property = new OpenApiProperty
-                            {
-                                PropertyTypeId = querypropertyTypeId,
-                                Name = queryname,
-                                BasePropertyType = querybasePropertyType,
-                                TextOrChoiceValue = querytextOrChoiceValue,
-                                IsRichText = true,
-                                IsReadOnly = false
-                            };
-                        }
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Logger.WriteError("No Property is available which matches with condition. Exception details - {0}", ex);
-                    }
-                }
+                project.GetAllArtifactTypes(user: user, address: Address,
+                    shouldRetrievePropertyTypes: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
             }
-            return property;
+
+            // Retrive the artifactType for the selected base artifact type
+            var artifactTypeForBaseArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(baseArtifactType));
+
+            // Retrieve the property for the selected base artifact type based on the property name
+            var returnedProperty = artifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
+
+            return returnedProperty;
         }
     }
 

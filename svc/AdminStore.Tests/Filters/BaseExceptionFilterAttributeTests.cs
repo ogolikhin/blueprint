@@ -6,10 +6,11 @@ using System.Web.Http;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using AdminStore.Helpers;
 using AdminStore.Controllers;
 using ServiceLibrary.Repositories.ConfigControl;
 using Moq;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Filters;
 
 namespace AdminStore.Filters
 {
@@ -68,6 +69,12 @@ namespace AdminStore.Filters
         public async Task OnExceptionAsync_BadRequestException()
         {
             await TestOnExceptionAsync(new BadRequestException(), HttpStatusCode.BadRequest);
+        }
+
+        [TestMethod]
+        public async Task OnExceptionAsync_AuthorizationException()
+        {
+            await TestOnExceptionAsync(new AuthorizationException(), HttpStatusCode.Forbidden);
         }
 
         [TestMethod]

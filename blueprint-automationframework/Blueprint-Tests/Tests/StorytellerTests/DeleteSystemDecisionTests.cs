@@ -254,7 +254,7 @@ namespace StorytellerTests
             */
             // Create and get the default process
             var returnedProcess =
-                StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions(
+                StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
                     _storyteller, _project, _user, additionalBranches: 1);
 
             // Find the system decision to delete from the updated process

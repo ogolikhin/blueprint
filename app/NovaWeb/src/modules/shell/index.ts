@@ -7,6 +7,7 @@ import {AuthSvc} from "./login/auth.svc";
 import {ISession, SessionSvc} from "./login/session.svc";
 import {LoggerSvc} from "./logger.svc";
 import {Logger} from "./logger.ts";
+import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 
 angular.module("app.shell",
     [
@@ -18,8 +19,15 @@ angular.module("app.shell",
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
     .service("session", SessionSvc)
-    .service("logger", LoggerSvc)
-    .config(Logger);
+    .service("sessionTokenInterceptor", SessionTokenInterceptor)
+	.service("logger", LoggerSvc)
+    .config(Logger)
+    .config(initializeInterceptors);
+
+function initializeInterceptors($httpProvider: ng.IHttpProvider) {
+    $httpProvider.interceptors.push("sessionTokenInterceptor");
+}
+initializeInterceptors.$inject = ["$httpProvider"];
 
 //TODO: move to other file
 export class AuthenticationRequired {

@@ -4,7 +4,7 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://localhost:80/" />
-    <Service name="AccessControl" address="http://localhost:82/" />
+    <Service name="AccessControl" address="http://localhost:8182/" />
     <Service name="ConfigControl" address="http://localhost:82/" />
     <Service name="FileStore"     address="http://localhost:80/" />
     <Service name="Storyteller"   address="http://localhost:80/" />
@@ -12,8 +12,8 @@
 
   <Databases>
     <Database name="Blueprint"     connection_string="Data Source=localhost;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AdminStore"    connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
-    <Database name="AccessControl" connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packetsize=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=localhost;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
     <Database name="FileStore"     connection_string="Data Source=localhost;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
   </Databases>
 

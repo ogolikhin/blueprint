@@ -33,8 +33,9 @@ export class AuthSvc implements IAuth {
 
 
     static $inject: [string] = ["$q", "$log", "$http", "$window", "localization", "configValueHelper"];
-    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private configValueHelper: IConfigValueHelper) {
-    }
+    /* tslint:disable */
+    constructor(private $q: ng.IQService, private $log: ng.ILogService, private $http: ng.IHttpService, private $window: ng.IWindowService, private localization: ILocalizationService, private configValueHelper: IConfigValueHelper) { }
+    /*tslint:enable*/
 
     public getCurrentUser(): ng.IPromise<IUser> {
         var defer = this.$q.defer<IUser>();
@@ -70,6 +71,7 @@ export class AuthSvc implements IAuth {
 
         var deferred = this.$q.defer<IUser>();
 
+        /* tslint:disable */
         this.$http.post<any>("/svc/adminstore/sessions/?login=" + encUserName + "&force=" + overrideSession, angular.toJson(encPassword), this.createRequestConfig())
             .success((token: string) => {
                 this.onTokenSuccess(token, deferred, false, "");
@@ -82,7 +84,7 @@ export class AuthSvc implements IAuth {
                 deferred.reject(error);
 
             });
-
+        /* tslint:enable */
         return deferred.promise;
     }
 
@@ -218,13 +220,9 @@ export class AuthSvc implements IAuth {
                             };
                             deferred.reject(error);
                         });
-                }, (msg: string) => {
+                }, (err: any) => {
                     this.internalLogout(token);
-                    if (msg) {
-                        deferred.reject({ message: msg });
-                    } else {
-                        deferred.reject({ message: this.localization.get("Login_Auth_LicenseVerificationFailed") });
-                    }
+                    deferred.reject(err);
                 });
         } else {
             deferred.reject({ statusCode: 500, message: this.localization.get("Login_Auth_SessionTokenRetrievalFailed") });
@@ -248,15 +246,26 @@ export class AuthSvc implements IAuth {
         this.$http.post("/svc/shared/licenses/verify", "", requestConfig)
             .success(() => deferred.resolve())
             .error((err: any, statusCode: number) => {
-                var msg = null;
-                if (statusCode === 404) { // NotFound
-                    msg = this.localization.get("Login_Auth_LicenseNotFound_Verbose");
+                var error = {};
 
+                if (statusCode === 404) { // NotFound
+                    error = {
+                        statusCode: statusCode,
+                        message: this.localization.get("Login_Auth_LicenseNotFound_Verbose")
+                    };
                 } else if (statusCode === 403) { // Forbidden
-                    msg = this.localization.get("Login_Auth_LicenseLimitReached");
+                    error = {
+                        statusCode: statusCode,
+                        message: this.localization.get("Login_Auth_LicenseLimitReached")
+                    };
+                } else { // Other error
+                    error = {
+                        statusCode: statusCode,
+                        message: err ? err.Message : ""
+                    };
                 }
 
-                deferred.reject(msg);
+                deferred.reject(error);
             });
 
         return deferred.promise;
@@ -269,6 +278,7 @@ export class AuthSvc implements IAuth {
 
         var deferred = this.$q.defer<any>();
 
+        /* tslint:disable */
         this.$http.post<any>("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }), this.createRequestConfig())
             .success(() => {
                 deferred.resolve();
@@ -280,7 +290,7 @@ export class AuthSvc implements IAuth {
                 };
                 deferred.reject(error);
             });
-
+        /* tslint:enable */
         return deferred.promise;
     }
 

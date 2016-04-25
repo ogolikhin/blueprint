@@ -1,0 +1,65 @@
+﻿.project-tree {
+  .ag-grid {
+    font-size: $font-size-smallest;
+    height: 100%;
+    width: calc(#{$project-picker-tree} - 10px - 2px);
+
+    #agFilter {
+      display: none;
+    }
+
+    #agHeaderCellLabel {
+      color: $brand-secondary;
+      font-weight: 600;
+    }
+
+    #borderLayout_eGridPanel {
+      overflow: hidden !important;
+      overflow-y: auto !important;
+      padding-top: 5px;
+    }
+
+    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
+      font-size: $font-size-root;
+      margin-left: 5px;
+      margin-right: 7px;
+    }
+
+    .ag-header-row {
+      height: 20px;
+    }
+
+    .ag-cell {
+      @include text-ellipsis-flex-width($project-picker-tree - 20px);
+      padding-right: 10px;
+
+      i {
+        color: $brand-secondary;
+      }
+    }
+
+    .ag-row-group {
+      padding-left: 5px;
+
+      &.ag-row-level-0 {
+        padding-left: 0;
+      }
+    }
+
+    .ag-cell-range-selected {
+      background: $brand-secondary;
+      color: $white;
+      outline: none;
+
+      i {
+        color: $white;
+      }
+    }
+
+    .ag-overlay-loading-wrapper {
+      background: $white;
+      padding-bottom: 20px;
+      padding-top: 5px;
+    }
+  }
+}

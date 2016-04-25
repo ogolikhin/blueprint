@@ -69,11 +69,13 @@
     <Compile Include="OpenApiModel\Impl\Attachment.cs" />
     <Compile Include="OpenApiModel\Impl\Comment.cs" />
     <Compile Include="OpenApiModel\Impl\Property.cs" />
+    <Compile Include="OpenApiModel\Impl\PropertyType.cs" />
     <Compile Include="OpenApiModel\Impl\Trace.cs" />
     <Compile Include="OpenApiModel\IProperty.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />
+    <Compile Include="StorytellerModel\IProcessLink.cs" />
     <Compile Include="StorytellerModel\IProcessShape.cs" />
     <Compile Include="StorytellerModel\IProcess.cs" />
     <Compile Include="StorytellerModel\IStoryteller.cs" />

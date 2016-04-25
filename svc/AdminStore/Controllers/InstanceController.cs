@@ -1,5 +1,5 @@
 ﻿using System.Web.Http;
-using AdminStore.Filters;
+using ServiceLibrary.Filters;
 using AdminStore.Models;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
@@ -70,6 +70,28 @@ namespace AdminStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await _instanceRepository.GetInstanceFolderChildrenAsync(id, session.UserId);
+        }
+
+        /// <summary>
+        /// Get Project
+        /// </summary>
+        /// <remarks>
+        /// Returns an instance folder for the specified id.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{id:int:min(1)}"), SessionRequired]
+        [ResponseType(typeof(InstanceItem))]
+        [ActionName("GetInstanceProject")]
+        public async Task<InstanceItem> GetInstanceProjectAsync(int id)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await _instanceRepository.GetInstanceProjectAsync(id, session.UserId);
         }
     }
 }

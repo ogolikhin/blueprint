@@ -1,14 +1,13 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
-import {IConfigValueHelper} from "../../core/config.value.helper";
+//import {IConfigValueHelper} from "../../core/config.value.helper";
 import {SimpleDialogCtrl, LoginCtrl, ILoginInfo} from "./login.ctrl";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
     currentUser: IUser;
-    lastError: Error;
 
     logout(): ng.IPromise<any>;
 
@@ -28,16 +27,11 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
-    private _lastError: Error;
     //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
 
     public get currentUser(): IUser {
         return this._currentUser;
-    }
-
-    public get lastError(): Error {
-        return this._lastError;
     }
 
     public logout(): ng.IPromise<any> {
@@ -113,8 +107,6 @@ export class SessionSvc implements ISession {
     }
 
     private showLogin(done: ng.IDeferred<any>, error?: Error): void {
-        this._lastError = error;
-
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
                 template: require("./login.html"),
@@ -129,18 +121,19 @@ export class SessionSvc implements ISession {
             this._modalInstance.result.then((result: ILoginInfo) => {
 
                 if (result) {
+                    var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.samlLogin) {
-                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
+                        confirmationDialog = this.createConfirmationDialog();
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {
                                         done.resolve();
                                     },
-                                    (error) => {
-                                        this.showLogin(done, error);
+                                    (err) => {
+                                        this.showLogin(done, err);
                                     });
                             } else {
                                 this.showLogin(done);
@@ -149,15 +142,15 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance = this.createConfirmationDialog();
+                        confirmationDialog = this.createConfirmationDialog();
                         confirmationDialog.result.then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(
                                     () => {
                                         done.resolve();
                                     },
-                                    (error) => {
-                                        this.showLogin(done, error);
+                                    (err) => {
+                                        this.showLogin(done, err);
                                     });
                             } else {
                                 this.showLogin(done);

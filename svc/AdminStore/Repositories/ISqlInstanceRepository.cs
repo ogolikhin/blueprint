@@ -1,9 +1,6 @@
 ﻿using AdminStore.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace AdminStore.Repositories
 {
@@ -12,5 +9,7 @@ namespace AdminStore.Repositories
         Task<InstanceItem> GetInstanceFolderAsync(int folderId);
 
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId);
+
+        Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId);
     }
 }

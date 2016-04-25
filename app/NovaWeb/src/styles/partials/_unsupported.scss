@@ -38,6 +38,11 @@
     padding: 16px 12px 16px 74px;
   }
 
+  button {
+    display: block;
+    margin: 0 auto;
+  }
+
   .supported-platforms {
     overflow: auto;
     padding: 0 12px 12px 74px;
@@ -61,11 +66,6 @@
     ul {
       font-size: 14px;
       padding: 0 0 0 32px;
-    }
-
-    button {
-      display: block;
-      margin: 0 auto;
     }
 
     .supported-platforms-row {

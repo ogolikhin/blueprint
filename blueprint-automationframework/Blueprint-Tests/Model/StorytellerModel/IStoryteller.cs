@@ -82,14 +82,6 @@ namespace Model.StorytellerModel
         IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Get the Id of the Process Artifact Type from the specified Project
-        /// </summary>
-        /// <param name="user">The user credentials for the request to get the artifact type Id</param>
-        /// <param name="project">The project from which the artifact type is retrieved</param>
-        /// <returns>The Id of process artifact type</returns>
-        int GetProcessArtifactTypeId(IUser user, IProject project);
-
-        /// <summary>
         /// Get a Process Artifact from a Breadcrumb Trail
         /// </summary>
         /// <param name="user">The user credentials for the request to get the process artifact</param>

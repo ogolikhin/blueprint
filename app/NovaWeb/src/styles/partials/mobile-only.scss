@@ -1,0 +1,7 @@
+// styles for mobile devices only (body will have class .is-touch)
+body.is-touch bp-accordion-panel .bp-accordion-panel {
+  > input[type=radio].bp-accordion-panel-state:checked ~ input[type=checkbox].bp-accordion-panel-pin,
+  > input[type=checkbox].bp-accordion-panel-pin:checked {
+    visibility: hidden;
+  }
+}

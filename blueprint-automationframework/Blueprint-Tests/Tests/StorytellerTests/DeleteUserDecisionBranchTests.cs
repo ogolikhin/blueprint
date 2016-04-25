@@ -86,21 +86,21 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [TestCase(0)]
         [TestCase(1)]
+        [TestCase(2)]
         [Description("Delete a branch from a user decision point that has more than 2 conditions and verify that the " +
                      "returned process still contains the user decision with all branches except the deleted branch.")]
         public void DeleteBranchFromUserDecisionWithMoreThanTwoConditions_VerifyReturnedProcess(double orderIndexOfBranch)
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
                                |                        |
                                +--[UT3]--+--[ST4]-------+
                                |                        |
                                +--[UT5]--+--[ST6]-------+
 
-            It becomes this (Shape names depend on branch that was deleted):
+            After:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
                                 |                       |
                                 +--[UT3]--+--[ST4]------+
@@ -124,8 +124,8 @@ namespace StorytellerTests
             // Add a second branch with task to decision point
             process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             var userDecisionWithBranchToBeDeleted= returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
@@ -143,7 +143,7 @@ namespace StorytellerTests
         public void DeleteBranchFromUserDecisionThatContainsNestedUserDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+------------------------+--[E]
                                |                                                 |
                                +--[UT3]--+--[ST4]--------------------------------+ 
@@ -152,54 +152,40 @@ namespace StorytellerTests
                                                         |                        |
                                                         +--[UT9]--+--[ST10]------+
 
-            And becomes this if third branch is deleted:
+            After:
                 [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+------------------------+--[E]
                                |                                                 |
                                +--[UT3]--+--[ST4]--------------------------------+ 
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            // Find precondition
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(precondition);
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add decision point <UD1> with branch after precondition (adds 2 branches)
-            var firstUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
-                preconditionTask,
-                preconditionOutgoingLink.Orderindex + 1,
-                branchEndPoint.Id);
+            // Find the first user decision
+            var firstUserDecision = process.GetNextShape(precondition);
 
-            // Add third branch to userDecision
-            process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2,
-                branchEndPoint.Id);
+            // Find the user task from decision point outgoing process link
+            var userTaskOnThirdBranch = process.GetNextShape(firstUserDecision, preconditionOutgoingLink.Orderindex + 2);
 
-            // Outgoing process link for third decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2);
-
-            // Determine new user task from decision point outgoing process link
-            var newUserTaskOnThirdBranch = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
-
-            var newSystemTaskOnThirdBranch = process.GetNextShape(newUserTaskOnThirdBranch);
+            var systemTaskOnThirdBranch = process.GetNextShape(userTaskOnThirdBranch);
 
             // Add second user decision point <UD2> with branch to end after new system task
             process.AddUserDecisionPointWithBranchAfterShape(
-                newSystemTaskOnThirdBranch,
+                systemTaskOnThirdBranch,
                 preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);
@@ -218,7 +204,7 @@ namespace StorytellerTests
         public void DeleteBranchFromUserDecisionThatContainsNestedSystemDecision_VerifyReturnedProcess()
         {
             /*
-            If you start with this:
+            Before:
                 [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+-----+--[E]
                                |                             |
                                +--[UT3]--+--[ST4]------------+ 
@@ -227,54 +213,40 @@ namespace StorytellerTests
                                               |              |
                                               +----+--[ST7]--+
 
-            And becomes this if third branch is deleted:
+            After:
                 [S]--[P]--+--<UD>--+--[UT1]--+--[ST2]--+-----+--[E]
                                |                             |
                                +--[UT3]--+--[ST4]------------+ 
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecisionContainingMultipleConditions(_storyteller, _project, _user, additionalBranches: 1, updateProcess: false);
 
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            // Find precondition
+            var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(precondition);
 
             // Determine the branch endpoint
             var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add decision point <UD> with branch after precondition (adds 2 branches)
-            var firstUserDecision = process.AddUserDecisionPointWithBranchAfterShape(
-                preconditionTask,
-                preconditionOutgoingLink.Orderindex + 1,
-                branchEndPoint.Id);
+            // Find the first user decision
+            var firstUserDecision = process.GetNextShape(precondition);
 
-            // Add third branch to userDecision
-            process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2,
-                branchEndPoint.Id);
+            // Find the user task from decision point outgoing process link
+            var userTaskOnThirdBranch = process.GetNextShape(firstUserDecision, preconditionOutgoingLink.Orderindex + 2);
 
-            // Outgoing process link for third decision point branch
-            var outgoingProcessLinkForUserDecision = process.GetOutgoingLinkForShape(
-                firstUserDecision,
-                preconditionOutgoingLink.Orderindex + 2);
-
-            // Determine new user task from decision point outgoing process link
-            var newUserTaskOnThirdBranch = process.GetProcessShapeById(outgoingProcessLinkForUserDecision.DestinationId);
-
-            var newSystemTaskOnThirdBranch = process.GetNextShape(newUserTaskOnThirdBranch);
+            var systemTaskOnThirdBranch = process.GetNextShape(userTaskOnThirdBranch);
 
             // Add system decision point <SD> with branch after user task on third branch
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(
-                newSystemTaskOnThirdBranch,
-                preconditionOutgoingLink.Orderindex + 2,
+                systemTaskOnThirdBranch,
+                preconditionOutgoingLink.Orderindex + 1,
                 branchEndPoint.Id);
 
-            // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            // Update and Verify the process after updating the default process for the test
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             // Find the first user decision in the returned process
             var returnedFirstUserDecision = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);

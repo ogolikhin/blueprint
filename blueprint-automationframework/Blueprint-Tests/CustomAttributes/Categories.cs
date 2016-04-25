@@ -10,6 +10,11 @@ namespace CustomAttributes
         public const string AdminStore = "AdminStore";
 
         /// <summary>
+        /// This test cannot be run in parallel with other tests.
+        /// </summary>
+        public const string CannotRunInParallel = "CannotRunInParallel";
+
+        /// <summary>
         /// This test runs several operations in multiple threads.
         /// </summary>
         public const string ConcurrentTest = "ConcurrentTest";
@@ -22,7 +27,14 @@ namespace CustomAttributes
         /// </summary>
         public const string InjectsErrorsIntoAccessControl = "InjectsErrorsIntoAccessControl";
 
+        public const string LoggingDatabase = "LoggingDatabase";
+
         public const string OpenApi = "OpenApi";
         public const string Storyteller = "Storyteller";
+
+        /// <summary>
+        /// This tests the Automation Framework itself, not the Blueprint product.
+        /// </summary>
+        public const string UtilityTest = "UtilityTest";
     }
 }

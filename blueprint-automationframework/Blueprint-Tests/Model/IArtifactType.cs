@@ -1,4 +1,6 @@
-﻿using Model.OpenApiModel;
+﻿using System.Collections.Generic;
+using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 
 namespace Model
 {
@@ -15,7 +17,9 @@ namespace Model
 
         BaseArtifactType BaseArtifactType { get; set; }
 
+        List<PropertyType> PropertyTypes { get; }
         #endregion Properties
+
         #region Methods
         #endregion Methods
     }

@@ -1,21 +1,19 @@
 ﻿import "angular";
 import {ILocalizationService} from "../core/localization";
 
-export interface IProjectService {
-    getFolders(id?: number): ng.IPromise<any[]>;
-
-}
 
 export interface IProjectNode {
-    Id: number,
-    ParentFolderId: number,
-    Type: string,
-    Name: string,
-    Description? : string,
-    Children?: IProjectNode[]
-
+    Type: string;
+    Id: number;
+    ParentFolderId: number;
+    Name: string;
+    Description?: string;
+    Children?: IProjectNode[];
 }
 
+export interface IProjectService {
+    getFolders(id?: number): ng.IPromise<any[]>;
+}
 
 export class ProjectService implements IProjectService {
     static $inject: [string] = ["$q", "$http", "localization"];
@@ -31,7 +29,7 @@ export class ProjectService implements IProjectService {
             .success((result: IProjectNode[]) => {
                 angular.forEach(result, (it) => {
                     if (it.Type === "Folder") {
-                        it.Children = [];
+                        it.Children = new Array<IProjectNode>();
                     }
                 });
                 defer.resolve(result);
@@ -42,7 +40,6 @@ export class ProjectService implements IProjectService {
                 };
                 defer.reject(error);
             });
-
         return defer.promise;
     }
 }

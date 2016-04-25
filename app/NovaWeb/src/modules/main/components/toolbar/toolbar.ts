@@ -1,11 +1,11 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
-import {OpenProjectController} from "../dialogs/openprojectcontroller";
+import {IOpenProjectResult, OpenProjectController} from "../dialogs/openproject.ctrl";
 
 
 interface IToolbarController {
-    add(): void;
-    clear(): void;
+//    add(): void;
+//    clear(): void;
     execute(evt: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
 }
@@ -30,11 +30,11 @@ class ToolbarCtrl implements IToolbarController {
     constructor(private localization: ILocalizationService, private dialogService: IDialogService) {
     }
 
-    add(): void {
-    }
+    //add(): void {
+    //}
 
-    clear(): void {
-    }
+    //clear(): void {
+    //}
 
     execute(evt: any): void {
         if (!evt) {
@@ -42,7 +42,7 @@ class ToolbarCtrl implements IToolbarController {
         }
         evt.preventDefault();
         var element = evt.currentTarget;
-        this.dialogService.alert("Selected Action is " + (element.id || element.innerText));
+        this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
     }
 
     showSubLevel(evt: any): void {
@@ -72,16 +72,17 @@ class ToolbarCtrl implements IToolbarController {
     public openProject() {
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
-            template: require("../dialogs/openprojectdialog.html"),
+            template: require("../dialogs/openproject.template.html"),
             controller: OpenProjectController,
             css: "nova-open-project"
-        }).then((selected: any) => {
-            if (selected && selected.Id) {
-                this.dialogService.alert("Project \"" + selected.Name + "\" is selected. Id:[" + selected.Id + "]");
+        }).then((selected: IOpenProjectResult) => {
+            if (selected && selected.id) {
+                this.dialogService.alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
             }
         });
     }
 
+    //temporary
     public deleteArtifact() {
         this.dialogService.confirm("This is simple confirmation message.<br/><br/> Please confirm.", "Please confirm")
             .then((confirmed: boolean) => {

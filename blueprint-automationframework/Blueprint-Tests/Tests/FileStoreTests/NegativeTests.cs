@@ -223,6 +223,23 @@ namespace FileStoreTests
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
+        [TestCase((uint)1024, "1KB_File.txt", "multipart/form-data; boundary=-----------------------------28947758029299")]
+        public void PostFileWithBadMultiPartMime_Verify500Error(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            // Post a file to Filestore with an invalid multipart-mime (i.e. the body doesn't contain multipart data).
+            var ex = Assert.Throws<Http500InternalServerErrorException>(() =>
+            {
+                _filestore.PostFile(file, _user, useMultiPartMime: false);
+            }, "FileStore should return a 500 Internal Server error when we pass an invalid multi-part mime.");
+
+            string expectedExceptionMessage = "No multipart boundary found.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
+        }
+
         [TestCase((uint)1024, "1KB_File.txt", "")]
         public void PostWithNoContentTypeHeader_VerifyBadRequest(
                 uint fileSize,

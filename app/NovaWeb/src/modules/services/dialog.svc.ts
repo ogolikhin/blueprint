@@ -45,18 +45,20 @@ export class DialogService implements IDialogService {
         params = this.params = angular.extend({}, this.defaultParams, params);
     }
 
-    private openInternal = () => {
-        var instance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
+    private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
+        var settings = <ng.ui.bootstrap.IModalSettings>{
             template: this.params.template,
             controller: this.params.controller,
             controllerAs: "ctrl",
             windowClass: this.params.css || "nova-messaging",
+            backdrop: false,
             resolve: {
                 params: () => {
                     return this.params;
                 }
             }
-        });
+        };
+        var instance = this.$uibModal.open(angular.merge({}, settings, optsettings));
         return instance;
     };
 
@@ -64,8 +66,8 @@ export class DialogService implements IDialogService {
         return this.params.type;
     }
 
-    public open(params: IDialogSettings): ng.IPromise<any> {
-        this.initialize(params);
+    public open(params?: IDialogSettings): ng.IPromise<any> {
+        this.initialize(params || this.params);
         return this.openInternal().result;
     }
 
@@ -76,7 +78,9 @@ export class DialogService implements IDialogService {
             message : message,
             cancelButton: null,
         });
-        return this.openInternal().result;
+        return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
+            keyboard: false
+        }).result;
     }
 
     public confirm(message: string, header?: string) {
@@ -104,7 +108,6 @@ export class BaseDialogController {
     constructor(private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private params: IDialogSettings) {
         this.$instance = $uibModalInstance;
     }
-    
 
     public ok = () => {
         this.$instance.close(this.returnvalue);

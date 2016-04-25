@@ -4,6 +4,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../util/component.test";
 import {BpAccordionCtrl} from "./bp-accordion";
+import {BpAccordionPanelCtrl} from "./bp-accordion";
 
 describe("Component BpAccordion", () => {
 

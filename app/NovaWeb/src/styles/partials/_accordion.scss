@@ -34,6 +34,59 @@ bp-accordion {
       z-index: 2;
     }
 
+    > input[type=checkbox].bp-accordion-panel-pin + label.bp-accordion-panel-pin {
+      display: block;
+      font-weight: 700;
+      margin: 0;
+      padding: 0;
+      visibility: hidden;
+    }
+
+    // custom checkbox
+    > input[type=checkbox].bp-accordion-panel-pin:not(:checked) + label.bp-accordion-panel-pin::before,
+    > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin::before {
+      background: lighten($brand-secondary, 15%);
+      border-radius: $border-radius-amount;
+      content: '';
+      cursor: pointer;
+      height: 15px;
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      width: 15px;
+      z-index: 3;
+    }
+
+    // custom checkmark
+    > input[type=checkbox].bp-accordion-panel-pin:not(:checked) + label.bp-accordion-panel-pin::after,
+    > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin::after {
+      background: $gray-dark;
+      border: solid 2px $white;
+      border-radius: $border-radius-amount;
+      color: $white;
+      content: '✔';
+      cursor: pointer;
+      font-size: 10px;
+      height: 15px;
+      line-height: 11px;
+      position: absolute;
+      right: 10px;
+      text-align: center;
+      top: 8px;
+      width: 15px;
+      z-index: 4;
+    }
+
+    // custom checkbox un-checked (checkmark invisible)
+    > input[type=checkbox].bp-accordion-panel-pin:not(:checked) + label.bp-accordion-panel-pin::after {
+      opacity: 0;
+    }
+
+    // custom checkbox checked (checkmark visible)
+    > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin::after {
+      opacity: 1;
+    }
+
     > input[type=radio].bp-accordion-panel-state {
       cursor: pointer;
       height: $utility-panel-heading-height;
@@ -80,6 +133,11 @@ bp-accordion {
       z-index: 2;
     }
 
+    > input[type=radio].bp-accordion-panel-state:checked ~ label.bp-accordion-panel-pin,
+    > input[type=checkbox].bp-accordion-panel-pin:checked + label.bp-accordion-panel-pin {
+      visibility: visible;
+    }
+
     > input[type=radio].bp-accordion-panel-state:checked ~ input[type=checkbox].bp-accordion-panel-pin,
     > input[type=checkbox].bp-accordion-panel-pin:checked {
       visibility: visible;
@@ -103,8 +161,8 @@ bp-accordion {
   .utility-panel-attachments > .bp-accordion-panel-heading::before {
     content: '\e872';
     font-size: 14px !important;
-    padding-left: 2px;
     margin-top: 0 !important;
+    padding-left: 2px;
   }
 
   .utility-panel-relationships > .bp-accordion-panel-heading::before {

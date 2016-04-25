@@ -150,7 +150,7 @@ var appBootstrap = (function() {
         if (executionEnvironment.isTouchDevice()) {
             document.body.className += " is-touch";
             // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
-            // remove the browser chrome, therefore maximizing the available space. Recalculates on orientatio change.
+            // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
             document.body.style.minHeight = screen.height + "px";
 
             window.addEventListener("orientationchange", function() {

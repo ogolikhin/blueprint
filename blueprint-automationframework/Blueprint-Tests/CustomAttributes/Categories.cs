@@ -31,5 +31,10 @@ namespace CustomAttributes
 
         public const string OpenApi = "OpenApi";
         public const string Storyteller = "Storyteller";
+
+        /// <summary>
+        /// This tests the Automation Framework itself, not the Blueprint product.
+        /// </summary>
+        public const string UtilityTest = "UtilityTest";
     }
 }

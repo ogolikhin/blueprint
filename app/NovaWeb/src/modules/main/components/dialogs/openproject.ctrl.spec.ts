@@ -41,6 +41,7 @@ describe("Open Project.", () => {
             // Act
 
             // Assert
+            expect(controller.returnvalue).toBeDefined();
             expect(controller.returnvalue).toEqual(result);
         });
     });
@@ -51,13 +52,19 @@ describe("Open Project.", () => {
 
             // Act
             var options = controller.gridOptions;
+            
             // Assert
             expect(options).toBeDefined();
             expect(options.columnDefs).toBeDefined();
             expect(options.columnDefs).toEqual(jasmine.any(Array));
             expect(options.columnDefs.length).toBeGreaterThan(0)
-            expect(options.columnDefs[0].header).toBeDefined();
-            expect(options.columnDefs[0].header).toBe("App_Header_Name");
+            expect(options.columnDefs[0].field).toBeDefined();
+            expect(options.columnDefs[0].headerName).toBe("App_Header_Name");
+            expect(options.columnDefs[0].cellRenderer).toBeDefined();
+            expect(options.columnDefs[0].cellRenderer.renderer).toBe("group");
+            expect(options.getNodeChildDetails).toEqual(jasmine.any(Function));
+            expect(options.onRowClicked).toEqual(jasmine.any(Function));
+            expect(options.onGridReady).toEqual(jasmine.any(Function));
         });
 
 

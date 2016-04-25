@@ -188,6 +188,58 @@ namespace ServiceLibrary.Repositories.ConfigControl
         }
 
         /// <summary>
+        /// LogClientMessage (should only be called from admin log controller)
+        /// </summary>
+        /// <param name="source">source</param>
+        /// <param name="logEntry">message</param>
+        /// <param name="sessionId">id of session (optional)</param>
+        /// <param name="userName">user name (optional)</param>
+        /// <example>
+        /// var servicelog = new ServiceLogRepository();
+        /// await servicelog.LogClientMessage("FileStore API", "Hello World");
+        /// </example>
+        public async Task<HttpResponseMessage> LogClientMessage(
+            string source,
+            ClientLogModel logEntry,
+            string sessionId,
+            string userName)
+        {
+            try
+            {
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                var http = _httpClientProvider.Create(new Uri(uri));
+
+                //create the log entry
+                ServiceLogModel serviceLog = new ServiceLogModel
+                {
+                    Source = logEntry.Source,
+                    LogLevel = (LogLevelEnum)logEntry.LogLevel,
+                    Message = logEntry.Message,
+                    OccurredAt = DateTime.Now,
+                    SessionId = sessionId,
+                    UserName = userName,
+                    MethodName = "",
+                    FilePath = "",
+                    LineNumber = 0,
+                    StackTrace = logEntry.StackTrace
+                };
+
+                // Convert Object to JSON
+                var requestMessage = JsonConvert.SerializeObject(serviceLog);
+                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await http.PostAsync("log", content);
+
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
+            }
+        }
+
+        /// <summary>
         /// LogError
         /// </summary>
         /// <param name="source">source</param>

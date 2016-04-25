@@ -1,24 +1,24 @@
 ﻿import "angular";
 import {SessionTokenHelper}  from "./login/session.token.helper";
 
-export interface ILogger {
+export interface IServerLogger {
     log(message: any, level: number): ng.IPromise<any>;
 }
 
-interface IServiceLogModel {
+interface IServerLogModel {
     Source: string;
     LogLevel: number;
     Message: string;
     //System.DateTime OccurredAt  //set on server
-    SessionId: string;
-    UserName: string;
-    MethodName: string; 
-    FilePath: string;
-    LineNumber: number;
+    //SessionId: string;  //set on server
+    //UserName: string;  //set on server
+    //MethodName: string;  //set on server
+    //FilePath: string;  //set on server
+    //LineNumber: number;  //set on server
     StackTrace: string;
 }
 
-export class LoggerSvc implements ILogger {
+export class LoggerSvc implements IServerLogger {
     static $inject: [string] = ["$injector"];
     constructor(private $injector: ng.auto.IInjectorService) {
     }
@@ -33,23 +33,11 @@ export class LoggerSvc implements ILogger {
         var config = <ng.IRequestConfig>{};
         config.headers = {};
         config.headers[SessionTokenHelper.SESSION_TOKEN_KEY] = SessionTokenHelper.getSessionToken();
-
-        var sessionId: string = SessionTokenHelper.getSessionToken();
-        if (!sessionId) {
-            sessionId = "";
-        } else {
-            sessionId = sessionId.substr(0, 8);
-        }
-
-        var logMessage: IServiceLogModel = <IServiceLogModel>{
+        
+        var logMessage: IServerLogModel = <IServerLogModel>{
             Source: "NovaClient",
             LogLevel: level,
             Message: message.message,
-            SessionId: sessionId,
-            UserName: "",
-            MethodName: "",
-            FilePath: "",
-            LineNumber: 0,
             StackTrace: message.stack ? message.stack : ""
         };
 

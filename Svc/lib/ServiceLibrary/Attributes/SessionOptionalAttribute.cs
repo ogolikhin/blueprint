@@ -8,9 +8,9 @@ using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Attributes
 {
-    public class SessionRequiredAttribute : SessionAttribute
+    public class SessionOptionalAttribute : SessionAttribute
     {
-       
+      
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
             if (actionContext.Request.Headers.Contains(BlueprintSessionTokenIgnore))
@@ -24,13 +24,9 @@ namespace ServiceLibrary.Attributes
             }
             catch (ArgumentNullException)
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest,
-                    BadRequestMessage);
             }
             catch (HttpRequestException)
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized,
-                    UnauthorizedMessage);
             }
             catch
             {

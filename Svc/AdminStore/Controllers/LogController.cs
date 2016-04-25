@@ -6,6 +6,7 @@ using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AdminStore.Models;
+using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -39,45 +40,19 @@ namespace AdminStore.Controllers
         /// <param name="logEntry">Log entry</param>
         /// <response code="200">OK.</response>
         [HttpPost]
-        [Route("")]
+        [Route(""), SessionOptional]
         public async Task<IHttpActionResult> Log([FromBody]ClientLogModel logEntry)
         {
-            try
-            {
-                ServiceLogModel serviceLog = new ServiceLogModel
-                {
-                    Source = logEntry.Source,
-                    LogLevel = (LogLevelEnum)logEntry.LogLevel,
-                    Message = logEntry.Message,
-                    OccurredAt = DateTime.Now,
-                    SessionId = logEntry.SessionId,
-                    UserName = logEntry.UserName,
-                    MethodName = logEntry.MethodName,
-                    FilePath = logEntry.FilePath,
-                    LineNumber = logEntry.LineNumber,
-                    StackTrace = logEntry.StackTrace
-                };
+            var sessionToken = Request.Headers.GetValues("Session-Token").FirstOrDefault();
+            var sessionId = sessionToken?.Substring(0, 8) ?? "";
+            Session session = (Session)ActionContext.Request.Properties[ServiceConstants.SessionProperty];
+            string userName = session != null ? session.UserName : "";
+           
+            var result = await LogRepository.LogClientMessage(WebApiConfig.LogSourceConfig, logEntry, sessionId, userName);
 
-                var uri = new Uri(WebApiConfig.ConfigControl);
-                var http = HttpClientProvider.Create(uri);
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(uri, "log"),
-                    Method = HttpMethod.Post,
-                    Content = new ObjectContent(typeof (ServiceLogModel), serviceLog, new JsonMediaTypeFormatter())
-                };
-                request.Headers.Add("Session-Token", Request.Headers.GetValues("Session-Token").FirstOrDefault());
-                var result = await http.SendAsync(request);
-                result.EnsureSuccessStatusCode();
-                var response = Request.CreateResponse(HttpStatusCode.OK);
-                response.Content = result.Content;
-                return ResponseMessage(response);
-            }
-            catch (Exception ex)
-            {
-                await LogRepository.LogError(WebApiConfig.LogSourceConfig, ex);
-                return InternalServerError();
-            }
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = result.Content;
+            return ResponseMessage(response);
         }
     }
 }

@@ -74,9 +74,20 @@ export class BpAccordionCtrl implements IBpAccordionController {
         this.openAtTheTop = typeof this.accordionOpenTop !== "undefined";
     }
 
-    public addPanelAndHeight = (accordionPanelId: string, accordionPanelHeight: number) => {
-        this.accordionPanels.push([accordionPanelId, accordionPanelHeight]);
-        this.currentPanel = this.accordionPanels[0][0]; // the current panel is always the first one on init
+    public getId = (): string => {
+        return this.accordionId;
+    };
+
+    public addPanel = (accordionPanel: any) => {
+        this.accordionPanels.push(accordionPanel);
+    };
+
+    public getPanels = (): any => {
+        return this.accordionPanels;
+    };
+
+    public setCurrentPanel = (accordionPanelId: string) => {
+        this.currentPanel = accordionPanelId;
     };
 
     public activateAnotherPinnedPanel = (accordionPanelId: string) => {
@@ -158,8 +169,8 @@ export class BpAccordionCtrl implements IBpAccordionController {
             /* tslint:enable */
             var accordionHeaderHeight = 0;
             for (var p = 0; p < this.accordionPanels.length; p++) {
-                if (accordionElement.id === this.accordionPanels[p][0]) {
-                    accordionHeaderHeight = parseInt(this.accordionPanels[p][1], 10);
+                if (accordionElement.id === this.accordionPanels[p].accordionPanelId) {
+                    accordionHeaderHeight = parseInt(this.accordionPanels[p].accordionPanelHeadingHeight, 10);
                     break;
                 }
             }
@@ -223,15 +234,16 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     };
 
     public $onInit = () => {
-        this.accordionGroupId = this.accordionGroup.accordionId;
+        this.accordionGroupId = this.accordionGroup.getId();
 
         // if not specific heading heigh is set, use the one defined in the container
         if (!this.accordionPanelHeadingHeight) {
             this.accordionPanelHeadingHeight = this.accordionGroup.accordionHeadingHeight;
         }
         // automatically set the first panel to be opened
-        if (this.accordionGroup.accordionPanels.length === 0) {
+        if (this.accordionGroup.getPanels().length === 0) {
             this.accordionPanelIsOpen = true;
+            this.accordionGroup.setCurrentPanel(this.accordionPanelId);
         }
         if (!!this.accordionPanelClass) {
             this.accordionPanelHasIcon = "bp-accordion-panel-icon";
@@ -252,6 +264,6 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         trigger.addEventListener("click", this.tryToToggle);
         pinner.addEventListener("click", this.pinUnpin);
 
-        this.accordionGroup.addPanelAndHeight(this.accordionPanelId, this.accordionPanelHeadingHeight);
+        this.accordionGroup.addPanel(this);
     };
 }

@@ -87,6 +87,7 @@
       background: $white;
       border: solid 1px $gray-lightest;
       border-radius: $border-radius-amount;
+      box-sizing: border-box;
       display: block;
       float: left;
       height: 244px;
@@ -115,8 +116,10 @@
       .project-description {
         background: $gray-lightest;
         border-radius: $border-radius-amount;
+        max-height: 165px;
         margin-top: 10px;
         padding: 0 15px;
+        overflow: auto;
 
         > div {
           padding: 8px 0;

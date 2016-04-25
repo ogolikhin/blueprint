@@ -1,10 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Common;
-using CommonUtilities;
 
 namespace AccessControlDouble.Controllers
 {
@@ -23,38 +21,12 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(int uid)
         {
-            string thisNamespace = nameof(AccessControlDouble);
             string thisClassName = nameof(SessionsController);
             string thisMethodName = nameof(Get);
 
-            using (HttpClient http = new HttpClient())
-            {
-                await Task.Run(() =>
-                {
-                    WriteLine("Called {0}.{1}.{2}({3})", thisNamespace, thisClassName, thisMethodName, uid);
-                });
+            List<string> args = new List<string> { uid.ToString() };
 
-                // If the test wants to inject a custom status code, return that instead of the real value.
-                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
-                {
-                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
-                }
-
-                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-                var uri = CreateUri();
-
-                await Task.Run(() =>
-                {
-                    WriteLine("Calling http.GetAsync({0})", uid);
-                });
-                var result = await http.GetAsync(uri);
-                await Task.Run(() =>
-                {
-                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
-                });
-
-                return ResponseMessage(result);
-            }
+            return await ProxyGetRequest(thisClassName, thisMethodName, args);
         }
 
         /// <summary>
@@ -69,38 +41,29 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Get(string ps = "100", string pn = "1")
         {
-            string thisNamespace = nameof(AccessControlDouble);
             string thisClassName = nameof(SessionsController);
             string thisMethodName = nameof(Get);
 
-            using (HttpClient http = new HttpClient())
+            List<string> args = null;
+
+            if (ps != null)
             {
-                await Task.Run(() =>
-                {
-                    WriteLine("Called {0}.{1}.{2}('{3}', '{4}')", thisNamespace, thisClassName, thisMethodName, ps, pn);
-                });
-
-                // If the test wants to inject a custom status code, return that instead of the real value.
-                if (WebApiConfig.StatusCodeToReturn["GET"].HasValue)
-                {
-                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["GET"].Value));
-                }
-
-                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-                var uri = CreateUri();
-
-                await Task.Run(() =>
-                {
-                    WriteLine("Calling http.GetAsync('{0}', '{1}')", ps, pn);
-                });
-                var result = await http.GetAsync(uri);
-                await Task.Run(() =>
-                {
-                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
-                });
-
-                return ResponseMessage(result);
+                args = new List<string> { ps };
             }
+
+            if (pn != null)
+            {
+                if (args == null)
+                {
+                    args = new List<string> {pn};
+                }
+                else
+                {
+                    args.Add(pn);
+                }
+            }
+
+            return await ProxyGetRequest(thisClassName, thisMethodName, args);
         }
 
         /// <summary>
@@ -116,39 +79,12 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Post(int uid, string userName, int licenseLevel, bool isSso = false)
         {
-            string thisNamespace = nameof(AccessControlDouble);
             string thisClassName = nameof(SessionsController);
             string thisMethodName = nameof(Post);
 
-            using (HttpClient http = new HttpClient())
-            {
-                await Task.Run(() =>
-                {
-                    WriteLine("Called {0}.{1}.{2}({3}, '{4}', {5}, {6})",
-                        thisNamespace, thisClassName, thisMethodName, uid, userName, licenseLevel, isSso);
-                });
+            var args = new List<string> { uid.ToString(), userName, licenseLevel.ToString(), isSso.ToString() };
 
-                // If the test wants to inject a custom status code, return that instead of the real value.
-                if (WebApiConfig.StatusCodeToReturn["POST"].HasValue)
-                {
-                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["POST"].Value));
-                }
-
-                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-                var uri = CreateUri();
-
-                await Task.Run(() =>
-                {
-                    WriteLine("Calling http.PostAsJsonAsync('{0}', {1})", uri.ToString(), uid);
-                });
-                var result = await http.PostAsJsonAsync(uri, uid);
-                await Task.Run(() =>
-                {
-                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
-                });
-
-                return ResponseMessage(result);
-            }
+            return await ProxyPostRequest(thisClassName, thisMethodName, uid, args);
         }
 
         /// <summary>
@@ -164,38 +100,12 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Put(string op = "", int aid = 0)
         {
-            string thisNamespace = nameof(AccessControlDouble);
             string thisClassName = nameof(SessionsController);
             string thisMethodName = nameof(Put);
 
-            using (HttpClient http = new HttpClient())
-            {
-                await Task.Run(() =>
-                {
-                    WriteLine("Called {0}.{1}.{2}('{3}', {4})", thisNamespace, thisClassName, thisMethodName, op, aid);
-                });
+            var args = new List<string> { op ?? "null", aid.ToString() };
 
-                // If the test wants to inject a custom status code, return that instead of the real value.
-                if (WebApiConfig.StatusCodeToReturn["PUT"].HasValue)
-                {
-                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["PUT"].Value));
-                }
-
-                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-                var uri = CreateUri();
-
-                await Task.Run(() =>
-                {
-                    WriteLine("Calling http.PutAsync('{0}', {1})", op, aid);
-                });
-                var result = await http.PutAsync(uri, Request.Content);
-                await Task.Run(() =>
-                {
-                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
-                });
-
-                return ResponseMessage(result);
-            }
+            return await ProxyPutRequest(thisClassName, thisMethodName, args);
         }
 
         /// <summary>
@@ -208,38 +118,10 @@ namespace AccessControlDouble.Controllers
         [ResponseType(typeof(HttpResponseMessage))]
         public async Task<IHttpActionResult> Delete()
         {
-            string thisNamespace = nameof(AccessControlDouble);
             string thisClassName = nameof(SessionsController);
             string thisMethodName = nameof(Delete);
 
-            using (HttpClient http = new HttpClient())
-            {
-                await Task.Run(() =>
-                {
-                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
-                });
-
-                // If the test wants to inject a custom status code, return that instead of the real value.
-                if (WebApiConfig.StatusCodeToReturn["DELETE"].HasValue)
-                {
-                    return ResponseMessage(Request.CreateResponse(WebApiConfig.StatusCodeToReturn["DELETE"].Value));
-                }
-
-                WebUtils.ConfigureHttpClient(http, Request, WebApiConfig.AccessControl);
-                var uri = CreateUri();
-
-                await Task.Run(() =>
-                {
-                    WriteLine("Calling http.DeleteAsync()");
-                });
-                var result = await http.DeleteAsync(uri);
-                await Task.Run(() =>
-                {
-                    WebUtils.LogRestResponse(WebApiConfig.LogFile, result);
-                });
-
-                return ResponseMessage(result);
-            }
+            return await ProxyDeleteRequest(thisClassName, thisMethodName);
         }
     }
 }

@@ -17,8 +17,9 @@ namespace AccessControlDoubleTests
     /// </summary>
     [TestFixture]
     [Category(Categories.AccessControlDouble)]
-    [Category(Categories.InjectsErrorsIntoAccessControl)]
     [Category(Categories.CannotRunInParallel)]
+    [Category(Categories.InjectsErrorsIntoAccessControl)]
+    [Category(Categories.UtilityTest)]
     public class ErrorInjectionTests
     {
         private readonly IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();

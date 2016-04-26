@@ -11,3 +11,5 @@ GO
 SET NOCOUNT ON;
 GO
 -- --------------------------------------------------
+
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CompatibilityLevel.sql" ) ) #>

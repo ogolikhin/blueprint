@@ -57,7 +57,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             logMock.Setup(
-                repo => repo.LogClientMessage(It.IsAny<string>(), logModel, It.IsAny<string>(), It.IsAny<string>()))
+                repo => repo.LogClientMessage(logModel, It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
             // Act
@@ -91,7 +91,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = null;
 
             logMock.Setup(
-                repo => repo.LogClientMessage(It.IsAny<string>(), logModel, It.IsAny<string>(), It.IsAny<string>()))
+                repo => repo.LogClientMessage(logModel, It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
             // Act
@@ -124,7 +124,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             logMock.Setup(
-                repo => repo.LogClientMessage(It.IsAny<string>(), logModel, It.IsAny<string>(), It.IsAny<string>()))
+                repo => repo.LogClientMessage(logModel, It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
             // Act

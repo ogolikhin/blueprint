@@ -13,15 +13,15 @@ export class Logger {
     public constructor($provide: ng.auto.IProvideService) {
         $provide.decorator("$log", ["$delegate", "serverLogger", Logger.logWrappers]);
         $provide.decorator("$exceptionHandler", ["$delegate", "$log", Logger.exceptionHandler]);
-       
+        
     }
-
+    
     private static logWrappers($delegate: ng.ILogService, logger: IServerLogger): ng.ILogService {
         (<any>$delegate).error = Logger.createLogMethodWrapper($delegate.error, Logger.errorLevel, logger);
-        (<any>$delegate).debug = Logger.createLogMethodWrapper($delegate.debug, Logger.debugLevel, logger);
-        (<any>$delegate).info = Logger.createLogMethodWrapper($delegate.info, Logger.infoLevel, logger);
+        //(<any>$delegate).debug = Logger.createLogMethodWrapper($delegate.debug, Logger.debugLevel, logger);
+        //(<any>$delegate).info = Logger.createLogMethodWrapper($delegate.info, Logger.infoLevel, logger);
         //(<any>$delegate).log = Logger.createLogMethodWrapper($delegate.log, "log");
-        (<any>$delegate).warn = Logger.createLogMethodWrapper($delegate.warn, Logger.warningLevel, logger);
+        //(<any>$delegate).warn = Logger.createLogMethodWrapper($delegate.warn, Logger.warningLevel, logger);
 
         return $delegate;
     }

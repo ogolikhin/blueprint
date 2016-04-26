@@ -280,6 +280,26 @@ namespace FileStoreTests
                 "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
         }
 
+        [TestCase, TestRail(98738), Description("Put a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
+        public void PutFileWithoutPostingFirst_Verify404Error()
+        {
+            const uint fileSize = 1;
+            const string fakeFileName = "1KB_File.txt";
+            const string postFileType = "text/plain";
+
+            // Setup: create a fake file with a random byte array.
+            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, postFileType);
+
+            // Assign a new default GUID instead of calling POST to get the GUID.
+            file.Id = (new Guid()).ToString();
+
+            // Execute & Verify: Put a file chunk to FileStore with invalid multipart-mime (i.e. the body doesn't contain multipart data).
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                _filestore.PutFile(file, file.Content.ToArray(), _user);
+            }, "FileStore should return a 404 Not Found error when we PUT a file that doesn't exist.");
+        }
+
         [TestCase((uint)1024, "1KB_File.txt", "")]
         public void PostWithNoContentTypeHeader_VerifyBadRequest(
                 uint fileSize,

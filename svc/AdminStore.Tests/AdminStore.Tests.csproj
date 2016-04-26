@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfigTests.cs" />
     <Compile Include="Controllers\LicensesControllerTests.cs" />
+    <Compile Include="Controllers\LogControllerTests.cs" />
     <Compile Include="Controllers\SessionsControllerTests.cs" />
     <Compile Include="Controllers\StatusControllerTests.cs" />
     <Compile Include="Controllers\ConfigControllerTests.cs" />

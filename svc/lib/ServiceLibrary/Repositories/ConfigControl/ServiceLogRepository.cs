@@ -191,7 +191,6 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// <summary>
         /// LogClientMessage (should only be called from admin log controller)
         /// </summary>
-        /// <param name="source">source</param>
         /// <param name="logEntry">message</param>
         /// <param name="sessionId">id of session (optional)</param>
         /// <param name="userName">user name (optional)</param>
@@ -200,7 +199,6 @@ namespace ServiceLibrary.Repositories.ConfigControl
         /// await servicelog.LogClientMessage("FileStore API", "Hello World");
         /// </example>
         public async Task<HttpResponseMessage> LogClientMessage(
-            string source,
             ClientLogModel logEntry,
             string sessionId,
             string userName)

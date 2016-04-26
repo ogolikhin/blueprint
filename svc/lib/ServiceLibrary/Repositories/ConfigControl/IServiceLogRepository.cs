@@ -17,7 +17,7 @@ namespace ServiceLibrary.Repositories.ConfigControl
         Task LogInformation(string source, string message, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0);
         Task LogVerbose(string source, string message, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0);
         Task LogWarning(string source, string message, [CallerMemberName] string methodName = "", [CallerFilePath] string filePath = "", [CallerLineNumber] int lineNumber = 0);
-        Task<HttpResponseMessage> LogClientMessage(string source, ClientLogModel message, string sessionId, string userName);
+        Task<HttpResponseMessage> LogClientMessage(ClientLogModel message, string sessionId, string userName);
         Task LogCLog(CLogModel logEntry);
         Task LogStandardLog(StandardLogModel logEntry);
         Task LogPerformanceLog(PerformanceLogModel logEntry);

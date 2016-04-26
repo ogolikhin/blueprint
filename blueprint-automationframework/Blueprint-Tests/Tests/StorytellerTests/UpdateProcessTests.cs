@@ -531,8 +531,8 @@ namespace StorytellerTests
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.UriToFile;
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.Guid;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString()].Value = deserialzedUploadResult.UriToFile;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString()].Value = deserialzedUploadResult.Guid;
 
             // Save the process with the updated properties
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -543,8 +543,8 @@ namespace StorytellerTests
             // Assert that the Default Precondition SystemTask contains value
             defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
-            var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
+            var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString()].Value.ToString();
+            var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString()].Value.ToString();
 
             Assert.That(updatedAssociatedImageUrl.Contains("/svc/components/RapidReview/diagram/image/"), "The updated associatedImageUri of The precondition contains {0}", updatedAssociatedImageUrl);
 

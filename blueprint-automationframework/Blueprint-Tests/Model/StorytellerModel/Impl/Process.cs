@@ -381,15 +381,17 @@ namespace Model.StorytellerModel.Impl
 
         public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = Shapes.Exists(shape => shape.PropertyValues.ContainsKey(clientType)) ? clientType : clientType.LowerCaseFirstCharacter();
 
             var shapesFound =
                 Shapes.FindAll(
-                    p =>
-                        Convert.ToInt32(p.PropertyValues[clientType].Value, CultureInfo.InvariantCulture) ==
-                        (int) processShapeType);
+                    shape =>
+                        Convert.ToInt32(shape.PropertyValues[clientType].Value, CultureInfo.InvariantCulture).
+                        Equals((int)processShapeType));
 
-            return shapesFound.ConvertAll(p => (IProcessShape) p);
+            return shapesFound.ConvertAll(o => (IProcessShape) o);
         }
 
         public ProcessLink GetIncomingLinkForShape(IProcessShape processShape)
@@ -1493,7 +1495,10 @@ namespace Model.StorytellerModel.Impl
 
         public bool IsTypeOf(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = PropertyValues.ContainsKey(clientType) ? clientType : clientType.LowerCaseFirstCharacter();
+
             return
                 Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
                     (int) processShapeType);

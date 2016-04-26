@@ -20,18 +20,18 @@ namespace Model.StorytellerModel
     /// </summary>
     public enum PropertyTypeName
     {
-        associatedImageUrl,
-        clientType,
-        description,
-        height,
-        imageId,
-        itemLabel,
-        label,
-        persona,
-        storyLinks,
-        width,
-        x,
-        y
+        AssociatedImageUrl,
+        ClientType,
+        Description,
+        Height,
+        ImageId,
+        ItemLabel,
+        Label,
+        Persona,
+        StoryLinks,
+        Width,
+        X,
+        Y
     }
 
     /// <summary>

@@ -90,6 +90,10 @@ export class BpAccordionCtrl implements IBpAccordionController {
         this.currentPanel = accordionPanelId;
     };
 
+    public getCurrentPanel = (): string => {
+        return this.currentPanel;
+    };
+
     public activateAnotherPinnedPanel = (accordionPanelId: string) => {
         // check if other panels are open, so we can re-assign the current panel
         var accordion = this.$element[0].firstChild;
@@ -100,20 +104,20 @@ export class BpAccordionCtrl implements IBpAccordionController {
             var firstPinnedPanel = otherPinnedPanels[0].parentNode;
             var trigger = firstPinnedPanel.querySelector("input[type=radio].bp-accordion-panel-state");
             trigger.checked = true;
-            this.currentPanel = firstPinnedPanel.id;
+            this.setCurrentPanel(firstPinnedPanel.id);
         }
     };
 
     public tryToToggle = (accordionPanelId: string) => {
         var accordion = this.$element[0].firstChild;
         var isPanelPinned = accordion.querySelectorAll("#" + accordionPanelId + " input[type=checkbox].bp-accordion-panel-pin:checked").length;
-        if (accordionPanelId !== this.currentPanel) {
+        if (accordionPanelId !== this.getCurrentPanel()) {
             // if the panel wasn't pinned and it wasn't the current one, it means it was previously closed
             if (isPanelPinned === 0 && this.openAtTheTop) {
                 var panel = accordion.querySelector("#" + accordionPanelId).parentNode;
                 accordion.insertBefore(panel, accordion.firstChild);
             }
-            this.currentPanel = accordionPanelId;
+            this.setCurrentPanel(accordionPanelId);
         } else {
             if (isPanelPinned === 0) {
                 this.activateAnotherPinnedPanel(accordionPanelId);
@@ -215,7 +219,6 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public accordionPanelHeadingHeight: number;
     public accordionPanelClass: string;
     public accordionPanelHasIcon: string;
-    public accordionPanelIsOpen: boolean;
 
     constructor(private localization: ILocalizationService, private $element) {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
@@ -242,7 +245,6 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         }
         // automatically set the first panel to be opened
         if (this.accordionGroup.getPanels().length === 0) {
-            this.accordionPanelIsOpen = true;
             this.accordionGroup.setCurrentPanel(this.accordionPanelId);
         }
         if (!!this.accordionPanelClass) {
@@ -258,6 +260,9 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         var pinner = panel.querySelector(".bp-accordion-panel-pin");
         var heading = panel.querySelector(".bp-accordion-panel-heading");
 
+        if(this.accordionGroup.getPanels().length === 0) {
+            trigger.setAttribute("checked", "checked");
+        }
         trigger.style.height = this.accordionPanelHeadingHeight + "px";
         heading.style.height = this.accordionPanelHeadingHeight + "px";
 

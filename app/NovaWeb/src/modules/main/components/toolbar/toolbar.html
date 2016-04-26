@@ -5,13 +5,15 @@
             <ul class="dropdown-menu">
                 <li><a href="#"  id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Project_Open"]}}</a></li>
                 <li class="dropdown-submenu">
-                    <a href="#" ng-click="$ctrl.showSubLevel($event)">Open recent</a>
+                    <a href="#" ng-click="$ctrl.showSubLevel($event)">Open recent projects</a>
                     <ul class="dropdown-menu">
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #1</a></li>
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #2</a></li>
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
                     </ul>
                 </li>
+                <li><a href="#" ng-click="$ctrl.openProject()">Close project</a></li>
+                <li><a href="#" ng-click="$ctrl.openProject()">Close all projects</a></li>
             </ul>
         </li>
         <li>

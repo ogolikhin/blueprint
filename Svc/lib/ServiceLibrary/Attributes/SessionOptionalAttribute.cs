@@ -8,11 +8,11 @@ using ServiceLibrary.Helpers;
 
 namespace ServiceLibrary.Attributes
 {
-    public class SessionRequiredAttribute : SessionAttribute
+    public class SessionOptionalAttribute : SessionAttribute
     {
-        public SessionRequiredAttribute() : this(new HttpClientProvider()) { }
+        public SessionOptionalAttribute() : this(new HttpClientProvider()) { }
 
-        internal SessionRequiredAttribute(IHttpClientProvider httpClientProvider):base(httpClientProvider) { }
+        internal SessionOptionalAttribute(IHttpClientProvider httpClientProvider):base(httpClientProvider) { }
 
         public override async Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
@@ -27,13 +27,9 @@ namespace ServiceLibrary.Attributes
             }
             catch (ArgumentNullException)
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.BadRequest,
-                    BadRequestMessage);
             }
             catch (HttpRequestException)
             {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized,
-                    UnauthorizedMessage);
             }
             catch
             {

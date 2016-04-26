@@ -8,6 +8,7 @@ using ServiceLibrary.LocalLog;
 using ServiceLibrary.Models;
 using System;
 using System.Configuration;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -184,6 +185,59 @@ namespace ServiceLibrary.Repositories.ConfigControl
             catch (Exception ex)
             {
                 _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// LogClientMessage (should only be called from admin log controller)
+        /// </summary>
+        /// <param name="logEntry">message</param>
+        /// <param name="sessionId">id of session (optional)</param>
+        /// <param name="userName">user name (optional)</param>
+        /// <example>
+        /// var servicelog = new ServiceLogRepository();
+        /// await servicelog.LogClientMessage("FileStore API", "Hello World");
+        /// </example>
+        public async Task<HttpResponseMessage> LogClientMessage(
+            ClientLogModel logEntry,
+            string sessionId,
+            string userName)
+        {
+            try
+            {
+                var uri = ConfigurationManager.AppSettings["ConfigControl"];
+                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
+                var http = _httpClientProvider.Create(new Uri(uri));
+
+                //create the log entry
+                ServiceLogModel serviceLog = new ServiceLogModel
+                {
+                    Source = logEntry.Source,
+                    LogLevel = (LogLevelEnum)logEntry.LogLevel,
+                    Message = logEntry.Message,
+                    OccurredAt = DateTime.Now,
+                    SessionId = sessionId,
+                    UserName = userName,
+                    MethodName = "",
+                    FilePath = "",
+                    LineNumber = 0,
+                    StackTrace = logEntry.StackTrace
+                };
+
+                // Convert Object to JSON
+                var requestMessage = JsonConvert.SerializeObject(serviceLog);
+                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await http.PostAsync("log", content);
+
+                response.EnsureSuccessStatusCode();
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }
 

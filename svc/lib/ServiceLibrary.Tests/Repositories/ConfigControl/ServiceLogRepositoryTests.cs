@@ -194,5 +194,27 @@ namespace ServiceLibrary.Repositories.ConfigControl
             // Doesn't return anything
         }
 
+        [TestMethod]
+        public async Task LogClientMessage_Success()
+        {
+            // Arrange
+            var httpClientProvider = new TestHttpClientProvider(request => new HttpResponseMessage(HttpStatusCode.OK));
+            var localLog = new Mock<ILocalLog>().Object;
+            var servicelog = new ServiceLogRepository(httpClientProvider, localLog);
+            ClientLogModel logModel = new ClientLogModel
+            {
+                LogLevel = 2,
+                Message = "test",
+                Source = "testClass",
+                StackTrace = ""
+            };
+
+            // Act
+            var result = await servicelog.LogClientMessage(logModel, "admin", "1dfg342d");
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        }
+
     }
 }

@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(13, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(14, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
@@ -38,6 +38,7 @@ namespace AdminStore
             config.AssertAction<InstanceController>("GetInstanceFolderChildren", HttpMethod.Get, "instance/folders/1/children");
             config.AssertAction<InstanceController>("GetInstanceProject", HttpMethod.Get, "instance/projects/1");
             config.AssertAction<UsersController>("PostReset", HttpMethod.Post, "users/reset?login=admin");
+            config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
         }
 
         [TestMethod]
@@ -66,8 +67,8 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertMethodAttributes(attr => attr.Any(a => a is SessionRequiredAttribute || a is NoSessionRequiredAttribute),
-                "{0} is missing SessionRequiredAttribute or NoSessionRequiredAttribute.");
+            config.AssertMethodAttributes(attr => attr.Any(a => a is SessionRequiredAttribute || a is NoSessionRequiredAttribute || a is SessionOptionalAttribute),
+                "{0} is missing SessionRequiredAttribute, SessionRequiredAttribute or NoSessionRequiredAttribute.");
         }
     }
 }

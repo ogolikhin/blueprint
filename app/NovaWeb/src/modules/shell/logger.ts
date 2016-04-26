@@ -1,19 +1,27 @@
 ﻿import "angular";
+import {IServerLogger} from "./server-logger.svc";
 
 export class Logger {
+    private static infoLevel: number = 0;
+    private static warningLevel: number = 1;
+    private static errorLevel: number = 2;    
+    private static debugLevel: number = 3;
+    //private static criticalLevel: number = 4; //unused
+
     public static $inject: [string] = ["$provide"];
 
     public constructor($provide: ng.auto.IProvideService) {
-        $provide.decorator("$log", ["$delegate", Logger.logWrappers]);
+        $provide.decorator("$log", ["$delegate", "serverLogger", Logger.logWrappers]);
         $provide.decorator("$exceptionHandler", ["$delegate", "$log", Logger.exceptionHandler]);
+        
     }
-
-    private static logWrappers($delegate: ng.ILogService): ng.ILogService {
-        (<any>$delegate).error = Logger.createLogMethodWrapper($delegate.error, "error");
-        //(<any>$delegate).debug = Logger.createLogMethodWrapper($delegate.debug, "debug");
-        //(<any>$delegate).info = Logger.createLogMethodWrapper($delegate.info, "info");
+    
+    private static logWrappers($delegate: ng.ILogService, logger: IServerLogger): ng.ILogService {
+        (<any>$delegate).error = Logger.createLogMethodWrapper($delegate.error, Logger.errorLevel, logger);
+        //(<any>$delegate).debug = Logger.createLogMethodWrapper($delegate.debug, Logger.debugLevel, logger);
+        //(<any>$delegate).info = Logger.createLogMethodWrapper($delegate.info, Logger.infoLevel, logger);
         //(<any>$delegate).log = Logger.createLogMethodWrapper($delegate.log, "log");
-        //(<any>$delegate).warn = Logger.createLogMethodWrapper($delegate.warn, "warn");
+        //(<any>$delegate).warn = Logger.createLogMethodWrapper($delegate.warn, Logger.warningLevel, logger);
 
         return $delegate;
     }
@@ -21,21 +29,25 @@ export class Logger {
     private static exceptionHandler($delegate: ng.IExceptionHandlerService, $log: ng.ILogService) {
         return (exception: Error, cause?: string) => {
             //$delegate(exception, cause);
-            $log.error(`Exception: ${exception.name} Message: ${exception.message} Cause: ${cause}`);
+            $log.error(exception);
         };
     }
 
-    private static createLogMethodWrapper(logCall: Function, name: string): Function {
+    private static createLogMethodWrapper(logCall: Function, level: number, serverLogger: IServerLogger): Function {
         return (...args: any[]): void => {
-            const now = new Date().toISOString();
-
-            // Prepend timestamp
-            args[0] = `${name}: ${now} - ${args[0]}`;
-
-            // Call the original with the output prepended with formatted timestamp
-            logCall.apply(null, args);
-
-            // TODO: post message to the server /svc/adminstore/log/js
+            if (args[0]) {
+                //if we have something to log
+                //post message to the server /svc/adminstore/log/js
+                if (args[0].message) {
+                    serverLogger.log(args[0], level);
+                } else {
+                    serverLogger.log({ message: args[0] }, level);
+                }
+                // Call the original with the output prepended with formatted timestamp
+                logCall.apply(null, args);
+            //} else {
+                //nothing to log       
+            }
         };
     }
 }

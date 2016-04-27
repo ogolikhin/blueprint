@@ -52,9 +52,13 @@ $right-sidebar-border: #dde1e2;
 $utility-panel-heading-height: 31px;
 $utility-panel-border-color: $right-sidebar-border;
 
+//project tree/picker
+$aggrid-row-height: 20px;
+
 //project picker
-$project-picker-tree: 380px;
-$project-picker-data: 350px;
+$project-picker-tree-width: 380px;
+$project-picker-tree-height: 244px;
+$project-picker-data-width: 350px;
 
 //other
 $border-radius-amount: 4px;

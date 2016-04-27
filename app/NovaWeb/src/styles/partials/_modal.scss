@@ -65,8 +65,8 @@
 
 .modal.in.nova-open-project {
   .modal-dialog {
-    max-width: calc(8px + 30px + #{$project-picker-tree} + 15px + #{$project-picker-data} + 30px + 8px);
-    width: calc(8px + 30px + #{$project-picker-tree} + 15px + #{$project-picker-data} + 30px + 8px);
+    max-width: calc(8px + 30px + #{$project-picker-tree-width} + 15px + #{$project-picker-data-width} + 30px + 8px);
+    width: calc(8px + 30px + #{$project-picker-tree-width} + 15px + #{$project-picker-data-width} + 30px + 8px);
   }
 
   .modal-header {
@@ -90,17 +90,17 @@
       box-sizing: border-box;
       display: block;
       float: left;
-      height: 244px;
+      height: $project-picker-tree-height;
       margin: 0 15px 0 0;
       padding-left: 10px;
-      width: $project-picker-tree;
+      width: $project-picker-tree-width;
     }
 
     .project-data {
       display: block;
       float: left;
       font-size: 13px;
-      width: $project-picker-data;
+      width: $project-picker-data-width;
 
       .project-name {
         @include text-ellipsis-flex-width(999px);

@@ -1,8 +1,9 @@
 ﻿.project-tree {
+  $padding-top: 5px;
+
   .ag-grid {
     font-size: $font-size-smallest;
     height: 100%;
-    width: calc(#{$project-picker-tree} - 10px - 2px);
 
     #agFilter {
       display: none;
@@ -11,6 +12,105 @@
     #agHeaderCellLabel {
       color: $brand-secondary;
       font-weight: 600;
+    }
+
+    #borderLayout_eGridPanel {
+      overflow: hidden !important;
+      overflow-y: auto !important;
+      padding-right: 1px;
+      padding-top: $padding-top;
+    }
+
+    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
+      font-size: $font-size-root;
+      margin-left: 5px;
+      margin-right: 7px;
+    }
+
+    .ag-header-row {
+      height: $aggrid-row-height;
+    }
+
+    .ag-cell {
+      height: $aggrid-row-height;
+      padding-right: 1px;
+      white-space: nowrap;
+
+      > span {
+        //display: block;
+        height: $aggrid-row-height;
+        line-height: $aggrid-row-height;
+
+        > span {
+          padding-right: 10px;
+        }
+
+        > span.ag-group-expanded,
+        > span.ag-group-contracted {
+          padding-right: 0;
+        }
+
+        > span.ag-group-checkbox {
+          display: none;
+        }
+      }
+
+      i {
+        color: $brand-secondary;
+      }
+    }
+
+    .ag-row-group {
+      padding-left: 5px;
+
+      &.ag-row-level-0 {
+        padding-left: 0;
+      }
+    }
+
+    .ag-cell-range-selected {
+      outline: none;
+
+      > span {
+        outline: none;
+
+        > span {
+          background: $brand-secondary;
+          color: $white;
+          outline: none;
+        }
+      }
+
+      i {
+        color: $white;
+      }
+    }
+
+    .ag-overlay-loading-wrapper {
+      background: $white;
+      padding-bottom: $aggrid-row-height;
+      padding-top: 5px;
+    }
+
+    .ag-body-container {
+      height: $project-picker-tree-height - 2px - $aggrid-row-height - $padding-top - 17px !important;
+      //2px is for the project picker border
+      //17px ??
+    }
+  }
+}
+
+.project-explorer {
+  border-right: solid 5px $brand-secondary;
+  height: 100%;
+
+  .ag-grid {
+    font-size: $font-size-smallest;
+    height: 100%;
+//    width: calc(#{$project-picker-tree} - 10px - 2px);
+
+    .ag-header {
+      display: none;
     }
 
     #borderLayout_eGridPanel {
@@ -25,12 +125,8 @@
       margin-right: 7px;
     }
 
-    .ag-header-row {
-      height: 20px;
-    }
-
     .ag-cell {
-      @include text-ellipsis-flex-width($project-picker-tree - 20px);
+      @include text-ellipsis-flex-width($project-picker-tree-width - $aggrid-row-height);
       padding-right: 10px;
 
       i {
@@ -47,9 +143,23 @@
     }
 
     .ag-cell-range-selected {
-      background: $brand-secondary;
-      color: $white;
       outline: none;
+
+      > span {
+        display: block;
+        outline: none;
+
+        > span {
+          background: $brand-secondary;
+          color: $white;
+          display: block;
+          outline: none;
+        }
+
+        > span.ag-group-expand {
+          float: left;
+        }
+      }
 
       i {
         color: $white;
@@ -58,7 +168,7 @@
 
     .ag-overlay-loading-wrapper {
       background: $white;
-      padding-bottom: 20px;
+      padding-bottom: $aggrid-row-height;
       padding-top: 5px;
     }
   }

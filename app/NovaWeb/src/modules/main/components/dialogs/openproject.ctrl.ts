@@ -44,20 +44,20 @@ export class OpenProjectController extends BaseDialogController {
     private columnDefinitions = [{
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
-        cellRenderer: {
-            renderer: "group",
+        cellRenderer: "group",
+        cellRendererParams: {
             innerRenderer: (params) => {
                 if (params.data.Type === "Project") {
-                    return "<i class='fonticon-project'></i>" + params.data.Name;
+                    return "<i class='fonticon-project'></i><span title='" + params.data.Name + "'>" + params.data.Name + "</span>";
                 } else {
-                    return params.data.Name;
+                    return "<span title='" + params.data.Name + "'>" + params.data.Name + "</span>";
                 }
-            },
+            }
         },
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering : true
-        }];
+    }];
 
     private rowClicked = (params: any) => {
         var self = this;
@@ -104,6 +104,10 @@ export class OpenProjectController extends BaseDialogController {
             }, (error) => {
                 self.showError(error);
             });
+        var bodyContainer = window.document.body.querySelector(".modal-dialog .project-tree .ag-body-container");
+        bodyContainer.addEventListener("mousedown", function() {
+            //console.log("here");
+        });
     };
 
     public gridOptions: Grid.GridOptions = {
@@ -113,7 +117,7 @@ export class OpenProjectController extends BaseDialogController {
             groupExpanded: "<i class='fonticon-folder-open' />",
             groupContracted: "<i class='fonticon-folder' />"
         },
-        suppressHorizontalScroll: true,
+        //suppressHorizontalScroll: true,
         suppressContextMenu: true,
         rowBuffer: 200,
         rowHeight: 20,

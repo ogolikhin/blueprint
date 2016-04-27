@@ -41,17 +41,8 @@
         height: $aggrid-row-height;
         line-height: $aggrid-row-height;
 
-        > span {
+        > span.ag-group-value {
           padding-right: 10px;
-        }
-
-        > span.ag-group-expanded,
-        > span.ag-group-contracted {
-          padding-right: 0;
-        }
-
-        > span.ag-group-checkbox {
-          display: none;
         }
       }
 
@@ -93,7 +84,7 @@
     }
 
     .ag-body-container {
-      height: $project-picker-tree-height - 2px - $aggrid-row-height - $padding-top - 17px !important;
+      //height: $project-picker-tree-height - 2px - $aggrid-row-height - $padding-top - 17px !important;
       //2px is for the project picker border
       //17px ??
     }

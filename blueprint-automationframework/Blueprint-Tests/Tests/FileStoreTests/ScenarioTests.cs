@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -81,14 +83,45 @@ namespace FileStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
 
-            // Now delete the file.
+            // Execute: Now delete the file.
             _filestore.DeleteFile(storedFile.Id, _user);
+            
+            const int SLEEP_MS = 50;
 
-            // Verify the file was deleted.
-            Assert.Throws<Http404NotFoundException>(() =>
+            // We believe there may be a timing issue where you can still get the file for a very small time after we delete it (milliseconds),
+            // so we're trying to get it several times and sleeping in between retries.
+            for (int attempt = 0; attempt < 5; ++attempt)
             {
-                _filestore.GetFile(storedFile.Id, _user);
-            }, "The file still exists after it was deleted!");
+                returnedFile = null;
+
+                Exception ex = ExceptionHelper.Catch(() =>
+                {
+                    returnedFile = _filestore.GetFile(storedFile.Id, _user);
+                });
+
+                if (ex == null)
+                {
+                    // We found the file after it was deleted.  Sleep and try again in case it's a SQL timing issue.
+                    if (attempt < 3)
+                    {
+                        Logger.WriteWarning(
+                            "The file was found after deleting it.  Sleeping for {0}ms before trying to get the file again...", SLEEP_MS);
+                        Thread.Sleep(SLEEP_MS);
+                    }
+                }
+                else if (ex is Http404NotFoundException)
+                {
+                    // This is the exception we expect to get.
+                    break;
+                }
+                else
+                {
+                    Assert.Fail("When getting a file that was deleted we should get a 404 error, but instead we got: {0}\n{1}",
+                        ex.Message, ex.StackTrace);
+                }
+            }
+
+            Assert.Null(returnedFile, "The '{0}' file was found after we deleted it!", file.FileName);
         }
     }
 }

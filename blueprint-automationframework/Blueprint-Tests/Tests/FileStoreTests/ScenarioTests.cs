@@ -87,10 +87,11 @@ namespace FileStoreTests
             _filestore.DeleteFile(storedFile.Id, _user);
             
             const int SLEEP_MS = 50;
+            const int MAX_ATTEMPTS = 5;
 
             // We believe there may be a timing issue where you can still get the file for a very small time after we delete it (milliseconds),
             // so we're trying to get it several times and sleeping in between retries.
-            for (int attempt = 0; attempt < 5; ++attempt)
+            for (int attempt = 0; attempt < MAX_ATTEMPTS; ++attempt)
             {
                 returnedFile = null;
 
@@ -102,7 +103,7 @@ namespace FileStoreTests
                 if (ex == null)
                 {
                     // We found the file after it was deleted.  Sleep and try again in case it's a SQL timing issue.
-                    if (attempt < 3)
+                    if (attempt < MAX_ATTEMPTS)
                     {
                         Logger.WriteWarning(
                             "The file was found after deleting it.  Sleeping for {0}ms before trying to get the file again...", SLEEP_MS);

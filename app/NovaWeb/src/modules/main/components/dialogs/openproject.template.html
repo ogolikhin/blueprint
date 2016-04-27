@@ -4,8 +4,8 @@
 <div class="modal-body">
     <div class="project-tree"><div ag-grid="ctrl.gridOptions" class="ag-grid"></div></div>
     <div class="project-data">
-        <div class="project-name">{{ctrl.selectedItem.Name}}</div>
-        <div>{{::$root.config.labels["App_Project_Description"]}}</div>
+        <div ng-if="ctrl.selectedItem.Name" class="project-name">{{ctrl.selectedItem.Name}}</div>
+        <div ng-if="ctrl.selectedItem.Description">{{::$root.config.labels["App_Project_Description"]}}</div>
         <div class="project-description" ng-bind-html="ctrl.selectedItem.Description"></div>
     </div>
 

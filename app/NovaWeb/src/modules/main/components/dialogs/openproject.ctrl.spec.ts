@@ -61,7 +61,6 @@ describe("Open Project.", () => {
             expect(options.columnDefs[0].field).toBeDefined();
             expect(options.columnDefs[0].headerName).toBe("App_Header_Name");
             expect(options.columnDefs[0].cellRenderer).toBeDefined();
-            expect(options.columnDefs[0].cellRenderer.renderer).toBe("group");
             expect(options.getNodeChildDetails).toEqual(jasmine.any(Function));
             expect(options.onRowClicked).toEqual(jasmine.any(Function));
             expect(options.onGridReady).toEqual(jasmine.any(Function));

@@ -62,18 +62,17 @@ export class OpenProjectController extends BaseDialogController {
     private rowClicked = (params: any) => {
         var self = this;
         var node = params.node;
-        if (node.data.Children && !node.data.Children.length) {
+        if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
             if (node.expanded) {
-                if (node.allChildrenCount === 0) {
-                    self.service.getFolders(node.data.Id)
-                        .then((data: pSvc.IProjectNode[]) => {
-                            node.data.Children = data;
-                            node.open = true;
-                            self.gridOptions.api.setRowData(self.rowData);
-                        }, (error) => {
-                            self.showError(error);
-                        });
-                }
+                self.service.getFolders(node.data.Id)
+                    .then((data: pSvc.IProjectNode[]) => {
+                        node.data.Children = data;
+                        node.data.open = true;
+                        node.data.alreadyLoadedFromServer = true;
+                        self.gridOptions.api.setRowData(self.rowData);
+                    }, (error) => {
+                        self.showError(error);
+                    });
             }
         }
         node.data.open = node.expanded;

@@ -34,6 +34,10 @@
       }
     }
 
+    .ag-body {
+      padding-top: $aggrid-row-height;
+    }
+
     .ag-cell {
       height: $aggrid-row-height;
       line-height: $aggrid-row-height;

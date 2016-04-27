@@ -11,7 +11,6 @@ export interface IOpenProjectResult {
 }
 
 export class OpenProjectController extends BaseDialogController {
-
     public hasCloseButton: boolean = true;
     private rowData: any = null;
     private selectedItem: any;
@@ -106,12 +105,6 @@ export class OpenProjectController extends BaseDialogController {
             });
     };
 
-    private onRowGroupOpened = (params: any) => {
-        var self = this;
-        console.log(self);
-        console.log(params);
-    };
-
     public gridOptions: Grid.GridOptions = {
         columnDefs: this.columnDefinitions,
         headerHeight: 20,
@@ -127,7 +120,6 @@ export class OpenProjectController extends BaseDialogController {
         onRowClicked: this.rowClicked,
         onRowDoubleClicked: this.rowClicked,
         onGridReady: this.onGidReady,
-        onRowGroupOpened: this.onRowGroupOpened,
         showToolPanel: false
     };
 }

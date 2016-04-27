@@ -81,14 +81,21 @@ namespace FileStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
 
-            // Now delete the file.
+            // Execute: Now delete the file.
             _filestore.DeleteFile(storedFile.Id, _user);
 
-            // Verify the file was deleted.
-            Assert.Throws<Http404NotFoundException>(() =>
+            const int maxAttempts = 5;
+            const int sleepMs = 50;
+
+            // We believe there may be a timing issue where you can still get the file for a very small time after we delete it (milliseconds),
+            // so we're trying to get it several times and sleeping in between retries.
+            ExceptionHelper.RetryIfExceptionNotThrown<Http404NotFoundException>(() =>
             {
-                _filestore.GetFile(storedFile.Id, _user);
-            }, "The file still exists after it was deleted!");
+                returnedFile = null;
+                returnedFile = _filestore.GetFile(storedFile.Id, _user);
+            }, maxAttempts, sleepMs, "The '{0}' file was found after we deleted it!", file.FileName);
+
+            Assert.Null(returnedFile, "The '{0}' file was found after we deleted it!", file.FileName);
         }
     }
 }

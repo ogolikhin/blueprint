@@ -61,7 +61,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
     public accordionOpenTop: any;
     public accordionPanels = [];
 
-    private defaultHeadingHeight: number = 40; // default heading height for all the accordion panels
+    private defaultHeadingHeight: number = 31; // default heading height for all the accordion panels
     private currentPanel: string;
     private openAtTheTop: boolean;
 

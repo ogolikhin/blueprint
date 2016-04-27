@@ -24,10 +24,11 @@ function Invoke-MsBuild {
         [string]$runCodeAnalysis = "false",
         [string]$visualStudioVersion = "12.0",
         [string]$trailingArguments = "",
-        [bool]$ignoreErrorCode = $false
+        [bool]$ignoreErrorCode = $false,
+        [bool]$deployOnBuild = $false
     )
     
-    $expression = "& '$msBuildPath' /p:RunCodeAnalysis=$runCodeAnalysis /v:$verbosity /p:visualStudioVersion=$visualStudioVersion /p:Configuration=$configuration /p:TeamBuildOutDir=$teamBuildOutDir /p:SkipInvalidConfigurations=true /p:DeployOnBuild=False $trailingArguments $project"
+    $expression = "& '$msBuildPath' /p:RunCodeAnalysis=$runCodeAnalysis /v:$verbosity /p:visualStudioVersion=$visualStudioVersion /p:Configuration=$configuration /p:TeamBuildOutDir=$teamBuildOutDir /p:SkipInvalidConfigurations=true /p:DeployOnBuild=$deployOnBuild $trailingArguments $project"
     
     Write-JenkinsConsole "Invoking msbuild on $project" -ForegroundColor Cyan
     Write-JenkinsConsole "Expression: $expression"

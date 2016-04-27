@@ -16,14 +16,15 @@ export class OpenProjectController extends BaseDialogController {
     private rowData: any = null;
     private selectedItem: any;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params" ];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogSettings) {
+        params: IDialogSettings
+    ) {
         super($uibModalInstance, params);
     };
 
@@ -105,6 +106,12 @@ export class OpenProjectController extends BaseDialogController {
             });
     };
 
+    private onRowGroupOpened = (params: any) => {
+        var self = this;
+        console.log(self);
+        console.log(params);
+    };
+
     public gridOptions: Grid.GridOptions = {
         columnDefs: this.columnDefinitions,
         headerHeight: 20,
@@ -120,6 +127,7 @@ export class OpenProjectController extends BaseDialogController {
         onRowClicked: this.rowClicked,
         onRowDoubleClicked: this.rowClicked,
         onGridReady: this.onGidReady,
+        onRowGroupOpened: this.onRowGroupOpened,
         showToolPanel: false
     };
 }

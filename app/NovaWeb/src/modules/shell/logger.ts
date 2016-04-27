@@ -13,7 +13,7 @@ export class Logger {
     public constructor($provide: ng.auto.IProvideService) {
         $provide.decorator("$log", ["$delegate", "serverLogger", Logger.logWrappers]);
         $provide.decorator("$exceptionHandler", ["$delegate", "$log", Logger.exceptionHandler]);
-        
+        $provide.decorator("$window", ["$delegate", "serverLogger", Logger.windowExceptionHandler]);
     }
     
     private static logWrappers($delegate: ng.ILogService, logger: IServerLogger): ng.ILogService {
@@ -26,11 +26,15 @@ export class Logger {
         return $delegate;
     }
 
+    private static windowExceptionHandler($delegate: ng.IWindowService, logger: IServerLogger) {
+        (<any>$delegate).onerror = Logger.createLogMethodWrapper($delegate.onerror, Logger.errorLevel, logger);
+        return $delegate;
+    }
+
     private static exceptionHandler($delegate: ng.IExceptionHandlerService, $log: ng.ILogService) {
         return (exception: Error, cause?: string) => {
-            //$delegate(exception, cause);
             $log.error(exception);
-        };
+        }; 
     }
 
     private static createLogMethodWrapper(logCall: Function, level: number, serverLogger: IServerLogger): Function {
@@ -44,7 +48,9 @@ export class Logger {
                     serverLogger.log({ message: args[0] }, level);
                 }
                 // Call the original with the output prepended with formatted timestamp
-                logCall.apply(null, args);
+                if (logCall) {
+                    logCall.apply(null, args);
+                }
             //} else {
                 //nothing to log       
             }

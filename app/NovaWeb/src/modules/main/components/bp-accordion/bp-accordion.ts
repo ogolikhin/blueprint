@@ -260,7 +260,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         var pinner = panel.querySelector(".bp-accordion-panel-pin");
         var heading = panel.querySelector(".bp-accordion-panel-heading");
 
-        if(this.accordionGroup.getPanels().length === 0) {
+        if (this.accordionGroup.getPanels().length === 0) {
             trigger.setAttribute("checked", "checked");
         }
         trigger.style.height = this.accordionPanelHeadingHeight + "px";

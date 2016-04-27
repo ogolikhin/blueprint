@@ -48,9 +48,9 @@ export class OpenProjectController extends BaseDialogController {
         cellRendererParams: {
             innerRenderer: (params) => {
                 if (params.data.Type === "Project") {
-                    return "<i class='fonticon-project'></i><span title='" + params.data.Name + "'>" + params.data.Name + "</span>";
+                    return "<i class='fonticon-project'></i>" + params.data.Name;
                 } else {
-                    return "<span title='" + params.data.Name + "'>" + params.data.Name + "</span>";
+                    return params.data.Name;
                 }
             }
         },
@@ -95,18 +95,14 @@ export class OpenProjectController extends BaseDialogController {
 
     private onGidReady = (params: any) => {
         var self = this;
-        params.api.setHeaderHeight(10);
         params.api.sizeColumnsToFit();
+        params.columnApi.autoSizeColumns(["Name"]);
         self.service.getFolders()
             .then((data: pSvc.IProjectNode[]) => {
                 self.gridOptions.api.setRowData(self.rowData = data);
             }, (error) => {
                 self.showError(error);
             });
-        var bodyContainer = window.document.body.querySelector(".modal-dialog .project-tree .ag-body-container");
-        bodyContainer.addEventListener("mousedown", function() {
-            //console.log("here");
-        });
     };
 
     public gridOptions: Grid.GridOptions = {
@@ -116,18 +112,14 @@ export class OpenProjectController extends BaseDialogController {
             groupExpanded: "<i class='fonticon-folder-open' />",
             groupContracted: "<i class='fonticon-folder' />"
         },
-        //suppressHorizontalScroll: true,
         suppressContextMenu: true,
         rowBuffer: 200,
         rowHeight: 20,
         enableColResize: true,
         getNodeChildDetails: this.getNodeChildDetails,
         onRowClicked: this.rowClicked,
+        onRowDoubleClicked: this.rowClicked,
         onGridReady: this.onGidReady,
         showToolPanel: false
     };
-
 }
-
-
-

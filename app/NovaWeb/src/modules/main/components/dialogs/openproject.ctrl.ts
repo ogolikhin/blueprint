@@ -11,7 +11,6 @@ export interface IOpenProjectResult {
 }
 
 export class OpenProjectController extends BaseDialogController {
-
     public hasCloseButton: boolean = true;
     private rowData: any = null;
     private selectedItem: any;

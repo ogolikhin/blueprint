@@ -15,7 +15,7 @@ namespace Helper
         /// <returns>The exception that was caught, or null if no exception was thrown.</returns>
         /// <exception cref="ArgumentNullException">If a null delegate was passed.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")] // We want to catch ALL exceptions!
-        public static Exception Catch(TestDelegate code)
+        public static Exception Catch(Action code)
         {
             ThrowIf.ArgumentNull(code, nameof(code));
 
@@ -40,7 +40,7 @@ namespace Helper
         /// <param name="sleepMs">The number of milliseconds to sleep in between retries.</param>
         /// <param name="message">The assert message to use if the expected exception isn't thrown after all the retries.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter")]    // Ignore this warning.
-        public static void RetryIfExceptionNotThrown<T>(TestDelegate code, int maxAttempts, int sleepMs, string message) where T : Exception
+        public static void RetryIfExceptionNotThrown<T>(Action code, int maxAttempts, int sleepMs, string message) where T : Exception
         {
             ThrowIf.ArgumentNull(code, nameof(code));
 
@@ -84,7 +84,7 @@ namespace Helper
         /// <param name="format">The format string for the assert message to use if the expected exception isn't thrown after all the retries.</param>
         /// <param name="args">The arguments for the format string.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter")]    // Ignore this warning.
-        public static void RetryIfExceptionNotThrown<T>(TestDelegate code, int maxAttempts, int sleepMs, string format, params Object[] args) where T : Exception
+        public static void RetryIfExceptionNotThrown<T>(Action code, int maxAttempts, int sleepMs, string format, params Object[] args) where T : Exception
         {
             string message = I18NHelper.FormatInvariant(format, args);
             RetryIfExceptionNotThrown<T>(code, maxAttempts, sleepMs, message);

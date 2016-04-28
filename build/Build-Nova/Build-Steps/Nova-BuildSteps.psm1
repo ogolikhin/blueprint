@@ -91,12 +91,12 @@ function Run-Nova-Unit-Tests{
 
 
     Write-Section "Running tests"
-    $vstestArgs =   "`"$workspace\lib\ServiceLibrary.Tests\bin\Release\ServiceLibrary.Tests.dll`" " + 
-                    "`"$workspace\AccessControl.Tests\bin\Release\AccessControl.Tests.dll`" " +
-                    "`"$workspace\AdminStore.Tests\bin\Release\AdminStore.Tests.dll`" " +
-                    "`"$workspace\ArtifactStore.Tests\bin\Release\ArtifactStore.Tests.dll`" " + 
-                    "`"$workspace\ConfigControl.Tests\bin\Release\ConfigControl.Tests.dll`" " +
-                    "`"$workspace\FileStore.Tests\bin\Release\FileStore.Tests.dll`" " +
+    $vstestArgs =   "`"$workspace\svc\lib\ServiceLibrary.Tests\bin\Release\ServiceLibrary.Tests.dll`" " + 
+                    "`"$workspace\svc\AccessControl.Tests\bin\Release\AccessControl.Tests.dll`" " +
+                    "`"$workspace\svc\AdminStore.Tests\bin\Release\AdminStore.Tests.dll`" " +
+                    "`"$workspace\svc\ArtifactStore.Tests\bin\Release\ArtifactStore.Tests.dll`" " + 
+                    "`"$workspace\svc\ConfigControl.Tests\bin\Release\ConfigControl.Tests.dll`" " +
+                    "`"$workspace\svc\FileStore.Tests\bin\Release\FileStore.Tests.dll`" " +
                     "/Settings:`"$workspace\svc\CodeCoverage.runsettings`" /Enablecodecoverage /UseVsixExtensions:false /Logger:trx"
     Invoke-MyExpression "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" $vstestArgs
 }

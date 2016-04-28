@@ -49,24 +49,25 @@ namespace FileStore.Helpers
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
-                return;
-
-            if (disposing)
+            if (!disposed)
             {
-                // Free any other managed objects here.
-                //
-                if (MultipartPartParser != null)
+                if (disposing)
                 {
-                    MultipartPartParser.Dispose();
+                    // Free any other managed objects here.
+                    //
+                    if (MultipartPartParser != null)
+                    {
+                        MultipartPartParser.Dispose();
+                    }
                 }
-            }
 
-            // Free any unmanaged objects here.
-            //
-            disposed = true;
+                // Free any unmanaged objects here.
+                //
+                disposed = true;
+            }
         }
         #endregion Dispose Methods
     }

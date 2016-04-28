@@ -298,6 +298,8 @@ namespace FileStore.Controllers
 
         private async Task<UploadResult> PostMultipartRequest(Stream stream, DateTime? expired)
         {
+            UploadResult result = null;
+
             using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile, _log))
             {
                 try
@@ -305,7 +307,7 @@ namespace FileStore.Controllers
                     await postReader.ReadAndExecuteRequestAsync();
                     var fileId = postReader.GetFileId();
 
-                    return new UploadResult
+                    result = new UploadResult
                     {
                         FileId = fileId,
                         Status = fileId.HasValue ? HttpStatusCode.Created : HttpStatusCode.BadRequest
@@ -319,14 +321,15 @@ namespace FileStore.Controllers
                     {
                         await DeleteFile(Models.File.ConvertFileId(guid.Value));
                     }
-                    return new UploadResult
+                    result = new UploadResult
                     {
                         FileId = null,
                         Status = HttpStatusCode.BadRequest
                     };
                 }
-
             }
+
+            return result;
         }
 
         private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)

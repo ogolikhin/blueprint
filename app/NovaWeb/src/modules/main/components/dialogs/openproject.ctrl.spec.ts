@@ -57,12 +57,13 @@ describe("Open Project.", () => {
             expect(options).toBeDefined();
             expect(options.columnDefs).toBeDefined();
             expect(options.columnDefs).toEqual(jasmine.any(Array));
-            expect(options.columnDefs.length).toBeGreaterThan(0)
+            expect(options.columnDefs.length).toBeGreaterThan(0);
             expect(options.columnDefs[0].field).toBeDefined();
             expect(options.columnDefs[0].headerName).toBe("App_Header_Name");
             expect(options.columnDefs[0].cellRenderer).toBeDefined();
             expect(options.getNodeChildDetails).toEqual(jasmine.any(Function));
-            expect(options.onRowClicked).toEqual(jasmine.any(Function));
+            expect(options.onCellFocused).toEqual(jasmine.any(Function));
+            expect(options.onRowGroupOpened).toEqual(jasmine.any(Function));
             expect(options.onGridReady).toEqual(jasmine.any(Function));
         });
 

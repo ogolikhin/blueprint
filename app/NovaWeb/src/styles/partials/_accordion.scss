@@ -14,8 +14,14 @@ bp-accordion {
       display: block;
       transition: height .2s ease;
 
-      &.bp-accordion-panel-open .bp-accordion-panel-heading {
-        background: $brand-secondary !important;
+      &.bp-accordion-panel-open {
+        .bp-accordion-panel-heading {
+          background: $brand-secondary !important;
+        }
+
+        .bp-accordion-panel > input[type=radio].bp-accordion-panel-state {
+          width: calc(100% - 33px);
+        }
       }
     }
 

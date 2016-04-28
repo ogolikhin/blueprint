@@ -15,7 +15,7 @@ namespace Model.Impl
         private const string SVC_PATH = "svc/filestore";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-        private readonly string _address;
+        public string Address { get; }
 
         #region Inherited from IFileStore
 
@@ -29,7 +29,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
+            Address = address;
         }
 
         /// <seealso cref="IFileStore.AddFile"/>
@@ -122,7 +122,7 @@ namespace Model.Impl
             }
 
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             try
             {
@@ -145,7 +145,7 @@ namespace Model.Impl
         /// <seealso cref="IFileStore.GetStatus"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, token: string.Empty);
+            var restApi = new RestApiFacade(Address, token: string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
 
             var queryParameters = new Dictionary<string, string>();
@@ -164,7 +164,7 @@ namespace Model.Impl
         /// <seealso cref="IFileStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, token:string.Empty);
+            var restApi = new RestApiFacade(Address, token:string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
 
             Logger.WriteInfo("Getting FileStore status upcheck...");
@@ -215,7 +215,7 @@ namespace Model.Impl
 
             var path = I18NHelper.FormatInvariant("{0}/files", SVC_PATH);
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.POST,
@@ -264,7 +264,7 @@ namespace Model.Impl
             }
 
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PUT,
@@ -299,7 +299,7 @@ namespace Model.Impl
                 tokenValue = string.Empty;
             }
 
-            var restApi = new RestApiFacade(_address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
 
             var response = restApi.SendRequestAndGetResponse(

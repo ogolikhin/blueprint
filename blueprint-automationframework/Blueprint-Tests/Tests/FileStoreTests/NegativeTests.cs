@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common;
 using CustomAttributes;
@@ -7,6 +8,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Utilities;
+using Utilities.Facades;
 
 namespace FileStoreTests
 {
@@ -223,7 +225,9 @@ namespace FileStoreTests
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
-        [TestCase, TestRail(98734), Description("Post a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PostFile().")]
+        [TestCase]
+        [TestRail(98734)]
+        [Description("Post a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PostFile().")]
         public void PostFileWithBadMultiPartMime_Verify500Error()
         {
             // Setup: Create a fake file with a random byte array.
@@ -245,7 +249,9 @@ namespace FileStoreTests
                 "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
         }
 
-        [TestCase, TestRail(98735), Description("Put a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFile().")]
+        [TestCase]
+        [TestRail(98735)]
+        [Description("Put a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFile().")]
         public void PutFileWithBadMultiPartMime_Verify500Error()
         {
             const uint fileSize = 1024;
@@ -278,6 +284,84 @@ namespace FileStoreTests
             string expectedExceptionMessage = "No multipart boundary found.";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "'{0}' was not found in the exception message: {1}", expectedExceptionMessage, ex.RestResponse.Content);
+        }
+
+        [TestCase]
+        [TestRail(101572)]
+        [Description("Post 2 multipart-mime files in one request.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostTwoMultiPartMimeFilesInOneRequest_Verify400Error()
+        {
+            const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
+            const string requestBody = @"-------------------------------28947758029299
+Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
+Content-Type: text/plain
+
+
+-------------------------------28947758029299
+Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
+Content-Type: text/plain
+
+
+-------------------------------28947758029299--";
+
+            const string path = "svc/filestore/files";
+            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                restApi.SendRequestBodyAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    requestBody,
+                    contentType);
+            }, "FileStore should return a 400 Bad Request error when we pass multiple files in the same request.");
+        }
+
+        [TestCase]
+        [TestRail(101585)]
+        [Description("Post a corrupt multipart-mime request (i.e. with a missing double quote).  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostCorruptMultiPartMimeWith_Verify400Error()
+        {
+            const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
+            // The Content-Disposition line below is missing the "" after the filename, causing it to be invalid.
+            const string requestBody = @"-------------------------------28947758029299
+Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt
+Content-Type: text/plain
+
+";
+
+            const string path = "svc/filestore/files";
+            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                restApi.SendRequestBodyAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    requestBody,
+                    contentType);
+            }, "FileStore should return a 400 Bad Request error when we pass multiple files in the same request.");
+        }
+
+        [TestCase]
+        [TestRail(101586)]
+        [Description("Post a multipart-mime request that starts with the end part.  This test is specifically to get code coverage of an if block in MultipartReader.ReadAndExecuteRequestAsync().")]
+        public void PostMultiPartMimeBodyStartingWithEndPart_Verify400Error()
+        {
+            const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
+            const string requestBody = "-------------------------------28947758029299\r\n"; // End '/r/n' is important here.
+
+            const string path = "svc/filestore/files";
+            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                restApi.SendRequestBodyAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    requestBody,
+                    contentType);
+            }, "FileStore should return a 400 Bad Request error when we pass a multipart-mime request that starts with the end part.");
         }
 
         [TestCase, TestRail(98738), Description("Put a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]

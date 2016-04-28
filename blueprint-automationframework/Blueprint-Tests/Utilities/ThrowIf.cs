@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Utilities
 {
@@ -19,6 +21,21 @@ namespace Utilities
             if (arg == null)
             {
                 throw new ArgumentNullException(nameOfArg, message);
+            }
+        }
+
+        /// <summary>
+        /// Throws an ArgumentException if the collection is empty.
+        /// </summary>
+        /// <typeparam name="T">The class type stored in the collection.</typeparam>
+        /// <param name="collection">The collection to check for emptiness.</param>
+        /// <param name="nameOfArg">The name of the collection variable.</param>
+        /// <param name="message">(optional) An additional message to include in the exception.</param>
+        public static void IsEmpty<T>([ValidatedNotNull] ICollection<T> collection, string nameOfArg, string message = null)
+        {
+            if (!collection.Any())
+            {
+                throw new ArgumentException(nameOfArg, message);
             }
         }
 

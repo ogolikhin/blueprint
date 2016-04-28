@@ -364,7 +364,32 @@ Content-Type: text/plain
             }, "FileStore should return a 400 Bad Request error when we pass a multipart-mime request that starts with the end part.");
         }
 
-        [TestCase, TestRail(98738), Description("Put a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
+        [TestCase]
+        [TestRail(101606)]
+        [Description("Post a multipart-mime request with no end part and that doesn't end with a CRLF.  This test is specifically to get code coverage of an if block in MultipartPartParser.MultipartPartParser().")]
+        public void PostMultiPartMimeWithNoEndPartAndNoCRLFAfterMimeHeader_Verify500Error()
+        {
+            const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
+            const string requestBody = @"-------------------------------28947758029299
+Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
+Content-Type: text/plain";
+
+            const string path = "svc/filestore/files";
+            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+
+            Assert.Throws<Http500InternalServerErrorException>(() =>
+            {
+                restApi.SendRequestBodyAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    requestBody,
+                    contentType);
+            }, "FileStore should return a 500 Internal Server error when we pass a multipart-mime request that starts with the end part.");
+        }
+
+        [TestCase]
+        [TestRail(98738)]
+        [Description("Put a file without Posting it first to get a 404 error.  This test is specifically to get code coverage of the NotFound condition in FilesController.ConstructHttpActionResult().")]
         public void PutFileWithoutPostingFirst_Verify404Error()
         {
             const uint fileSize = 1;

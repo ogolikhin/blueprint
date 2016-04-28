@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Common;
 using CustomAttributes;
@@ -16,6 +15,8 @@ namespace FileStoreTests
     [Category(Categories.Filestore)]
     public class NegativeTests
     {
+        const string SVC_FILES_PATH = "svc/filestore/files";
+
         private IAdminStore _adminStore;
         private IFileStore _filestore;
         private IUser _user;
@@ -304,13 +305,12 @@ Content-Type: text/plain
 
 -------------------------------28947758029299--";
 
-            const string path = "svc/filestore/files";
             var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
-                    path,
+                    SVC_FILES_PATH,
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);
@@ -330,13 +330,12 @@ Content-Type: text/plain
 
 ";
 
-            const string path = "svc/filestore/files";
             var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
-                    path,
+                    SVC_FILES_PATH,
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);
@@ -351,13 +350,12 @@ Content-Type: text/plain
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = "-------------------------------28947758029299\r\n"; // End '/r/n' is important here.
 
-            const string path = "svc/filestore/files";
             var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
-                    path,
+                    SVC_FILES_PATH,
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);
@@ -374,13 +372,12 @@ Content-Type: text/plain
 Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
 Content-Type: text/plain";
 
-            const string path = "svc/filestore/files";
             var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http500InternalServerErrorException>(() =>
             {
                 restApi.SendRequestBodyAndGetResponse(
-                    path,
+                    SVC_FILES_PATH,
                     RestRequestMethod.POST,
                     requestBody,
                     contentType);

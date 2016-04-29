@@ -49,12 +49,37 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public ISession AddSession(ISession session, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ISession AddSSOSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            string path = I18NHelper.FormatInvariant("{0}/sessions/sso", SVC_PATH);
+
+            string encodedSamlResponse = HashingUtilities.EncodeTo64UTF8(samlResponse);
+            Dictionary<string, string> additionalHeaders = new Dictionary<string, string> { { "Content-Type", "Application/json" } };
+            Dictionary<string, string> queryParameters = null;
+
+            if (force != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "force", force.ToString() } };
+            }
+
+            Logger.WriteInfo("Adding SSO session for user '{0}'...", username);
+            RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, additionalHeaders, queryParameters,
+                encodedSamlResponse, expectedStatusCodes);
+
+            string token = GetToken(response);
+
+            ISession session = new Session { UserName = username, IsSso = true, SessionId = token };
+            Logger.WriteDebug("Got session token '{0}' for User: {1}.", token, username);
+
+            // Add session to list of created sessions, so we can delete them later.
+            Sessions.Add(session);
+            Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+            return session;
         }
 
-        public ISession AddSession(string username = null, string password = null, bool? force = default(bool?),
+        public ISession AddSession(string username = null, string password = null, bool? force = null,
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);

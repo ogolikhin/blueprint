@@ -5,6 +5,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Utilities;
+using Utilities.Factories;
 
 namespace AdminStoreTests
 {
@@ -111,6 +112,26 @@ namespace AdminStoreTests
             {
                 _adminStore.AddSession(_user.Username, _user.Password, expectedServiceErrorMessage: _expectedServiceMessage2000);
             });
+        }
+
+        [Test]
+        [TestRail(102892)]
+        [Description("Tries to get a session for an SSO user while SAML is disabled.  This test is specifically to get code coverage of a catch block in SessionsController.PostSessionSingleSignOn().")]
+        public void Login_SsoWithSamlDisabled_Verify401Error()
+        {
+            // NOTE: for this test, the SAML request doesn't matter, as long as it's not null or empty.
+            string samlRequest = "<samlp:AuthnRequest />";
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.AddSSOSession(_user.Username, samlRequest);
+            }, "We should get a 401 Unauthorized error if SAML is not enabled in Instance Administration!");
+
+            // Verify:
+            const string expectedMessage = "Federated Authentication mechanism must be enabled";
+            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "Couldn't find '{0}' in the REST response: '{1}'.",
+                expectedMessage, ex.RestResponse.Content);
         }
 
         [Test]

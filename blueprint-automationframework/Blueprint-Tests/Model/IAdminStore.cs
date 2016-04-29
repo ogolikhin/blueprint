@@ -10,7 +10,7 @@ namespace Model
 
         /// <summary>
         /// Adds a new session in AdminStore for the specified user and returns the session object containing the new session token.
-        /// (Runs: POST /sessions/{userId})
+        /// (Runs: POST /sessions?login={encrypted username}  or  POST /sessions?login={encrypted username}&amp;force=True)
         /// </summary>
         /// <param name="username">(optional) The user name.</param>
         /// <param name="password">(optional) The user password.</param>
@@ -25,14 +25,15 @@ namespace Model
             IServiceErrorMessage expectedServiceErrorMessage = null);
 
         /// <summary>
-        /// Adds a new session in AdminStore for the specified user and returns the session object containing the new session token.
-        /// (Runs: POST /sessions/{userId})
+        /// Adds a new SSO session in AdminStore using the SAML response from an Identity Provider and returns the session object containing the new session token.
+        /// (Runs: POST /sessions/sso?force=True)
         /// </summary>
-        /// <param name="session">The session to add to AdminStore.</param>
+        /// <param name="username">The username in the samlResponse.</param>
+        /// <param name="samlResponse">The SAML response XML (unencrypted) to send to AdminStore.</param>
         /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A session object containing the new session token.</returns>
-        ISession AddSession(ISession session, bool? force = null, List < HttpStatusCode> expectedStatusCodes = null);
+        ISession AddSSOSession(string username, string samlResponse, bool? force = null, List < HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Deletes the specified session from AdminStore.

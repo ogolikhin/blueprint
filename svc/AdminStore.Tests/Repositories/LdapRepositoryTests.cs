@@ -220,9 +220,10 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
+            loginInfo.LdapUrl = "DC=domain";
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
-            var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
+            var settings = new[] { new LdapSettings { LdapAuthenticationUrl = loginInfo.LdapUrl, AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
             var logMock = new Mock<IServiceLogRepository>();
@@ -244,9 +245,10 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");
+            loginInfo.LdapUrl = "DC=domain";
             string password = "password";
             var settingsRepository = new Mock<ISqlSettingsRepository>();
-            var settings = new[] { new LdapSettings { LdapAuthenticationUrl = "DC=domain", AuthenticationType = AuthenticationTypes.Encryption } };
+            var settings = new[] { new LdapSettings { LdapAuthenticationUrl = loginInfo.LdapUrl, AuthenticationType = AuthenticationTypes.Encryption } };
             settingsRepository.Setup(r => r.GetLdapSettingsAsync()).ReturnsAsync((IEnumerable<LdapSettings>)settings).Verifiable();
             var authenticator = new Mock<IAuthenticator>();
             var logMock = new Mock<IServiceLogRepository>();

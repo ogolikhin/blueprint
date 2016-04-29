@@ -124,7 +124,7 @@ namespace AdminStoreTests
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.AddSSOSession(_user.Username, samlRequest);
+                _adminStore.AddSsoSession(_user.Username, samlRequest);
             }, "We should get a 401 Unauthorized error if SAML is not enabled in Instance Administration!");
 
             // Verify:

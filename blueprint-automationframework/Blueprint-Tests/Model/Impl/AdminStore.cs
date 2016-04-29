@@ -49,7 +49,7 @@ namespace Model.Impl
 
         public List<ISession> Sessions { get; } = new List<ISession>();
 
-        public ISession AddSSOSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions/sso", SVC_PATH);

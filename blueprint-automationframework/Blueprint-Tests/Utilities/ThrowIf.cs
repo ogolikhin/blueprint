@@ -31,8 +31,10 @@ namespace Utilities
         /// <param name="collection">The collection to check for emptiness.</param>
         /// <param name="nameOfArg">The name of the collection variable.</param>
         /// <param name="message">(optional) An additional message to include in the exception.</param>
-        public static void IsEmpty<T>([ValidatedNotNull] ICollection<T> collection, string nameOfArg, string message = null)
+        public static void IsEmpty<T>(ICollection<T> collection, string nameOfArg, string message = null)
         {
+            ThrowIf.ArgumentNull(collection, nameOfArg);
+
             if (!collection.Any())
             {
                 throw new ArgumentException(nameOfArg, message);

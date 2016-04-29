@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using Model.Impl;
 
 namespace Model
 {
@@ -33,7 +32,7 @@ namespace Model
         /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A session object containing the new session token.</returns>
-        ISession AddSSOSession(string username, string samlResponse, bool? force = null, List < HttpStatusCode> expectedStatusCodes = null);
+        ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Deletes the specified session from AdminStore.
@@ -53,7 +52,7 @@ namespace Model
 
         /// <summary>
         /// Gets a session for the specified user.
-        /// (Runs: GET /sessions/select?ps={ps}&pn={pn})
+        /// (Runs: GET /sessions/select?ps={ps}&amp;pn={pn})
         /// </summary>
         /// <param name="adminToken">A token to identify an admin user.</param>
         /// <param name="pageSize">Page size.</param>

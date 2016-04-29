@@ -1,4 +1,5 @@
-﻿.project-tree {
+﻿.project-tree,
+.project-explorer {
   .ag-grid {
     height: 100%;
     padding-top: 5px;
@@ -68,72 +69,6 @@
       padding-top: $aggrid-row-height;
       text-align: left;
       vertical-align: top;
-    }
-  }
-}
-
-.project-explorer {
-  border-right: solid 5px $brand-secondary;
-  height: 100%;
-
-  .ag-grid {
-    height: 100%;
-    padding-top: 5px;
-
-    .ag-font-style {
-      font-size: $font-size-smallest;
-    }
-
-    .ag-header-cell {
-      text-align: left;
-
-      .ag-header-cell-text {
-        color: $brand-secondary;
-        font-weight: 600;
-      }
-    }
-
-    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
-      font-size: $font-size-root;
-      margin-left: 5px;
-      margin-right: 7px;
-    }
-
-    .ag-group-contracted,
-    .ag-group-expanded {
-      padding-left: 5px;
-    }
-
-    .ag-row-level-0 {
-      .ag-group-contracted,
-      .ag-group-expanded {
-        padding-left: 0;
-      }
-    }
-
-    .ag-cell {
-      height: $aggrid-row-height;
-      line-height: $aggrid-row-height;
-      overflow: visible;
-      span.ag-group-value {
-        padding-right: 10px;}
-
-      i {
-        color: $brand-secondary;
-      }
-    }
-
-    .ag-cell-range-selected {
-      outline: none;
-
-      > span > span {
-        background: $brand-secondary;
-        color: $white;
-      }
-
-      i {
-        color: $white;
-      }
     }
   }
 }

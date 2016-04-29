@@ -264,6 +264,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
             trigger.setAttribute("checked", "checked");
         }
         trigger.style.height = this.accordionPanelHeadingHeight + "px";
+        pinner.style.height = this.accordionPanelHeadingHeight + "px";
         heading.style.height = this.accordionPanelHeadingHeight + "px";
 
         trigger.addEventListener("click", this.tryToToggle);

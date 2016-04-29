@@ -252,7 +252,7 @@ namespace FileStoreTests
 
         [TestCase]
         [TestRail(98735)]
-        [Description("Put a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFile().")]
+        [Description("Put a file with invalid multipart mime data.  This test is specifically to get code coverage of the catch block in FilesController.PutFileHttpContext().")]
         public void PutFileWithBadMultiPartMime_Verify500Error()
         {
             const uint fileSize = 1024;

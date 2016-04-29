@@ -50,13 +50,13 @@ namespace AdminStoreTests
             }
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_Verify200OK()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_VerifySecondLogin409Error()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
@@ -66,14 +66,14 @@ namespace AdminStoreTests
            });
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_VerifyForceLogin200OK()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
             _adminStore.AddSession(_user.Username, _user.Password, force: true);
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUserBadPassword_Verify401Error()
         {
             Assert.Throws<Http401UnauthorizedException>(() =>
@@ -82,7 +82,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Login_LockedUser_Verify401Error()
         {
             _user.DeleteUser(deleteFromDatabase: true);
@@ -95,7 +95,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void GetLogedinUser_200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -103,7 +103,7 @@ namespace AdminStoreTests
             Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
         }
 
-        [Test]
+        [TestCase]
         public void Login_DeletedUser_Verify401Error()
         {
             _user.DeleteUser();
@@ -113,7 +113,27 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(102892)]
+        [Description("Tries to get a session for an SSO user while SAML is disabled.  This test is specifically to get code coverage of a catch block in SessionsController.PostSessionSingleSignOn().")]
+        public void Login_SsoWithSamlDisabled_Verify401Error()
+        {
+            // NOTE: for this test, the SAML request doesn't matter, as long as it's not null or empty.
+            string samlRequest = "<samlp:AuthnRequest />";
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                _adminStore.AddSsoSession(_user.Username, samlRequest);
+            }, "We should get a 401 Unauthorized error if SAML is not enabled in Instance Administration!");
+
+            // Verify:
+            const string expectedMessage = "Federated Authentication mechanism must be enabled";
+            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "Couldn't find '{0}' in the REST response: '{1}'.",
+                expectedMessage, ex.RestResponse.Content);
+        }
+
+        [TestCase]
         public void Login_5TimesWithBadPassword_VerifyAccountGetsLocked()
         {
             string invalidPassword = "badpassword";
@@ -130,7 +150,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Delete_ValidSession_Verify200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -140,7 +160,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Delete_ValidDeletedSession_Verify401Error()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);

@@ -5,7 +5,6 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Factories;
 
 namespace AdminStoreTests
 {
@@ -51,13 +50,13 @@ namespace AdminStoreTests
             }
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_Verify200OK()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_VerifySecondLogin409Error()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
@@ -67,14 +66,14 @@ namespace AdminStoreTests
            });
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUser_VerifyForceLogin200OK()
         {
             _adminStore.AddSession(_user.Username, _user.Password);
             _adminStore.AddSession(_user.Username, _user.Password, force: true);
         }
 
-        [Test]
+        [TestCase]
         public void Login_ValidUserBadPassword_Verify401Error()
         {
             Assert.Throws<Http401UnauthorizedException>(() =>
@@ -83,7 +82,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Login_LockedUser_Verify401Error()
         {
             _user.DeleteUser(deleteFromDatabase: true);
@@ -96,7 +95,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void GetLogedinUser_200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -104,7 +103,7 @@ namespace AdminStoreTests
             Assert.IsTrue(loggedinUser.Equals(_user), "User's details doesn't correspond to expectations");
         }
 
-        [Test]
+        [TestCase]
         public void Login_DeletedUser_Verify401Error()
         {
             _user.DeleteUser();
@@ -114,7 +113,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         [TestRail(102892)]
         [Description("Tries to get a session for an SSO user while SAML is disabled.  This test is specifically to get code coverage of a catch block in SessionsController.PostSessionSingleSignOn().")]
         public void Login_SsoWithSamlDisabled_Verify401Error()
@@ -134,7 +133,7 @@ namespace AdminStoreTests
                 expectedMessage, ex.RestResponse.Content);
         }
 
-        [Test]
+        [TestCase]
         public void Login_5TimesWithBadPassword_VerifyAccountGetsLocked()
         {
             string invalidPassword = "badpassword";
@@ -151,7 +150,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Delete_ValidSession_Verify200OK()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -161,7 +160,7 @@ namespace AdminStoreTests
             });
         }
 
-        [Test]
+        [TestCase]
         public void Delete_ValidDeletedSession_Verify401Error()
         {
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);

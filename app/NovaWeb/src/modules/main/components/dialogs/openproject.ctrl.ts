@@ -41,8 +41,8 @@ export class OpenProjectController extends BaseDialogController {
         this.dialogService.alert(error.message).then(() => { this.cancel(); });
     };
 
-    private onKeyDownOnProject = (e: any) => {
-        var key= e.which || e.keyCode;
+    private onEnterKeyOnProject = (e: any) => {
+        var key = e.which || e.keyCode;
         if (key === 13) {
             //user pressed Enter key on project
             this.ok();
@@ -57,7 +57,7 @@ export class OpenProjectController extends BaseDialogController {
             innerRenderer: (params) => {
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onKeyDownOnProject);
+                    cell.addEventListener("keydown", this.onEnterKeyOnProject);
                     return "<i class='fonticon-project'></i>" + params.data.Name;
                 } if (params.data.Type === "Folder") {
                     return params.data.Name;

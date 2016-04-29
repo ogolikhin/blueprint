@@ -23,6 +23,13 @@
       margin-right: 7px;
     }
 
+    .fonticon-folder-open::before,
+    .fonticon-folder::before,
+    .fonticon-project::before {
+      position: relative;
+      top: 1px;
+    }
+
     .ag-group-contracted,
     .ag-group-expanded {
       padding-left: 5px;
@@ -41,13 +48,20 @@
 
     .ag-cell {
       height: $aggrid-row-height;
-      line-height: $aggrid-row-height;
-      overflow: visible;
+
+      > span > span {
+        display: inline-block;
+        line-height: $aggrid-row-height;
+      }
+
       span.ag-group-value {
-      padding-right: 10px;}
+        padding-right: 10px;
+      }
 
       i {
         color: $brand-secondary;
+        display: inline-block;
+        height: $aggrid-row-height;
       }
     }
 
@@ -59,7 +73,13 @@
         color: $white;
       }
 
+      .ag-group-expanded,
+      .ag-group-contracted {
+        background: transparent;
+      }
+
       i {
+        background: $brand-secondary;
         color: $white;
       }
     }
@@ -69,6 +89,15 @@
       padding-top: $aggrid-row-height;
       text-align: left;
       vertical-align: top;
+    }
+
+     input {
+      border: solid 1px $brand-secondary;
+      box-sizing: border-box;
+      color: $body-color;
+      height: $aggrid-row-height;
+      line-height: calc(#{$aggrid-row-height} - 2px);
+      width: 100%;
     }
   }
 }

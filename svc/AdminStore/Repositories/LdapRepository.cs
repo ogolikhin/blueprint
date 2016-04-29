@@ -60,6 +60,7 @@ namespace AdminStore.Repositories
                         {
                             continue;
                         }
+                        loginInfo.LdapUrl = ldapSetting.LdapAuthenticationUrl;
                         authenticationStatus = Authenticate(loginInfo, password, ldapSetting.AuthenticationType);
                         if (authenticationStatus == AuthenticationStatus.Success)
                         {
@@ -173,7 +174,7 @@ namespace AdminStore.Repositories
 
         public bool SearchDirectory(LoginInfo loginInfo, string password)
         {
-            using (var searchRoot = new DirectoryEntry(null, loginInfo.UserName, password, AuthenticationTypes.Secure))
+            using (var searchRoot = new DirectoryEntry(loginInfo.LdapUrl, loginInfo.UserName, password, AuthenticationTypes.Secure))
             {
                 using (var searcher = new DirectorySearcher(searchRoot) { CacheResults = false })
                 {

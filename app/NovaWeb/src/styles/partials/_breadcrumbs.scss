@@ -45,6 +45,10 @@
       flex: none;
     }
 
+    &:hover ~ li:last-child {
+      flex: auto;
+    }
+
     a {
       color: $brand-secondary;
     }

@@ -48,6 +48,7 @@
 
     .ag-cell {
       height: $aggrid-row-height;
+      overflow: visible;
 
       > span > span {
         display: inline-block;

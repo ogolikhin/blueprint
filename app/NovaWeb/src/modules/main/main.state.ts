@@ -178,7 +178,7 @@ class MainCtrl {
                     var selectionStart = input.selectionStart;
                     var selectionEnd = input.selectionEnd;
 
-                    if(e.type === "keypress") {
+                    if (e.type === "keypress") {
                         if (validCharacters.test(char)) {
                             var firstToken = inputValue.substring(0, selectionStart);
                             var secondToken = inputValue.substring(selectionEnd);

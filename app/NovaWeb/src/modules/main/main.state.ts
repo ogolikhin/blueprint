@@ -80,16 +80,21 @@ class MainCtrl {
     private rowClicked = (params: any) => {
         var selectedNode = params.node;
         var self = this;
+
         self.clickTimeout = self.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }
-            console.log("rowClick: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+
+            var cell = params.eventSource.eBodyRow.firstChild;
+            if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
+                console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+            }
         }, 250);
     };
 
     // this is just to cancel the (single) click event in case of double-click
-    private rowDoubleClicked = (params) => {
+    private rowDoubleClicked = () => {
         this.$timeout.cancel(this.clickTimeout);
     };
 
@@ -106,18 +111,21 @@ class MainCtrl {
             var valueSpan = containerCell.querySelector(".ag-group-value");
             if (editing && editSpan && valueSpan) {
                 var input = editSpan.querySelector("input");
-                input.removeEventListener("keyup", keyHandler);
+                input.removeEventListener("keyup", keyEventHandler);
                 var newValue = input.value;
-                if (newValue !== "") { //do we need more validation?
+                if (newValue !== "") { // do we need more validation?
                     valueSpan.querySelector("span").textContent = newValue;
                     selectedNode.data.Name = newValue;
                 }
-                var parentNode = editSpan.parentNode;
-                parentNode.removeChild(editSpan);
+                var parentSpan = editSpan.parentNode;
+                parentSpan.removeChild(editSpan);
                 valueSpan.style.display = "inline-block";
+                // reset the focus on the container div so that the keyboard navigation can resume
+                parentSpan.parentNode.focus();
 
                 self.gridOptions.api.refreshView();
                 editing = false;
+                containerCell.className = containerCell.className.replace(" ag-cell-inline-editing", "") + " ag-cell-not-inline-editing";
             }
         }
 
@@ -143,80 +151,97 @@ class MainCtrl {
                 containerCell.firstChild.insertBefore(editSpan, valueSpan);
 
                 input.addEventListener("blur", stopEditing);
-                input.addEventListener("keyup", keyHandler);
+                input.addEventListener("keyup", keyEventHandler);
                 input.focus();
                 input.select();
 
                 editing = true;
+                containerCell.className = containerCell.className.replace(" ag-cell-not-inline-editing", "") + " ag-cell-inline-editing";
             }
         }
 
-        function keyHandler(e) {
+        // Note: that keydown and keyup provide a code indicating which key is pressed, while keypress indicates which
+        // character was entered. For example, a lowercase "a" will be reported as 65 by keydown and keyup, but as 97
+        // by keypress. An uppercase "A" is reported as 65 by all events. Because of this distinction, when catching
+        // special keystrokes such as arrow keys, .keydown() or .keyup() is a better choice.
+        function keyEventHandler(e) {
             var key = e.which || e.keyCode;
-            var validCharacters = /[a-zA-Z0-9 ]/;
-            var char = String.fromCharCode(key);
-            var editSpan = containerCell.querySelector(".ag-group-inline-edit");
-            var input = editSpan.querySelector("input");
 
-            if (editing && editSpan) {
-                var inputValue = input.value;
-                var selectionStart = input.selectionStart;
-                var selectionEnd = input.selectionEnd;
+            if (editing) {
+                var validCharacters = /[a-zA-Z0-9 ]/;
+                var char = String.fromCharCode(key);
 
-                if(e.type === "keypress") {
-                    if (validCharacters.test(char)) {
-                        var firstToken = inputValue.substring(0, selectionStart);
-                        var secondToken = inputValue.substring(selectionEnd);
-                        inputValue = firstToken + char + secondToken;
-                        input.value = inputValue;
+                var editSpan = containerCell.querySelector(".ag-group-inline-edit");
+                if (editSpan) {
+                    var input = editSpan.querySelector("input");
+                    var inputValue = input.value;
+                    var selectionStart = input.selectionStart;
+                    var selectionEnd = input.selectionEnd;
 
-                        selectionEnd = ++selectionStart;
-                        input.setSelectionRange(selectionStart, selectionEnd);
+                    if(e.type === "keypress") {
+                        if (validCharacters.test(char)) {
+                            var firstToken = inputValue.substring(0, selectionStart);
+                            var secondToken = inputValue.substring(selectionEnd);
+                            inputValue = firstToken + char + secondToken;
+                            input.value = inputValue;
+
+                            selectionEnd = ++selectionStart;
+                            input.setSelectionRange(selectionStart, selectionEnd);
+                        }
+                    } else if (e.type === "keydown") {
+                        if (key === 13) { // Enter
+                            input.blur();
+                        }
+                    } else if (e.type === "keyup") {
+                        if (key === 27) { // Escape
+                            input.value = currentValue;
+                            input.blur();
+                        } else if (key === 37) { // left arrow
+                            selectionStart--;
+                            if (!e.shiftKey) {
+                                selectionEnd = selectionStart;
+                            }
+                            input.setSelectionRange(selectionStart, selectionEnd);
+                        } else if (key === 39) { // right arrow
+                            selectionEnd++;
+                            if (!e.shiftKey) {
+                                selectionStart = selectionEnd;
+                            }
+                            input.setSelectionRange(selectionStart, selectionEnd);
+                        }
+                        e.stopImmediatePropagation();
                     }
-                } else if (e.type === "keyup") {
-                    if (key === 27) {
-                        input.value = currentValue;
-                        input.blur();
 
-                    } else if (key === 37) {
-                        selectionEnd = --selectionStart;
-                        input.setSelectionRange(selectionStart, selectionEnd);
-
-                    } else if (key === 39) {
-                        selectionEnd = ++selectionStart;
-                        input.setSelectionRange(selectionStart, selectionEnd);
-                    }
                 }
+            } else {
+                selectedNode = self.gridOptions.api.getSelectedNodes()[0];
 
-                e.preventDefault();
-                e.stopImmediatePropagation();
-            }
-        }
-
-        function onKeyDownOrDblClick(e) {
-            var key = e.which || e.keyCode;
-            selectedNode = self.gridOptions.api.getSelectedNodes()[0];
-
-            if (!editing) {
                 if (key === 13 && selectedNode.data.Type === "Folder") {
                     //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder
+                    console.log("pressed Enter on folder: I should open/close [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]", e.type);
                 } else if (key === 13) {
                     //user pressed Enter on artifact, let's load it
-                    console.log("cellRenderer: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+                    console.log("pressed Enter on artifact: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]", e.type);
                 } else if (key === 113) {
                     //user pressed F2, let's rename
                     inlineEdit();
-                } else if (e.type === "dblclick") {
-                    //user double-clicked, let's rename but we need to let ag-grid redraw first
-                    var dummy = setTimeout(inlineEdit, 200);
                 }
+            }
+        }
+
+        function dblClickHandler(e) {
+            selectedNode = self.gridOptions.api.getSelectedNodes()[0];
+
+            if (!editing) {
+                //user double-clicked, let's rename but we need to let ag-grid redraw first
+                self.$timeout(inlineEdit, 200);
             }
         }
 
         if (!params.colDef.editable) { // we need to use our own editor until ag-grid's one is viable
-            containerCell.addEventListener("keydown", onKeyDownOrDblClick);
-            containerCell.addEventListener("keypress", keyHandler);
-            containerCell.addEventListener("dblclick", onKeyDownOrDblClick);
+            containerCell.addEventListener("keydown", keyEventHandler);
+            containerCell.addEventListener("keypress", keyEventHandler);
+            containerCell.addEventListener("dblclick", dblClickHandler);
         }
 
         switch (params.data.Type) { //we need to add the proper icon depending on the type

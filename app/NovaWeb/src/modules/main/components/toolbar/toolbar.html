@@ -1,36 +1,36 @@
-﻿<div class="navbar-toolbar"><!-- TODO: localization -->
+﻿<div class="navbar-toolbar">
     <ul class="nav navbar-nav">
         <li uib-dropdown>
-            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>{{::$root.config.labels["App_Project"]}}</span></a>
+            <a href="#" uib-dropdown-toggle><i class="fonticon fonticon-project"></i><b class="caret"></b><span>{{::$root.config.labels["App_Toolbar_Project"]}}</span></a>
             <ul class="dropdown-menu">
-                <li><a href="#"  id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Project_Open"]}}</a></li>
+                <li><a href="#" id="openProject" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a></li>
                 <li class="dropdown-submenu">
-                    <a href="#" ng-click="$ctrl.showSubLevel($event)">Open recent projects</a>
+                    <a href="#" ng-click="$ctrl.showSubLevel($event)">{{::$root.config.labels["App_Toolbar_Open_Recent_Projects"]}}</a>
                     <ul class="dropdown-menu">
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #1</a></li>
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #2</a></li>
                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
                     </ul>
                 </li>
-                <li><a href="#" ng-click="$ctrl.openProject()">Close project</a></li>
-                <li><a href="#" ng-click="$ctrl.openProject()">Close all projects</a></li>
+                <li><a href="#" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a></li>
+                <li><a href="#" ng-click="$ctrl.openProject()">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a></li>
             </ul>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-save-1"></i><span>Save All</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-save-1"></i><span>{{::$root.config.labels["App_Toolbar_Save_All"]}}</span></a>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-error"></i><span>Discard All</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-error"></i><span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span></a>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-upload-cloud"></i><span>Publish All</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-upload-cloud"></i><span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span></a>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-refresh"></i><span>Refresh All</span></a>
+            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-refresh"></i><span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span></a>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" ng-click="$ctrl.deleteArtifact()"><i class="fonticon fonticon-delete"></i><span>Delete</span></a>
+            <a href="#" ng-click="$ctrl.deleteArtifact()"><i class="fonticon fonticon-delete"></i><span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span></a>
         </li>
     </ul>
 </div>

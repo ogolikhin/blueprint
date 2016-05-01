@@ -35,13 +35,13 @@
       white-space: nowrap;
 
       span {
-        font-weight: 600;
         font-style: italic;
+        font-weight: 600;
       }
 
       .signed-in-as {
-        font-weight: 700;
         font-style: normal;
+        font-weight: 700;
         margin: 0 4px;
       }
 
@@ -124,21 +124,24 @@
   }
 
   .dropdown-menu {
-    border: solid 1px $white;
-    border-top: 0;
+    border: solid 1px $white !important;
+    border-top: none !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175) !important;
     margin: 0;
     padding: 0;
+    position: absolute !important;
 
     a {
       background: $gray-light;
       border: 0;
       border-top: solid 1px $white;
-      color: $white;
-      padding: 6px 20px;
+      color: $white !important;
+      line-height: inherit !important;
+      padding: 6px 20px !important;
 
       &:hover {
-        background: $brand-secondary;
-        color: $white;
+        background: $brand-secondary !important;
+        color: $white !important;
       }
     }
 

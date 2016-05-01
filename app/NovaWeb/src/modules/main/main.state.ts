@@ -151,7 +151,7 @@ class MainCtrl {
                 containerCell.firstChild.insertBefore(editSpan, valueSpan);
 
                 input.addEventListener("blur", stopEditing);
-                input.addEventListener("keyup", keyEventHandler);
+                input.addEventListener("keydown", keyEventHandler);
                 input.focus();
                 input.select();
 
@@ -191,9 +191,7 @@ class MainCtrl {
                     } else if (e.type === "keydown") {
                         if (key === 13) { // Enter
                             input.blur();
-                        }
-                    } else if (e.type === "keyup") {
-                        if (key === 27) { // Escape
+                        } else if (key === 27) { // Escape
                             input.value = currentValue;
                             input.blur();
                         } else if (key === 37) { // left arrow
@@ -217,11 +215,16 @@ class MainCtrl {
                 selectedNode = self.gridOptions.api.getSelectedNodes()[0];
 
                 if (key === 13 && selectedNode.data.Type === "Folder") {
-                    //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder
-                    console.log("pressed Enter on folder: I should open/close [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]", e.type);
+                    //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder, unless editing
+                    var element = e.target || e.srcElement;
+                    if (element.tagName.toLowerCase() !== "input") {
+                        console.log("pressed Enter on folder: I should open/close [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+                    } else {
+                        e.preventDefault();
+                    }
                 } else if (key === 13) {
                     //user pressed Enter on artifact, let's load it
-                    console.log("pressed Enter on artifact: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]", e.type);
+                    console.log("pressed Enter on artifact: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
                 } else if (key === 113) {
                     //user pressed F2, let's rename
                     inlineEdit();

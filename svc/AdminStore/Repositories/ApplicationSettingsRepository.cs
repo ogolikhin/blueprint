@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
-using Dapper;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -14,7 +13,7 @@ namespace AdminStore.Repositories
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public ApplicationSettingsRepository()
-            : this(new SqlConnectionWrapper(WebApiConfig.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

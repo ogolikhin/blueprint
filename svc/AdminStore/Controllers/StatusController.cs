@@ -21,7 +21,7 @@ namespace AdminStore.Controllers
         public StatusController()
             : this( new StatusControllerHelper(
                         new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.AdminStorage, "AdminStorageDB"),
-                                                        new SqlStatusRepository(WebApiConfig.RaptorMain, "RaptorDB"),
+                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
                                                         new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")},
                         "AdminStore",

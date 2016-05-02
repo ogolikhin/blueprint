@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -24,7 +25,7 @@ namespace AdminStore.Repositories
             var repository = new SqlSettingsRepository();
 
             // Assert
-            Assert.AreEqual(WebApiConfig.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor

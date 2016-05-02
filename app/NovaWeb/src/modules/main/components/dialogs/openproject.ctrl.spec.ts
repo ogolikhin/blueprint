@@ -3,6 +3,7 @@ import "angular-mocks"
 import * as $D from "../../../services/dialog.svc";
 import {IOpenProjectResult, OpenProjectController} from "./openproject.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
+import {IProjectService} from "../../../services/project.svc";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -23,10 +24,23 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public rendered: angular.IPromise<any>;
 }
 
+export class ProjectServiceMock implements IProjectService {
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) {
+    }
+
+    public getFolders(id?: number): angular.IPromise<any[]> {
+        var deferred = this.$q.defer<any[]>();
+        var folders = [{"Id":3,"ParentFolderId":1,"Name":"Folder with content","Type":"Folder"},{"Id":7,"ParentFolderId":1,"Name":"Empty folder","Type":"Folder"},{"Id":33,"ParentFolderId":1,"Name":"Process","Description":"Process description","Type":"Project"}];
+        deferred.resolve(folders);
+        return deferred.promise;
+    }
+}
+
 describe("Open Project.", () => {
     var controller: OpenProjectController;
     beforeEach(() => {
-        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), null, null, null);
+        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), new ProjectServiceMock(this.$q), null, null);
     });
 
     describe("Return value.", () => {
@@ -61,12 +75,88 @@ describe("Open Project.", () => {
             expect(options.columnDefs[0].field).toBeDefined();
             expect(options.columnDefs[0].headerName).toBe("App_Header_Name");
             expect(options.columnDefs[0].cellRenderer).toBeDefined();
+            expect(options.columnDefs[0].cellRendererParams).toBeDefined();
+            expect(options.columnDefs[0].cellRendererParams.innerRenderer).toBeDefined();
             expect(options.getNodeChildDetails).toEqual(jasmine.any(Function));
             expect(options.onCellFocused).toEqual(jasmine.any(Function));
             expect(options.onRowGroupOpened).toEqual(jasmine.any(Function));
             expect(options.onGridReady).toEqual(jasmine.any(Function));
         });
+    });
 
+    describe("Embedded ag-grid events", () => {
+        it("getNodeChildDetails", () => {
+            // Arrange
+            var rowItemMock = {
+                Children: true,
+                open: true,
+                Id: 1
+            };
+            var rowItemMockNoChildren = {};
 
+            // Act
+            var options = controller.gridOptions;
+            var node = options.getNodeChildDetails(rowItemMock);
+            var nodeNoChildren = options.getNodeChildDetails(rowItemMockNoChildren);
+
+            // Assert
+            expect(node.key).toEqual(1);
+            expect(node.expanded).toBeTruthy();
+            expect(nodeNoChildren).toBeNull();
+        });
+
+        it("innerRenderer", () => {
+            // Arrange
+            var paramsMock = {
+                data: {
+                    Name: "artifact"
+                }
+            };
+            var paramsMockFolder = {
+                data: {
+                    Type: "Folder",
+                    Name: "folder"
+                }
+            };
+            var paramsMockProject = {
+                data: {
+                    Type: "Project",
+                    Name: "project"
+                },
+                eGridCell: document.createElement("div")
+            };
+
+            // Act
+            var options = controller.gridOptions;
+            var cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
+            var cellRendererFolder = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockFolder);
+            var cellRendererProject = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockProject);
+
+            // Assert
+            expect(cellRenderer).toEqual("artifact");
+            expect(cellRendererFolder).toEqual("folder");
+            expect(cellRendererProject).toContain("project");
+        });
+
+        it("onEnterKeyOnProject", () => {
+            // Arrange
+            var event = new Event("keydown");
+            var div = document.createElement("div");
+            var paramsMock = {
+                data: {
+                    Type: "Project",
+                    Name: "project"
+                },
+                eGridCell: div
+            };
+
+            // Act
+            var options = controller.gridOptions;
+            var cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
+            div.dispatchEvent(event);
+
+            // Assert
+            expect(cellRenderer).toContain("project");
+        });
     });
 });

@@ -18,7 +18,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.android).toBeTruthy();
@@ -32,6 +34,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("4.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+
+        expect(detector.isSupportedVersion()).toBeFalsy();
+        expect(detector.isTouchDevice()).toBeTruthy();
+        expect(detector.isAndroid()).toBeTruthy();
     });
 
     it("Android 4.0", function () {
@@ -196,7 +202,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Linux; Android 5.1.1; SHIELD Tablet Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.android).toBeTruthy();
@@ -211,6 +219,11 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("49.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isTouchDevice()).toBeTruthy();
+        expect(detector.isAndroid()).toBeTruthy();
+        expect(detector.isChrome()).toBeTruthy();
     });
 
     it("Android 5.1 - Chrome 43 - Phone", function () {
@@ -303,7 +316,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/11D257 Safari/9537.53";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
@@ -316,6 +331,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("40.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+
+        expect(detector.isSupportedVersion()).toBeFalsy();
+        expect(detector.isTouchDevice()).toBeTruthy();
+        expect(detector.isiOS()).toBeTruthy();
     });
 
     it("iPad iOS 7 - Mobile Safari 7.0", function () {
@@ -388,7 +407,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
@@ -401,6 +422,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("7.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isiOS()).toBeTruthy();
+        expect(detector.isSafari()).toBeTruthy();
     });
 
     it("iPad iOS 8 - Chrome 40", function () {
@@ -409,7 +434,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (iPad; CPU OS 8_1_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.ios).toBeTruthy();
@@ -422,6 +449,11 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("40.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isTouchDevice()).toBeTruthy();
+        expect(detector.isiOS()).toBeTruthy();
+        expect(detector.isChrome()).toBeTruthy();
     });
 
     it("iPhone iOS 8 - Chrome 41", function () {
@@ -511,7 +543,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.osx).toBeTruthy();
@@ -524,6 +558,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("7.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+
+        expect(detector.isSupportedVersion()).toBeFalsy();
+        expect(detector.isMacOSX()).toBeTruthy();
+        expect(detector.isSafari()).toBeTruthy();
     });
 
     it("Mac OS X 10.10 - Chrome 41", function () {
@@ -532,7 +570,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.osx).toBeTruthy();
@@ -545,6 +585,11 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("41.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isTouchDevice()).toBeFalsy();
+        expect(detector.isMacOSX()).toBeTruthy();
+        expect(detector.isChrome()).toBeTruthy();
     });
 
     it("Mac OS X 10.10 - Firefox 33.0", function () {
@@ -574,7 +619,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2224.3 Safari/537.36";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeFalsy();
@@ -587,6 +634,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("41.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
+
+        expect(detector.isSupportedVersion()).toBeFalsy();
+        expect(detector.isTouchDevice()).toBeFalsy();
+        expect(detector.isWindows()).toBeFalsy();
     });
 
     it("Windows XP - Firefox 21", function () {
@@ -994,7 +1045,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
@@ -1007,6 +1060,10 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("40.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isWindows()).toBeTruthy();
+        expect(detector.isChrome()).toBeTruthy();
     });
 
     it("Windows 8.1 - Internet Explorer 11.0", function () {
@@ -1015,7 +1072,9 @@ describe('executionEnvironmentDetector', function() {
             "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; InfoPath.3; Tablet PC 2.0; rv:11.0) like Gecko";
 
         // Act
-        var browserInfo = new executionEnvironmentDetector().getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        var detector = new executionEnvironmentDetector();
+        var browserInfo = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
+        detector.userBrowser = detector.getBrowserInfoUserAgent(userAgent, bowser._detect(userAgent));
 
         // Assert - OS
         expect(browserInfo.win7plus).toBeTruthy();
@@ -1028,6 +1087,11 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("11.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeTruthy();
+
+        expect(detector.isSupportedVersion()).toBeTruthy();
+        expect(detector.isTouchDevice()).toBeFalsy();
+        expect(detector.isWindows()).toBeTruthy();
+        expect(detector.isIE()).toBeTruthy();
     });
 
     it("Windows 8.1 - Firefox 35", function () {
@@ -1110,82 +1174,6 @@ describe('executionEnvironmentDetector', function() {
         expect(browserInfo.version).toEqual("9.0");
 
         expect(browserInfo.blueprintSupportedBrowser).toBeFalsy();
-    });
-
-    it('Environment detector', function () {
-        // Arrange
-        var detectorWinOld = new executionEnvironmentDetector();
-        var detectorWinIE = new executionEnvironmentDetector();
-        var detectorWinChrome = new executionEnvironmentDetector();
-        var detectorMacSafari = new executionEnvironmentDetector();
-        var detectorMacChrome = new executionEnvironmentDetector();
-        var detectorAndroidOld = new executionEnvironmentDetector();
-        var detectorAndroidChrome = new executionEnvironmentDetector();
-        var detectorIOSOld = new executionEnvironmentDetector();
-        var detectorIOSChrome = new executionEnvironmentDetector();
-        var detectorIOSSafari = new executionEnvironmentDetector();
-
-        var uaWinOld = "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2224.3 Safari/537.36";
-        var uaWinIE = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; InfoPath.3; Tablet PC 2.0; rv:11.0) like Gecko";
-        var uaWinChrome = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36";
-        var uaMacSafari = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A";
-        var uaMacChrome = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36";
-        var uaAndroidOld = "Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
-        var uaAndroidChrome = "Mozilla/5.0 (Linux; Android 5.1.1; SHIELD Tablet Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
-        var uaIOSOld = "Mozilla/5.0 (iPad; CPU OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/11D257 Safari/9537.53";
-        var uaIOSChrome = "Mozilla/5.0 (iPad; CPU OS 8_1_2 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/40.0.2214.69 Mobile/12B440 Safari/600.1.4 (000787)";
-        var uaIOSSafari = "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
-
-        // Act
-        detectorWinOld.userBrowser = detectorWinOld.getBrowserInfoUserAgent(uaWinOld, bowser._detect(uaWinOld));
-        detectorWinIE.userBrowser = detectorWinIE.getBrowserInfoUserAgent(uaWinIE, bowser._detect(uaWinIE));
-        detectorWinChrome.userBrowser = detectorWinChrome.getBrowserInfoUserAgent(uaWinChrome, bowser._detect(uaWinChrome));
-        detectorMacSafari.userBrowser = detectorMacSafari.getBrowserInfoUserAgent(uaMacSafari, bowser._detect(uaMacSafari));
-        detectorMacChrome.userBrowser = detectorMacChrome.getBrowserInfoUserAgent(uaMacChrome, bowser._detect(uaMacChrome));
-        detectorAndroidOld.userBrowser = detectorAndroidOld.getBrowserInfoUserAgent(uaAndroidOld, bowser._detect(uaAndroidOld));
-        detectorAndroidChrome.userBrowser = detectorAndroidChrome.getBrowserInfoUserAgent(uaAndroidChrome, bowser._detect(uaAndroidChrome));
-        detectorIOSOld.userBrowser = detectorIOSOld.getBrowserInfoUserAgent(uaIOSOld, bowser._detect(uaIOSOld));
-        detectorIOSChrome.userBrowser = detectorIOSChrome.getBrowserInfoUserAgent(uaIOSChrome, bowser._detect(uaIOSChrome));
-        detectorIOSSafari.userBrowser = detectorIOSSafari.getBrowserInfoUserAgent(uaIOSSafari, bowser._detect(uaIOSSafari));
-
-        // Assert
-        expect(detectorWinOld.isSupportedVersion()).toBeFalsy();
-        expect(detectorWinIE.isSupportedVersion()).toBeTruthy();
-        expect(detectorWinChrome.isSupportedVersion()).toBeTruthy();
-        expect(detectorMacSafari.isSupportedVersion()).toBeFalsy();
-        expect(detectorMacChrome.isSupportedVersion()).toBeTruthy();
-        expect(detectorAndroidOld.isSupportedVersion()).toBeFalsy();
-        expect(detectorAndroidChrome.isSupportedVersion()).toBeTruthy();
-        expect(detectorIOSOld.isSupportedVersion()).toBeFalsy();
-        expect(detectorIOSChrome.isSupportedVersion()).toBeTruthy();
-        expect(detectorIOSSafari.isSupportedVersion()).toBeTruthy();
-
-        expect(detectorWinOld.isTouchDevice()).toBeFalsy();
-        expect(detectorWinIE.isTouchDevice()).toBeFalsy();
-        expect(detectorMacChrome.isTouchDevice()).toBeFalsy();
-        expect(detectorAndroidOld.isTouchDevice()).toBeTruthy();
-        expect(detectorAndroidChrome.isTouchDevice()).toBeTruthy();
-        expect(detectorIOSOld.isTouchDevice()).toBeTruthy();
-        expect(detectorIOSChrome.isTouchDevice()).toBeTruthy();
-
-        expect(detectorWinOld.isWindows()).toBeFalsy();
-        expect(detectorWinIE.isWindows()).toBeTruthy();
-        expect(detectorWinChrome.isWindows()).toBeTruthy();
-        expect(detectorMacSafari.isMacOSX()).toBeTruthy();
-        expect(detectorMacChrome.isMacOSX()).toBeTruthy();
-        expect(detectorAndroidOld.isAndroid()).toBeTruthy();
-        expect(detectorAndroidChrome.isAndroid()).toBeTruthy();
-        expect(detectorIOSOld.isiOS()).toBeTruthy();
-        expect(detectorIOSChrome.isiOS()).toBeTruthy();
-        expect(detectorIOSSafari.isiOS()).toBeTruthy();
-
-        expect(detectorWinIE.isIE()).toBeTruthy();
-        expect(detectorWinChrome.isChrome()).toBeTruthy();
-        expect(detectorMacSafari.isSafari()).toBeTruthy();
-        expect(detectorMacChrome.isChrome()).toBeTruthy();
-        expect(detectorAndroidChrome.isChrome()).toBeTruthy();
-        expect(detectorIOSChrome.isChrome()).toBeTruthy();
-        expect(detectorIOSSafari.isSafari()).toBeTruthy();
     });
 
 });

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -12,7 +13,7 @@ namespace AdminStore.Repositories
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlSettingsRepository()
-            : this(new SqlConnectionWrapper(WebApiConfig.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

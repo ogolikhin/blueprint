@@ -7,7 +7,6 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using System.Data;
 using System.Linq;
-using AdminStore.Helpers;
 using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
@@ -17,7 +16,7 @@ namespace AdminStore.Repositories
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlInstanceRepository()
-            : this(new SqlConnectionWrapper(WebApiConfig.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

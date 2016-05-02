@@ -11,7 +11,9 @@ bp-accordion {
     height: 100%;
 
     bp-accordion-panel {
+      clear: both;
       display: block;
+      min-height: $utility-panel-heading-height;
       transition: height .2s ease;
 
       &.bp-accordion-panel-open {

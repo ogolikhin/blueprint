@@ -14,21 +14,24 @@ namespace AdminStore.Controllers
 {
     [RoutePrefix("instance")]
     [BaseExceptionFilter]
-    public class InstanceController : ApiController, ILoggable 
+    public class InstanceController : LoggableApiController
     {
         internal readonly ISqlInstanceRepository _instanceRepository;
-        public IServiceLogRepository Log { get; }
 
-        public string LogSource { get; } = "AdminStore.Instance";
+        public override string LogSource { get; } = "AdminStore.Instance";
 
-        public InstanceController() : this(new SqlInstanceRepository(), new ServiceLogRepository())
+        public InstanceController() : this(new SqlInstanceRepository())
         {
         }
 
-        public InstanceController(ISqlInstanceRepository instanceRepository, IServiceLogRepository log)
+        public InstanceController(ISqlInstanceRepository instanceRepository) : base()
         {
             _instanceRepository = instanceRepository;
-            Log = log;
+        }
+
+        public InstanceController(ISqlInstanceRepository instanceRepository, IServiceLogRepository log) : base(log)
+        {
+            _instanceRepository = instanceRepository;
         }
 
         /// <summary>

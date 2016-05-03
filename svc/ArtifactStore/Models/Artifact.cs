@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace ArtifactStore.Models
 {
@@ -8,14 +7,33 @@ namespace ArtifactStore.Models
 	public class Artifact
 	{
 		[JsonProperty]
-		public int ProjectId { get; set; }
-		[JsonProperty]
-		public int ArtifactId { get; set; }
-		[JsonProperty]
-		public int? LockedByUserId { get; set; }
-		[JsonProperty]
-		public DateTime? LockedByUserTime { get; set; }
-		[JsonProperty]
-		public IEnumerable<Element> Elements { get; set; }
+		public int Id { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty]
+        public int ProjectId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int ParentId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? TypeId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public PredefinedType? PredefinedType { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? Version { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public double? OrderIndex { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? LockedByUserId { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? LockedDateTime { get; set; }
 	}
 }

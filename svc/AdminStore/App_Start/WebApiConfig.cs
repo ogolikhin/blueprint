@@ -17,8 +17,6 @@ namespace AdminStore
 
         public static string AdminStorage = ConfigurationManager.ConnectionStrings["AdminStorage"].ConnectionString;
 
-        public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
-
         public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];

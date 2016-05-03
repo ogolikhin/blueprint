@@ -120,8 +120,8 @@ var appBootstrap = (function() {
         this.executionEnvironment = new executionEnvironmentDetector();
     }
 
-    appBootstrap.prototype.isSupportedVersion = function () {
-        if (this.executionEnvironment.isSupportedVersion()) {
+    appBootstrap.prototype.isSupportedVersion = (function () {
+        if (new executionEnvironmentDetector().isSupportedVersion()) {
             return true;
         }
 
@@ -143,7 +143,7 @@ var appBootstrap = (function() {
         xhr.open('GET', '/novaweb/static/unsupported-browser.html');
         xhr.send();
         return false;
-    };
+    })();
 
     appBootstrap.prototype.initApp = function() {
         var app = angular.module("app", ["app.main"]);
@@ -186,4 +186,4 @@ var appBootstrap = (function() {
     };
 
     return new appBootstrap();
-}());
+})();

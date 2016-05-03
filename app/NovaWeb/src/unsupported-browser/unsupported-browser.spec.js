@@ -1191,7 +1191,7 @@ describe('appBootstrap', function() {
         app.executionEnvironment = detector;
 
         // Assert
-        expect(app.isSupportedVersion()).toBeFalsy();
+        expect(app.isSupportedVersion).toBeFalsy();
     });
 
     it('Launch app with supported browser (Win IE11)', function() {
@@ -1206,7 +1206,6 @@ describe('appBootstrap', function() {
         app.initApp();
 
         // Assert
-        expect(app.isSupportedVersion()).toBeTruthy();
         expect(window.document.body.className).toContain("is-windows");
         expect(window.document.body.className).toContain("is-msie");
     });

@@ -148,13 +148,20 @@ namespace StorytellerTests
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            Assert.DoesNotThrow(() =>
+            try
             {
-                var artifactsList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
-                Assert.IsTrue(artifactsList.Count > 0);
-            }, "Couldn't find an artifact named '{0}'.", artifact.Name);
-            artifact.Delete(_user);
-            artifact.Publish(_user);
+                Assert.DoesNotThrow(() =>
+                {
+                    var artifactsList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                    Assert.IsTrue(artifactsList.Count > 0);
+                }, "Couldn't find an artifact named '{0}'.", artifact.Name);
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
         }
 
         [TestCase]
@@ -175,15 +182,22 @@ namespace StorytellerTests
 
             //Implementation of CreateOpenApiArtifact use OpenApi_Artifact_ prefix to name artifacts
             string searchString = "OpenApi_Artifact_";
-            Assert.DoesNotThrow(() =>
+            try
             {
-                var searchResultList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
-                Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
-            });
-            foreach (var artifactToDelete in artifactList)
+                Assert.DoesNotThrow(() =>
+                {
+                    var searchResultList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
+                    Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
+                });
+            }
+
+            finally
             {
-                artifactToDelete.Delete(_user);
-                artifactToDelete.Publish(_user);
+                foreach (var artifactToDelete in artifactList)
+                {
+                    artifactToDelete.Delete(_user);
+                    artifactToDelete.Publish(_user);
+                }
             }
         }
     }

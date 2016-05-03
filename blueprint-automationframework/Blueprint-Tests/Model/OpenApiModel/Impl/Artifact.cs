@@ -492,7 +492,7 @@ namespace Model.OpenApiModel.Impl
         /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>List of artifacts</returns>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
         public static IList<IArtifactBase> SearchArtifactsByName(string address, IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));

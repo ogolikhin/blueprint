@@ -2,6 +2,7 @@
 using CustomAttributes;
 using Model;
 using Model.OpenApiModel;
+using Model.OpenApiModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -131,19 +132,73 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
         }
 
-        [TestCase]
-        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestRail(102883)]
+        [Description("Create artifact, save and publish it. Search created artifact by name. Search must return created artifact.")]
+        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            //Create an artifact with ArtifactType and populate all required values without properties
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, artifactType);
 
+            artifact.Save(_user);
             artifact.Publish(_user);
-            artifact.IsPublished = true;
 
-            Assert.DoesNotThrow(() =>
+            try
             {
-                var artifactsList = artifact.SearchArtifactsByName(user: _user, searchSubstring: artifact.Name);
-                Assert.IsTrue(artifactsList.Count > 0);
-            }, "Couldn't find an artifact named '{0}'.", artifact.Name);
+                Assert.DoesNotThrow(() =>
+                {
+                    var artifactsList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                    Assert.IsTrue(artifactsList.Count > 0);
+                }, "Couldn't find an artifact named '{0}'.", artifact.Name);
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
+        }
+
+        [TestCase]
+        [TestRail(102884)]
+        [Description("Check that search artifact by name returns 10 artifacts only.")]
+        public void GetSearchArtifactResults_ReturnedListHasExpectedLength()
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            var artifactList = new List<IOpenApiArtifact>();
+            IOpenApiArtifact artifact;
+            for (int i = 0; i < 12; i++)
+            {
+                artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
+                artifact.Save(_user);
+                artifact.Publish(_user);
+                artifactList.Add(artifact);
+            }
+
+            //Implementation of CreateOpenApiArtifact use OpenApi_Artifact_ prefix to name artifacts
+            string searchString = "OpenApi_Artifact_";
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    var searchResultList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
+                    Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
+                });
+            }
+
+            finally
+            {
+                foreach (var artifactToDelete in artifactList)
+                {
+                    artifactToDelete.Delete(_user);
+                    artifactToDelete.Publish(_user);
+                }
+            }
         }
     }
 }

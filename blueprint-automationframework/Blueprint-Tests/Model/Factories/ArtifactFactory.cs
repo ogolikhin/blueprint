@@ -20,15 +20,17 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
-            
+
             IOpenApiArtifact artifact = new OpenApiArtifact(address);
-            artifact.ArtifactTypeName = artifactType.ToString();
             artifact.BaseArtifactType = artifactType;
-            artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
 
             artifact.ProjectId = project.Id;
+            artifact.ParentId = project.Id;
 
-            artifact.ArtifactTypeId = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType)).Id;
+            var projectArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType));
+            artifact.ArtifactTypeId = projectArtifactType.Id;
+            artifact.ArtifactTypeName = projectArtifactType.Name;
+            artifact.Name = "OpenApi_Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
 
             //TODO: Move this to Save method and get CreatedBy from the result of the OpenAPI call
             artifact.CreatedBy = user;

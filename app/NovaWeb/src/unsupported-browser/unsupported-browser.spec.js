@@ -1189,7 +1189,6 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
-        app.initApp();
 
         // Assert
         expect(app.isSupportedVersion()).toBeFalsy();

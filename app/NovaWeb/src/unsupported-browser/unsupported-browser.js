@@ -146,10 +146,6 @@ var appBootstrap = (function() {
     };
 
     appBootstrap.prototype.initApp = function() {
-        if (!this.isSupportedVersion()) {
-            return;
-        }
-
         var app = angular.module("app", ["app.main"]);
 
         if (this.executionEnvironment.isTouchDevice()) {

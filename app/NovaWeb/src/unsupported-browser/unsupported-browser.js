@@ -145,8 +145,7 @@ var appBootstrap = (function() {
         return false;
     };
 
-    // param isTest (boolean) is to allow for max coverage, as cannot bootstrap the app multiple times
-    appBootstrap.prototype.initApp = function(isTest) {
+    appBootstrap.prototype.initApp = function() {
         if (!this.isSupportedVersion()) {
             return;
         }
@@ -185,11 +184,9 @@ var appBootstrap = (function() {
             document.body.className += " is-safari";
         }
 
-        if (!isTest) {
-            angular.bootstrap(document, ["app"], {
-                strictDi: true
-            });
-        }
+        angular.bootstrap(document, ["app"], {
+            strictDi: true
+        });
     };
 
     return new appBootstrap();

@@ -1189,85 +1189,27 @@ describe('appBootstrap', function() {
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaUnsupported, bowser._detect(uaUnsupported));
         app.executionEnvironment = detector;
-        app.initApp(true);
+        app.initApp();
 
         // Assert
         expect(app.isSupportedVersion()).toBeFalsy();
     });
 
-    it('Launch app with supported browser - Win IE', function() {
+    it('Launch app with supported browser (Win IE11)', function() {
         // Arrange
-        var appWinIE = appBootstrap;
+        var app = appBootstrap;
         var detector = new executionEnvironmentDetector();
         var uaWinIE = "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; InfoPath.3; Tablet PC 2.0; rv:11.0) like Gecko";
 
         // Act
         detector.userBrowser = detector.getBrowserInfoUserAgent(uaWinIE, bowser._detect(uaWinIE));
-        appWinIE.executionEnvironment = detector;
-        appWinIE.initApp(true);
-
-        // Assert
-        expect(appWinIE.isSupportedVersion()).toBeTruthy();
-    });
-
-    it('Launch app with supported browser - Mac Chrome', function() {
-        // Arrange
-        var appMacChrome = appBootstrap;
-        var detector = new executionEnvironmentDetector();
-        var uaMacChrome = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36";
-
-        // Act
-        detector.userBrowser = detector.getBrowserInfoUserAgent(uaMacChrome, bowser._detect(uaMacChrome));
-        appMacChrome.executionEnvironment = detector;
-        appMacChrome.initApp(true);
-
-        // Assert
-        expect(appMacChrome.isSupportedVersion()).toBeTruthy();
-    });
-
-    it('Launch app with supported browser - Android Chrome', function() {
-        // Arrange
-        var appAndroidChrome = appBootstrap;
-        var detector = new executionEnvironmentDetector();
-        var uaAndroidChrome = "Mozilla/5.0 (Linux; Android 5.1.1; SHIELD Tablet Build/LRX09D) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.105 Safari/537.36";
-
-        // Act
-        detector.userBrowser = detector.getBrowserInfoUserAgent(uaAndroidChrome, bowser._detect(uaAndroidChrome));
-        appAndroidChrome.executionEnvironment = detector;
-        appAndroidChrome.initApp(true);
-
-        // Assert
-        expect(appAndroidChrome.isSupportedVersion()).toBeTruthy();
-    });
-
-    it('Launch app with supported browser - iOS Safari', function() {
-        // Arrange
-        var appIOSSafari = appBootstrap;
-        var detector = new executionEnvironmentDetector();
-        var uaIOSSafari = "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
-
-        // Act
-        detector.userBrowser = detector.getBrowserInfoUserAgent(uaIOSSafari, bowser._detect(uaIOSSafari));
-        appIOSSafari.executionEnvironment = detector;
-        appIOSSafari.initApp(true);
-
-        // Assert
-        expect(appIOSSafari.isSupportedVersion()).toBeTruthy();
-    });
-
-    it('Launch (and bootstrap) app with supported browser', function() {
-        // Arrange
-        var app = appBootstrap;
-        var detector = new executionEnvironmentDetector();
-        var uaIOSSafari = "Mozilla/5.0 (iPad; CPU OS 8_0 like Mac OS X) AppleWebKit/538.46.1 (KHTML, like Gecko) Version/7.0 Mobile/12A4331d Safari/9537.53";
-
-        // Act
-        detector.userBrowser = detector.getBrowserInfoUserAgent(uaIOSSafari, bowser._detect(uaIOSSafari));
         app.executionEnvironment = detector;
         app.initApp();
 
         // Assert
         expect(app.isSupportedVersion()).toBeTruthy();
+        expect(window.document.body.className).toContain("is-windows");
+        expect(window.document.body.className).toContain("is-msie");
     });
 
 });

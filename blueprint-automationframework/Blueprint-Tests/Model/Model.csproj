@@ -53,6 +53,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactVersionModel\IArtifactVersion.cs" />
+    <Compile Include="ArtifactVersionModel\Impl\ArtifactVersion.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />

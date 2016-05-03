@@ -12,7 +12,7 @@ describe("Component BpAccordion", () => {
     var directiveTest: ComponentTest<BpAccordionCtrl>;
     var layout = `
         <bp-accordion accordion-heading-height="33">
-            <bp-accordion-panel accordion-panel-heading="Discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
+            <bp-accordion-panel accordion-panel-heading="Discussions" accordion-panel-class="utility-panel-discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Properties" accordion-panel-id="my-panel">Mauris aliquet feugiat vulputate.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
         </bp-accordion>
@@ -30,6 +30,29 @@ describe("Component BpAccordion", () => {
 
             //Assert
             expect(accordion.getPanels().length).toBe(3, "not all the panels have been added");
+        });
+
+        it("all 3 panels have been added with default height", () => {
+
+            //Arrange
+            var layoutDefaultHeading = `
+                <bp-accordion>
+                    <bp-accordion-panel accordion-panel-heading="Discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
+                    <bp-accordion-panel accordion-panel-heading="Properties">Mauris aliquet feugiat vulputate.</bp-accordion-panel>
+                    <bp-accordion-panel accordion-panel-heading="Relationships"Etiam eget urna ullamcorper.</bp-accordion-panel>
+                </bp-accordion>
+            `;
+            directiveTest = new ComponentTest<BpAccordionCtrl>(layoutDefaultHeading, "bp-accordion");
+            var accordion: BpAccordionCtrl = directiveTest.createComponent({});
+            var panels = accordion.getPanels();
+            var panel2 = panels[1];
+            var panel3 = panels[2];
+
+            //Act
+            accordion.redistributeHeight(); //this is called on $timeout(0) in the component, explicitly calling it here
+
+            //Assert
+            expect(panel2.$element[0].style.height).toBe(panel3.$element[0].style.height, "2nd and 3rd panels don't match");
         });
 
         it("1st panel is open by default", () => {
@@ -90,6 +113,38 @@ describe("Component BpAccordion", () => {
         it("open 2nd panel", () => {
 
             //Arrange
+            var accordion: BpAccordionCtrl = directiveTest.createComponent({});
+            var panels = accordion.getPanels();
+            var panel1 = panels[0];
+            var panel2 = panels[1];
+            var panel3 = panels[2];
+
+            var panel1Trigger = panel1.$element[0].querySelector("input.bp-accordion-panel-state");
+            var panel2Trigger = panel2.$element[0].querySelector("input.bp-accordion-panel-state");
+
+            //Act
+            //Jasmine doesn't seem to handle radio buttons properly, forcing the checked state
+            panel1Trigger.removeAttribute("checked");
+            panel2Trigger.setAttribute("checked", "checked");
+            panel2Trigger.click(); //opening 2nd panel
+
+            //Assert
+            expect(panel1.$element[0].className).not.toContain("bp-accordion-panel-open", "1st panel is open");
+            expect(panel2.$element[0].className).toContain("bp-accordion-panel-open", "2nd panel has not been opened");
+            expect(panel3.$element[0].className).not.toContain("bp-accordion-panel-open", "3rd panel is open");
+        });
+
+        it("open 2nd panel (on top variant)", () => {
+
+            //Arrange
+            var layoutOpenTop = `
+                <bp-accordion accordion-heading-height="33" accordion-open-top>
+                    <bp-accordion-panel accordion-panel-heading="Discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
+                    <bp-accordion-panel accordion-panel-heading="Properties" accordion-panel-id="my-panel">Mauris aliquet feugiat vulputate.</bp-accordion-panel>
+                    <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
+                </bp-accordion>
+            `;
+            directiveTest = new ComponentTest<BpAccordionCtrl>(layoutOpenTop, "bp-accordion");
             var accordion: BpAccordionCtrl = directiveTest.createComponent({});
             var panels = accordion.getPanels();
             var panel1 = panels[0];

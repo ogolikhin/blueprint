@@ -2,7 +2,6 @@
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/openproject.ctrl";
 
-
 interface IToolbarController {
 //    add(): void;
 //    clear(): void;
@@ -54,7 +53,8 @@ class ToolbarCtrl implements IToolbarController {
         evt.stopImmediatePropagation();
     }
 
-    toggleFullScreenOnMobile(): void {
+    // not used yet and maybe not needed
+    /*toggleFullScreenOnMobile(): void {
         // requestFullScreen can only be initiated by a user gesture and works for mobile devices only
         var doc: any = window.document;
         var docEl = doc.documentElement;
@@ -67,7 +67,7 @@ class ToolbarCtrl implements IToolbarController {
         } else {
             cancelFullScreen.call(doc);
         }
-    }
+    }*/
 
     public openProject() {
         this.dialogService.open(<IDialogSettings>{

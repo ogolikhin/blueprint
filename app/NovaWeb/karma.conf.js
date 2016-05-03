@@ -27,7 +27,17 @@ module.exports = function (config) {
             './node_modules/bowser/bowser.js',
             './src/unsupported-browser/unsupported-browser.js',
             './src/unsupported-browser/unsupported-browser.spec.js',
+            {
+                pattern: './src/unsupported-browser/unsupported-browser.html',
+                watched: false,
+                included: false,
+                served: true,
+                nocache: false
+            }
         ],
+        proxies: {
+            '/novaweb/static/unsupported-browser.html': '/base/src/unsupported-browser/unsupported-browser.html'
+        },
         babelPreprocessor: {
             options: {
                 presets: ['es2015']

@@ -99,15 +99,5 @@ namespace Model.OpenApiModel
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
-
-        /// <summary>
-        /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
-        /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>List of artifacts</returns>
-        IList<IArtifactBase> SearchArtifactsByName(IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

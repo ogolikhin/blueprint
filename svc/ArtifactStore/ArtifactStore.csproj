@@ -102,13 +102,16 @@
     </Compile>
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\ArtifactController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Element.cs" />
     <Compile Include="Models\Artifact.cs" />
+    <Compile Include="Models\PredefinedType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ISqlArtifactRepository.cs" />
+    <Compile Include="Repositories\SqlArtifactRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">

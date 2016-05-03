@@ -29,7 +29,7 @@ describe("Open Project.", () => {
     var controller: OpenProjectController;
 
     beforeEach(() => {
-        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), null, null, null);
+        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), null, null, null, null);
     });
 
     describe("Return value.", () => {
@@ -117,7 +117,7 @@ describe("Embedded ag-grid events", () => {
 
         elem = angular.element('<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>');
 
-        controller = new OpenProjectController($scope, new LocalizationServiceMock(), new ModalServiceInstanceMock(), new ProjectServiceMock(_$q_), null, null);
+        controller = new OpenProjectController($scope, new LocalizationServiceMock(), new ModalServiceInstanceMock(), new ProjectServiceMock(_$q_), null, null, null);
         _$compile_(elem)($scope);
 
         $scope.$digest();

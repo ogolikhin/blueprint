@@ -15,14 +15,15 @@ export class OpenProjectController extends BaseDialogController {
     private rowData: any = null;
     private selectedItem: any;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogSettings
+        params: IDialogSettings,
+        private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
     };
@@ -97,7 +98,10 @@ export class OpenProjectController extends BaseDialogController {
         var rowModel = self.gridOptions.api.getModel();
         var rowsToSelect = rowModel.getRow(params.rowIndex);
         rowsToSelect.setSelected(true, true);
-        self.$scope.$applyAsync((s) => self.selectedItem = rowsToSelect.data);
+        self.$scope.$applyAsync((s) => {
+            self.selectedItem = rowsToSelect.data;
+            self.selectedItem.Description = this.$sce.trustAsHtml(rowsToSelect.data.Description);
+        });
     };
 
     private getNodeChildDetails(rowItem) {

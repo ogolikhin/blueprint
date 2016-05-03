@@ -114,13 +114,14 @@ var executionEnvironmentDetector = (function () {
 }());
 
 var appBootstrap = (function() {
-    var executionEnvironment = new executionEnvironmentDetector();
+    appBootstrap.prototype.executionEnvironment = {};
 
     function appBootstrap() {
+        this.executionEnvironment = new executionEnvironmentDetector();
     }
-    
-    appBootstrap.prototype.isSupportedVersion = (function () {
-        if (executionEnvironment.isSupportedVersion()) {
+
+    appBootstrap.prototype.isSupportedVersion = function () {
+        if (this.executionEnvironment.isSupportedVersion()) {
             return true;
         }
 
@@ -142,12 +143,16 @@ var appBootstrap = (function() {
         xhr.open('GET', '/novaweb/static/unsupported-browser.html');
         xhr.send();
         return false;
-    }());
+    };
 
     appBootstrap.prototype.initApp = function() {
+        if (!this.isSupportedVersion()) {
+            return;
+        }
+
         var app = angular.module("app", ["app.main"]);
 
-        if (executionEnvironment.isTouchDevice()) {
+        if (this.executionEnvironment.isTouchDevice()) {
             document.body.className += " is-touch";
             // if touch device, we set the min-height to the screen height resolution so that the user can swipe up and
             // remove the browser chrome, therefore maximizing the available space. Recalculates on orientation change.
@@ -157,25 +162,25 @@ var appBootstrap = (function() {
                 document.body.style.minHeight = screen.height + "px";
             });
         }
-        if (executionEnvironment.isAndroid()) {
+        if (this.executionEnvironment.isAndroid()) {
             document.body.className += " is-android";
         }
-        if (executionEnvironment.isiOS()) {
+        if (this.executionEnvironment.isiOS()) {
             document.body.className += " is-ios";
         }
-        if (executionEnvironment.isWindows()) {
+        if (this.executionEnvironment.isWindows()) {
             document.body.className += " is-windows";
         }
-        if (executionEnvironment.isMacOSX()) {
+        if (this.executionEnvironment.isMacOSX()) {
             document.body.className += " is-macosx";
         }
-        if (executionEnvironment.isChrome()) {
+        if (this.executionEnvironment.isChrome()) {
             document.body.className += " is-chrome";
         }
-        if (executionEnvironment.isIE()) {
+        if (this.executionEnvironment.isIE()) {
             document.body.className += " is-msie";
         }
-        if (executionEnvironment.isSafari()) {
+        if (this.executionEnvironment.isSafari()) {
             document.body.className += " is-safari";
         }
 

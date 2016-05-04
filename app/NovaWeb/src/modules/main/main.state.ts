@@ -102,9 +102,16 @@ class MainCtrl {
         var self = this;
         var selectedNode;
         var editing = false;
-        var currentValue = params.value;
+        var currentValue = sanitizeParamAndReturnString(params.value);
         var formattedCurrentValue = "<span>" + currentValue + "</span>";
         var containerCell = params.eGridCell;
+
+        function sanitizeParamAndReturnString(value) {
+            var sanitizer = document.createElement("DIV");
+            sanitizer.innerHTML = value;
+            value = sanitizer.textContent || sanitizer.innerText || "";
+            return value;
+        }
 
         function stopEditing() {
             var editSpan = containerCell.querySelector(".ag-group-inline-edit");
@@ -114,7 +121,7 @@ class MainCtrl {
                 input.removeEventListener("keyup", keyEventHandler);
                 var newValue = input.value;
                 if (newValue !== "") { // do we need more validation?
-                    valueSpan.querySelector("span").textContent = newValue;
+                    valueSpan.querySelector("span").textContent = sanitizeParamAndReturnString(newValue);
                     selectedNode.data.Name = newValue;
                 }
                 var parentSpan = editSpan.parentNode;

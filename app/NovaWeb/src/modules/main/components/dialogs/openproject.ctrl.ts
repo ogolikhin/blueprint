@@ -56,6 +56,10 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                var nameSanitizer = document.createElement("DIV");
+                nameSanitizer.innerHTML = params.data.Name;
+                params.data.Name = nameSanitizer.textContent || nameSanitizer.innerText || "";
+
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);

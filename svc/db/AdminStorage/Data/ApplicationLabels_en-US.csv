@@ -17,6 +17,7 @@ App_Header_Welcome,"Welcome"
 
 App_Project, "Project"
 App_Project_Open,"Open project"
+App_Project_Name,"Name"
 App_Project_Description,"Description"
 
 App_Toolbar_Project,"Project"

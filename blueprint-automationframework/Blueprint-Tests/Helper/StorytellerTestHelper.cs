@@ -975,22 +975,6 @@ namespace Helper
         }
 
         /// <summary>
-        /// Find an Artifact Path Link in an enumeration of Artifact Path Links
-        /// </summary>
-        /// <param name="linkToFind">The artifact path link to find</param>
-        /// <param name="linksToSearchThrough">The artifact path links to search through</param>
-        /// <returns>The artifact path link that is found</returns>
-        private static AssociatedArtifact FindArtifactPathLink(AssociatedArtifact linkToFind,
-            IEnumerable<AssociatedArtifact> linksToSearchThrough)
-        {
-            var linkFound = linksToSearchThrough.ToList().Find(p => p.Id == linkToFind.Id);
-
-            Assert.IsNotNull(linkFound, "Could not find and ArtifactPathLink with Id {0}", linkToFind.Id);
-
-            return linkFound;
-        }
-
-        /// <summary>
         /// Find a Property in an enumeration of Properties
         /// </summary>
         /// <param name="keyToFind">The property to find</param>

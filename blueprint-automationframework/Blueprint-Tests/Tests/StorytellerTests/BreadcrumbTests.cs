@@ -14,6 +14,7 @@ namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
+    [Explicit(IgnoreReasons.UnderDevelopment)]
     public class BreadcrumbTests
     {
         private const string STORYTELLER_BASE_URL = "/Web/#/Storyteller/";

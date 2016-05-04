@@ -832,6 +832,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_SignedI
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome', 'en-US', N'Welcome')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Project', 'en-US', N'Open Project')

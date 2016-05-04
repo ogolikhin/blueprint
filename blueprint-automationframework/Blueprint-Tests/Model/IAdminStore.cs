@@ -115,5 +115,14 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
         IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Reset the user's password with a new one.
+        /// (Runs: POST /users/reset?login={username})
+        /// </summary>
+        /// <param name="user">The user whose password you are resetting (should contain the old password).</param>
+        /// <param name="newPassword">The new password to set.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

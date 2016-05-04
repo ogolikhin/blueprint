@@ -6,8 +6,11 @@ namespace Utilities.Factories
 {
     public static class RandomGenerator
     {
+        public const string LowerCase = "abcdefghijklmnopqrstuvwxyz";
+        public const string UpperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         public const string UpperCaseAndNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public const string UpperAndLowerCaseAndNumbers = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        public const string SpecialChars = "~!@#$%^&*()_+`-=[]\\{}|;':\",./<>?";    // NOTE: These are only the ones from the keyboard, but there are many more possible chars.
 
         private static readonly Random _random = new Random();
 
@@ -35,12 +38,43 @@ namespace Utilities.Factories
         }
 
         /// <summary>
-        /// Generates a random number.
+        /// Generates a random number from 0 to the max value specified.
         /// </summary>
+        /// <param name="maxValue">(optional) The maximum random number to create.</param>
         /// <returns>A random number.</returns>
-        public static int RandomNumber()
+        public static int RandomNumber(int maxValue = int.MaxValue)
         {
-            return _random.Next(1, int.MaxValue);
+            return _random.Next(0, maxValue);
+        }
+
+        /// <summary>
+        /// Generates a random string of only lower case letters of the specified length.
+        /// </summary>
+        /// <param name="length">The length of the random string to create.</param>
+        /// <returns>A random lower case string.</returns>
+        public static string RandomLowerCase(uint length)
+        {
+            return RandomString(length, LowerCase);
+        }
+
+        /// <summary>
+        /// Generates a random string of only special characters of the specified length.
+        /// </summary>
+        /// <param name="length">The length of the random string to create.</param>
+        /// <returns>A random special characters string.</returns>
+        public static string RandomSpecialChars(uint length)
+        {
+            return RandomString(length, SpecialChars);
+        }
+
+        /// <summary>
+        /// Generates a random string of only upper case letters of the specified length.
+        /// </summary>
+        /// <param name="length">The length of the random string to create.</param>
+        /// <returns>A random upper case string.</returns>
+        public static string RandomUpperCase(uint length)
+        {
+            return RandomString(length, UpperCase);
         }
 
         /// <summary>

@@ -4,10 +4,11 @@ $gray-darker:       #333;
 $gray-dark:         #4c4c4c;
 $gray:              #616161;
 $gray-pale:         #838383;
+$gray-medium:       #999;
 $gray-light:        #aaa;
 $gray-lighter:      #ccc;
 $gray-lightest:     #e8e8e8;
-$blue-lightest:     #cae4f5;
+$blue-lightest:     #e7ebf2;
 $white:             #fff;
 
 $brand-primary:     #1c285c;
@@ -15,7 +16,7 @@ $brand-secondary:   #009cdc;
 $brand-success:     #fff;
 $brand-error:       #ff1300;
 
-$body-bg-color:     #e7ebf2;
+$body-bg-color:     $blue-lightest;
 $body-color:        $text-color;
 $modal-bg-color:    #f0f0f0;
 

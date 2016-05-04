@@ -1,5 +1,8 @@
-button.btn {
+.btn {
   @include rounded-corners(#{$border-radius-amount});
+  min-width: 100px;
+  padding: 8px 19px;
+  text-align: center;
 }
 
 .btn-primary {
@@ -40,5 +43,20 @@ button.btn {
   &:active {
     background-color: darken($gray-lightest, 2%);
     border-color: darken($gray-lighter, 12%);
+  }
+}
+
+.btn-bluelight {
+  background-color: $blue-lightest;
+  border: solid 2px $gray-light;
+  color: $gray-light;
+  padding-bottom: 7px;
+  padding-top: 7px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: darken($blue-lightest, 2%);
+    border-color: darken($gray-light, 12%);
   }
 }

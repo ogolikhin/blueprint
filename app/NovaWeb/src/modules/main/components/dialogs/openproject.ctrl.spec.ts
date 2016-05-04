@@ -95,6 +95,12 @@ export class ProjectServiceMock implements IProjectService {
                 "Type": "Folder"
             },
             {
+                "Id": 8,
+                "ParentFolderId": 1,
+                "Name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
+                "Type": "Folder"
+            },
+            {
                 "Id": 33,
                 "ParentFolderId": 1,
                 "Name": "Process",
@@ -159,7 +165,7 @@ describe("Embedded ag-grid events", () => {
         var paramsMockProject = {
             data: {
                 Type: "Project",
-                Name: "project"
+                Name: "<button onclick=\"alert('HEY!')\";>project</button>"
             },
             eGridCell: document.createElement("div")
         };
@@ -174,6 +180,7 @@ describe("Embedded ag-grid events", () => {
         expect(cellRenderer).toEqual("artifact");
         expect(cellRendererFolder).toEqual("folder");
         expect(cellRendererProject).toContain("project");
+        expect(cellRendererProject).not.toContain("button");
     });
 
     it("onEnterKeyOnProject", () => {
@@ -220,8 +227,8 @@ describe("Embedded ag-grid events", () => {
         $scope.$apply();
 
         // Assert
-        expect(dataFromCall.length).toEqual(3);
-        expect(dataFromCall[2].Type).toBe("Project");
+        expect(dataFromCall.length).toEqual(4);
+        expect(dataFromCall[3].Type).toBe("Project");
     });
 
     it("rowGroupOpened", () => {
@@ -252,8 +259,8 @@ describe("Embedded ag-grid events", () => {
         $scope.$apply();
 
         // Assert
-        expect(paramsMock.node.data.Children.length).toEqual(3);
-        expect(paramsMock.node.data.Children[2].Type).toBe("Project");
+        expect(paramsMock.node.data.Children.length).toEqual(4);
+        expect(paramsMock.node.data.Children[3].Type).toBe("Project");
         expect(paramsMock.node.data.open).toBeTruthy();
         expect(paramsMock.node.data.alreadyLoadedFromServer).toBeTruthy();
     });

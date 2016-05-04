@@ -10,6 +10,7 @@ using System.Text;
 using System.Web;
 using System.Xml;
 using AdminStore.Models;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Saml
 {
@@ -23,15 +24,8 @@ namespace AdminStore.Saml
 
         public IPrincipal ProcessResponse(string samlResponse, IFederatedAuthenticationSettings settings)
         {
-            if (samlResponse == null)
-            {
-                throw new ArgumentNullException("samlResponse");
-            }
-
-            if (settings == null)
-            {
-                throw new ArgumentNullException("settings");
-            }
+            ThrowIf.ArgumentNull(samlResponse, nameof(samlResponse));
+            ThrowIf.ArgumentNull(settings, nameof(settings));
 
             var token = ReadSecurityToken(samlResponse, settings);
 

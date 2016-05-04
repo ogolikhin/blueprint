@@ -289,10 +289,15 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string encodedOldPassword = HashingUtilities.EncodeTo64UTF8(user.Password);
             var path = I18NHelper.FormatInvariant("{0}/users/reset", SVC_PATH);
 
-            var bodyObject = new Dictionary<string, string> { { "OldPass", encodedOldPassword } };
+            var bodyObject = new Dictionary<string, string>();
+
+            if (user.Password != null)
+            {
+                string encodedOldPassword = HashingUtilities.EncodeTo64UTF8(user.Password);
+                bodyObject.Add("OldPass", encodedOldPassword);
+            }
 
             if (newPassword != null)
             {

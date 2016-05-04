@@ -48,7 +48,7 @@ namespace AdminStoreTests
         [TestCase(MaxPasswordLength)]
         [TestRail(103064)]
         [Description("Reset a user's password to a valid new password.  The password should be reset successfully and the user should be able to login with the new password.")]
-        public void ResetUserPassword_VerifyUserCanLoginWithNewPassword(uint length)
+        public void ResetUserPasswordToValidNewPassword_Success_VerifyUserCanLoginWithNewPassword(uint length)
         {
             // Setup: generate a valid password.
             string newPassword = CreateValidPassword(length);

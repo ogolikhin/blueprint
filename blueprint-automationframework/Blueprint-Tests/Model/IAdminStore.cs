@@ -122,7 +122,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user whose password you are resetting (should contain the old password).</param>
         /// <param name="newPassword">The new password to set.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 204 No Content is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

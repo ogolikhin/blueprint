@@ -302,11 +302,6 @@ namespace Model.Impl
 
             var queryParameters = new Dictionary<string, string> { { "login", HashingUtilities.EncodeTo64UTF8(user.Username) } };
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.NoContent };
-            }
-
             Logger.WriteInfo("Resetting user '{0}' password from '{1}' to '{2}'", user.Username, user.Password, newPassword ?? "null");
 
             var restApi = new RestApiFacade(_address, string.Empty);

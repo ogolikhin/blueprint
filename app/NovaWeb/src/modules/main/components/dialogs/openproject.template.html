@@ -8,7 +8,7 @@
         <div class="project-name">{{ctrl.selectedItem.Name}}</div>
         <div ng-if="(ctrl.selectedItem.Type == 'Project')">
             <div>{{::$root.config.labels["App_Project_Description"]}}</div>
-            <div class="project-description"><div ng-if="ctrl.selectedItem.Description" ng-bind-html="ctrl.selectedItem.Description"></div></div>
+            <div class="project-description" ng-bind-html="ctrl.selectedItem.Description"></div>
         </div>
     </div>
 

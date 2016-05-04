@@ -6,26 +6,25 @@ function Invoke-MsBuild {
         Wrapper for MSBuild
 
     .NOTES
-        Assumes msbuild is in the path.
         Make sure to backtick your semicolons when passing in arguments.
     #>
 
     param(
         [Parameter(Mandatory=$true)][string]$project,
 
-        [string]$configuration = "ReleaseProtected",
-        [string]$teamBuildOutDir = "",
+        [Parameter(Mandatory=$false)][string]$configuration = "ReleaseProtected",
+        [Parameter(Mandatory=$false)][string]$teamBuildOutDir = "",
         
         #MSBuild Verbosity: (q[uiet], m[inimal], n[ormal], d[etailed], diag[nostic])
-        [string]$verbosity = "m",
+        [Parameter(Mandatory=$false)][string]$verbosity = "m",
         
         [Parameter(Mandatory=$true)][string]$msBuildPath,
         
-        [string]$runCodeAnalysis = "false",
-        [string]$visualStudioVersion = "12.0",
-        [string]$trailingArguments = "",
-        [bool]$ignoreErrorCode = $false,
-        [bool]$deployOnBuild = $false
+        [Parameter(Mandatory=$false)][string]$runCodeAnalysis = "false",
+        [Parameter(Mandatory=$false)][string]$visualStudioVersion = "12.0",
+        [Parameter(Mandatory=$false)][string]$trailingArguments = "",
+        [Parameter(Mandatory=$false)][bool]$ignoreErrorCode = $false,
+        [Parameter(Mandatory=$false)][bool]$deployOnBuild = $false
     )
     
     $expression = "& '$msBuildPath' /p:RunCodeAnalysis=$runCodeAnalysis /v:$verbosity /p:visualStudioVersion=$visualStudioVersion /p:Configuration=$configuration /p:TeamBuildOutDir=$teamBuildOutDir /p:SkipInvalidConfigurations=true /p:DeployOnBuild=$deployOnBuild $trailingArguments $project"
@@ -44,11 +43,11 @@ function Invoke-MsBuild {
 
 function Invoke-MyExpression {
     param(
-        $expression, 
-        $params,
-        [switch] $ignoreErrorCode,
-        [switch] $ignorePositiveErrorCode,
-        [Int[]] $successfulExitCodes = (0)
+        [Parameter(Mandatory=$true)][string]$expression, 
+        [Parameter(Mandatory=$true)][string]$params,
+        [Parameter(Mandatory=$false)][switch] $ignoreErrorCode,
+        [Parameter(Mandatory=$false)][switch] $ignorePositiveErrorCode,
+        [Parameter(Mandatory=$false)][Int[]] $successfulExitCodes = (0)
     )
 
     Write-JenkinsConsole -NoNewline $expression -ForegroundColor Cyan
@@ -88,7 +87,7 @@ function Zip-Files {
     param(
         [Parameter(Mandatory=$true)][string]$filename,
         [Parameter(Mandatory=$true)][string]$destination,
-        [string]$trailingArgs
+        [Parameter(Mandatory=$false)][string]$trailingArgs
     )
 
     Invoke-MyExpression "C:\Program Files\7-Zip\7z" "-mx5 -tzip -x!*pdb -x!*log  a $destination $filename $trailingArgs"
@@ -97,7 +96,7 @@ function Zip-Files {
 function New-Directory {
     param(
         [Parameter(Mandatory=$true)][string]$directory,
-        [bool]$recreate=$false
+        [Parameter(Mandatory=$false)][bool]$recreate=$false
     )
 
     if(Test-Path -PathType Container $directory) { 
@@ -113,3 +112,20 @@ function New-Directory {
         New-Item -ItemType Directory $directory | Out-Null
     }
 }
+
+function Check-TTParity{		
+    param(		
+        [Parameter(Mandatory=$true)][string]$ttScriptPath,		
+        [Parameter(Mandatory=$true)][string]$expectedResultPath,		
+        [Parameter(Mandatory=$true)][string]$tempPath		
+    )		
+ 	
+        Write-Section "Checking parity between output of $ttPath and contents of $expectedResultPath"		
+        		
+        #Invoke TextTransform		
+        Invoke-MyExpression "C:\Program Files (x86)\Common Files\microsoft shared\TextTemplating\12.0\TextTransform.exe" "$ttScriptPath -out $tempPath"		
+ 	
+        #Compare objects		
+        $compareResult = Compare-Object -ReferenceObject (Get-Content $tempPath) -DifferenceObject (Get-Content $expectedResultPath)		
+        return $compareResult -eq $null		
+ } 

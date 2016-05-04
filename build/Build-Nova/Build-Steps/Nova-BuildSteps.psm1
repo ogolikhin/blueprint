@@ -8,7 +8,7 @@ Set-StrictMode -Version Latest
 function Setup-Environment {
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
-        [bool] $removeFiles, #Recreate files if they already exist
+        [Parameter(Mandatory=$true)][bool] $removeFiles, #Recreate files if they already exist
 
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars

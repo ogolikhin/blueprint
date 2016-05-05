@@ -180,7 +180,7 @@ describe("Embedded ag-grid events", () => {
         expect(cellRenderer).toEqual("artifact");
         expect(cellRendererFolder).toEqual("folder");
         expect(cellRendererProject).toContain("project");
-        expect(cellRendererProject).not.toContain("button");
+        expect(cellRendererProject).not.toContain("<button");
     });
 
     it("onEnterKeyOnProject", () => {

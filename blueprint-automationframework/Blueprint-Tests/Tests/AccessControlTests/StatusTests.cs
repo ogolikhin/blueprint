@@ -12,7 +12,9 @@ namespace AccessControlTests
     {
         private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
 
-        [Test]
+        [TestCase]
+        [TestRail(96117)]
+        [Description("Check that GET /svc/AccessControl/status returns 200 OK")]
         public void GetStatus_OK()
         {
             var statusCode = _accessControl.GetStatus();

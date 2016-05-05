@@ -47,8 +47,10 @@ namespace Model.Impl
 
         #region Members inherited from IAdminStore
 
+        /// <seealso cref="IAdminStore.Sessions"/>
         public List<ISession> Sessions { get; } = new List<ISession>();
 
+        /// <seealso cref="IAdminStore.AddSsoSession(string, string, bool?, List{HttpStatusCode})"/>
         public ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
@@ -79,6 +81,23 @@ namespace Model.Impl
             return session;
         }
 
+        /// <seealso cref="IAdminStore.AddSession(IUser, bool?, List{HttpStatusCode}, IServiceErrorMessage)"/>
+        public ISession AddSession(IUser user = null,
+            bool? force = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            IServiceErrorMessage expectedServiceErrorMessage = null)
+        {
+            ISession session = AddSession(user?.Username, user?.Password, force, expectedStatusCodes, expectedServiceErrorMessage);
+
+            if (user != null)
+            {
+                user.SetToken(session.SessionId);
+            }
+
+            return session;
+        }
+
+        /// <seealso cref="IAdminStore.AddSession(string, string, bool?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public ISession AddSession(string username = null, string password = null, bool? force = null,
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
@@ -127,22 +146,39 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.DeleteSession(IUser, List{HttpStatusCode})"/>
+        public void DeleteSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            DeleteSession(user?.Token?.AccessControlToken, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.DeleteSession(ISession, List{HttpStatusCode})"/>
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            DeleteSession(session?.SessionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.DeleteSession(string, List{HttpStatusCode})"/>
+        public void DeleteSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
 
-            if (session != null)
+            if (token != null)
             {
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, token } };
             }
 
-            Logger.WriteInfo("Deleting session '{0}'...", session?.SessionId);
+            Logger.WriteInfo("Deleting session '{0}'...", token);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            // Remove token from the list of created sessions.
+            Sessions.RemoveAll(session => session.SessionId == token);
         }
 
+        /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, token: token);
@@ -175,11 +211,13 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.GetSession(int?)"/>
         public ISession GetSession(int? userId)
         {
             throw new NotImplementedException();
         }
 
+        /// <seealso cref="IAdminStore.GetSession(string, uint, uint)"/>
         public List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber)
         {
             throw new NotImplementedException();
@@ -214,6 +252,7 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
+        /// <seealso cref="IAdminStore.GetSettings(ISession, List{HttpStatusCode})"/>
         public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
@@ -231,6 +270,7 @@ namespace Model.Impl
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
         }
 
+        /// <seealso cref="IAdminStore.GetConfigJs(ISession, List{HttpStatusCode})"/>
         public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
@@ -248,6 +288,7 @@ namespace Model.Impl
             return response.Content;
         }
 
+        /// <seealso cref="IAdminStore.GetLicenseTransactions(int, ISession, List{HttpStatusCode})"/>
         public IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
@@ -273,6 +314,41 @@ namespace Model.Impl
                 throw;
             }
         }
+
+        /// <seealso cref="IAdminStore.ResetPassword(IUser, string, List{HttpStatusCode})"/>
+        public void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var path = I18NHelper.FormatInvariant("{0}/users/reset", SVC_PATH);
+
+            var bodyObject = new Dictionary<string, string>();
+
+            if (user.Password != null)
+            {
+                string encodedOldPassword = HashingUtilities.EncodeTo64UTF8(user.Password);
+                bodyObject.Add("OldPass", encodedOldPassword);
+            }
+
+            if (newPassword != null)
+            {
+                string encodedNewPassword = HashingUtilities.EncodeTo64UTF8(newPassword);
+                bodyObject.Add("NewPass", encodedNewPassword);
+            }
+
+            var queryParameters = new Dictionary<string, string> { { "login", HashingUtilities.EncodeTo64UTF8(user.Username) } };
+
+            Logger.WriteInfo("Resetting user '{0}' password from '{1}' to '{2}'", user.Username, user.Password, newPassword ?? "null");
+
+            var restApi = new RestApiFacade(_address, string.Empty);
+            restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                queryParameters: queryParameters,
+                bodyObject: bodyObject,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         #endregion Members inherited from IAdminStore
     }
 }

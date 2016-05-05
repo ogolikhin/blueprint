@@ -117,7 +117,6 @@ namespace StorytellerTests
 
             // Modify default process Name
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
@@ -445,10 +444,6 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
-
             // Create and save process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
@@ -466,10 +461,6 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
-
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
@@ -486,10 +477,6 @@ namespace StorytellerTests
         {
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndPublishProcessArtifact(_project, _user);

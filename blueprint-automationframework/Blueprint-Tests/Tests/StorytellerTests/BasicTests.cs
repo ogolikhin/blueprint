@@ -87,14 +87,13 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, 1, 2)]
+        [TestCase(5, 4, 2)]
         [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
                      "returned process has the same Id as the process artifact Id and that the numbers of " +
-                     "shapes, links, artifact path links and property values are as expected.")]
+                     "shapes, links and property values are as expected.")]
         public void GetDefaultProcess_VerifyReturnedProcess(
             int defaultShapesCount, 
             int defaultLinksCount, 
-            int defaultArtifactPathLinksCount, 
             int defaultPropertyValuesCount)
         {
             var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -109,8 +108,6 @@ namespace StorytellerTests
                 "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesCount, returnedProcess.Shapes.Count);
             Assert.That(returnedProcess.Links.Count == defaultLinksCount,
                 "The number of links in a default process is {0} but {1} links were returned.", defaultLinksCount, returnedProcess.Links.Count);
-            Assert.That(returnedProcess.ArtifactPathLinks.Count == defaultArtifactPathLinksCount,
-                "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, returnedProcess.ArtifactPathLinks.Count);
             Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
                 "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
         }

@@ -56,6 +56,10 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                var nameSanitizer = window.document.createElement("DIV");
+                nameSanitizer.innerHTML = params.data.Name;
+                params.data.Name = nameSanitizer.textContent || nameSanitizer.innerText || "";
+
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
@@ -100,7 +104,17 @@ export class OpenProjectController extends BaseDialogController {
         rowsToSelect.setSelected(true, true);
         self.$scope.$applyAsync((s) => {
             self.selectedItem = rowsToSelect.data;
-            self.selectedItem.Description = this.$sce.trustAsHtml(rowsToSelect.data.Description);
+            if (rowsToSelect.data.Description) {
+                var description = rowsToSelect.data.Description;
+                var virtualDiv = window.document.createElement("DIV");
+                virtualDiv.innerHTML = description;
+                var aTags = virtualDiv.querySelectorAll("a");
+                for (var a = 0; a < aTags.length; a++) {
+                    aTags[a].setAttribute("target", "_blank");
+                }
+                description = virtualDiv.innerHTML;
+                self.selectedItem.Description = this.$sce.trustAsHtml(description);
+            }
         });
     };
 

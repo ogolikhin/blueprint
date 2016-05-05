@@ -42,6 +42,18 @@ export class OpenProjectController extends BaseDialogController {
         this.dialogService.alert(error.message).then(() => { this.cancel(); });
     };
 
+    public stripHTMLTags = (stringToSanitize: string): string => {
+        var stringSanitizer = window.document.createElement("DIV");
+        stringSanitizer.innerHTML = stringToSanitize;
+        return stringSanitizer.textContent || stringSanitizer.innerText || "";
+    };
+
+    public escapeHTMLText = (stringToEscape: string): string =>  {
+        var stringEscaper = window.document.createElement("TEXTAREA");
+        stringEscaper.textContent = stringToEscape;
+        return stringEscaper.innerHTML;
+    };
+
     private onEnterKeyOnProject = (e: any) => {
         var key = e.which || e.keyCode;
         if (key === 13) {
@@ -56,18 +68,16 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var nameSanitizer = window.document.createElement("DIV");
-                nameSanitizer.innerHTML = params.data.Name;
-                params.data.Name = nameSanitizer.textContent || nameSanitizer.innerText || "";
+                var sanitizedName = this.escapeHTMLText(params.data.Name);
 
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
-                    return "<i class='fonticon-project'></i>" + params.data.Name;
+                    return "<i class='fonticon-project'></i>" + sanitizedName;
                 } if (params.data.Type === "Folder") {
-                    return params.data.Name;
+                    return sanitizedName;
                 } else {
-                    return params.data.Name;
+                    return sanitizedName;
                 }
             }
         },

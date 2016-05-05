@@ -17,7 +17,7 @@ namespace Helper
         /// <summary>
         /// Asserts that the two Processes are identical.
         /// </summary>
-        /// <param name="process1">First Process</param>CreateAndGetDefaultProcessWithSystemDecisionContainingMultipleConditions
+        /// <param name="process1">First Process</param>
         /// <param name="process2">Second Process being compared to the first</param>
         /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
         /// <exception cref="AssertionException">If process1 is not identical to process2</exception>
@@ -35,9 +35,7 @@ namespace Helper
             Assert.AreEqual(process1.ProjectId, process2.ProjectId, "The project ids of the processes don't match");
             Assert.AreEqual(process1.TypePrefix, process2.TypePrefix, "The type prefixes of the processes don't match");
 
-            // Assert that ArtifactPathLinks counts, Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
-            Assert.AreEqual(process1.ArtifactPathLinks.Count, process2.ArtifactPathLinks.Count,
-                "The processes have different artifact path link counts");
+            // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
             Assert.AreEqual(process1.PropertyValues.Count, process2.PropertyValues.Count,
                 "The processes have different property counts");
             Assert.AreEqual(process1.Links.Count, process2.Links.Count, "The processes have different link counts");
@@ -50,14 +48,6 @@ namespace Helper
 
             Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
                 "The processes have different decision branch destination link counts");
-
-            // Assert that Process artifact path links are equal
-            foreach (var process1ArtifactPathLink in process1.ArtifactPathLinks)
-            {
-                var process2ArtifactPathLink = FindArtifactPathLink(process1ArtifactPathLink, process2.ArtifactPathLinks);
-
-                AssertArtifactPathLinksAreEqual(process1ArtifactPathLink, process2ArtifactPathLink);
-            }
 
             // Assert that Process properties are equal
             foreach (var process1Property in process1.PropertyValues)
@@ -792,30 +782,30 @@ namespace Helper
         #region Private Methods
 
         /// <summary>
-        /// Assert that Process Artifact Path Links are equal
+        /// Assert that Associated Artifacts are equal
         /// </summary>
-        /// <param name="artifactPathlink1">The first ArtifactPath Link</param>
-        /// <param name="artifactPathlink2">The Artifact Path Link being compared to the first</param>
+        /// <param name="associatedArtifact1">The first associated artifact</param>
+        /// <param name="associatedArtifact2">The associated artifact being compared to the first</param>
         /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
-        private static void AssertArtifactPathLinksAreEqual(ArtifactPathLink artifactPathlink1, ArtifactPathLink artifactPathlink2, bool doDeepCompare = true)
+        private static void AssertAssociatedArtifactsAreEqual(AssociatedArtifact associatedArtifact1, AssociatedArtifact associatedArtifact2, bool doDeepCompare = true)
         {
-            if ((artifactPathlink1 == null) || (artifactPathlink2 == null))
+            if ((associatedArtifact1 == null) || (associatedArtifact2 == null))
             {
-                Assert.That((artifactPathlink1 == null) && (artifactPathlink2 == null), "One of the artifact path links is null while the other is not null");
+                Assert.That((associatedArtifact1 == null) && (associatedArtifact2 == null), "One of the associated artifacts is null while the other is not null");
             }
 
-            if (artifactPathlink1 != null)
+            if (associatedArtifact1 != null)
             {
-                Assert.AreEqual(artifactPathlink1.Id, artifactPathlink2.Id, "Artifact path link ids do not match");
+                Assert.AreEqual(associatedArtifact1.Id, associatedArtifact2.Id, "Associated artifact ids do not match");
 
                 if (doDeepCompare)
                 {
-                    Assert.AreEqual(artifactPathlink1.BaseItemTypePredefined, artifactPathlink2.BaseItemTypePredefined,
-                        "Artifact path link base item types do not match");
-                    Assert.AreEqual(artifactPathlink1.Link, artifactPathlink2.Link, "Artifact path link links do not match");
-                    Assert.AreEqual(artifactPathlink1.Name, artifactPathlink2.Name, "Artifact path link names do not match");
-                    Assert.AreEqual(artifactPathlink1.ProjectId, artifactPathlink2.ProjectId, "Artifact path link project ids do not match");
-                    Assert.AreEqual(artifactPathlink1.TypePrefix, artifactPathlink2.TypePrefix, "Artifact path link type prefixes do not match");
+                    Assert.AreEqual(associatedArtifact1.BaseItemTypePredefined, associatedArtifact2.BaseItemTypePredefined,
+                        "Associated artifact base item types do not match");
+                    Assert.AreEqual(associatedArtifact1.Link, associatedArtifact2.Link, "Associated artifact links do not match");
+                    Assert.AreEqual(associatedArtifact1.Name, associatedArtifact2.Name, "Associated artifact names do not match");
+                    Assert.AreEqual(associatedArtifact1.ProjectId, associatedArtifact2.ProjectId, "Associated artifact project ids do not match");
+                    Assert.AreEqual(associatedArtifact1.TypePrefix, associatedArtifact2.TypePrefix, "Associated artifact type prefixes do not match");
                 }
             }
         }
@@ -932,7 +922,7 @@ namespace Helper
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
 
             // Assert associated artifacts are equal by checking artifact Id only
-            AssertArtifactPathLinksAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
+            AssertAssociatedArtifactsAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
 
             // Assert that Shape properties are equal
             foreach (var shape1Property in shape1.PropertyValues)
@@ -982,22 +972,6 @@ namespace Helper
             Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),
                 "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
                 totalNumberOfBranches, decisionBranchDesinationLinkCount);
-        }
-
-        /// <summary>
-        /// Find an Artifact Path Link in an enumeration of Artifact Path Links
-        /// </summary>
-        /// <param name="linkToFind">The artifact path link to find</param>
-        /// <param name="linksToSearchThrough">The artifact path links to search through</param>
-        /// <returns>The artifact path link that is found</returns>
-        private static ArtifactPathLink FindArtifactPathLink(ArtifactPathLink linkToFind,
-            IEnumerable<ArtifactPathLink> linksToSearchThrough)
-        {
-            var linkFound = linksToSearchThrough.ToList().Find(p => p.Id == linkToFind.Id);
-
-            Assert.IsNotNull(linkFound, "Could not find and ArtifactPathLink with Id {0}", linkToFind.Id);
-
-            return linkFound;
         }
 
         /// <summary>

@@ -3,8 +3,6 @@ import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/openproject.ctrl";
 
 interface IToolbarController {
-//    add(): void;
-//    clear(): void;
     execute(evt: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
 }
@@ -28,12 +26,6 @@ class ToolbarCtrl implements IToolbarController {
 
     constructor(private localization: ILocalizationService, private dialogService: IDialogService) {
     }
-
-    //add(): void {
-    //}
-
-    //clear(): void {
-    //}
 
     execute(evt: any): void {
         if (!evt) {

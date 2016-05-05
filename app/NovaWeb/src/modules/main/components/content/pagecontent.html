@@ -28,11 +28,78 @@
                 <div class="content">
                     <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed}">
                         <div class="heading" ng-click="isSystemPropertiesCollapsed = !isSystemPropertiesCollapsed">System Properties</div>
-                        <div class="content" uib-collapse="isSystemPropertiesCollapsed">Some content</div>
+                        <div class="content" uib-collapse="isSystemPropertiesCollapsed">
+                            <div class="property-group">
+                                <label for="property-name">Name:</label>
+                                <input id="property-name" class="editable" type="text" value="Client Login">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-type">Type:</label>
+                                <input id="property-type" type="text" class="typeahead" ng-model="propertyType" uib-typeahead="type for type in ['User story', 'Process', 'Mockup']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-id">ID:</label>
+                                <input id="property-id" class="readonly" type="text" value="US13367" readonly="readonly">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-created-by">Created by:</label>
+                                <input id="property-created-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-created-on">Created on:</label>
+                                <input id="property-created-on" class="readonly" readonly="readonly" type="text" value="07-03-2016">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-last-edited-by">Last edited by:</label>
+                                <input id="property-last-edited-by" class="readonly" readonly="readonly" type="text" value="Fabio Rufino Gallo">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-last-edited-on">Last edited on:</label>
+                                <input id="property-last-edited-on" class="readonly" type="text" value="07-04-2016" readonly="readonly">
+                            </div>
+                        </div>
                     </div>
                     <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}">
                         <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">Additional Properties</div>
-                        <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">Some content</div>
+                        <div class="content" uib-collapse="isAdditionalPropertiesCollapsed">
+                            <div class="property-group">
+                                <label for="property-story-title">Story title:</label>
+                                <textarea id="property-story-title" class="editable">As a user I want the ability to login to the
+application.</textarea>
+                            </div>
+                            <div class="property-group">
+                                <label for="property-status">Status:</label>
+                                <input id="property-status" type="text" class="typeahead" ng-model="propertyStatus" uib-typeahead="status for status in ['Blocked', 'In development', 'Ready']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-stack-rank">Stack rank:</label>
+                                <input id="property-stack-rank" type="text" class="typeahead" ng-model="propertyStackRank" uib-typeahead="rank for rank in ['1', '2', '3']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-dev-team">Dev team:</label>
+                                <input id="property-dev-team" type="text" class="typeahead" ng-model="propertyDevTeam" uib-typeahead="team for team in ['Titan', 'ngStars', 'Night\' Watch']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-iteration">Iteration:</label>
+                                <input id="property-iteration" type="text" class="typeahead" ng-model="propertyIteration" uib-typeahead="rank for rank in ['1', '2', '3']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-story-points">Story points:</label>
+                                <input id="property-story-points" type="text" class="typeahead" ng-model="propertyStoryPoints" uib-typeahead="team for team in ['1', '2', '3', '5', '8', '13']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-release">Release:</label>
+                                <input id="property-release" type="text" class="typeahead" ng-model="propertyRelease" uib-typeahead="team for team in ['Frampton', 'Gilmore', 'Elwood']" typeahead-min-length="0" typeahead-append-to="window.document.querySelector('.artifact-overview')" typeahead-editable="false">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-user-story-path">User story path:</label>
+                                <input id="property-user-story-path" class="editable" type="text" value="Nova\Client\Main">
+                            </div>
+                            <div class="property-group">
+                                <label for="property-product-owner">Product owner:</label>
+                                <input id="property-product-owner" class="readonly" readonly="readonly" type="text" value="Aman Bhalla">
+                            </div>
+                        </div>
                     </div>
 
                     <uib-tabset>

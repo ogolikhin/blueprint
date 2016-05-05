@@ -60,6 +60,8 @@
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\Discussion.cs" />
+    <Compile Include="NavigationModel\Impl\Navigation.cs" />
+    <Compile Include="NavigationModel\INavigation.cs" />
     <Compile Include="OpenApiModel\IArtifact.cs" />
     <Compile Include="OpenApiModel\IArtifactBase.cs" />
     <Compile Include="OpenApiModel\IArtifactResult.cs" />

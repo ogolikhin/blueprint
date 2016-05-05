@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AdminStore.Models;
 using Dapper;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -13,7 +14,7 @@ namespace AdminStore.Repositories
         internal readonly ISqlConnectionWrapper _connectionWrapper;
 
         public SqlUserRepository()
-            : this(new SqlConnectionWrapper(WebApiConfig.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 

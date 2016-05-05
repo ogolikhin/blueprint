@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Repositories.ConfigControl
+﻿using ServiceLibrary.Repositories.ConfigControl;
+
+namespace ServiceLibrary.Helpers
 {
     public interface ILoggable
     {

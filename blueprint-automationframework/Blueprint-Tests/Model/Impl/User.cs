@@ -5,6 +5,7 @@ using System.Linq;
 using Common;
 using Model.Factories;
 using TestConfig;
+using Utilities;
 
 namespace Model.Impl
 {
@@ -62,6 +63,54 @@ namespace Model.Impl
 
 
         #region Methods
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        protected User()
+        {
+            // Intentionally left blank.
+        }
+
+        /// <summary>
+        /// Copy constructor.  Creates a deep copy of the specified user.
+        /// </summary>
+        /// <param name="user">The user to copy.</param>
+        protected User(IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            User userToCopy = user as User;
+
+            AllowFallback = userToCopy.AllowFallback;
+            CurrentVersion = userToCopy.CurrentVersion;
+            Department = userToCopy.Department;
+            DisplayName = userToCopy.DisplayName;
+            Email = userToCopy.Email;
+            Enabled = userToCopy.Enabled;
+            EncryptedPassword = userToCopy.EncryptedPassword;
+            EndTimestamp = userToCopy.EndTimestamp;
+            EULAccepted = userToCopy.EULAccepted;
+            ExpirePassword = userToCopy.ExpirePassword;
+            FirstName = userToCopy.FirstName;
+            Guest = userToCopy.Guest;
+            InstanceAdminRole = userToCopy.InstanceAdminRole;
+            InvalidLogonAttemptsNumber = userToCopy.InvalidLogonAttemptsNumber;
+            LastInvalidLogonTimeStamp = userToCopy.LastInvalidLogonTimeStamp;
+            LastName = userToCopy.LastName;
+            LastPasswordChangeTimestamp = userToCopy.LastPasswordChangeTimestamp;
+            License = userToCopy.License;
+            Password = userToCopy.Password;
+            Picture = userToCopy.Picture;
+            StartTimestamp = userToCopy.StartTimestamp;
+            Title = userToCopy.Title;
+            Token = userToCopy.Token;
+            UserId = userToCopy.UserId;
+            Username = userToCopy.Username;
+            UserSALT = userToCopy.UserSALT;
+
+            GroupMembership.AddRange(userToCopy.GroupMembership);
+        }
 
         /// <summary>
         /// Creates a new user on the Blueprint server.
@@ -152,6 +201,23 @@ namespace Model.Impl
         public override UserSource Source { get { return UserSource.Database; } }
 
         #endregion Properties
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public DatabaseUser() : base()
+        {
+            // Intentionally left blank.
+        }
+
+        /// <summary>
+        /// Copy constructor.  Creates a deep copy of the specified user.
+        /// </summary>
+        /// <param name="user">The user to copy.</param>
+        public DatabaseUser(IDatabaseUser user) : base(user)
+        {
+            // Intentionally left blank.
+        }
 
         /// <summary>
         /// Gets the date in a string format that MS SQL can use.
@@ -303,6 +369,23 @@ namespace Model.Impl
     public class WindowsUser : User, IWindowsUser
     {
         public override UserSource Source { get { return UserSource.Windows; } }
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public WindowsUser() : base()
+        {
+            // Intentionally left blank.
+        }
+
+        /// <summary>
+        /// Copy constructor.  Creates a deep copy of the specified user.
+        /// </summary>
+        /// <param name="user">The user to copy.</param>
+        public WindowsUser(IWindowsUser user) : base(user)
+        {
+            // Intentionally left blank.
+        }
 
         /// <summary>
         /// Creates a new user on the Blueprint server.

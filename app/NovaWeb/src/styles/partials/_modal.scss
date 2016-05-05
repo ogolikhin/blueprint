@@ -109,6 +109,7 @@
         height: 36px;
         line-height: 36px;
         margin-bottom: 15px;
+        margin-top: 10px;
         padding: 0 15px;
         white-space: nowrap;
       }
@@ -117,18 +118,10 @@
         background: $gray-lightest;
         border-radius: $border-radius-amount;
         margin-top: 10px;
-        max-height: 165px;
+        max-height: 137px;
         min-height: 36px;
         overflow: auto;
-        padding: 0 15px;
-
-        > div {
-          padding: 8px 0;
-        }
-
-        p {
-          margin: 0;
-        }
+        padding: 8px 15px;
       }
     }
 

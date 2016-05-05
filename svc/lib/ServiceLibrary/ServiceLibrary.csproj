@@ -88,6 +88,7 @@
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
+    <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
@@ -109,7 +110,7 @@
     <Compile Include="Models\ServiceLogModel.cs" />
     <Compile Include="Models\LogLevelEnum.cs" />
     <Compile Include="Models\Session.cs" />
-    <Compile Include="Repositories\ConfigControl\ILoggable.cs" />
+    <Compile Include="Helpers\ILoggable.cs" />
     <Compile Include="Repositories\ConfigControl\StatusRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />

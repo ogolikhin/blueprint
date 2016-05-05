@@ -16,7 +16,6 @@ namespace Model.OpenApiModel.Impl
     public class ArtifactBase : IArtifactBase
     {
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-        private const string SearchPath = "/svc/shared/artifacts/search";
 
         #region Properties
 
@@ -39,36 +38,6 @@ namespace Model.OpenApiModel.Impl
         public bool IsSaved { get; set; }
 
         #endregion Properties
-
-        public IList<IArtifactBase> SearchArtifactsByName(IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            var queryParameters = new Dictionary<string, string> {
-                { "name", searchSubstring }
-            };
-
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
-                SearchPath,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-            Logger.WriteDebug("Response for search artifact by name: {0}", response);
-
-            return response.ConvertAll(o => (IArtifactBase)o);
-        }
     }
 
     public class Artifact : ArtifactBase, IArtifact
@@ -95,6 +64,7 @@ namespace Model.OpenApiModel.Impl
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
         private static string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
+        private const string URL_SEARCH = "/svc/shared/artifacts/search";
 
         #endregion Constants
 
@@ -512,6 +482,45 @@ namespace Model.OpenApiModel.Impl
                 cookies: cookies);
 
             return response;
+        }
+
+        /// <summary>
+        /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
+        /// </summary>
+        /// <param name="address">server address</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
+        public static IList<IArtifactBase> SearchArtifactsByName(string address, IUser user, string searchSubstring, bool sendAuthorizationAsCookie = false, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var queryParameters = new Dictionary<string, string> {
+                { "name", searchSubstring }
+            };
+
+            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
+                URL_SEARCH,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+            Logger.WriteDebug("Response for search artifact by name: {0}", response);
+
+            return response.ConvertAll(o => (IArtifactBase)o);
         }
 
         #endregion Static Methods

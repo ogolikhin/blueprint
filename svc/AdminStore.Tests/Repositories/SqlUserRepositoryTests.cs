@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 
 namespace AdminStore.Repositories
@@ -10,7 +11,7 @@ namespace AdminStore.Repositories
     [TestClass]
     public class SqlUserRepositoryTests
     {
-        #region Constuctor
+        #region Constructor
 
         [TestMethod]
         public void Constructor_CreatesConnectionToRaptorMain()
@@ -21,7 +22,7 @@ namespace AdminStore.Repositories
             var repository = new SqlUserRepository();
 
             // Assert
-            Assert.AreEqual(WebApiConfig.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor

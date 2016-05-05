@@ -16,6 +16,7 @@ export interface IDialogSettings {
     template?: string;
     controller?: any;
     css?: string;
+    backdrop?: boolean;
 }
 
 export interface IDialogService {
@@ -51,7 +52,7 @@ export class DialogService implements IDialogService {
             controller: this.params.controller,
             controllerAs: "ctrl",
             windowClass: this.params.css || "nova-messaging",
-            backdrop: false,
+            backdrop: this.params.backdrop || false,
             resolve: {
                 params: () => {
                     return this.params;

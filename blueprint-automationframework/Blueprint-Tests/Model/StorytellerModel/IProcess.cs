@@ -129,11 +129,6 @@ namespace Model.StorytellerModel
         List<ProcessLink> Links { get; }
 
         /// <summary>
-        /// Artifact path links for the Process.  This supports breadcrumb navigation.
-        /// </summary>
-        List<ArtifactPathLink> ArtifactPathLinks { get; }
-
-        /// <summary>
         /// Decision branch destination links for decision shapes in the Process. This list contains list of merge point
         /// information for all available decisions in the process. The list is empty if the process contain only main branch
         /// </summary>

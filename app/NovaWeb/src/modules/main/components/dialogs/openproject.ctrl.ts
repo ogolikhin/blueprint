@@ -11,19 +11,20 @@ export interface IOpenProjectResult {
 }
 
 export class OpenProjectController extends BaseDialogController {
-
     public hasCloseButton: boolean = true;
     private rowData: any = null;
     private selectedItem: any;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params" ];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogSettings) {
+        params: IDialogSettings,
+        private $sce: ng.ISCEService
+    ) {
         super($uibModalInstance, params);
     };
 
@@ -41,14 +42,30 @@ export class OpenProjectController extends BaseDialogController {
         this.dialogService.alert(error.message).then(() => { this.cancel(); });
     };
 
+    private onEnterKeyOnProject = (e: any) => {
+        var key = e.which || e.keyCode;
+        if (key === 13) {
+            //user pressed Enter key on project
+            this.ok();
+        }
+    };
+
     private columnDefinitions = [{
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                var nameSanitizer = window.document.createElement("DIV");
+                nameSanitizer.innerHTML = params.data.Name;
+                params.data.Name = nameSanitizer.textContent || nameSanitizer.innerText || "";
+
                 if (params.data.Type === "Project") {
+                    var cell = params.eGridCell;
+                    cell.addEventListener("keydown", this.onEnterKeyOnProject);
                     return "<i class='fonticon-project'></i>" + params.data.Name;
+                } if (params.data.Type === "Folder") {
+                    return params.data.Name;
                 } else {
                     return params.data.Name;
                 }
@@ -59,24 +76,46 @@ export class OpenProjectController extends BaseDialogController {
         suppressFiltering : true
     }];
 
-    private rowClicked = (params: any) => {
+    private rowGroupOpened = (params: any) => {
         var self = this;
         var node = params.node;
-        if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-            if (node.expanded) {
-                self.service.getFolders(node.data.Id)
-                    .then((data: pSvc.IProjectNode[]) => {
-                        node.data.Children = data;
-                        node.data.open = true;
-                        node.data.alreadyLoadedFromServer = true;
-                        self.gridOptions.api.setRowData(self.rowData);
-                    }, (error) => {
-                        self.showError(error);
-                    });
+        if (node.data.Type === "Folder") {
+            if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
+                if (node.expanded) {
+                    self.service.getFolders(node.data.Id)
+                        .then((data: pSvc.IProjectNode[]) => {
+                            node.data.Children = data;
+                            node.data.open = true;
+                            node.data.alreadyLoadedFromServer = true;
+                            self.gridOptions.api.setRowData(self.rowData);
+                        }, (error) => {
+                            self.showError(error);
+                        });
+                }
             }
+            node.data.open = node.expanded;
         }
-        node.data.open = node.expanded;
-        self.$scope.$applyAsync((s) => self.selectedItem = node.data);
+    };
+
+    private cellFocused = (params: any) => {
+        var self = this;
+        var rowModel = self.gridOptions.api.getModel();
+        var rowsToSelect = rowModel.getRow(params.rowIndex);
+        rowsToSelect.setSelected(true, true);
+        self.$scope.$applyAsync((s) => {
+            self.selectedItem = rowsToSelect.data;
+            if (rowsToSelect.data.Description) {
+                var description = rowsToSelect.data.Description;
+                var virtualDiv = window.document.createElement("DIV");
+                virtualDiv.innerHTML = description;
+                var aTags = virtualDiv.querySelectorAll("a");
+                for (var a = 0; a < aTags.length; a++) {
+                    aTags[a].setAttribute("target", "_blank");
+                }
+                description = virtualDiv.innerHTML;
+                self.selectedItem.Description = this.$sce.trustAsHtml(description);
+            }
+        });
     };
 
     private getNodeChildDetails(rowItem) {
@@ -117,8 +156,8 @@ export class OpenProjectController extends BaseDialogController {
         rowHeight: 20,
         enableColResize: true,
         getNodeChildDetails: this.getNodeChildDetails,
-        onRowClicked: this.rowClicked,
-        onRowDoubleClicked: this.rowClicked,
+        onCellFocused: this.cellFocused,
+        onRowGroupOpened: this.rowGroupOpened,
         onGridReady: this.onGidReady,
         showToolPanel: false
     };

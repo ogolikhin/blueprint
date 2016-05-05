@@ -102,6 +102,13 @@ bp-sidebar-layout {
       .sidebar-toggle {
         right: -47px;
       }
+
+      .project-explorer {
+        border-right: solid 5px $brand-secondary;
+        height: 100%;
+        padding-left: 9px;
+        padding-right: 1px;
+      }
     }
 
     &.right-panel {

@@ -8,15 +8,28 @@ App_Button_Open,"Open"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
-App_LoadingMsg,"Loading …"
+App_LoadingMsg,"Loading ..."
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
+
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 
 App_Project, "Project"
 App_Project_Open,"Open project"
+App_Project_Name,"Name"
 App_Project_Description,"Description"
+
+App_Toolbar_Project,"Project"
+App_Toolbar_Open_Project,"Open Project"
+App_Toolbar_Open_Recent_Projects,"Open Recent Projects"
+App_Toolbar_Close_Project,"Close Project"
+App_Toolbar_Close_All_Projects,"Close All Projects"
+App_Toolbar_Save_All,"Save All"
+App_Toolbar_Discard_All,"Discard All"
+App_Toolbar_Publish_All,"Publish All"
+App_Toolbar_Refresh_All,"Refresh All"
+App_Toolbar_Delete,"Delete"
 
 App_UtilityPanel_Discussions, Discussions
 App_UtilityPanel_Properties, Properties

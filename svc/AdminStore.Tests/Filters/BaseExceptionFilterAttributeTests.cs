@@ -11,6 +11,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Filters;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Filters
 {

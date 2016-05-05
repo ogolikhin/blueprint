@@ -15,14 +15,15 @@ export class OpenProjectController extends BaseDialogController {
     private rowData: any = null;
     private selectedItem: any;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
         private service: pSvc.IProjectService,
         private dialogService: IDialogService,
-        params: IDialogSettings
+        params: IDialogSettings,
+        private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
     };
@@ -41,6 +42,18 @@ export class OpenProjectController extends BaseDialogController {
         this.dialogService.alert(error.message).then(() => { this.cancel(); });
     };
 
+    public stripHTMLTags = (stringToSanitize: string): string => {
+        var stringSanitizer = window.document.createElement("DIV");
+        stringSanitizer.innerHTML = stringToSanitize;
+        return stringSanitizer.textContent || stringSanitizer.innerText || "";
+    };
+
+    public escapeHTMLText = (stringToEscape: string): string =>  {
+        var stringEscaper = window.document.createElement("TEXTAREA");
+        stringEscaper.textContent = stringToEscape;
+        return stringEscaper.innerHTML;
+    };
+
     private onEnterKeyOnProject = (e: any) => {
         var key = e.which || e.keyCode;
         if (key === 13) {
@@ -55,14 +68,16 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                var sanitizedName = this.escapeHTMLText(params.data.Name);
+
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
-                    return "<i class='fonticon-project'></i>" + params.data.Name;
+                    return "<i class='fonticon-project'></i>" + sanitizedName;
                 } if (params.data.Type === "Folder") {
-                    return params.data.Name;
+                    return sanitizedName;
                 } else {
-                    return params.data.Name;
+                    return sanitizedName;
                 }
             }
         },
@@ -97,7 +112,20 @@ export class OpenProjectController extends BaseDialogController {
         var rowModel = self.gridOptions.api.getModel();
         var rowsToSelect = rowModel.getRow(params.rowIndex);
         rowsToSelect.setSelected(true, true);
-        self.$scope.$applyAsync((s) => self.selectedItem = rowsToSelect.data);
+        self.$scope.$applyAsync((s) => {
+            self.selectedItem = rowsToSelect.data;
+            if (rowsToSelect.data.Description) {
+                var description = rowsToSelect.data.Description;
+                var virtualDiv = window.document.createElement("DIV");
+                virtualDiv.innerHTML = description;
+                var aTags = virtualDiv.querySelectorAll("a");
+                for (var a = 0; a < aTags.length; a++) {
+                    aTags[a].setAttribute("target", "_blank");
+                }
+                description = virtualDiv.innerHTML;
+                self.selectedItem.Description = this.$sce.trustAsHtml(description);
+            }
+        });
     };
 
     private getNodeChildDetails(rowItem) {

@@ -93,6 +93,18 @@ class MainCtrl {
         }, 250);
     };
 
+    public stripHTMLTags = (stringToSanitize: string): string => {
+        var stringSanitizer = window.document.createElement("DIV");
+        stringSanitizer.innerHTML = stringToSanitize;
+        return stringSanitizer.textContent || stringSanitizer.innerText || "";
+    };
+
+    public escapeHTMLText = (stringToEscape: string): string =>  {
+        var stringEscaper = window.document.createElement("TEXTAREA");
+        stringEscaper.textContent = stringToEscape;
+        return stringEscaper.innerHTML;
+    };
+
     // this is just to cancel the (single) click event in case of double-click
     private rowDoubleClicked = () => {
         this.$timeout.cancel(this.clickTimeout);
@@ -102,7 +114,7 @@ class MainCtrl {
         var self = this;
         var selectedNode;
         var editing = false;
-        var currentValue = params.value;
+        var currentValue = this.escapeHTMLText(params.value);
         var formattedCurrentValue = "<span>" + currentValue + "</span>";
         var containerCell = params.eGridCell;
 
@@ -114,7 +126,7 @@ class MainCtrl {
                 input.removeEventListener("keyup", keyEventHandler);
                 var newValue = input.value;
                 if (newValue !== "") { // do we need more validation?
-                    valueSpan.querySelector("span").textContent = newValue;
+                    valueSpan.querySelector("span").textContent = self.escapeHTMLText(newValue);
                     selectedNode.data.Name = newValue;
                 }
                 var parentSpan = editSpan.parentNode;

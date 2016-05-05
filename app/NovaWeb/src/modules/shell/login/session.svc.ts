@@ -2,8 +2,8 @@
 import {ILocalizationService} from "../../core/localization";
 import {IAuth, IUser} from "./auth.svc";
 //import {IConfigValueHelper} from "../../core/config.value.helper";
-import {SimpleDialogCtrl, LoginCtrl, ILoginInfo} from "./login.ctrl";
-
+import {LoginCtrl, ILoginInfo} from "./login.ctrl";
+import {IDialogService} from "../../services/dialog.svc";
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
@@ -20,8 +20,8 @@ export interface ISession {
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal", "localization"];
-    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService) {
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
+    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService, private dialogService: IDialogService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -94,18 +94,6 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
-    private createConfirmationDialog(): ng.ui.bootstrap.IModalServiceInstance {
-        return this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-            template: require("./../messaging/confirmation.dialog.html"),
-            windowClass: "nova-messaging",
-            controller: SimpleDialogCtrl,
-            controllerAs: "ctrl",
-            keyboard: false, // cannot Escape ))
-            backdrop: false,
-            bindToController: true
-        });
-    }
-
     private showLogin(done: ng.IDeferred<any>, error?: Error): void {
         if (!this._modalInstance) {
             this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
@@ -125,8 +113,8 @@ export class SessionSvc implements ISession {
                     if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.samlLogin) {
-                        confirmationDialog = this.createConfirmationDialog();
-                        confirmationDialog.result.then((confirmed: boolean) => {
+                        
+                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {
@@ -142,8 +130,7 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        confirmationDialog = this.createConfirmationDialog();
-                        confirmationDialog.result.then((confirmed: boolean) => {
+                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(
                                     () => {

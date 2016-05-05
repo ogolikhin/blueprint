@@ -1,4 +1,5 @@
 import "angular";
+import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import * as agGrid from "ag-grid/main";
@@ -22,7 +23,7 @@ export function config($rootScope: ng.IRootScopeService) {
     $rootScope["year"] = BUILD_YEAR;
 }
 agGrid.initialiseAgGridWithAngular1(angular);
-angular.module("app.main", ["app.shell", "ui.router", "ui.bootstrap", "agGrid"])
+angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid"])
     .run(config)
     .component("pagecontent", new PageContent())
     .component("toolbar", new Toolbar())

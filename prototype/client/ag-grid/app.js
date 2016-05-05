@@ -316,7 +316,7 @@ app.directive('bpTooltip', function() {
   return {
     restrict: 'A',
     scope: {
-      tooltipContent: "@"
+      tooltipContent: "@bpTooltip"
     },
     link: link
   };

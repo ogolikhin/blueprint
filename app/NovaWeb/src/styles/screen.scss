@@ -53,8 +53,306 @@ pagecontent {
   width: 100%;
 
   .page-content-wrapper {
-    max-height: calc(100% - #{$breadcrumbs-height});
+    height: calc(100% - #{$breadcrumbs-height});
     overflow: auto;
+  }
+
+  .page-content {
+    margin: 15px 20px 10px;
+  }
+
+  .page-heading {
+    font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+    white-space: nowrap;
+
+    &::after {
+      clear: both;
+      content: '';
+      display: table;
+    }
+  }
+
+  .page-top-toolbar {
+    float: right;
+    margin-bottom: 15px;
+
+    .btn-bluelight + .btn-bluelight {
+      margin-left: 5px;
+    }
+
+    .btn-bluelight + .btn-primary {
+      margin-left: 10px;
+    }
+  }
+
+  .artifact-heading,
+  .artifact-icon {
+    display: inline-block;
+    margin: 0 10px 15px 0;
+    min-height: 30px;
+    vertical-align: top;
+  }
+
+  .artifact-icon {
+    color: $gray-medium;
+    font-family: 'bp-font';
+    font-size: 24px;
+  }
+
+  .artifact-heading {
+    > .name {
+      color: $gray-dark;
+      display: block;
+      font-size: $font-size-bigger;
+      white-space: nowrap;
+
+      span:first-child {
+        margin-left: 5px;
+      }
+    }
+
+    > .type-id {
+      color: $gray-medium;
+      font-size: $font-size-micro;
+      white-space: nowrap;
+    }
+
+    .lock-indicator,
+    .dirty-indicator {
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smaller;
+    }
+
+    .lock-indicator {
+      color: $brand-secondary;
+    }
+
+    .dirty-indicator {
+      color: $gray-medium;
+    }
+  }
+
+  .artifact-overview {
+    background: $white;
+
+    > .heading {
+      background: #cbcbcb;
+      color: $gray-dark;
+      font-size: $font-size-smaller;
+      font-weight: 600;
+      line-height: 1em;
+      min-height: 36px;
+      padding: 11px 14px;
+
+      + .content {
+        border-top: 0;
+      }
+    }
+
+    > .content {
+      border: solid 1px #d9d9d9;
+      padding: 18px 15px;
+    }
+
+    .nav-tabs {
+      margin-top: 20px;
+    }
+  }
+}
+
+.properties {
+  border: solid 1px $gray-lighter;
+
+  + .properties {
+    margin-top: 15px;
+  }
+
+  &::after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+
+  > .heading {
+    color: $gray-dark;
+    cursor: pointer;
+    font-size: $font-size-smaller;
+    font-weight: 600;
+    line-height: 1em;
+    min-height: 36px;
+    padding: 11px 14px 11px 9px;
+
+    &::before {
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px dashed;
+      border-top: 5px solid \9;
+      content: '';
+      display: inline-block;
+      height: 0;
+      margin-right: 5px;
+      position: relative;
+      top: -2px;
+      width: 0;
+    }
+  }
+
+  &.collapsed {
+    > .heading::before {
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 5px dashed;
+      border-left: 5px solid \9;
+      left: 3px;
+      top: 0;
+    }
+
+    > .content {
+      display: none;
+    }
+  }
+
+  > .content {
+    align-content: flex-start;
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: $font-size-smallest;
+    justify-content: space-between;
+    margin: 0 10px;
+    overflow: auto;
+    padding: 0 0 10px;
+  }
+}
+
+$property-min-height: 28px;
+$property-width: 392px;
+$property-horiz-spacing: 10px;
+$property-label-width: 100px;
+$property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
+
+.property-group {
+  align-items: flex-start;
+  border-left: solid $property-horiz-spacing transparent;
+  border-right: solid $property-horiz-spacing transparent;
+  display: flex;
+  flex-basis: auto;
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  font-size: 0; // to eliminate empty space. Must redefine font-size in children!
+  margin: 1px 0 0;
+  max-width: $property-width;
+  min-height: $property-min-height;
+
+  label {
+    color: $gray-dark;
+    display: inline-block;
+    font-size: $font-size-smallest;
+    font-weight: 400;
+    margin: 6px 0 0;
+    width: $property-label-width;
+  }
+
+  input[type=text],
+  textarea {
+    border: solid 1px #eef0f0;
+    box-sizing: border-box;
+    color: $gray-dark;
+    font-size: $font-size-smallest;
+    font-weight: 400;
+    max-width: $property-input-width;
+    padding-left: 6px;
+    padding-right: 6px;
+    width: $property-input-width;
+
+    &.readonly {
+      border-color: transparent;
+    }
+
+    &.editable:focus,
+    &.editable:hover {
+      background: #fbf8e7 url('images/editable-icon.png') no-repeat calc(#{$property-input-width} - 20px) 6px;
+      padding-right: 20px;
+    }
+
+    &.typeahead {
+      background: url('images/typeahead-arrow.png') no-repeat right;
+      padding-right: 23px
+    }
+  }
+
+  input[type=text] {
+    min-height: $property-min-height;
+  }
+
+  .dropdown-menu {
+    border: solid 1px $gray-lighter;
+    border-radius: 0;
+    color: $gray-dark;
+    font-size: $font-size-smallest;
+    padding: 0;
+    width: $property-input-width;
+
+    > li > a {
+      padding: 4px 6px;
+    }
+
+    > .active > a,
+    > .active > a:hover,
+    > .active > a:focus {
+      background: $brand-secondary;
+    }
+  }
+}
+
+.tab-pane {
+  border: solid 1px $gray-lighter;
+  border-radius: $border-radius-amount;
+  padding: 18px 20px;
+
+  // temporary
+  font-size: $font-size-smallest;
+}
+
+.nav-tabs {
+  border: 0;
+  margin-bottom: 10px;
+
+  > li {
+    font-size: $font-size-smallest;
+
+    &:first-child > a {
+      margin-left: 0;
+    }
+  }
+
+  > li.active {
+    font-size: $font-size-smallest;
+
+    > a,
+    > a:hover,
+    > a:focus {
+      border: 0;
+      border-bottom: 4px solid $brand-secondary;
+      padding-bottom: 3px;
+    }
+  }
+
+  > li > a {
+    border: 0;
+    color: #565656;
+    font-size: 105%;
+    font-weight: 600;
+    margin: 0 15px;
+    padding: 3px 1px 7px;
+
+    &:hover {
+      background: transparent;
+      border-bottom: 4px solid $brand-secondary;
+      padding-bottom: 3px;
+    }
   }
 }
 

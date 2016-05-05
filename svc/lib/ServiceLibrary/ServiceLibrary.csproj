@@ -95,7 +95,6 @@
     <Compile Include="Helpers\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\HttpClientProvider.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
-    <Compile Include="Helpers\ServiceLocator.cs" />
     <Compile Include="Helpers\I18NHelper.cs" />
     <Compile Include="LocalLog\ILocalLog.cs" />
     <Compile Include="LocalLog\LocalEventLog.cs" />

@@ -4,6 +4,7 @@ import {ISession, SessionSvc} from "./session.svc";
 import {ILoginInfo, LoginCtrl} from "./login.ctrl";
 import {IAuth} from "./auth.svc";
 import {LocalizationServiceMock, ConfigValueHelperMock, WindowMock, AuthSvcMock, ModalServiceMock, ModalServiceInstanceMock} from "./mocks.spec";
+import {DialogService} from "../../services/dialog.svc";
 
 describe("SessionSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -11,7 +12,7 @@ describe("SessionSvc", () => {
         $provide.service("session", SessionSvc);
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
-    
+        $provide.service("dialogService", DialogService);
     }));
 
     describe("ensureAuthenticated", () => {

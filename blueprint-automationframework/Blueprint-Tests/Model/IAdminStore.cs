@@ -9,6 +9,21 @@ namespace Model
 
         /// <summary>
         /// Adds a new session in AdminStore for the specified user and returns the session object containing the new session token.
+        /// The new token is also added to the IUser object that was passed in.
+        /// (Runs: POST /sessions?login={encrypted username}  or  POST /sessions?login={encrypted username}&amp;force=True)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate.</param>
+        /// <param name="force">(optional) Force new session creation if session for this user already exists</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedServiceErrorMessage">If an WebException is thrown, we will assert that it contains this expected error message.</param>
+        /// <returns>A session object containing the new session token.</returns>
+        ISession AddSession(IUser user = null,
+            bool? force = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            IServiceErrorMessage expectedServiceErrorMessage = null);
+
+        /// <summary>
+        /// Adds a new session in AdminStore for the specified user and returns the session object containing the new session token.
         /// (Runs: POST /sessions?login={encrypted username}  or  POST /sessions?login={encrypted username}&amp;force=True)
         /// </summary>
         /// <param name="username">(optional) The user name.</param>
@@ -35,12 +50,28 @@ namespace Model
         ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Deletes the session token for the specified user from AdminStore.
+        /// (Runs: DELETE /sessions)
+        /// </summary>
+        /// <param name="user">The user that contains the session token to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        void DeleteSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Deletes the specified session from AdminStore.
         /// (Runs: DELETE /sessions)
         /// </summary>
         /// <param name="session">The session to delete.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified session token from AdminStore.
+        /// (Runs: DELETE /sessions)
+        /// </summary>
+        /// <param name="token">The session token to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        void DeleteSession(string token, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets a session for the specified user.

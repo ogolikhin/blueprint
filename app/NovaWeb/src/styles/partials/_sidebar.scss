@@ -1,15 +1,15 @@
 bp-sidebar-layout {
   display: block;
-  height: calc(100% - #{toolbar-height});
+  height: calc(100% - #{$toolbar-height});
   width: 100%;
 
   .bp-sidebar-wrapper {
-    height: 100%;
+   height: calc(100% - #{$toolbar-height});
   }
   .content-center {
     background: $body-bg-color;
     display: block;
-    height: 100%;
+    height: calc(100% - #{$toolbar-height});
     position: absolute;
     transition: padding .4s ease;
     width: 100%;
@@ -50,7 +50,7 @@ bp-sidebar-layout {
   .sidebar {
     background: $white;
     display: block;
-    height: 100%;
+    height: calc(100% - #{$toolbar-height});
     position: absolute;
     transition: all .4s ease;
     width: $sidebar-size;

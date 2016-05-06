@@ -67,10 +67,10 @@
 toolbar {
     margin:0 12px;
     display:block;
+    height: $toolbar-height;
 
     > .navbar-toolbar {
     background: $gray-lighter;
-    height: $toolbar-height;
     display:block;
 
     .navbar-nav {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactVersionModel.Impl;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 
 namespace Model.ArtifactVersionModel
 {

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Model.OpenApiModel
+namespace Model.ArtifactModel
 {
     public interface IArtifactResult<T>
     { 

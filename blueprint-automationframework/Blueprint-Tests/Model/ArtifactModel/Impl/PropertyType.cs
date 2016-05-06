@@ -1,4 +1,4 @@
-﻿namespace Model.OpenApiModel.Impl
+﻿namespace Model.ArtifactModel.Impl
 {
     public class PropertyType
     {

@@ -6,7 +6,7 @@ using Model;
 using Model.ArtifactVersionModel;
 using Model.ArtifactVersionModel.Impl;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using Utilities.Factories;

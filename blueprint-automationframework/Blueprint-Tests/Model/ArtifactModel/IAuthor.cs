@@ -1,6 +1,6 @@
-﻿namespace Model.OpenApiModel
+﻿namespace Model.ArtifactModel
 {
-    public interface IOpenApiAuthor
+    public interface IAuthor
     {
         string Type { get; set; }
         int Id { get; set; }

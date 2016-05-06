@@ -2,7 +2,7 @@
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -53,7 +53,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -104,7 +104,7 @@ namespace StorytellerTests
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var addedArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             addedArtifact.Save(_user);
             addedArtifact.Publish(_user);
 
@@ -149,7 +149,7 @@ namespace StorytellerTests
             var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var addedArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             addedArtifact.Save(_user);
             addedArtifact.Publish(_user);
 

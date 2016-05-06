@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 
 namespace Model
 {

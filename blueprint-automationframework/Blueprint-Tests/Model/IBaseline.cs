@@ -1,5 +1,5 @@
 ﻿
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 
 namespace Model
 {

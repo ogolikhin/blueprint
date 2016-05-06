@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Utilities;
 using Utilities.Facades;
 

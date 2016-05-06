@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Model.OpenApiModel.Impl
+namespace Model.ArtifactModel.Impl
 {
-    public class OpenApiTrace : IOpenApiTrace
+    public class Trace : ITrace
     {
         public string Type { get; set; }
         public string Direction { get; set; }

@@ -1,8 +1,8 @@
 ﻿using CustomAttributes;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -51,7 +51,7 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            IProperty property = new Property(_artifact.Address);
             
             //Set property value
             _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "Testing Set Property Value"));
@@ -75,7 +75,7 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            IProperty property = new Property(_artifact.Address);
             _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "DescriptionValue"));
 
             //Set to add in root of the project
@@ -101,7 +101,7 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            IProperty property = new Property(_artifact.Address);
             _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: "DescriptionValue"));
 
             //Set to add in root of the project
@@ -131,7 +131,7 @@ namespace OpenAPITests
             _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
-            IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            IProperty property = new Property(_artifact.Address);
             _artifact.Properties.Add(property.SetPropertyAttribute(_project, _user, BaseArtifactType.Actor, "Description", propertyValue: text));
 
             //Set to add in root of the project

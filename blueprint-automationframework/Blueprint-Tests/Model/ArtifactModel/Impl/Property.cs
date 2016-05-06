@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using Utilities;
 
-namespace Model.OpenApiModel.Impl
+namespace Model.ArtifactModel.Impl
 {
     /// <summary>
     /// An Enumeration of possible UsersAndGroups Types
@@ -15,7 +15,7 @@ namespace Model.OpenApiModel.Impl
         Group
     }
 
-    public class OpenApiProperty : IOpenApiProperty
+    public class Property : IProperty
     {
 
         #region Properties
@@ -38,12 +38,12 @@ namespace Model.OpenApiModel.Impl
         /// Constructor.
         /// </summary>
         /// <param name="address">The address of the OpenApiPropertyProperty.</param>
-        public OpenApiProperty(string address)
+        public Property(string address)
         {
             Address = address;
         }
 
-        public OpenApiProperty SetPropertyAttribute(
+        public Property SetPropertyAttribute(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,
@@ -58,7 +58,7 @@ namespace Model.OpenApiModel.Impl
                 expectedStatusCodes, sendAuthorizationAsCookie);
 
             // Created and update the property based on information from get artifact types call and user parameter
-            var updatedProperty = new OpenApiProperty(Address)
+            var updatedProperty = new Property(Address)
             {
                 PropertyTypeId = returnedPropertyType.Id,
                 Name = returnedPropertyType.Name,

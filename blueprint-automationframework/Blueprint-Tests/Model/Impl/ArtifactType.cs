@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Utilities;
 
 namespace Model.Impl

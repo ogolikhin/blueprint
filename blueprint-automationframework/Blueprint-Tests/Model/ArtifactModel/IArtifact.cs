@@ -1,42 +1,31 @@
-using Model.OpenApiModel.Impl;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel.Impl;
 
-namespace Model.OpenApiModel
+namespace Model.ArtifactModel
 {
 
     public interface IArtifact : IArtifactBase
     {
-        // TODO Find the way or wait for the API implementation which retrieves ArtifactType
-        //ArtifactType ArtifactType { get; set; }
-        // TODO Find the way or wait for the API implementation which retrieve descrption
-        //string Description { get; set; }
-
-        IArtifact AddArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-        IArtifactResult<IArtifact> DeleteArtifact(IArtifact artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
-    }
-
-    public interface IOpenApiArtifact : IArtifactBase
-    {
         /// <summary>
         /// List of Open Api Artifact Properties
         /// </summary>
-        List<OpenApiProperty> Properties { get; }
+        List<Property> Properties { get; }
 
         /// <summary>
         /// List of Open Api Artifact Comments
         /// </summary>
-        List<OpenApiComment> Comments { get; }
+        List<Comment> Comments { get; }
 
         /// <summary>
         /// List of Open Api Artifact Traces
         /// </summary>
-        List<OpenApiTrace> Traces { get; }
+        List<Trace> Traces { get; }
 
         /// <summary>
         ///  List of Open Api Artifact Attachments
         /// </summary>
-        List<OpenApiAttachment> Attachments { get; }
+        List<Attachment> Attachments { get; }
 
         /// <summary>
         /// Save the artifact on Blueprint server.
@@ -79,7 +68,7 @@ namespace Model.OpenApiModel
         List<IDeleteArtifactResult> Delete(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false);
 
         /// <summary>
-        /// Gets the Version property of an Artifact via OpenAPI call
+        /// Gets the Version property of an Artifact
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>

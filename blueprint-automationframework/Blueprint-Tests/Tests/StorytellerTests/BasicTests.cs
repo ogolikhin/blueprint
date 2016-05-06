@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -50,7 +50,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -115,7 +115,7 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
@@ -140,7 +140,7 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
 
             artifact.Save(_user);
             artifact.Publish(_user);
@@ -149,7 +149,7 @@ namespace StorytellerTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    var artifactsList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                    var artifactsList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
                     Assert.IsTrue(artifactsList.Count > 0);
                 }, "Couldn't find an artifact named '{0}'.", artifact.Name);
             }
@@ -167,11 +167,11 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListHasExpectedLength()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifactList = new List<IOpenApiArtifact>();
-            IOpenApiArtifact artifact;
+            var artifactList = new List<IArtifact>();
+
             for (int i = 0; i < 12; i++)
             {
-                artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
+                var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);
                 artifact.Save(_user);
                 artifact.Publish(_user);
                 artifactList.Add(artifact);
@@ -183,7 +183,7 @@ namespace StorytellerTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    var searchResultList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
+                    var searchResultList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
                     Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
                 });
             }

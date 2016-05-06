@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Model.OpenApiModel
+namespace Model.ArtifactModel
 {
     public enum ItemTypePredefined
     {

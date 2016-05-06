@@ -37,15 +37,16 @@ $font-size-biggest:  1.25rem;  //~20px
 
 //navbar
 $navbar-height: 40px;
-$navbar-toolbar-height: 46px;
 $navbar-color: #01206a;
+
+//toolbar
+$toolbar-height: 46px;
 
 //breadcrumbs
 $breadcrumbs-height: 48px;
 
 //sidebars
 $sidebar-size: 250px;
-$wrapper-height: $navbar-height + $navbar-toolbar-height;
 $left-sidebar-border: $brand-secondary;
 $right-sidebar-border: #dde1e2;
 

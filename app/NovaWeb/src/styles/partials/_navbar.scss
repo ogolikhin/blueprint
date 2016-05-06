@@ -3,6 +3,7 @@
   display: block;
   margin: 0;
   padding: 0;
+  min-height:$navbar-height;
 
   .navbar-header {
     background: $navbar-color url('images/bp_logo_white.svg') 9px no-repeat;
@@ -62,10 +63,15 @@
     }
   }
 
-  .navbar-toolbar {
+}
+toolbar {
+    margin:0 12px;
+    display:block;
+    height: $toolbar-height;
+
+    > .navbar-toolbar {
     background: $gray-lighter;
-    height: $navbar-toolbar-height;
-    padding: 0 0 0 12px;
+    display:block;
 
     .navbar-nav {
       float: left;
@@ -79,7 +85,7 @@
         background: $gray-light;
         border-left: solid 1px lighten($gray-light, 16);
         border-right: solid 1px lighten($gray-light, 16);
-        height: $navbar-toolbar-height;
+        height: $toolbar-height;
         width: 3px;
       }
     }
@@ -88,7 +94,7 @@
       > a {
         box-sizing: border-box;
         color: $gray-dark;
-        height: $navbar-toolbar-height;
+        height: $toolbar-height;
         line-height: normal;
         padding: 6px 4px 0;
         text-align: center;
@@ -121,15 +127,15 @@
         color: $brand-secondary !important;
       }
     }
-  }
 
-  .dropdown-menu {
+    .dropdown-menu {
     border: solid 1px $white !important;
     border-top: none !important;
     box-shadow: 0 6px 12px rgba(0, 0, 0, .175) !important;
     margin: 0;
     padding: 0;
     position: absolute !important;
+    z-index:1100;
 
     a {
       background: $gray-light;
@@ -172,4 +178,5 @@
       }
     }
   }
-}
+  }
+  }

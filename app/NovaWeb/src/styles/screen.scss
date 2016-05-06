@@ -35,12 +35,18 @@ body {
 
 @import 'partials/unsupported';
 
+app {
+    height:100%;
+    display:block;
+}
 #wrapper {
   display: block;
-  height: calc(100% - #{$wrapper-height});
-  margin-top: $wrapper-height;
+  height: calc(100% - #{$navbar-height});
+  width:100%;
+  position:relative;
+  top: $navbar-height;
   overflow: hidden;
-  position: relative;
+
 }
 
 @import 'partials/pagecontent';

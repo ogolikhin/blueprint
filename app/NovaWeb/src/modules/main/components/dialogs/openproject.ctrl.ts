@@ -65,6 +65,10 @@ export class OpenProjectController extends BaseDialogController {
     private columnDefinitions = [{
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
+        cellClassRules: {
+            "has-children": function(params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+            "is-project": function(params) { return params.data.Type === "Project"; }
+        },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
@@ -73,12 +77,8 @@ export class OpenProjectController extends BaseDialogController {
                 if (params.data.Type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
-                    return "<i class='fonticon-project'></i>" + sanitizedName;
-                } if (params.data.Type === "Folder") {
-                    return sanitizedName;
-                } else {
-                    return sanitizedName;
                 }
+                return sanitizedName;
             }
         },
         suppressMenu: true,

@@ -114,8 +114,8 @@ class MainCtrl {
         var self = this;
         var selectedNode;
         var editing = false;
-        var currentValue = this.escapeHTMLText(params.value);
-        var formattedCurrentValue = "<span>" + currentValue + "</span>";
+        var currentValue = params.value;
+        var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
         var containerCell = params.eGridCell;
 
         function stopEditing() {
@@ -148,11 +148,6 @@ class MainCtrl {
                 var editSpan = document.createElement("span");
                 editSpan.className = "ag-group-inline-edit";
 
-                var icon = valueSpan.querySelector("i[class^='fonticon-']");
-                if (icon) {
-                    editSpan.appendChild(icon.cloneNode());
-                }
-
                 var input = document.createElement("input");
                 input.setAttribute("type", "text");
                 input.setAttribute("value", currentValue);
@@ -180,9 +175,6 @@ class MainCtrl {
             var key = e.which || e.keyCode;
 
             if (editing) {
-                var validCharacters = /[a-zA-Z0-9 ]/;
-                var char = String.fromCharCode(key);
-
                 var editSpan = containerCell.querySelector(".ag-group-inline-edit");
                 if (editSpan) {
                     var input = editSpan.querySelector("input");
@@ -191,7 +183,11 @@ class MainCtrl {
                     var selectionEnd = input.selectionEnd;
 
                     if (e.type === "keypress") {
-                        if (validCharacters.test(char)) {
+                        // Do we need to filter the input?
+                        //var validCharacters = /[a-zA-Z0-9 ]/;
+                        var char = String.fromCharCode(key);
+
+                        //if (validCharacters.test(char)) {
                             var firstToken = inputValue.substring(0, selectionStart);
                             var secondToken = inputValue.substring(selectionEnd);
                             inputValue = firstToken + char + secondToken;
@@ -199,14 +195,14 @@ class MainCtrl {
 
                             selectionEnd = ++selectionStart;
                             input.setSelectionRange(selectionStart, selectionEnd);
-                        }
+                        //}
                     } else if (e.type === "keydown") {
                         if (key === 13) { // Enter
                             input.blur();
                         } else if (key === 27) { // Escape
                             input.value = currentValue;
                             input.blur();
-                        } else if (key === 37) { // left arrow
+                        /*} else if (key === 37) { // left arrow
                             selectionStart--;
                             if (!e.shiftKey) {
                                 selectionEnd = selectionStart;
@@ -217,7 +213,7 @@ class MainCtrl {
                             if (!e.shiftKey) {
                                 selectionStart = selectionEnd;
                             }
-                            input.setSelectionRange(selectionStart, selectionEnd);
+                            input.setSelectionRange(selectionStart, selectionEnd);*/
                         }
                         e.stopImmediatePropagation();
                     }
@@ -259,14 +255,7 @@ class MainCtrl {
             containerCell.addEventListener("dblclick", dblClickHandler);
         }
 
-        switch (params.data.Type) { //we need to add the proper icon depending on the type
-            case "Folder":
-                return formattedCurrentValue;
-            case "Project":
-                return "<i class='fonticon-project'></i>" +  formattedCurrentValue;
-            default:
-                return formattedCurrentValue;
-        }
+        return formattedCurrentValue;
     };
 
     private columnDefinitions = [{
@@ -274,6 +263,10 @@ class MainCtrl {
         field: "Name",
         //editable: true, // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers
         //cellEditor: this.cellEditor,
+        cellClassRules: {
+          "has-children": function(params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+          "is-project": function(params) { return params.data.Type === "Project"; }
+        },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: this.cellRenderer

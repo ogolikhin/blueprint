@@ -46,6 +46,7 @@ $toolbar-height: 46px;
 $breadcrumbs-height: 48px;
 
 //sidebars
+$wrapper-height: $navbar-height;
 $sidebar-size: 250px;
 $left-sidebar-border: $brand-secondary;
 $right-sidebar-border: #dde1e2;
@@ -61,6 +62,10 @@ $aggrid-row-height: 20px;
 $project-picker-tree-width: 380px;
 $project-picker-tree-height: 244px;
 $project-picker-data-width: 350px;
+
+//vertical order
+$sidebar-z-index: 1000;
+$toolbar-z-index: $sidebar-z-index + 100;
 
 //other
 $border-radius-amount: 4px;

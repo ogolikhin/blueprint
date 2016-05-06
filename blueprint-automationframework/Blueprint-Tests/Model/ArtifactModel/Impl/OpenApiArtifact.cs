@@ -17,20 +17,20 @@ namespace Model.ArtifactModel.Impl
         #region Properties
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<Property>>))]
-        public List<Property> Properties { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<Comment>>))]
-        public List<Comment> Comments { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiComment>>))]
+        public List<OpenApiComment> Comments { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<Trace>>))]
-        public List<Trace> Traces { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
+        public List<OpenApiTrace> Traces { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<Attachment>>))]
-        public List<Attachment> Attachments { get; set; }
+        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
+        public List<OpenApiAttachment> Attachments { get; set; }
         
         #endregion Properties
 
@@ -42,10 +42,10 @@ namespace Model.ArtifactModel.Impl
         public OpenApiArtifact()
         {
             //Required for deserializing OpenApiArtifact
-            Properties = new List<Property>();
-            Comments = new List<Comment>();
-            Traces = new List<Trace>();
-            Attachments = new List<Attachment>();
+            Properties = new List<OpenApiProperty>();
+            Comments = new List<OpenApiComment>();
+            Traces = new List<OpenApiTrace>();
+            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>

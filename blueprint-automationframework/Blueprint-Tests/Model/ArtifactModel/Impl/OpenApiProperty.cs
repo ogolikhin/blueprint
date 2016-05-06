@@ -6,18 +6,18 @@ using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class Property : PropertyBase, IProperty
+    public class OpenApiProperty : PropertyBase, IOpenApiProperty
     {
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="address">The address of the OpenApiPropertyProperty.</param>
-        public Property(string address)
+        public OpenApiProperty(string address)
         {
             Address = address;
         }
 
-        public Property SetPropertyAttribute(
+        public OpenApiProperty SetPropertyAttribute(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,
@@ -32,7 +32,7 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes, sendAuthorizationAsCookie);
 
             // Created and update the property based on information from get artifact types call and user parameter
-            var updatedProperty = new Property(Address)
+            var updatedProperty = new OpenApiProperty(Address)
             {
                 PropertyTypeId = returnedPropertyType.Id,
                 Name = returnedPropertyType.Name,
@@ -45,7 +45,5 @@ namespace Model.ArtifactModel.Impl
 
             return updatedProperty;
         }
-
-
     }
 }

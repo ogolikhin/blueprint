@@ -54,8 +54,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
+    <Compile Include="ArtifactModel\IPropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiArtifact.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
+    <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
+    <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
     <Compile Include="ArtifactVersionModel\IArtifactVersion.cs" />
     <Compile Include="ArtifactVersionModel\Impl\ArtifactVersion.cs" />
     <Compile Include="CommonConstants.cs" />

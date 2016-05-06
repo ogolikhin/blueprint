@@ -1,14 +1,35 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Newtonsoft.Json;
 using Utilities;
 using NUnit.Framework;
+using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
+    public enum LockResult
+    {
+        Success,
+        AlreadyLocked,
+        Failure
+    }
+
+    public enum DiscardResult
+    {
+        Success,
+        Failure
+    }
+
     public class Artifact : ArtifactBase, IArtifact
     {
+        #region Constants
+
+        private const string URL_LOCK = "svc/shared/artifacts/lock";
+
+        #endregion Constants
 
         #region Properties
 
@@ -100,7 +121,13 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToPublish = new List<IArtifactBase> { this };
 
-            PublishArtifacts(artifactToPublish, Address, user, expectedStatusCodes, shouldKeepLock, sendAuthorizationAsCookie);
+            PublishArtifacts(
+                artifactToPublish, 
+                Address, 
+                user, 
+                expectedStatusCodes, 
+                shouldKeepLock, 
+                sendAuthorizationAsCookie);
         }
 
         public List<IDiscardArtifactResult> Discard(IUser user = null,
@@ -115,7 +142,12 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToDiscard = new List<IArtifactBase> { this };
 
-            var discardArtifactResults = OpenApiArtifact.DiscardArtifacts(artifactToDiscard, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            var discardArtifactResults = DiscardArtifacts(
+                artifactToDiscard, 
+                Address, 
+                user, 
+                expectedStatusCodes, 
+                sendAuthorizationAsCookie);
 
             return discardArtifactResults;
         }
@@ -156,8 +188,23 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        #endregion Methods
+        public List<LockResultInfo> Lock(
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to lock the artifact.");
+                user = CreatedBy;
+            }
 
+            var artifactToLock = new List<IArtifactBase> { this };
+
+            return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+        }
+
+        #endregion Methods
 
         #region Static Methods
 
@@ -317,6 +364,73 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes);
         }
 
+        /// <summary>
+        /// Lock Artifact(s) 
+        /// </summary>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="user">The user locking the artifact</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>List of LockResultInfo for the locked artifacts</returns>
+        public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
+            string address,
+            IUser user, 
+            List<HttpStatusCode> expectedStatusCodes = null, 
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactIds = (
+                from IArtifactBase artifact in artifactsToLock
+                select artifact.Id).ToList();
+
+            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
+                URL_LOCK,
+                RestRequestMethod.GET,
+                additionalHeaders: null,
+                queryParameters: null,
+                jsonObject: artifactIds,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            return response;
+        }
+
         #endregion Static Methods
+    }
+
+    public class LockResultInfo
+    {
+        public LockResult Result { get; set; }
+
+        public VersionInfo Info { get; set; }
+    }
+
+    public class VersionInfo
+    {
+        public int? ArtifactId { get; set; }
+        public int ServerArtifactVersionId { get; set; }
+        public DateTime? UtcLockedDateTime { get; set; }
+        public string LockOwnerLogin { get; set; }
+        public int ProjectId { get; set; }
+    }
+
+    public class DiscardResultInfo
+    {
+        public DiscardResult Result { get; set; }
+        public string Message { get; set; }
     }
 }

@@ -7,15 +7,6 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constants
 
-        protected const string SVC_PATH = "api/v1/projects";
-        protected const string URL_ARTIFACTS = "artifacts";
-        protected const string URL_PUBLISH = "api/v1/vc/publish";
-        protected const string URL_DISCARD = "api/v1/vc/discard";
-        protected const string URL_COMMENTS = "comments";
-        protected const string URL_REPLIES = "replies";
-        protected const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
-        protected const string URL_SEARCH = "/svc/shared/artifacts/search";
-
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         #endregion Constants

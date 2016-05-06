@@ -14,6 +14,19 @@ namespace Model.ArtifactModel.Impl
 {
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
+        #region Constants
+
+        public const string SVC_PATH = "api/v1/projects";
+        public const string URL_ARTIFACTS = "artifacts";
+        public const string URL_PUBLISH = "api/v1/vc/publish";
+        public const string URL_DISCARD = "api/v1/vc/discard";
+        public const string URL_COMMENTS = "comments";
+        public const string URL_REPLIES = "replies";
+        public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
+        public const string URL_SEARCH = "/svc/shared/artifacts/search";
+
+        #endregion Constants
+
         #region Properties
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

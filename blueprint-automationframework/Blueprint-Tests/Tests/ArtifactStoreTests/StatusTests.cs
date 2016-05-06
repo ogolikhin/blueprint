@@ -15,6 +15,7 @@ namespace ArtifactStoreTests
         private readonly IArtifactStore _adminStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
 
         [TestCase]
+        [TestRail(106928)]
         [Explicit(IgnoreReasons.ProductBug)]  // ArtifactStore is still being written...
         [Description("Calls the /status endpoint for ArtifactStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
         public void Status_ValidateReturnedContent()
@@ -31,6 +32,7 @@ namespace ArtifactStoreTests
 
         [TestCase(null)]
         [TestCase("ABCDEFG123456")]
+        [TestRail(106929)]
         [Explicit(IgnoreReasons.ProductBug)]  // ArtifactStore is still being written...
         [Description("Calls the /status endpoint for ArtifactStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
         public void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
@@ -42,7 +44,8 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Description("Calls the /status/upcheck endpoint for ArtifactStore and verifies that it returns 200 OK")]
+        [TestRail(106930)]
+        [Description("Calls the /status/upcheck endpoint for ArtifactStore and verifies that it returns 200 OK.")]
         public void GetStatusUpcheck_OK()
         {
             Assert.DoesNotThrow(() =>

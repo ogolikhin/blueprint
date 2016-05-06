@@ -54,7 +54,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Constructor.
+        /// Constructor
         /// </summary>
         /// <param name="address">The URI address of the artifact.</param>
         public ArtifactBase(string address) : this()
@@ -63,6 +63,12 @@ namespace Model.ArtifactModel.Impl
             Address = address;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="id">The artifact id</param>
+        /// <param name="projectId">The project containing the artifact</param>
         public ArtifactBase(string address, int id, int projectId) : this(address)
         {
             Id = id;

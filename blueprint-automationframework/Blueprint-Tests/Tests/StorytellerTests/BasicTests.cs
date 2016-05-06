@@ -177,7 +177,7 @@ namespace StorytellerTests
                 artifactList.Add(artifact);
             }
 
-            //Implementation of CreateOpenApiArtifact use OpenApi_Artifact_ prefix to name artifacts
+            //Implementation of CreateArtifact uses OpenApi_Artifact_ prefix to name artifacts
             string searchString = "OpenApi_Artifact_";
             try
             {

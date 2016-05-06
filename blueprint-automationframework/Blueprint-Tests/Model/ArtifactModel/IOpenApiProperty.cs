@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Model.ArtifactModel
 {
-    public interface IOpenApiProperty
+    public interface IOpenApiProperty :IPropertyBase
     {
         int PropertyTypeId { get; set; }
         string Name { get; set; }

@@ -51,11 +51,17 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="address">The URI address of the artifact.</param>
+        /// <param name="address">The URI address of the Open API</param>
         public OpenApiArtifact(string address) : base(address)
         {
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="id">The artifact id</param>
+        /// <param name="projectId">The project containing the artifact</param>
         public OpenApiArtifact(string address, int id, int projectId) : base(address, id, projectId)
         {
         }
@@ -150,6 +156,13 @@ namespace Model.ArtifactModel.Impl
 
         #region Static Methods
 
+        /// <summary>
+        /// Save a single artifact to Blueprint
+        /// </summary>
+        /// <param name="artifactToSave">The artifact to save</param>
+        /// <param name="user">The user saving the artifact</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         public static void SaveArtifact(IArtifactBase artifactToSave, 
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -186,7 +199,7 @@ namespace Model.ArtifactModel.Impl
                 artifactToSave.IsSaved = true;
             }
 
-            Logger.WriteDebug("POST {0} returned followings: Message: {1}, ResultCode: {2}", path, artifactResult.Message, artifactResult.ResultCode);
+            Logger.WriteDebug("{0} {1} returned followings: Message: {2}, ResultCode: {3}", restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
             artifactToSave.Id = artifactResult.Artifact.Id;
@@ -200,7 +213,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Discard the added artifact(s) from Blueprint
+        /// Discard changes to artifact(s) from Blueprint
         /// </summary>
         /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
         /// <param name="address">The base url of the Open API</param>
@@ -322,6 +335,17 @@ namespace Model.ArtifactModel.Impl
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
         }
 
+        /// <summary>
+        /// Delete a single artifact on Blueprint server.
+        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
+        /// </summary>
+        /// <param name="artifactToDiscard">The list of artifacts to publish</param>
+        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
         public static List<IDeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDiscard, 
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -362,6 +386,14 @@ namespace Model.ArtifactModel.Impl
             return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
         }
 
+        /// <summary>
+        /// Gets the Version property of an Artifact via OpenAPI call
+        /// </summary>
+        /// <param name="artifact">The artifact</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The historical version of the artifact.</returns>
         public static int GetVersion(IArtifactBase artifact, 
             IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -397,7 +429,7 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Get discussions for the specified artifact/subartifact
         /// </summary>
-        /// <param name="address">server address</param>
+        /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact/subartifact</param>
         /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
         /// <param name="user">The user credentials for the request</param>
@@ -441,7 +473,7 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
         /// </summary>
-        /// <param name="address">server address</param>
+        /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>

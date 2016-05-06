@@ -41,23 +41,7 @@ namespace Model.ArtifactVersionModel.Impl
 
         #endregion Constructor
 
-        public IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(Address, user, project, artifactType);
-
-            //Set to add in root of the project
-            artifact.ParentId = artifact.ProjectId;
-
-            //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
-            artifact.Save(user);
-
-            // Add artifact to artifacts list
-            Artifacts.Add(artifact);
-
-            return artifact;
-        }
-        public List<LockResultInfo> LockArtifactIds(IUser user, List<int> artifactIds, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+ public List<LockResultInfo> LockArtifactIds(IUser user, List<int> artifactIds, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactIds, nameof(artifactIds));

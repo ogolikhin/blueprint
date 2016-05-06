@@ -147,9 +147,9 @@ namespace Model.StorytellerModel
         string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Discard a process artifact
+        /// Discard changes to a process artifact
         /// </summary>
-        /// <param name="artifact">The artifact to be discarded</param>
+        /// <param name="artifact">The artifact with changes to be discarded</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The List of DiscardArtifactResult after the call</returns>

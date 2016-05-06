@@ -8,22 +8,22 @@ namespace Model.ArtifactModel
     public interface IArtifact : IArtifactBase
     {
         /// <summary>
-        /// List of Open Api Artifact Properties
+        /// List of Artifact Properties
         /// </summary>
         List<Property> Properties { get; }
 
         /// <summary>
-        /// List of Open Api Artifact Comments
+        /// List of Artifact Comments
         /// </summary>
         List<Comment> Comments { get; }
 
         /// <summary>
-        /// List of Open Api Artifact Traces
+        /// List of Artifact Traces
         /// </summary>
         List<Trace> Traces { get; }
 
         /// <summary>
-        ///  List of Open Api Artifact Attachments
+        ///  List of Artifact Attachments
         /// </summary>
         List<Attachment> Attachments { get; }
 
@@ -47,7 +47,7 @@ namespace Model.ArtifactModel
         void Publish(IUser user = null, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Discard the added artifact on Blueprint server.
+        /// Discard changes to an artifact on Blueprint server.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint. If null, attempts to delete using the credentials</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
@@ -57,7 +57,7 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Delete the artifact on Blueprint server.
-        /// To delete artifact permanently Publish must be called after Delete, otherwise deletion can be discarded.
+        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// </summary>
         /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>

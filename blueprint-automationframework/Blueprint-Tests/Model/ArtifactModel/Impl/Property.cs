@@ -11,7 +11,7 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="address">The address of the OpenApiPropertyProperty.</param>
+        /// <param name="address">The URL address of the API.</param>
         public Property(string address)
         {
             Address = address;

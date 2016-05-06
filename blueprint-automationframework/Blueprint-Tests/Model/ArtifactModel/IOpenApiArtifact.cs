@@ -46,7 +46,7 @@ namespace Model.ArtifactModel
         void Publish(IUser user = null, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Discard the added artifact on Blueprint server.
+        /// Discard changes to an artifact on Blueprint server.
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint. If null, attempts to delete using the credentials</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
@@ -56,7 +56,7 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Delete the artifact on Blueprint server.
-        /// To delete artifact permanently Publish must be called after Delete, otherwise deletion can be discarded.
+        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// </summary>
         /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>

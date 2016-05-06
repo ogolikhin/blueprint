@@ -21,6 +21,7 @@ body {
 }
 
 @import 'partials/navbar';
+@import 'partials/toolbar';
 @import 'partials/modal';
 @import 'partials/form';
 @import 'partials/button';
@@ -35,18 +36,12 @@ body {
 
 @import 'partials/unsupported';
 
-app {
-    height:100%;
-    display:block;
-}
 #wrapper {
   display: block;
-  height: calc(100% - #{$navbar-height});
-  width:100%;
-  position:relative;
-  top: $navbar-height;
+  height: calc(100% - #{$wrapper-height});
+  margin-top: $wrapper-height;
   overflow: hidden;
-
+  position: relative;
 }
 
 @import 'partials/pagecontent';

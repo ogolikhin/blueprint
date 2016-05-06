@@ -4,13 +4,15 @@ bp-sidebar-layout {
   width: 100%;
 
   .bp-sidebar-wrapper {
-   height: calc(100% - #{$toolbar-height});
+    height: 100%;
   }
+
   .content-center {
     background: $body-bg-color;
     display: block;
-    height: calc(100% - #{$toolbar-height});
-    position: absolute;
+    height: calc(100% - #{$wrapper-height + $toolbar-height});
+    position: fixed;
+    top: #{$wrapper-height + $toolbar-height};
     transition: padding .4s ease;
     width: 100%;
   }
@@ -50,11 +52,12 @@ bp-sidebar-layout {
   .sidebar {
     background: $white;
     display: block;
-    height: calc(100% - #{$toolbar-height});
-    position: absolute;
+    height: calc(100% - #{$wrapper-height + $toolbar-height});
+    position: fixed;
+    top: #{$wrapper-height + $toolbar-height};
     transition: all .4s ease;
     width: $sidebar-size;
-    z-index: 900;
+    z-index: $sidebar-z-index;
 
     .sidebar-container {
       height: 100%;

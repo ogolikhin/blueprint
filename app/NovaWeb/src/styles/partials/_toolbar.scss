@@ -1,0 +1,113 @@
+toolbar {
+  > .navbar-toolbar {
+    background: $gray-lighter;
+    height: $toolbar-height;
+    padding: 0 0 0 12px;
+
+    .navbar-nav {
+      float: left;
+      margin: 0;
+
+      > li {
+        float: left !important; //override media query
+        z-index: $toolbar-z-index;
+      }
+
+      > .separator {
+        background: $gray-light;
+        border-left: solid 1px lighten($gray-light, 16);
+        border-right: solid 1px lighten($gray-light, 16);
+        height: $toolbar-height;
+        width: 3px;
+      }
+    }
+
+    > ul > li {
+      > a {
+        box-sizing: border-box;
+        color: $gray-dark;
+        height: $toolbar-height;
+        line-height: normal;
+        padding: 6px 4px 0;
+        text-align: center;
+
+        .fonticon::before {
+          font-size: $font-size-biggest;
+          margin: 0;
+        }
+
+        .caret {
+          margin: 0;
+        }
+
+        span {
+          display: block;
+          font-size: $font-size-nano;
+          font-weight: 700;
+          margin-top: -3px;
+          white-space: nowrap;
+        }
+      }
+
+      &.open > a {
+        background: $gray-lightest;
+        color: $brand-secondary !important;
+      }
+
+      &.open > a:hover,
+      > a:hover {
+        color: $brand-secondary !important;
+      }
+    }
+
+    .dropdown-menu {
+      border: solid 1px $white !important;
+      border-top: none !important;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, .175) !important;
+      margin: 0;
+      padding: 0;
+      position: absolute !important;
+
+      a {
+        background: $gray-light;
+        border: 0;
+        border-top: solid 1px $white;
+        color: $white !important;
+        line-height: inherit !important;
+        padding: 6px 20px !important;
+
+        &:hover {
+          background: $brand-secondary !important;
+          color: $white !important;
+        }
+      }
+
+      .dropdown-submenu {
+        position: relative;
+
+        > .dropdown-menu {
+          left: 100%;
+          top: 0;
+        }
+
+        &:hover > .dropdown-menu {
+          display: block;
+        }
+
+        > a::after {
+          border-color: transparent;
+          border-left-color: $white;
+          border-style: solid;
+          border-width: 5px 0 5px 5px;
+          content: ' ';
+          display: block;
+          float: right;
+          height: 0;
+          margin-right: -10px;
+          margin-top: 5px;
+          width: 0;
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IdentityModel.Selectors;
 using System.Security.Cryptography.X509Certificates;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Saml
 {
@@ -18,10 +19,7 @@ namespace AdminStore.Saml
         public override void Validate(X509Certificate2 certificate)
         {
             // Check that there is a certificate.
-            if (certificate == null)
-            {
-                throw new ArgumentNullException("certificate");
-            }
+            ThrowIf.ArgumentNull(certificate, nameof(certificate));
 
             if (_allowedCertificate.IssuerName.Name != certificate.IssuerName.Name)
             {

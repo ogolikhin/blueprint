@@ -19,8 +19,8 @@
 
     [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
       font-size: $font-size-root;
-      margin-left: 5px;
-      margin-right: 7px;
+      margin-left: 3px;
+      margin-right: 5px;
     }
 
     .fonticon-folder-open::before,
@@ -99,6 +99,72 @@
       height: $aggrid-row-height;
       line-height: calc(#{$aggrid-row-height} - 2px);
       width: 100%;
+    }
+  }
+
+  .ag-cell {
+    > span {
+      margin-left: 15px;
+    }
+
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      box-sizing: border-box;
+      color: $brand-secondary;
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smaller;
+      padding: 0 0 0 5px;
+      text-align: left;
+      width: 25px;
+    }
+
+    &.ag-cell-range-selected {
+      > span .ag-group-inline-edit::before,
+      > span .ag-group-value::before {
+        color: $white;
+      }
+    }
+  }
+
+  .ag-cell.is-project {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e879';
+    }
+  }
+
+  .ag-cell.has-children {
+    > span {
+      margin-left: 0;
+    }
+
+    .ag-group-expanded::before,
+    .ag-group-contracted::before {
+      box-sizing: border-box;
+      color: $body-color;
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smallest;
+      padding-left: 3px;
+      text-align: left;
+      width: 15px;
+    }
+
+    .ag-group-expanded::before {
+      content: '\e81d';
+    }
+
+    .ag-group-contracted::before {
+      content: '\e81f';
+    }
+
+    &.ag-cell-range-selected {
+      .ag-group-expanded::before,
+      .ag-group-contracted::before {
+        background: $brand-secondary;
+        color: $white;
+      }
     }
   }
 }

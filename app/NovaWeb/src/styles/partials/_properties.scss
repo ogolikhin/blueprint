@@ -37,10 +37,10 @@
 
   &.collapsed {
     > .heading::before {
-      border-top: 5px solid transparent;
       border-bottom: 5px solid transparent;
       border-left: 5px dashed;
       border-left: 5px solid \9;
+      border-top: 5px solid transparent;
       left: 3px;
       top: 0;
     }

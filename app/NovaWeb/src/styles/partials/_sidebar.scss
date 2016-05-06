@@ -59,10 +59,6 @@ bp-sidebar-layout {
     width: $sidebar-size;
     z-index: $sidebar-z-index;
 
-    .sidebar-container {
-      height: 100%;
-    }
-
     .sidebar-title {
       background: $brand-secondary;
       box-sizing: border-box;

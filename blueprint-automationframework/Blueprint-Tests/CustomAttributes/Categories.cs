@@ -8,6 +8,7 @@ namespace CustomAttributes
         public const string AccessControl = "AccessControl";
         public const string AccessControlDouble = "AccessControlDouble";
         public const string AdminStore = "AdminStore";
+        public const string ArtifactStore = "ArtifactStore";
 
         /// <summary>
         /// This test cannot be run in parallel with other tests.

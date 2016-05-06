@@ -1,21 +1,17 @@
 ﻿<div class="bp-sidebar-wrapper" ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
 
     <div class="sidebar left-panel">
-        <div class="sidebar-container">
-            <a ng-click="$ctrl.toggleLeft($event)" class="sidebar-toggle" title="{{$ctrl.leftPanelTitle}}"><i class="fonticon-navigation"></i></a>
-            <div class="sidebar-title">{{$ctrl.leftPanelTitle}}</div>
-            <div class="sidebar-content" ng-transclude="content-left"></div>
-        </div>
+        <a ng-click="$ctrl.toggleLeft($event)" class="sidebar-toggle" title="{{$ctrl.leftPanelTitle}}"><i class="fonticon-navigation"></i></a>
+        <div class="sidebar-title">{{$ctrl.leftPanelTitle}}</div>
+        <div class="sidebar-content" ng-transclude="content-left"></div>
     </div>
 
     <div class="content-center" ng-transclude="content-center"></div>
 
     <div class="sidebar right-panel">
-        <div class="sidebar-container">
-            <a ng-click="$ctrl.toggleRight($event)" class="sidebar-toggle" title="{{$ctrl.rightPanelTitle}}"><i class="fonticon-navigation"></i></a>
-            <div class="sidebar-title">{{$ctrl.rightPanelTitle}}</div>
-            <div class="sidebar-content" ng-transclude="content-right"></div>
-        </div>
+        <a ng-click="$ctrl.toggleRight($event)" class="sidebar-toggle" title="{{$ctrl.rightPanelTitle}}"><i class="fonticon-navigation"></i></a>
+        <div class="sidebar-title">{{$ctrl.rightPanelTitle}}</div>
+        <div class="sidebar-content" ng-transclude="content-right"></div>
     </div>
 
 </div>

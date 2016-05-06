@@ -1,0 +1,122 @@
+pagecontent {
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  transition: all .4s ease;
+  width: 100%;
+
+  .page-content-wrapper {
+    height: calc(100% - #{$breadcrumbs-height});
+    overflow: auto;
+  }
+
+  .page-content {
+    margin: 15px 20px 10px;
+  }
+
+  .page-heading {
+    font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+    white-space: nowrap;
+
+    &::after {
+      clear: both;
+      content: '';
+      display: table;
+    }
+  }
+
+  .page-top-toolbar {
+    float: right;
+    margin-bottom: 15px;
+
+    .btn-bluelight + .btn-bluelight {
+      margin-left: 5px;
+    }
+
+    .btn-bluelight + .btn-primary {
+      margin-left: 10px;
+    }
+  }
+
+  .artifact-heading,
+  .artifact-icon {
+    display: inline-block;
+    margin: 0 10px 15px 0;
+    min-height: 30px;
+    vertical-align: top;
+  }
+
+  .artifact-icon {
+    color: $gray-medium;
+    font-family: 'bp-font';
+    font-size: 24px;
+  }
+
+  .artifact-heading {
+    > .name {
+      color: $gray-dark;
+      display: block;
+      font-size: $font-size-bigger;
+      white-space: nowrap;
+
+      span:first-child {
+        margin-left: 5px;
+      }
+    }
+
+    > .type-id {
+      color: $gray-medium;
+      font-size: $font-size-micro;
+      white-space: nowrap;
+    }
+
+    .lock-indicator,
+    .dirty-indicator {
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smaller;
+    }
+
+    .lock-indicator {
+      color: $brand-secondary;
+    }
+
+    .dirty-indicator {
+      color: $gray-medium;
+    }
+  }
+
+  .artifact-overview {
+    background: $white;
+
+    > .heading {
+      background: #cbcbcb;
+      color: $gray-dark;
+      font-size: $font-size-smaller;
+      font-weight: 600;
+      line-height: 1em;
+      min-height: 36px;
+      padding: 11px 14px;
+
+      + .content {
+        border-top: 0;
+      }
+    }
+
+    > .content {
+      border: solid 1px #d9d9d9;
+      padding: 18px 15px;
+    }
+
+    .nav-tabs {
+      margin-top: 20px;
+    }
+
+    .tab-pane {
+      // temporary
+      font-size: $font-size-smallest;
+    }
+  }
+}

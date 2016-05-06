@@ -8,7 +8,7 @@ using Utilities;
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
+    [Category(Categories.FileStore)]
     public class StatusTests
     {
         private readonly IFileStore _filestore = FileStoreFactory.GetFileStoreFromTestConfig();

@@ -21,7 +21,7 @@ namespace CustomAttributes
         public const string ConcurrentTest = "ConcurrentTest";
 
         public const string ConfigControl = "ConfigControl";
-        public const string Filestore = "Filestore";
+        public const string FileStore = "FileStore";
 
         /// <summary>
         /// This test Injects errors into the AccessControlDouble and therefore cannot be run concurrently with other tests.

@@ -8,6 +8,7 @@ namespace CommonServiceTests.ArtifactVersionTests
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
     [TestFixture]
     [Category(Categories.ArtifactVersion)]
+    [Explicit(IgnoreReasons.UnderDevelopment)]
     class ArtifactVersionTests
     {
         private IAdminStore _adminStore;

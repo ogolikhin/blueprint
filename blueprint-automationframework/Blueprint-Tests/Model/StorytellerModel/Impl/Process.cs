@@ -100,11 +100,6 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
-        public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
-
-        [SuppressMessage("Microsoft.Usage",
-            "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
         public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
 
@@ -141,7 +136,6 @@ namespace Model.StorytellerModel.Impl
         {
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
-            ArtifactPathLinks = new List<ArtifactPathLink>();
             DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
@@ -738,7 +732,7 @@ namespace Model.StorytellerModel.Impl
         private IProcessShape CreateUserTask(
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -803,7 +797,7 @@ namespace Model.StorytellerModel.Impl
             string associatedImageUrl, 
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -872,7 +866,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -896,7 +890,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new system decision point</returns>
         private IProcessShape CreateSystemDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -924,7 +918,7 @@ namespace Model.StorytellerModel.Impl
             ProcessShapeType processShapeType,
             string shapeNamePrefix,
             string itemLabel,
-            ArtifactPathLink associatedArtifact,
+            AssociatedArtifact associatedArtifact,
             double width,
             double height,
             int x,
@@ -1463,7 +1457,7 @@ namespace Model.StorytellerModel.Impl
 
         public string TypePrefix { get; set; }
 
-        public ArtifactPathLink AssociatedArtifact { get; set; }
+        public AssociatedArtifact AssociatedArtifact { get; set; }
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
@@ -1476,11 +1470,11 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public AssociatedArtifact AddAssociatedArtifact(IOpenApiArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new ArtifactPathLink()
+            AssociatedArtifact = new AssociatedArtifact()
             {
                 BaseItemTypePredefined = artifact.BaseItemTypePredefined,
                 Id = artifact.Id,
@@ -1563,7 +1557,7 @@ namespace Model.StorytellerModel.Impl
         public string Label { get; set; }
 
     }
-    public class ArtifactPathLink
+    public class AssociatedArtifact
     {
         /// <summary>
         /// The Id of the Artifact

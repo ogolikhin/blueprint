@@ -203,42 +203,23 @@ namespace ServiceLibrary.Repositories.ConfigControl
             string sessionId,
             string userName)
         {
-            try
+            //create the log entry
+            StandardLogModel serviceLog = new StandardLogModel
             {
-                var uri = ConfigurationManager.AppSettings["ConfigControl"];
-                if (string.IsNullOrWhiteSpace(uri)) throw new ApplicationException("Application setting not set: ConfigControl");
-                var http = _httpClientProvider.Create(new Uri(uri));
-
-                //create the log entry
-                ServiceLogModel serviceLog = new ServiceLogModel
-                {
-                    Source = logEntry.Source,
-                    LogLevel = (LogLevelEnum)logEntry.LogLevel,
-                    Message = logEntry.Message,
-                    OccurredAt = DateTime.Now,
-                    SessionId = sessionId,
-                    UserName = userName,
-                    MethodName = "",
-                    FilePath = "",
-                    LineNumber = 0,
-                    StackTrace = logEntry.StackTrace
-                };
-
-                // Convert Object to JSON
-                var requestMessage = JsonConvert.SerializeObject(serviceLog);
-                var content = new StringContent(requestMessage, Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await http.PostAsync("log", content);
-
-                response.EnsureSuccessStatusCode();
-                return response;
-
-            }
-            catch (Exception ex)
-            {
-                _localLog.LogErrorFormat("Problem with ConfigControl Log service: {0}", ex.Message);
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            }
+                Source = logEntry.Source,
+                LogLevel = (LogLevelEnum)logEntry.LogLevel,
+                Message = logEntry.Message,
+                OccurredAt = DateTime.Now,
+                SessionId = sessionId,
+                UserName = userName,
+                MethodName = "",
+                FilePath = "",
+                LineNumber = 0,
+                StackTrace = logEntry.StackTrace
+            };
+            await LogStandardLog(serviceLog);
+            //don't care about errors
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         /// <summary>

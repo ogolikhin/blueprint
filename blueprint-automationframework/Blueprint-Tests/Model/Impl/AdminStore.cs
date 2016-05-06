@@ -81,6 +81,22 @@ namespace Model.Impl
             return session;
         }
 
+        /// <seealso cref="IAdminStore.AddSession(IUser, bool?, List{HttpStatusCode}, IServiceErrorMessage)"/>
+        public ISession AddSession(IUser user = null,
+            bool? force = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            IServiceErrorMessage expectedServiceErrorMessage = null)
+        {
+            ISession session = AddSession(user?.Username, user?.Password, force, expectedStatusCodes, expectedServiceErrorMessage);
+
+            if (user != null)
+            {
+                user.SetToken(session.SessionId);
+            }
+
+            return session;
+        }
+
         /// <seealso cref="IAdminStore.AddSession(string, string, bool?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public ISession AddSession(string username = null, string password = null, bool? force = null,
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
@@ -130,21 +146,36 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.DeleteSession(IUser, List{HttpStatusCode})"/>
+        public void DeleteSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            DeleteSession(user?.Token?.AccessControlToken, expectedStatusCodes);
+        }
+
         /// <seealso cref="IAdminStore.DeleteSession(ISession, List{HttpStatusCode})"/>
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            DeleteSession(session?.SessionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.DeleteSession(string, List{HttpStatusCode})"/>
+        public void DeleteSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
 
-            if (session != null)
+            if (token != null)
             {
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, token } };
             }
 
-            Logger.WriteInfo("Deleting session '{0}'...", session?.SessionId);
+            Logger.WriteInfo("Deleting session '{0}'...", token);
             restApi.SendRequestAndGetResponse(path, RestRequestMethod.DELETE, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+
+            // Remove token from the list of created sessions.
+            Sessions.RemoveAll(session => session.SessionId == token);
         }
 
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>

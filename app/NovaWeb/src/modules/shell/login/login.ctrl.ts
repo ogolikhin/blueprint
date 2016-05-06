@@ -1,18 +1,7 @@
 ﻿import "angular";
-import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
 import {ILocalizationService} from "../../core/localization";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {ISession} from "./session.svc";
-
-export class SimpleDialogCtrl extends ConfirmationDialogCtrl {
-
-    constructor(localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
-        super(localization, $uibModalInstance);
-        this.acceptButtonName = localization.get("App_Button_Yes");
-        this.cancelButtonName = localization.get("App_Button_No");
-        this.msg = localization.get("Login_Session_DuplicateSession_Verbose");
-    }
-}
 
 export class ILoginInfo {
     public userName: string;

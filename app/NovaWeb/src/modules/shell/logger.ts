@@ -2,11 +2,13 @@
 import {IServerLogger} from "./server-logger.svc";
 
 export class Logger {
+    /* tslint:disable:no-unused-variable */
     private static infoLevel: number = 0;
     private static warningLevel: number = 1;
-    private static errorLevel: number = 2;    
+    private static errorLevel: number = 2;
     private static debugLevel: number = 3;
     //private static criticalLevel: number = 4; //unused
+    /* tslint:enable:no-unused-variable */
 
     public static $inject: [string] = ["$provide"];
 
@@ -15,7 +17,7 @@ export class Logger {
         $provide.decorator("$exceptionHandler", ["$delegate", "$log", Logger.exceptionHandler]);
         $provide.decorator("$window", ["$delegate", "serverLogger", Logger.windowExceptionHandler]);
     }
-    
+
     private static logWrappers($delegate: ng.ILogService, logger: IServerLogger): ng.ILogService {
         (<any>$delegate).error = Logger.createLogMethodWrapper($delegate.error, Logger.errorLevel, logger);
         //(<any>$delegate).debug = Logger.createLogMethodWrapper($delegate.debug, Logger.debugLevel, logger);
@@ -34,7 +36,7 @@ export class Logger {
     private static exceptionHandler($delegate: ng.IExceptionHandlerService, $log: ng.ILogService) {
         return (exception: Error, cause?: string) => {
             $log.error(exception);
-        }; 
+        };
     }
 
     private static createLogMethodWrapper(logCall: Function, level: number, serverLogger: IServerLogger): Function {

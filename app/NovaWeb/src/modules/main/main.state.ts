@@ -123,11 +123,15 @@ class MainCtrl {
             var valueSpan = containerCell.querySelector(".ag-group-value");
             if (editing && editSpan && valueSpan) {
                 var input = editSpan.querySelector("input");
-                input.removeEventListener("keyup", keyEventHandler);
-                var newValue = input.value;
-                if (newValue !== "") { // do we need more validation?
+                input.removeEventListener("blur", stopEditing);
+                input.removeEventListener("keydown", keyEventHandler);
+                var newValue = input.value.trim();
+                // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
+                if (newValue !== "" && newValue.charCodeAt(0) > 32) {
                     valueSpan.querySelector("span").textContent = self.escapeHTMLText(newValue);
                     selectedNode.data.Name = newValue;
+                } else {
+                    valueSpan.innerHTML = formattedCurrentValue;
                 }
                 var parentSpan = editSpan.parentNode;
                 parentSpan.removeChild(editSpan);

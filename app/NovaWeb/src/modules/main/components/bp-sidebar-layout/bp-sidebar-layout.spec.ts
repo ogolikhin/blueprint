@@ -7,7 +7,7 @@ import {BpSidebarLayoutCtrl} from "./bp-sidebar-layout";
 
 describe("Component BpSidebarLayout", () => {
 
-    beforeEach(angular.mock.module('app.main'));
+    beforeEach(angular.mock.module("app.main"));
 
     var directiveTest: ComponentTest<BpSidebarLayoutCtrl>;
     var layout = `
@@ -53,7 +53,7 @@ describe("Component BpSidebarLayout", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
-            
+
             //Act
             vm.toggleRight(directiveTest.scope.$broadcast("dummyEvent"));
             directiveTest.scope.$digest();
@@ -68,7 +68,7 @@ describe("Component BpSidebarLayout", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
-            
+
             //Act
             vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
             directiveTest.scope.$digest();
@@ -102,7 +102,7 @@ describe("Component BpSidebarLayout", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
-            
+
             //Act
             vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
             directiveTest.scope.$digest();

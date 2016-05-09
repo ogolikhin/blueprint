@@ -12,5 +12,5 @@ export function config($stateProvider: ng.ui.IStateProvider, $urlRouterProvider:
 
 class MainState extends AuthenticationRequired implements ng.ui.IState {
     public url = "/main";
-    public template = require("./main.html");
+    public template = "<bp-main-view></bp-main-view>"
 }

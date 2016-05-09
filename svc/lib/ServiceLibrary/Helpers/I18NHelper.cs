@@ -50,19 +50,13 @@ namespace ServiceLibrary.Helpers
 
         public static bool EndsWithOrdinal(this string s, string value)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
+            ThrowIf.ArgumentNull(s, nameof(s));
             return s.EndsWith(value, StringComparison.Ordinal);
         }
 
         public static bool EqualsOrdinalIgnoreCase(this string s, string value)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
+            ThrowIf.ArgumentNull(s, nameof(s));
             return s.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -72,10 +66,7 @@ namespace ServiceLibrary.Helpers
 
         public static string ToStringInvariant(this IFormattable value, string format = null)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+            ThrowIf.ArgumentNull(value, nameof(value));
             return value.ToString(format, CultureInfo.InvariantCulture);
         }
 

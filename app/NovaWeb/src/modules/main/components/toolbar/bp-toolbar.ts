@@ -1,29 +1,31 @@
 ﻿import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/openproject.ctrl";
+import {IMainViewController} from "../../main.view";
 
-interface IToolbarController {
+interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
 }
 
-
-export class Toolbar implements ng.IComponentOptions {
+export class BPToolbar implements ng.IComponentOptions {
     public template: string;
     public controller: Function;
-    public require: string;
+    public require: any;
 
     constructor() {
-        this.template = require("./toolbar.html");
-        this.controller = ToolbarCtrl;
-        this.require = "^parent";
+        this.template = require("./bp-toolbar.html");
+        this.controller = BPToolbarController;
+        this.require = {
+            parent: "^bpMainView"
+        } ;
     }
 }
 
-class ToolbarCtrl implements IToolbarController {
+class BPToolbarController implements IBPToolbarController {
 
     static $inject = ["localization", "dialogService" ];
-
+    public parent: IMainViewController;
     constructor(private localization: ILocalizationService, private dialogService: IDialogService) {
     }
 

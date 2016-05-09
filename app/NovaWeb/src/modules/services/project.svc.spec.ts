@@ -4,7 +4,6 @@ import {IProjectNode, IProjectService, ProjectService} from "./project.svc";
 import {LocalizationServiceMock} from "../shell/login/mocks.spec";
 
 describe("ProjectService", () => {
-    var $httpBackend: ng.IHttpBackendService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectService", ProjectService);
@@ -16,7 +15,7 @@ describe("ProjectService", () => {
                 // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
                 .respond(200, <IProjectNode[]>[
-                        { Id: 3, "ParentFolderId": 1, Name: "Imported Projects", Type: "Folder", Description :"" }
+                        { Id: 3, "ParentFolderId": 1, Name: "Imported Projects", Type: "Folder", Description : "" }
                     ]
                     );
 

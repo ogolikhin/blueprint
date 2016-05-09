@@ -86,5 +86,9 @@ namespace Model.OpenApiModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
         int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        IArtifactInfo GetArtifactInfo(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false);
     }
 }

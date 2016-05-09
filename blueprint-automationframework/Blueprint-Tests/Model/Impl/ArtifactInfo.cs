@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+namespace Model.Impl
+{
+    public class ArtifactInfo : IArtifactInfo
+    {
+        [JsonProperty("id")]
+        public int Id { get; set; }
+        [JsonProperty("projectId")]
+        public int ProjectId { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("typePrefix")]
+        public string TypePrefix { get; set; }
+        [JsonProperty("baseItemTypePredefined")]
+        public int BaseItemTypePredefined { get; set; }
+        [JsonProperty("link")]
+        public string Link { get; set; }
+    }
+}

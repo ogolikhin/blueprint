@@ -53,11 +53,13 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IArtifactInfo.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="IArtifactStore.cs" />
     <Compile Include="IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
+    <Compile Include="Impl\ArtifactInfo.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\Discussion.cs" />

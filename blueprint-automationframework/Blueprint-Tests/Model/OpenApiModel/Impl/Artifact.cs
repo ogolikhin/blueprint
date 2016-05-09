@@ -63,8 +63,13 @@ namespace Model.OpenApiModel.Impl
         private const string URL_DISCARD = "api/v1/vc/discard";
         private const string URL_COMMENTS = "comments";
         private const string URL_REPLIES = "replies";
-        private static string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         private const string URL_SEARCH = "/svc/shared/artifacts/search";
+        private const string URL_ARTIFACT_INFO = "svc/components/storyteller/artifactInfo";
+        private static string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
+        //private static string URL_RR = "/svc/components/RapidReview";
+        //private static string URL_DIAGRAM = "diagram";
+        //private static string URL_USECASE = "usecase";
+        //private static string URL_GLOSSARY = "glossary";
 
         #endregion Constants
 
@@ -338,6 +343,33 @@ namespace Model.OpenApiModel.Impl
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifact.Version;
+        }
+
+        public IArtifactInfo GetArtifactInfo(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetArtifactInfo.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_ARTIFACT_INFO, Id);
+            var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
+                resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactInfo;
         }
 
         #endregion Methods

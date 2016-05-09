@@ -19,6 +19,13 @@ namespace CommonServiceTests.NavigationTests
     public class NavigationTests
     {
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
+        private const int INVALID_ID = -33;
+        private static readonly List<int> INVALID_LIST = new List<int>()
+        {
+            NONEXISTENT_ARTIFACT_ID,
+            INVALID_ID
+        };
+        private const int MAXIUM_ALLOWABLE_NAVIGATION = 23;
         private const string INVALID_TOKEN = "Invalid_Token_value";
 
         private IAdminStore _adminStore;
@@ -97,17 +104,17 @@ namespace CommonServiceTests.NavigationTests
                 var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
                 foreach (var artifact in _navigation.Artifacts.ToArray())
                 {
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && artifact.IsPublished)
+                    if (!INVALID_LIST.Contains(artifact.Id) && artifact.IsPublished)
                     {
                         _navigation.DeleteNavigationArtifact(artifact, deleteChildren: true);
                     }
 
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    if (!INVALID_LIST.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
                     {
                         savedArtifactsListPrimaryUser.Add(artifact);
                     }
 
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    if (!INVALID_LIST.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
                     {
                         savedArtifactsListSecondaryUser.Add(artifact);
                     }
@@ -134,45 +141,92 @@ namespace CommonServiceTests.NavigationTests
 
         #region Tests
 
-        [TestCase(1)]
-        [TestCase(3)]
-        [Description("Get the navigation where all process artifacts in the GET url path are accessible by the user." +
-             "Verify that the returned artifact reference list contains all process artifacts' Ids and url path links.")]
-        public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
+        [TestCase]
+        [Description("Get the navigation with all available artifact types for the project in the url path " +
+            "which are accessible by the user. Verify that the returned artifact reference lists.")]
+        public void GetNavigationWithAllAccessibleArtifactTypes_VerifyReturnedNavigation()
         {
-            //Create an artifact with ArtifactType and populate all required values
-            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
+            //Create artifacts with distinct available artifactTypes 
+            var availableArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
 
-            //Updating the artifacts of _navigation for tearndown purpose
-            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
+            foreach (var availableArtifactType in availableArtifactTypes)
+            {
+                var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: availableArtifactType, numberOfArtifacts: 1).First();
 
-            //Get breadcrumb information
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
+                //Add an artifact to artifact list for navigation call
+                _navigation.Artifacts.Add(artifact);
+            }
+
+            //Get Navigation
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
 
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
         [TestCase]
-        [Description("Get the navigation where all non-process artifacts in the GET url path are accessible by the user." +
-            "Verify that the returned artifact reference list contains all process artifacts' Ids and url path links.")]
-        public void GetNavigationWithAccessibleNonProcessArtifacts_VerifyReturnedNavigation()
+        [Description("Get the navigation with maxium allowable number of artifacts in the url path. " +
+            "Verify the expected error from the call.")]
+        public void GetNavigationWithMaxiumArtifacts_VerifyExpectedError()
         {
-            var availableArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
-            //Create an artifact with ArtifactType and populate all required values
+            //Create an artifact with process artifact type
+            var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process, numberOfArtifacts: 1).First();
 
-            //IOpenApiArtifact artifact = new OpenApiArtifact();
-            foreach (var availableArtifactType in availableArtifactTypes)
+            //Add the same artifact repeatedly in the artifact list to create a navigation list which exeeds the maxium
+            //allowable number of artifacts
+            for (int i =0; i< MAXIUM_ALLOWABLE_NAVIGATION; i++)
             {
-                var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: availableArtifactType, numberOfArtifacts: 1).First();
-                //Updating the artifacts of _navigation for tearndown purpose
-                _navigation.Artifacts.Add(artifact);
+                var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+                nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+                _navigation.Artifacts.Add(nonExistingArtifact);
             }
 
-            //Get breadcrumb information
+            //Add the artifact at the end of artifact list for navigation call
+            _navigation.Artifacts.Add(artifact);
+
+            //Get Navigation
             var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+
+            //Navigation Assertions
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+        }
+
+        [TestCase]
+        [Description("Get the navigation with invalid artifact ID data in the url path. " +
+            "Verify the Not Found exception.")]
+        public void GetNavigationWithInvalidData_VerifyNotFoundException()
+        {
+            //Create invalid artifact
+            var invalidArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+            invalidArtifact.Id = INVALID_ID;
+
+            //Add the artifact to artifact list for navigation call
+            _navigation.Artifacts.Add(invalidArtifact);
+
+            //Get Navigation and check the Not Found exception
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            }, "The GET /navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the url!");
+        }
+
+        [TestCase(1)]
+        [TestCase(3)]
+        [Description("Get the navigation with process artifact(s) in the url path are accessible by the user." +
+             "Verify that the returned artifact reference lists.")]
+        public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
+        {
+            //Create artifact(s) with process artifact type
+            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
+
+            //Add artifact(s) to artifact list for navigation call
+            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
+
+            //Get Navigation
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
 
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
@@ -183,32 +237,31 @@ namespace CommonServiceTests.NavigationTests
         [TestCase(5, new[] { 3 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>a>NE>a>a")]
         [TestCase(4, new[] { 1, 2 }, Description = "Test for sequential nonexistent artifacts in breadcrumb, a>NE>NE>a>a>a")]
         [TestCase(6, new[] { 1, 3, 6 }, Description = "Test for non-sequential nonexistent artifacts in breadcrumb, a>NE>a>NE>a>a>NE>a>a")]
-        [Description("Get navigation with a single or multiple non-existent artifacts in the GET url path. " +
+        [Description("Get navigation with a single or multiple non-existent artifacts in the url path. " +
              "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
-             "artifact reference lists. ")]
-        public void GetNavigationWithNonexistentArtifactsInPath_VerifyReturnedNavigation(
+             "artifact reference lists.")]
+        public void GetNavigationWithNonexistentArtifacts_VerifyReturnedNavigation(
             int numberOfArtifacts,
             int[] nonExistentArtifactIndexes)
         {
             ThrowIf.ArgumentNull(nonExistentArtifactIndexes, nameof(nonExistentArtifactIndexes));
 
-            //Create an artifact with ArtifactType and populate all required values
+            //Create artifact(s) with process artifact type
             var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
-            //Inject nonexistent artifact into artifact list used for breadcrumb
+            //Inject nonexistent artifact into artifact list used for navigation
             foreach (var nonExistentArtifactIndex in nonExistentArtifactIndexes)
             {
                 var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
                 nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
-                
                 artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
             }
 
-            //Updating the artifacts of _navigation for tearndown purpose
+            //Add artifact(s) to artifact list for navigation call
             artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
 
-            //Get breadcrumb information
+            //Get Navigation
             var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
 
             //Navigation Assertions
@@ -220,20 +273,20 @@ namespace CommonServiceTests.NavigationTests
         [TestCase(5, new int[] { 3 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>a>IA>a>a")]
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb, a>IA>IA>a>a>a")]
         [TestCase(6, new int[] { 1, 3, 6 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb, a>IA>a>IA>a>a>IA>a>")]
-        [Description("Get navigation with a single or multiple inaccessible artifacts in the GET url path. " +
+        [Description("Get navigation with a single or multiple inaccessible artifacts in the url path. " +
                      "Verify that the inaccessible artifacts are marked as <Inaccessible> in the returned " +
-                     "artifact reference lists. ")]
-        public void GetNavigationWithInaccessibleArtifactsInPath_VerifyReturnedNavigation(
+                     "artifact reference lists.")]
+        public void GetNavigationWithInaccessibleArtifacts_VerifyReturnedNavigation(
             int numberOfArtifacts,
             int[] inaccessibleArtifactIndexes)
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            //Create an artifact with ArtifactType and populate all required values
+            //Create artifact(s) with process artifact type
             var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
-            // create and inject artifact ids created by another user
+            //Create and inject artifact ids created by another user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
                 var inaccessbileArtifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(_project, _secondaryUser, BaseArtifactType.Actor, 1).First();
@@ -241,10 +294,10 @@ namespace CommonServiceTests.NavigationTests
                 artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
-            //Updating the artifacts of _navigation for tearndown purpose
+            //Add artifact(s) to artifact list for navigation call
             artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
 
-            //Get breadcrumb information
+            //Get Navigation
             var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
 
             //Navigation Assertions

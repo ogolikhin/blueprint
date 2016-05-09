@@ -26,9 +26,8 @@ export class MainViewController implements IMainViewController{
 
     private clickTimeout: any;
 
-    public static $inject: [string] = ["$q", "$scope", "localization", "projectService", "$element", "$log", "$timeout"];
+    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout"];
     constructor(
-        private $q: ng.IQService,
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         private service: pSvc.IProjectService,
@@ -81,8 +80,6 @@ export class MainViewController implements IMainViewController{
         };
     }
 
-
-
     private cellEditor = () => { }; // not used for now, need a way to filter keys
 
     //Temporary solution need
@@ -127,8 +124,8 @@ export class MainViewController implements IMainViewController{
         var self = this;
         var selectedNode;
         var editing = false;
-        var currentValue = this.escapeHTMLText(params.value);
-        var formattedCurrentValue = "<span>" + currentValue + "</span>";
+        var currentValue = params.value;
+        var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
         var containerCell = params.eGridCell;
 
         function stopEditing() {
@@ -136,11 +133,15 @@ export class MainViewController implements IMainViewController{
             var valueSpan = containerCell.querySelector(".ag-group-value");
             if (editing && editSpan && valueSpan) {
                 var input = editSpan.querySelector("input");
-                input.removeEventListener("keyup", keyEventHandler);
-                var newValue = input.value;
-                if (newValue !== "") { // do we need more validation?
+                input.removeEventListener("blur", stopEditing);
+                input.removeEventListener("keydown", keyEventHandler);
+                var newValue = input.value.trim();
+                // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
+                if (newValue !== "" && newValue.charCodeAt(0) > 32) {
                     valueSpan.querySelector("span").textContent = self.escapeHTMLText(newValue);
                     selectedNode.data.Name = newValue;
+                } else {
+                    valueSpan.innerHTML = formattedCurrentValue;
                 }
                 var parentSpan = editSpan.parentNode;
                 parentSpan.removeChild(editSpan);
@@ -160,11 +161,6 @@ export class MainViewController implements IMainViewController{
             if (!editing && valueSpan) {
                 var editSpan = document.createElement("span");
                 editSpan.className = "ag-group-inline-edit";
-
-                var icon = valueSpan.querySelector("i[class^='fonticon-']");
-                if (icon) {
-                    editSpan.appendChild(icon.cloneNode());
-                }
 
                 var input = document.createElement("input");
                 input.setAttribute("type", "text");
@@ -193,9 +189,6 @@ export class MainViewController implements IMainViewController{
             var key = e.which || e.keyCode;
 
             if (editing) {
-                var validCharacters = /[a-zA-Z0-9 ]/;
-                var char = String.fromCharCode(key);
-
                 var editSpan = containerCell.querySelector(".ag-group-inline-edit");
                 if (editSpan) {
                     var input = editSpan.querySelector("input");
@@ -204,33 +197,37 @@ export class MainViewController implements IMainViewController{
                     var selectionEnd = input.selectionEnd;
 
                     if (e.type === "keypress") {
-                        if (validCharacters.test(char)) {
-                            var firstToken = inputValue.substring(0, selectionStart);
-                            var secondToken = inputValue.substring(selectionEnd);
-                            inputValue = firstToken + char + secondToken;
-                            input.value = inputValue;
+                        // Do we need to filter the input?
+                        //var validCharacters = /[a-zA-Z0-9 ]/;
+                        var char = String.fromCharCode(key);
 
-                            selectionEnd = ++selectionStart;
-                            input.setSelectionRange(selectionStart, selectionEnd);
-                        }
+                        //if (validCharacters.test(char)) {
+                        var firstToken = inputValue.substring(0, selectionStart);
+                        var secondToken = inputValue.substring(selectionEnd);
+                        inputValue = firstToken + char + secondToken;
+                        input.value = inputValue;
+
+                        selectionEnd = ++selectionStart;
+                        input.setSelectionRange(selectionStart, selectionEnd);
+                        //}
                     } else if (e.type === "keydown") {
                         if (key === 13) { // Enter
                             input.blur();
                         } else if (key === 27) { // Escape
                             input.value = currentValue;
                             input.blur();
-                        } else if (key === 37) { // left arrow
-                            selectionStart--;
-                            if (!e.shiftKey) {
-                                selectionEnd = selectionStart;
-                            }
-                            input.setSelectionRange(selectionStart, selectionEnd);
-                        } else if (key === 39) { // right arrow
-                            selectionEnd++;
-                            if (!e.shiftKey) {
-                                selectionStart = selectionEnd;
-                            }
-                            input.setSelectionRange(selectionStart, selectionEnd);
+                            /*} else if (key === 37) { // left arrow
+                                selectionStart--;
+                                if (!e.shiftKey) {
+                                    selectionEnd = selectionStart;
+                                }
+                                input.setSelectionRange(selectionStart, selectionEnd);
+                            } else if (key === 39) { // right arrow
+                                selectionEnd++;
+                                if (!e.shiftKey) {
+                                    selectionStart = selectionEnd;
+                                }
+                                input.setSelectionRange(selectionStart, selectionEnd);*/
                         }
                         e.stopImmediatePropagation();
                     }
@@ -272,14 +269,7 @@ export class MainViewController implements IMainViewController{
             containerCell.addEventListener("dblclick", dblClickHandler);
         }
 
-        switch (params.data.Type) { //we need to add the proper icon depending on the type
-            case "Folder":
-                return formattedCurrentValue;
-            case "Project":
-                return "<i class='fonticon-project'></i>" + formattedCurrentValue;
-            default:
-                return formattedCurrentValue;
-        }
+        return formattedCurrentValue;
     };
 
     private columnDefinitions = [{
@@ -287,6 +277,10 @@ export class MainViewController implements IMainViewController{
         field: "Name",
         //editable: true, // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers
         //cellEditor: this.cellEditor,
+        cellClassRules: {
+            "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+            "is-project": function (params) { return params.data.Type === "Project"; }
+        },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: this.cellRenderer
@@ -337,16 +331,6 @@ export class MainViewController implements IMainViewController{
         } else {
             return null;
         }
-    }
-
-    public doReady(api: any) {
-        var self = this;
-        self.service.getFolders()
-            .then((data: pSvc.IProjectNode[]) => {
-                api.setRowData(data);
-            }, (error) => {
-                self.showError(error);
-            });
     }
 
     private onGidReady = (params: any) => {

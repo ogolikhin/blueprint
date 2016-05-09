@@ -343,6 +343,7 @@ export class MainViewController implements IMainViewController {
     };
 
     public gridOptions: Grid.GridOptions = {
+        angularCompileRows: true,
         columnDefs: this.columnDefinitions,
         headerHeight: 0,
         icons: {

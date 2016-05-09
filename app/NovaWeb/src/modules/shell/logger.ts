@@ -7,6 +7,7 @@ export class Logger {
     private static errorLevel: number = 2;
     //private static debugLevel: number = 3;
     //private static criticalLevel: number = 4; //unused
+    /* tslint:enable:no-unused-variable */
 
     public static $inject: [string] = ["$provide"];
 

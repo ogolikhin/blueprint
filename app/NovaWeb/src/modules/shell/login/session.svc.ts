@@ -118,7 +118,9 @@ export class SessionSvc implements ISession {
                     if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.samlLogin) {
-                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
+                        this.dialogService
+                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                            .then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {

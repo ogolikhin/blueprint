@@ -192,7 +192,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         }
 
         children = accordion.querySelectorAll(".bp-accordion-panel-open");
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             // 100% / N - H * (T - N) / N
             // T: total number of panels
             // N: number of opened panels

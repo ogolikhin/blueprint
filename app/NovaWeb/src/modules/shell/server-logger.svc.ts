@@ -1,5 +1,4 @@
 ﻿import "angular";
-import {SessionTokenHelper}  from "./login/session.token.helper";
 
 export interface IServerLogger {
     log(message: any, level: number): ng.IPromise<any>;
@@ -39,10 +38,10 @@ export class ServerLoggerSvc implements IServerLogger {
 
         $http.post("/svc/adminstore/log", angular.toJson(logMessage))
             .success(() => {
-                deferred.resolve()
+                deferred.resolve();
             })
             .error(() => {
-                deferred.reject()
+                deferred.reject();
             });
 
         return deferred.promise;

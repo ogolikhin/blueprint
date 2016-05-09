@@ -138,7 +138,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         var lastOpenPanel = null;
         var firstClosedPanel = null;
         var children = accordion.querySelectorAll("bp-accordion-panel");
-        for (var i = children.length - 1; i >= 0; i--) {
+        for (let i = children.length - 1; i >= 0; i--) {
             if (children[i].className.indexOf("bp-accordion-panel-open") > -1) {
                 lastOpenPanel = children[i];
                 break;
@@ -148,7 +148,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             firstClosedPanel = lastOpenPanel.nextSibling; // may be a text node, but we don't care
 
             children = accordion.querySelectorAll("bp-accordion-panel.bp-accordion-panel-closed");
-            for (var i = children.length - 1; i >= 0; i--) {
+            for (let i = children.length - 1; i >= 0; i--) {
                 accordion.insertBefore(children[i], firstClosedPanel);
                 firstClosedPanel = children[i]; //
             }
@@ -166,7 +166,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         var compensationForClosedHeaders = 0;
 
         var children = accordion.querySelectorAll(".bp-accordion-panel");
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             var accordionElement = children[i];
             /* tslint:disable */
             accordionElement.parentNode.className = accordionElement.parentNode.className.replace(" bp-accordion-panel-open", "").replace(" bp-accordion-panel-closed", "");

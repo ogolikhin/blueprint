@@ -1,7 +1,15 @@
-﻿<toolbar></toolbar>
+﻿<bp-toolbar></bp-toolbar>
 <bp-sidebar-layout left-panel-title="Project Explorer" right-panel-title="Utility Panel">
-    <bp-sidebar-layout-content-left><div class="project-explorer"><div ag-grid="main.gridOptions" class="ag-grid"></div></div></bp-sidebar-layout-content-left>
-    <bp-sidebar-layout-content-center><pagecontent></pagecontent></bp-sidebar-layout-content-center>
+    <bp-sidebar-layout-content-left>
+        <div class="project-explorer">
+            <div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>
+        </div>
+    </bp-sidebar-layout-content-left>
+    
+    <bp-sidebar-layout-content-center>
+        <pagecontent></pagecontent>
+    </bp-sidebar-layout-content-center>
+    
     <bp-sidebar-layout-content-right>
         <bp-accordion accordion-heading-height="31">
             <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_History']}}" accordion-panel-class="utility-panel-history">Nulla nec varius felis, ut interdum risus. Quisque non erat accumsan, ultricies diam a, molestie nisi. Nulla ut nunc sagittis ligula posuere varius. Praesent at mattis eros, id pulvinar nunc. Vestibulum tempor, ex ut consectetur auctor, nisi neque vehicula neque, et aliquam lectus tellus at odio. Suspendisse felis eros, scelerisque scelerisque ligula ultricies, mollis laoreet lacus. Praesent id eros lorem. Integer accumsan scelerisque lacus, a pharetra mi congue at.</bp-accordion-panel>
@@ -11,4 +19,5 @@
             <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Relationships']}}" accordion-panel-class="utility-panel-relationships">Etiam eget urna ullamcorper, pellentesque magna at, tempus erat. In sodales viverra nisi vitae tempus. Nunc mattis gravida quam in varius. Curabitur sit amet ornare urna. Proin sit amet tempus quam. Mauris ante nisl, ornare ac commodo sit amet, pellentesque a metus. Cras viverra faucibus velit, eget pellentesque magna viverra sed. Nunc arcu ipsum, egestas at ligula vel, vehicula posuere libero. Mauris convallis pharetra orci, ac scelerisque diam fringilla vitae. Nunc rhoncus sem at odio sagittis, iaculis semper risus molestie. Vestibulum ipsum sapien, dignissim eu lacus eu, lobortis tempor tellus. Aenean fringilla orci ligula, sit amet auctor ex consequat vel.</bp-accordion-panel>
         </bp-accordion>
     </bp-sidebar-layout-content-right>
+
 </bp-sidebar-layout>

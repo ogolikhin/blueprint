@@ -1,5 +1,6 @@
 ﻿using Model.OpenApiModel;
 using Model.OpenApiModel.Impl;
+using System.Collections.Generic;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -47,6 +48,27 @@ namespace Model.Factories
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
             return CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
+        }
+
+        /// <summary>
+        /// Create and Save Multiple Artifacts
+        /// </summary>
+        /// <param name="project">The project where the artifacts are to be added</param>
+        /// <param name="user">The user credentials for the request to create the artifacts</param>
+        /// <param name="artifactType">Artifact Type</param>
+        /// <param name="numberOfArtifacts">The number of artifacts to create</param>
+        /// <returns>The list of the artifact objects</returns>
+        public static List<IOpenApiArtifact> CreateAndSaveOpenApiArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            var artifacts = new List<IOpenApiArtifact>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var artifact = CreateOpenApiArtifact(project, user, artifactType);
+                artifact.Save();
+                artifacts.Add(artifact);
+            }
+            return artifacts;
         }
     }
 }

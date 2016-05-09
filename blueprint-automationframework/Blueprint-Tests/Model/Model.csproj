@@ -56,6 +56,7 @@
     <Compile Include="ArtifactVersionModel\IArtifactVersion.cs" />
     <Compile Include="ArtifactVersionModel\Impl\ArtifactVersion.cs" />
     <Compile Include="CommonConstants.cs" />
+    <Compile Include="OpenApiModel\IArtifactReference.cs" />
     <Compile Include="IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactType.cs" />

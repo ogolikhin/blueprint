@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CustomAttributes;
-using Helper;
+﻿using CustomAttributes;
 using Model;
 using Model.ArtifactVersionModel;
 using Model.ArtifactVersionModel.Impl;
 using Model.Factories;
-using Model.OpenApiModel;
-using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using Utilities.Factories;
 
 namespace CommonServiceTests.ArtifactVersionTests
 {

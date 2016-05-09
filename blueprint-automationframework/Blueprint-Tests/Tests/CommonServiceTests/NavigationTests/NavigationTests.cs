@@ -1,8 +1,11 @@
-﻿using Model;
+﻿using CustomAttributes;
+using Helper;
+using Model;
 using Model.Factories;
+using Model.NavigationModel;
+using Model.NavigationModel.Impl;
 using Model.OpenApiModel;
-using Model.StorytellerModel;
-using Model.StorytellerModel.Impl;
+using Model.OpenApiModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +13,20 @@ using Utilities;
 
 namespace CommonServiceTests.NavigationTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
+    [TestFixture]
+    [Category(Categories.Navigation)]
     public class NavigationTests
     {
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
+        private const string INVALID_TOKEN = "Invalid_Token_value";
 
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
+        private INavigation _navigation;
 
         #region Setup and Cleanup
 
@@ -28,10 +35,9 @@ namespace CommonServiceTests.NavigationTests
         {
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _primaryUser = UserFactory.CreateUserAndAddToDatabase();
             _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject(_primaryUser);
+            _project = ProjectFactory.GetProject(_primaryUser, shouldRetrievePropertyTypes: true);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession primaryUserSession = _adminStore.AddSession(_primaryUser.Username, _primaryUser.Password);
@@ -50,48 +56,15 @@ namespace CommonServiceTests.NavigationTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.OpenApiToken), "The secondary user didn't get an OpenApi token!");
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            _navigation = new Navigation(_blueprintServer.Address);
+        }
+
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
-                var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
-                    {
-                        savedArtifactsListPrimaryUser.Add(artifact);
-                    }
-
-                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
-                    {
-                        savedArtifactsListSecondaryUser.Add(artifact);
-                    }
-                }
-
-                if (savedArtifactsListPrimaryUser.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
-                }
-
-                if (savedArtifactsListSecondaryUser.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
-                }
-
-                // Clear all possible List Items
-                savedArtifactsListPrimaryUser.Clear();
-                savedArtifactsListSecondaryUser.Clear();
-                _storyteller.Artifacts.Clear();
-            }
-
             if (_adminStore != null)
             {
                 // Delete all the sessions that were created.
@@ -114,190 +87,171 @@ namespace CommonServiceTests.NavigationTests
             }
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            if (_navigation.Artifacts != null)
+            {
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
+                var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
+                foreach (var artifact in _navigation.Artifacts.ToArray())
+                {
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && artifact.IsPublished)
+                    {
+                        _navigation.DeleteNavigationArtifact(artifact, deleteChildren: true);
+                    }
+
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    {
+                        savedArtifactsListPrimaryUser.Add(artifact);
+                    }
+
+                    if (!artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    {
+                        savedArtifactsListSecondaryUser.Add(artifact);
+                    }
+                }
+
+                if (savedArtifactsListPrimaryUser.Any())
+                {
+                    OpenApiArtifact.DiscardArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
+                }
+
+                if (savedArtifactsListSecondaryUser.Any())
+                {
+                    OpenApiArtifact.DiscardArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
+                }
+
+                // Clear all possible List Items
+                savedArtifactsListPrimaryUser.Clear();
+                savedArtifactsListSecondaryUser.Clear();
+                _navigation.Artifacts.Clear();
+            }
+        }
+
         #endregion Setup and Cleanup
 
         #region Tests
 
         [TestCase(1)]
         [TestCase(3)]
-        [TestCase(7)]
-        [Description("Get the default process when accessible artifacts are in the GET url path. Verify" +
-             "that the returned artifact path links contains all process Ids in the url path.")]
-        public void GetDefaultProcessWithAccessibleArtifactsInPath_VerifyReturnedBreadcrumb(int numberOfArtifacts)
+        [Description("Get the navigation where all process artifacts in the GET url path are accessible by the user." +
+             "Verify that the returned artifact reference list contains all process artifacts' Ids and url path links.")]
+        public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
-            
-            //Create an artifact with ArtifactType and populate all required values without properties
-            var targetArtifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _primaryUser, artifactType: BaseArtifactType.Actor);
+            //Create an artifact with ArtifactType and populate all required values
+            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
+            //Updating the artifacts of _navigation for tearndown purpose
+            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
 
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+            //Get breadcrumb information
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
 
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds, sendAuthorizationAsCookie: false);
-
-            AssertBreadcrumb(numberOfArtifacts, artifacts, process);
-
-
+            //Navigation Assertions
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
-        [TestCase(3, 1)]
-        [TestCase(4, 2)]
-        [TestCase(7, 5)]
-        [Description("Get the default process with a single non-existent artifact in the GET url path.  Verify" +
-                     "that the non-existent artifact is marked as <Inaccessible> in the returned " +
-                     "artifact path links. ")]
-        public void GetDefaultProcessWithSingleNonexistentArtifactInPath_VerifyReturnedBreadcrumb(
-            int numberOfArtifacts,
-            int nonexistentArtifactIndex)
+        [TestCase]
+        [Description("Get the navigation where all non-process artifacts in the GET url path are accessible by the user." +
+            "Verify that the returned artifact reference list contains all process artifacts' Ids and url path links.")]
+        public void GetNavigationWithAccessibleNonProcessArtifacts_VerifyReturnedNavigation()
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
+            var availableArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
+            //Create an artifact with ArtifactType and populate all required values
 
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            // Inject nonexistent artifact id into artifact ids list used for breadcrumb
-            artifactIds[nonexistentArtifactIndex] = NONEXISTENT_ARTIFACT_ID;
-            artifacts[nonexistentArtifactIndex].Id = NONEXISTENT_ARTIFACT_ID;
-
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
-
-            AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { nonexistentArtifactIndex });
-        }
-
-        [TestCase(4, new[] { 1, 2 }, Description = "Test for sequential nonexistent artifacts in breadcrumb")]
-        [TestCase(7, new[] { 2, 3, 5 }, Description = "Test for nonsequential nonexistent artifacts in breadcrumb")]
-        [Description("Get the default process with multiple non-existent artifacts in the GET url path. " +
-                     "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
-                     "artifact path links. ")]
-        public void GetDefaultProcessWithMultipleNonexistentArtifactsInPath_VerifyReturnedBreadcrumb(
-            int numberOfArtifacts,
-            int[] nonexistentArtifactIndexes)
-        {
-            ThrowIf.ArgumentNull(nonexistentArtifactIndexes, nameof(nonexistentArtifactIndexes));
-
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            // Inject nonexistent artifact id into artifact ids list used for breadcrumb
-            foreach (var nonexistentArtifactIndex in nonexistentArtifactIndexes)
+            //IOpenApiArtifact artifact = new OpenApiArtifact();
+            foreach (var availableArtifactType in availableArtifactTypes)
             {
-                artifactIds[nonexistentArtifactIndex] = NONEXISTENT_ARTIFACT_ID;
-                artifacts[nonexistentArtifactIndex].Id = NONEXISTENT_ARTIFACT_ID;
+                var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: availableArtifactType, numberOfArtifacts: 1).First();
+                //Updating the artifacts of _navigation for tearndown purpose
+                _navigation.Artifacts.Add(artifact);
             }
 
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
+            //Get breadcrumb information
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
 
-            AssertBreadcrumb(numberOfArtifacts, artifacts, process, nonexistentArtifactIndexes.ToList());
+            //Navigation Assertions
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
-        [TestCase(3, 1)]
-        [TestCase(4, 2)]
-        [TestCase(7, 5)]
-        [Description("Get the default process with a single inaccessible artifact in the GET url path. " +
-                     "Verify that the inaccessible artifact is marked as <Inaccessible> in the returned " +
-                     "artifact path links. ")]
-        public void GetDefaultProcessWithSingleInaccessibleArtifactInPath_VerifyReturnedBreadcrumb(
+        [TestCase(2, new[] { 1 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>NE>a")]
+        [TestCase(3, new[] { 2 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>NE>a")]
+        [TestCase(5, new[] { 3 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>a>NE>a>a")]
+        [TestCase(4, new[] { 1, 2 }, Description = "Test for sequential nonexistent artifacts in breadcrumb, a>NE>NE>a>a>a")]
+        [TestCase(6, new[] { 1, 3, 6 }, Description = "Test for non-sequential nonexistent artifacts in breadcrumb, a>NE>a>NE>a>a>NE>a>a")]
+        [Description("Get navigation with a single or multiple non-existent artifacts in the GET url path. " +
+             "Verify that the non-existent artifacts are marked as <Inaccessible> in the returned " +
+             "artifact reference lists. ")]
+        public void GetNavigationWithNonexistentArtifactsInPath_VerifyReturnedNavigation(
             int numberOfArtifacts,
-            int inaccessibleArtifactIndex)
+            int[] nonExistentArtifactIndexes)
         {
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+            ThrowIf.ArgumentNull(nonExistentArtifactIndexes, nameof(nonExistentArtifactIndexes));
 
-            // create and inject artifact ids created by another user
-            var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
-            artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
-            artifacts[inaccessibleArtifactIndex] = inaccessibleArtifact;
+            //Create an artifact with ArtifactType and populate all required values
+            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
+            //Inject nonexistent artifact into artifact list used for breadcrumb
+            foreach (var nonExistentArtifactIndex in nonExistentArtifactIndexes)
+            {
+                var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+                nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+                
+                artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
+            }
 
-            AssertBreadcrumb(numberOfArtifacts, artifacts, process, new List<int> { inaccessibleArtifactIndex });
+            //Updating the artifacts of _navigation for tearndown purpose
+            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
 
-            // Must be save after assert so that the artifact is deletable in teardown by primary user
-            // Save the inaccessibleArtifact
-            inaccessibleArtifact.Save(_secondaryUser);
+            //Get breadcrumb information
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
+
+            //Navigation Assertions
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
-        [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb")]
-        [TestCase(7, new int[] { 2, 4, 5 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb")]
-        [Description("Get the default process with multiple inaccessible artifacts in the GET url path. " +
+        [TestCase(2, new int[] { 1 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>IA>a")]
+        [TestCase(3, new int[] { 2 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>IA>a")]
+        [TestCase(5, new int[] { 3 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>a>IA>a>a")]
+        [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb, a>IA>IA>a>a>a")]
+        [TestCase(6, new int[] { 1, 3, 6 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb, a>IA>a>IA>a>a>IA>a>")]
+        [Description("Get navigation with a single or multiple inaccessible artifacts in the GET url path. " +
                      "Verify that the inaccessible artifacts are marked as <Inaccessible> in the returned " +
-                     "artifact path links. ")]
-        public void GetDefaultProcessWithMultipleInaccessibleArtifactsInPath_VerifyReturnedBreadcrumb(
+                     "artifact reference lists. ")]
+        public void GetNavigationWithInaccessibleArtifactsInPath_VerifyReturnedNavigation(
             int numberOfArtifacts,
             int[] inaccessibleArtifactIndexes)
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            List<IOpenApiArtifact> artifacts = _storyteller.CreateAndSaveProcessArtifacts(_project, _primaryUser, numberOfArtifacts);
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+            //Create an artifact with ArtifactType and populate all required values
+            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
             // create and inject artifact ids created by another user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                var inaccessibleArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
-                artifactIds[inaccessibleArtifactIndex] = inaccessibleArtifact.Id;
-                artifacts[inaccessibleArtifactIndex] = inaccessibleArtifact;
+                var inaccessbileArtifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(_project, _secondaryUser, BaseArtifactType.Actor, 1).First();
+
+                artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
-            IProcess process = _storyteller.GetProcessWithBreadcrumb(_primaryUser, artifactIds);
+            //Updating the artifacts of _navigation for tearndown purpose
+            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
 
-            AssertBreadcrumb(numberOfArtifacts, artifacts, process, inaccessibleArtifactIndexes.ToList());
+            //Get breadcrumb information
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
 
-            // Save the inaccessibleArtifact
-            foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
-            {
-                artifacts[inaccessibleArtifactIndex].Save(_secondaryUser);
-            }
-        }
-
-        /// <summary>
-        /// Assertions for breadcrumb tests
-        /// </summary>
-        /// <param name="numberOfArtifacts">The number of artifacts in the breadcrumb</param>
-        /// <param name="artifacts">The list of artifact objects in the breadcrumb</param>
-        /// <param name="process">The process object that was returned</param>
-        /// <param name="artifactIndexes">A list of artifact indexes for nonexistent or inaccessible artifacts</param>
-        private static void AssertBreadcrumb(int numberOfArtifacts, IReadOnlyList<IOpenApiArtifact> artifacts, IProcess process, ICollection<int> artifactIndexes = null)
-        {
-            Assert.IsNotNull(process, "The returned process was null.");
-            Assert.That(process.Id == artifacts.Last().Id, "Expected process artifact Id is {0} but artifact Id {1} was returned", artifacts.Last().Id, process.Id);
-
-            // Assert final process in artifact path links (breadcrumb) as expected
-            Assert.That(process.ArtifactPathLinks.Last().Id == process.Id,
-                "Expected final process artifact Id is {0} but artifact Id {1} was returned", process.Id, process.ArtifactPathLinks.Last().Id);
-            Assert.That(process.ArtifactPathLinks.Last().Name == process.Name,
-                "Expected final process artifact Name is {0} but artifact name {1} was returned", process.Name, process.ArtifactPathLinks.Last().Name);
-            Assert.That(process.ArtifactPathLinks.Last().Link == null,
-                "Expected final process artifact link is {0} but artifact link {1} was returned", null, process.ArtifactPathLinks.Last().Link);
-
-            string link = STORYTELLER_BASE_URL;
-
-            // Assert all other artifacts in artifact path links (breadcrumb) as expected
-            for (int i = 0; i < numberOfArtifacts - 1; i++)
-            {
-                link = I18NHelper.FormatInvariant("{0}{1}/", link, artifacts[i].Id);
-
-                Assert.That(process.ArtifactPathLinks[i].Id == artifacts[i].Id,
-                    "Expected artifact Id is {0} but artifact Id {1} was returned", artifacts[i].Id, process.ArtifactPathLinks[i].Id);
-
-                if (artifactIndexes != null && artifactIndexes.Contains(i))
-                {
-                    // Name is "<Inaccessible>" for nonexistent/inaccessible artifact
-                    Assert.That(process.ArtifactPathLinks[i].Name == INACCESSIBLE_ARTIFACT_NAME,
-                        "Expected artifact Name is {0} but artifact name {1} was returned", INACCESSIBLE_ARTIFACT_NAME, process.ArtifactPathLinks[i].Name);
-                    // Link is null for nonexistent/inaccessible artifact
-                    Assert.IsNull(process.ArtifactPathLinks[i].Link,
-                        "Artifact Link for '{0}' should be null, but artifact link '{1}' was returned", link, process.ArtifactPathLinks[i].Link);
-                }
-                else
-                {
-                    Assert.That(process.ArtifactPathLinks[i].Name == artifacts[i].Name,
-                        "Expected artifact Name is {0} but artifact name {1} was returned", artifacts[i].Name, process.ArtifactPathLinks[i].Name);
-                    Assert.That(process.ArtifactPathLinks[i].Link == link,
-                        "Expected artifact link is {0} but artifact link {1} was returned", link, process.ArtifactPathLinks[i].Link);
-                }
-            }
+            //Navigation Assertions
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
         #endregion Tests
+
     }
 }

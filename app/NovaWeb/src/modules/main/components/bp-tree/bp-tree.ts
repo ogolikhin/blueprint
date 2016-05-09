@@ -29,7 +29,6 @@ export class BPTreeController implements IBpTreeController {
 
 
     constructor(private $element ) {
-        // the accordionId is needed in case multiple accordions are present in the same page
         this.options = <Grid.GridOptions> {
             headerHeight: 20,
             showToolPanel: false,
@@ -37,7 +36,6 @@ export class BPTreeController implements IBpTreeController {
             rowBuffer: 200,
             rowHeight: 20,
             enableColResize: true,
-
             columnDefs: this.columns,
             icons: {
                 groupExpanded: "<i class='fonticon-folder-open' />",
@@ -48,12 +46,13 @@ export class BPTreeController implements IBpTreeController {
             onRowGroupOpened: this.rowGroupOpened,
             onGridReady: this.onGidReady
         };
-
     }
+
     public $onInit = () => {
         //this.options.getNodeChildDetails = this.NodeChildDetails;
         //this.
     };
+
     private onGidReady = (params: any) => {
         var self = this;
         params.api.sizeColumnsToFit();
@@ -66,7 +65,6 @@ export class BPTreeController implements IBpTreeController {
         //        self.showError(error);
         //    });
     };
-
 
     private getNodeChildDetails(rowItem) {
         if (rowItem.Children) {

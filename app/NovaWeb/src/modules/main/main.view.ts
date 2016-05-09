@@ -1,5 +1,4 @@
 ﻿import "angular";
-import {AuthenticationRequired} from "../shell";
 import {ILocalizationService} from "../core/localization";
 import * as pSvc from "../services/project.svc";
 import * as Grid from "ag-grid/main";
@@ -11,16 +10,14 @@ export class BpMainView implements ng.IComponentOptions {
     public bindings: any = {
         gridOptions: "@",
     };
-
     public transclude: boolean = true;
 }
 
 export interface IMainViewController {
-    gridOptions: Grid.GridOptions
+    gridOptions: Grid.GridOptions;
 }
 
-
-export class MainViewController implements IMainViewController{
+export class MainViewController implements IMainViewController {
     private rowData: any = null;
     private selectedItem: any;
 

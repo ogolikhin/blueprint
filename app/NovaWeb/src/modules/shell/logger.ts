@@ -2,11 +2,10 @@
 import {IServerLogger} from "./server-logger.svc";
 
 export class Logger {
-    /* tslint:disable:no-unused-variable */
-    private static infoLevel: number = 0;
-    private static warningLevel: number = 1;
+    //private static infoLevel: number = 0;
+    //private static warningLevel: number = 1;
     private static errorLevel: number = 2;
-    private static debugLevel: number = 3;
+    //private static debugLevel: number = 3;
     //private static criticalLevel: number = 4; //unused
     /* tslint:enable:no-unused-variable */
 
@@ -24,7 +23,6 @@ export class Logger {
         //(<any>$delegate).info = Logger.createLogMethodWrapper($delegate.info, Logger.infoLevel, logger);
         //(<any>$delegate).log = Logger.createLogMethodWrapper($delegate.log, "log");
         //(<any>$delegate).warn = Logger.createLogMethodWrapper($delegate.warn, Logger.warningLevel, logger);
-
         return $delegate;
     }
 

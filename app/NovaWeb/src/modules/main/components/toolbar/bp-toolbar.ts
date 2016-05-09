@@ -11,7 +11,7 @@ interface IBPToolbarController {
 export class BPToolbar implements ng.IComponentOptions {
     public template: string;
     public controller: Function;
-    public require : any;
+    public require: any;
 
     constructor() {
         this.template = require("./bp-toolbar.html");
@@ -64,7 +64,6 @@ class BPToolbarController implements IBPToolbarController {
     }*/
 
     public openProject() {
-        
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/openproject.template.html"),

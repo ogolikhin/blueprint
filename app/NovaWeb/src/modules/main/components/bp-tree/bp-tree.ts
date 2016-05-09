@@ -1,4 +1,4 @@
-﻿import {ILocalizationService} from "../../../core/localization";
+﻿//import {ILocalizationService} from "../../../core/localization";
 import * as Grid from "ag-grid/main";
 
 export interface IBpTreeController {
@@ -15,8 +15,7 @@ export class BPTree implements ng.IComponentOptions {
     };
 
     public transclude: boolean = true;
-    public require =  "^parent"
-    
+    public require = "^parent";
 }
 
 export class BPTreeController implements IBpTreeController {
@@ -112,9 +111,9 @@ export class BPTreeController implements IBpTreeController {
 
 
     private rowGroupOpened = (params: any) => {
-        var self = this;
+//        var self = this;
         var node = params.node;
-        this.onExpand(node)
+        this.onExpand(node);
         //if (node.data.Type === "Folder") {
         //    if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
         //        if (node.expanded) {
@@ -132,8 +131,4 @@ export class BPTreeController implements IBpTreeController {
         //    node.data.open = node.expanded;
         //}
     };
-
-
-
-    
 }

@@ -2,7 +2,6 @@
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
 import * as pSvc from "../../../services/project.svc";
-import * as Grid from "ag-grid/main";
 
 export interface IOpenProjectResult {
     id: number;
@@ -12,7 +11,6 @@ export interface IOpenProjectResult {
 
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
-    private rowData: any = null;
     private selectedItem: any;
 
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
@@ -37,16 +35,11 @@ export class OpenProjectController extends BaseDialogController {
         };
     };
 
-    //Temporary solution need
-    private showError = (error: any) => {
-        this.dialogService.alert(error.message).then(() => { this.cancel(); });
-    };
-
-    public stripHTMLTags = (stringToSanitize: string): string => {
-        var stringSanitizer = window.document.createElement("DIV");
-        stringSanitizer.innerHTML = stringToSanitize;
-        return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    };
+    //public stripHTMLTags = (stringToSanitize: string): string => {
+    //    var stringSanitizer = window.document.createElement("DIV");
+    //    stringSanitizer.innerHTML = stringToSanitize;
+    //    return stringSanitizer.textContent || stringSanitizer.innerText || "";
+    //};
 
     public escapeHTMLText = (stringToEscape: string): string =>  {
         var stringEscaper = window.document.createElement("TEXTAREA");
@@ -62,7 +55,7 @@ export class OpenProjectController extends BaseDialogController {
         }
     };
 
-    private columnDefinitions = [{
+    public columns = [{
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
         cellClassRules: {
@@ -86,36 +79,23 @@ export class OpenProjectController extends BaseDialogController {
         suppressFiltering : true
     }];
 
-    private rowGroupOpened = (params: any) => {
-        var self = this;
-        var node = params.node;
-        if (node.data.Type === "Folder") {
-            if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-                if (node.expanded) {
-                    self.service.getFolders(node.data.Id)
-                        .then((data: pSvc.IProjectNode[]) => {
-                            node.data.Children = data;
-                            node.data.open = true;
-                            node.data.alreadyLoadedFromServer = true;
-                            self.gridOptions.api.setRowData(self.rowData);
-                        }, (error) => {
-                            self.showError(error);
-                        });
-                }
-            }
-            node.data.open = node.expanded;
-        }
+    public doLoad = (prms: any): ng.IPromise<any[]> => {
+        //check passed in parameter
+        return this.service.getFolders();
     };
 
-    private cellFocused = (params: any) => {
-        var self = this;
-        var rowModel = self.gridOptions.api.getModel();
-        var rowsToSelect = rowModel.getRow(params.rowIndex);
-        rowsToSelect.setSelected(true, true);
-        self.$scope.$applyAsync((s) => {
-            self.selectedItem = rowsToSelect.data;
-            if (rowsToSelect.data.Description) {
-                var description = rowsToSelect.data.Description;
+    public doExpand = (prms: any): ng.IPromise<any[]> => {
+        //check passesd in parameter
+        var id = (prms && prms.Id) ? prms.Id : null;
+        return this.service.getFolders(id);
+    };
+
+    public doSelect = (item: any) => {
+        //check passed in parameter
+        this.$scope.$applyAsync((s) => {
+            this.selectedItem = item;
+            if (item.Description) {
+                var description = item.Description;
                 var virtualDiv = window.document.createElement("DIV");
                 virtualDiv.innerHTML = description;
                 var aTags = virtualDiv.querySelectorAll("a");
@@ -123,52 +103,8 @@ export class OpenProjectController extends BaseDialogController {
                     aTags[a].setAttribute("target", "_blank");
                 }
                 description = virtualDiv.innerHTML;
-                self.selectedItem.Description = this.$sce.trustAsHtml(description);
+                this.selectedItem.Description = this.$sce.trustAsHtml(description);
             }
         });
-    };
-
-    private getNodeChildDetails(rowItem) {
-        if (rowItem.Children) {
-            return {
-                group: true,
-                expanded: rowItem.open,
-                children: rowItem.Children ,
-                field: "Name",
-                key: rowItem.Id // the key is used by the default group cellRenderer
-            };
-        } else {
-            return null;
-        }
     }
-
-    private onGidReady = (params: any) => {
-        var self = this;
-        params.api.sizeColumnsToFit();
-        params.columnApi.autoSizeColumns(["Name"]);
-        self.service.getFolders()
-            .then((data: pSvc.IProjectNode[]) => {
-                self.gridOptions.api.setRowData(self.rowData = data);
-            }, (error) => {
-                self.showError(error);
-            });
-    };
-
-    public gridOptions: Grid.GridOptions = {
-        columnDefs: this.columnDefinitions,
-        headerHeight: 20,
-        icons: {
-            groupExpanded: "<i class='fonticon-folder-open' />",
-            groupContracted: "<i class='fonticon-folder' />"
-        },
-        suppressContextMenu: true,
-        rowBuffer: 200,
-        rowHeight: 20,
-        enableColResize: true,
-        getNodeChildDetails: this.getNodeChildDetails,
-        onCellFocused: this.cellFocused,
-        onRowGroupOpened: this.rowGroupOpened,
-        onGridReady: this.onGidReady,
-        showToolPanel: false
-    };
 }

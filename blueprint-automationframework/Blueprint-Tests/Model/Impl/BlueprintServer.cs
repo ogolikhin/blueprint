@@ -8,24 +8,8 @@ using Utilities.Facades;
 
 namespace Model.Impl
 {
-    public class BlueprintServer : IBlueprintServer
+    public class BlueprintServer : NovaServiceBase, IBlueprintServer
     {
-        #region Properties and member variables.
-
-        private string _address;
-
-        /// <summary>
-        /// Gets/sets the URL address of the server.  Note: any trailing '/' characters will be removed.
-        /// </summary>
-        public string Address
-        {
-            get { return _address; }
-            set { _address = (value != null) ? value.TrimEnd('/') : null; }
-        }
-
-        #endregion Properties and member variables.
-
-
         #region Public functions
 
         /// <summary>
@@ -146,19 +130,13 @@ namespace Model.Impl
         /// <seealso cref="IBlueprintServer.GetStatus"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            const string path = "svc/status";
+            return GetStatus("svc", preAuthorizedKey, expectedStatusCodes);
+        }
 
-            var queryParameters = new Dictionary<string, string>();
-
-            if (preAuthorizedKey != null)
-            {
-                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
-            }
-
-            Logger.WriteInfo("Getting status for all Blueprint services...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            return response.Content;
+        /// <seealso cref="IBlueprintServer.GetStatusUpcheck"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatusUpcheck("svc", expectedStatusCodes);
         }
 
         #endregion Public functions

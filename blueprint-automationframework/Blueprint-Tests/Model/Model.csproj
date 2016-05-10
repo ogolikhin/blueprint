@@ -62,6 +62,7 @@
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\Discussion.cs" />
+    <Compile Include="Impl\NovaServiceBase.cs" />
     <Compile Include="OpenApiModel\IArtifact.cs" />
     <Compile Include="OpenApiModel\IArtifactBase.cs" />
     <Compile Include="OpenApiModel\IArtifactResult.cs" />

@@ -384,6 +384,7 @@ namespace Model.OpenApiModel.Impl
             {
                 var discardedArtifact = artifactObjectList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
                 discardedArtifact.IsSaved = false;
+                Logger.WriteDebug("POST {0} returned following: Discarded ArtifactId: {1} Message: {2}, ResultCode: {3}", URL_DISCARD, discardedResult.ArtifactId, discardedResult.Message, discardedResult.ResultCode);
             }
 
             return artifactResults.ConvertAll(o => (IDiscardArtifactResult)o);
@@ -439,6 +440,8 @@ namespace Model.OpenApiModel.Impl
                 var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
                 publishedArtifact.IsSaved = false;
                 publishedArtifact.IsPublished = true;
+
+                Logger.WriteDebug("POST {0} returned following: Published ArtifactId: {1} Message: {2}, ResultCode: {3}", URL_PUBLISH, publishedResult.ArtifactId, publishedResult.Message, publishedResult.ResultCode);
             }
 
             return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);

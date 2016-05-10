@@ -120,7 +120,7 @@ export class BPTreeController  {
                                 node.data.Children = data;
                                 node.data.open = true;
                                 node.data.alreadyLoadedFromServer = true;
-                                self.options.api.setRowData(self.rowData = data);
+                                self.options.api.setRowData(self.rowData);
                             }, (error) => {
                                 //self.showError(error);
                             });

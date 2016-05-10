@@ -12,7 +12,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>f58d54cd-2f44-4d5b-88f1-d2d3b86bef8c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>app.ts</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -34,20 +35,37 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <Content Include="Json\OR.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="Model\CreateArtifacts.ts" />
+    <TypeScriptCompile Include="Pages\StorytellerPages\LoginPageStoryteller.ts" />
+    <TypeScriptCompile Include="Scripts\typings\angular-protractor\angular-protractor.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\selenium-webdriver\selenium-webdriver.d.ts" />
+    <TypeScriptCompile Include="Specs\Storyteller\LoginTestSpec.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
     <Folder Include="Log\" />
     <Folder Include="Json\" />
+    <Folder Include="Pages\CommonPages\" />
+    <Folder Include="Pages\StorytellerPages\" />
+    <Folder Include="Scripts\typings\NewFolder1\" />
+    <Folder Include="Scripts\typings\angular-protractor\" />
+    <Folder Include="Scripts\typings\jasmine\" />
+    <Folder Include="Scripts\typings\selenium-webdriver\" />
     <Folder Include="Specs\" />
     <Folder Include="Pages\" />
+    <Folder Include="Specs\Storyteller\" />
     <Folder Include="Utility\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Conf.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

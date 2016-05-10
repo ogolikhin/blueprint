@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1462898647224" stop="1462898652243">
+	<name>LoginPage</name>
+	<title>LoginPage</title>
+	<test-cases>
+		<test-case start="1462898647225" stop="1462898652243" status="failed">
+			<name>enter user name</name>
+			<title>enter user name</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="edbc6f27-c6af-4575-82e4-93f0dccf1543-attachment.png" type="image/png" size="12130"/>
+			</attachments>
+			<failure>
+				<message>Failed: No element found using locator: By(css selector, *[id=&quot;loginField&quot;])</message>
+				<stack-trace>NoSuchElementError: No element found using locator: By(css selector, *[id=&quot;loginField&quot;])
+    at WebDriverError (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\error.js:26:26)
+    at NoSuchElementError (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\error.js:229:26)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\built\element.js:662:27
+    at Promise.invokeCallback_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1329:14)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2652:27
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:639:7
+    at process._tickCallback (internal/process/next_tick.js:103:7)
+Error
+    at ElementArrayFinder.applyAction_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\built\element.js:371:27)
+    at ElementArrayFinder._this.(anonymous function) [as sendKeys] (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\built\element.js:83:30)
+    at ElementFinder._this.(anonymous function) [as sendKeys] (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\built\element.js:685:22)
+    at Function.LoginPage.login (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Pages\LoginPage\LoginPage.ts:25:30)
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\LoginTest.ts:24:27)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:96:23
+    at new Promise (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1043:7)
+    at controlFlowExecute (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:82:18)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+From: Task: Run it(&quot;enter user name&quot;) in control flow
+    at Object.&lt;anonymous&gt; (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:81:14)
+    at attemptAsync (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:1916:24)
+    at QueueRunner.run (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:1871:9)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:1898:16
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:1842:9
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:18:5
+    at Promise.invokeCallback_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1329:14)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2652:27
+From asynchronous test: 
+Error
+    at Suite.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\LoginTest.ts:20:9)
+    at addSpecsToSuite (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:833:25)
+    at Env.describe (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:802:7)
+    at jasmineInterface.describe (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasmine-core\lib\jasmine-core\jasmine.js:3375:18)
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\LoginTest.ts:5:1)
+    at Module._compile (module.js:413:34)
+    at Object.Module._extensions..js (module.js:422:10)
+    at Module.load (module.js:357:32)
+    at Function.Module._load (module.js:314:12)</stack-trace>
+			</failure>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

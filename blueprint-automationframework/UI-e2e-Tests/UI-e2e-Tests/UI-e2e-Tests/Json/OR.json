@@ -1,0 +1,59 @@
+{
+
+  "testsiteurl":"",
+
+  "locators": {
+
+    "homepage": {
+
+      "buttontext": "Customer",
+      "ngclickbutton": "manager()"
+
+
+    },
+    "storyteller": {
+
+      "addcustomerbutton": "addCust()",
+      "fName": "fName",
+      "lName": "lName",
+      "pCode": "postCd",
+      "addcustomer": ".btn.btn-default",
+      "openAccount": "addCust()",
+      "loginFieldId": "loginField",
+      "passwordField": "passwordField",
+
+
+      "testdata": {
+
+
+        "TName": "admin",
+        "lPass": "$Admin93"
+
+
+
+      }
+
+
+    }
+
+
+
+  },
+  "mockData": {
+    "authorizationTokenbase64": "YWRtaW46JEFkbWluOTM=",
+    "artifactName": "FROMPOSTREQUEST_fromAuto_new1",
+    "artifactParentId": "1",
+    "artifactTypeId": "77",
+    "artifactProperties": "[]",
+    "getAuthenticationApiUrl": "http://52.202.237.164/authentication/v1/login",
+    "postCreateArtifactUrl": "http://52.202.237.164/api/v1/projects/1/artifacts" 
+
+
+  } 
+
+
+
+
+
+
+}

@@ -1,10 +1,9 @@
 ﻿import "angular";
 import "angular-mocks"
-import * as $D from "../../../services/dialog.svc";
 import {IOpenProjectResult, OpenProjectController} from "./openproject.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {IProjectService} from "../../../services/project.svc";
-import {GridApi, InMemoryRowModel, RowNode} from "ag-grid/main";
+import {GridApi} from "ag-grid/main";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -12,7 +11,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     }
 
     public close(result?: any): void {
-        
     }
 
     public dismiss(reason?: any): void {
@@ -25,59 +23,9 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public rendered: angular.IPromise<any>;
 }
 
-describe("Open Project.", () => {
-    var controller: OpenProjectController;
-
-    beforeEach(() => {
-        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), null, null, null, null);
-    });
-
-    describe("Return value.", () => {
-        it("check return empty value", () => {
-
-            // Arrange
-            var result: IOpenProjectResult =  <IOpenProjectResult>{
-                id: -1,
-                name: "",
-                description:""
-            }
-            // Act
-
-            // Assert
-            expect(controller.returnvalue).toBeDefined();
-            expect(controller.returnvalue).toEqual(result);
-        });
-    });
-    describe("Verify control.", () => {
-        it("Checking options: ", () => {
-            
-            // Arrange
-
-            // Act
-            var options = controller.gridOptions;
-            
-            // Assert
-            expect(options).toBeDefined();
-            expect(options.columnDefs).toBeDefined();
-            expect(options.columnDefs).toEqual(jasmine.any(Array));
-            expect(options.columnDefs.length).toBeGreaterThan(0);
-            expect(options.columnDefs[0].field).toBeDefined();
-            expect(options.columnDefs[0].headerName).toBe("App_Header_Name");
-            expect(options.columnDefs[0].cellRenderer).toBeDefined();
-            expect(options.columnDefs[0].cellRendererParams).toBeDefined();
-            expect(options.columnDefs[0].cellRendererParams.innerRenderer).toBeDefined();
-            expect(options.getNodeChildDetails).toEqual(jasmine.any(Function));
-            expect(options.onCellFocused).toEqual(jasmine.any(Function));
-            expect(options.onRowGroupOpened).toEqual(jasmine.any(Function));
-            expect(options.onGridReady).toEqual(jasmine.any(Function));
-        });
-    });
-});
-
 export class ProjectServiceMock implements IProjectService {
     public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) {
-    }
+    constructor(private $q: ng.IQService) { }
 
     public getFolders(id?: number): angular.IPromise<any[]> {
         var deferred = this.$q.defer<any[]>();
@@ -113,42 +61,31 @@ export class ProjectServiceMock implements IProjectService {
     }
 }
 
-describe("Embedded ag-grid events", () => {
+
+
+describe("Open Project.", () => {
     var controller: OpenProjectController;
-    var $scope, elem;
-    var gridApi = new GridApi();
 
-    beforeEach(inject(function(_$q_, _$rootScope_, _$compile_) {
-        $scope = _$rootScope_.$new();
-
-        elem = angular.element('<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>');
-
-        controller = new OpenProjectController($scope, new LocalizationServiceMock(), new ModalServiceInstanceMock(), new ProjectServiceMock(_$q_), null, null, null);
-        _$compile_(elem)($scope);
-
-        $scope.$digest();
-    }));
-
-    it("getNodeChildDetails", () => {
-        // Arrange
-        var rowItemMock = {
-            Children: true,
-            open: true,
-            Id: 1
-        };
-        var rowItemMockNoChildren = {};
-
-        // Act
-        var options = controller.gridOptions;
-        var node = options.getNodeChildDetails(rowItemMock);
-        var nodeNoChildren = options.getNodeChildDetails(rowItemMockNoChildren);
-
-        // Assert
-        expect(node.key).toEqual(1);
-        expect(node.expanded).toBeTruthy();
-        expect(nodeNoChildren).toBeNull();
+    beforeEach(() => {
+        controller = new OpenProjectController(null, new LocalizationServiceMock(), new ModalServiceInstanceMock(), null, null, null, null);
     });
 
+    describe("Return value.", () => {
+        it("check return empty value", () => {
+
+        // Arrange
+            var result: IOpenProjectResult =  <IOpenProjectResult>{
+                id: -1,
+                name: "",
+                description:""
+            }
+        // Act
+
+        // Assert
+            expect(controller.returnvalue).toBeDefined();
+            expect(controller.returnvalue).toEqual(result);
+    });
+    });
     it("innerRenderer", () => {
         // Arrange
         var paramsMock = {
@@ -171,10 +108,10 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.gridOptions;
-        var cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
-        var cellRendererFolder = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockFolder);
-        var cellRendererProject = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMockProject);
+        var columns = controller.columns;
+        var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        var cellRendererFolder = columns[0].cellRendererParams.innerRenderer(paramsMockFolder);
+        var cellRendererProject = columns[0].cellRendererParams.innerRenderer(paramsMockProject);
 
         // Assert
         expect(cellRenderer).toEqual("artifact");
@@ -183,106 +120,68 @@ describe("Embedded ag-grid events", () => {
         expect(cellRendererProject).not.toContain("<button");
     });
 
+    describe("Verify control.", () => {
+        it("Checking options: ", () => {
+            
+        // Arrange
+
+        // Act
+            var columns = controller.columns;
+
+            //// Assert
+            expect(columns).toBeDefined();
+            expect(columns).toEqual(jasmine.any(Array));
+            expect(columns.length).toBeGreaterThan(0);
+            expect(columns[0].field).toBeDefined();
+            expect(columns[0].headerName).toBe("App_Header_Name");
+            expect(columns[0].cellRenderer).toBeDefined();
+            expect(columns[0].cellRendererParams).toBeDefined();
+            expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
+        });
+    });
+    });
+
+describe("Embedded ag-grid events", () => {
+    var controller: OpenProjectController;
+    var $scope, elem;
+    var gridApi = new GridApi();
+
+    beforeEach(inject(function (_$q_, _$rootScope_, _$compile_) {
+        $scope = _$rootScope_.$new();
+
+        elem = angular.element('<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>');
+
+        controller = new OpenProjectController(
+            $scope,
+            new LocalizationServiceMock(),
+            new ModalServiceInstanceMock(),
+            new ProjectServiceMock(_$q_),
+            null,
+            null,
+            null);
+        _$compile_(elem)($scope);
+
+        $scope.$digest();
+    }));
+
     it("onEnterKeyOnProject", () => {
         // Arrange
         var event = new Event("keydown");
         var div = document.createElement("div");
         var paramsMock = {
-            data: {
+                data: {
                 Type: "Project",
                 Name: "project"
-            },
+                },
             eGridCell: div
         };
 
         // Act
-        var options = controller.gridOptions;
-        var cellRenderer = options.columnDefs[0].cellRendererParams.innerRenderer(paramsMock);
+        var columns = controller.columns;
+        var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
         div.dispatchEvent(event);
 
         // Assert
         expect(cellRenderer).toContain("project");
     });
-
-    it("onGidReady", () => {
-        // Arrange
-        var dataFromCall;
-        var paramsMock = {
-            api: {
-                sizeColumnsToFit: function() {}
-            },
-            columnApi: {
-                autoSizeColumns: function(columnName) {}
-            }
-        };
-        var setRowDataMock = function(data) {
-            dataFromCall = data;
-        };
-        gridApi.setRowData = setRowDataMock;
-
-        // Act
-        var options = controller.gridOptions;
-        controller.gridOptions.api = gridApi;
-        options.onGridReady(paramsMock);
-        $scope.$apply();
-
-        // Assert
-        expect(dataFromCall.length).toEqual(4);
-        expect(dataFromCall[3].Type).toBe("Project");
-    });
-
-    it("rowGroupOpened", () => {
-        // Arrange
-        var dataFromCall;
-        var paramsMock = {
-            node: {
-                data: {
-                    Id: 77,
-                    Type: "Folder",
-                    Name: "folder",
-                    Children: [],
-                    open: null,
-                    alreadyLoadedFromServer: null
-                },
-                expanded: true
-            }
-        };
-        var setRowDataMock = function(data) {
-            dataFromCall = data;
-        };
-        gridApi.setRowData = setRowDataMock;
-
-        // Act
-        var options = controller.gridOptions;
-        controller.gridOptions.api = gridApi;
-        options.onRowGroupOpened(paramsMock);
-        $scope.$apply();
-
-        // Assert
-        expect(paramsMock.node.data.Children.length).toEqual(4);
-        expect(paramsMock.node.data.Children[3].Type).toBe("Project");
-        expect(paramsMock.node.data.open).toBeTruthy();
-        expect(paramsMock.node.data.alreadyLoadedFromServer).toBeTruthy();
-    });
-
-    /*it("cellFocused", () => {
-        // Arrange
-
-        var paramsMock = {
-            rowIndex: 0
-        };
-        var getModel = function() {
-            var rowModel = new InMemoryRowModel();
-            return rowModel;
-        };
-        gridApi.getModel = getModel;
-
-        // Act
-        var options = controller.gridOptions;
-        controller.gridOptions.api = gridApi;
-        options.onCellFocused(paramsMock);
-        $scope.$apply();
-
-        // Assert
-    });*/
 });

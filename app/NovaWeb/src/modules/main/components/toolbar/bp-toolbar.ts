@@ -8,18 +8,12 @@ interface IBPToolbarController {
     showSubLevel(evt: ng.IAngularEvent): void;
 }
 
-export class BPToolbar implements ng.IComponentOptions {
-    public template: string;
-    public controller: Function;
-    public require: any;
-
-    constructor() {
-        this.template = require("./bp-toolbar.html");
-        this.controller = BPToolbarController;
-        this.require = {
-            parent: "^bpMainView"
-        } ;
-    }
+export class BPToolbarComponent implements ng.IComponentOptions {
+    public template: string = require("./bp-toolbar.html");
+    public controller: Function = BPToolbarController;
+    public require: any = {
+        parent: "^bpMainView"
+    };
 }
 
 class BPToolbarController implements IBPToolbarController {

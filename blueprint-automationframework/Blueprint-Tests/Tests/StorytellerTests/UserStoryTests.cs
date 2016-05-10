@@ -4,7 +4,7 @@ using Model.Factories;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using System.Linq;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -52,7 +52,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -347,13 +347,13 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             // Create target artifact for inline trace
-            IOpenApiArtifact linkedArtifact = ArtifactFactory.CreateOpenApiArtifact(project: _project,
+            IArtifact linkedArtifact = ArtifactFactory.CreateArtifact(project: _project,
                 user: _user, artifactType: BaseArtifactType.Actor);
             linkedArtifact.Save();
             linkedArtifact.Publish();
 
             //get text with inline trace to the specified artifact
-            var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { linkedArtifact });
+            var inlineTraceText = GetTextForInlineTrace(new List<IArtifact>() { linkedArtifact });
             
             //delete artifact which is target for inline trace
             linkedArtifact.Delete();
@@ -382,7 +382,7 @@ namespace StorytellerTests
             var process = _storyteller.GetProcess(_user, processArtifact.Id);
 
             //get text with inline trace to the specified artifact
-            var inlineTraceText = GetTextForInlineTrace(new List<IOpenApiArtifact>() { processArtifact });
+            var inlineTraceText = GetTextForInlineTrace(new List<IArtifact>() { processArtifact });
 
             // Generate User Stories from the Process
             List<IStorytellerUserStory> userStories = _storyteller.GenerateUserStories(_user, process);
@@ -401,7 +401,7 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="artifacts">list of target artifacts for inline traces</param>
         /// <returns>Text with inline traces</returns>
-        private static string GetTextForInlineTrace(List<IOpenApiArtifact> artifacts)
+        private static string GetTextForInlineTrace(List<IArtifact> artifacts)
         {
             var text = string.Empty;
             foreach (var artifact in artifacts)

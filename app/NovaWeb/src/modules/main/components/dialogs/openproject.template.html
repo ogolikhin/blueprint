@@ -2,7 +2,12 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <div class="project-tree"><div ag-grid="ctrl.gridOptions" class="ag-grid"></div></div>
+    <bp-tree grid-class ="project-tree"
+             grid-columns="ctrl.columns"
+             on-load="ctrl.doLoad(prms)"
+             on-expand="ctrl.doExpand(prms)"
+             on-select="ctrl.doSelect(item)">
+    </bp-tree>
     <div class="project-data">
         <div>{{::$root.config.labels["App_Project_Name"]}}</div>
         <div class="project-name">{{ctrl.selectedItem.Name}}</div>

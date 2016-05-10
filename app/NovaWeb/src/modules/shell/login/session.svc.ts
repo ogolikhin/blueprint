@@ -21,7 +21,12 @@ export interface ISession {
 export class SessionSvc implements ISession {
 
     static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
-    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService, private dialogService: IDialogService) {
+    constructor(
+        private $q: ng.IQService,
+        private auth: IAuth,
+        private $uibModal: ng.ui.bootstrap.IModalService,
+        private localization: ILocalizationService,
+        private dialogService: IDialogService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -113,8 +118,9 @@ export class SessionSvc implements ISession {
                     if (result.loginSuccessful) {
                         done.resolve();
                     } else if (result.samlLogin) {
-                        
-                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
+                        this.dialogService
+                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                            .then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {

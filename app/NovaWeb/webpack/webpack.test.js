@@ -44,7 +44,13 @@ module.exports = {
   ],
   module: {
     loaders: loaders,
-    postLoaders: postLoaders
+    postLoaders: postLoaders,
+    preLoaders: [
+          // Tslint loader support for *.ts files
+          //
+          // See: https://github.com/wbuchwalter/tslint-loader
+            { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
+        ]
   }
 };
 

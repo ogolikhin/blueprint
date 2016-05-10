@@ -1,10 +1,9 @@
 ﻿import "angular";
-import "angular-mocks"
-import * as $D from "../../../services/dialog.svc";
+import "angular-mocks";
 import {IOpenProjectResult, OpenProjectController} from "./openproject.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {IProjectService} from "../../../services/project.svc";
-import {GridApi, InMemoryRowModel, RowNode} from "ag-grid/main";
+import {GridApi} from "ag-grid/main";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -12,7 +11,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     }
 
     public close(result?: any): void {
-        
     }
 
     public dismiss(reason?: any): void {
@@ -39,8 +37,9 @@ describe("Open Project.", () => {
             var result: IOpenProjectResult =  <IOpenProjectResult>{
                 id: -1,
                 name: "",
-                description:""
-            }
+                description: ""
+            };
+
             // Act
 
             // Assert
@@ -50,12 +49,11 @@ describe("Open Project.", () => {
     });
     describe("Verify control.", () => {
         it("Checking options: ", () => {
-            
             // Arrange
 
             // Act
             var options = controller.gridOptions;
-            
+
             // Assert
             expect(options).toBeDefined();
             expect(options.columnDefs).toBeDefined();
@@ -121,9 +119,11 @@ describe("Embedded ag-grid events", () => {
     beforeEach(inject(function(_$q_, _$rootScope_, _$compile_) {
         $scope = _$rootScope_.$new();
 
-        elem = angular.element('<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>');
+        elem = angular.element("<div ag-grid='ctrl.gridOptions' class='ag-grid'></div>");
 
+        /* tslint:disable */
         controller = new OpenProjectController($scope, new LocalizationServiceMock(), new ModalServiceInstanceMock(), new ProjectServiceMock(_$q_), null, null, null);
+        /* tslint:enable */
         _$compile_(elem)($scope);
 
         $scope.$digest();

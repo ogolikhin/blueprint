@@ -4,7 +4,7 @@ using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class ArtifactResult : IArtifactResult<IArtifact>
+    public class ArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
         public IArtifact Artifact { get; set; }
@@ -12,7 +12,7 @@ namespace Model.ArtifactModel.Impl
         public HttpStatusCode ResultCode { get; set; }
     }
 
-    public class OpenApiArtifactResult : IArtifactResult<IOpenApiArtifact>
+    public class OpenApiArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
         public IOpenApiArtifact Artifact { get; set; }
@@ -20,7 +20,7 @@ namespace Model.ArtifactModel.Impl
         public HttpStatusCode ResultCode { get; set; }
     }
 
-    public class PublishArtifactResult : IPublishArtifactResult
+    public class PublishArtifactResult
     {
         public int ArtifactId { get; set; }
         public string Message { get; set; }
@@ -28,7 +28,7 @@ namespace Model.ArtifactModel.Impl
         public int ProjectId { get; set; }
     }
 
-    public class DiscardArtifactResult : IDiscardArtifactResult
+    public class DiscardArtifactResult
     {
         public int ArtifactId { get; set; }
         public string Message { get; set; }
@@ -36,7 +36,7 @@ namespace Model.ArtifactModel.Impl
         public int ProjectId { get; set; }
     }
 
-    public class DeleteArtifactResult : IDeleteArtifactResult
+    public class DeleteArtifactResult
     {
         public int ArtifactId { get; set; }
         public string Message { get; set; }

@@ -12,18 +12,15 @@ using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
+    //TODO  Remove "sendAuthorizationAsCookie" since this does not apply to OpenAPI
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
         #region Constants
 
         public const string SVC_PATH = "api/v1/projects";
-        public const string URL_ARTIFACTS = "artifacts";
         public const string URL_PUBLISH = "api/v1/vc/publish";
         public const string URL_DISCARD = "api/v1/vc/discard";
-        public const string URL_COMMENTS = "comments";
-        public const string URL_REPLIES = "replies";
-        public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
-        public const string URL_SEARCH = "/svc/shared/artifacts/search";
+
 
         #endregion Constants
 
@@ -109,10 +106,10 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToPublish = new List<IArtifactBase> { this };
 
-            PublishArtifacts(artifactToPublish, Address, user, expectedStatusCodes, shouldKeepLock, sendAuthorizationAsCookie);
+            PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        public List<IDiscardArtifactResult> Discard(IUser user = null,
+        public List<DiscardArtifactResult> Discard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -129,7 +126,7 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
-        public List<IDeleteArtifactResult> Delete(IUser user = null,
+        public List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
@@ -174,7 +171,8 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactToSave">The artifact to save</param>
         /// <param name="user">The user saving the artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected. Also, if the request method is
+        /// POST, the expected status code is 201; If the request method is PATCH, the expected status code is 200.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         public static void SaveArtifact(IArtifactBase artifactToSave, 
             IUser user,
@@ -196,18 +194,18 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = string.Empty;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, artifactToSave.ProjectId, URL_ARTIFACTS);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToSave.ProjectId);
 
             if (expectedStatusCodes == null)
             {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+                expectedStatusCodes = new List<HttpStatusCode> { artifactToSave.Id == 0 ? HttpStatusCode.Created : HttpStatusCode.OK };
             }
 
             RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, user.Username, user.Password, tokenValue);
             var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
                 path, restRequestMethod, artifactToSave as ArtifactBase, expectedStatusCodes: expectedStatusCodes);
 
-            if (artifactResult.ResultCode == HttpStatusCode.Created)
+            if (artifactResult.ResultCode == HttpStatusCode.Created || artifactResult.ResultCode == HttpStatusCode.OK)
             {
                 artifactToSave.IsSaved = true;
             }
@@ -217,12 +215,28 @@ namespace Model.ArtifactModel.Impl
 
             artifactToSave.Id = artifactResult.Artifact.Id;
 
-            const string expectedMsg = "Success";
-            Assert.That(artifactResult.Message == expectedMsg, "The returned Message was '{0}' but '{1}' was expected", artifactResult.Message, expectedMsg);
+            Assert.That(artifactResult.Message == "Success", "The returned Message was '{0}' but 'Success' was expected", artifactResult.Message);
 
-            Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
-                "The returned ResultCode was '{0}' but '{1}' was expected",
-                artifactResult.ResultCode, ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+            if (restRequestMethod == RestRequestMethod.POST)
+            {
+                Assert.That(
+                    artifactResult.ResultCode == HttpStatusCode.Created,
+                    "The returned ResultCode was '{0}' but '{1}' was expected",
+                    artifactResult.ResultCode,
+                    ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+            }
+            else if (restRequestMethod == RestRequestMethod.PATCH)
+            {
+                Assert.That(
+                    artifactResult.ResultCode == HttpStatusCode.OK,
+                    "The returned ResultCode was '{0}' but '{1}' was expected",
+                    artifactResult.ResultCode,
+                    ((int)HttpStatusCode.OK).ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                Assert.True(restRequestMethod != RestRequestMethod.POST && restRequestMethod != RestRequestMethod.PATCH, "Only POST or PATCH methods are supported!" );
+            }
         }
 
         /// <summary>
@@ -235,7 +249,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IDiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+        public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,            
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -252,6 +266,8 @@ namespace Model.ArtifactModel.Impl
                 cookies.Add(SessionTokenCookieName, tokenValue);
                 tokenValue = string.Empty;
             }
+
+            // TODO Why do we need to make copies of artifacts here?  Add comment
 
             var artifactObjectList = artifactsToDiscard.Select(artifact => 
                 new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
@@ -278,7 +294,7 @@ namespace Model.ArtifactModel.Impl
                 "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
                 artifactObjectList.Count, discardedResultList.Count);
 
-            return artifactResults.ConvertAll(o => (IDiscardArtifactResult)o);
+            return artifactResults.ConvertAll(o => (DiscardArtifactResult)o);
         }
 
         /// <summary>
@@ -287,16 +303,16 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifactsToPublish">The list of artifacts to publish</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
             bool shouldKeepLock = false,
+            List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -318,6 +334,7 @@ namespace Model.ArtifactModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
+            // 
             var artifactObjectList = (
                 from IArtifactBase artifact in artifactsToPublish
                 select new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
@@ -345,28 +362,28 @@ namespace Model.ArtifactModel.Impl
                 "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
                 artifactObjectList.Count, publishedResultList.Count);
 
-            return artifactResults.ConvertAll(o => (IPublishArtifactResult)o);
+            return artifactResults;
         }
 
         /// <summary>
         /// Delete a single artifact on Blueprint server.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// </summary>
-        /// <param name="artifactToDiscard">The list of artifacts to publish</param>
-        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// <param name="artifactToDelete">The list of artifacts to delete</param>
+        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<IDeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDiscard, 
+        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete, 
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactToDiscard, nameof(artifactToDiscard));
+            ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
 
             string tokenValue = user.Token?.OpenApiToken;
             var cookies = new Dictionary<string, string>();
@@ -377,17 +394,20 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = string.Empty;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifactToDiscard.ProjectId, URL_ARTIFACTS, artifactToDiscard.Id);
+            string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", SVC_PATH, artifactToDelete.ProjectId, artifactToDelete.Id);
+
+            var queryparameters = new Dictionary<string, string>();
 
             if (deleteChildren)
             {
-                path = I18NHelper.FormatInvariant("{0}?Recursively=True", path);
+                queryparameters.Add("Recursively", "true");
             }
 
-            RestApiFacade restApi = new RestApiFacade(artifactToDiscard.Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(artifactToDelete.Address, user.Username, user.Password, tokenValue);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
                 path,
                 RestRequestMethod.DELETE,
+                queryParameters: queryparameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             foreach (var deletedArtifact in artifactResults)
@@ -396,7 +416,7 @@ namespace Model.ArtifactModel.Impl
                     path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
             }
 
-            return artifactResults.ConvertAll(o => (IDeleteArtifactResult)o);
+            return artifactResults;
         }
 
         /// <summary>
@@ -430,7 +450,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(artifact.Address, user.Username, user.Password, tokenValue);
-            var path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, artifact.ProjectId, URL_ARTIFACTS, artifact.Id);
+            var path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", SVC_PATH, artifact.ProjectId, artifact.Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
                 resourcePath: path, 
                 method: RestRequestMethod.GET, 
@@ -438,6 +458,9 @@ namespace Model.ArtifactModel.Impl
 
             return returnedArtifact.Version;
         }
+
+
+        //TODO Investigate if we can use IArtifact instead of ItemId
 
         /// <summary>
         /// Get discussions for the specified artifact/subartifact

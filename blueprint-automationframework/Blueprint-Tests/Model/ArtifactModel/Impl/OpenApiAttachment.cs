@@ -1,6 +1,6 @@
 ﻿namespace Model.ArtifactModel.Impl
 {
-    public class OpenApiAttachment : IAttachment
+    public class OpenApiAttachment
     {
         public int Id { get; set; }
         public string FileName { get; set; }

@@ -380,7 +380,7 @@ namespace Model.StorytellerModel.Impl
             return publishProcessResult.Content;
         }
 
-        public List<IDiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
+        public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -389,7 +389,7 @@ namespace Model.StorytellerModel.Impl
             return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        public List<IDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
+        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -411,7 +411,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IDiscardArtifactResult> DiscardProcessArtifacts(List<IArtifactBase> artifactsToDiscard,
+        public static List<DiscardArtifactResult> DiscardProcessArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -427,20 +427,25 @@ namespace Model.StorytellerModel.Impl
         /// <param name="artifactsToPublish">The list of process artifacts to publish</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IPublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<PublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool shouldKeepLock = false,
             bool sendAuthorizationAsCookie = false)
         {
-            return Artifact.PublishArtifacts(artifactsToPublish, address, user, expectedStatusCodes,
-                shouldKeepLock, sendAuthorizationAsCookie);
+            return Artifact.PublishArtifacts(
+                artifactsToPublish, 
+                address, 
+                user, 
+                shouldKeepLock, 
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
         }
 
         #endregion Static Methods

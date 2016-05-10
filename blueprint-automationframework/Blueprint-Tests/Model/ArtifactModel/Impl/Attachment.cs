@@ -1,6 +1,6 @@
 ﻿namespace Model.ArtifactModel.Impl
 {
-    public class Attachment : IAttachment
+    public class Attachment
     {
         public int Id { get; set; }
         public string FileName { get; set; }

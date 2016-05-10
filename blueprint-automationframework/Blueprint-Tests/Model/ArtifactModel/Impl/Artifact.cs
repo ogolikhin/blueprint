@@ -27,11 +27,13 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constants
 
-        private const string URL_LOCK = "svc/shared/artifacts/lock";
-
         #endregion Constants
 
         #region Properties
+
+        //TODO  Check if we can remove the setters and get rid of these warnings
+
+        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Property>>))]
@@ -124,13 +126,13 @@ namespace Model.ArtifactModel.Impl
             PublishArtifacts(
                 artifactToPublish, 
                 Address, 
-                user, 
+                user,
+                shouldKeepLock,
                 expectedStatusCodes, 
-                shouldKeepLock, 
                 sendAuthorizationAsCookie);
         }
 
-        public List<IDiscardArtifactResult> Discard(IUser user = null,
+        public List<DiscardArtifactResult> Discard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -152,7 +154,7 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
-        public List<IDeleteArtifactResult> Delete(IUser user = null,
+        public List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
@@ -233,7 +235,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IDiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+        public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -253,24 +255,24 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifactsToPublish">The list of artifacts to publish</param>
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
             bool shouldKeepLock = false,
+            List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             return OpenApiArtifact.PublishArtifacts(
                 artifactsToPublish,
                 address,
                 user,
-                expectedStatusCodes,
                 shouldKeepLock,
+                expectedStatusCodes,
                 sendAuthorizationAsCookie);
         }
 
@@ -278,21 +280,21 @@ namespace Model.ArtifactModel.Impl
         /// Delete a single artifact on Blueprint server.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// </summary>
-        /// <param name="artifactToDiscard">The list of artifacts to publish</param>
-        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// <param name="artifactToDelete">The artifact to delete</param>
+        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<IDeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDiscard,
+        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
         {
             return OpenApiArtifact.DeleteArtifact(
-                artifactToDiscard,
+                artifactToDelete,
                 user,
                 expectedStatusCodes,
                 sendAuthorizationAsCookie,
@@ -341,6 +343,8 @@ namespace Model.ArtifactModel.Impl
                 sendAuthorizationAsCookie);
         }
 
+        // TODO Move this to a common area, not in artifact/openapiartifact class
+
         /// <summary>
         /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
         /// </summary>
@@ -367,9 +371,9 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Lock Artifact(s) 
         /// </summary>
+        /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user locking the artifact</param>
-        /// <param name="artifactsToLock">The list of artifacts to lock</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>List of LockResultInfo for the locked artifacts</returns>
@@ -399,9 +403,7 @@ namespace Model.ArtifactModel.Impl
 
             var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
                 URL_LOCK,
-                RestRequestMethod.GET,
-                additionalHeaders: null,
-                queryParameters: null,
+                RestRequestMethod.POST,
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);

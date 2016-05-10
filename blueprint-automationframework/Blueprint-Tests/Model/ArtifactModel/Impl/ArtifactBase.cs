@@ -7,6 +7,10 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constants
 
+        public const string URL_LOCK = "svc/shared/artifacts/lock";
+        public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
+        public const string URL_SEARCH = "/svc/shared/artifacts/search";
+
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
         #endregion Constants

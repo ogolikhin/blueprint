@@ -6,6 +6,7 @@ namespace Model.ArtifactModel
 {
     public interface IProperty : IPropertyBase
     {
+        // TODO Add descriptions for the properties
         int PropertyTypeId { get; set; }
         string Name { get; set; }
         string BasePropertyType { get; set; }

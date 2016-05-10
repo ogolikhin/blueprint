@@ -2,8 +2,9 @@
 
 namespace Model.ArtifactModel.Impl
 {
-    public class Trace : ITrace
+    public class Trace
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
         public string Type { get; set; }
         public string Direction { get; set; }
         public int ProjectId { get; set; }

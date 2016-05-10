@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel
 {
@@ -154,7 +155,7 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The List of DiscardArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Delete a process artifact
@@ -165,7 +166,7 @@ namespace Model.StorytellerModel
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false);
+        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false);
 
         /// <summary>
         /// Returns URL of the Blueprint server

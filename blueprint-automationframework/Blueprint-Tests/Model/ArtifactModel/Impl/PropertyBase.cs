@@ -47,9 +47,9 @@ namespace Model.ArtifactModel.Impl
             var artifactTypeForBaseArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(baseArtifactType));
 
             // Retrieve the property for the selected base artifact type based on the property name
-            var returnedProperty = artifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
+            var returnedPropertyType = artifactTypeForBaseArtifactType.PropertyTypes.Find(pt => pt.Name.Equals(propertyName));
 
-            return returnedProperty;
+            return returnedPropertyType;
         }
     }
 }

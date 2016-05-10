@@ -73,7 +73,6 @@
     <Compile Include="UpdateProcessValidationTests.cs" />
     <Compile Include="UpdateProcessNegativeTests.cs" />
     <Compile Include="UpdateProcessTests.cs" />
-    <Compile Include="BreadcrumbTests.cs" />
     <Compile Include="BasicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserStoryTests.cs" />

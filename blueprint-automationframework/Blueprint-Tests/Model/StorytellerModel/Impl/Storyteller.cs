@@ -6,8 +6,8 @@ using System.Net;
 using Common;
 using Model.Factories;
 using Model.Impl;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
@@ -27,7 +27,7 @@ namespace Model.StorytellerModel.Impl
 
         public string Address { get; }
 
-        public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
         #region Constructor
 
@@ -42,10 +42,10 @@ namespace Model.StorytellerModel.Impl
 
         #region Implemented from IStoryteller
 
-        public IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(Address, user, project, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(Address, user, project, artifactType);
 
             //Set to add in root of the project
             artifact.ParentId = artifact.ProjectId;
@@ -59,9 +59,9 @@ namespace Model.StorytellerModel.Impl
             return artifact;
         }
 
-        public List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        public List<IArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
-            var artifacts = new List<IOpenApiArtifact>();
+            var artifacts = new List<IArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
@@ -71,7 +71,7 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        public IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user)
+        public IArtifact CreateAndPublishProcessArtifact(IProject project, IUser user)
         {
             var publishedArtfiactList = CreateAndPublishProcessArtifacts(project, user, 1);
 
@@ -81,9 +81,9 @@ namespace Model.StorytellerModel.Impl
             return publishedArtfiactList[0];
         }
 
-        public List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
+        public List<IArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
-            var artifacts = new List<IOpenApiArtifact>();
+            var artifacts = new List<IArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {
@@ -380,7 +380,7 @@ namespace Model.StorytellerModel.Impl
             return publishProcessResult.Content;
         }
 
-        public List<IDiscardArtifactResult> DiscardProcessArtifact(IOpenApiArtifact artifact,
+        public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -389,7 +389,7 @@ namespace Model.StorytellerModel.Impl
             return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        public List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
+        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -411,13 +411,13 @@ namespace Model.StorytellerModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IDiscardArtifactResult> DiscardProcessArtifacts(List<IOpenApiArtifact> artifactsToDiscard,
+        public static List<DiscardArtifactResult> DiscardProcessArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            return OpenApiArtifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes,
+            return Artifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes,
                 sendAuthorizationAsCookie);
         }
 
@@ -427,20 +427,25 @@ namespace Model.StorytellerModel.Impl
         /// <param name="artifactsToPublish">The list of process artifacts to publish</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<IPublishArtifactResult> PublishProcessArtifacts(List<OpenApiArtifact> artifactsToPublish,
+        public static List<PublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool shouldKeepLock = false,
             bool sendAuthorizationAsCookie = false)
         {
-            return OpenApiArtifact.PublishArtifacts(artifactsToPublish, address, user, expectedStatusCodes,
-                shouldKeepLock, sendAuthorizationAsCookie);
+            return Artifact.PublishArtifacts(
+                artifactsToPublish, 
+                address, 
+                user, 
+                shouldKeepLock, 
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
         }
 
         #endregion Static Methods

@@ -1,5 +1,5 @@
-﻿using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+﻿using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -9,7 +9,7 @@ namespace Model.Factories
     public static class ArtifactFactory
     {
         /// <summary>
-        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
+        /// Create an Open API artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
         /// </summary>
         /// <param name="address">address for Blueprint application server</param>
         /// <param name="user">user for authentication</param>
@@ -39,14 +39,61 @@ namespace Model.Factories
         }
 
         /// <summary>
-        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// Create an Open API artifact object using the Blueprint application server address from the TestConfiguration file
         /// </summary>
+        /// <param name="project">The target project</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="artifactType">artifactType</param>
         /// <returns>new artifact object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IOpenApiArtifact CreateOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
             return CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
+        }
+
+        /// <summary>
+        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
+        /// </summary>
+        /// <param name="address">address for Blueprint application server</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="project">The target project</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object for the target project with selected artifactType</returns>
+        public static IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            IArtifact artifact = new Artifact(address);
+            artifact.BaseArtifactType = artifactType;
+
+            artifact.ProjectId = project.Id;
+            artifact.ParentId = project.Id;
+
+            var projectArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.Equals(artifactType));
+            artifact.ArtifactTypeId = projectArtifactType.Id;
+            artifact.ArtifactTypeName = projectArtifactType.Name;
+            artifact.Name = "Artifact_" + artifact.ArtifactTypeName + "_" + RandomGenerator.RandomAlphaNumeric(5);
+
+            //TODO: Move this to Save method and get CreatedBy from the result of the OpenAPI call
+            artifact.CreatedBy = user;
+
+            return artifact;
+        }
+
+        /// <summary>
+        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// </summary>
+        /// <param name="project">The target project</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
+        public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            return CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType);
         }
     }
 }

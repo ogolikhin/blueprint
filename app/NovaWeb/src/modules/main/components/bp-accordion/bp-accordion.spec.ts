@@ -7,9 +7,10 @@ import {BpAccordionCtrl} from "./bp-accordion";
 
 describe("Component BpAccordion", () => {
 
-    beforeEach(angular.mock.module('app.main'));
+    beforeEach(angular.mock.module("app.main"));
 
     var directiveTest: ComponentTest<BpAccordionCtrl>;
+    /* tslint:disable */
     var layout = `
         <bp-accordion accordion-heading-height="33">
             <bp-accordion-panel accordion-panel-heading="Discussions" accordion-panel-class="utility-panel-discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
@@ -17,6 +18,7 @@ describe("Component BpAccordion", () => {
             <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
         </bp-accordion>
     `;
+    /* tslint:enable */
 
     beforeEach(() => {
         directiveTest = new ComponentTest<BpAccordionCtrl>(layout, "bp-accordion");
@@ -137,6 +139,7 @@ describe("Component BpAccordion", () => {
         it("open 2nd panel (on top variant)", () => {
 
             //Arrange
+            /* tslint:disable */
             var layoutOpenTop = `
                 <bp-accordion accordion-heading-height="33" accordion-open-top>
                     <bp-accordion-panel accordion-panel-heading="Discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
@@ -144,6 +147,7 @@ describe("Component BpAccordion", () => {
                     <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
                 </bp-accordion>
             `;
+            /* tslint:enable */
             directiveTest = new ComponentTest<BpAccordionCtrl>(layoutOpenTop, "bp-accordion");
             var accordion: BpAccordionCtrl = directiveTest.createComponent({});
             var panels = accordion.getPanels();

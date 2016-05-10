@@ -48,10 +48,12 @@ pagecontent {
     vertical-align: top;
   }
 
-  .artifact-icon {
+  .artifact-icon::before {
     color: $gray-medium;
     font-family: 'bp-font';
     font-size: 24px;
+    line-height: 1.5em;
+    margin: 0;
   }
 
   .artifact-heading {
@@ -72,24 +74,37 @@ pagecontent {
       white-space: nowrap;
     }
 
+    .readonly-indicator,
     .lock-indicator,
     .dirty-indicator {
+      color: $gray-medium;
       display: inline-block;
       font-family: 'bp-font';
       font-size: $font-size-smaller;
+      font-style: normal;
     }
 
-    .lock-indicator {
+    .readonly-indicator::before {
+      content: '\e832';
+      font-size: 1.4em;
+      line-height: 1em;
+      position: relative;
+      top: 2px;
+    }
+
+    .lock-indicator::before {
       color: $brand-secondary;
+      content: '\e87c';
     }
 
-    .dirty-indicator {
-      color: $gray-medium;
+    .dirty-indicator::before {
+      content: '\e87d';
     }
   }
 
   .artifact-overview {
     background: $white;
+    position: relative;
 
     > .heading {
       background: #cbcbcb;
@@ -118,5 +133,45 @@ pagecontent {
       // temporary
       font-size: $font-size-smallest;
     }
+  }
+}
+
+.right-panel .sidebar-content {
+  .utility-panel-title {
+    background: $blue-lightest;
+    border-right: solid 1px $utility-panel-border-color;
+    border-top: solid 1px $utility-panel-border-color;
+    height: $utility-panel-title-height;
+    line-height: $utility-panel-title-height;
+
+    > span {
+      color: $gray-dark;
+      display: inline-block;
+      font-size: $font-size-tiny;
+      font-weight: 600;
+      line-height: 92%;
+      margin-top: -4px;
+      padding: 0 10px 0 26px;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .icon {
+      display: block;
+      float: left;
+      left: 10px;
+      position: absolute;
+
+      &::before {
+        font-size: $font-size-smallest;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+      }
+    }
+  }
+
+  .utility-panel-content {
+    height: calc(100% - #{$utility-panel-title-height});
   }
 }

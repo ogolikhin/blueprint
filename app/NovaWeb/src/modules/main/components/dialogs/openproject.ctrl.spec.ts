@@ -3,7 +3,7 @@ import "angular-mocks"
 import {IOpenProjectResult, OpenProjectController} from "./openproject.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {IProjectService} from "../../../services/project.svc";
-import {GridApi, InMemoryRowModel, RowNode} from "ag-grid/main";
+import {GridApi} from "ag-grid/main";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -73,18 +73,18 @@ describe("Open Project.", () => {
     describe("Return value.", () => {
         it("check return empty value", () => {
 
-            // Arrange
+        // Arrange
             var result: IOpenProjectResult =  <IOpenProjectResult>{
                 id: -1,
                 name: "",
                 description:""
             }
-            // Act
+        // Act
 
-            // Assert
+        // Assert
             expect(controller.returnvalue).toBeDefined();
             expect(controller.returnvalue).toEqual(result);
-        });
+    });
     });
     it("innerRenderer", () => {
         // Arrange
@@ -123,11 +123,11 @@ describe("Open Project.", () => {
     describe("Verify control.", () => {
         it("Checking options: ", () => {
             
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
             var columns = controller.columns;
-            
+
             //// Assert
             expect(columns).toBeDefined();
             expect(columns).toEqual(jasmine.any(Array));
@@ -139,7 +139,7 @@ describe("Open Project.", () => {
             expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
         });
     });
-});
+    });
 
 describe("Embedded ag-grid events", () => {
     var controller: OpenProjectController;
@@ -169,10 +169,10 @@ describe("Embedded ag-grid events", () => {
         var event = new Event("keydown");
         var div = document.createElement("div");
         var paramsMock = {
-            data: {
+                data: {
                 Type: "Project",
                 Name: "project"
-            },
+                },
             eGridCell: div
         };
 

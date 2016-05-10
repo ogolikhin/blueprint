@@ -53,6 +53,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactVersionModel\IArtifactVersion.cs" />
+    <Compile Include="ArtifactVersionModel\Impl\ArtifactVersion.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="IArtifactStore.cs" />
@@ -61,8 +63,11 @@
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\ArtifactType.cs" />
     <Compile Include="Impl\Discussion.cs" />
+    <Compile Include="NavigationModel\Impl\Navigation.cs" />
+    <Compile Include="NavigationModel\INavigation.cs" />
     <Compile Include="OpenApiModel\IArtifact.cs" />
     <Compile Include="OpenApiModel\IArtifactBase.cs" />
+    <Compile Include="OpenApiModel\IArtifactReference.cs" />
     <Compile Include="OpenApiModel\IArtifactResult.cs" />
     <Compile Include="OpenApiModel\IAttachment.cs" />
     <Compile Include="OpenApiModel\IAuthor.cs" />

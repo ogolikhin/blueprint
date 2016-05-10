@@ -34,7 +34,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
 export class BPTreeController  {
     static $inject = ["$element"];
     //properties
-    private gridClass: string = "project-explorer";
+    public gridClass: string = "project-explorer";
     //settings
     public gridColumns: any[];
     public onLoad: Function;
@@ -85,8 +85,12 @@ export class BPTreeController  {
 
     private onGridReady = (params: any) => {
         let self = this;
-        params && params.api && params.api.sizeColumnsToFit();
-        params && params.columnApi && params.columnApi.autoSizeColumns(["Name"]);
+        if (params && params.api) {
+            params.api.sizeColumnsToFit();
+        }
+        if (params && params.columnApi) {
+            params.columnApi.autoSizeColumns(["Name"]);
+        }
         if (typeof self.onLoad === "function") {
             self.onLoad({ prms: self.options }).then((data: any) => {
                 self.options.api.setRowData(self.rowData = data);

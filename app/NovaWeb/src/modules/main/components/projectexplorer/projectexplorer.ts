@@ -1,7 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
 import * as pSvc from "../../../services/project.svc";
-import * as Grid from "ag-grid/main";
 import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -13,18 +12,11 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export interface ILoadData
-{
-    LoadData(): ng.IPromise<any>;
-}
-var self;
 class ProjectExplorerController {
     public parent: IMainViewController;
 
     private selectedItem: any;
-    private clickTimeout: any;
-
-    
+    //private clickTimeout: any;
 
     public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout"];
     constructor(
@@ -34,13 +26,11 @@ class ProjectExplorerController {
         private $element,
         private $log: ng.ILogService,
         private $timeout: ng.ITimeoutService) {
-        self = this;
     }
-    private showError = (error: any) => {
-        alert(error.message); //.then(() => { this.cancel(); });
-    };
 
-    
+    //private showError = (error: any) => {
+    //    alert(error.message); //.then(() => { this.cancel(); });
+    //};
 
     public stripHTMLTags = (stringToSanitize: string): string => {
         var stringSanitizer = window.document.createElement("DIV");
@@ -54,9 +44,8 @@ class ProjectExplorerController {
         return stringEscaper.innerHTML;
     };
 
-        
     public columns = [{
-        headerName: "",//this.localization.get("App_Header_Name"),
+        headerName: "", //this.localization.get("App_Header_Name"),
         field: "Name",
         //editable: true, // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers
         //cellEditor: this.cellEditor,
@@ -66,10 +55,9 @@ class ProjectExplorerController {
         },
         cellRenderer: "group",
         cellRendererParams: {
-            innerRenderer: (params: any) => { ///[DL]
+            innerRenderer: (params: any) => {
                 var currentValue = params.value;
                 var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
-                var containerCell = params.eGridCell;
                 return formattedCurrentValue;
             }
         },

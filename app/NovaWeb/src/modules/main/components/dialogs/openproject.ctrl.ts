@@ -2,7 +2,6 @@
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
 import * as pSvc from "../../../services/project.svc";
-import * as Grid from "ag-grid/main";
 
 export interface IOpenProjectResult {
     id: number;
@@ -12,7 +11,6 @@ export interface IOpenProjectResult {
 
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
-    private rowData: any = null;
     private selectedItem: any;
 
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
@@ -37,11 +35,6 @@ export class OpenProjectController extends BaseDialogController {
         };
     };
 
-    //Temporary solution need
-    private showError = (error: any) => {
-        this.dialogService.alert(error.message).then(() => { this.cancel(); });
-    };
-
     //public stripHTMLTags = (stringToSanitize: string): string => {
     //    var stringSanitizer = window.document.createElement("DIV");
     //    stringSanitizer.innerHTML = stringToSanitize;
@@ -61,7 +54,7 @@ export class OpenProjectController extends BaseDialogController {
             this.ok();
         }
     };
-    
+
     public columns = [{
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",

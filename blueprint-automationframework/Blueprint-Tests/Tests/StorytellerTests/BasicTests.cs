@@ -219,9 +219,12 @@ namespace StorytellerTests
             Assert.DoesNotThrow(() =>
             {
                 discardResultList = processArtifact.NovaDiscard(_user);
-                Assert.AreEqual(discardResultList[0].Message, "Successfully discarded", "error message");
-                Assert.AreEqual(discardResultList[0].ResultCode, (HttpStatusCode)0, "error message");
-            }, "");
+                string expectedMessage = "Successfully discarded";
+                Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                    expectedMessage, discardResultList[0].Message);
+                Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                    (HttpStatusCode)0, discardResultList[0].ResultCode);
+            }, "Must return no errors.");
         }
     }
 }

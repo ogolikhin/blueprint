@@ -7,9 +7,6 @@ using Model.Factories;
 using NUnit.Framework;
 using System.Net;
 using System.Collections.Generic;
-using Model.StorytellerModel;
-using Model.StorytellerModel.Impl;
-using System.Linq;
 
 namespace CommonServiceTests
 {
@@ -17,9 +14,7 @@ namespace CommonServiceTests
     {
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IProject _project;
 
         #region Setup and Cleanup
@@ -31,7 +26,6 @@ namespace CommonServiceTests
             _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
@@ -50,47 +44,6 @@ namespace CommonServiceTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            //if (_artifactVersion. != null)
-            //{
-            //    // Delete or Discard all the artifacts that were added.
-            //    var savedArtifactsList = new List<IOpenApiArtifact>();
-            //    foreach (var artifact in _storyteller.Artifacts.ToArray())
-            //    {
-            //        if (artifact.IsPublished)
-            //        {
-            //            _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-            //        }
-            //        else
-            //        {
-            //            savedArtifactsList.Add(artifact);
-            //        }
-            //    }
-            //    if (savedArtifactsList.Any())
-            //    {
-            //        Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-            //    }
-            //}
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IArtifactBase>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
             if (_adminStore != null)
             {
                 // Delete all the sessions that were created.
@@ -120,13 +73,23 @@ namespace CommonServiceTests
             artifact.Publish(_user);
 
             List<DiscardArtifactResult> discardResultList = null;
-            Assert.DoesNotThrow(() =>
+            try {
+                Assert.DoesNotThrow(() =>
+                {
+                    string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
+                    discardResultList = artifact.NovaDiscard(_user);
+                    Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                        expectedMessage, discardResultList[0].Message);
+                    Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                        (HttpStatusCode)0, discardResultList[0].ResultCode);
+                }, "Must return no errors.");
+            }
+
+            finally
             {
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
-                discardResultList = artifact.NovaDiscard(_user);
-                Assert.AreEqual(discardResultList[0].Message, expectedMessage, "error message");
-                Assert.AreEqual(discardResultList[0].ResultCode, (HttpStatusCode)0, "error message");
-            }, "");
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
         }
 
         [TestCase]
@@ -139,12 +102,22 @@ namespace CommonServiceTests
             artifact.Save(_user);
 
             List<DiscardArtifactResult> discardResultList = null;
-            Assert.DoesNotThrow(() =>
+            try {
+                Assert.DoesNotThrow(() =>
+                {
+                    discardResultList = artifact.NovaDiscard(_user);
+                    string expectedMessage = "Successfully discarded";
+                    Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                        expectedMessage, discardResultList[0].Message);
+                    Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                        (HttpStatusCode)0, discardResultList[0].ResultCode);
+                }, "Must return no errors.");
+            }
+
+            finally
             {
-                discardResultList = artifact.NovaDiscard(_user);
-                Assert.AreEqual(discardResultList[0].Message, "Successfully discarded", "error message");
-                Assert.AreEqual(discardResultList[0].ResultCode, (HttpStatusCode)0, "error message");
-            }, "");
+                artifact.Discard(_user);
+            }
         }
 
         [TestCase]
@@ -163,9 +136,12 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 discardResultList = artifact.NovaDiscard(_user);
-                Assert.AreEqual(discardResultList[0].Message, "?", "error message");
-                Assert.AreEqual(discardResultList[0].ResultCode, 0, "error message");
-            }, "");
+                string expectedMessage = "Successfully discarded";
+                Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                    expectedMessage, discardResultList[0].Message);
+                Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                    (HttpStatusCode)0, discardResultList[0].ResultCode);
+            }, "Must return no errors.");
         }
     }
 }

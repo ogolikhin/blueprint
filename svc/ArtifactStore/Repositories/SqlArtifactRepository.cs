@@ -210,16 +210,16 @@ namespace ArtifactStore.Repositories
         private static void ThrowNotFoundException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
-                ? string.Format("Project (Id:{0}) is not found.", projectId)
-                : string.Format("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, projectId);
+                ? I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", projectId)
+                : I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, projectId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }
 
         private static void ThrowForbiddenException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
-                ? string.Format("User does not permissions for Project (Id:{0}).", projectId)
-                : string.Format("User does not permissions for Artifact (Id:{0}).", artifactId);
+                ? I18NHelper.FormatInvariant("User does not permissions for Project (Id:{0}).", projectId)
+                : I18NHelper.FormatInvariant("User does not permissions for Artifact (Id:{0}).", artifactId);
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
     }

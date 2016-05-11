@@ -38,7 +38,7 @@ export class DialogService implements IDialogService {
         type: DialogTypeEnum.Base,
         cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
         okButton: this.localization.get("App_Button_Ok", "Ok"),
-        template: require("../main/components/dialogs/dialog.html"),
+        template: require("./dialog.html"),
         controller: BaseDialogController
     };
 
@@ -94,8 +94,13 @@ export class DialogService implements IDialogService {
     }
 }
 
+export interface IDialogController{
+    returnvalue: any;
+    ok: Function;
+    cancel: Function;
+}
 
-export class BaseDialogController {
+export class BaseDialogController implements IDialogController{
 
     public hasCloseButton: boolean;
 

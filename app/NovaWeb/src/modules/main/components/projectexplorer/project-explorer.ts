@@ -4,7 +4,7 @@ import * as pSvc from "../../../services/project.svc";
 import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
-    public template: string = require("./projectexplorer.html");
+    public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
     public require: any = {
         parent: "^bpMainView"

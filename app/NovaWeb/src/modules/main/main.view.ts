@@ -4,7 +4,7 @@ import * as pSvc from "../services/project.svc";
 import * as Grid from "ag-grid/main";
 
 
-export class BpMainView implements ng.IComponentOptions {
+export class MainViewComponent implements ng.IComponentOptions {
     public template: string = require("./main.view.html");
     public controller: Function = MainViewController;
     public bindings: any = {

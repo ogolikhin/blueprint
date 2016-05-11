@@ -1,7 +1,5 @@
 ﻿using CustomAttributes;
 using Model;
-using Model.ArtifactVersionModel;
-using Model.ArtifactVersionModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 
@@ -10,6 +8,7 @@ namespace CommonServiceTests.ArtifactVersionTests
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
     [TestFixture]
     [Category(Categories.ArtifactVersion)]
+    [Explicit(IgnoreReasons.UnderDevelopment)]
     class ArtifactVersionTests
     {
         private IAdminStore _adminStore;
@@ -17,8 +16,7 @@ namespace CommonServiceTests.ArtifactVersionTests
         private IUser _user;
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private IProject _project;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        private IArtifactVersion _artifactVersion;
+
 
         #region Setup and Cleanup
 
@@ -29,8 +27,6 @@ namespace CommonServiceTests.ArtifactVersionTests
             _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
-
-            _artifactVersion = new ArtifactVersion(_blueprintServer.Address);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);

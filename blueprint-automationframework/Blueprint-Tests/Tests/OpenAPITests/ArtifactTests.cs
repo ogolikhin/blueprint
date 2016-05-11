@@ -1,8 +1,8 @@
 ﻿using CustomAttributes;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 

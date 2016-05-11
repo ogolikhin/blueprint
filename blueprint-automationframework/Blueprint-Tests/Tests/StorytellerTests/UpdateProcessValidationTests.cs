@@ -8,7 +8,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -56,7 +56,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)

@@ -95,9 +95,18 @@ namespace Model
         /// (Runs: GET /status)
         /// </summary>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A 200 OK code if there are no problems.</returns>
+        /// <returns>A JSON structure containing the status of all dependent services.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+        string GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the current status of the AccessControl service.
+        /// (Runs: GET /status/upcheck)
+        /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Status of File Store service.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
+        HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets number of active/locked licenses.

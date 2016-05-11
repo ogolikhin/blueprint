@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -24,7 +25,9 @@ namespace AdminStoreTests
                 content = _adminStore.GetStatus();
             }, "The GET /status endpoint should return 200 OK!");
 
-            CommonServiceHelper.ValidateStatusResponseContent(content);
+            var extraExpectedStrings = new List<string> { "AdminStore", "AdminStorage", "RaptorDB" };
+
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
         }
 
         [TestCase(null)]

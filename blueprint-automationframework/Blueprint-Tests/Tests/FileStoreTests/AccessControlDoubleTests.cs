@@ -11,7 +11,7 @@ using Utilities.Facades;
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
+    [Category(Categories.FileStore)]
     [Category(Categories.InjectsErrorsIntoAccessControl)]
     [Category(Categories.CannotRunInParallel)]
     public class AccessControlDoubleTests

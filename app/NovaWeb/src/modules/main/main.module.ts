@@ -5,13 +5,14 @@ import "angular-ui-bootstrap";
 import * as agGrid from "ag-grid/main";
 import "ag-grid-enterprise/main";
 import "../shell";
+import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {PageContent} from "./components/content/pagecontent";
-import {BPToolbar} from "./components/toolbar/bp-toolbar";
+import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
 import {BpAccordion} from "./components/bp-accordion/bp-accordion";
 import {BpAccordionPanel} from "./components/bp-accordion/bp-accordion";
-import {BPTree} from "./components/bp-tree/bp-tree";
-import {BpMainView} from "./main.view";
+import {MainViewComponent} from "./main.view";
+import {ProjectExplorerComponent} from "./components/projectexplorer/project-explorer";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope"];
@@ -27,13 +28,14 @@ export function config($rootScope: ng.IRootScopeService) {
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid"])
     .run(config)
-    .component("bpMainView", new BpMainView())
+    .component("bpTree", new BPTreeComponent())
+    .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
-    .component("bpToolbar", new BPToolbar())
+    .component("bpToolbar", new BPToolbarComponent())
     .component("bpSidebarLayout", new BpSidebarLayout())
     .component("bpAccordion", new BpAccordion())
     .component("bpAccordionPanel", new BpAccordionPanel())
-    .component("bpTree", new BPTree())
+    .component("bpProjectExplorer", new ProjectExplorerComponent())
     .config(routesConfig);
 
 

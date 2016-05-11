@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -1470,7 +1470,7 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public AssociatedArtifact AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public AssociatedArtifact AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 

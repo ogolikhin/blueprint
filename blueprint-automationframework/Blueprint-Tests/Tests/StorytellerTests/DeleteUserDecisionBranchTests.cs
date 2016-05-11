@@ -6,7 +6,7 @@ using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using System.Linq;
 
 namespace StorytellerTests
@@ -50,7 +50,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)

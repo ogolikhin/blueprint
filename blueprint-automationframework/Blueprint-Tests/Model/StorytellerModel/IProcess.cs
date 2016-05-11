@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel

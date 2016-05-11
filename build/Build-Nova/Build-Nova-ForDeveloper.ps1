@@ -37,5 +37,5 @@ $buildParams = @{
 }
 
 Setup-Environment @buildParams -removeFiles $removeFiles
-Build-Nova @buildParams
+Build-Nova-Services @buildParams
 #Run-Nova-Unit-Tests @buildParams

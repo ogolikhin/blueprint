@@ -27,7 +27,7 @@ function Setup-Environment {
     Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\svc\Services.sln"" -PackagesDirectory ""$workspace/packages"""
 }
 
-function Build-Nova{
+function Build-Nova-Services{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
         [Parameter(Mandatory=$true)][string]$blueprintVersion,
@@ -56,7 +56,43 @@ function Build-Nova{
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
     Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
+}
 
+function Build-Nova-Html{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
+    )
+
+    try
+    {
+       pushd "$workspace\app\NovaWeb"
+   
+       .\devsetup.bat
+       npm install -g
+
+       # Increment build version number
+       $version = $blueprintVersion.split(".")
+       $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
+       npm version $semver
+
+       # Build Nova Application
+       npm run build
+
+       # Test Nova Application
+       npm run test
+    }
+    finally
+    {
+        popd
+    }
 }
 
 function Run-Nova-Unit-Tests{

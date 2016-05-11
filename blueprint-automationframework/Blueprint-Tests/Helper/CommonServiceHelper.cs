@@ -19,6 +19,7 @@ namespace Helper
 
             Logger.WriteDebug("GET /status returned: '{0}'", content);
 
+            // TODO: See if we can do more verification beyond just looking for keywords.
             var stringsToFind = new List<string> { "ServiceName", "AccessInfo", "AssemblyFileVersion", "NoErrors", "Errors", "StatusResponses" };
 
             if (extraExpectedStrings != null)

@@ -168,13 +168,13 @@ namespace CommonServiceTests.NavigationTests
         [TestCase]
         [Description("Get the navigation with maxium allowable number of artifacts in the url path. " +
             "Verify the expected error from the call.")]
-        public void GetNavigationWithMaxiumArtifacts_VerifyExpectedError()
+        public void GetNavigationWithMaximumArtifacts_VerifyExpectedError()
         {
             //Create an artifact with process artifact type
             var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process, numberOfArtifacts: 1).First();
 
-            //Add the same artifact repeatedly in the artifact list to create a navigation list which exeeds the maxium
+            //Add the same artifact repeatedly in the artifact list to create a navigation list which exceeds the maximum
             //allowable number of artifacts
             for (int i =0; i< MAXIUM_ALLOWABLE_NAVIGATION; i++)
             {
@@ -250,7 +250,7 @@ namespace CommonServiceTests.NavigationTests
             var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
-            //Inject nonexistent artifact into artifact list used for navigation
+            //Inject nonexistent artifact(s) into artifact list used for navigation
             foreach (var nonExistentArtifactIndex in nonExistentArtifactIndexes)
             {
                 var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
@@ -272,7 +272,7 @@ namespace CommonServiceTests.NavigationTests
         [TestCase(3, new int[] { 2 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>IA>a")]
         [TestCase(5, new int[] { 3 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>a>IA>a>a")]
         [TestCase(4, new int[] { 1, 2 }, Description = "Test for sequential inaccessible artifacts in breadcrumb, a>IA>IA>a>a>a")]
-        [TestCase(6, new int[] { 1, 3, 6 }, Description = "Test for nonsequential inaccessible artifacts in breadcrumb, a>IA>a>IA>a>a>IA>a>")]
+        [TestCase(6, new int[] { 1, 3, 6 }, Description = "Test for non-sequential inaccessible artifacts in breadcrumb, a>IA>a>IA>a>a>IA>a>")]
         [Description("Get navigation with a single or multiple inaccessible artifacts in the url path. " +
                      "Verify that the inaccessible artifacts are marked as <Inaccessible> in the returned " +
                      "artifact reference lists.")]
@@ -286,7 +286,7 @@ namespace CommonServiceTests.NavigationTests
             var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
 
-            //Create and inject artifact ids created by another user
+            //Create and inject artifacts created by another user, which are inaccessible by the main user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
                 var inaccessbileArtifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(_project, _secondaryUser, BaseArtifactType.Actor, 1).First();

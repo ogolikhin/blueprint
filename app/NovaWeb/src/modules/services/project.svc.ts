@@ -13,6 +13,7 @@ export interface IProjectNode {
 
 export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
+    getProject(id?: number): ng.IPromise<any[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -32,6 +33,21 @@ export class ProjectService implements IProjectService {
                         it.Children = new Array<IProjectNode>();
                     }
                 });
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.Message : "") || this.localization.get("", "Error")
+                };
+                defer.reject(error);
+            });
+        return defer.promise;
+    }
+
+    public getProject(id?: number): ng.IPromise<any[]> {
+        var defer = this.$q.defer<any>();
+        this.$http.get<any>(`svc/adminstore/project/${id}`)
+            .success((result: IProjectNode[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {

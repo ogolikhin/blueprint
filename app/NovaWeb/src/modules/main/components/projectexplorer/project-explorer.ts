@@ -7,13 +7,13 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
     public require: any = {
-        parent: "^bpMainView"
+        mainView: "^bpMainView"
     };
     public transclude: boolean = true;
 }
 
 class ProjectExplorerController {
-    public parent: IMainViewController;
+    public mainView: IMainViewController;
 
     private selectedItem: any;
     //private clickTimeout: any;
@@ -66,18 +66,18 @@ class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    public doLoad = (prms: any): ng.IPromise<any[]> => {
+    public loadFolders = (prms: any): ng.IPromise<any[]> => {
         //check passed in parameter
         return this.service.getFolders();
     };
 
-    public doExpand = (prms: any): ng.IPromise<any[]> => {
+    public expandFolder = (prms: any): ng.IPromise<any[]> => {
         //check passesd in parameter
         var id = (prms && prms.Id) ? prms.Id : null;
         return this.service.getFolders(id);
     };
 
-    public doSelect = (item: any) => {
+    public selectProject = (item: any) => {
         //check passed in parameter
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;

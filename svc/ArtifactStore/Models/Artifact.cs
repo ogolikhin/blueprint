@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using ServiceLibrary.Models;
 
 namespace ArtifactStore.Models
 {
@@ -16,7 +17,7 @@ namespace ArtifactStore.Models
         public int ProjectId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int ParentId { get; set; }
+        public int? ParentId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? TypeId { get; set; }
@@ -29,6 +30,12 @@ namespace ArtifactStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? OrderIndex { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? HasChildren { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public RolePermissions? Permissions { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? LockedByUserId { get; set; }

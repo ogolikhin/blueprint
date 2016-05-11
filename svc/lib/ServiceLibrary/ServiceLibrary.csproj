@@ -101,6 +101,7 @@
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
     <Compile Include="Models\StandardLogModel.cs" />

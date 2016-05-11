@@ -13,7 +13,7 @@ namespace AdminStore.Repositories
 {
     public class SqlInstanceRepository : ISqlInstanceRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
         public SqlInstanceRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -22,7 +22,7 @@ namespace AdminStore.Repositories
 
         internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            _connectionWrapper = connectionWrapper;
+            ConnectionWrapper = connectionWrapper;
         }
 
         public async Task<InstanceItem> GetInstanceFolderAsync(int folderId)
@@ -32,7 +32,7 @@ namespace AdminStore.Repositories
 
             var prm = new DynamicParameters();
             prm.Add("@folderId", folderId);
-            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var folder = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if(folder == null)
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);
 
@@ -51,7 +51,7 @@ namespace AdminStore.Repositories
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
 
-            return  ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
+            return  ((await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
                 ?? Enumerable.Empty <InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
 
@@ -66,7 +66,7 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
 
-            var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var project = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
             if(!project.IsAccesible.GetValueOrDefault())

@@ -1,8 +1,8 @@
 ﻿import "angular";
-import "angular-mocks"
-import {SessionSvc} from "./session.svc";
-import {LoginCtrl, LoginState} from "./login.ctrl";
-import {LocalizationServiceMock, ConfigValueHelperMock, AuthSvcMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
+import "angular-mocks";
+import { SessionSvc } from "./session.svc";
+import { LoginCtrl, LoginState } from "./login.ctrl";
+import { LocalizationServiceMock, ConfigValueHelperMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
 
 
 describe("LoginCtrl", () => {
@@ -20,10 +20,9 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -31,7 +30,8 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.labelError).toBe(false, "label error is true");
         }));
 
-        it("return incorrect username or password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("return incorrect username or password error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
                 var deferred = $q.defer();
@@ -44,10 +44,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -56,7 +55,8 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.errorMsg).toBe("Login_Session_CredentialsInvalid", "error message is incorrect");
         }));
 
-        it("return empty username or password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("return empty username or password error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             spyOn(session, "login").and.callFake(function () {
                 var deferred = $q.defer();
@@ -69,10 +69,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -94,10 +93,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -119,10 +117,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -144,10 +141,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -170,10 +166,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -194,11 +189,10 @@ describe("LoginCtrl", () => {
                 return deferred.promise;
             });
 
-            // Act
-            var error: any;
+            // Act            
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -220,10 +214,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -244,10 +237,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -268,10 +260,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaPassword = "changeme";
-            var result = loginCtrl.login();
+            loginCtrl.login();
             $rootScope.$digest();
 
             // Assert
@@ -286,7 +277,7 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var result = loginCtrl.goToForgetPasswordScreen();
+            loginCtrl.goToForgetPasswordScreen();
             $rootScope.$digest();
 
             // Assert
@@ -301,7 +292,7 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var result = loginCtrl.goToChangePasswordScreenBecauseExpired();
+            loginCtrl.goToChangePasswordScreenBecauseExpired();
             $rootScope.$digest();
 
             // Assert
@@ -315,7 +306,7 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var result = loginCtrl.goToChangePasswordScreen();
+            loginCtrl.goToChangePasswordScreen();
             $rootScope.$digest();
 
             // Assert
@@ -329,7 +320,7 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -351,8 +342,7 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -374,8 +364,7 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -397,8 +386,7 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -420,8 +408,7 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -443,8 +430,7 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var error: any;
-            var result = loginCtrl.goToSAMLScreen();
+            loginCtrl.goToSAMLScreen();
             $rootScope.$digest();
 
             // Assert
@@ -459,7 +445,7 @@ describe("LoginCtrl", () => {
             // Arrange
 
             // Act
-            var result = loginCtrl.goToLoginScreen();
+            loginCtrl.goToLoginScreen();
             $rootScope.$digest();
 
             // Assert
@@ -476,9 +462,9 @@ describe("LoginCtrl", () => {
             loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(false, "change password error is true");
         }));
@@ -490,9 +476,9 @@ describe("LoginCtrl", () => {
             loginCtrl.novaNewPassword = "123EWQ!@#";
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordConfirmMismatch");
@@ -506,9 +492,9 @@ describe("LoginCtrl", () => {
             loginCtrl.novaConfirmNewPassword = "123E";
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordMinLength");
@@ -518,19 +504,22 @@ describe("LoginCtrl", () => {
             // Arrange
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
+            /* tslint:disable:max-line-length */
             loginCtrl.novaNewPassword = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
             loginCtrl.novaConfirmNewPassword = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+            /* tslint:enable:max-line-length */
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordMaxLength");
         }));
 
-        it("respond with incorrect current password error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with incorrect current password error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -547,9 +536,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_EnterCurrentPassword");
@@ -572,9 +561,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_AccountDisabled");
@@ -597,9 +586,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_CurrentPasswordCannotBeEmpty");
@@ -622,15 +611,16 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeEmpty");
         }));
 
-        it("respond with new password same as old error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password same as old error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -647,15 +637,16 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordSameAsOld");
         }));
 
-        it("respond with new password invalid error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+        it("respond with new password invalid error",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
             // Arrange
             loginCtrl.novaUsername = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -672,9 +663,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
@@ -696,9 +687,9 @@ describe("LoginCtrl", () => {
             });
 
             // Act
-            var result = loginCtrl.changePassword();
+            loginCtrl.changePassword();
             $rootScope.$digest();
-            
+
             // Assert
             expect(loginCtrl.changePasswordScreenError).toBe(true, "change password error is false");
         }));

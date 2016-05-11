@@ -1,5 +1,5 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {ILocalizationService} from "../../core/localization";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {IUser, IAuth} from "./auth.svc";
@@ -122,8 +122,16 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller(new LocalizationServiceMock(), this.instanceMock, new SessionSvcMock(this.$q), this.$timeout, new ConfigValueHelperMock());
+        /* tslint:disable:no-unused-variable */
+        var ctrl = new options.controller(
+            new LocalizationServiceMock(),
+            this.instanceMock,
+            new SessionSvcMock(this.$q),
+            this.$timeout,
+            new ConfigValueHelperMock()
+        );
         return this.instanceMock;
+        /* tslint:enable:no-unused-variable */
     }
 }
 

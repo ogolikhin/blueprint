@@ -1,4 +1,4 @@
-﻿namespace Model.OpenApiModel
+﻿namespace Model.ArtifactModel
 {
     public interface IArtifactReference
     {

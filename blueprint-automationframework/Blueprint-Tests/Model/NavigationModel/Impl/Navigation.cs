@@ -1,5 +1,6 @@
 ﻿using Common;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -23,7 +24,7 @@ namespace Model.NavigationModel.Impl
 
         public string Address { get; }
 
-        public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactReference>>))]
@@ -44,7 +45,7 @@ namespace Model.NavigationModel.Impl
 
         #region Methods
 
-        public List<IArtifactReference> GetNavigation(IUser user, List<IOpenApiArtifact> artifacts, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public List<IArtifactReference> GetNavigation(IUser user, List<IArtifact> artifacts, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
@@ -79,7 +80,7 @@ namespace Model.NavigationModel.Impl
             return response.ConvertAll(o => (IArtifactReference)o) ;
         }
 
-        public List<IDeleteArtifactResult> DeleteNavigationArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
+        public List<DeleteArtifactResult> DeleteNavigationArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 

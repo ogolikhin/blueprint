@@ -1,11 +1,11 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.NavigationModel;
 using Model.NavigationModel.Impl;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,8 +100,8 @@ namespace CommonServiceTests.NavigationTests
             if (_navigation.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsListPrimaryUser = new List<IOpenApiArtifact>();
-                var savedArtifactsListSecondaryUser = new List<IOpenApiArtifact>();
+                var savedArtifactsListPrimaryUser = new List<IArtifactBase>();
+                var savedArtifactsListSecondaryUser = new List<IArtifactBase>();
                 foreach (var artifact in _navigation.Artifacts.ToArray())
                 {
                     if (!INVALID_LIST.Contains(artifact.Id) && artifact.IsPublished)
@@ -141,6 +141,7 @@ namespace CommonServiceTests.NavigationTests
 
         #region Tests
 
+        [TestRail(107167)]
         [TestCase]
         [Description("Get the navigation with all available artifact types for the project in the url path " +
             "which are accessible by the user. Verify that the returned artifact reference lists.")]
@@ -151,8 +152,9 @@ namespace CommonServiceTests.NavigationTests
 
             foreach (var availableArtifactType in availableArtifactTypes)
             {
-                var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: availableArtifactType, numberOfArtifacts: 1).First();
+                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
+                artifactType: availableArtifactType);
+                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
 
                 //Add an artifact to artifact list for navigation call
                 _navigation.Artifacts.Add(artifact);
@@ -165,20 +167,22 @@ namespace CommonServiceTests.NavigationTests
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
+        [TestRail(107168)]
         [TestCase]
         [Description("Get the navigation with maxium allowable number of artifacts in the url path. " +
             "Verify the expected error from the call.")]
         public void GetNavigationWithMaximumArtifacts_VerifyExpectedError()
         {
             //Create an artifact with process artifact type
-            var artifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process, numberOfArtifacts: 1).First();
+            var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process);
+            Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
 
             //Add the same artifact repeatedly in the artifact list to create a navigation list which exceeds the maximum
             //allowable number of artifacts
             for (int i =0; i< MAXIUM_ALLOWABLE_NAVIGATION; i++)
             {
-                var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+                var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
                 nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
                 _navigation.Artifacts.Add(nonExistingArtifact);
             }
@@ -193,13 +197,14 @@ namespace CommonServiceTests.NavigationTests
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
+        [TestRail(107169)]
         [TestCase]
         [Description("Get the navigation with invalid artifact ID data in the url path. " +
             "Verify the Not Found exception.")]
         public void GetNavigationWithInvalidData_VerifyNotFoundException()
         {
             //Create invalid artifact
-            var invalidArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+            var invalidArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
             invalidArtifact.Id = INVALID_ID;
 
             //Add the artifact to artifact list for navigation call
@@ -212,26 +217,30 @@ namespace CommonServiceTests.NavigationTests
             }, "The GET /navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the url!");
         }
 
+        [TestRail(107170)]
         [TestCase(1)]
         [TestCase(3)]
         [Description("Get the navigation with process artifact(s) in the url path are accessible by the user." +
              "Verify that the returned artifact reference lists.")]
         public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
         {
-            //Create artifact(s) with process artifact type
-            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
-
-            //Add artifact(s) to artifact list for navigation call
-            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
+            //Create artifact(s) with process artifact type and add to artifact list for navigation call
+            for (int i=0; i < numberOfArtifacts; i++)
+            {
+                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process);
+                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                _navigation.Artifacts.Add(artifact);
+            }
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
 
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
+        [TestRail(107171)]
         [TestCase(2, new[] { 1 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>NE>a")]
         [TestCase(3, new[] { 2 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>NE>a")]
         [TestCase(5, new[] { 3 }, Description = "Test for a single nonexistent artifact in breadcrumb, a>a>a>NE>a>a")]
@@ -246,28 +255,31 @@ namespace CommonServiceTests.NavigationTests
         {
             ThrowIf.ArgumentNull(nonExistentArtifactIndexes, nameof(nonExistentArtifactIndexes));
 
-            //Create artifact(s) with process artifact type
-            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
+            //Create artifact(s) with process artifact type and add to artifact list for navigation call
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process);
+                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                _navigation.Artifacts.Add(artifact);
+            }
 
             //Inject nonexistent artifact(s) into artifact list used for navigation
             foreach (var nonExistentArtifactIndex in nonExistentArtifactIndexes)
             {
-                var nonExistingArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _primaryUser, BaseArtifactType.Actor);
+                var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
                 nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
-                artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
+                _navigation.Artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
             }
 
-            //Add artifact(s) to artifact list for navigation call
-            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
-
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
 
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
         }
 
+        [TestRail(107172)]
         [TestCase(2, new int[] { 1 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>IA>a")]
         [TestCase(3, new int[] { 2 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>IA>a")]
         [TestCase(5, new int[] { 3 }, Description = "Test for a single inaccessible artifact in breadcrumb, a>a>a>IA>a>a")]
@@ -282,23 +294,25 @@ namespace CommonServiceTests.NavigationTests
         {
             ThrowIf.ArgumentNull(inaccessibleArtifactIndexes, nameof(inaccessibleArtifactIndexes));
 
-            //Create artifact(s) with process artifact type
-            var artifacts = ArtifactFactory.CreateAndSaveOpenApiArtifacts(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process, numberOfArtifacts: numberOfArtifacts);
+            //Create artifact(s) with process artifact type and add to artifact list for navigation call
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
+                artifactType: BaseArtifactType.Process);
+                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                _navigation.Artifacts.Add(artifact);
+            }
 
             //Create and inject artifacts created by another user, which are inaccessible by the main user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                var inaccessbileArtifact = ArtifactFactory.CreateAndSaveOpenApiArtifacts(_project, _secondaryUser, BaseArtifactType.Actor, 1).First();
-
-                artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
+                var inaccessbileArtifact = ArtifactFactory.CreateArtifact(_project, _secondaryUser, BaseArtifactType.Actor);
+                Artifact.SaveArtifact(artifactToSave: inaccessbileArtifact, user: _secondaryUser);
+                _navigation.Artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
-            //Add artifact(s) to artifact list for navigation call
-            artifacts.ForEach(artifact => _navigation.Artifacts.Add(artifact));
-
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, artifacts);
+            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
 
             //Navigation Assertions
             CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);

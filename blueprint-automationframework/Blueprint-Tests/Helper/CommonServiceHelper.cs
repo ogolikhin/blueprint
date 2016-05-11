@@ -1,8 +1,8 @@
 ﻿using Common;
 using Model;
 using Model.NavigationModel;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Utilities;

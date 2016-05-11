@@ -8,6 +8,8 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Helper;
+using System.Net;
 
 namespace StorytellerTests
 {
@@ -196,6 +198,30 @@ namespace StorytellerTests
                     artifactToDelete.Publish(_user);
                 }
             }
+        }
+
+        [TestCase]
+        [TestRail(107376)]
+        [Description("change artifact name, discard")]
+        public void DiscardArtifactWithChangedName_VerifyResult()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Modify default process Name
+            process.Name = "new name";
+
+            // Update and Verify the modified process
+            var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            var processArtifact = new Artifact(_storyteller.Address, changedProcess.Id, changedProcess.ProjectId);
+
+            List<DiscardArtifactResult> discardResultList = null;
+            Assert.DoesNotThrow(() =>
+            {
+                discardResultList = processArtifact.NovaDiscard(_user);
+                Assert.AreEqual(discardResultList[0].Message, "Successfully discarded", "error message");
+                Assert.AreEqual(discardResultList[0].ResultCode, (HttpStatusCode)0, "error message");
+            }, "");
         }
     }
 }

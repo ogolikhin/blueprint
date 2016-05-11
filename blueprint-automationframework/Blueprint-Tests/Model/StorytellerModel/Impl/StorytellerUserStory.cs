@@ -16,6 +16,7 @@ namespace Model.StorytellerModel.Impl
         private const string items = "items";
         private const string properties = "properties";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
         #region Properties
 
         public int Id { get; set; }

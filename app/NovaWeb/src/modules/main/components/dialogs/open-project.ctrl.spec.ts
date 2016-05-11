@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks"
-import {IOpenProjectResult, OpenProjectController} from "./openproject.ctrl";
+import {IOpenProjectResult, OpenProjectController} from "./open-project.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {IProjectService} from "../../../services/project.svc";
 import {GridApi} from "ag-grid/main";

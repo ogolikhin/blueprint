@@ -56,7 +56,7 @@ export class BPTreeController  {
             rowBuffer: 200,
             rowHeight: 20,
             enableColResize: true,
-
+            editable: true,
             columnDefs: this.gridColumns || [],
             icons: {
                 groupExpanded: "<i class='fonticon-folder-open' />",

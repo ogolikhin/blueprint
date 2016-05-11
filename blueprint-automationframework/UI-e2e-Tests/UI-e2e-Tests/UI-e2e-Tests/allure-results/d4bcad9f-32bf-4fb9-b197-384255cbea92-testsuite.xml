@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1462941013375" stop="1462941158514">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1462941013375" stop="1462941023765" status="passed">
+			<name>enter user name</name>
+			<title>enter user name</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="2644c11a-5355-49af-9aa5-fcf96645278e-attachment.png" type="image/png" size="96533"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941023765" stop="1462941034088" status="passed">
+			<name>Verify user can publish the artifact</name>
+			<title>Verify user can publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="9f44585b-7c32-48a4-be2c-dc934697bae6-attachment.png" type="image/png" size="109502"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941034088" stop="1462941049479" status="passed">
+			<name>Verify user task Panel Icon</name>
+			<title>Verify user task Panel Icon</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="f935f225-9391-455a-b94e-e91712868fc9-attachment.png" type="image/png" size="111916"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941049479" stop="1462941064812" status="passed">
+			<name>Verify infomation Icon is clickable</name>
+			<title>Verify infomation Icon is clickable</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="e04e0bb7-5596-46cb-b595-af74d26838c2-attachment.png" type="image/png" size="77156"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941064812" stop="1462941075246" status="passed">
+			<name>Verify user task Panel has Properties tab</name>
+			<title>Verify user task Panel has Properties tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="2f471477-70f7-4132-bdf1-739314b4a613-attachment.png" type="image/png" size="79169"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941075246" stop="1462941085655" status="passed">
+			<name>Verify user task Panel has Discussion tab</name>
+			<title>Verify user task Panel has Discussion tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="ea9cb8d2-f201-4259-acd9-f75badc79eb2-attachment.png" type="image/png" size="89478"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941085655" stop="1462941117009" status="passed">
+			<name>Verify post comment</name>
+			<title>Verify post comment</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="322122f0-96ce-4b42-9753-d16a9eae61b8-attachment.png" type="image/png" size="114273"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941117009" stop="1462941127419" status="passed">
+			<name>Verify user task Panel has Files tab</name>
+			<title>Verify user task Panel has Files tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="2ef7bb60-31ce-49d8-addb-ac4b1ad506ba-attachment.png" type="image/png" size="97559"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941127419" stop="1462941137789" status="passed">
+			<name>Verify user task Panel has Relationships tab</name>
+			<title>Verify user task Panel has Relationships tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="500a5fd2-d26e-445e-9644-c2da0d3ae26b-attachment.png" type="image/png" size="124396"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941137789" stop="1462941148195" status="passed">
+			<name>Verify user task Panel has History tab</name>
+			<title>Verify user task Panel has History tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="a8733406-d110-4849-b8a8-d8b9c82e4f61-attachment.png" type="image/png" size="91246"/>
+			</attachments>
+		</test-case>
+		<test-case start="1462941148195" stop="1462941158513" status="passed">
+			<name>Verify user task Panel has CloseButton tab</name>
+			<title>Verify user task Panel has CloseButton tab</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="0ec0c551-2ccc-448b-8545-00dde69ea24c-attachment.png" type="image/png" size="111916"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

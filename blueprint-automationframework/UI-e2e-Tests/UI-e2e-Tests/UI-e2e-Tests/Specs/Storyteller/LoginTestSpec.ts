@@ -1,4 +1,5 @@
-﻿import loginPage = require("../../Pages/StorytellerPages/LoginPageStoryteller");
+﻿import loginPage = require("../../Pages/StorytellerPages/LoginPage");
+import svgElementspage = require("../../Pages/StorytellerPages/SvgElementsPage");
 import createArtifact = require("../../Model/CreateArtifacts");
 //var json = require("./json/OR.json");
 var OR = require('../../Json/OR.json');
@@ -25,7 +26,9 @@ describe("LoginPage",
                // loginPage.login(OR.locators.storyteller.testdata.TName);
                 loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
                 browser.driver.sleep(5000);
-
+                var q;
+                //svgElementspage.editHeader(0, "user1");
+                browser.driver.sleep(5000);
             });
 
     })

@@ -13,14 +13,21 @@
     },
     "storyteller": {
 
-      "addcustomerbutton": "addCust()",
-      "fName": "fName",
-      "lName": "lName",
-      "pCode": "postCd",
-      "addcustomer": ".btn.btn-default",
-      "openAccount": "addCust()",
-      "loginFieldId": "loginField",
-      "passwordField": "passwordField",
+      "labelHeader": "[id*='label-H']",
+      "labelBody": "[id*='label-B']",
+      "image": "image",
+      "panelModalWUtilityPanel": "modalWUtilityPanel",
+      "panelDiscussions": "discussions",
+      "panelProperties": "properties",
+      "panelFiles": "files",
+      "panelrelationships": "relationships",
+      "panelHistory": "history",
+      "panelPreview": "preview",
+      "panelCloseButton": ".k-icon.k-i-close",
+      "panelDiscussionTextArea": "mceu_8-body",
+      "panelDiscussionTextAreaIframeId": "ui-tinymce-0_ifr",
+      "panelDiscussionTextAreaBody": "tinymce",
+      "panelDiscussionPostButton": ".btn.action-btn.btn-sm.ng-binding",
 
 
       "testdata": {

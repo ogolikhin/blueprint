@@ -16,6 +16,15 @@
         Requirement = 9,
         UiMockup = 10,
         UseCase = 11,
-        UseCaseDiagram = 12
+        UseCaseDiagram = 12,
+        
+        //BaseLines and Reviews
+        BaselineReviewFolder = 13,
+        Baleline = 14,
+        Review = 15,
+
+        //Collections
+        CollectionFolder = 16,
+        Collection = 17
     }
 }

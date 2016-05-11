@@ -53,7 +53,6 @@
     <Folder Include="Log\" />
     <Folder Include="Json\" />
     <Folder Include="allure-results\" />
-    <Folder Include="node_modules\" />
     <Folder Include="Pages\CommonPages\" />
     <Folder Include="Pages\StorytellerPages\" />
     <Folder Include="Scripts\typings\NewFolder1\" />
@@ -70,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conf.js" />
-    <Compile Include="node_modules\JavaScript1.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

@@ -8,6 +8,7 @@ using Model.Factories;
 using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
@@ -44,6 +45,8 @@ namespace Model.StorytellerModel.Impl
 
         public IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveProcessArtifact));
+
             //Create an artifact with ArtifactType and populate all required values without properties
             var artifact = ArtifactFactory.CreateArtifact(Address, user, project, artifactType);
 
@@ -61,6 +64,8 @@ namespace Model.StorytellerModel.Impl
 
         public List<IArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveProcessArtifacts));
+
             var artifacts = new List<IArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
@@ -73,6 +78,8 @@ namespace Model.StorytellerModel.Impl
 
         public IArtifact CreateAndPublishProcessArtifact(IProject project, IUser user)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishProcessArtifact));
+
             var publishedArtfiactList = CreateAndPublishProcessArtifacts(project, user, 1);
 
             Assert.That(publishedArtfiactList.Count().Equals(1),"The expected number of published artifact" +
@@ -83,6 +90,8 @@ namespace Model.StorytellerModel.Impl
 
         public List<IArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishProcessArtifacts));
+
             var artifacts = new List<IArtifact>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
@@ -99,6 +108,8 @@ namespace Model.StorytellerModel.Impl
 
         public List<IStorytellerUserStory> GenerateUserStories(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
+
             ThrowIf.ArgumentNull(user, nameof(user));
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PATH, URL_PROJECTS);
 
@@ -120,16 +131,22 @@ namespace Model.StorytellerModel.Impl
             }
 
             var additionalHeaders = new Dictionary<string, string>();
-
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
-            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(path, RestRequestMethod.POST, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
+            Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+                path,
+                RestRequestMethod.POST,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
 
             return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
         }
 
         public IProcess GetProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetProcess));
+
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
@@ -149,6 +166,7 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
+            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
@@ -160,6 +178,8 @@ namespace Model.StorytellerModel.Impl
 
         public IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetProcesses));
+
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
@@ -172,9 +192,9 @@ namespace Model.StorytellerModel.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
-
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
+            Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(Storyteller), projectId);
             var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
                 path,
                 RestRequestMethod.GET,
@@ -186,6 +206,8 @@ namespace Model.StorytellerModel.Impl
 
         public IProcess GetProcessWithBreadcrumb(IUser user, List<int> artifactIds, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetProcessWithBreadcrumb));
+
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactIds, nameof(artifactIds));
 
@@ -198,12 +220,8 @@ namespace Model.StorytellerModel.Impl
                 tokenValue = string.Empty;
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/processes", SVC_PATH);
-
-            foreach (var id in artifactIds)
-            {
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, id);
-            }
+            string breadcrumb = string.Join("/", artifactIds);
+            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, breadcrumb);
 
             if (versionIndex.HasValue)
             {
@@ -212,6 +230,7 @@ namespace Model.StorytellerModel.Impl
 
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
+            Logger.WriteInfo("{0} Getting Process from the following breadcrumb: {1}", nameof(Storyteller), breadcrumb);
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
@@ -223,6 +242,8 @@ namespace Model.StorytellerModel.Impl
 
         public IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetUserStoryArtifactType));
+
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
@@ -240,9 +261,9 @@ namespace Model.StorytellerModel.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, projectId, URL_ARTIFACTTYPES);
-
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
+            Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
             var response = restApi.SendRequestAndDeserializeObject<ArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             return response;
@@ -250,68 +271,27 @@ namespace Model.StorytellerModel.Impl
 
         public IProcess UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(process, nameof(process));
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
-
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-
-            var updateProcessResult = restApi.SendRequestAndDeserializeObject<UpdateResult<Process>, Process>(
-                path,
-                RestRequestMethod.PATCH,
-                (Process)process,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            // Mark artifact in artifact list as saved
-            MarkArtifactAsSaved(process.Id);
+            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
+            var updateProcessResult = JsonConvert.DeserializeObject<UpdateResult<Process>>(restResponse.Content);
 
             return updateProcessResult.Result;
         }
 
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(process, nameof(process));
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcessReturnResponseOnly));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
-
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-
-            var restResponse = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                bodyObject: (Process)process,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            // Mark artifact in artifact list as saved
-            MarkArtifactAsSaved(process.Id);
+            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
 
             return restResponse.Content;
         }
 
         public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UploadFile));
+
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
 
@@ -339,8 +319,9 @@ namespace Model.StorytellerModel.Impl
             }
 
             byte[] bytes = file.Content.ToArray();
-
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
+            Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(Storyteller), file.FileName, bytes.Length);
             var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             return artifactResult.Content;
@@ -348,6 +329,8 @@ namespace Model.StorytellerModel.Impl
 
         public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcess));
+
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
@@ -365,10 +348,10 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PATH, URL_PROCESSES, process.Id);
-
+            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/publish", SVC_PATH, URL_PROCESSES, process.Id);
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
+            Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
             var publishProcessResult = restApi.SendRequestAndGetResponse(
                 path, 
                 RestRequestMethod.POST, 
@@ -383,6 +366,8 @@ namespace Model.StorytellerModel.Impl
         public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DiscardProcessArtifact));
+
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
@@ -391,6 +376,8 @@ namespace Model.StorytellerModel.Impl
 
         public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
+
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
@@ -417,6 +404,8 @@ namespace Model.StorytellerModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DiscardProcessArtifacts));
+
             return Artifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes,
                 sendAuthorizationAsCookie);
         }
@@ -439,6 +428,8 @@ namespace Model.StorytellerModel.Impl
             bool shouldKeepLock = false,
             bool sendAuthorizationAsCookie = false)
         {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcessArtifacts));
+
             return Artifact.PublishArtifacts(
                 artifactsToPublish, 
                 address, 
@@ -471,6 +462,47 @@ namespace Model.StorytellerModel.Impl
         {
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = true;
+        }
+
+        /// <summary>
+        /// Update a Process but only return the RestResponse object.
+        /// </summary>
+        /// <param name="user">The user credentials for the request to update a process</param>
+        /// <param name="process">The process to update</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The RestResponse object returned by the update process request</returns>
+        private RestResponse UpdateProcessAndGetRestResponse(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
+            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+
+            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
+            var restResponse = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.PATCH,
+                bodyObject: (Process)process,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
+            // Mark artifact in artifact list as saved
+            MarkArtifactAsSaved(process.Id);
+
+            return restResponse;
         }
 
         #endregion Private Methods

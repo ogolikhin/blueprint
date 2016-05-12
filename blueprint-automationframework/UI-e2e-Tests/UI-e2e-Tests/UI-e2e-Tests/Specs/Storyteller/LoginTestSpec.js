@@ -18,7 +18,7 @@ describe("LoginPage", function () {
         // loginPage.login(OR.locators.storyteller.testdata.TName);
         loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
         browser.driver.sleep(5000);
-        var q;
+        loginPage.sessionDialofBox();
         //svgElementspage.editHeader(0, "user1");
         browser.driver.sleep(5000);
     });

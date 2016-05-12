@@ -7,12 +7,16 @@ describe("EditingNavigatingModalStoryteller",
     () => {
        // browser.driver.findElement(By.css('.nova-switch-label')).click();
         it("enter user name",() => {
-               
-             browser.driver.sleep(5000);
-             svgElementsPage.editHeader(0, "user1");
+            expect(browser.element(By.css('.nova-switch-outer-text.nova-switch-unchecked-label.ng-binding')).getText()).toEqual('Business Process');
+            if ((element(by.css('.nova-switch')).isSelected())) {
+                element(by.css('.nova-switch')).click();
+            }
+            
+            // browser.driver.sleep(5000);
+            // svgElementsPage.editHeader(0, "user1");
              browser.driver.sleep(5000);
          });
-
+/*
         it('Verify user can publish the artifact', () => {
             browser.driver.sleep(5000);
             browser.element(By.css('.fonticon-upload-cloud')).click();
@@ -92,6 +96,6 @@ describe("EditingNavigatingModalStoryteller",
             browser.driver.sleep(5000);
         });
 
-
+*/
     })
     

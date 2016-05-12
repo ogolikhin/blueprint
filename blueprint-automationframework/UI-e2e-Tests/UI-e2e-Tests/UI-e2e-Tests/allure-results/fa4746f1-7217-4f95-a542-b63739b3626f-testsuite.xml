@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463023787784" stop="1463023793094">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463023787785" stop="1463023793094" status="passed">
+			<name>enter user name</name>
+			<title>enter user name</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="923ba5e2-049b-45f7-8669-50775da0bc43-attachment.png" type="image/png" size="81644"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

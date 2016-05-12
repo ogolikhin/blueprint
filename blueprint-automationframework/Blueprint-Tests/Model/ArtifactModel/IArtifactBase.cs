@@ -59,8 +59,8 @@ namespace Model.ArtifactModel
         Baseline,
         BaselinesAndReviews,
         BaselinesAndReviewsFolder,
-        BusinessProcess,
-        BusinessProcessDiagram,
+        BusinessProcess, //it is BusinessProcessDiagram
+        //BusinessProcessDiagram,
         Collection,
         CollectionFolder,
         Collections,

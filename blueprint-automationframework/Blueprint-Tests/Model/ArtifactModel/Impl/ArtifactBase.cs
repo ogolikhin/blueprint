@@ -12,6 +12,10 @@ namespace Model.ArtifactModel.Impl
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
         public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
         public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";
+        public const string URL_DIAGRAM = "svc/components/RapidReview/diagram";
+        public const string URL_USECASE = "svc/components/RapidReview/usecase";
+        public const string URL_GLOSSARY = "svc/components/RapidReview/glossary";
+        public const string URL_ARTIFACTPROPERTIES = "svc/components/RapidReview/artifacts/properties";
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 

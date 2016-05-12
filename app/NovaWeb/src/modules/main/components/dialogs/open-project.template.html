@@ -3,6 +3,8 @@
 </div>
 <div class="modal-body">
     <bp-tree grid-class ="project-tree"
+             header-height="20"
+             row-height="20"
              grid-columns="ctrl.columns"
              on-load="ctrl.doLoad(prms)"
              on-expand="ctrl.doExpand(prms)"
@@ -20,8 +22,11 @@
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
-        <button class="btn btn-secondary" ng-click="ctrl.cancel()"><span ng-bind="ctrl.params.cancelButton"></span></button>
-        <button class="btn btn-primary disabled" ng-if="ctrl.selectedItem.Type !== 'Project'"><span ng-bind="ctrl.params.okButton"></span></button>
-        <button class="btn btn-primary" ng-if="ctrl.selectedItem.Type === 'Project'" ng-click="ctrl.ok()"><span ng-bind="ctrl.params.okButton"></span></button>
+        <button class="btn btn-secondary" ng-click="ctrl.cancel()">
+            <span ng-bind="ctrl.params.cancelButton"></span>
+        </button>
+        <button class="btn btn-primary" ng-disabled="!ctrl.isProjectSelected" ng-click="ctrl.ok()">
+            <span ng-bind="ctrl.params.okButton"></span>
+        </button>
     </div>
 </div>

@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as pSvc from "../../../services/project.svc";
+import * as pSvc from "../../services/project.svc";
 
 export interface IOpenProjectResult {
     id: number;
@@ -26,6 +26,7 @@ export class OpenProjectController extends BaseDialogController {
         super($uibModalInstance, params);
     };
 
+
     //Dialog return value
     public get returnvalue(): IOpenProjectResult {
         return <IOpenProjectResult>{
@@ -34,6 +35,9 @@ export class OpenProjectController extends BaseDialogController {
             description: (this.selectedItem && this.selectedItem["Description"]) || ""
         };
     };
+    public get isProjectSelected(): boolean {
+        return this.selectedItem && this.selectedItem.Type === `Project`;
+    }
 
     //public stripHTMLTags = (stringToSanitize: string): string => {
     //    var stringSanitizer = window.document.createElement("DIV");

@@ -8,6 +8,8 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Helper;
+using System.Net;
 
 namespace StorytellerTests
 {
@@ -177,8 +179,8 @@ namespace StorytellerTests
                 artifactList.Add(artifact);
             }
 
-            //Implementation of CreateArtifact uses OpenApi_Artifact_ prefix to name artifacts
-            string searchString = "OpenApi_Artifact_";
+            //Implementation of CreateArtifact uses Artifact_ prefix to name artifacts
+            string searchString = "Artifact_";
             try
             {
                 Assert.DoesNotThrow(() =>
@@ -196,6 +198,33 @@ namespace StorytellerTests
                     artifactToDelete.Publish(_user);
                 }
             }
+        }
+
+        [TestCase]
+        [TestRail(107376)]
+        [Description("change artifact name, discard")]
+        public void DiscardArtifactWithChangedName_VerifyResult()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Modify default process Name
+            process.Name = "new name";
+
+            // Update and Verify the modified process
+            var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            var processArtifact = new Artifact(_storyteller.Address, changedProcess.Id, changedProcess.ProjectId);
+
+            List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
+            Assert.DoesNotThrow(() =>
+            {
+                discardResultList = processArtifact.NovaDiscard(_user);
+            }, "Must return no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
         }
     }
 }

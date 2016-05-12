@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
@@ -67,10 +68,12 @@
     <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
     <Compile Include="CommonConstants.cs" />
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
+    <Compile Include="Factories\FactoryCommon.cs" />
     <Compile Include="IArtifactStore.cs" />
     <Compile Include="ArtifactModel\IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
+    <Compile Include="Impl\NovaServiceBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactType.cs" />
     <Compile Include="ArtifactModel\Impl\Discussion.cs" />
     <Compile Include="ArtifactModel\IArtifact.cs" />
@@ -174,6 +177,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj">
+      <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
+      <Name>CustomAttributes</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestConfiguration\TestConfig.csproj">
       <Project>{28AB2F4A-233B-4B44-914F-C0F0FA5A30B8}</Project>

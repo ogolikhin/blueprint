@@ -6,7 +6,7 @@ namespace Model
 {
     public interface IBlueprintServer
     {
-        string Address { get; set; }
+        string Address { get; }
 
 
         /// <summary>
@@ -28,5 +28,14 @@ namespace Model
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the current status of the Blueprint services.
+        /// (Runs: GET /status/upcheck)
+        /// </summary>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Status of File Store service.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
+        HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

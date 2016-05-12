@@ -9,16 +9,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 
-namespace CommonServiceTests.NavigationTests
+namespace CommonServiceTests
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
     [TestFixture]
     [Category(Categories.Navigation)]
     public class NavigationTests
     {
-        //Non-existence artifact ID example
+        // TODO This will need to be updated with the value that cannot does not exist in the system 
+        //Non-existence artifact Id sample
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
-        //Invalid id example
+        //Invalid process artifact Id sample
         private const int INVALID_ID = -33;
 
         private const int MAXIUM_ALLOWABLE_NAVIGATION = 23;

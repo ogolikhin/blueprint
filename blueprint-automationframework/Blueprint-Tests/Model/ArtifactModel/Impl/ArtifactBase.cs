@@ -15,6 +15,8 @@ namespace Model.ArtifactModel.Impl
         public const string URL_LOCK = "svc/shared/artifacts/lock";
         public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
+        public const string URL_NOVADISCARD = "/svc/shared/artifacts/discard";
+        public const string URL_ARTIFACT_INFO = "/svc/components/storyteller/artifactInfo";
         private const string URL_NAVIGATION = "svc/shared/navigation";
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
@@ -80,7 +82,7 @@ namespace Model.ArtifactModel.Impl
 
         #region Methods
 
-        public List<ArtifactReference> GetNavigation (
+        public List<ArtifactReference> GetNavigation(
             IUser user,
             List<IArtifact> artifacts,
             List<HttpStatusCode> expectedStatusCodes = null

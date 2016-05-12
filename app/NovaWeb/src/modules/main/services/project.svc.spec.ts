@@ -1,7 +1,57 @@
 ﻿import "angular";
 import "angular-mocks"
 import {IProjectNode, IProjectService, ProjectService} from "./project.svc";
-import {LocalizationServiceMock} from "../shell/login/mocks.spec";
+import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
+
+export class ProjectServiceMock implements IProjectService {
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
+    public getFolders(id?: number): angular.IPromise<any[]> {
+        var deferred = this.$q.defer<any[]>();
+        var folders = [
+            {
+                "Id": 3,
+                "ParentFolderId": 1,
+                "Name": "Folder with content",
+                "Type": "Folder"
+            },
+            {
+                "Id": 7,
+                "ParentFolderId": 1,
+                "Name": "Empty folder",
+                "Type": "Folder"
+            },
+            {
+                "Id": 8,
+                "ParentFolderId": 1,
+                "Name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
+                "Type": "Folder"
+            },
+            {
+                "Id": 33,
+                "ParentFolderId": 1,
+                "Name": "Process",
+                "Description": "Process description",
+                "Type": "Project"
+            }
+        ];
+        deferred.resolve(folders);
+        return deferred.promise;
+    }
+    public getProject(id?: number): angular.IPromise<any[]> {
+        var deferred = this.$q.defer<any[]>();
+        var folders = [
+            {
+                "Id": 3,
+                "ParentFolderId": 1,
+                "Name": "Folder with content",
+                "Type": "Folder"
+            },
+        ];
+        deferred.resolve(folders);
+        return deferred.promise;
+    }
+}
 
 describe("ProjectService", () => {
 

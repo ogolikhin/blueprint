@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Common;
+﻿using System.Data;
+using CustomAttributes;
 using Model.Impl;
-using TestConfig;
 
 namespace Model.Factories
 {
@@ -31,17 +25,8 @@ namespace Model.Factories
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IArtifactStore GetArtifactStoreFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-            const string keyName = "ArtifactStore";
-
-            if (!testConfig.Services.ContainsKey(keyName))
-            {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
-                Logger.WriteError(msg);
-                throw new DataException(msg);
-            }
-
-            return CreateArtifactStore(testConfig.Services[keyName].Address);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ArtifactStore);
+            return CreateArtifactStore(address);
         }
     }
 }

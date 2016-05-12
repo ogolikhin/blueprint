@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
+using Common;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -154,6 +155,27 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
+        public List<DiscardArtifactResult> NovaDiscard(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform Discard.");
+                user = CreatedBy;
+            }
+
+            var artifactsToDiscard = new List<IArtifactBase> { this };
+
+            var discardArtifactResults = NovaDiscardArtifacts(
+                artifactsToDiscard,
+                Address,
+                user,
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
+
+            return discardArtifactResults;
+        }
         public List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
@@ -206,6 +228,33 @@ namespace Model.ArtifactModel.Impl
             return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
+        public ArtifactInfo GetArtifactInfo(IUser user = null,
+           List<HttpStatusCode> expectedStatusCodes = null,
+           bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetArtifactInfo.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_ARTIFACT_INFO, Id);
+            var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
+                resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactInfo;
+        }
+
         #endregion Methods
 
         #region Static Methods
@@ -249,6 +298,61 @@ namespace Model.ArtifactModel.Impl
                 sendAuthorizationAsCookie);
         }
 
+        /// <summary>
+        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint(not OpenAPI).
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<DiscardArtifactResult> NovaDiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
+            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResult, List<int>>(
+                URL_NOVADISCARD,
+                RestRequestMethod.POST,
+                artifactsIds,
+                expectedStatusCodes: expectedStatusCodes);
+
+            var discardedResultList = artifactResults.DiscardResults;
+
+            // When each artifact is successfully discarded, set IsSaved flag to false
+            foreach (var discardedResult in discardedResultList)
+            {
+                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id.Equals(discardedResult.ArtifactId)) &&
+                discardedResult.ResultCode == 0);
+                discardedArtifact.IsSaved = false;
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
+            }
+
+            Assert.That(discardedResultList.Count.Equals(artifactsToDiscard.Count),
+                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
+                artifactsToDiscard.Count, discardedResultList.Count);
+
+            return discardedResultList;
+        }
+        
         /// <summary>
         /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts)
         /// </summary>

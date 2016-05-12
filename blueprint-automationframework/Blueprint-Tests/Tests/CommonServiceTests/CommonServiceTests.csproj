@@ -64,6 +64,10 @@
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
       <Name>Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
+      <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
+      <Name>TestConfig</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
       <Name>Utilities</Name>

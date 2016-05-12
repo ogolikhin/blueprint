@@ -1,7 +1,6 @@
 ﻿using System.Data;
-using Common;
+using CustomAttributes;
 using Model.Impl;
-using TestConfig;
 
 namespace Model.Factories
 {
@@ -26,17 +25,8 @@ namespace Model.Factories
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IAdminStore GetAdminStoreFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-            const string keyName = "AdminStore";
-
-            if (!testConfig.Services.ContainsKey(keyName))
-            {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
-                Logger.WriteError(msg);
-                throw new DataException(msg);
-            }
-
-            return CreateAdminStore(testConfig.Services[keyName].Address);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AdminStore);
+            return CreateAdminStore(address);
         }
     }
 }

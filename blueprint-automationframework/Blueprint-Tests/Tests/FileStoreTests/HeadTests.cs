@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
+    [Category(Categories.FileStore)]
     public class HeadTests
     {
         private IAdminStore _adminStore;

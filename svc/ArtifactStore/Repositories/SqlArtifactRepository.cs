@@ -100,7 +100,9 @@ namespace ArtifactStore.Repositories
 
             var userArtifactVersionChildren = ProcessChildren(dicUserArtifactVersions, parentUserArtifactVersion);
 
-            var maxIndexOrder = userArtifactVersionChildren.Max(a => a.OrderIndex);
+            var maxIndexOrder = userArtifactVersionChildren.Any()
+                ? userArtifactVersionChildren.Max(a => a.OrderIndex)
+                : 0;
 
             return userArtifactVersionChildren.Select(v => new Artifact
             {
@@ -146,7 +148,7 @@ namespace ArtifactStore.Repositories
         {
             return dicUserArtifactVersions.Values.
                 Where(v => v?.ParentId == parentUserArtifactVersion.ItemId
-                            && v.DirectPermissions.GetValueOrDefault().HasFlag(RolePermissions.Read)).ToList();
+                            && (v.DirectPermissions == null || v.DirectPermissions.Value.HasFlag(RolePermissions.Read))).ToList();
         }
 
         private ArtifactVersion FindAncestorOrProjectUserVersionWithDirectPermissions(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion parentUserVersion, int projectId)

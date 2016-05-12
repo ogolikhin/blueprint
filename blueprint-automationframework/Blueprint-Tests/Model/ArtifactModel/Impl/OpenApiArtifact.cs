@@ -91,7 +91,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             SaveArtifact(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
-        }
+            }
 
         public void Publish(IUser user = null,
             bool shouldKeepLock = false,
@@ -107,12 +107,12 @@ namespace Model.ArtifactModel.Impl
             var artifactToPublish = new List<IArtifactBase> { this };
 
             PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes, sendAuthorizationAsCookie);
-        }
+            }
 
         public List<DiscardArtifactResult> Discard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
-        {
+            {
             if (user == null)
             {
                 Assert.NotNull(CreatedBy, "No user is available to perform Discard.");
@@ -130,7 +130,7 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
             bool deleteChildren = false)
-        {
+            {
             if (user == null)
             {
                 Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
@@ -160,7 +160,7 @@ namespace Model.ArtifactModel.Impl
             int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
 
             return artifactVersion;
-        }
+            }
 
         #endregion Methods
 
@@ -218,7 +218,7 @@ namespace Model.ArtifactModel.Impl
             Assert.That(artifactResult.Message == "Success", "The returned Message was '{0}' but 'Success' was expected", artifactResult.Message);
 
             if (restRequestMethod == RestRequestMethod.POST)
-            {
+        {
                 Assert.That(
                     artifactResult.ResultCode == HttpStatusCode.Created,
                     "The returned ResultCode was '{0}' but '{1}' was expected",

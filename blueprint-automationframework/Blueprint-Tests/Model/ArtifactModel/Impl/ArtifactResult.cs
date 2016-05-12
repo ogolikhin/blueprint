@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -34,6 +36,12 @@ namespace Model.ArtifactModel.Impl
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }
         public int ProjectId { get; set; }
+    }
+
+    public class NovaDiscardArtifactResult
+    {
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<DiscardArtifactResult> DiscardResults { get; set; }
     }
 
     public class DeleteArtifactResult

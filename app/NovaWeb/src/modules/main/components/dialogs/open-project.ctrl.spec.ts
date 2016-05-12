@@ -2,7 +2,7 @@
 import "angular-mocks"
 import {IOpenProjectResult, OpenProjectController} from "./open-project.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
-import {IProjectService} from "../../../services/project.svc";
+import {ProjectServiceMock} from "../../services/project.svc.spec";
 import {GridApi} from "ag-grid/main";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
@@ -21,44 +21,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public opened: angular.IPromise<any>;
 
     public rendered: angular.IPromise<any>;
-}
-
-export class ProjectServiceMock implements IProjectService {
-    public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
-
-    public getFolders(id?: number): angular.IPromise<any[]> {
-        var deferred = this.$q.defer<any[]>();
-        var folders = [
-            {
-                "Id": 3,
-                "ParentFolderId": 1,
-                "Name": "Folder with content",
-                "Type": "Folder"
-            },
-            {
-                "Id": 7,
-                "ParentFolderId": 1,
-                "Name": "Empty folder",
-                "Type": "Folder"
-            },
-            {
-                "Id": 8,
-                "ParentFolderId": 1,
-                "Name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
-                "Type": "Folder"
-            },
-            {
-                "Id": 33,
-                "ParentFolderId": 1,
-                "Name": "Process",
-                "Description": "Process description",
-                "Type": "Project"
-            }
-        ];
-        deferred.resolve(folders);
-        return deferred.promise;
-    }
 }
 
 
@@ -101,7 +63,7 @@ describe("Open Project.", () => {
         };
         var paramsMockProject = {
             data: {
-                Type: "Project",
+                Type: "Project", 
                 Name: "<button onclick=\"alert('HEY!')\";>project</button>"
             },
             eGridCell: document.createElement("div")

@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />

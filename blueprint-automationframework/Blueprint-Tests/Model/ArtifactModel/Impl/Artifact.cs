@@ -340,7 +340,8 @@ namespace Model.ArtifactModel.Impl
             // When each artifact is successfully discarded, set IsSaved flag to false
             foreach (var discardedResult in discardedResultList)
             {
-                var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id.Equals(discardedResult.ArtifactId)) &&
+                discardedResult.ResultCode == 0);
                 discardedArtifact.IsSaved = false;
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }

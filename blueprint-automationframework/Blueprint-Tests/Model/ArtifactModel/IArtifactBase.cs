@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.ArtifactModel.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -99,5 +100,16 @@ namespace Model.ArtifactModel
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
+
+        /// <summary>
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation
+        /// </summary>
+        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The List of ArtifactReferences after the get navigation call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<ArtifactReference> GetNavigation(IUser user, List<IArtifact> artifacts,
+            List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

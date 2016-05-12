@@ -1,5 +1,10 @@
+using Common;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Utilities;
+using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -10,6 +15,7 @@ namespace Model.ArtifactModel.Impl
         public const string URL_LOCK = "svc/shared/artifacts/lock";
         public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
+        private const string URL_NAVIGATION = "svc/shared/navigation";
 
         public const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
@@ -71,5 +77,57 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        #region Methods
+
+        public List<ArtifactReference> GetNavigation (
+            IUser user,
+            List<IArtifact> artifacts,
+            List<HttpStatusCode> expectedStatusCodes = null
+            )
+        {
+            return GetNavigation(Address, user, artifacts, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation
+        /// </summary>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The List of ArtifactReferences after the get navigation call</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<ArtifactReference> GetNavigation(
+            string address,
+            IUser user,
+            List<IArtifact> artifacts,
+            List<HttpStatusCode> expectedStatusCodes = null
+            )
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            //Get list of artifacts which were created.
+            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+
+            string path = URL_NAVIGATION;
+
+            path = I18NHelper.FormatInvariant("{0}/{1}", path, string.Join("/", artifactIds));
+
+            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return response;
+        }
+
+        #endregion Methods
     }
 }

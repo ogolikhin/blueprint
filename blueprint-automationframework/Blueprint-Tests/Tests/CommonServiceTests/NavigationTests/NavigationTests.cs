@@ -4,8 +4,6 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.NavigationModel;
-using Model.NavigationModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +16,11 @@ namespace CommonServiceTests.NavigationTests
     [Category(Categories.Navigation)]
     public class NavigationTests
     {
+        //Non-existence artifact ID example
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
+        //Invalid id example
         private const int INVALID_ID = -33;
-        private static readonly List<int> INVALID_LIST = new List<int>()
-        {
-            NONEXISTENT_ARTIFACT_ID,
-            INVALID_ID
-        };
+
         private const int MAXIUM_ALLOWABLE_NAVIGATION = 23;
         private const string INVALID_TOKEN = "Invalid_Token_value";
 
@@ -33,13 +29,20 @@ namespace CommonServiceTests.NavigationTests
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
-        private INavigation _navigation;
-
+        private List<IArtifact> _artifacts;
+        private List<int> _invalidList;
+        private IList<int> _ro_invalidList;
         #region Setup and Cleanup
 
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
+            _invalidList = new List<int>()
+            {
+                NONEXISTENT_ARTIFACT_ID,
+                INVALID_ID
+            };
+            _ro_invalidList = _invalidList.AsReadOnly();
             _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _primaryUser = UserFactory.CreateUserAndAddToDatabase();
@@ -47,26 +50,22 @@ namespace CommonServiceTests.NavigationTests
             _project = ProjectFactory.GetProject(_primaryUser, shouldRetrievePropertyTypes: true);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession primaryUserSession = _adminStore.AddSession(_primaryUser.Username, _primaryUser.Password);
-            _primaryUser.SetToken(primaryUserSession.SessionId);
+            _adminStore.AddSession(_primaryUser);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.AccessControlToken), "The primary user didn't get an Access Control token!");
-
-            ISession secondaryUserSession = _adminStore.AddSession(_secondaryUser.Username, _secondaryUser.Password);
-            _secondaryUser.SetToken(secondaryUserSession.SessionId);
+            _adminStore.AddSession(_secondaryUser);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.AccessControlToken), "The secondary user didn't get an Access Control token!");
 
             // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
             _blueprintServer.LoginUsingBasicAuthorization(_primaryUser, string.Empty);
-            _blueprintServer.LoginUsingBasicAuthorization(_secondaryUser, string.Empty);
-
             Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.OpenApiToken), "The primary user didn't get an OpenApi token!");
+            _blueprintServer.LoginUsingBasicAuthorization(_secondaryUser, string.Empty);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.OpenApiToken), "The secondary user didn't get an OpenApi token!");
         }
 
         [SetUp]
         public void SetUp()
         {
-            _navigation = new Navigation(_blueprintServer.Address);
+            _artifacts = new List<IArtifact>();
         }
 
         [TestFixtureTearDown]
@@ -97,24 +96,24 @@ namespace CommonServiceTests.NavigationTests
         [TearDown]
         public void Teardown()
         {
-            if (_navigation.Artifacts != null)
+            if (_artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
                 var savedArtifactsListPrimaryUser = new List<IArtifactBase>();
                 var savedArtifactsListSecondaryUser = new List<IArtifactBase>();
-                foreach (var artifact in _navigation.Artifacts.ToArray())
+                foreach (var artifact in _artifacts.ToArray())
                 {
-                    if (!INVALID_LIST.Contains(artifact.Id) && artifact.IsPublished)
+                    if (!_ro_invalidList.Contains(artifact.Id) && artifact.IsPublished)
                     {
-                        _navigation.DeleteNavigationArtifact(artifact, deleteChildren: true);
+                        Artifact.DeleteArtifact(artifact, artifact.CreatedBy, deleteChildren: true);
                     }
 
-                    if (!INVALID_LIST.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    if (!_ro_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
                     {
                         savedArtifactsListPrimaryUser.Add(artifact);
                     }
 
-                    if (!INVALID_LIST.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    if (!_ro_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
                     {
                         savedArtifactsListSecondaryUser.Add(artifact);
                     }
@@ -133,7 +132,7 @@ namespace CommonServiceTests.NavigationTests
                 // Clear all possible List Items
                 savedArtifactsListPrimaryUser.Clear();
                 savedArtifactsListSecondaryUser.Clear();
-                _navigation.Artifacts.Clear();
+                _artifacts.Clear();
             }
         }
 
@@ -148,23 +147,23 @@ namespace CommonServiceTests.NavigationTests
         public void GetNavigationWithAllAccessibleArtifactTypes_VerifyReturnedNavigation()
         {
             //Create artifacts with distinct available artifactTypes 
-            var availableArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
+            var baseArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
 
-            foreach (var availableArtifactType in availableArtifactTypes)
+            foreach (var baseArtifactType in baseArtifactTypes)
             {
                 var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: availableArtifactType);
+                artifactType: baseArtifactType);
                 Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
 
                 //Add an artifact to artifact list for navigation call
-                _navigation.Artifacts.Add(artifact);
+                _artifacts.Add(artifact);
             }
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107168)]
@@ -184,17 +183,17 @@ namespace CommonServiceTests.NavigationTests
             {
                 var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
                 nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
-                _navigation.Artifacts.Add(nonExistingArtifact);
+                _artifacts.Add(nonExistingArtifact);
             }
 
             //Add the artifact at the end of artifact list for navigation call
-            _navigation.Artifacts.Add(artifact);
+            _artifacts.Add(artifact);
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            var resultArtifactReferenceList = artifact.GetNavigation(_primaryUser, _artifacts);
 
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107169)]
@@ -208,12 +207,12 @@ namespace CommonServiceTests.NavigationTests
             invalidArtifact.Id = INVALID_ID;
 
             //Add the artifact to artifact list for navigation call
-            _navigation.Artifacts.Add(invalidArtifact);
+            _artifacts.Add(invalidArtifact);
 
             //Get Navigation and check the Not Found exception
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+                invalidArtifact.GetNavigation(_primaryUser, _artifacts);
             }, "The GET /navigation endpoint should return 404 NotFound when we pass an invalid artifact ID in the url!");
         }
 
@@ -230,14 +229,14 @@ namespace CommonServiceTests.NavigationTests
                 var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process);
                 Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
-                _navigation.Artifacts.Add(artifact);
+                _artifacts.Add(artifact);
             }
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107171)]
@@ -261,7 +260,7 @@ namespace CommonServiceTests.NavigationTests
                 var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process);
                 Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
-                _navigation.Artifacts.Add(artifact);
+                _artifacts.Add(artifact);
             }
 
             //Inject nonexistent artifact(s) into artifact list used for navigation
@@ -269,14 +268,14 @@ namespace CommonServiceTests.NavigationTests
             {
                 var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
                 nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
-                _navigation.Artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
+                _artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
             }
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         [TestRail(107172)]
@@ -300,7 +299,7 @@ namespace CommonServiceTests.NavigationTests
                 var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
                 artifactType: BaseArtifactType.Process);
                 Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
-                _navigation.Artifacts.Add(artifact);
+                _artifacts.Add(artifact);
             }
 
             //Create and inject artifacts created by another user, which are inaccessible by the main user
@@ -308,14 +307,14 @@ namespace CommonServiceTests.NavigationTests
             {
                 var inaccessbileArtifact = ArtifactFactory.CreateArtifact(_project, _secondaryUser, BaseArtifactType.Actor);
                 Artifact.SaveArtifact(artifactToSave: inaccessbileArtifact, user: _secondaryUser);
-                _navigation.Artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
+                _artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
             //Get Navigation
-            var resultArtifactReferenceList = _navigation.GetNavigation(_primaryUser, _navigation.Artifacts);
+            var resultArtifactReferenceList = _artifacts.First().GetNavigation(_primaryUser, _artifacts);
 
             //Navigation Assertions
-            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _navigation);
+            CommonServiceHelper.VerifyNavigation(_project, _primaryUser, resultArtifactReferenceList, _artifacts);
         }
 
         #endregion Tests

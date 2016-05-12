@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />
@@ -83,8 +84,6 @@
     <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
     <Compile Include="ArtifactModel\Impl\Trace.cs" />
     <Compile Include="ArtifactModel\IProperty.cs" />
-    <Compile Include="NavigationModel\Impl\Navigation.cs" />
-    <Compile Include="NavigationModel\INavigation.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />
@@ -111,7 +110,6 @@
     <Compile Include="ArtifactModel\IActor.cs" />
     <Compile Include="IAgilePack.cs" />
     <Compile Include="ArtifactModel\IAuthorHistory.cs" />
-    <Compile Include="ArtifactModel\IArtifactReference.cs" />
     <Compile Include="ArtifactModel\IBaseline.cs" />
     <Compile Include="ArtifactModel\IBaselineAndReviewFolder.cs" />
     <Compile Include="ArtifactModel\IBaselinesAndReviews.cs" />

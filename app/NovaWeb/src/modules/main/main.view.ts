@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../core/localization";
-import * as pSvc from "../services/project.svc";
+import * as pSvc from "./services/project.svc";
 import * as Grid from "ag-grid/main";
 
 

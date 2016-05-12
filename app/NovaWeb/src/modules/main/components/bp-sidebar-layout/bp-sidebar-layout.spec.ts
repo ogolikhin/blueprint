@@ -1,4 +1,4 @@
-﻿import "../../main.module";
+﻿import "../../";
 import "angular";
 import "angular-mocks";
 import "angular-sanitize";

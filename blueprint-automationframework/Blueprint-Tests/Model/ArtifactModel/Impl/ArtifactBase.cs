@@ -95,7 +95,7 @@ namespace Model.ArtifactModel.Impl
         /// Get ArtifactReference list which is used to represent breadcrumb navigation
         /// </summary>
         /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="user">The user credentials for breadcrumb navigation</param>
         /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The List of ArtifactReferences after the get navigation call</returns>
@@ -115,9 +115,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            string path = URL_NAVIGATION;
-
-            path = I18NHelper.FormatInvariant("{0}/{1}", path, string.Join("/", artifactIds));
+            path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, string.Join("/", artifactIds));
 
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 

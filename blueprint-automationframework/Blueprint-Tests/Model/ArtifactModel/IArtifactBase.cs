@@ -104,7 +104,7 @@ namespace Model.ArtifactModel
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation
         /// </summary>
-        /// <param name="user">The user credentials for the request to publish a process</param>
+        /// <param name="user">The user credentials for breadcrumb navigation</param>
         /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The List of ArtifactReferences after the get navigation call</returns>

@@ -1,4 +1,3 @@
-//import Promise = protractor.promise.Promise;
 var OR = require('../../Json/OR.json');
 var LoginPage = (function () {
     function LoginPage() {
@@ -20,13 +19,25 @@ var LoginPage = (function () {
     };
     LoginPage.sessionDialofBox = function () {
         // expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
-        if ((LoginPage.sessionDialogBox.isPresent())) {
-            LoginPage.sessionDialogBoxYesButton.click();
-        }
+        LoginPage.sessionDialogBox.isPresent()
+            .then(function (p) {
+            if (p === true) {
+                LoginPage.sessionDialogBoxYesButton.click();
+            }
+        });
     };
-    LoginPage.loginField = element(By.id('loginField'));
-    LoginPage.passwordField = element(By.id('passwordField'));
-    LoginPage.loginButton = element(By.id('loginButton'));
+    // return promise
+    LoginPage.prototype.sessionDialofBox1 = function () {
+        return LoginPage.sessionDialogBox.isPresent().then(function (p) {
+            if (p === true)
+                return true;
+            else
+                return false;
+        });
+    };
+    LoginPage.loginField = browser.element(By.id('loginField'));
+    LoginPage.passwordField = browser.element(By.id('passwordField'));
+    LoginPage.loginButton = browser.element(By.id('loginButton'));
     LoginPage.sessionDialogBox = element(By.css('.new-line.ng-binding'));
     // private static sessionDialogBoxYesButton = element(By.css('.btn.action-.btn.ng-binding'));
     LoginPage.sessionDialogBoxYesButton = element(By.buttonText('Yes'));

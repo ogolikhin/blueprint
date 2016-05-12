@@ -1,12 +1,12 @@
 ﻿
-//import Promise = protractor.promise.Promise;
+import Promise = protractor.promise.Promise;
 
 var OR = require('../../Json/OR.json');
 class LoginPage {
 
-    private static loginField = element(By.id('loginField'));
-    private static passwordField = element(By.id('passwordField'));
-    private static loginButton = element(By.id('loginButton'));
+    private static loginField = browser.element(By.id('loginField'));
+    private static passwordField = browser.element(By.id('passwordField'));
+    private static loginButton = browser.element(By.id('loginButton'));
     private static sessionDialogBox = element(By.css('.new-line.ng-binding'));
    // private static sessionDialogBoxYesButton = element(By.css('.btn.action-.btn.ng-binding'));
     private static sessionDialogBoxYesButton = element(By.buttonText('Yes'));
@@ -32,11 +32,30 @@ class LoginPage {
         LoginPage.passwordField.sendKeys(password);
         LoginPage.loginButton.click();
     }
-    public static sessionDialofBox() {
+    
+    public static  sessionDialofBox() {
        // expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
-        if ((LoginPage.sessionDialogBox.isPresent())) {
-            LoginPage.sessionDialogBoxYesButton.click();
-        }
+        LoginPage.sessionDialogBox.isPresent()
+            .then((p) => {
+                if (p === true) {
+                    LoginPage.sessionDialogBoxYesButton.click();
+                }
+
+            });
     }
+
+    // return promise
+
+    public  sessionDialofBox1(): Promise<boolean> {
+
+        return LoginPage.sessionDialogBox.isPresent().then((p) => {
+            if (p === true)
+                return true;
+            else
+                return false;
+
+        });
+    }
+
 }
 export = LoginPage;

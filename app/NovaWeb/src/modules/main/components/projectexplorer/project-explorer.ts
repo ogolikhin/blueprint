@@ -1,36 +1,41 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import * as pSvc from "../../../services/project.svc";
+import {IProjectNotification} from "../../services/project-notification";
+import * as pSvc from "../../services/project.svc";
 import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
     public require: any = {
-        parent: "^bpMainView"
+        mainView: "^bpMainView"
     };
     public transclude: boolean = true;
 }
 
 class ProjectExplorerController {
-    public parent: IMainViewController;
+    public mainView: IMainViewController;
 
     private selectedItem: any;
     //private clickTimeout: any;
 
-    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout"];
+    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout", "projectNotification"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         private service: pSvc.IProjectService,
         private $element,
         private $log: ng.ILogService,
-        private $timeout: ng.ITimeoutService) {
+        private $timeout: ng.ITimeoutService,
+        private notification: IProjectNotification) {
     }
 
-    //private showError = (error: any) => {
-    //    alert(error.message); //.then(() => { this.cancel(); });
-    //};
+
+    public $onInit = () => {
+        this.notification.subscribeToOpenProject(function (evt, selected) {
+            alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
+        })
+    }
 
     public stripHTMLTags = (stringToSanitize: string): string => {
         var stringSanitizer = window.document.createElement("DIV");
@@ -66,18 +71,18 @@ class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    public doLoad = (prms: any): ng.IPromise<any[]> => {
+    public loadFolders = (prms: any): ng.IPromise<any[]> => {
         //check passed in parameter
         return this.service.getFolders();
     };
 
-    public doExpand = (prms: any): ng.IPromise<any[]> => {
+    public expandFolder = (prms: any): ng.IPromise<any[]> => {
         //check passesd in parameter
         var id = (prms && prms.Id) ? prms.Id : null;
         return this.service.getFolders(id);
     };
 
-    public doSelect = (item: any) => {
+    public selectProject = (item: any) => {
         //check passed in parameter
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;

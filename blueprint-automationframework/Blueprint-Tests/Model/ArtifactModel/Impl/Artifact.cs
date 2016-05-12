@@ -335,7 +335,7 @@ namespace Model.ArtifactModel.Impl
                 artifactsIds,
                 expectedStatusCodes: expectedStatusCodes);
 
-            var discardedResultList = artifactResults.discardResults;
+            var discardedResultList = artifactResults.DiscardResults;
 
             // When each artifact is successfully discarded, set IsSaved flag to false
             foreach (var discardedResult in discardedResultList)

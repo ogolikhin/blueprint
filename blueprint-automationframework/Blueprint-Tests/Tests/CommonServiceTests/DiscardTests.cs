@@ -28,7 +28,7 @@ namespace CommonServiceTests
             _project = ProjectFactory.GetProject(_user);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
+            ISession session = _adminStore.AddSession(_user);
             _user.SetToken(session.SessionId);
 
             Assert.IsFalse(

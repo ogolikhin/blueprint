@@ -74,15 +74,15 @@ namespace CommonServiceTests
 
             List<DiscardArtifactResult> discardResultList = null;
             try {
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
                 Assert.DoesNotThrow(() =>
                 {
-                    string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
                     discardResultList = artifact.NovaDiscard(_user);
-                    Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                }, "Discard must not throw errors.");
+                Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                         expectedMessage, discardResultList[0].Message);
-                    Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
-                        (HttpStatusCode)0, discardResultList[0].ResultCode);
-                }, "Must return no errors.");
+                Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                    (HttpStatusCode)0, discardResultList[0].ResultCode);
             }
 
             finally
@@ -102,15 +102,15 @@ namespace CommonServiceTests
             artifact.Save(_user);
 
             List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
             Assert.DoesNotThrow(() =>
                 {
                     discardResultList = artifact.NovaDiscard(_user);
-                    string expectedMessage = "Successfully discarded";
-                    Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                }, "Discard must throw no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                         expectedMessage, discardResultList[0].Message);
-                    Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
-                        (HttpStatusCode)0, discardResultList[0].ResultCode);
-                }, "Must return no errors.");
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
             /// TODO: delete artifact created during the test.
         }
 
@@ -127,15 +127,40 @@ namespace CommonServiceTests
             artifact.Delete(_user);
 
             List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
             Assert.DoesNotThrow(() =>
             {
                 discardResultList = artifact.NovaDiscard(_user);
-                string expectedMessage = "Successfully discarded";
-                Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
-                    expectedMessage, discardResultList[0].Message);
-                Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
-                    (HttpStatusCode)0, discardResultList[0].ResultCode);
-            }, "Must return no errors.");
+            }, "Discard must throw no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
+        }
+
+        [TestCase]
+        [TestRail(107379)]
+        [Explicit(IgnoreReasons.ProductBug)]
+        [Description("Create process artifact, save, publish, delete, publish, discard - must return successfully discarded.")]
+        public void DiscardDeletedArtifact_VerifyResult()
+        {
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
+
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            artifact.Delete(_user);
+            artifact.Publish(_user);
+
+            List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
+            Assert.DoesNotThrow(() =>
+            {
+                discardResultList = artifact.NovaDiscard(_user);
+            }, "Discard must throw no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
         }
     }
 }

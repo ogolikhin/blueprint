@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactVersionTests\ArtifactVersionTests.cs" />
+    <Compile Include="DiscardTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,3 +1,9 @@
+$property-min-height: 28px;
+$property-width: 392px;
+$property-horiz-spacing: 10px;
+$property-label-width: 100px;
+$property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
+
 .properties {
   border: solid 1px $gray-lighter;
 
@@ -60,20 +66,31 @@
     margin: 0 10px;
     overflow: auto;
     padding: 0 0 10px;
+
+    // create "padding" to align un-even numbers of property groups
+    &::after,
+    &::before {
+      content: '';
+      display: flex;
+      //flex: 392px;
+      flex-grow: 0;
+      flex-shrink: 1;
+      order: 0;
+      width: 392px;
+  }
+
+    &::before {
+      order: 1;
+}
   }
 }
-
-$property-min-height: 28px;
-$property-width: 392px;
-$property-horiz-spacing: 10px;
-$property-label-width: 100px;
-$property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
 
 .property-group {
   align-items: flex-start;
   border-left: solid $property-horiz-spacing transparent;
   border-right: solid $property-horiz-spacing transparent;
   display: flex;
+  //flex: $property-width;
   flex-basis: auto;
   flex-grow: 0;
   flex-shrink: 1;
@@ -81,8 +98,10 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
   font-size: 0; // to eliminate empty space. Must redefine font-size in children!
   //margin: 1px 0 0;
   margin: 0 0 12px;
-  max-width: $property-width;
+  //max-width: $property-width;
   min-height: $property-min-height;
+  order: 0;
+  width: $property-width;
 
   label {
     color: $gray-dark;

@@ -1,5 +1,5 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {ServerLoggerSvc} from "./server-logger.svc";
 
 describe("ServerLoggerSvc", () => {
@@ -18,7 +18,7 @@ describe("ServerLoggerSvc", () => {
                 .respond(200);
 
             // Act
-            serverLogger.log(inError, level).then(() => { success = true; }, () => { success = false;});
+            serverLogger.log(inError, level).then(() => { success = true; }, () => { success = false; });
             $httpBackend.flush();
 
             // Assert
@@ -40,6 +40,6 @@ describe("ServerLoggerSvc", () => {
 
             // Assert
             expect(success).toBe(false);
-        }))
+        }));
     });
 });

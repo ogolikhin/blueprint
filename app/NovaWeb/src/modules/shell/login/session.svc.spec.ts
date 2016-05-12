@@ -1,10 +1,13 @@
 ﻿import "angular";
-import "angular-mocks"
-import {ISession, SessionSvc} from "./session.svc";
-import {ILoginInfo, LoginCtrl} from "./login.ctrl";
-import {IAuth} from "./auth.svc";
-import {LocalizationServiceMock, ConfigValueHelperMock, WindowMock, AuthSvcMock, ModalServiceMock, ModalServiceInstanceMock} from "./mocks.spec";
-import {DialogService} from "../../services/dialog.svc";
+import "angular-mocks";
+import { ISession,
+        SessionSvc } from "./session.svc";
+import { ILoginInfo } from "./login.ctrl";
+import { IAuth} from "./auth.svc";
+import { LocalizationServiceMock,
+        AuthSvcMock,
+        ModalServiceMock } from "./mocks.spec";
+import { DialogService} from "../../services/dialog.svc";
 
 describe("SessionSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -21,16 +24,17 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.ensureAuthenticated().then(() => {}, (err) => error = err);
+            session.ensureAuthenticated().then(() => {}, (err) => error = err);
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
             expect(session.currentUser.Login).toBe("admin", "current user is not admin");
-        }))
+        }));
 
-        it("return current user after logging in with session override", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return current user after logging in with session override",
+            inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             spyOn(auth, "getCurrentUser").and.callFake(function () {
                 var deferred = $q.defer();
@@ -40,21 +44,22 @@ describe("SessionSvc", () => {
             var loginInfo: ILoginInfo = new ILoginInfo();
             loginInfo.userName = "admin";
             loginInfo.password = "changeme";
-            
+
             // Act
             var error: any;
-            var result = session.ensureAuthenticated().then(() => { }, (err) => error = err);
+            session.ensureAuthenticated().then(() => { }, (err) => error = err);
             (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
-            
+
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
             expect(session.currentUser.Login).toBe("admin", "current user is not admin");
-        }))
+        }));
 
-        it("return current user after logging in without session override", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return current user after logging in without session override",
+            inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             spyOn(auth, "getCurrentUser").and.callFake(function () {
                 var deferred = $q.defer();
@@ -66,14 +71,14 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.ensureAuthenticated().then(() => { }, (err) => error = err);
+            session.ensureAuthenticated().then(() => { }, (err) => error = err);
             (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
-            
+
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
-        }))
+        }));
     });
 
     describe("loginWithSaml", () => {
@@ -82,16 +87,17 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.loginWithSaml(true).then(() => { }, (err) => error = err);
+            session.loginWithSaml(true).then(() => { }, (err) => error = err);
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
             expect(session.currentUser).toBeDefined();
             expect(session.currentUser.Login).toBe("admin", "current user is not admin");
-        }))
+        }));
 
-        it("return current user after logging in without session override", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return current user after logging in without session override",
+            inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             spyOn(auth, "getCurrentUser").and.callFake(function () {
                 var deferred = $q.defer();
@@ -104,16 +110,17 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.ensureAuthenticated().then(() => { }, (err) => error = err);
+            session.ensureAuthenticated().then(() => { }, (err) => error = err);
             (<ModalServiceMock>$uibModal).instanceMock.close(loginInfo); //simulate user input in login dialog
-            
+
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
-        }))
+        }));
 
-        it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return error",
+            inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             var errorMsg = "login error";
             spyOn(auth, "loginWithSaml").and.callFake(function () {
@@ -124,18 +131,19 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.loginWithSaml(true).then(() => { }, (err) => error = err);
+            session.loginWithSaml(true).then(() => { }, (err) => error = err);
 
             $rootScope.$digest();
 
             // Assert
             expect(error).toBeDefined();
             expect(error.message).toBe(errorMsg);
-        }))
+        }));
     });
 
     describe("login", () => {
-        it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
+        it("return error",
+            inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService, $uibModal: ng.ui.bootstrap.IModalService) => {
             // Arrange
             var errorMsg = "login error";
             var userName = "admin";
@@ -148,14 +156,14 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.login(userName, password, true).then(() => { }, (err) => error = err);
-            
+            session.login(userName, password, true).then(() => { }, (err) => error = err);
+
             $rootScope.$digest();
 
             // Assert
             expect(error).toBeDefined();
             expect(error.message).toBe(errorMsg);
-        }))
+        }));
     });
 
     describe("logout", () => {
@@ -164,7 +172,7 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.logout().then(() => { }, (err) => { error = err; });
+            session.logout().then(() => { }, (err) => { error = err; });
             $rootScope.$digest();
 
             // Assert
@@ -181,12 +189,12 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
             $rootScope.$digest();
 
             // Assert
             expect(error).toBe(undefined, "error is set");
-        }))
+        }));
 
         it("return error", inject(($rootScope: ng.IRootScopeService, session: ISession, auth: IAuth, $q: ng.IQService) => {
             // Arrange
@@ -201,11 +209,11 @@ describe("SessionSvc", () => {
 
             // Act
             var error: any;
-            var result = session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            session.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
             $rootScope.$digest();
 
             // Assert
             expect(error).toBeDefined();
-        }))
+        }));
     });
 });

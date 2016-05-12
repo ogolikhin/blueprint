@@ -47,6 +47,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{c7cdf470-b661-414d-b6c8-6c0e7e341d9a}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">
       <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
       <Name>CustomAttributes</Name>
@@ -58,6 +62,10 @@
     <ProjectReference Include="..\..\Model\Model.csproj">
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
       <Name>Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TestConfiguration\TestConfig.csproj">
+      <Project>{28ab2f4a-233b-4b44-914f-c0f0fa5a30b8}</Project>
+      <Name>TestConfig</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>

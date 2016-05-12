@@ -5,8 +5,8 @@ import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
 import {ISession, SessionSvc} from "./login/session.svc";
-import {ServerLoggerSvc} from "./server-logger.svc";
-import {Logger} from "./logger.ts";
+import {ServerLoggerSvc} from "./log/server-logger.svc";
+import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 
 angular.module("app.shell",
@@ -43,3 +43,5 @@ export class AuthenticationRequired {
         ];
     }
 }
+
+export { IServerLogger } from "./log/server-logger.svc";

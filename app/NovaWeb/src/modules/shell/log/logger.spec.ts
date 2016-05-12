@@ -1,7 +1,7 @@
 ﻿import "angular";
-import "angular-mocks"
-import {IServerLogger} from "./server-logger.svc";
-import {Logger} from "./logger";
+import "angular-mocks";
+import { IServerLogger } from "./server-logger.svc";
+import { Logger } from "./logger";
 
 //global buffer to check logger output
 var msg: string;
@@ -34,7 +34,9 @@ export class LogMock {
 describe("Logger", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("$log", LogMock);
+        /* tslint:disable - we are calling this to initialize decorators */
         new Logger($provide);
+        /* tslint:enable */
         $provide.service("serverLogger", ServerLoggerMock);
     }));
 
@@ -59,6 +61,6 @@ describe("Logger", () => {
 
             // Assert
             expect(msg).toBe("test", "message not set correctly");
-        }))
+        }));
     });
 });

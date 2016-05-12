@@ -16,7 +16,7 @@ describe("EditingNavigatingModalStoryteller",
             // svgElementsPage.editHeader(0, "user1");
              browser.driver.sleep(5000);
          });
-/*
+
         it('Verify user can publish the artifact', () => {
             browser.driver.sleep(5000);
             browser.element(By.css('.fonticon-upload-cloud')).click();
@@ -96,6 +96,6 @@ describe("EditingNavigatingModalStoryteller",
             browser.driver.sleep(5000);
         });
 
-*/
+
     })
     

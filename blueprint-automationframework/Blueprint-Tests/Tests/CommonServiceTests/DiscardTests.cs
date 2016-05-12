@@ -102,8 +102,7 @@ namespace CommonServiceTests
             artifact.Save(_user);
 
             List<DiscardArtifactResult> discardResultList = null;
-            try {
-                Assert.DoesNotThrow(() =>
+            Assert.DoesNotThrow(() =>
                 {
                     discardResultList = artifact.NovaDiscard(_user);
                     string expectedMessage = "Successfully discarded";
@@ -112,12 +111,7 @@ namespace CommonServiceTests
                     Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
                         (HttpStatusCode)0, discardResultList[0].ResultCode);
                 }, "Must return no errors.");
-            }
-
-            finally
-            {
-                artifact.Discard(_user);
-            }
+            /// TODO: delete artifact created during the test.
         }
 
         [TestCase]

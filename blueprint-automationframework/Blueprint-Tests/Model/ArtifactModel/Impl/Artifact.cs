@@ -228,7 +228,7 @@ namespace Model.ArtifactModel.Impl
             return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        public IArtifactInfo GetArtifactInfo(IUser user = null,
+        public ArtifactInfo GetArtifactInfo(IUser user = null,
            List<HttpStatusCode> expectedStatusCodes = null,
            bool sendAuthorizationAsCookie = false)
         {
@@ -335,7 +335,7 @@ namespace Model.ArtifactModel.Impl
                 artifactsIds,
                 expectedStatusCodes: expectedStatusCodes);
 
-            var discardedResultList = artifactResults.discardResults;// .FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+            var discardedResultList = artifactResults.discardResults;
 
             // When each artifact is successfully discarded, set IsSaved flag to false
             foreach (var discardedResult in discardedResultList)
@@ -350,7 +350,6 @@ namespace Model.ArtifactModel.Impl
                 artifactsToDiscard.Count, discardedResultList.Count);
 
             return discardedResultList;
-            //return artifactResults.ConvertAll(o => (DiscardArtifactResult)o);
         }
         
         /// <summary>

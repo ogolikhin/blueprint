@@ -53,7 +53,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArtifactModel\IArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />

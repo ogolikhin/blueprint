@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class ArtifactInfo : IArtifactInfo
+    public class ArtifactInfo
     {
         [JsonProperty("id")]
         public int Id { get; set; }

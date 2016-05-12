@@ -1,6 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import * as pSvc from "../../../services/project.svc";
+import {IProjectNotification} from "../../services/project-notification";
+import * as pSvc from "../../services/project.svc";
 import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -18,19 +19,23 @@ class ProjectExplorerController {
     private selectedItem: any;
     //private clickTimeout: any;
 
-    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout"];
+    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout", "projectNotification"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         private service: pSvc.IProjectService,
         private $element,
         private $log: ng.ILogService,
-        private $timeout: ng.ITimeoutService) {
+        private $timeout: ng.ITimeoutService,
+        private notification: IProjectNotification) {
     }
 
-    //private showError = (error: any) => {
-    //    alert(error.message); //.then(() => { this.cancel(); });
-    //};
+
+    public $onInit = () => {
+        this.notification.subscribeToOpenProject(function (evt, selected) {
+            alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
+        })
+    }
 
     public stripHTMLTags = (stringToSanitize: string): string => {
         var stringSanitizer = window.document.createElement("DIV");

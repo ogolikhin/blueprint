@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as pSvc from "../../../services/project.svc";
+import * as pSvc from "../../services/project.svc";
 
 export interface IOpenProjectResult {
     id: number;

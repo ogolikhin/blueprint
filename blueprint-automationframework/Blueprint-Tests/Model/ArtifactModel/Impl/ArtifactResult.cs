@@ -41,7 +41,7 @@ namespace Model.ArtifactModel.Impl
     public class NovaDiscardArtifactResult
     {
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<DiscardArtifactResult> discardResults { get; set; }
+        public List<DiscardArtifactResult> DiscardResults { get; set; }
     }
 
     public class DeleteArtifactResult

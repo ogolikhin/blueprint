@@ -13,6 +13,8 @@ namespace Helper
     {
         private const string NAVIGATION_BASE_URL = "/Web/#/Storyteller/";
         private const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
+        // TODO This will need to be updated with the value that cannot does not exist in the system 
+        //Non-existence artifact Id sample
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
 
         /// <summary>

@@ -18,7 +18,8 @@
     "angular-ui-bootstrap": "^1.2.4",
     "angular-ui-router": "^0.2.18",
     "bootstrap": "^3.3.6",
-    "bowser": "^1.0.0"
+    "bowser": "^1.0.0",
+    "ng-draggable": "^1.0.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.5.2",

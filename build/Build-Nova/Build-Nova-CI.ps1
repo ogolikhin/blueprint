@@ -11,10 +11,11 @@
 
 
 param(
-    [Parameter(Mandatory=$false)][string] $workspace = (Get-Item $PSScriptRoot).Parent.Parent.FullName,
-    [Parameter(Mandatory=$false)][string] $blueprintVersion = "7.1.0.0",
-    [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
-    [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
+    [Parameter(Mandatory=$true)][string] $workspace,
+    [Parameter(Mandatory=$true)][string] $blueprintVersion,
+    [string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
+    [bool] $removeFiles = $true,
+    [bool] $buildNovaWeb = $false, #Currently not part of release; remove parameter once it is
 
     #Unused, for splatting the same hashtable into multiple methods without error.
     [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -36,8 +37,10 @@ $buildParams = @{
     visualStudioVersion = "14.0"
 }
 
-#Setup-Environment @buildParams -removeFiles $removeFiles
-#Build-Nova-Services @buildParams
-#Run-Nova-Unit-Tests @buildParams
+Setup-Environment @buildParams -removeFiles $removeFiles
+Build-Nova-Services @buildParams
+Run-Nova-Unit-Tests @buildParams
 
-Build-Nova-Html @buildParams
+if($buildNovaWeb){
+    Build-Nova-Html @buildParams
+}

@@ -3,7 +3,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 
-namespace CommonServiceTests.ArtifactVersionTests
+namespace CommonServiceTests
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
     [TestFixture]

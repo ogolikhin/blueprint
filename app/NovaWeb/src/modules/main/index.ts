@@ -4,6 +4,7 @@ import "angular-ui-router";
 import "angular-ui-bootstrap";
 import * as agGrid from "ag-grid/main";
 import "ag-grid-enterprise/main";
+import "ng-draggable";
 import "../shell";
 import {ProjectService} from "./services/project.svc";
 import {ProjectNotification} from "./services/project-notification";
@@ -29,7 +30,7 @@ export function config($rootScope: ng.IRootScopeService) {
     $rootScope["year"] = BUILD_YEAR;
 }
 agGrid.initialiseAgGridWithAngular1(angular);
-angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid"])
+angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable"])
     .run(config)
     .service("projectService", ProjectService)
     .service("projectNotification", ProjectNotification)

@@ -75,19 +75,19 @@ function Build-Nova-Html{
     {
        pushd "$workspace\app\NovaWeb"
    
-       .\devsetup.bat
-       npm install -g
+       Invoke-MyExpression ".\devsetup.bat" ""
+       Invoke-MyExpression "npm" "install -g"
 
        # Increment build version number
        $version = $blueprintVersion.split(".")
        $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
-       npm version $semver
+       Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
 
        # Build Nova Application
-       npm run build
+       Invoke-MyExpression "npm" "run build"
 
        # Test Nova Application
-       npm run test
+       Invoke-MyExpression "npm" "run test"
     }
     finally
     {

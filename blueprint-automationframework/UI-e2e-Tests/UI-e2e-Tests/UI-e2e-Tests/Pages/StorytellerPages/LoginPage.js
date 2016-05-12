@@ -19,8 +19,8 @@ var LoginPage = (function () {
         LoginPage.loginButton.click();
     };
     LoginPage.sessionDialofBox = function () {
-        expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
-        if (LoginPage.sessionDialogBox.isPresent()) {
+        // expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
+        if ((LoginPage.sessionDialogBox.isPresent())) {
             LoginPage.sessionDialogBoxYesButton.click();
         }
     };

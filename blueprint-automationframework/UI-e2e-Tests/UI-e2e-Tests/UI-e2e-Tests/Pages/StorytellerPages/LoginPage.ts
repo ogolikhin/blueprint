@@ -33,8 +33,8 @@ class LoginPage {
         LoginPage.loginButton.click();
     }
     public static sessionDialofBox() {
-        expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
-        if (LoginPage.sessionDialogBox.isPresent()) {
+       // expect(LoginPage.sessionDialogBox.isPresent()).toBeFalsy();
+        if ((LoginPage.sessionDialogBox.isPresent())) {
             LoginPage.sessionDialogBoxYesButton.click();
         }
     }

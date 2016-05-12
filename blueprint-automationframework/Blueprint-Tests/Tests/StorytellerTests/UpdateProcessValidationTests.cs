@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using Utilities;
 
 namespace StorytellerTests
@@ -25,6 +23,7 @@ namespace StorytellerTests
         private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _user;
+        private IUser _user2;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -36,11 +35,11 @@ namespace StorytellerTests
             _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
             _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
             _user = UserFactory.CreateUserAndAddToDatabase();
+            _user2 = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_user);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
+            _adminStore.AddSession(_user);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
@@ -48,6 +47,16 @@ namespace StorytellerTests
             _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
+
+            // Get a valid Access Control token for the second user (for the new Storyteller REST calls).
+            _adminStore.AddSession(_user2);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user2.Token.AccessControlToken), "The second user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the second user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_user2, string.Empty);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_user2.Token.OpenApiToken), "The second user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
@@ -87,6 +96,12 @@ namespace StorytellerTests
             {
                 _user.DeleteUser();
                 _user = null;
+            }
+
+            if (_user2 != null)
+            {
+                _user2.DeleteUser();
+                _user2 = null;
             }
         }
 
@@ -232,6 +247,86 @@ namespace StorytellerTests
             AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
         }
 
+        [TestCase]
+        [TestRail(107369)]
+        [Description("Update a process without having a lock on the artifact (Another user has the lock). Verify that" +
+             "the update process does not succeed.")]
+        public void UpdateProcessWithoutArtifactLock_VerifyUpdateDoesNotSucceed()
+        {
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+
+            // Create an artifact representing the process artifact that was created and add it to the 
+            // list of artifacts to lock
+            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(_blueprintServer.Address, process.Id, process.ProjectId) };
+
+            // Second user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2);
+
+            var ex = Assert.Throws<Http409ConflictException>(
+                () =>
+                    // First user attempts to update the process
+                    _storyteller.UpdateProcess(_user, process)
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                    ProcessValidationResponse.ArtifactAlreadyLocked,
+                    process.Id,
+                    process.Name,
+                    _user2.Username);
+
+            // Assert that the deserialized response indicates that the artifact is locked
+            // by the second user
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+
+            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
+            // the artifact can be deleted by the second user
+            _storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
+        }
+
+        [TestCase]
+        [TestRail(107370)]
+        [Description("Publish a process without having a lock on the artifact (Another user has the lock). Verify that" +
+                     "the publish process does not succeed.")]
+        public void PublishProcessWithoutArtifactLock_VerifyPublishDoesNotSucceed()
+        {
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+
+            // Create an artifact representing the process artifact that was created and add it to the 
+            // list of artifacts to lock
+            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(_blueprintServer.Address, process.Id, process.ProjectId) };
+
+            // Second user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2);
+
+            var ex = Assert.Throws<Http409ConflictException>(
+                () =>
+                    // First user attempts to publish the process
+                    _storyteller.PublishProcess(_user, process)
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                    ProcessValidationResponse.ArtifactAlreadyLocked,
+                    process.Id,
+                    process.Name,
+                    _user2.Username);
+
+            // Assert that the deserialized response indicates that the artifact is locked
+            // by the second user
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+
+            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
+            // the artifact can be deleted by the second user
+            _storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
+        }
+
         #endregion Tests
 
         #region Private Methods
@@ -262,6 +357,8 @@ namespace StorytellerTests
         public static readonly string NameRequired = "Name is required for Process";
 
         public static readonly string OrphanedShapes = "Orphaned shapes discovered";
+
+        public static readonly string ArtifactAlreadyLocked = "Artifact \"{0}: {1}\" is locked by user \"{2}\"";
 
         // The message returned in the update process validation response
         public string Message { get; set; }

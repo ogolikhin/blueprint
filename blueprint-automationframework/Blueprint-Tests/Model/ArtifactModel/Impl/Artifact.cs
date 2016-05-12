@@ -26,34 +26,6 @@ namespace Model.ArtifactModel.Impl
 
     public class Artifact : ArtifactBase, IArtifact
     {
-        #region Constants
-
-        #endregion Constants
-
-        #region Properties
-
-        //TODO  Check if we can remove the setters and get rid of these warnings
-
-        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Property>>))]
-        public List<Property> Properties { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Comment>>))]
-        public List<Comment> Comments { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Trace>>))]
-        public List<Trace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Attachment>>))]
-        public List<Attachment> Attachments { get; set; }
-
-        #endregion Properties
-
         #region Constructors
 
         /// <summary>
@@ -62,10 +34,10 @@ namespace Model.ArtifactModel.Impl
         public Artifact()
         {
             //Required for deserializing OpenApiArtifact
-            Properties = new List<Property>();
-            Comments = new List<Comment>();
-            Traces = new List<Trace>();
-            Attachments = new List<Attachment>();
+            Properties = new List<OpenApiProperty>();
+            Comments = new List<OpenApiComment>();
+            Traces = new List<OpenApiTrace>();
+            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>

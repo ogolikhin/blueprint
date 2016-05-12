@@ -24,26 +24,6 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Constants
 
-        #region Properties
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
-        public List<OpenApiProperty> Properties { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiComment>>))]
-        public List<OpenApiComment> Comments { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
-        public List<OpenApiTrace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
-        public List<OpenApiAttachment> Attachments { get; set; }
-        
-        #endregion Properties
-
         #region Constructors
         
         /// <summary>
@@ -205,6 +185,9 @@ namespace Model.ArtifactModel.Impl
             var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
                 path, restRequestMethod, artifactToSave as ArtifactBase, expectedStatusCodes: expectedStatusCodes);
 
+            
+            artifactToSave.ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact);
+
             if (artifactResult.ResultCode == HttpStatusCode.Created || artifactResult.ResultCode == HttpStatusCode.OK)
             {
                 artifactToSave.IsSaved = true;
@@ -212,8 +195,6 @@ namespace Model.ArtifactModel.Impl
 
             Logger.WriteDebug("{0} {1} returned followings: Message: {2}, ResultCode: {3}", restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
             Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            artifactToSave.Id = artifactResult.Artifact.Id;
 
             Assert.That(artifactResult.Message == "Success", "The returned Message was '{0}' but 'Success' was expected", artifactResult.Message);
 
@@ -335,15 +316,16 @@ namespace Model.ArtifactModel.Impl
             }
 
             // 
-            var artifactObjectList = (
-                from IArtifactBase artifact in artifactsToPublish
-                select new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+            //var artifactObjectList = (
+            //    from IArtifactBase artifact in artifactsToPublish
+            //    select new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
+
 
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<ArtifactBase>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 URL_PUBLISH, 
-                RestRequestMethod.POST, 
-                artifactObjectList, 
+                RestRequestMethod.POST,
+                artifactsToPublish, 
                 additionalHeaders: additionalHeaders, 
                 expectedStatusCodes: expectedStatusCodes);
 
@@ -352,15 +334,16 @@ namespace Model.ArtifactModel.Impl
             // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
             foreach (var publishedResult in publishedResultList)
             {
-                var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                var publishedArtifact = artifactsToPublish.Find(a => a.Id.Equals(publishedResult.ArtifactId));
                 publishedArtifact.IsSaved = false;
                 publishedArtifact.IsPublished = true;
+                publishedArtifact.Version++;
                 Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
             }
 
-            Assert.That(publishedResultList.Count.Equals(artifactObjectList.Count),
+            Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
                 "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
-                artifactObjectList.Count, publishedResultList.Count);
+                artifactsToPublish.Count, publishedResultList.Count);
 
             return artifactResults;
         }

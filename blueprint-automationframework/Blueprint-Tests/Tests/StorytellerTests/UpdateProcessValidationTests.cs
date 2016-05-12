@@ -264,8 +264,7 @@ namespace StorytellerTests
             // Second user locks the artifact
             Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2);
 
-            var ex = Assert.Throws<Http409ConflictException>(
-                () =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
                     // First user attempts to update the process
                     _storyteller.UpdateProcess(_user, process)
                 );
@@ -304,10 +303,9 @@ namespace StorytellerTests
             // Second user locks the artifact
             Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2);
 
-            var ex = Assert.Throws<Http409ConflictException>(
-                () =>
-                    // First user attempts to publish the process
-                    _storyteller.PublishProcess(_user, process)
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                  // First user attempts to publish the process
+                  _storyteller.PublishProcess(_user, process)
                 );
 
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);

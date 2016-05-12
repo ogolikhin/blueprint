@@ -9,22 +9,22 @@ namespace Model.ArtifactModel
         /// <summary>
         /// List of Artifact Properties
         /// </summary>
-        List<Property> Properties { get; }
+        List<OpenApiProperty> Properties { get; }
 
         /// <summary>
         /// List of Artifact Comments
         /// </summary>
-        List<Comment> Comments { get; }
+        List<OpenApiComment> Comments { get; }
 
         /// <summary>
         /// List of Artifact Traces
         /// </summary>
-        List<Trace> Traces { get; }
+        List<OpenApiTrace> Traces { get; }
 
         /// <summary>
         ///  List of Artifact Attachments
         /// </summary>
-        List<Attachment> Attachments { get; }
+        List<OpenApiAttachment> Attachments { get; }
 
         /// <summary>
         /// Save the artifact on Blueprint server.

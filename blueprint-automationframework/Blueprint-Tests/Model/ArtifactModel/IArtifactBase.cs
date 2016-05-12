@@ -99,5 +99,7 @@ namespace Model.ArtifactModel
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
+
+        void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase artifactBase);
     }
 }

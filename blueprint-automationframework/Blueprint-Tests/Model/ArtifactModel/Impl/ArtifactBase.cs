@@ -1,4 +1,9 @@
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -37,6 +42,26 @@ namespace Model.ArtifactModel.Impl
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
 
+        //TODO  Check if we can remove the setters and get rid of these warnings
+
+        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiComment>>))]
+        public List<OpenApiComment> Comments { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
+        public List<OpenApiTrace> Traces { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
+        public List<OpenApiAttachment> Attachments { get; set; }
+
         #endregion Properties
 
         #region Constructors
@@ -73,5 +98,25 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        #region Methods
+
+        public void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase artifactBase)
+        {
+            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
+
+            foreach (PropertyInfo propertyInfo in artifactBase.GetType().GetProperties())
+            {
+                PropertyInfo thisPropertyInfo = GetType().GetProperties().First(p => p.Name == propertyInfo.Name);
+
+                if (thisPropertyInfo != null && thisPropertyInfo.CanWrite && thisPropertyInfo.Name != "CreatedBy")
+                {
+                    var value = propertyInfo.GetValue(artifactBase);
+                    thisPropertyInfo.SetValue(this, value);
+                }     
+            }
+        }
+
+        #endregion Methods
     }
 }

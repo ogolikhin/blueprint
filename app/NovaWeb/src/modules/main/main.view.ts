@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../core/localization";
-import * as pSvc from "../services/project.svc";
+import * as pSvc from "./services/project.svc";
 import * as Grid from "ag-grid/main";
 
 
@@ -14,12 +14,13 @@ export class MainViewComponent implements ng.IComponentOptions {
 }
 
 export interface IMainViewController {
-    gridOptions: Grid.GridOptions;
+
 }
 
 export class MainViewController implements IMainViewController {
     private rowData: any = null;
     private selectedItem: any;
+    public projectExplorer: any;
 
     private clickTimeout: any;
 

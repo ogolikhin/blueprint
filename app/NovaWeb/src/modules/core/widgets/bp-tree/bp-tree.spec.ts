@@ -9,12 +9,12 @@ describe("Embedded ag-grid events", () => {
     var $scope, elem;
     var gridApi = new GridApi();
 
-    beforeEach(inject(function(_$q_, _$rootScope_, _$compile_) {
+    beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();
 
         elem = angular.element('<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>');
 
-        controller = new BPTreeController($scope);
+        controller = new BPTreeController($scope, $timeout);
         _$compile_(elem)($scope);
         //act
         controller.gridColumns = [{

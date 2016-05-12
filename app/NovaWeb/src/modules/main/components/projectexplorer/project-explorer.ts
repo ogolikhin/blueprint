@@ -17,7 +17,6 @@ class ProjectExplorerController {
     public mainView: IMainViewController;
 
     private selectedItem: any;
-    //private clickTimeout: any;
 
     public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout", "projectNotification"];
     constructor(
@@ -30,59 +29,37 @@ class ProjectExplorerController {
         private notification: IProjectNotification) {
     }
 
-
     public $onInit = () => {
         this.notification.subscribeToOpenProject(function (evt, selected) {
             alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
-        })
-    }
-
-    public stripHTMLTags = (stringToSanitize: string): string => {
-        var stringSanitizer = window.document.createElement("DIV");
-        stringSanitizer.innerHTML = stringToSanitize;
-        return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    };
-
-    public escapeHTMLText = (stringToEscape: string): string => {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
+        });
     };
 
     public columns = [{
-        headerName: "", //this.localization.get("App_Header_Name"),
+        headerName: "",
         field: "Name",
-        //editable: true, // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers
-        //cellEditor: this.cellEditor,
         cellClassRules: {
             "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
             "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",
-        cellRendererParams: {
-            innerRenderer: (params: any) => {
-                var currentValue = params.value;
-                var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
-                return formattedCurrentValue;
-            }
-        },
         suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true
     }];
 
-    public loadFolders = (prms: any): ng.IPromise<any[]> => {
+    public loadElements = (prms: any): ng.IPromise<any[]> => {
         //check passed in parameter
         return this.service.getFolders();
     };
 
-    public expandFolder = (prms: any): ng.IPromise<any[]> => {
+    public expandGroup = (prms: any): ng.IPromise<any[]> => {
         //check passesd in parameter
         var id = (prms && prms.Id) ? prms.Id : null;
         return this.service.getFolders(id);
     };
 
-    public selectProject = (item: any) => {
+    public selectElement = (item: any) => {
         //check passed in parameter
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;
@@ -98,6 +75,13 @@ class ProjectExplorerController {
                 //self.selectedItem.Description = this.$sce.trustAsHtml(description);
             }
         });
-    }
-}
+    };
 
+    public doRowClick = (prms: any) => {
+        var selectedNode = prms.node;
+        var cell = prms.eventSource.eBodyRow.firstChild;
+        if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
+            //console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+        }
+    };
+}

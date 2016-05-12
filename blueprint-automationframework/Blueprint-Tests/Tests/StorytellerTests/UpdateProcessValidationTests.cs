@@ -39,8 +39,7 @@ namespace StorytellerTests
             _project = ProjectFactory.GetProject(_user);
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
+            _adminStore.AddSession(_user);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
 
@@ -50,8 +49,7 @@ namespace StorytellerTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
 
             // Get a valid Access Control token for the second user (for the new Storyteller REST calls).
-            ISession sessionUser2 = _adminStore.AddSession(_user2.Username, _user2.Password);
-            _user2.SetToken(sessionUser2.SessionId);
+            _adminStore.AddSession(_user2);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(_user2.Token.AccessControlToken), "The second user didn't get an Access Control token!");
 

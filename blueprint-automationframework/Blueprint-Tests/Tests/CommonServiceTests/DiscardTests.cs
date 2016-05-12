@@ -65,7 +65,7 @@ namespace CommonServiceTests
         [TestCase]
         [TestRail(107373)]
         [Description("Create process artifact, save, publish, discard - must return nothing to discard.")]
-        public void DiscardArtifact_VerifyNothingToDiscard()
+        public void DiscardPublishedArtifact_VerifyNothingToDiscard()
         {
             var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
 

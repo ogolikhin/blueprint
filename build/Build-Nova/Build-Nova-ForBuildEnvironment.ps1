@@ -13,9 +13,9 @@
 param(
     [Parameter(Mandatory=$true)][string] $workspace,
     [Parameter(Mandatory=$true)][string] $blueprintVersion,
-    [string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
-    [bool] $removeFiles = $true,
-    [bool] $buildNovaWeb = $false, #Currently not part of release; remove parameter once it is
+    [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
+    [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
+    [Parameter(Mandatory=$false)][bool] $buildNovaWeb = $false, #Currently not part of release; remove parameter once it is
 
     #Unused, for splatting the same hashtable into multiple methods without error.
     [Parameter(ValueFromRemainingArguments=$true)] $vars

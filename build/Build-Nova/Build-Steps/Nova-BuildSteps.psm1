@@ -18,7 +18,7 @@ function Setup-Environment {
 
     #Remove and recreate folders
     Write-Subsection "Cleaning up and recreating folders" 
-    $folders = @("$workspace\TestResults", "$workspace\svc\DeployArtifacts")
+    $folders = @("$workspace\TestResults", "$workspace\Svc\DeployArtifacts", "$workspace\app\NovaWeb\dist")
     $folders | ForEach-Object { 
         New-Directory -directory $_ -recreate $removeFiles
     }
@@ -71,23 +71,25 @@ function Build-Nova-Html{
         [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
 
+    Write-Section "Building Nova Html"
+
     try
     {
        pushd "$workspace\app\NovaWeb"
    
-       .\devsetup.bat
-       npm install -g
+       Invoke-MyExpression ".\devsetup.bat" ""
+       Invoke-MyExpression "npm" "install -g"
 
        # Increment build version number
        $version = $blueprintVersion.split(".")
        $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
-       npm version $semver
+       Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
 
        # Build Nova Application
-       npm run build
+       Invoke-MyExpression "npm" "run build"
 
        # Test Nova Application
-       npm run test
+       Invoke-MyExpression "npm" "run test"
     }
     finally
     {

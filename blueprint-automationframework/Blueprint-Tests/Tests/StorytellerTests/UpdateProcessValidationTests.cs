@@ -286,6 +286,7 @@ namespace StorytellerTests
             _storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]
         [TestCase]
         [TestRail(107370)]
         [Description("Publish a process without having a lock on the artifact (Another user has the lock). Verify that" +
@@ -294,7 +295,7 @@ namespace StorytellerTests
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
 
             // Create an artifact representing the process artifact that was created and add it to the 
             // list of artifacts to lock

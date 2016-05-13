@@ -44,7 +44,7 @@ function Invoke-MsBuild {
 function Invoke-MyExpression {
     param(
         [Parameter(Mandatory=$true)][string]$expression, 
-        [Parameter(Mandatory=$true)][string]$params,
+        [Parameter(Mandatory=$true)]$params, #Not typed so that "" is a valid parameter
         [Parameter(Mandatory=$false)][switch] $ignoreErrorCode,
         [Parameter(Mandatory=$false)][switch] $ignorePositiveErrorCode,
         [Parameter(Mandatory=$false)][Int[]] $successfulExitCodes = (0)

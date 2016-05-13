@@ -18,7 +18,7 @@ function Setup-Environment {
 
     #Remove and recreate folders
     Write-Subsection "Cleaning up and recreating folders" 
-    $folders = @("$workspace\TestResults", "$workspace\svc\DeployArtifacts")
+    $folders = @("$workspace\TestResults", "$workspace\Svc\DeployArtifacts", "$workspace\app\NovaWeb\dist")
     $folders | ForEach-Object { 
         New-Directory -directory $_ -recreate $removeFiles
     }
@@ -70,6 +70,8 @@ function Build-Nova-Html{
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars
     )
+
+    Write-Section "Building Nova Html"
 
     try
     {

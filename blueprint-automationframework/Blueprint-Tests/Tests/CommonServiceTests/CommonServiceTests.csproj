@@ -45,6 +45,7 @@
     <Compile Include="ContentForRapidReviewTests.cs" />
     <Compile Include="DiscardTests.cs" />
     <Compile Include="ArtifactVersionTests.cs" />
+    <Compile Include="NavigationTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

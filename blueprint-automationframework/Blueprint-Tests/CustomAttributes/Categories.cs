@@ -31,6 +31,7 @@ namespace CustomAttributes
 
         public const string LoggingDatabase = "LoggingDatabase";
 
+        public const string Navigation = "Navigation";
         public const string OpenApi = "OpenApi";
         public const string Storyteller = "Storyteller";
 

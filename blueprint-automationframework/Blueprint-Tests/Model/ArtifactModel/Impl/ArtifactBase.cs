@@ -11,7 +11,6 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactBase : IArtifactBase
     {
         #region Constants
-
         public const string URL_LOCK = "svc/shared/artifacts/lock";
         public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
@@ -101,22 +100,41 @@ namespace Model.ArtifactModel.Impl
 
         #region Methods
 
-        public void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase artifactBase)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourceArtifactBase"></param>
+        /// <param name="destinationArtifactBase"></param>
+        public static void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase sourceArtifactBase, IArtifactBase destinationArtifactBase)
         {
-            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
+            ThrowIf.ArgumentNull(sourceArtifactBase, nameof(sourceArtifactBase));
+            ThrowIf.ArgumentNull(destinationArtifactBase, nameof(destinationArtifactBase));
 
-            foreach (PropertyInfo propertyInfo in artifactBase.GetType().GetProperties())
+            // List of properties not to be replaced by the source artifact properties
+            var propertiesNotToBeReplaced = new List<string>
             {
-                PropertyInfo thisPropertyInfo = GetType().GetProperties().First(p => p.Name == propertyInfo.Name);
+                "CreatedBy",
+                "Address"
+            };
 
-                if (thisPropertyInfo != null && thisPropertyInfo.CanWrite && thisPropertyInfo.Name != "CreatedBy")
+            foreach (PropertyInfo propertyInfo in sourceArtifactBase.GetType().GetProperties())
+            {
+                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().First(p => p.Name == propertyInfo.Name);
+
+                if (destinationPropertyInfo != null && destinationPropertyInfo.CanWrite && !propertiesNotToBeReplaced.Contains(destinationPropertyInfo.Name))
                 {
-                    var value = propertyInfo.GetValue(artifactBase);
-                    thisPropertyInfo.SetValue(this, value);
-                }     
+                    var value = propertyInfo.GetValue(sourceArtifactBase);
+                    destinationPropertyInfo.SetValue(destinationArtifactBase, value);
+                }
             }
         }
 
         #endregion Methods
+    }
+
+    public static class ArtifactValidationMessage
+    {
+        public static readonly string ArtifactAlreadyLocked = "The artifact is locked by other user.";
+        public static readonly string ArtifactAlreadyPublished = "Artifact {0} is already published in the project";
     }
 }

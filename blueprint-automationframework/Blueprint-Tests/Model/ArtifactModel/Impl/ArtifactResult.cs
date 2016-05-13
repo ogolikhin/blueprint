@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
@@ -6,6 +7,19 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Model.ArtifactModel.Impl
 {
+    public enum LockResult
+    {
+        Success,
+        AlreadyLocked,
+        Failure
+    }
+
+    public enum DiscardResult
+    {
+        Success,
+        Failure
+    }
+
     public class ArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
@@ -49,5 +63,34 @@ namespace Model.ArtifactModel.Impl
         public int ArtifactId { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }
+    }
+
+    public class FailedArtifactResult
+    {
+        public int ArtifactId { get; set; }
+        public string Message { get; set; }
+        public HttpStatusCode ResultCode { get; set; }
+    }
+
+    public class LockResultInfo
+    {
+        public LockResult Result { get; set; }
+
+        public VersionInfo Info { get; set; }
+    }
+
+    public class VersionInfo
+    {
+        public int? ArtifactId { get; set; }
+        public int ServerArtifactVersionId { get; set; }
+        public DateTime? UtcLockedDateTime { get; set; }
+        public string LockOwnerLogin { get; set; }
+        public int ProjectId { get; set; }
+    }
+
+    public class DiscardResultInfo
+    {
+        public DiscardResult Result { get; set; }
+        public string Message { get; set; }
     }
 }

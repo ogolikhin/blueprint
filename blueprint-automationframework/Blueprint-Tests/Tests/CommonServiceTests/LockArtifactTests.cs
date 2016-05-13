@@ -9,13 +9,13 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using Utilities;
+using Newtonsoft.Json;
 
 namespace CommonServiceTests
 {
     [TestFixture]
     [Category(Categories.ArtifactVersion)]
-    [Explicit(IgnoreReasons.UnderDevelopment)]
-    public class ArtifactVersionTests
+    public class LockArtifactTests
     {
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
@@ -23,6 +23,7 @@ namespace CommonServiceTests
         private IUser _user2;
         private IProject _project;
 
+        private readonly List<IArtifact> _artifacts = new List<IArtifact>();
 
         #region Setup and Cleanup
 
@@ -61,26 +62,24 @@ namespace CommonServiceTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            //if (_artifactVersion. != null)
-            //{
-            //    // Delete or Discard all the artifacts that were added.
-            //    var savedArtifactsList = new List<IOpenApiArtifact>();
-            //    foreach (var artifact in _storyteller.Artifacts.ToArray())
-            //    {
-            //        if (artifact.IsPublished)
-            //        {
-            //            _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-            //        }
-            //        else
-            //        {
-            //            savedArtifactsList.Add(artifact);
-            //        }
-            //    }
-            //    if (savedArtifactsList.Any())
-            //    {
-            //        Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-            //    }
-            //}
+            var savedArtifactsList = new List<IArtifactBase>();
+
+            // Delete or Discard all the _artifacts that were added.
+            foreach (var artifact in _artifacts.ToArray())
+            {
+                if (artifact.IsPublished)
+                {
+                    artifact.Delete(artifact.CreatedBy);
+                }
+                else
+                {
+                    savedArtifactsList.Add(artifact);
+                }
+            }
+            if (savedArtifactsList.Any())
+            {
+                Artifact.DiscardArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
+            }
 
             if (_adminStore != null)
             {
@@ -96,16 +95,22 @@ namespace CommonServiceTests
                 _user.DeleteUser();
                 _user = null;
             }
+
+            if (_user2 != null)
+            {
+                _user2.DeleteUser();
+                _user2 = null;
+            }
         }
 
         #endregion Setup and Cleanup
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase (BaseArtifactType.Process)]
-        [Description("")]
+        [Description("Attempt to get a lock on an artifact that has been published by the same user. Verify that the" +
+                     "lock was obtained by the user.")]
         public void GetLockForArtifactWithNoExistingLocks_VerifyLockObtained(BaseArtifactType baseArtifactType)
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
             artifact.Save();
 
             // Publish artifact to ensure no lock remains on the newly created artifact
@@ -128,12 +133,12 @@ namespace CommonServiceTests
                 );
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
+        [Description("Attempt to get a lock on an artifact that has been published by another user. Verify that the" +
+                     "lock was obtained by the user.")]
         public void GetLockForArtifactPublishedByOtherUser_VerifyLockObtained(BaseArtifactType baseArtifactType)
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
             artifact.Save();
 
             // Publish artifact to ensure no lock remains on the newly created artifact
@@ -151,61 +156,94 @@ namespace CommonServiceTests
 
             // Assert that the second user can Publish the artifact to verify that the lock was actually obtained
             Assert.DoesNotThrow(() =>
-                artifact.Publish(),
+                artifact.Publish(_user2),
                 "The second user was unable to Publish the artifact even though the lock appears to have been obtained successfully."
                 );
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLockForArtifactSavedByOtherUser_VerifyNoLockObtained(BaseArtifactType baseArtifactType)
+        [Description("Attempt to save a previously published artifact that has been locked by another user.  Verify that" +
+                     "the user cannot save the artifact.")]
+        public void SaveArtifactWhenLockedByOtherUser_VerifyNotSaved(BaseArtifactType baseArtifactType)
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
             artifact.Save();
-            
-            // Publish artifact to be sure it is available to the second user
-            artifact.Publish();
 
-            // Re-save the process to ensure the lock is obtained by the first user (lock obtained via the Save
-            // call itself, not the lock artifact call.
-            artifact.Save();
+            // Publish artifact to ensure no lock remains on the newly created artifact
+            artifact.Publish();
 
             var artifactsToLock = new List<IArtifactBase> { artifact };
 
+            // first user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
 
-            Assert.Throws<Http409ConflictException>(
+            // Assert that the second user cannot save the artifact
+            var ex = Assert.Throws<Http409ConflictException>(
                 () =>
-                    // Second user tries to lock the artifact
-                    Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2)
+                    // Second user tries to save the artifact
+                    artifact.Save(_user2)
                 );
 
+            Assert.IsNotNull(ex.RestResponse.Content);
 
-            //var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var failedSaveArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
+            var failedSaveArtifactResult = failedSaveArtifactResults.First(a => a.ArtifactId == artifact.Id);
 
-            //var expectedValidationResponseContent = I18NHelper.FormatInvariant(
-            //        ProcessValidationResponse.ArtifactAlreadyLocked,
-            //        process.Id,
-            //        process.Name,
-            //        _user2.Username);
+            string errorMessage =
+                I18NHelper.FormatInvariant(
+                    "The expected message content is: \"{0}\" but \"{1}\" was returned", 
+                    ArtifactValidationMessage.ArtifactAlreadyLocked, 
+                    failedSaveArtifactResult.Message);
+
+            Assert.AreEqual(ArtifactValidationMessage.ArtifactAlreadyLocked, 
+                failedSaveArtifactResult.Message, 
+                errorMessage);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void SaveArtifactWhenLockedByOtherUser_VerifyNotSaved()
+        [Description("Attempt to publish a previously published artifact that has been locked by another user.  Verify that" +
+                     "the user cannot publish the artifact.")]
+        public void PublishArtifactWhenLockedByOtherUser_VerifyNotPublished(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
+            artifact.Save();
+
+            // Publish artifact to ensure no lock remains on the newly created artifact
+            artifact.Publish();
+
+            var artifactsToLock = new List<IArtifactBase> { artifact };
+
+            // first user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
+
+            // Assert that the second user cannot publish the artifact
+            var ex = Assert.Throws<Http409ConflictException>(
+                () =>
+                    // Second user tries to publish the artifact
+                    artifact.Publish(_user2)
+                );
+
+            Assert.IsNotNull(ex.RestResponse.Content);
+
+            var failedPublishArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
+            var failedPublishArtifactResult = failedPublishArtifactResults.First(a => a.ArtifactId == artifact.Id);
+
+            string expectedMessage = I18NHelper.FormatInvariant(
+                ArtifactValidationMessage.ArtifactAlreadyPublished,
+                failedPublishArtifactResult.ArtifactId);
+
+            string errorMessage =
+                I18NHelper.FormatInvariant(
+                    "The expected message content is: \"{0}\" but \"{1}\" was returned",
+                    expectedMessage,
+                    failedPublishArtifactResult.Message);
+
+            Assert.AreEqual(expectedMessage,
+                failedPublishArtifactResult.Message,
+                errorMessage);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void PublishArtifactWhenLockedByOtherUser_VerifyNotPublished()
-        {
-            throw new NotImplementedException();
-        }
-
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -214,6 +252,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -222,6 +261,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -230,6 +270,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -238,6 +279,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -246,6 +288,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -254,6 +297,7 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         [TestCase(BaseArtifactType.Process)]
         [Description("")]
@@ -261,5 +305,26 @@ namespace CommonServiceTests
         {
             throw new NotImplementedException();
         }
+
+        #region Private Methods
+
+        /// <summary>
+        /// Create Artifact and Add to Artifact List
+        /// </summary>
+        /// <param name="project">The project where the artifact will be created</param>
+        /// <param name="user">The user creating the artifact</param>
+        /// <param name="baseArtifactType">THe base type of the artifact being created</param>
+        /// <returns>The created artifact</returns>
+        private IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType baseArtifactType )
+        {
+            var artifact = ArtifactFactory.CreateArtifact(project, user, baseArtifactType);
+
+            // Add artifact to artifacts list for later discard/deletion
+            _artifacts.Add(artifact);
+
+            return artifact;
+        }
+
+        #endregion Private Methods
     }
 }

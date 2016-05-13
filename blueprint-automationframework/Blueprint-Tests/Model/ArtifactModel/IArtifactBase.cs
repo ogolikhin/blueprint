@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
+using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
 {
@@ -100,6 +100,16 @@ namespace Model.ArtifactModel
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
 
-        void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase artifactBase);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiProperty> Properties { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiComment> Comments { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiTrace> Traces { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiAttachment> Attachments { get; set; }
     }
 }

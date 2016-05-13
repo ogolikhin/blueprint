@@ -16,7 +16,6 @@ export class BPTreeInlineEditing implements ng.IDirective {
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
         BPTreeInlineEditing.prototype.link = (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
             var self = this;
-            console.log(scope)
             var editing = false;
             var data = scope["data"];
             var currentValue = data.Name;

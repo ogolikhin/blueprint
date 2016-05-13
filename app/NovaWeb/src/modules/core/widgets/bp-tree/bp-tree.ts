@@ -18,6 +18,7 @@ Sample template. See following parameters:
     on-select="$ctrl.doSelect(item)"> - to be called then a node is selected
     on-row-click="$ctrl.doRowClick(prms)" - to be called when a row is clicked
     on-row-dblclick="$ctrl.doRowDblClick(prms)" - to be called when a row is double-clicked (will cancel single-click)
+    on-row-post-create="$ctrl.doRowPostCreate(prms)" - to be called after a row is created
 </bp-tree>
 */ /*
 tslint:enable
@@ -37,12 +38,12 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //settings
         gridColumns: "<",
         //events
-        onLoad: "&",
-        onExpand: "&",
-        onSelect: "&",
-        onRowClick: "&",
-        onRowDblClick: "&",
-        processRowPostCreate: "&"
+        onLoad: "&?",
+        onExpand: "&?",
+        onSelect: "&?",
+        onRowClick: "&?",
+        onRowDblClick: "&?",
+        onRowPostCreate: "&?"
     };
 }
 
@@ -63,7 +64,7 @@ export class BPTreeController  {
     public onExpand: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
-    public processRowPostCreate: Function;
+    public onRowPostCreate: Function;
 
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
@@ -84,14 +85,13 @@ export class BPTreeController  {
                 let gridCol = this.gridColumns[i];
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (!gridCol.cellRendererParams || (
-                            gridCol.cellRendererParams && (
-                                !gridCol.cellRendererParams.innerRenderer || typeof gridCol.cellRendererParams.innerRenderer !== `function`
-                            )
-                        )) {
+                    if (!gridCol.cellRendererParams ||
+                        (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
+                        (gridCol.cellRendererParams && typeof gridCol.cellRendererParams.innerRenderer !== "function")
+                    ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
-    }
+                        }
 
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
@@ -289,8 +289,13 @@ export class BPTreeController  {
     };
 
     private rowPostCreate = (params: any) => {
-        if (typeof this.processRowPostCreate === `function`) {
-            this.processRowPostCreate({prms: params});
+        if (typeof this.onRowPostCreate === `function`) {
+            this.onRowPostCreate({prms: params});
+        } else {
+            if (this.enableDragndrop) {
+                let row = angular.element(params.eRow)[0];
+                row.setAttribute("bp-tree-dragndrop", "");
+            }
         }
     };
 }

@@ -189,7 +189,7 @@ export class BPTreeController  {
         var selectedNode;
         var editing = false;
         var currentValue = params.value;
-        var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
+        var formattedCurrentValue = "<span bp-tree-inline-editing>" + this.escapeHTMLText(currentValue) + "</span>";
         var containerCell = params.eGridCell;
 
         function stopEditing() {

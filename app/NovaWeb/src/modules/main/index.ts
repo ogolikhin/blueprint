@@ -10,6 +10,7 @@ import {ProjectService} from "./services/project.svc";
 import {ProjectNotification} from "./services/project-notification";
 
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
+import {BPTreeInlineEditing} from "../core/widgets/bp-tree-inline-editing/bp-tree-inline-editing";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -42,6 +43,7 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .component("bpAccordion", new BpAccordion())
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorerComponent())
+    .directive("bpTreeInlineEditing", BPTreeInlineEditing.Factory())
     .config(routesConfig);
 
 

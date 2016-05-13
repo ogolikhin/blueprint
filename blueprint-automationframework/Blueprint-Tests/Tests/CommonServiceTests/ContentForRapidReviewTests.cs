@@ -79,12 +79,44 @@ namespace CommonServiceTests
             artifact.Publish(_user);
 
             string artifactContent = string.Empty;
-            string propertiesContent = string.Empty;
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
                     artifactContent = artifact.GetContentForRapidReview(_user);
+                }, "must not throw errors.");
+                //Assert.AreEqual("diagram", artifactContent, "error");
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
+        }
+
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestRail(01)]
+        [Description("")]
+        public void GetArtifactPropertiesForRapidReview_VerifyResults(BaseArtifactType artifactType)
+        {
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType: artifactType);
+
+            artifact.Save(_user);
+            artifact.Publish(_user);
+
+            string propertiesContent = string.Empty;
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
                     propertiesContent = artifact.GetPropertiesForRapidReview(_user);
                 }, "must not throw errors.");
                 //Assert.AreEqual("diagram", artifactContent, "error");

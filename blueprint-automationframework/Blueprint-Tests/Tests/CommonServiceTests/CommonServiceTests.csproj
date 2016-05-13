@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DiscardTests.cs" />
-    <Compile Include="ArtifactVersionTests.cs" />
     <Compile Include="NavigationTests.cs" />
     <Compile Include="LockArtifactTests.cs" />
     <Compile Include="StatusTests.cs" />

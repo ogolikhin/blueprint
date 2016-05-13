@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -1557,37 +1558,8 @@ namespace Model.StorytellerModel.Impl
         public string Label { get; set; }
 
     }
-    public class AssociatedArtifact
+    public class AssociatedArtifact : ArtifactReference
     {
-        /// <summary>
-        /// The Id of the Artifact
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// The Project Id for the artifact
-        /// </summary>
-        public int ProjectId { get; set; }
-
-        /// <summary>
-        /// The name of the artifact
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The type prefix for the artifact
-        /// </summary>
-        public string TypePrefix { get; set; }
-
-        /// <summary>
-        /// The base item type for the artifact
-        /// </summary>
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
-
-        /// <summary>
-        /// The link to navigate to the artifact
-        /// </summary>
-        public string Link { get; set; }
     }
 
     public class PropertyValueInformation

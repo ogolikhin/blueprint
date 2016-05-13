@@ -17,9 +17,9 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["$state", "session", "configValueHelper"];
+    static $inject: [string] = ["$state", "session", "configValueHelper", "$window"];
 
-    constructor(private $state: ng.ui.IStateService, private session: ISession, private configValueHelper: IConfigValueHelper) {
+    constructor(private $state: ng.ui.IStateService, private session: ISession, private configValueHelper: IConfigValueHelper, private $window: ng.IWindowService) {
     }
 
     public get currentUser(): IUser {
@@ -35,15 +35,15 @@ export class AppController {
         evt.preventDefault();
 
         //We want to open a new window, not a tab, to match old Silverlight behaviour.
-        this.popUpWindowInCenterOfParent(this.configValueHelper.getStringValue("HelpURL"), "_blank", 1300, 800);
+        this.popUpWindowInCenterOfParent(this.configValueHelper.getStringValue("HelpURL"), "_blank", 1300, 800, this.$window);
     }
 
-    private popUpWindowInCenterOfParent(url: string, title: string, width: number, height: number) {
+    private popUpWindowInCenterOfParent(url: string, title: string, width: number, height: number, $window: ng.IWindowService) {
         //Calculate position for new window based on parent's center. http://stackoverflow.com/a/5681473
-        var parentLeft: number = window.screenLeft ? window.screenLeft : window.screenX;
-        var parentTop: number = window.screenTop ? window.screenTop : window.screenY;
-        var parentCenterX: number = parentLeft + (window.outerWidth / 2);
-        var parentCenterY: number = parentTop + (window.outerHeight / 2);
+        var parentLeft: number = $window.screenLeft ? $window.screenLeft : $window.screenX;
+        var parentTop: number = $window.screenTop ? $window.screenTop : $window.screenY;
+        var parentCenterX: number = parentLeft + ($window.outerWidth / 2);
+        var parentCenterY: number = parentTop + ($window.outerHeight / 2);
         var left: number = parentCenterX - (width / 2);
         var top: number = parentCenterY - (height / 2);
 
@@ -53,7 +53,7 @@ export class AppController {
         var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height=" + height + ", top=" + top + ", left=" + left;
         /*tslint:enable*/
 
-        return window.open(url, title, windowFeatures);
+        return $window.open(url, title, windowFeatures);
     }
 
 }

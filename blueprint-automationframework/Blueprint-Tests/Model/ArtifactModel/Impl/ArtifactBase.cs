@@ -115,7 +115,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, string.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, string.Join("/", artifactIds));
 
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 

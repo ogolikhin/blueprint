@@ -1,11 +1,9 @@
-﻿using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace CommonServiceTests
 {
@@ -61,31 +59,80 @@ namespace CommonServiceTests
 
         #endregion
 
-        [TestCase(BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.UseCase)]
         [TestCase(BaseArtifactType.BusinessProcess)]
         [TestCase(BaseArtifactType.DomainDiagram)]
         [TestCase(BaseArtifactType.GenericDiagram)]
         [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
         [TestCase(BaseArtifactType.UIMockup)]
-        [TestRail(01)]
-        [Description("")]
-        public void GetArtifactContentForRapidReview_VerifyResults(BaseArtifactType artifactType)
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestRail(107388)]
+        [Description("Check that Blueprint returns proper content for Diagram artifacts")]
+        public void GetArtifactDiagramForRapidReview_VerifyResults(BaseArtifactType artifactType)
         {
             var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType: artifactType);
 
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            string artifactContent = string.Empty;
+            RapidReviewDiagram artifactContent = null;
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    artifactContent = artifact.GetContentForRapidReview(_user);
-                }, "must not throw errors.");
-                //Assert.AreEqual("diagram", artifactContent, "error");
+                    artifactContent = artifact.GetDiagramContentForRapidReview(_user);
+                }, "GetDiagramContentForRapidReview must not throw errors.");
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
+        }
+
+        [TestCase]
+        [TestRail(107389)]
+        [Description("Create glossary artifact, get RapidReview representation for it. Check that representation has id and terms.")]
+        public void GetGlossaryForRapidReview_VerifyResults()
+        {
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType: BaseArtifactType.Glossary);
+
+            artifact.Save(_user);
+            artifact.Publish(_user);
+
+            RapidReviewGlossary artifactContent = null;
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    artifactContent = artifact.GetGlossaryContentForRapidReview(_user);
+                }, "GetGlossaryContentForRapidReview must not throw errors.");
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
+        }
+
+        [TestCase]
+        [TestRail(107390)]
+        [Description("Create Use Case artifact, get RapidReview representation for it. Check that representation has proper scheme.")]
+        public void GetUseCaseContentForRapidReview_VerifyResults()
+        {
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType: BaseArtifactType.UseCase);
+
+            artifact.Save(_user);
+            artifact.Publish(_user);
+
+            RapidReviewUseCase artifactContent = null;
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    artifactContent = artifact.GetUseCaseContentForRapidReview(_user);
+                }, "GetUseCaseContentForRapidReview must not throw errors.");
             }
 
             finally
@@ -103,8 +150,8 @@ namespace CommonServiceTests
         [TestCase(BaseArtifactType.Storyboard)]
         [TestCase(BaseArtifactType.UseCaseDiagram)]
         [TestCase(BaseArtifactType.UIMockup)]
-        [TestRail(01)]
-        [Description("")]
+        [TestRail(107391)]
+        [Description("Create artifact, get properties for it. Check that returned JSON has proper scheme.")]
         public void GetArtifactPropertiesForRapidReview_VerifyResults(BaseArtifactType artifactType)
         {
             var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType: artifactType);
@@ -112,14 +159,13 @@ namespace CommonServiceTests
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            string propertiesContent = string.Empty;
+            RapidReviewProperties propertiesContent = null;
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
                     propertiesContent = artifact.GetPropertiesForRapidReview(_user);
-                }, "must not throw errors.");
-                //Assert.AreEqual("diagram", artifactContent, "error");
+                }, "GetPropertiesForRapidReview must not throw errors.");
             }
 
             finally

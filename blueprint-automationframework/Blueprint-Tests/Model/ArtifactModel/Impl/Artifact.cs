@@ -255,13 +255,13 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactInfo;
         }
 
-        public string GetContentForRapidReview(IUser user = null,
+        public RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
             if (user == null)
             {
-                Assert.NotNull(CreatedBy, "No user is available to perform GetContentForRapidReview.");
+                Assert.NotNull(CreatedBy, "No user is available to perform GetDiagramContentForRapidReview.");
                 user = CreatedBy;
             }
 
@@ -276,14 +276,9 @@ namespace Model.ArtifactModel.Impl
 
             var artifactInfo = GetArtifactInfo(user: user);
             string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
             switch (artifactInfo.BaseTypePredefined)
             {
-                case ItemTypePredefined.Glossary:
-                    path = I18NHelper.FormatInvariant("{0}/{1}", URL_GLOSSARY, Id);
-                    break;
-                case ItemTypePredefined.UseCase:
-                    path = I18NHelper.FormatInvariant("{0}/{1}", URL_USECASE, Id);
-                    break;
                 case ItemTypePredefined.BusinessProcess:
                 case ItemTypePredefined.DomainDiagram:
                 case ItemTypePredefined.GenericDiagram:
@@ -295,12 +290,82 @@ namespace Model.ArtifactModel.Impl
                 default:
                     throw new ArgumentException("Method works for graphical artifacts only.");
             }
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-            var returnedArtifactContent = restApi.SendRequestAndGetResponse(resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            return returnedArtifactContent.Content;
+            var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(resourcePath: path,
+                method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return diagramContent;
         }
 
-        public string GetPropertiesForRapidReview(IUser user = null,
+        public RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetUseCaseContentForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactInfo = GetArtifactInfo(user: user);
+            string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", URL_USECASE, Id);
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(resourcePath: path,
+                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return returnedArtifactContent;
+            }
+            else
+            {
+                throw new ArgumentException("Method works for UseCase artifacts only.");
+            }
+        }
+
+        public RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetGlossaryContentForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactInfo = GetArtifactInfo(user: user);
+            string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", URL_GLOSSARY, Id);
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(resourcePath: path,
+                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return returnedArtifactContent;
+            }
+            else
+            {
+                throw new ArgumentException("Method works for Glossary artifacts only.");
+            }
+        }
+
+        public RapidReviewProperties GetPropertiesForRapidReview(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -322,9 +387,9 @@ namespace Model.ArtifactModel.Impl
             string path = URL_ARTIFACTPROPERTIES;
             var artifactIds = new List<int> { Id };
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-            var returnedArtifactProperties = restApi.SendRequestAndGetResponse<List<int>>(resourcePath: path,
-                method: RestRequestMethod.POST, bodyObject: artifactIds, expectedStatusCodes: expectedStatusCodes);
-            return returnedArtifactProperties.Content;
+            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(resourcePath: path,
+                method: RestRequestMethod.POST, jsonObject: artifactIds, expectedStatusCodes: expectedStatusCodes);
+            return returnedArtifactProperties[0];
         }
 
         #endregion Methods

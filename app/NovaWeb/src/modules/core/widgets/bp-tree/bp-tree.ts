@@ -11,6 +11,7 @@ Sample template. See following parameters:
     row-height="24" - row height in pixels
     header-height="20" - header height in pixels. Set to 0 to disable
     enable-editing-on="name,desc" - list of column where to activate inline editing
+    enable-dragndrop="true" - enable rows drag and drop
     grid-columns="$ctrl.columns"  - column definition
     on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes
     on-expand="$ctrl.doExpand(prms)" - gets data to load a sub-tree (child node)
@@ -29,6 +30,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //properties
         gridClass: "@",
         enableEditingOn: "@",
+        enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
@@ -39,7 +41,8 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onExpand: "&",
         onSelect: "&",
         onRowClick: "&",
-        onRowDblClick: "&"
+        onRowDblClick: "&",
+        processRowPostCreate: "&"
     };
 }
 
@@ -48,6 +51,7 @@ export class BPTreeController  {
     //properties
     public gridClass: string;
     public enableEditingOn: string;
+    public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
@@ -59,6 +63,7 @@ export class BPTreeController  {
     public onExpand: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
+    public processRowPostCreate: Function;
 
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
@@ -68,6 +73,7 @@ export class BPTreeController  {
 
     constructor(private $element, private $timeout: ng.ITimeoutService) {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
+        this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
@@ -168,6 +174,7 @@ export class BPTreeController  {
             onRowClicked: this.rowClicked,
             onRowDoubleClicked: this.rowDoubleClicked,
             onRowGroupOpened: this.rowGroupOpened,
+            processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady
         };
     };
@@ -187,8 +194,9 @@ export class BPTreeController  {
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
+        var dragAndDrop = "";//this.enableDragndrop ? " bp-tree-dragndrop" : "";
 
-        return "<span" + inlineEditing + ">" + this.escapeHTMLText(currentValue) + "</span>";
+        return "<span" + inlineEditing + dragAndDrop + ">" + this.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {
@@ -229,7 +237,7 @@ export class BPTreeController  {
         this.selectedRow = model.getRow(params.rowIndex);
         this.selectedRow.setSelected(true, true);
         if (typeof this.onSelect === `function`) {
-        this.onSelect({item: this.selectedRow.data});
+            this.onSelect({item: this.selectedRow.data});
         }
     };
 
@@ -277,6 +285,12 @@ export class BPTreeController  {
                 }
                 node.data.open = node.expanded;
             }
+        }
+    };
+
+    private rowPostCreate = (params: any) => {
+        if (typeof this.processRowPostCreate === `function`) {
+            this.processRowPostCreate({prms: params});
         }
     };
 }

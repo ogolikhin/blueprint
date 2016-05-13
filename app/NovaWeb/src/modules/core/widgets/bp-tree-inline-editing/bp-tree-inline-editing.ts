@@ -1,7 +1,7 @@
 export class BPTreeInlineEditing implements ng.IDirective {
     public link: (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
-    public scope = {};
+    //public scope = {};
     public restrict = "A";
 
     private timeout;
@@ -14,24 +14,18 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
         // It's important to add `link` to the prototype or you will end up with state issues.
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
-        BPTreeInlineEditing.prototype.link = (scope: any, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
+        BPTreeInlineEditing.prototype.link = (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
             var self = this;
+            console.log(scope)
             var editing = false;
-            var data = scope.$parent.data;
+            var data = scope["data"];
             var currentValue = data.Name;
             var containerCell = findAncestor(element[0], "ag-cell");
 
-            function findAncestor (el, cls) {
+            function findAncestor(el, cls) {
                 while ((el = el.parentElement) && !el.classList.contains(cls));
                 return el;
             }
-
-            function escapeHTMLText(stringToEscape: string) {
-                var stringEscaper = window.document.createElement("TEXTAREA");
-                stringEscaper.textContent = stringToEscape;
-                return stringEscaper.innerHTML;
-            }
-
 
             function stopEditing() {
                 var editSpan = containerCell.querySelector(".ag-group-inline-edit");
@@ -177,7 +171,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             $timeout
         //list of dependencies
         ) => {
-            return new BPTreeInlineEditing(
+            return new BPTreeInlineEditing (
                 $timeout
                 //list of other dependencies
             );

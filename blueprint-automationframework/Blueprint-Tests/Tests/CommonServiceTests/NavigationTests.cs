@@ -161,6 +161,7 @@ namespace CommonServiceTests
         }
 
         [TestRail(107168)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [Description("Get the navigation with maxium allowable number of artifacts in the url path. " +
             "Verify the expected error from the call.")]

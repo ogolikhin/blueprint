@@ -105,6 +105,7 @@ namespace CommonServiceTests
 
         #endregion Setup and Cleanup
 
+        [TestRail(107358)]
         [TestCase (BaseArtifactType.Process)]
         [Description("Attempt to get a lock on an artifact that has been published by the same user. Verify that the" +
                      "lock was obtained by the user.")]
@@ -133,6 +134,7 @@ namespace CommonServiceTests
                 );
         }
 
+        [TestRail(107359)]
         [TestCase(BaseArtifactType.Process)]
         [Description("Attempt to get a lock on an artifact that has been published by another user. Verify that the" +
                      "lock was obtained by the user.")]
@@ -161,6 +163,7 @@ namespace CommonServiceTests
                 );
         }
 
+        [TestRail(107361)]
         [TestCase(BaseArtifactType.Process)]
         [Description("Attempt to save a previously published artifact that has been locked by another user.  Verify that" +
                      "the user cannot save the artifact.")]
@@ -200,6 +203,7 @@ namespace CommonServiceTests
                 errorMessage);
         }
 
+        [TestRail(107362)]
         [TestCase(BaseArtifactType.Process)]
         [Description("Attempt to publish a previously published artifact that has been locked by another user.  Verify that" +
                      "the user cannot publish the artifact.")]

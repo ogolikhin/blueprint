@@ -9,7 +9,7 @@ using Utilities;
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
+    [Category(Categories.FileStore)]
     public class CookieNegativeTests
     {
         private IAdminStore _adminStore;

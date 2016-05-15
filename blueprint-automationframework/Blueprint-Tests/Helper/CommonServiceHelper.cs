@@ -1,8 +1,7 @@
 ﻿using Common;
 using Model;
-using Model.NavigationModel;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Utilities;
@@ -14,21 +13,30 @@ namespace Helper
     {
         private const string NAVIGATION_BASE_URL = "/Web/#/Storyteller/";
         private const string INACCESSIBLE_ARTIFACT_NAME = "<Inaccessible>";
+        // TODO This will need to be updated with the value that cannot does not exist in the system 
+        //Non-existence artifact Id sample
         private const int NONEXISTENT_ARTIFACT_ID = 99999999;
 
         /// <summary>
         /// Verifies that the JSON content returned by a 'GET /status' call has the expected fields.
         /// </summary>
         /// <param name="content">The content returned from a GET /status call.</param>
+        /// <param name="extraExpectedStrings">(optional) A list of additional strings to search for in the returned JSON content.</param>
         /// <exception cref="AssertionException">If any expected fields are not found.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0")]   // The first assert already validates for null.
-        public static void ValidateStatusResponseContent(string content)
+        public static void ValidateStatusResponseContent(string content, IList<string> extraExpectedStrings = null)
         {
             Assert.IsFalse(string.IsNullOrWhiteSpace(content), "GET /status returned no content!");
 
             Logger.WriteDebug("GET /status returned: '{0}'", content);
 
-            var stringsToFind = new List<string> { "ServiceName", "AccessInfo", "AssemblyFileVersion", "NoErrors", "Errors", "StatusResponses", "AccessControlEndpoint", "ConfigControlEndpoint" };
+            // TODO: See if we can do more verification beyond just looking for keywords.
+            var stringsToFind = new List<string> { "ServiceName", "AccessInfo", "AssemblyFileVersion", "NoErrors", "Errors", "StatusResponses" };
+
+            if (extraExpectedStrings != null)
+            {
+                stringsToFind.AddRange(extraExpectedStrings);
+            }
 
             foreach (string tag in stringsToFind)
             {
@@ -39,36 +47,43 @@ namespace Helper
         /// <summary>
         /// Verifies that the JSON content returned by a 'GET /svc/shared/navigation/{artifactId}' call has the expected fields.
         /// </summary>
-        /// <param name="content">The content returned from a GET /svc/shared/navigation/{artifactId} call.</param>
+        /// <param name="project">The project where accessible artifacts resides for the user</param>
+        /// <param name="user">The user who have access to the project</param>
+        /// <param name="resultArtifactReferenceList">The returned artifact reference list from GET navigation call</param>
+        /// <param name="artifactList">The list of artifacts for the navigation</param>
         /// <exception cref="AssertionException">If any expected fields are not found.</exception>
         public static void VerifyNavigation(
             IProject project,
             IUser user,
-            List<IArtifactReference> resultArtifactReferenceList,
-            INavigation navigation)
+            List<ArtifactReference> resultArtifactReferenceList,
+            List<IArtifact> artifactList)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(resultArtifactReferenceList, nameof(resultArtifactReferenceList));
-            ThrowIf.ArgumentNull(navigation, nameof(navigation));
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
-            Assert.That(resultArtifactReferenceList.Count.Equals(navigation.Artifacts.Count),
+            Assert.That(resultArtifactReferenceList.Count.Equals(artifactList.Count),
                 "The expected number of ArtifactRerences from GetNavigation is {0} but the call returned {1}.",
-                navigation.Artifacts.Count, resultArtifactReferenceList.Count);
+                artifactList.Count, resultArtifactReferenceList.Count);
 
             //Validations for accessible artifact references
-            var accessibleSourceArtifactList = navigation.Artifacts.FindAll(
-                artifact => artifact.CreatedBy.Token.Equals(user.Token) && !artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
-            var accessibleResultArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => accessibleSourceArtifactList.ConvertAll(a => a.Id).Contains(ar.Id));
-            var accessibleSourceArtifact = new OpenApiArtifact();
 
-            var sourceArtifactType = new Model.Impl.ArtifactType();
+            //accessibleSourceArtifactList is list of artifacts which are either created by the same user or doesn't contain NONEXISTETNT_ARTIFACT_ID
+            var accessibleSourceArtifactList = artifactList.FindAll(
+                artifact => artifact.CreatedBy.Token.Equals(user.Token) && !artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
+
+            List<int> accessibleSourceArtifactdIdList = accessibleSourceArtifactList.ConvertAll(a => a.Id);
+
+            //accessibleResultArtifactReferenceList is list of artifact references whose Ids exist in accessibleSourceArtifactdIdList
+            var accessibleResultArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => accessibleSourceArtifactdIdList.Contains(ar.Id));
 
             foreach (var accessibleResultArtifactReference in accessibleResultArtifactReferenceList)
             {
-                accessibleSourceArtifact = (OpenApiArtifact)accessibleSourceArtifactList.Find(a => a.Id.Equals(accessibleResultArtifactReference.Id));
+                //var accessibleSourceArtifact = accessibleSourceArtifactList.Find(artifact => artifact.Id.Equals(accessibleResultArtifactReference.Id));
+                var accessibleSourceArtifact = accessibleSourceArtifactList[accessibleResultArtifactReferenceList.IndexOf(accessibleResultArtifactReference)];
 
-                sourceArtifactType = project.ArtifactTypes.Find(at => at.BaseArtifactType.ToString().Equals(
+                var sourceArtifactType = project.ArtifactTypes.Find(artifactType => artifactType.BaseArtifactType.ToString().Equals(
                     accessibleResultArtifactReference.BaseItemTypePredefined.ToString()));
 
                 Assert.IsTrue(accessibleResultArtifactReference.Name.Equals(accessibleSourceArtifact.Name),
@@ -94,19 +109,21 @@ namespace Helper
             }
 
             //Validations for non-existance or inaccessible artifact references
-            var nonExistentSourceArtifactList = navigation.Artifacts.FindAll(
+
+            //nonExistentSourceArtifactList is list of artifacts which are either created by the different user or contain NONEXISTETNT_ARTIFACT_ID
+            var nonExistentSourceArtifactList = artifactList.FindAll(
                 artifact => !artifact.CreatedBy.Token.Equals(user.Token) || artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
-            var nonExistentArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => nonExistentSourceArtifactList.ConvertAll(a => a.Id).Contains(ar.Id));
+
+            var nonExistentSourceArtifactIdList = nonExistentSourceArtifactList.ConvertAll(a => a.Id);
+
+            //nonExistentArtifactReferenceList is list of artifact references whose Ids exist in nonExistentSourceArtifactIdList
+            var nonExistentArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => nonExistentSourceArtifactIdList.Contains(ar.Id));
 
             foreach (var nonExistentArtifactReference in nonExistentArtifactReferenceList)
             {
                 Assert.IsTrue(nonExistentArtifactReference.Name.Equals(INACCESSIBLE_ARTIFACT_NAME),
                     "The name value for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be {1} but returned name value is {2}.",
                     nonExistentArtifactReference.Id, INACCESSIBLE_ARTIFACT_NAME, nonExistentArtifactReference.Name);
-
-                Assert.IsTrue(nonExistentArtifactReference.Link == null,
-                    "The link for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be null but returned link is {1}.",
-                    nonExistentArtifactReference.Id, nonExistentArtifactReference.Link);
 
                 Assert.IsTrue(nonExistentArtifactReference.BaseItemTypePredefined.Equals(ItemTypePredefined.None),
                     "The baseItemTypePredefined for the non-existent/inaccessible artifact (Id: {0}) on artifact reference should be {1} but returned ",
@@ -130,13 +147,14 @@ namespace Helper
                 if (artifactReference.Id.Equals(NONEXISTENT_ARTIFACT_ID) || artifactReference.Name.Equals(INACCESSIBLE_ARTIFACT_NAME))
                 {
                     Assert.That(artifactReference.Link == null,
-                        "The expected link value is null but returned link value is {0}", artifactReference.Link);
+                        "The expected link value for the artifact (Id: {0}) is null but returned link value is {1}",
+                        artifactReference.Id, artifactReference.Link);
                 }
                 else
                 {
                     Assert.That(artifactReference.Link.Equals(linkPath),
-                        "The expected link value is {0} but the returned link value is {1}.",
-                        linkPath, artifactReference.Link);
+                        "The expected link value for the artifact (Id: {0}) is {1} but the returned link value is {2}.",
+                        artifactReference.Id, linkPath, artifactReference.Link);
                 }
             }
         }

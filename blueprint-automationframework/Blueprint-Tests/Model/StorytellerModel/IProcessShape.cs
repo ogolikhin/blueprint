@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -72,7 +72,7 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="artifact">The artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>
-        AssociatedArtifact AddAssociatedArtifact(IOpenApiArtifact artifact);
+        AssociatedArtifact AddAssociatedArtifact(IArtifact artifact);
 
         /// <summary>
         /// Verify if the Process is specific processShapeType

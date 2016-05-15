@@ -1,11 +1,9 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
 import {LocalizationServiceMock, ConfigValueHelperMock, WindowMock} from "./mocks.spec";
 
 describe("AuthSvc", () => {
-    var $httpBackend: ng.IHttpBackendService;
-
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("auth", AuthSvc);
         $provide.service("localization", LocalizationServiceMock);
@@ -18,16 +16,16 @@ describe("AuthSvc", () => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
-            $httpBackend.expectPOST("/Login/WinLogin.aspx","")
+            $httpBackend.expectPOST("/Login/WinLogin.aspx", "")
                 .respond(401);
-            $rootScope["config"]={
+            $rootScope["config"] = {
                 settings: { DisableWindowsIntegratedSignIn: "false" }
             };
 
             // Act
 
             var error: any;
-            var result = auth.getCurrentUser().then(() => { }, (err) => error = err);
+            auth.getCurrentUser().then(() => { }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -37,7 +35,8 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("succeed with SSO login after failing to get user info", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
+        it("succeed with SSO login after failing to get user info",
+            inject(($httpBackend: ng.IHttpBackendService, auth: IAuth, $rootScope: ng.IRootScopeService) => {
             // Arrange
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
                 .respond(401);
@@ -57,7 +56,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.getCurrentUser().then((responce) => { user = responce; }, (err) => error = err);
+            auth.getCurrentUser().then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -66,8 +65,6 @@ describe("AuthSvc", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
-
-     
 
         it("resolve successfully", inject(($httpBackend: ng.IHttpBackendService, auth: IAuth) => {
             // Arrange
@@ -80,7 +77,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.getCurrentUser().then((responce) => { user = responce; }, (err) => error = err);
+            auth.getCurrentUser().then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -96,12 +93,12 @@ describe("AuthSvc", () => {
             // Arrange
             var status: number = 401;
             var message: string = "Login Failed";
-            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin")+"&force=false", angular.toJson(AuthSvc.encode("changeme")))
+            $httpBackend.expectPOST("/svc/adminstore/sessions/?login=" + AuthSvc.encode("admin") + "&force=false", angular.toJson(AuthSvc.encode("changeme")))
                 .respond(status, { Message: message, ErrorCode: 2000 });
 
             // Act
             var error: any;
-            var result = auth.login("admin", "changeme", false).then(() => { }, (err) => error = err);
+            auth.login("admin", "changeme", false).then(() => { }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -127,7 +124,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -145,7 +142,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -166,12 +163,12 @@ describe("AuthSvc", () => {
             $httpBackend.expectPOST("/svc/shared/licenses/verify", "")
                 .respond(200);
             $httpBackend.expectGET("/svc/adminstore/users/loginuser")
-                .respond(401, {Message:"401 error"});
+                .respond(401, { Message: "401 error" });
 
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("Карл", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            auth.login("Карл", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -197,7 +194,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("𐊇𐊈𐊉", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            auth.login("𐊇𐊈𐊉", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -221,7 +218,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
+            auth.login("admin", "changeme", false).then((responce) => { user = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -240,7 +237,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
-            var result = auth.logout(user, true).then(() => {}, (err) => error = err);
+            auth.logout(user, true).then(() => {}, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -267,8 +264,8 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.loginWithSaml(true, "").then((responce) => { user = responce; }, (err) => error = err);
-            $window["notifyAuthenticationResult"]("1","PHNhbWx");
+            auth.loginWithSaml(true, "").then((responce) => { user = responce; }, (err) => error = err);
+            $window["notifyAuthenticationResult"]("1", "PHNhbWx");
             $httpBackend.flush();
 
             // Assert
@@ -286,7 +283,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.loginWithSaml(false, "").then((responce) => { user = responce; }, (err) => error = err);
+            auth.loginWithSaml(false, "").then((responce) => { user = responce; }, (err) => error = err);
             $window["notifyAuthenticationResult"]("1", "PHNhbWx");
             $httpBackend.flush();
 
@@ -314,7 +311,7 @@ describe("AuthSvc", () => {
             // Act
             var error: any;
             var user: IUser;
-            var result = auth.loginWithSaml(true, "notAdmin").then((responce) => { user = responce; }, (err) => error = err);
+            auth.loginWithSaml(true, "notAdmin").then((responce) => { user = responce; }, (err) => error = err);
             $window["notifyAuthenticationResult"]("1", "PHNhbWx");
             $httpBackend.flush();
 
@@ -338,11 +335,10 @@ describe("AuthSvc", () => {
             var encNewPassword = AuthSvc.encode(newPassword);
             $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }))
                 .respond(200);
-            
+
             // Act
             var error: any;
-            var user: IUser;
-            var result = auth.resetPassword(login, oldPassword, newPassword).then(() => {}, (err) => error = err);
+            auth.resetPassword(login, oldPassword, newPassword).then(() => {}, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -363,11 +359,10 @@ describe("AuthSvc", () => {
             var encNewPassword = AuthSvc.encode(newPassword);
             $httpBackend.expectPOST("/svc/adminstore/users/reset?login=" + encUserName, angular.toJson({ OldPass: encOldPassword, NewPass: encNewPassword }))
                 .respond(401, { Message: errorMsg});
-            
+
             // Act
             var error: any;
-            var user: IUser;
-            var result = auth.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
+            auth.resetPassword(login, oldPassword, newPassword).then(() => { }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert

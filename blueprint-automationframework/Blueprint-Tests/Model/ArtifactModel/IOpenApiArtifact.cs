@@ -7,26 +7,6 @@ namespace Model.ArtifactModel
     public interface IOpenApiArtifact : IArtifactBase
     {
         /// <summary>
-        /// List of Open Api Artifact Properties
-        /// </summary>
-        List<OpenApiProperty> Properties { get; }
-
-        /// <summary>
-        /// List of Open Api Artifact Comments
-        /// </summary>
-        List<OpenApiComment> Comments { get; }
-
-        /// <summary>
-        /// List of Open Api Artifact Traces
-        /// </summary>
-        List<OpenApiTrace> Traces { get; }
-
-        /// <summary>
-        ///  List of Open Api Artifact Attachments
-        /// </summary>
-        List<OpenApiAttachment> Attachments { get; }
-
-        /// <summary>
         /// Save the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to delete using the credentials

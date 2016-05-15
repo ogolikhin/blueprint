@@ -1,8 +1,11 @@
-using Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using Common;
 using Utilities;
 using Utilities.Facades;
 
@@ -11,7 +14,6 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactBase : IArtifactBase
     {
         #region Constants
-
         public const string URL_LOCK = "svc/shared/artifacts/lock";
         public const string URL_DISCUSSIONS = "/svc/components/RapidReview/artifacts/{0}/discussions";
         public const string URL_SEARCH = "/svc/shared/artifacts/search";
@@ -42,6 +44,26 @@ namespace Model.ArtifactModel.Impl
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
+
+        //TODO  Check if we can remove the setters and get rid of these warnings
+
+        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        public List<OpenApiProperty> Properties { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiComment>>))]
+        public List<OpenApiComment> Comments { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiTrace>>))]
+        public List<OpenApiTrace> Traces { get; set; }
+
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiAttachment>>))]
+        public List<OpenApiAttachment> Attachments { get; set; }
 
         #endregion Properties
 
@@ -80,7 +102,7 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Constructors
 
-        #region Methods
+        #region Public Methods
 
         public List<ArtifactReference> GetNavigation(
             IUser user,
@@ -90,6 +112,10 @@ namespace Model.ArtifactModel.Impl
         {
             return GetNavigation(Address, user, artifacts, expectedStatusCodes);
         }
+
+        #endregion Public Methods
+
+        #region Static Methods
 
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation
@@ -115,7 +141,7 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, string.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
 
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
@@ -127,6 +153,41 @@ namespace Model.ArtifactModel.Impl
             return response;
         }
 
-        #endregion Methods
+        /// <summary>
+        /// Replace properties in an artifact with properties from another artifact
+        /// </summary>
+        /// <param name="sourceArtifactBase">The artifact that is the source of the properties</param>
+        /// <param name="destinationArtifactBase">The artifact that is the detination of the properties</param>
+        public static void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase sourceArtifactBase, IArtifactBase destinationArtifactBase)
+        {
+            ThrowIf.ArgumentNull(sourceArtifactBase, nameof(sourceArtifactBase));
+            ThrowIf.ArgumentNull(destinationArtifactBase, nameof(destinationArtifactBase));
+
+            // List of properties not to be replaced by the source artifact properties
+            var propertiesNotToBeReplaced = new List<string>
+            {
+                "CreatedBy",
+                "Address"
+            };
+
+            foreach (PropertyInfo propertyInfo in sourceArtifactBase.GetType().GetProperties())
+            {
+                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().First(p => p.Name == propertyInfo.Name);
+
+                if (destinationPropertyInfo != null && destinationPropertyInfo.CanWrite && !propertiesNotToBeReplaced.Contains(destinationPropertyInfo.Name))
+                {
+                    var value = propertyInfo.GetValue(sourceArtifactBase);
+                    destinationPropertyInfo.SetValue(destinationArtifactBase, value);
+                }
+            }
+        }
+
+        #endregion Static Methods
+    }
+
+    public static class ArtifactValidationMessage
+    {
+        public static readonly string ArtifactAlreadyLocked = "The artifact is locked by other user.";
+        public static readonly string ArtifactAlreadyPublished = "Artifact {0} is already published in the project";
     }
 }

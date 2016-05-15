@@ -7,26 +7,6 @@ namespace Model.ArtifactModel
     public interface IArtifact : IArtifactBase
     {
         /// <summary>
-        /// List of Artifact Properties
-        /// </summary>
-        List<Property> Properties { get; }
-
-        /// <summary>
-        /// List of Artifact Comments
-        /// </summary>
-        List<Comment> Comments { get; }
-
-        /// <summary>
-        /// List of Artifact Traces
-        /// </summary>
-        List<Trace> Traces { get; }
-
-        /// <summary>
-        ///  List of Artifact Attachments
-        /// </summary>
-        List<Attachment> Attachments { get; }
-
-        /// <summary>
         /// Save the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials

@@ -77,8 +77,9 @@ function Build-Nova-Html{
     {
        pushd "$workspace\app\NovaWeb"
    
-       Invoke-MyExpression ".\devsetup.bat" ""
-       Invoke-MyExpression "npm" "install -g"
+       Invoke-MyExpression "npm" "install"
+       Invoke-MyExpression "npm" "update"
+       Invoke-MyExpression "typings" "i"
 
        # Increment build version number
        $version = $blueprintVersion.split(".")

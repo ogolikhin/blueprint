@@ -166,8 +166,8 @@ export class BPTreeController  {
             enableColResize: true,
             columnDefs: this.gridColumns,
             icons: {
-                groupExpanded: "<i class='fonticon-folder-open' />",
-                groupContracted: "<i class='fonticon-folder' />"
+                groupExpanded: "<i class='fonticon-' />",
+                groupContracted: "<i class='fonticon-' />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
             onCellFocused: this.cellFocused,
@@ -240,28 +240,32 @@ export class BPTreeController  {
         }
     };
 
-    private rowClicked = (params: any) => {
+    private rowFocus = (target: any) => {
         function findAncestor(el, cls) {
             while ((el = el.parentElement) && !el.classList.contains(cls));
             return el;
         }
 
-        var clickedCell = findAncestor(params.event.target, "ag-cell");
+        var clickedCell = findAncestor(target, "ag-cell");
         if (clickedCell) {
             clickedCell.focus();
         }
+    };
 
-        if (typeof this.onRowClick === `function`) {
-            var self = this;
+    private rowClicked = (params: any) => {
+        var self = this;
 
-            self.clickTimeout = self.$timeout(function () {
-                if (self.clickTimeout.$$state.status === 2) {
-                    return; // click event canceled by double-click
-                }
+        self.clickTimeout = self.$timeout(function () {
+            if (self.clickTimeout.$$state.status === 2) {
+                return; // click event canceled by double-click
+            }
 
+            self.rowFocus(params.event.target);
+
+            if (typeof self.onRowClick === `function`) {
                 self.onRowClick({prms: params});
-            }, 250);
-        }
+            }
+        }, 250);
     };
 
     private rowDoubleClicked = (params: any) => {

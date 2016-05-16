@@ -39,7 +39,8 @@ class ProjectExplorerController {
         headerName: "",
         field: "Name",
         cellClassRules: {
-            "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+            "has-children": function (params) { return params.data.HasChildren; },
+            "is-folder": function (params) { return params.data.Type === "Folder"; },
             "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",

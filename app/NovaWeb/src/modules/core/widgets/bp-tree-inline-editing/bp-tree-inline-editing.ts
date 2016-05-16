@@ -33,11 +33,15 @@ export class BPTreeInlineEditing implements ng.IDirective {
             if (Controller) {
                 var data = $scope["data"];
                 var currentValue = data.Name;
-                var containerCell = findAncestorByClass($element[0], "ag-cell");
-                var gridBody = findAncestorByClass($element[0], "ag-body");
 
-                containerCell.addEventListener("keydown", keyEventHandler);
-                containerCell.addEventListener("keypress", keyEventHandler);
+                var span = $element[0];
+                span.removeAttribute("bp-tree-inline-editing");
+
+                var containerCell = findAncestorByClass(span, "ag-cell");
+                var gridBody = findAncestorByClass(span, "ag-body");
+
+                containerCell.addEventListener("keydown", inputEventHandler);
+                containerCell.addEventListener("keypress", inputEventHandler);
                 containerCell.addEventListener("dblclick", dblClickHandler);
             }
 
@@ -52,8 +56,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 if (self.editing && editSpan && valueSpan) {
                     var input = editSpan.querySelector("input");
                     input.removeEventListener("blur", stopEditing);
-                    input.removeEventListener("keydown", keyEventHandler);
-                    input.removeEventListener("click", keyEventHandler);
+                    input.removeEventListener("keydown", inputEventHandler);
+                    input.removeEventListener("click", inputEventHandler);
                     var newValue = input.value.trim();
                     // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                     if (newValue !== "" && newValue.charCodeAt(0) > 32) {
@@ -68,7 +72,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     // reset the focus on the container div so that the keyboard navigation can resume
                     parentSpan.parentNode.focus();
 
-                    Controller.options.api.refreshView();
+                    //Controller.options.api.refreshView(); // if we refresh the view, the navigation/renaming misbehave
 
                     self.editing = false;
                     containerCell.className = containerCell.className.replace(/ ag-cell-inline-editing/g, "") + " ag-cell-not-inline-editing";
@@ -93,8 +97,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     containerCell.firstChild.insertBefore(editSpan, valueSpan);
 
                     input.addEventListener("blur", stopEditing);
-                    input.addEventListener("keydown", keyEventHandler);
-                    input.addEventListener("click", keyEventHandler);
+                    input.addEventListener("keydown", inputEventHandler);
+                    input.addEventListener("click", inputEventHandler);
                     input.focus();
                     input.select();
 
@@ -108,7 +112,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             // character was entered. For example, a lowercase "a" will be reported as 65 by keydown and keyup, but as 97
             // by keypress. An uppercase "A" is reported as 65 by all events. Because of this distinction, when catching
             // special keystrokes such as arrow keys, .keydown() or .keyup() is a better choice.
-            function keyEventHandler(e) {
+            function inputEventHandler(e) {
                 var key = e.which || e.keyCode;
 
                 if (self.editing) {
@@ -139,24 +143,11 @@ export class BPTreeInlineEditing implements ng.IDirective {
                             } else if (key === 27) { // Escape
                                 input.value = currentValue;
                                 input.blur();
-                                /*} else if (key === 37) { // left arrow
-                                 selectionStart--;
-                                 if (!e.shiftKey) {
-                                 selectionEnd = selectionStart;
-                                 }
-                                 input.setSelectionRange(selectionStart, selectionEnd);
-                                 } else if (key === 39) { // right arrow
-                                 selectionEnd++;
-                                 if (!e.shiftKey) {
-                                 selectionStart = selectionEnd;
-                                 }
-                                 input.setSelectionRange(selectionStart, selectionEnd);*/
                             }
                             e.stopImmediatePropagation();
                         } else if (e.type === "click") {
                             e.stopImmediatePropagation();
                         }
-
                     }
                 } else {
                     if (key === 13 && data.Type === "Folder") {
@@ -180,10 +171,12 @@ export class BPTreeInlineEditing implements ng.IDirective {
             function dblClickHandler(e) {
                 self.selectedNode = Controller.options.api.getSelectedNodes()[0];
 
-                if (!self.editing) {
+                inlineEdit();
+
+                //if (!self.editing) {
                     //user double-clicked, let's rename but we need to let ag-grid redraw first
-                    self.timeout(inlineEdit, 200);
-                }
+                    //self.timeout(inlineEdit, 200);
+                //}
             }
         };
     }

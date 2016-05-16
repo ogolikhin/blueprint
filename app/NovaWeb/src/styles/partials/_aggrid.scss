@@ -133,11 +133,43 @@
     }
   }
 
+// icons for artifacts and folders
+  .ag-cell.is-folder {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e802';
+    }
+  }
+
   .ag-cell.is-project {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e879';
     }
+  }
+
+  .ag-row-group-contracted .ag-cell,
+  .ag-row-group-expanded .ag-cell {
+    .ag-group-contracted i::before,
+    .ag-group-expanded i::before {
+      line-height: $aggrid-row-height;
+      vertical-align: bottom;
+    }
+
+    // disables the icons for groups (to show the group-specific ones)
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      display: none;
+    }
+  }
+
+// group specific icons
+  .ag-row-group .is-folder .ag-group-contracted i::before {
+    content: '\e802';
+  }
+
+  .ag-row-group .is-folder .ag-group-expanded i::before {
+    content: '\e83e';
   }
 
   .ag-cell.has-children {

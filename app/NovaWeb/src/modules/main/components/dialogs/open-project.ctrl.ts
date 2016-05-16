@@ -63,8 +63,9 @@ export class OpenProjectController extends BaseDialogController {
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
         cellClassRules: {
-            "has-children": function(params) { return params.data.Type === "Folder" && params.data.HasChildren; },
-            "is-project": function(params) { return params.data.Type === "Project"; }
+            "has-children": function(params) { return params.data.HasChildren; },
+            "is-folder": function (params) { return params.data.Type === "Folder"; },
+            "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",
         cellRendererParams: {

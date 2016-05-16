@@ -63,6 +63,39 @@ namespace ArtifactStore.Repositories
 
             var dicUserArtifactVersions = artifactVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
+            // For projects only, get orphan artifacts
+            if (artifactId == null)
+            {
+                prm = new DynamicParameters();
+                prm.Add("@projectId", projectId);
+                prm.Add("@userId", userId);
+
+                var orphanVersions = (await ConnectionWrapper.QueryAsync<ArtifactVersion>("GetProjectOrphans", prm,
+                    commandType: CommandType.StoredProcedure)).ToList();
+
+                if(orphanVersions.Any())
+                {
+                    var dicUserOrphanVersions = orphanVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
+
+                    foreach (var userOrphanVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == projectId))
+                    {
+                        // Replace with the corrected ParentId
+                        if (dicUserArtifactVersions.ContainsKey(userOrphanVersion.ItemId))
+                            dicUserArtifactVersions.Remove(userOrphanVersion.ItemId);
+                        
+                        // Add the orphan with children
+                        dicUserArtifactVersions.Add(userOrphanVersion.ItemId, userOrphanVersion);
+                        foreach (var userOrphanChildVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == userOrphanVersion.ItemId))
+                        {
+                            if (dicUserArtifactVersions.ContainsKey(userOrphanChildVersion.ItemId))
+                                continue;
+
+                            dicUserArtifactVersions.Add(userOrphanChildVersion.ItemId, userOrphanChildVersion);
+                        }
+                    }
+                }
+            }
+
             ArtifactVersion parentUserArtifactVersion;
             dicUserArtifactVersions.TryGetValue(artifactId ?? projectId, out parentUserArtifactVersion);
 
@@ -111,7 +144,8 @@ namespace ArtifactStore.Repositories
                 ProjectId = v.VersionProjectId,
                 ParentId = v.ParentId,
                 TypeId = v.ItemTypeId,
-                PredefinedType = v.ItemTypePredefined.ToPredefinedType(),
+                Prefix = v.Prefix,
+                PredefinedType = v.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
                 Version = v.VersionsCount,
                 OrderIndex = v.OrderIndex,
                 HasChildren = v.HasChildren,
@@ -193,9 +227,8 @@ namespace ArtifactStore.Repositories
                 return null;
 
             Debug.Assert(headAndDraft.Count < 3, "More than 2 version for Head and Draft collection: " + headAndDraft.Count);
-            Debug.Assert(headAndDraft.Count == 2
-                && headAndDraft[0].ItemId == headAndDraft[1].ItemId
-                && headAndDraft[0].HasDraft == headAndDraft[1].HasDraft,
+            Debug.Assert(headAndDraft.Count != 2
+                || (headAndDraft[0].ItemId == headAndDraft[1].ItemId && headAndDraft[0].HasDraft == headAndDraft[1].HasDraft),
                 "ItemId or HasDraft properties of Head and Draft are different.");
 
             var headOrDraft = headAndDraft[0].HasDraft 
@@ -232,11 +265,11 @@ namespace ArtifactStore.Repositories
         internal int VersionProjectId { get; set; }
         internal int? ParentId { get; set; }
         internal string Name { get; set; }
-        internal double OrderIndex { get; set; }
+        internal double? OrderIndex { get; set; }
         internal int StartRevision { get; set; }
         internal int EndRevision { get; set; }
-        internal int ItemTypePredefined { get; set; }
-        internal int ItemTypeId { get; set; }
+        internal int? ItemTypePredefined { get; set; }
+        internal int? ItemTypeId { get; set; }
         internal string Prefix { get; set; }
         internal int? LockedByUserId { get; set; }
         internal DateTime? LockedByUserTime { get; set; }

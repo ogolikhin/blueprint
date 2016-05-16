@@ -49,6 +49,8 @@ namespace Model.ArtifactModel.Impl
 
         //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
 
+        //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
+
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
         public List<OpenApiProperty> Properties { get; set; }
@@ -157,7 +159,7 @@ namespace Model.ArtifactModel.Impl
         /// Replace properties in an artifact with properties from another artifact
         /// </summary>
         /// <param name="sourceArtifactBase">The artifact that is the source of the properties</param>
-        /// <param name="destinationArtifactBase">The artifact that is the detination of the properties</param>
+        /// <param name="destinationArtifactBase">The artifact that is the destination of the properties</param>
         public static void ReplacePropertiesWithPropertiesFromSourceArtifact(IArtifactBase sourceArtifactBase, IArtifactBase destinationArtifactBase)
         {
             ThrowIf.ArgumentNull(sourceArtifactBase, nameof(sourceArtifactBase));
@@ -166,17 +168,19 @@ namespace Model.ArtifactModel.Impl
             // List of properties not to be replaced by the source artifact properties
             var propertiesNotToBeReplaced = new List<string>
             {
+                // Can't be replaced from destination because our IUser model differs from the Blueprint implementation
                 "CreatedBy",
+                // This needs to be maintained so that it is not overwritten with null
                 "Address"
             };
 
-            foreach (PropertyInfo propertyInfo in sourceArtifactBase.GetType().GetProperties())
+            foreach (PropertyInfo sourcePropertyInfo in sourceArtifactBase.GetType().GetProperties())
             {
-                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().First(p => p.Name == propertyInfo.Name);
+                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().First(p => p.Name == sourcePropertyInfo.Name);
 
                 if (destinationPropertyInfo != null && destinationPropertyInfo.CanWrite && !propertiesNotToBeReplaced.Contains(destinationPropertyInfo.Name))
                 {
-                    var value = propertyInfo.GetValue(sourceArtifactBase);
+                    var value = sourcePropertyInfo.GetValue(sourceArtifactBase);
                     destinationPropertyInfo.SetValue(destinationArtifactBase, value);
                 }
             }

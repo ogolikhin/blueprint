@@ -198,14 +198,16 @@ namespace Model.ArtifactModel.Impl
                 Logger.WriteDebug("{0} {1} returned followings: Message: {2}, ResultCode: {3}", restRequestMethod.ToString(), path, artifactResult.Message, artifactResult.ResultCode);
                 Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
 
-                Assert.That(artifactResult.Message == "Success", 
-                    "The returned Message was '{0}' but 'Success' was expected", 
-                    artifactResult.Message);
-
                 Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
                     "The returned ResultCode was '{0}' but '{1}' was expected",
                     artifactResult.ResultCode,
-                    ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+                    ((int)HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
+
+                artifactToSave.IsSaved = true;
+
+                Assert.That(artifactResult.Message == "Success", 
+                    "The returned Message was '{0}' but 'Success' was expected", 
+                    artifactResult.Message);
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
@@ -232,6 +234,8 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
 
+            Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
+
             string tokenValue = user.Token?.OpenApiToken;
             var cookies = new Dictionary<string, string>();
 
@@ -243,11 +247,7 @@ namespace Model.ArtifactModel.Impl
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToUpdate.ProjectId);
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { artifactToUpdate.Id == 0 ? HttpStatusCode.Created : HttpStatusCode.OK };
-            }
-
+            //TODO: Remove this when solution to have the property to update configurable
             var propertyToSave = artifactToUpdate.Properties.First(p => p.Name == "Description");
 
             // Todo: Expland this to have the properties to update configurable
@@ -602,7 +602,6 @@ namespace Model.ArtifactModel.Impl
         public int Id { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<PropertyForUpdate>>))]
         public List<PropertyForUpdate> Properties { get; set; }
     }
 

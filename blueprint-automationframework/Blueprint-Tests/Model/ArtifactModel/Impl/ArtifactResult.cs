@@ -65,6 +65,9 @@ namespace Model.ArtifactModel.Impl
         public HttpStatusCode ResultCode { get; set; }
     }
 
+    // Todo Refactor to get rid of this if possible
+    // This is required because the OpenApi call only returns an ArtifactId rather than
+    // an Artifact.
     public class FailedArtifactResult
     {
         public int ArtifactId { get; set; }
@@ -82,6 +85,9 @@ namespace Model.ArtifactModel.Impl
     public class VersionInfo
     {
         public int? ArtifactId { get; set; }
+        /// <summary>
+        /// The historical version id of the artifact
+        /// </summary>
         public int ServerArtifactVersionId { get; set; }
         public DateTime? UtcLockedDateTime { get; set; }
         public string LockOwnerLogin { get; set; }

@@ -130,6 +130,8 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes,
                 sendAuthorizationAsCookie);
 
+            IsSaved = false;
+
             return discardArtifactResults;
         }
         public List<DeleteArtifactResult> Delete(IUser user = null,

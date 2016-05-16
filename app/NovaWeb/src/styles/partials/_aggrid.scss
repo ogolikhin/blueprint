@@ -198,7 +198,7 @@ $aggrid-dnd-handle-width: 14px;
     font-family: 'bp-font';
   }
 
-  .ag-row:hover .ag-row-dnd-handle {
+  .ag-body:not(.ag-body-inline-editing) .ag-row:hover .ag-row-dnd-handle {
     display: block;
   }
 
@@ -226,8 +226,9 @@ $aggrid-dnd-handle-width: 14px;
     background: transparent;
     font-size: 0;
     height: 2px;
+    left: $aggrid-dnd-handle-width;
     position: absolute;
-    width: 100%;
+    width: calc(100% - #{$aggrid-dnd-handle-width});
   }
 
   .ag-row-dnd-pre {
@@ -255,7 +256,15 @@ $aggrid-dnd-handle-width: 14px;
     top: 1px;
   }
 
-  @for $i from 5 through 1 {
+  $aggrid-dnd-max-level: 5;
+
+  @for $i from 0 through $aggrid-dnd-max-level - 1 {
+    .ag-row-level-#{$i} + .ag-row-level-#{$i + 1} .ag-row-dnd-pre {
+      z-index: 400;
+    }
+  }
+
+  @for $i from $aggrid-dnd-max-level through 1 {
     @for $j from 0 through ($i - 1) {
       .ag-row-level-#{$i} + .ag-row-level-#{$j} .ag-row-dnd-pre {
         display: none;

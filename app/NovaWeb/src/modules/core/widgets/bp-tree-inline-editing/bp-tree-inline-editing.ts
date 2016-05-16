@@ -19,7 +19,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
         // It's important to add `link` to the prototype or you will end up with state issues.
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
         BPTreeInlineEditing.prototype.link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
-            function findAncestor(el, cls) {
+            function findAncestorByClass(el, cls) {
                 while ((el = el.parentElement) && !el.classList.contains(cls));
                 return el;
             }
@@ -31,6 +31,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     var input = editSpan.querySelector("input");
                     input.removeEventListener("blur", stopEditing);
                     input.removeEventListener("keydown", keyEventHandler);
+                    input.removeEventListener("click", keyEventHandler);
                     var newValue = input.value.trim();
                     // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                     if (newValue !== "" && newValue.charCodeAt(0) > 32) {
@@ -46,8 +47,10 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     parentSpan.parentNode.focus();
 
                     Controller.options.api.refreshView();
+
                     self.editing = false;
-                    containerCell.className = containerCell.className.replace(" ag-cell-inline-editing", "") + " ag-cell-not-inline-editing";
+                    containerCell.className = containerCell.className.replace(/ ag-cell-inline-editing/g, "") + " ag-cell-not-inline-editing";
+                    gridBody.className = gridBody.className.replace(/ ag-body-inline-editing/g, "") + " ag-body-not-inline-editing";
                 }
             }
 
@@ -74,7 +77,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     input.select();
 
                     self.editing = true;
-                    containerCell.className = containerCell.className.replace(" ag-cell-not-inline-editing", "") + " ag-cell-inline-editing";
+                    containerCell.className = containerCell.className.replace(/ ag-cell-not-inline-editing/g, "") + " ag-cell-inline-editing";
+                    gridBody.className = gridBody.className.replace(/ ag-body-not-inline-editing/g, "") + " ag-body-inline-editing";
                 }
             }
 
@@ -174,7 +178,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
             if (Controller) {
                 var data = $scope["data"];
                 var currentValue = data.Name;
-                var containerCell = findAncestor($element[0], "ag-cell");
+                var containerCell = findAncestorByClass($element[0], "ag-cell");
+                var gridBody = findAncestorByClass($element[0], "ag-body");
 
                 containerCell.addEventListener("keydown", keyEventHandler);
                 containerCell.addEventListener("keypress", keyEventHandler);

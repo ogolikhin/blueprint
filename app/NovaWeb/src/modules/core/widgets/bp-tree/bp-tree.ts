@@ -280,7 +280,6 @@ export class BPTreeController  {
             if (typeof self.onExpand === `function`) {
                 if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
                     if (node.expanded) {
-
                         self.onExpand({ prms: node.data })
                             .then((data: any) => { //pSvc.IProjectNode[]
                                 node.data.Children = data;

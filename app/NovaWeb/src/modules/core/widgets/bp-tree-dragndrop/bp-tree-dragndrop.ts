@@ -21,6 +21,35 @@ export class BPTreeDragndrop implements ng.IDirective {
                 return JSON.parse(JSON.stringify(obj));
             };
 
+            var traverseData = function(targetPath, nodesObj) {
+                var node = nodesObj;
+                var indexes = targetPath.split("/");
+
+                for (var i = 0; i < indexes.length; i++) {
+                    var j = parseInt(indexes[i], 10);
+
+                    if (node.hasOwnProperty("Children")) {
+                        node = node.Children[j];
+                    } else if (node.length) {
+                        node = node[j];
+                    }
+                }
+
+                return node;
+            };
+
+            var isTargetAnOpenFolder = function(targetPath, nodesObj) {
+                var node = traverseData(targetPath, nodesObj);
+
+                return !!node.open;
+            };
+
+            var hasContentBeenAlreadyLoaded = function(targetPath, nodesObj) {
+                var node = traverseData(targetPath, nodesObj);
+
+                return !!node.alreadyLoadedFromServer;
+            };
+
             var adjustPath = function(sourcePath, targetPath) {
                 var sourceIndexes = sourcePath.split("/");
                 var targetIndexes = targetPath.split("/");
@@ -72,6 +101,12 @@ export class BPTreeDragndrop implements ng.IDirective {
                 }
 
                 if (position === "inside") {
+                    // can't put an element inside a folder if its content has not been loaded yet
+                    if (!hasContentBeenAlreadyLoaded(targetPath, nodesObj)) {
+                        alert("Folder's content not loaded yet!!"); //temporary
+                        return false;
+                    }
+
                     // can't put the element inside its current parent
                     if (nodeToInsert.ParentFolderId === folderId) {
                         return false;
@@ -110,7 +145,7 @@ export class BPTreeDragndrop implements ng.IDirective {
                         if (i === indexes.length - 1) {
                             var _node = node.Children.splice(j, 1);
                             if (node.Children.length === 0) {
-                                delete node.Children;
+                                //delete node.Children;
                                 delete node.HasChildren;
                             }
                             node = _node;
@@ -154,18 +189,27 @@ export class BPTreeDragndrop implements ng.IDirective {
                 };
 
                 $scope["onDropRow"] = function (path, $data, $event, position) {
-
                     if (self.isMoving) {
+                        // we backup the current data in case the drag and drop fails
+                        var dataBackup = cloneObj(nodes);
+
+                        // handle special case when trying to drag to first position in an open folder
+                        if (isTargetAnOpenFolder(path, nodes) && position === "after") {
+                            return;
+                        }
+
                         self.isMoving = false;
 
-                        var dataBackup = cloneObj(nodes);
                         var node = extractNodeByIndex(self.movingFrom, nodes);
+                        // we need to recalculate the target path, after we extracted the node from the data
                         var adjustedPath = adjustPath(self.movingFrom, path);
 
                         if (!insertNodeByIndex(adjustedPath, node, nodes, position)) {
-                            nodes = dataBackup;
+                            Controller.rowData = dataBackup;
+                            nodes = Controller.rowData
                         }
                         Controller.options.api.setRowData(nodes);
+                        Controller.options.api.refreshView();
 
                         //console.log("after dropping", cloneObj(nodes));
                     }
@@ -179,17 +223,22 @@ export class BPTreeDragndrop implements ng.IDirective {
                 var $row = $element[0];
                 $row.removeAttribute("bp-tree-dragndrop");
 
+                var $cell = <HTMLElement>$row.querySelector(".ag-cell");
+
                 var $dragHandle = document.createElement("DIV");
                 $dragHandle.className = "ag-row-dnd-handle";
                 $dragHandle.setAttribute("ng-drag-handle", "");
+                $dragHandle.addEventListener("mousedown", function(e) {
+                    $cell.focus();
+                });
 
                 var $preRow = document.createElement("DIV");
                 $preRow.className = "ag-row-dnd-pre";
-                var $postRow = document.createElement("DIV");
-                $postRow.className = "ag-row-dnd-post";
-
                 $preRow.setAttribute("ng-drop", "true");
                 $preRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPre);
+
+                var $postRow = document.createElement("DIV");
+                $postRow.className = "ag-row-dnd-post";
                 $postRow.setAttribute("ng-drop", "true");
                 $postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
 
@@ -198,8 +247,8 @@ export class BPTreeDragndrop implements ng.IDirective {
                 $row.appendChild($postRow);
 
                 //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
-                $row.querySelector(".ag-cell").setAttribute("ng-drop", "true");
-                $row.querySelector(".ag-cell").setAttribute("ng-drop-success", dropSuccessCallbackAsString);
+                $cell.setAttribute("ng-drop", "true");
+                $cell.setAttribute("ng-drop-success", dropSuccessCallbackAsString);
                 //}
 
                 //if (!params.node.data.ReadOnly && !readOnlyChildren) {

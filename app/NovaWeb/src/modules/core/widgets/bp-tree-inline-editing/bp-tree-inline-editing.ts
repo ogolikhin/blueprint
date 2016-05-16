@@ -1,11 +1,12 @@
 export class BPTreeInlineEditing implements ng.IDirective {
-    public link: (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => void;
+    public link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
     //public scope = {};
     public restrict = "A";
 
-    private timeout;
-    private editing;
+    private timeout: any;
+    private editing: boolean;
+    private selectedNode: any;
 
     constructor(
         $timeout
@@ -13,15 +14,11 @@ export class BPTreeInlineEditing implements ng.IDirective {
     ) {
         this.timeout = $timeout;
         this.editing = false;
+        this.selectedNode = null;
 
         // It's important to add `link` to the prototype or you will end up with state issues.
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
-        BPTreeInlineEditing.prototype.link = (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
-            var self = this;
-            var data = scope["data"];
-            var currentValue = data.Name;
-            var containerCell = findAncestor(element[0], "ag-cell");
-
+        BPTreeInlineEditing.prototype.link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
             function findAncestor(el, cls) {
                 while ((el = el.parentElement) && !el.classList.contains(cls));
                 return el;
@@ -38,7 +35,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                     if (newValue !== "" && newValue.charCodeAt(0) > 32) {
                         valueSpan.querySelector("span").textContent = newValue;
-                        //selectedNode.data.Name = newValue;
+                        self.selectedNode.data.Name = newValue;
                     } else {
                         valueSpan.querySelector("span").textContent = currentValue;
                     }
@@ -48,14 +45,14 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     // reset the focus on the container div so that the keyboard navigation can resume
                     parentSpan.parentNode.focus();
 
-                    //self.options.api.refreshView();
+                    Controller.options.api.refreshView();
                     self.editing = false;
                     containerCell.className = containerCell.className.replace(" ag-cell-inline-editing", "") + " ag-cell-not-inline-editing";
                 }
             }
 
             function inlineEdit() {
-                //selectedNode = self.options.api.getSelectedNodes()[0];
+                self.selectedNode = Controller.options.api.getSelectedNodes()[0];
                 var valueSpan = containerCell.querySelector(".ag-group-value");
                 if (!self.editing && valueSpan) {
                     var editSpan = document.createElement("span");
@@ -72,6 +69,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
                     input.addEventListener("blur", stopEditing);
                     input.addEventListener("keydown", keyEventHandler);
+                    input.addEventListener("click", keyEventHandler);
                     input.focus();
                     input.select();
 
@@ -129,6 +127,8 @@ export class BPTreeInlineEditing implements ng.IDirective {
                                  input.setSelectionRange(selectionStart, selectionEnd);*/
                             }
                             e.stopImmediatePropagation();
+                        } else if (e.type === "click") {
+                            e.stopImmediatePropagation();
                         }
 
                     }
@@ -152,7 +152,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             }
 
             function dblClickHandler(e) {
-                //selectedNode = self.options.api.getSelectedNodes()[0];
+                self.selectedNode = Controller.options.api.getSelectedNodes()[0];
 
                 if (!self.editing) {
                     //user double-clicked, let's rename but we need to let ag-grid redraw first
@@ -160,9 +160,26 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 }
             }
 
-            containerCell.addEventListener("keydown", keyEventHandler);
-            containerCell.addEventListener("keypress", keyEventHandler);
-            containerCell.addEventListener("dblclick", dblClickHandler);
+            var self = this;
+
+            var Controller = null;
+            var parent = $scope.$parent;
+            while (parent.$parent) {
+                var parent = parent.$parent;
+                if (parent["$ctrl"] && parent["$ctrl"].rowData) {
+                    Controller = parent["$ctrl"];
+                }
+            }
+
+            if (Controller) {
+                var data = $scope["data"];
+                var currentValue = data.Name;
+                var containerCell = findAncestor($element[0], "ag-cell");
+
+                containerCell.addEventListener("keydown", keyEventHandler);
+                containerCell.addEventListener("keypress", keyEventHandler);
+                containerCell.addEventListener("dblclick", dblClickHandler);
+            }
         };
     }
 

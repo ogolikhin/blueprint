@@ -259,8 +259,6 @@ export class BPTreeController  {
                     return; // click event canceled by double-click
                 }
 
-
-
                 self.onRowClick({prms: params});
             }, 250);
         }
@@ -304,8 +302,14 @@ export class BPTreeController  {
             this.onRowPostCreate({prms: params});
         } else {
             if (this.enableDragndrop) {
+                let node = params.node;
+                let path = node.childIndex;
+                while (node.level) {
+                    node = node.parent;
+                    path = node.childIndex + "/" + path;
+                }
                 let row = angular.element(params.eRow)[0];
-                row.setAttribute("bp-tree-dragndrop", "");
+                row.setAttribute("bp-tree-dragndrop", path);
             }
         }
     };

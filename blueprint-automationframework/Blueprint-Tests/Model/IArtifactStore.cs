@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Model
 {
-    public interface IArtifactStore
+    public interface IArtifactStore : IDisposable
     {
         /// <summary>
         /// Checks if the ArtifactStore service is ready for operation.

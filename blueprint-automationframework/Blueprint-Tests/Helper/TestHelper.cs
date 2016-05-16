@@ -12,6 +12,7 @@ namespace Helper
         private bool _isDisposed = false;
 
         // Nova services:
+        public IAccessControl AccessControl { get; } = AccessControlFactory.GetAccessControlFromTestConfig();
         public IAdminStore AdminStore { get; } = AdminStoreFactory.GetAdminStoreFromTestConfig();
         public IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
@@ -43,6 +44,7 @@ namespace Helper
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
                 AdminStore?.Dispose();
+                AccessControl?.Dispose();
 
                 /*
                 foreach (var artifact in Artifacts)

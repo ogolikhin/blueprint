@@ -37,6 +37,8 @@ export class BPTreeComponent implements ng.IComponentOptions {
         headerHeight: "<",
         //settings
         gridColumns: "<",
+        //to set connection with parent
+        bpRef: "=?",
         //events
         onLoad: "&?",
         onExpand: "&?",
@@ -58,6 +60,7 @@ export class BPTreeController  {
     public headerHeight: number;
     //settings
     public gridColumns: any[];
+
     //events
     public onLoad: Function;
     public onSelect: Function;
@@ -66,6 +69,8 @@ export class BPTreeController  {
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
 
+    public bpRef: BPTreeController;
+
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
     private rowData: any = null;
@@ -73,6 +78,8 @@ export class BPTreeController  {
     private clickTimeout: any;
 
     constructor(private $element, private $timeout: ng.ITimeoutService) {
+        this.bpRef = this;
+
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
@@ -101,59 +108,13 @@ export class BPTreeController  {
             this.gridColumns = [];
         }
 
-        // not used for now, we need a way to filter keys! See below
-        /*
-        // gets called once before the renderer is used
-        this.cellEditor.prototype.init = function (params) {
-            if (params.keyPress !== 113 && params.keyPress) {
-                console.log("should cancel");
-            }
-            // save the current value
-            this.previousValue = params.value;
-            // create the cell
-            this.eInput = document.createElement("input");
-            this.eInput.value = params.value;
-        };
-
-        // gets called once when grid ready to insert the element
-        this.cellEditor.prototype.getGui = function () {
-            return this.eInput;
-        };
-
-        // focus and select can be done after the gui is attached
-        this.cellEditor.prototype.afterGuiAttached = function () {
-            this.eInput.focus();
-            this.eInput.select();
-        };
-
-        // returns the new value after editing
-        this.cellEditor.prototype.getValue = function () {
-            var value = this.eInput.value;
-            if (value === "") {
-                value = this.previousValue;
-            }
-            return value;
-        };
-
-        // any cleanup we need to be done here
-        this.cellEditor.prototype.destroy = function () {
-            // but this example is simple, no cleanup, we could
-            // even leave this method out as it's optional
-        };
-
-        // if true, then this editor will appear in a popup
-        this.cellEditor.prototype.isPopup = function () {
-            // and we could leave this method out also, false is the default
-            return false;
-        };
-        */
     }
 
-    //private cellEditor = () => { };
-    // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers.
-    // To enable set the following in GridOptions.columnDefs
-    //editable: true,
-    //cellEditor: this.cellEditor,
+    public setDataSource(data: any[]) {
+        if (angular.isArray(data)) {
+            this.options.api.setRowData(this.rowData = data.concat(this.rowData||[]));
+        }
+    }
 
     public $onInit = () => {
         this.options = <Grid.GridOptions>{
@@ -278,25 +239,22 @@ export class BPTreeController  {
     private rowGroupOpened = (params: any) => {
         let self = this;
         let node = params.node;
-        if (node.data.Type === `Folder`) {
+        if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
             if (typeof self.onExpand === `function`) {
-                if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-                    if (node.expanded) {
-
-                        self.onExpand({ prms: node.data })
-                            .then((data: any) => { //pSvc.IProjectNode[]
-                                node.data.Children = data;
-                                node.data.open = true;
-                                node.data.alreadyLoadedFromServer = true;
-                                self.options.api.setRowData(self.rowData);
-                            }, (error) => {
-                                //self.showError(error);
-                            });
-                    }
+                if (node.expanded) {
+                    self.onExpand({ prms: node.data })
+                        .then((data: any) => { //pSvc.IProjectNode[]
+                            node.data.Children = data;
+                            node.data.open = true;
+                            node.data.alreadyLoadedFromServer = true;
+                            self.options.api.setRowData(self.rowData);
+                        }, (error) => {
+                            //self.showError(error);
+                        });
                 }
-                node.data.open = node.expanded;
             }
         }
+        node.data.open = node.expanded;
     };
 
     private rowPostCreate = (params: any) => {

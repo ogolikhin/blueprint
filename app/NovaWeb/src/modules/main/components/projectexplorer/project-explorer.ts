@@ -1,7 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IProjectNotification} from "../../services/project-notification";
-import * as pSvc from "../../services/project.svc";
+import * as Repository from "../../repositories/project-repository";
 import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -13,27 +12,48 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-class ProjectExplorerController {
-    public mainView: IMainViewController;
+class BaseController {
+    public handlers: Function[] = [];
+    public $onDestroy = () => {
+        if (this[`$scope`] && this.handlers.length) {
+            this.handlers.map(function (handler) {
+                this.$scope.$on("$destroy", handler);
+            });
+        }
+    }
+}
 
+class ProjectExplorerController extends BaseController {
+    private mainView: IMainViewController;
+    private tree: any;
+    
     private selectedItem: any;
-
-    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout", "projectNotification"];
+    public static $inject: [string] = ["$scope", "localization", "projectRepository", "$log", "$timeout"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
-        private service: pSvc.IProjectService,
-        private $element,
+        private repository: Repository.IProjectRepository,
         private $log: ng.ILogService,
-        private $timeout: ng.ITimeoutService,
-        private notification: IProjectNotification) {
+        private $timeout: ng.ITimeoutService) {
+
+        super();
     }
 
     public $onInit = () => {
-        this.notification.subscribeToOpenProject(function (evt, selected) {
-            alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
-        });
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject)
     };
+
+    public loadProject = (data: Repository.Data.IProject) => {
+        var project = this.repository.CurrentProject;
+        this.tree.setDataSource([{
+            Id: this.repository.CurrentProject.id,
+            Type: `Project`,
+            Name: this.repository.CurrentProject.name,
+            Children: this.repository.CurrentProject.artifacts
+        }]);
+    }
+
+    public datasource: any;
 
     public columns = [{
         headerName: "",
@@ -50,13 +70,13 @@ class ProjectExplorerController {
 
     public loadElements = (prms: any): ng.IPromise<any[]> => {
         //check passed in parameter
-        return this.service.getFolders();
+        return this.repository.GetFolders();
     };
 
     public expandGroup = (prms: any): ng.IPromise<any[]> => {
         //check passesd in parameter
         var id = (prms && prms.Id) ? prms.Id : null;
-        return this.service.getFolders(id);
+        return this.repository.GetFolders(id);
     };
 
     public selectElement = (item: any) => {

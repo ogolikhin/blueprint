@@ -1,6 +1,7 @@
-﻿import {ILocalizationService} from "../../../core/localization";
+﻿/// <reference path="../../../core/notification.ts" />
+import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
-import {IProjectNotification} from "../../services/project-notification";
+import {IProjectNotification, SubscriptionEnum} from "../../services/project-notification";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project.ctrl";
 import {IMainViewController} from "../../main.view";
 
@@ -13,15 +14,15 @@ export class BPToolbarComponent implements ng.IComponentOptions {
     public template: string = require("./bp-toolbar.html");
     public controller: Function = BPToolbarController;
     public require: any = {
-        parent: "^bpMainView"
+        mainView: "^bpMainView"
     };
 }
 
 class BPToolbarController implements IBPToolbarController {
 
     static $inject = ["localization", "dialogService", "projectNotification" ];
-    public parent: IMainViewController;
-    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private notification: IProjectNotification) {
+    private mainView: IMainViewController;
+    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private notificator: IProjectNotification) {
     }
 
     execute(evt: any): void {
@@ -51,8 +52,7 @@ class BPToolbarController implements IBPToolbarController {
             css: "nova-open-project"
         }).then((selected: IOpenProjectResult) => {
             if (selected && selected.id) {
-                this.notification.notifyOpenProject(selected);
-                //this.dialogService.alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
+                this.notificator.notify(SubscriptionEnum.OpenProject, selected.id, selected.name);
             }
         });
     }

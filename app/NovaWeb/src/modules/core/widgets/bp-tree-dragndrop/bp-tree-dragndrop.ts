@@ -1,7 +1,7 @@
 export class BPTreeDragndrop implements ng.IDirective {
     public link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
-    //public scope = { };
+    //public scope = {};
     public restrict = "A";
 
     private isMoving: boolean;
@@ -56,7 +56,7 @@ export class BPTreeDragndrop implements ng.IDirective {
                 var maxPathLength = sourceIndexes.length > targetIndexes.length ? sourceIndexes.length : targetIndexes.length;
                 var s, t, i;
 
-                for(i = 0; i < maxPathLength; i ++) {
+                for (i = 0; i < maxPathLength; i ++) {
                     s = i < sourceIndexes.length ? parseInt(sourceIndexes[i], 10) : -1;
                     t = i < targetIndexes.length ? parseInt(targetIndexes[i], 10) : -1;
 
@@ -171,7 +171,7 @@ export class BPTreeDragndrop implements ng.IDirective {
             var Controller = null;
             var parent = $scope.$parent;
             while (parent.$parent) {
-                var parent = parent.$parent;
+                parent = parent.$parent;
                 if (parent["$ctrl"] && parent["$ctrl"].rowData) {
                    Controller = parent["$ctrl"];
                 }
@@ -206,7 +206,7 @@ export class BPTreeDragndrop implements ng.IDirective {
 
                         if (!insertNodeByIndex(adjustedPath, node, nodes, position)) {
                             Controller.rowData = dataBackup;
-                            nodes = Controller.rowData
+                            nodes = Controller.rowData;
                         }
                         Controller.options.api.setRowData(nodes);
                         Controller.options.api.refreshView();

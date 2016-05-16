@@ -19,6 +19,28 @@ export class BPTreeInlineEditing implements ng.IDirective {
         // It's important to add `link` to the prototype or you will end up with state issues.
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
         BPTreeInlineEditing.prototype.link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
+            var self = this;
+
+            var Controller = null;
+            var parent = $scope.$parent;
+            while (parent.$parent) {
+                parent = parent.$parent;
+                if (parent["$ctrl"] && parent["$ctrl"].rowData) {
+                    Controller = parent["$ctrl"];
+                }
+            }
+
+            if (Controller) {
+                var data = $scope["data"];
+                var currentValue = data.Name;
+                var containerCell = findAncestorByClass($element[0], "ag-cell");
+                var gridBody = findAncestorByClass($element[0], "ag-body");
+
+                containerCell.addEventListener("keydown", keyEventHandler);
+                containerCell.addEventListener("keypress", keyEventHandler);
+                containerCell.addEventListener("dblclick", dblClickHandler);
+            }
+
             function findAncestorByClass(el, cls) {
                 while ((el = el.parentElement) && !el.classList.contains(cls));
                 return el;
@@ -162,28 +184,6 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     //user double-clicked, let's rename but we need to let ag-grid redraw first
                     self.timeout(inlineEdit, 200);
                 }
-            }
-
-            var self = this;
-
-            var Controller = null;
-            var parent = $scope.$parent;
-            while (parent.$parent) {
-                var parent = parent.$parent;
-                if (parent["$ctrl"] && parent["$ctrl"].rowData) {
-                    Controller = parent["$ctrl"];
-                }
-            }
-
-            if (Controller) {
-                var data = $scope["data"];
-                var currentValue = data.Name;
-                var containerCell = findAncestorByClass($element[0], "ag-cell");
-                var gridBody = findAncestorByClass($element[0], "ag-body");
-
-                containerCell.addEventListener("keydown", keyEventHandler);
-                containerCell.addEventListener("keypress", keyEventHandler);
-                containerCell.addEventListener("dblclick", dblClickHandler);
             }
         };
     }

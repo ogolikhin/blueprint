@@ -11,12 +11,14 @@ Sample template. See following parameters:
     row-height="24" - row height in pixels
     header-height="20" - header height in pixels. Set to 0 to disable
     enable-editing-on="name,desc" - list of column where to activate inline editing
+    enable-dragndrop="true" - enable rows drag and drop
     grid-columns="$ctrl.columns"  - column definition
     on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes
     on-expand="$ctrl.doExpand(prms)" - gets data to load a sub-tree (child node)
     on-select="$ctrl.doSelect(item)"> - to be called then a node is selected
     on-row-click="$ctrl.doRowClick(prms)" - to be called when a row is clicked
     on-row-dblclick="$ctrl.doRowDblClick(prms)" - to be called when a row is double-clicked (will cancel single-click)
+    on-row-post-create="$ctrl.doRowPostCreate(prms)" - to be called after a row is created
 </bp-tree>
 */ /*
 tslint:enable
@@ -29,17 +31,19 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //properties
         gridClass: "@",
         enableEditingOn: "@",
+        enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
         //settings
         gridColumns: "<",
         //events
-        onLoad: "&",
-        onExpand: "&",
-        onSelect: "&",
-        onRowClick: "&",
-        onRowDblClick: "&"
+        onLoad: "&?",
+        onExpand: "&?",
+        onSelect: "&?",
+        onRowClick: "&?",
+        onRowDblClick: "&?",
+        onRowPostCreate: "&?"
     };
 }
 
@@ -48,6 +52,7 @@ export class BPTreeController  {
     //properties
     public gridClass: string;
     public enableEditingOn: string;
+    public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
@@ -59,6 +64,7 @@ export class BPTreeController  {
     public onExpand: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
+    public onRowPostCreate: Function;
 
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
@@ -68,6 +74,7 @@ export class BPTreeController  {
 
     constructor(private $element, private $timeout: ng.ITimeoutService) {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
+        this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
@@ -78,14 +85,13 @@ export class BPTreeController  {
                 let gridCol = this.gridColumns[i];
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (!gridCol.cellRendererParams || (
-                            gridCol.cellRendererParams && (
-                                !gridCol.cellRendererParams.innerRenderer || typeof gridCol.cellRendererParams.innerRenderer !== `function`
-                            )
-                        )) {
+                    if (!gridCol.cellRendererParams ||
+                        (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
+                        (gridCol.cellRendererParams && typeof gridCol.cellRendererParams.innerRenderer !== "function")
+                    ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
-    }
+                        }
 
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
@@ -168,6 +174,7 @@ export class BPTreeController  {
             onRowClicked: this.rowClicked,
             onRowDoubleClicked: this.rowDoubleClicked,
             onRowGroupOpened: this.rowGroupOpened,
+            processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady
         };
     };
@@ -185,156 +192,10 @@ export class BPTreeController  {
     };
 
     private innerRenderer = (params: any) => {
-        var self = this;
-        var selectedNode;
-        var editing = false;
         var currentValue = params.value;
-        var formattedCurrentValue = "<span>" + this.escapeHTMLText(currentValue) + "</span>";
-        var containerCell = params.eGridCell;
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
 
-        function stopEditing() {
-            var editSpan = containerCell.querySelector(".ag-group-inline-edit");
-            var valueSpan = containerCell.querySelector(".ag-group-value");
-            if (editing && editSpan && valueSpan) {
-                var input = editSpan.querySelector("input");
-                input.removeEventListener("blur", stopEditing);
-                input.removeEventListener("keydown", keyEventHandler);
-                var newValue = input.value.trim();
-                // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
-                if (newValue !== "" && newValue.charCodeAt(0) > 32) {
-                    valueSpan.querySelector("span").textContent = self.escapeHTMLText(newValue);
-                    selectedNode.data.Name = newValue;
-                } else {
-                    valueSpan.innerHTML = formattedCurrentValue;
-                }
-                var parentSpan = editSpan.parentNode;
-                parentSpan.removeChild(editSpan);
-                valueSpan.style.display = "inline-block";
-                // reset the focus on the container div so that the keyboard navigation can resume
-                parentSpan.parentNode.focus();
-
-                self.options.api.refreshView();
-                editing = false;
-                containerCell.className = containerCell.className.replace(" ag-cell-inline-editing", "") + " ag-cell-not-inline-editing";
-            }
-        }
-
-        function inlineEdit() {
-            selectedNode = self.options.api.getSelectedNodes()[0];
-            var valueSpan = containerCell.querySelector(".ag-group-value");
-            if (!editing && valueSpan) {
-                var editSpan = document.createElement("span");
-                editSpan.className = "ag-group-inline-edit";
-
-                var input = document.createElement("input");
-                input.setAttribute("type", "text");
-                input.setAttribute("value", currentValue);
-
-                editSpan.appendChild(input);
-
-                valueSpan.style.display = "none";
-                containerCell.firstChild.insertBefore(editSpan, valueSpan);
-
-                input.addEventListener("blur", stopEditing);
-                input.addEventListener("keydown", keyEventHandler);
-                input.focus();
-                input.select();
-
-                editing = true;
-                containerCell.className = containerCell.className.replace(" ag-cell-not-inline-editing", "") + " ag-cell-inline-editing";
-            }
-        }
-
-        // Note: that keydown and keyup provide a code indicating which key is pressed, while keypress indicates which
-        // character was entered. For example, a lowercase "a" will be reported as 65 by keydown and keyup, but as 97
-        // by keypress. An uppercase "A" is reported as 65 by all events. Because of this distinction, when catching
-        // special keystrokes such as arrow keys, .keydown() or .keyup() is a better choice.
-        function keyEventHandler(e) {
-            var key = e.which || e.keyCode;
-
-            if (editing) {
-                var editSpan = containerCell.querySelector(".ag-group-inline-edit");
-                if (editSpan) {
-                    var input = editSpan.querySelector("input");
-                    var inputValue = input.value;
-                    var selectionStart = input.selectionStart;
-                    var selectionEnd = input.selectionEnd;
-
-                    if (e.type === "keypress") {
-                        // Do we need to filter the input?
-                        //var validCharacters = /[a-zA-Z0-9 ]/;
-                        var char = String.fromCharCode(key);
-
-                        //if (validCharacters.test(char)) {
-                        var firstToken = inputValue.substring(0, selectionStart);
-                        var secondToken = inputValue.substring(selectionEnd);
-                        inputValue = firstToken + char + secondToken;
-                        input.value = inputValue;
-
-                        selectionEnd = ++selectionStart;
-                        input.setSelectionRange(selectionStart, selectionEnd);
-                        //}
-                    } else if (e.type === "keydown") {
-                        if (key === 13) { // Enter
-                            input.blur();
-                        } else if (key === 27) { // Escape
-                            input.value = currentValue;
-                            input.blur();
-                            /*} else if (key === 37) { // left arrow
-                             selectionStart--;
-                             if (!e.shiftKey) {
-                             selectionEnd = selectionStart;
-                             }
-                             input.setSelectionRange(selectionStart, selectionEnd);
-                             } else if (key === 39) { // right arrow
-                             selectionEnd++;
-                             if (!e.shiftKey) {
-                             selectionStart = selectionEnd;
-                             }
-                             input.setSelectionRange(selectionStart, selectionEnd);*/
-                        }
-                        e.stopImmediatePropagation();
-                    }
-
-                }
-            } else {
-                selectedNode = self.options.api.getSelectedNodes()[0];
-
-                if (key === 13 && selectedNode.data.Type === "Folder") {
-                    //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder, unless editing
-                    var element = e.target || e.srcElement;
-                    if (element.tagName.toLowerCase() !== "input") {
-                        //console.log("pressed Enter on folder: I should open/close [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
-                    } else {
-                        e.preventDefault();
-                    }
-                } else if (key === 13) {
-                    //user pressed Enter on artifact, let's load it
-                    //console.log("pressed Enter on artifact: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
-                } else if (key === 113) {
-                    //user pressed F2, let's rename
-                    inlineEdit();
-                }
-            }
-        }
-
-        function dblClickHandler(e) {
-            selectedNode = self.options.api.getSelectedNodes()[0];
-
-            if (!editing) {
-                //user double-clicked, let's rename but we need to let ag-grid redraw first
-                self.$timeout(inlineEdit, 200);
-            }
-        }
-        // we enable inline editing if the column name is listed in enable-editing-on
-        // also we need to use our own editor until ag-grid's one is viable
-        if (self.editableColumns.indexOf(params.colDef.field) !== -1 && !params.colDef.editable) {
-            containerCell.addEventListener("keydown", keyEventHandler);
-            containerCell.addEventListener("keypress", keyEventHandler);
-            containerCell.addEventListener("dblclick", dblClickHandler);
-        }
-
-        return formattedCurrentValue;
+        return "<span" + inlineEditing + ">" + this.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {
@@ -375,11 +236,21 @@ export class BPTreeController  {
         this.selectedRow = model.getRow(params.rowIndex);
         this.selectedRow.setSelected(true, true);
         if (typeof this.onSelect === `function`) {
-        this.onSelect({item: this.selectedRow.data});
+            this.onSelect({item: this.selectedRow.data});
         }
     };
 
     private rowClicked = (params: any) => {
+        function findAncestor(el, cls) {
+            while ((el = el.parentElement) && !el.classList.contains(cls));
+            return el;
+        }
+
+        var clickedCell = findAncestor(params.event.target, "ag-cell");
+        if (clickedCell) {
+            clickedCell.focus();
+        }
+
         if (typeof this.onRowClick === `function`) {
             var self = this;
 
@@ -387,6 +258,8 @@ export class BPTreeController  {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
+
+
 
                 self.onRowClick({prms: params});
             }, 250);
@@ -422,6 +295,17 @@ export class BPTreeController  {
                     }
                 }
                 node.data.open = node.expanded;
+            }
+        }
+    };
+
+    private rowPostCreate = (params: any) => {
+        if (typeof this.onRowPostCreate === `function`) {
+            this.onRowPostCreate({prms: params});
+        } else {
+            if (this.enableDragndrop) {
+                let row = angular.element(params.eRow)[0];
+                row.setAttribute("bp-tree-dragndrop", "");
             }
         }
     };

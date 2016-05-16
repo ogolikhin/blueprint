@@ -24,6 +24,38 @@ namespace Helper
         public IList<IProject> Projects { get; } = new List<IProject>();
         public IList<IUser> Users { get; } = new List<IUser>();
 
+        #region User management
+
+        /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new unique user object that was added to the database.</returns>
+        public IUser CreateUserAndAddToDatabase(UserSource source = UserSource.Database)
+        {
+            IUser user = UserFactory.CreateUserAndAddToDatabase(source);
+            Users.Add(user);
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values, but with the username & password specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public IUser CreateUserAndAddToDatabase(string username, string password,
+            UserSource source = UserSource.Database)
+        {
+            IUser user = UserFactory.CreateUserAndAddToDatabase(username, password, source);
+            Users.Add(user);
+            return user;
+        }
+
+        #endregion User management
+
         #region Members inherited from IDisposable
 
         /// <summary>

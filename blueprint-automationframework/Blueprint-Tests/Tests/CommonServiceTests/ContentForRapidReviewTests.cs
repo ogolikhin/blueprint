@@ -74,13 +74,18 @@ namespace CommonServiceTests
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            RapidReviewDiagram artifactContent = null;
+            RapidReviewDiagram diagramContent = null;
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    artifactContent = artifact.GetDiagramContentForRapidReview(_user);
+                    diagramContent = artifact.GetDiagramContentForRapidReview(_user);
                 }, "GetDiagramContentForRapidReview must not throw errors.");
+                Assert.That(diagramContent.DiagramType, Is.EqualTo(artifactType.ToString()).IgnoreCase, "Returned diagram type must be {0}, but it is {1}", artifactType, diagramContent.DiagramType);
+                Assert.AreEqual(artifact.Id, diagramContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, diagramContent.Id);
+                Assert.IsEmpty(diagramContent.Shapes, "Newly created {0} shouldn't have any shape", artifactType);
+                Assert.IsEmpty(diagramContent.Connections, "Newly created {0} shouldn't have any connections", artifactType);
+                /// TODO: add assertions about diagram size
             }
 
             finally
@@ -100,13 +105,15 @@ namespace CommonServiceTests
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            RapidReviewGlossary artifactContent = null;
+            RapidReviewGlossary glossaryContent = null;
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    artifactContent = artifact.GetGlossaryContentForRapidReview(_user);
+                    glossaryContent = artifact.GetGlossaryContentForRapidReview(_user);
                 }, "GetGlossaryContentForRapidReview must not throw errors.");
+                Assert.AreEqual(artifact.Id, glossaryContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, glossaryContent.Id);
+                Assert.IsEmpty(glossaryContent.Terms, "Newly created Glossary shouldn't have any terms.");
             }
 
             finally
@@ -133,6 +140,8 @@ namespace CommonServiceTests
                 {
                     artifactContent = artifact.GetUseCaseContentForRapidReview(_user);
                 }, "GetUseCaseContentForRapidReview must not throw errors.");
+                Assert.AreEqual(artifact.Id, artifactContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, artifactContent.Id);
+                Assert.AreEqual(1, artifactContent.Steps.Count, "Newly created Use Case must have 1 step, but it has {0}", artifactContent.Steps.Count);
             }
 
             finally
@@ -166,6 +175,8 @@ namespace CommonServiceTests
                 {
                     propertiesContent = artifact.GetPropertiesForRapidReview(_user);
                 }, "GetPropertiesForRapidReview must not throw errors.");
+                Assert.AreEqual(artifact.Id, propertiesContent.ArtifactId, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, propertiesContent.ArtifactId);
+                Assert.AreEqual(_user.DisplayName, propertiesContent.AuthorHistory[0].Value, "Returned properties must have Author {0}, but it is {1}", _user.DisplayName, propertiesContent.AuthorHistory[0].Value);
             }
 
             finally

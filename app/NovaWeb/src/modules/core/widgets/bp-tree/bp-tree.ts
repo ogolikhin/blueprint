@@ -194,9 +194,8 @@ export class BPTreeController  {
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
-        var dragAndDrop = "";//this.enableDragndrop ? " bp-tree-dragndrop" : "";
 
-        return "<span" + inlineEditing + dragAndDrop + ">" + this.escapeHTMLText(currentValue) + "</span>";
+        return "<span" + inlineEditing + ">" + this.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {
@@ -242,6 +241,16 @@ export class BPTreeController  {
     };
 
     private rowClicked = (params: any) => {
+        function findAncestor(el, cls) {
+            while ((el = el.parentElement) && !el.classList.contains(cls));
+            return el;
+        }
+
+        var clickedCell = findAncestor(params.event.target, "ag-cell");
+        if (clickedCell) {
+            clickedCell.focus();
+        }
+
         if (typeof this.onRowClick === `function`) {
             var self = this;
 
@@ -249,6 +258,8 @@ export class BPTreeController  {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
+
+
 
                 self.onRowClick({prms: params});
             }, 250);

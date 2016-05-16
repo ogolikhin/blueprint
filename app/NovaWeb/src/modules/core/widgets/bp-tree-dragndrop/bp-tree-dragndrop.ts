@@ -21,13 +21,9 @@ export class BPTreeDragndrop implements ng.IDirective {
             var $row = element[0];
             $row.removeAttribute("bp-tree-dragndrop");
 
-            var $cellWrapper = document.createElement("DIV");
-            $cellWrapper.setAttribute("ng-drag", "true");
-            $cellWrapper.setAttribute("ng-drag-data", "data");
-
-            var $cell = $row.firstChild;
-            $row.insertBefore($cellWrapper, $cell);
-            $cellWrapper.appendChild($cell);
+            var $dragHandle = document.createElement("DIV");
+            $dragHandle.className = "ag-row-dnd-handle";
+            $dragHandle.setAttribute("ng-drag-handle", "");
 
             var $preRow = document.createElement("DIV");
             $preRow.className = "ag-row-dnd-pre";
@@ -39,8 +35,9 @@ export class BPTreeDragndrop implements ng.IDirective {
             $postRow.setAttribute("ng-drop", "true");
             //$postRow.setAttribute("ng-drop-success", dropSuccessCallbackAsStringPost);
 
-            $cellWrapper.insertBefore($preRow, $cell);
-            $cellWrapper.appendChild($postRow);
+            $row.insertBefore($preRow, $row.firstChild);
+            $row.insertBefore($dragHandle, $row.firstChild);
+            $row.appendChild($postRow);
 
             //if (params.node.data.CanHaveChildren && (!params.node.data.ReadOnly && !readOnlyChildren)) {
                 $row.querySelector(".ag-cell").setAttribute("ng-drop", "true");
@@ -48,8 +45,8 @@ export class BPTreeDragndrop implements ng.IDirective {
             //}
 
             //if (!params.node.data.ReadOnly && !readOnlyChildren) {
-                //$row.setAttribute("ng-drag", "true");
-                //$row.setAttribute("ng-drag-data", "data");
+                $row.setAttribute("ng-drag", "true");
+                $row.setAttribute("ng-drag-data", "data");
                 //$row.setAttribute("ng-drag-start", dragStartCallbackAsString);
             //}
 

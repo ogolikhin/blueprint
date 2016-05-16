@@ -93,7 +93,7 @@
       vertical-align: top;
     }
 
-     input {
+    input {
       border: solid 1px $brand-secondary;
       box-sizing: border-box;
       color: $body-color;
@@ -173,8 +173,36 @@
       }
     }
   }
+}
 
 //drag and drop related styles
+.project-explorer {
+  .ag-row-dnd-handle {
+    background: transparent;
+    cursor: move;
+    display: none;
+    font-size: $aggrid-row-height;
+    height: $aggrid-row-height;
+    line-height: $aggrid-row-height;
+    position: absolute;
+    top: 1px;
+    width: 10px;
+  }
+
+  .ag-row-dnd-handle::before {
+    color: $brand-secondary;
+    content: '\e829';
+    font-family: 'bp-font';
+  }
+
+  .ag-row:hover .ag-row-dnd-handle {
+    display: block;
+  }
+
+  .ag-cell {
+    margin-left: 10px;
+  }
+
   .ag-row:not(.drag-over) .ag-cell {
     z-index: 100;
 

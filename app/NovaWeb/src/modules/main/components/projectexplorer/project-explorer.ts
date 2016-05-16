@@ -78,6 +78,7 @@ class ProjectExplorerController {
     };
 
     public doRowClick = (prms: any) => {
+        console.log(prms)
         var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {

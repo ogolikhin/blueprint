@@ -5,18 +5,19 @@ export class BPTreeInlineEditing implements ng.IDirective {
     public restrict = "A";
 
     private timeout;
+    private editing;
 
     constructor(
         $timeout
         //list of other dependencies*/
     ) {
         this.timeout = $timeout;
+        this.editing = false;
 
         // It's important to add `link` to the prototype or you will end up with state issues.
         // See http://blog.aaronholmes.net/writing-angularjs-directives-as-typescript-classes/#comment-2111298002 for more information.
         BPTreeInlineEditing.prototype.link = (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
             var self = this;
-            var editing = false;
             var data = scope["data"];
             var currentValue = data.Name;
             var containerCell = findAncestor(element[0], "ag-cell");
@@ -29,7 +30,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             function stopEditing() {
                 var editSpan = containerCell.querySelector(".ag-group-inline-edit");
                 var valueSpan = containerCell.querySelector(".ag-group-value");
-                if (editing && editSpan && valueSpan) {
+                if (self.editing && editSpan && valueSpan) {
                     var input = editSpan.querySelector("input");
                     input.removeEventListener("blur", stopEditing);
                     input.removeEventListener("keydown", keyEventHandler);
@@ -48,7 +49,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     parentSpan.parentNode.focus();
 
                     //self.options.api.refreshView();
-                    editing = false;
+                    self.editing = false;
                     containerCell.className = containerCell.className.replace(" ag-cell-inline-editing", "") + " ag-cell-not-inline-editing";
                 }
             }
@@ -56,7 +57,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             function inlineEdit() {
                 //selectedNode = self.options.api.getSelectedNodes()[0];
                 var valueSpan = containerCell.querySelector(".ag-group-value");
-                if (!editing && valueSpan) {
+                if (!self.editing && valueSpan) {
                     var editSpan = document.createElement("span");
                     editSpan.className = "ag-group-inline-edit";
 
@@ -74,7 +75,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     input.focus();
                     input.select();
 
-                    editing = true;
+                    self.editing = true;
                     containerCell.className = containerCell.className.replace(" ag-cell-not-inline-editing", "") + " ag-cell-inline-editing";
                 }
             }
@@ -86,7 +87,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             function keyEventHandler(e) {
                 var key = e.which || e.keyCode;
 
-                if (editing) {
+                if (self.editing) {
                     var editSpan = containerCell.querySelector(".ag-group-inline-edit");
                     if (editSpan) {
                         var input = editSpan.querySelector("input");
@@ -153,7 +154,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             function dblClickHandler(e) {
                 //selectedNode = self.options.api.getSelectedNodes()[0];
 
-                if (!editing) {
+                if (!self.editing) {
                     //user double-clicked, let's rename but we need to let ag-grid redraw first
                     self.timeout(inlineEdit, 200);
                 }

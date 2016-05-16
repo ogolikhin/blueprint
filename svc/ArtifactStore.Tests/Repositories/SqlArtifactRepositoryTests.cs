@@ -72,7 +72,90 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildPublished()
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectOrGetChildrenAsync_ProjectNotFound()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 1;
+            var userId = 1;
+
+            var input = new List<ArtifactVersion>();
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectOrGetChildrenAsync_ArtifactInProjectNotFound()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = new List<ArtifactVersion>();
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectOrGetChildrenAsync_ArtifactInProjectNotFoundWhenItsVersionMissing()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 11;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[1].HasDraft = false;
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectOrGetChildrenAsync_Forbidden_NullDirectPermissions()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[1].HasDraft = false;
+            input[0].DirectPermissions = null;
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task GetProjectOrGetChildrenAsync_Forbidden_NoneDirectPermissions()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[1].HasDraft = false;
+            input[0].DirectPermissions = RolePermissions.None;
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, null);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_ChildPublished_DirectPermissons()
         {
             // Arrange
             var projectId = 1;
@@ -94,6 +177,93 @@ namespace ArtifactStore.Repositories
                     HasChildren = true,
                     Name = input[1].Name,
                     Permissions = input[1].DirectPermissions,
+                    LockedDateTime = input[1].LockedByUserTime,
+                    TypeId = input[1].ItemTypeId,
+                    LockedByUserId = input[1].LockedByUserId,
+                    Version = input[1].VersionsCount,
+                    ProjectId = input[1].VersionProjectId,
+                    Prefix = input[1].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, expected);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_ChildPublished_ProjectPermissons()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[0].DirectPermissions = null;
+            input[0].ParentId = 9;
+            input[1].HasDraft = false;
+            var project = CreateArtifactVersion(1, 1, null, 33, int.MaxValue, RolePermissions.Read, false);
+            input.Add(project);
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = input[1].OrderIndex,
+                    ParentId = input[1].ParentId,
+                    Id = input[1].ItemId,
+                    HasChildren = true,
+                    Name = input[1].Name,
+                    Permissions = project.DirectPermissions,
+                    LockedDateTime = input[1].LockedByUserTime,
+                    TypeId = input[1].ItemTypeId,
+                    LockedByUserId = input[1].LockedByUserId,
+                    Version = input[1].VersionsCount,
+                    ProjectId = input[1].VersionProjectId,
+                    Prefix = input[1].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, expected);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_ChildPublished_AncestorPermissons()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[0].DirectPermissions = null;
+            input[0].ParentId = 9;
+            input[1].HasDraft = false;
+
+            var ancestor1 = CreateArtifactVersion(9, 1, 8, 33, int.MaxValue, null, false);
+            input.Add(ancestor1);
+
+            var ancestor2 = CreateArtifactVersion(8, 1, 7, 33, int.MaxValue, null, false);
+            input.Add(ancestor2);
+
+            var ancestor3 = CreateArtifactVersion(7, 1, 6, 33, int.MaxValue, RolePermissions.Read, false);
+            input.Add(ancestor3);
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = input[1].OrderIndex,
+                    ParentId = input[1].ParentId,
+                    Id = input[1].ItemId,
+                    HasChildren = true,
+                    Name = input[1].Name,
+                    Permissions = ancestor3.DirectPermissions,
                     LockedDateTime = input[1].LockedByUserTime,
                     TypeId = input[1].ItemTypeId,
                     LockedByUserId = input[1].LockedByUserId,
@@ -144,6 +314,44 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_ChildDraftMovedWithinProject()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input[1].LockedByUserId = input[2].LockedByUserId;
+            input[1].LockedByUserTime = input[2].LockedByUserTime;
+            input[2].ParentId = 40;
+
+            var expected = new List<Artifact>();
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, expected);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_ChildDraftMovedToAnotherProject()
+        {
+            // Arrange
+            var projectId = 1;
+            var artifactId = 10;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input[1].LockedByUserId = input[2].LockedByUserId;
+            input[1].LockedByUserTime = input[2].LockedByUserTime;
+            input.RemoveAt(2);
+
+            var expected = new List<Artifact>();
+
+            // Act and Assert
+            await BaseTest(projectId, artifactId, userId, input, expected);
+        }
+
+        [TestMethod]
         public async Task GetProjectOrGetChildrenAsync_ChildDraftByAnotherUser()
         {
             // Arrange
@@ -181,14 +389,193 @@ namespace ArtifactStore.Repositories
             await BaseTest(projectId, artifactId, userId, input, expected);
         }
 
-        private async Task BaseTest(int projectId, int artifactId, int userId,
-                                    List<ArtifactVersion> input, List<Artifact> expected)
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_NoOrphans()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[1].HasDraft = false;
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+            input[1].ParentId = projectId;
+
+            var inputOrphans = new List<ArtifactVersion>();
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = input[1].OrderIndex,
+                    ParentId = input[1].ParentId,
+                    Id = input[1].ItemId,
+                    HasChildren = true,
+                    Name = input[1].Name,
+                    Permissions = input[1].DirectPermissions,
+                    LockedDateTime = input[1].LockedByUserTime,
+                    TypeId = input[1].ItemTypeId,
+                    LockedByUserId = input[1].LockedByUserId,
+                    Version = input[1].VersionsCount,
+                    ProjectId = input[1].VersionProjectId,
+                    Prefix = input[1].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanPublished()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input.RemoveAt(2);
+            input.RemoveAt(1);
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(2);
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = projectId;
+            inputOrphans[0].HasDraft = false;
+            inputOrphans[0].Name = "orphan";
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = inputOrphans[0].OrderIndex,
+                    ParentId = inputOrphans[0].ParentId,
+                    Id = inputOrphans[0].ItemId,
+                    HasChildren = true,
+                    Name = inputOrphans[0].Name,
+                    Permissions = inputOrphans[0].DirectPermissions,
+                    LockedDateTime = inputOrphans[0].LockedByUserTime,
+                    TypeId = inputOrphans[0].ItemTypeId,
+                    LockedByUserId = inputOrphans[0].LockedByUserId,
+                    Version = inputOrphans[0].VersionsCount,
+                    ProjectId = inputOrphans[0].VersionProjectId,
+                    Prefix = inputOrphans[0].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanDraft()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input.RemoveAt(2);
+            input.RemoveAt(1);
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = 90;
+            inputOrphans[0].Name = "orphan";
+            inputOrphans[1].ParentId = projectId;
+            inputOrphans[1].Name = "orphanDraft";
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = inputOrphans[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = inputOrphans[1].OrderIndex,
+                    ParentId = inputOrphans[1].ParentId,
+                    Id = inputOrphans[1].ItemId,
+                    HasChildren = true,
+                    Name = inputOrphans[1].Name,
+                    Permissions = inputOrphans[1].DirectPermissions,
+                    LockedDateTime = inputOrphans[1].LockedByUserTime,
+                    TypeId = inputOrphans[1].ItemTypeId,
+                    LockedByUserId = inputOrphans[1].LockedByUserId,
+                    Version = inputOrphans[1].VersionsCount / 2,
+                    ProjectId = inputOrphans[1].VersionProjectId,
+                    Prefix = inputOrphans[1].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanDraftByAnotherUser()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 2;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+            input[1].LockedByUserId = input[2].LockedByUserId;
+            input[1].LockedByUserTime = input[2].LockedByUserTime;
+            input[1].ParentId = 90;
+            input[1].ParentId = projectId;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(2);
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = projectId;
+            inputOrphans[0].Name = "orphan";
+            inputOrphans[0].HasDraft = false;
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = inputOrphans[0].OrderIndex,
+                    ParentId = inputOrphans[0].ParentId,
+                    Id = inputOrphans[0].ItemId,
+                    HasChildren = true,
+                    Name = inputOrphans[0].Name,
+                    Permissions = inputOrphans[0].DirectPermissions,
+                    LockedDateTime = inputOrphans[0].LockedByUserTime,
+                    TypeId = inputOrphans[0].ItemTypeId,
+                    LockedByUserId = inputOrphans[0].LockedByUserId,
+                    Version = inputOrphans[0].VersionsCount,
+                    ProjectId = inputOrphans[0].VersionProjectId,
+                    Prefix = inputOrphans[0].Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        private async Task BaseTest(int projectId, int? artifactId, int userId,
+                                    List<ArtifactVersion> input, List<Artifact> expected,
+                                    List<ArtifactVersion> inputOrphans = null)
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, input);
-            
+            cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId ?? projectId }, { "userId", userId } }, input);
+            if(artifactId == null)
+                cxn.SetupQueryAsync("GetProjectOrphans", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, inputOrphans);
             // Act
             var actual = await repository.GetProjectOrGetChildrenAsync(projectId, artifactId, userId);
 
@@ -349,7 +736,5 @@ namespace ArtifactStore.Repositories
             };
         }
     }
-
-
 }
 

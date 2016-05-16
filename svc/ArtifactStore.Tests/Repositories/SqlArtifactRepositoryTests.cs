@@ -390,6 +390,100 @@ namespace ArtifactStore.Repositories
         }
 
         [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_Order_CollectionsBaselinesAndReviews()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(2);
+            input[1].HasDraft = false;
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+            input[1].ParentId = projectId;
+
+            var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
+                name: "BaselinesAndReviews",
+                orderIndex: -1,
+                itemTypePredefined: 0x1000 | 0x100 | 1,
+                itemTypeId: 22,
+                prefix: "BRF",
+                lockedByUserId: null,
+                lockedByUserTime: null,
+                versionsCount: 1);
+            input.Add(baselinesAndReviews);
+
+            var collections = CreateArtifactVersion(3, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
+                name: "Collections",
+                orderIndex: -1,
+                itemTypePredefined: 0x1000 | 0x200 | 1,
+                itemTypeId: 33,
+                prefix: "CF",
+                lockedByUserId: null,
+                lockedByUserTime: null,
+                versionsCount: 1);
+            input.Add(collections);
+
+            var inputOrphans = new List<ArtifactVersion>();
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = input[1].OrderIndex,
+                    ParentId = input[1].ParentId,
+                    Id = input[1].ItemId,
+                    HasChildren = true,
+                    Name = input[1].Name,
+                    Permissions = input[1].DirectPermissions,
+                    LockedDateTime = input[1].LockedByUserTime,
+                    TypeId = input[1].ItemTypeId,
+                    LockedByUserId = input[1].LockedByUserId,
+                    Version = input[1].VersionsCount,
+                    ProjectId = input[1].VersionProjectId,
+                    Prefix = input[1].Prefix
+                },
+                new Artifact
+                {
+                    PredefinedType = collections.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = collections.OrderIndex,
+                    ParentId = collections.ParentId,
+                    Id = collections.ItemId,
+                    HasChildren = false,
+                    Name = collections.Name,
+                    Permissions = collections.DirectPermissions,
+                    LockedDateTime = collections.LockedByUserTime,
+                    TypeId = collections.ItemTypeId,
+                    LockedByUserId = collections.LockedByUserId,
+                    Version = collections.VersionsCount,
+                    ProjectId = collections.VersionProjectId,
+                    Prefix = collections.Prefix
+                },
+                new Artifact
+                {
+                    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    OrderIndex = baselinesAndReviews.OrderIndex,
+                    ParentId = baselinesAndReviews.ParentId,
+                    Id = baselinesAndReviews.ItemId,
+                    HasChildren = false,
+                    Name = baselinesAndReviews.Name,
+                    Permissions = baselinesAndReviews.DirectPermissions,
+                    LockedDateTime = baselinesAndReviews.LockedByUserTime,
+                    TypeId = baselinesAndReviews.ItemTypeId,
+                    LockedByUserId = baselinesAndReviews.LockedByUserId,
+                    Version = baselinesAndReviews.VersionsCount,
+                    ProjectId = baselinesAndReviews.VersionProjectId,
+                    Prefix = baselinesAndReviews.Prefix
+                }
+            };
+
+            // Act and Assert
+            await BaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
         public async Task GetProjectOrGetChildrenAsync_NoOrphans()
         {
             // Arrange

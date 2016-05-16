@@ -8,7 +8,7 @@ export {Data}
 
 export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(id?: number): ng.IPromise<Data.IProjectItem[]>;
+    getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -25,11 +25,6 @@ export class ProjectService implements IProjectService {
         var defer = this.$q.defer<any>();
         this.$http.get<any>(`svc/adminstore/instance/folders/${id || 1}/children`)
             .success((result: Data.IProjectNode[]) => {
-                //angular.forEach(result, (it) => {
-                //    if (it.Type === "Folder") {
-                //        it.Children = new Array<Data.IProjectNode>();
-                //    }
-                //});
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
@@ -41,9 +36,14 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Data.IProjectItem[]> {
+    public getProject(projectId: number, artifactId? : number): ng.IPromise<Data.IProjectItem[]> {
         var defer = this.$q.defer<any>();
-        this.$http.get<any>(`svc/artifactstore/projects/${id}/children`)
+        if (!projectId)
+            throw new Error("Inavlid parameter ")
+
+        let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
+            
+        this.$http.get<any>(url)
             .success((result: Data.IProjectItem[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
@@ -55,6 +55,7 @@ export class ProjectService implements IProjectService {
             });
         return defer.promise;
     }
+
 
 }
 

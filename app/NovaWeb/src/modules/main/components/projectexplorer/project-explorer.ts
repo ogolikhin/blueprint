@@ -1,5 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
+import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import * as Repository from "../../repositories/project-repository";
 import {IMainViewController} from "../../main.view";
 
@@ -25,7 +26,7 @@ class BaseController {
 
 class ProjectExplorerController extends BaseController {
     private mainView: IMainViewController;
-    private tree: any;
+    private tree: IBPTreeController;
     
     private selectedItem: any;
     public static $inject: [string] = ["$scope", "localization", "projectRepository", "$log", "$timeout"];
@@ -41,16 +42,28 @@ class ProjectExplorerController extends BaseController {
 
     public $onInit = () => {
         this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject)
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode)
     };
 
-    public loadProject = (data: Repository.Data.IProject) => {
+    private loadProject = (data: Repository.Data.IProject) => {
         var project = this.repository.CurrentProject;
         this.tree.setDataSource([{
             Id: this.repository.CurrentProject.id,
             Type: `Project`,
             Name: this.repository.CurrentProject.name,
-            Children: this.repository.CurrentProject.artifacts
+            loaded : true,
+            Children: this.repository.CurrentProject.artifacts.map(function(it){
+                if (it.HasChildren && !angular.isArray(it[`Children`])) {
+                    it[`Children`] = [];
+                };
+                return it;
+            })
         }]);
+    }
+
+    public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
+        var nodes = project.getArtifact(artifactId).artifacts;
+        this.tree.setDataSource(nodes, artifactId);
     }
 
     public datasource: any;
@@ -59,7 +72,7 @@ class ProjectExplorerController extends BaseController {
         headerName: "",
         field: "Name",
         cellClassRules: {
-            "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+            "has-children": function (params) { return params.data.HasChildren; },
             "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",
@@ -68,15 +81,18 @@ class ProjectExplorerController extends BaseController {
         suppressFiltering: true
     }];
 
-    public loadElements = (prms: any): ng.IPromise<any[]> => {
-        //check passed in parameter
-        return this.repository.GetFolders();
-    };
+    //public loadElements = (prms: any): ng.IPromise<any[]> => {
+    //    //check passed in parameter
+    //    return this.repository.GetFolders();
+    //};
 
-    public expandGroup = (prms: any): ng.IPromise<any[]> => {
+    public expandGroup = (prms: any) => {
         //check passesd in parameter
-        var id = (prms && prms.Id) ? prms.Id : null;
-        return this.repository.GetFolders(id);
+        let artifactId = (prms && prms.Id) ? prms.Id : null;
+
+        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, prms.Id);
+    
+//        return this.repository.service.getProject(this.repository.CurrentProject.id, artifactId);
     };
 
     public selectElement = (item: any) => {

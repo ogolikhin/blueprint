@@ -1,4 +1,5 @@
 ﻿//import {ILocalizationService} from "../../../core/localization";
+import "angular"
 import * as Grid from "ag-grid/main";
 
 /*
@@ -24,6 +25,7 @@ Sample template. See following parameters:
 tslint:enable
 */
 
+
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
     public controller: Function = BPTreeController;
@@ -48,6 +50,25 @@ export class BPTreeComponent implements ng.IComponentOptions {
         onRowPostCreate: "&?"
     };
 }
+export interface ITreeNode {
+    Id: number;
+    HasChildren: boolean;
+    Children: ITreeNode[];
+    loaded : boolean;
+    open: boolean;
+}
+export interface IBPTreeController {
+    onLoad?: Function;
+    onSelect?: Function;
+    onExpand?: Function;
+    onRowClick?: Function;
+    onRowDblClick?: Function;
+    onRowPostCreate?: Function;
+
+    addNode(data: ITreeNode);
+    setDataSource(data: any[], id?: number);
+}
+
 
 export class BPTreeController  {
     static $inject = ["$element", "$timeout"];
@@ -73,7 +94,7 @@ export class BPTreeController  {
 
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
-    private rowData: any = null;
+    public rowData: ITreeNode[] = null;
     private selectedRow: any;
     private clickTimeout: any;
 
@@ -88,13 +109,12 @@ export class BPTreeController  {
         this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
         if (this.gridColumns) {
-            for (let i = 0; i < this.gridColumns.length; i++) {
-                let gridCol = this.gridColumns[i];
+            for (let i = 0, gridCol; gridCol = this.gridColumns[i++];) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
                     if (!gridCol.cellRendererParams ||
                         (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
-                        (gridCol.cellRendererParams && typeof gridCol.cellRendererParams.innerRenderer !== "function")
+                        (gridCol.cellRendererParams && !angular.isFunction(gridCol.cellRendererParams.innerRenderer))
                     ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
@@ -109,12 +129,45 @@ export class BPTreeController  {
         }
 
     }
-
-    public setDataSource(data: any[]) {
+    public addNode(data: ITreeNode)  {
+        this.rowData = [data].concat(this.rowData);
+        this.options.api.setRowData(this.rowData);
+    }
+    public setDataSource(data: any[], id?: number) {
         if (angular.isArray(data)) {
-            this.options.api.setRowData(this.rowData = data.concat(this.rowData||[]));
+            data.map(function (it) {
+                if (it.HasChildren && !angular.isArray(it.Children)) {
+                    it.Children = [];
+                };
+            });
+            let item = this.findNode(id, this.rowData);
+            if (item) {
+                item.Children = data;
+                item.loaded = true;
+                item.open = true;
+            }
+            else {
+                this.rowData = data.concat(this.rowData || [])
+            }
+            this.options.api.setRowData(this.rowData);
         }
     }
+
+    public findNode(id: number, items?: any[]): any {
+        let item: any;
+        if (!id || !angular.isArray(items))
+            return;
+        for (let i = 0; !item && i < items.length; i++) {
+            if (items[i].Id === id) {
+                item = items[i];
+            } else if (items[i].Children) {
+                item = this.findNode(id, items[i].Children);
+            }
+        }
+        return item;
+    }
+
+
 
     public $onInit = () => {
         this.options = <Grid.GridOptions>{
@@ -138,6 +191,7 @@ export class BPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady
         };
+        
     };
 
     private stripHTMLTags = (stringToSanitize: string): string => {
@@ -173,23 +227,56 @@ export class BPTreeController  {
         }
     };
 
+
+
     private onGridReady = (params: any) => {
         let self = this;
         if (params && params.api) {
-            //params.api.setHeaderHeight(self.headerHeight);
             params.api.sizeColumnsToFit();
         }
-        /*if (params && params.columnApi && self.gridColumns.length) {
-            let columnName = self.gridColumns[0].field;
-            params.columnApi.autoSizeColumns([columnName]);
-        }*/
-        if (typeof self.onLoad === "function") {
-            self.onLoad({ prms: self.options }).then((data: any) => {
-                self.options.api.setRowData(self.rowData = data);
-            }, (error) => {
-                //self.showError(error);
-            });
+        //if (angular.isFunction(self.onLoad)) {
+        //    self.onLoad({ prms: self.options }).then((data: any[]) => {
+        //        data.map(function (it) {
+        //            if (it.HasChildren && !angular.isArray(it.Children)) {
+        //                it.Children = [];
+        //            }
+        //        });
+        //        self.options.api.setRowData(self.rowData = data);
+        //    }, (error) => {
+        //        //self.showError(error);
+        //    });
+        //}
+    };
+
+    private rowGroupOpened = (params: any) => {
+        let self = this;
+        let node = params.node;
+        if (node.data.HasChildren && !node.data.loaded) {
+            if (true) { //node.expanded
+                if (angular.isFunction(self.onExpand)) {
+                    let nodes = self.onExpand({ prms: node.data });
+                    if (angular.isArray(nodes)) {
+                        node.data.Children = nodes.map(function (it) {
+                            if (it.data.HasChildren && !angular.isArray(it.data.Children)) {
+                                it.Children = [];
+                            };
+                        });
+                        node.data.loaded = true;
+                        node.data.open = true;
+                    }
+                    //self.onExpand({ prms: node.data })
+                    //    .then((data: any) => { //pSvc.IProjectNode[]
+                    //        node.data.Children = data;
+                    //        node.data.open = true;
+                    //        node.data.loaded = true;
+                    //        self.options.api.setRowData(self.rowData);
+                    //    }, (error) => {
+                    //        //self.showError(error);
+                    //    });
+                }
+            }
         }
+        node.data.open = node.expanded;
     };
 
     private cellFocused = (params: any) => {
@@ -219,9 +306,6 @@ export class BPTreeController  {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
-
-
-
                 self.onRowClick({prms: params});
             }, 250);
         }
@@ -236,29 +320,8 @@ export class BPTreeController  {
         }
     };
 
-    private rowGroupOpened = (params: any) => {
-        let self = this;
-        let node = params.node;
-        if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-            if (typeof self.onExpand === `function`) {
-                if (node.expanded) {
-                    self.onExpand({ prms: node.data })
-                        .then((data: any) => { //pSvc.IProjectNode[]
-                            node.data.Children = data;
-                            node.data.open = true;
-                            node.data.alreadyLoadedFromServer = true;
-                            self.options.api.setRowData(self.rowData);
-                        }, (error) => {
-                            //self.showError(error);
-                        });
-                }
-            }
-        }
-        node.data.open = node.expanded;
-    };
-
     private rowPostCreate = (params: any) => {
-        if (typeof this.onRowPostCreate === `function`) {
+        if (angular.isFunction(this.onRowPostCreate)) {
             this.onRowPostCreate({prms: params});
         } else {
             if (this.enableDragndrop) {

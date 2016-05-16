@@ -4,7 +4,9 @@ import {INotification, NotificationService} from "../../core/notification"
 export enum SubscriptionEnum {
     OpenProject,
     ProjectLoaded,
-    CurrentProjectChanged
+    ProjectNodeLoad,
+    ProjectNodeLoaded,
+    CurrentProjectChanged,
 }
 
 export interface IProjectNotification  {

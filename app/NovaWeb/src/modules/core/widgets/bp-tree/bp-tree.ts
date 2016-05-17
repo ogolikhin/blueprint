@@ -124,7 +124,7 @@ export class BPTreeController  {
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
                 }
-            });
+            }.bind(this));
         } else {
             this.gridColumns = [];
         }
@@ -134,7 +134,7 @@ export class BPTreeController  {
         this.rowData = [data].concat(this.rowData);
         this.options.api.setRowData(this.rowData);
     }
-    public setDataSource(data: any[], id?: number) {
+    public setDataSource(data?: any[], id?: number) {
         if (angular.isArray(data)) {
             data.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it.Children)) {
@@ -149,8 +149,8 @@ export class BPTreeController  {
             } else {
                 this.rowData = data.concat(this.rowData || []);
             }
-            this.options.api.setRowData(this.rowData);
         }
+        this.options.api.setRowData(this.rowData);
     }
 
     public selectNode(id: number) {
@@ -216,8 +216,15 @@ export class BPTreeController  {
     };
 
     private onGridReady = (params: any) => {
+        let self = this;
         if (params && params.api) {
             params.api.sizeColumnsToFit();
+        }
+        if (angular.isFunction(self.onLoad)) {
+            let nodes = self.onLoad({ prms: self.options });
+            if (angular.isArray(nodes)) {
+                self.setDataSource(nodes);
+            }
         }
     };
 
@@ -229,14 +236,10 @@ export class BPTreeController  {
                 if (angular.isFunction(self.onExpand)) {
                     let nodes = self.onExpand({ prms: node.data });
                     if (angular.isArray(nodes)) {
-                        node.data.Children = nodes.map(function (it) {
-                            if (it.data.HasChildren && !angular.isArray(it.data.Children)) {
-                                it.Children = [];
-                            };
-            });
+                        node.data.Children = nodes;
                         node.data.alreadyLoadedFromServer = true;
                         node.data.open = true;
-                        self.options.api.setRowData(self.rowData);
+                        self.setDataSource(); // pass nothing to just reload 
                     }
                 }
             }

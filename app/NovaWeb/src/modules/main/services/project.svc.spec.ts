@@ -1,7 +1,19 @@
 ﻿import "angular";
 import "angular-mocks";
 import {IProjectService, ProjectService, Data} from "./project.svc";
+import {IProjectNotification, SubscriptionEnum} from "./project-notification";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
+
+class ProjectNotificationMock implements IProjectNotification {
+
+    public subscribe(type: SubscriptionEnum, func: Function) {
+    };
+    public unsubscribe(type: SubscriptionEnum, func: Function) {
+    };
+    public notify(type: SubscriptionEnum, ...prms: any[]) {
+    };
+
+}
 
 export class ProjectServiceMock implements IProjectService {
     public static $inject = ["$q"];
@@ -52,6 +64,7 @@ describe("ProjectService", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectService", ProjectService);
+        $provide.service("projectNotification", ProjectNotificationMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
 

@@ -64,6 +64,7 @@
         color: $brand-secondary;
         display: inline-block;
         height: $aggrid-row-height;
+        vertical-align: bottom;
       }
     }
 
@@ -153,7 +154,6 @@
     .ag-group-contracted i::before,
     .ag-group-expanded i::before {
       line-height: $aggrid-row-height;
-      vertical-align: bottom;
     }
 
     // disables the icons for groups (to show the group-specific ones)
@@ -251,9 +251,30 @@ $aggrid-dnd-handle-width: 14px;
   .ag-row:not(.drag-over) .ag-cell {
     z-index: 100;
 
-    &.drag-enter > span {
-      border: dashed 1px $body-color;
+    &.ag-group-cell.drag-enter > span > .ag-group-value {
+      border: dotted 1px $body-color;
+      border-left: 0;
       left: -1px;
+      line-height: #{$aggrid-row-height - 2px};
+      position: relative;
+    }
+
+    &.ag-group-cell.drag-enter > span > .ag-group-contracted i,
+    &.ag-group-cell.drag-enter > span > .ag-group-expanded i {
+      border: dotted 1px $body-color;
+      border-right: 0;
+      left: -1px;
+      position: relative;
+
+      &::before {
+        line-height: #{$aggrid-row-height - 2px};
+      }
+    }
+
+    &.drag-enter:not(.ag-group-cell) > span > .ag-group-value {
+      border: dotted 1px $body-color;
+      left: -1px;
+      line-height: #{$aggrid-row-height - 2px};
       position: relative;
     }
   }

@@ -12,10 +12,10 @@
     </bp-tree>
     <div class="project-data">
         <div>{{::$root.config.labels["App_Project_Name"]}}</div>
-        <div class="project-name">{{ctrl.selectedItem.Name}}</div>
-        <div ng-if="(ctrl.selectedItem.Type == 'Project')">
+        <div class="project-name">{{ctrl.selectedItem.name}}</div>
+        <div ng-if="(ctrl.selectedItem.type == 'Project')">
             <div>{{::$root.config.labels["App_Project_Description"]}}</div>
-            <div class="project-description" ng-bind-html="ctrl.selectedItem.Description"></div>
+            <div class="project-description" ng-bind-html="ctrl.selectedItem.description"></div>
         </div>
     </div>
 

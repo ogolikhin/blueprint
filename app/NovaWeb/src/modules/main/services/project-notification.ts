@@ -2,7 +2,7 @@
 import {INotification, NotificationService} from "../../core/notification"
 
 export enum SubscriptionEnum {
-    OpenProject,
+    ProjectLoad,
     ProjectLoaded,
     ProjectNodeLoad,
     ProjectNodeLoaded,

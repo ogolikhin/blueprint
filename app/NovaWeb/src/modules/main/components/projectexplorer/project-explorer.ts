@@ -45,14 +45,18 @@ class ProjectExplorerController extends BaseController {
         this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode)
     };
 
-    private loadProject = (data: Repository.Data.IProject) => {
-        var project = this.repository.CurrentProject;
+    private loadProject = (project: Repository.Data.IProject, alreadyOpened: boolean) => {
+        if (alreadyOpened) {
+            this.tree.selectNode(project.id)
+            return;
+        }
+       
         this.tree.setDataSource([{
-            Id: this.repository.CurrentProject.id,
+            Id: project.id,
             Type: `Project`,
-            Name: this.repository.CurrentProject.name,
-            loaded : true,
-            Children: this.repository.CurrentProject.artifacts.map(function(it){
+            Name: project.name,
+            loaded: true,
+            Children: project.artifacts.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it[`Children`])) {
                     it[`Children`] = [];
                 };

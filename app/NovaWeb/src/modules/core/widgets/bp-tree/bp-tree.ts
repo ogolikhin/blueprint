@@ -54,7 +54,7 @@ export interface ITreeNode {
     Id: number;
     HasChildren: boolean;
     Children: ITreeNode[];
-    loaded : boolean;
+    alreadyLoadedFromServer : boolean;
     open: boolean;
 }
 export interface IBPTreeController {
@@ -66,6 +66,7 @@ export interface IBPTreeController {
     onRowPostCreate?: Function;
 
     addNode(data: ITreeNode);
+    selectNode(id: number);
     setDataSource(data: any[], id?: number);
 }
 
@@ -140,34 +141,35 @@ export class BPTreeController  {
                     it.Children = [];
                 };
             });
-            let item = this.findNode(id, this.rowData);
-            if (item) {
-                item.Children = data;
-                item.loaded = true;
-                item.open = true;
+            let node = this.findNode(id);
+            if (node) {
+                node.data.Children = data;
+                node.alreadyLoadedFromServer = true;
+                node.open = true;
             }
             else {
                 this.rowData = data.concat(this.rowData || [])
             }
             this.options.api.setRowData(this.rowData);
-        }
+        } 
     }
 
-    public findNode(id: number, items?: any[]): any {
-        let item: any;
-        if (!id || !angular.isArray(items))
-            return;
-        for (let i = 0; !item && i < items.length; i++) {
-            if (items[i].Id === id) {
-                item = items[i];
-            } else if (items[i].Children) {
-                item = this.findNode(id, items[i].Children);
+    public selectNode(id: number) {
+        this.options.api.forEachNode(function (node) {
+            if (node.data.Id === id) {
+                node.setSelected(true);
             }
-        }
-        return item;
+        });        this.options.api.refreshView();    }
+
+    private findNode(id: number): any {
+        let node: any;
+        this.options.api.forEachNode(function (it) {
+            if (it.data.Id === id) {
+                node = it;
+            }
+        });
+        return node;
     }
-
-
 
     public $onInit = () => {
         this.options = <Grid.GridOptions>{
@@ -234,24 +236,12 @@ export class BPTreeController  {
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
-        //if (angular.isFunction(self.onLoad)) {
-        //    self.onLoad({ prms: self.options }).then((data: any[]) => {
-        //        data.map(function (it) {
-        //            if (it.HasChildren && !angular.isArray(it.Children)) {
-        //                it.Children = [];
-        //            }
-        //        });
-        //        self.options.api.setRowData(self.rowData = data);
-        //    }, (error) => {
-        //        //self.showError(error);
-        //    });
-        //}
     };
 
     private rowGroupOpened = (params: any) => {
         let self = this;
         let node = params.node;
-        if (node.data.HasChildren && !node.data.loaded) {
+        if (node.data.HasChildren && !node.data.alreadyLoadedFromServer) {
             if (true) { //node.expanded
                 if (angular.isFunction(self.onExpand)) {
                     let nodes = self.onExpand({ prms: node.data });
@@ -261,18 +251,10 @@ export class BPTreeController  {
                                 it.Children = [];
                             };
                         });
-                        node.data.loaded = true;
+                        node.data.alreadyLoadedFromServer = true;
                         node.data.open = true;
+                        self.options.api.setRowData(self.rowData);
                     }
-                    //self.onExpand({ prms: node.data })
-                    //    .then((data: any) => { //pSvc.IProjectNode[]
-                    //        node.data.Children = data;
-                    //        node.data.open = true;
-                    //        node.data.loaded = true;
-                    //        self.options.api.setRowData(self.rowData);
-                    //    }, (error) => {
-                    //        //self.showError(error);
-                    //    });
                 }
             }
         }

@@ -52,7 +52,7 @@ class BPToolbarController implements IBPToolbarController {
             css: "nova-open-project"
         }).then((selected: IOpenProjectResult) => {
             if (selected && selected.id) {
-                this.notificator.notify(SubscriptionEnum.OpenProject, selected.id, selected.name);
+                this.notificator.notify(SubscriptionEnum.ProjectLoad, selected.id, selected.name);
             }
         });
     }

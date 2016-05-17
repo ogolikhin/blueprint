@@ -81,78 +81,78 @@ describe("Embedded ag-grid events", () => {
         expect(cellRendererFolder).toEqual(undefined);
     });
 
-    it("setDataSource",  inject(($q: ng.IQService) => {
-        // Arrange
-        var dataFromCall;
-        gridApi.setRowData = function (data) {
-            dataFromCall = data;
-        };
+    //it("setDataSource",  inject(($q: ng.IQService) => {
+    //    // Arrange
+    //    var dataFromCall;
+    //    gridApi.setRowData = function (data) {
+    //        dataFromCall = data;
+    //    };
 
-        // Act
-        var options = controller.options;
+    //    // Act
+    //    var options = controller.options;
 
-        controller.options.api = gridApi;
-        $scope.$apply();
+    //    controller.options.api = gridApi;
+    //    $scope.$apply();
 
-        controller.setDataSource([{
-            id: 1, Name: `Name 1`
-        }]);
-        controller.setDataSource([{
-            id: 2, Name: `Name 2`
-        }]);
+    //    controller.setDataSource([{
+    //        id: 1, Name: `Name 1`
+    //    }]);
+    //    controller.setDataSource([{
+    //        id: 2, Name: `Name 2`
+    //    }]);
 
-        // Assert
-        let data = controller.options.api.getRenderedNodes();
-        expect(dataFromCall.Type).toBeTruthy;
-        expect(dataFromCall.Name).toBeTruthy;
-    }));
+    //    // Assert
+    //    let data = controller.options.api.getRenderedNodes();
+    //    expect(dataFromCall.Type).toBeTruthy;
+    //    expect(dataFromCall.Name).toBeTruthy;
+    //}));
 
 
-    it("rowGroupOpened", inject(($q: ng.IQService) => {
-        // Arrange
-        var dataFromCall;
-        var paramsMock = {
-            node: {
-                data: {
-                    Id: 77,
-                    Type: "Folder",
-                    Name: "folder",
-                    Children: [],
-                },
-                expanded: true
-            }
-        };
-        controller.onExpand = function () {
-            var deferred = $q.defer();
-            deferred.resolve([{
-                Id: 88,
-                Type: "Project",
-                Name: "Project",
-            }]);
-            return deferred.promise;
-        };
+    //it("rowGroupOpened", inject(($q: ng.IQService) => {
+    //    // Arrange
+    //    var dataFromCall;
+    //    var paramsMock = {
+    //        node: {
+    //            data: {
+    //                Id: 77,
+    //                Type: "Folder",
+    //                Name: "folder",
+    //                Children: [],
+    //            },
+    //            expanded: true
+    //        }
+    //    };
+    //    controller.onExpand = function () {
+    //        var deferred = $q.defer();
+    //        deferred.resolve([{
+    //            Id: 88,
+    //            Type: "Project",
+    //            Name: "Project",
+    //        }]);
+    //        return deferred.promise;
+    //    };
 
-        var setRowDataMock = function (data) {
-            dataFromCall = data;
-        };
-        gridApi.setRowData = setRowDataMock;
+    //    var setRowDataMock = function (data) {
+    //        dataFromCall = data;
+    //    };
+    //    gridApi.setRowData = setRowDataMock;
 
-        // Act
-        var options = controller.options;
-        controller.options.api = gridApi;
-        options.onRowGroupOpened(paramsMock);
-        expect(paramsMock.node.data["open"]).toBeUndefined;
-        expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
+    //    // Act
+    //    var options = controller.options;
+    //    controller.options.api = gridApi;
+    //    options.onRowGroupOpened(paramsMock);
+    //    expect(paramsMock.node.data["open"]).toBeUndefined;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
 
-        $scope.$apply();
+    //    $scope.$apply();
 
-        // Assert
-        expect(paramsMock.node.data.Children).toEqual(jasmine.any(Array));
-        expect(paramsMock.node.data.Children.length).toEqual(1);
-        expect(paramsMock.node.data.Children[0].Type).toBe("Project");
-        expect(paramsMock.node.data["open"]).toBeTruthy;
-        expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
-    }));
+    //    // Assert
+    //    expect(paramsMock.node.data.Children).toEqual(jasmine.any(Array));
+    //    expect(paramsMock.node.data.Children.length).toEqual(1);
+    //    expect(paramsMock.node.data.Children[0].Type).toBe("Project");
+    //    expect(paramsMock.node.data["open"]).toBeTruthy;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
+    //}));
 
     /*it("cellFocused", () => {
         // Arrange

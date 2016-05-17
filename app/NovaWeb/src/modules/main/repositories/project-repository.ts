@@ -78,8 +78,10 @@ export class ProjectRepository implements IProjectRepository {
         this.service.getProject(projectId, artifactId)
             .then((result: Data.IProjectItem[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
-                node.artifacts = result;
-                self.notificator.notify(SubscriptionEnum.ProjectNodeLoaded, this.CurrentProject, artifactId);
+                if (node) {
+                    node.artifacts = result;
+                    self.notificator.notify(SubscriptionEnum.ProjectNodeLoaded, this.CurrentProject, artifactId);
+                }
             }).catch(() => {
 
             });

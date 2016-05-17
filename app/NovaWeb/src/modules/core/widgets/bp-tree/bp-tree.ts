@@ -52,7 +52,7 @@ export interface ITreeNode {
     Id: number;
     HasChildren: boolean;
     Children: ITreeNode[];
-    Loaded: boolean;
+    loaded: boolean;
     open: boolean;
 }
 export interface IBPTreeController {
@@ -142,13 +142,13 @@ export class BPTreeController  {
             let node = this.findNode(id);
             if (node) {
                 node.data.Children = data;
-                node.data.Loaded = true;
+                node.data.loaded = true;
                 node.open = true;
             } else {
                 this.rowData = data.concat(this.rowData || []);
             }
         }
-        this.options.api.setRowData(this.rowData); 
+        this.options.api.setRowData(this.rowData);
     }
 
     public selectNode(id: number) {
@@ -234,7 +234,7 @@ export class BPTreeController  {
     private rowGroupOpened = (params: any) => {
         let self = this;
         let node = params.node;
-        if (node.data.HasChildren && !node.data.Loaded) {
+        if (node.data.HasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
                 // this is a bit of a trick, to get the actual row expanded
                 let row = null;
@@ -242,7 +242,7 @@ export class BPTreeController  {
                 let element = self.$element[0];
                 if (element) {
                     row = element.querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
-                    if(row) {
+                    if (row) {
                         row.className += " ag-row-loading";
                     }
                 }
@@ -254,7 +254,7 @@ export class BPTreeController  {
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (angular.isArray(nodes)) {
                     node.data.Children = nodes;
-                    node.data.Loaded = true;
+                    node.data.loaded = true;
                     node.data.open = true;
                     self.setDataSource(); // pass nothing to just reload 
                 }

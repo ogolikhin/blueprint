@@ -19,7 +19,8 @@ export class AppComponent implements ng.IComponentOptions {
 export class AppController {
     static $inject: [string] = ["$state", "session", "configValueHelper", "$window"];
 
-    constructor(private $state: ng.ui.IStateService, private session: ISession, private configValueHelper: IConfigValueHelper, private $window: ng.IWindowService) {
+    constructor(private $state: ng.ui.IStateService, private session: ISession,
+        private configValueHelper: IConfigValueHelper, private $window: ng.IWindowService) {
     }
 
     public get currentUser(): IUser {
@@ -28,8 +29,7 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        var promise: ng.IPromise<any> = this.session.logout()
-        console.log(promise);
+        var promise: ng.IPromise<any> = this.session.logout();
         promise.finally(() => this.$state.reload());
     }
 

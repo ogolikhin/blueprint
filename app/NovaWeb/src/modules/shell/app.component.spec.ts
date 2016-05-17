@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import "./index";
 import {ComponentTest} from "../util/component.test";
-import {AppComponent, AppController} from "./app.component";
+import {AppController} from "./app.component";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -12,7 +12,6 @@ describe("Component AppComponent", () => {
         $provide.service("session", SessionSvcMock);
         $provide.service("configValueHelper", ConfigValueHelperMock);
         $provide.service("$window", WindowMock);
-        $provide.service("state", StateMock);
     }));
 
     var componentTest: ComponentTest<AppController>;
@@ -31,13 +30,13 @@ describe("Component AppComponent", () => {
             var user = vm.currentUser;
 
             //Assert
-            expect(user).toEqual("MyCurrentUser")
+            expect(user).toEqual("MyCurrentUser");
 
         }));
     });
 
     describe("logout", () => {
-        it("should call session logout and refresh state", inject((session: SessionSvcMock, $state: StateMock, $q: ng.IQService) => {
+        it("should call session logout and refresh state", inject((session: SessionSvcMock, $state: ng.ui.IStateService, $q: ng.IQService) => {
 
             //Arrange
             var vm: AppController = componentTest.createComponent({});
@@ -47,7 +46,6 @@ describe("Component AppComponent", () => {
             //Act
             vm.logout(componentTest.scope.$broadcast("dummyEvent"));
             componentTest.scope.$digest();
-            
 
             //Assert
             expect(session.logout).toHaveBeenCalled();
@@ -68,9 +66,10 @@ describe("Component AppComponent", () => {
             vm.navigateToHelpUrl(componentTest.scope.$broadcast("dummyEvent"));
 
             //Assert
+            /* tslint:disable */
             var expectedOptions: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = 1300, height = 800, top = 160, left = 150";
+            /* tslint:enable */
             expect($window.open).toHaveBeenCalledWith("http://HelpURL", "_blank", expectedOptions);
-            
 
         }));
     });
@@ -102,11 +101,5 @@ class SessionSvcMock {
 
     public logout() {
         return this.$q.when([]);
-    }
-}
-
-class StateMock {
-
-    public reload() {
     }
 }

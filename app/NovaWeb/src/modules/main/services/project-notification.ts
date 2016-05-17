@@ -1,5 +1,5 @@
 ﻿import "angular";
-import {INotification, NotificationService} from "../../core/notification"
+import {NotificationService} from "../../core/notification";
 
 export enum SubscriptionEnum {
     ProjectLoad,
@@ -12,7 +12,7 @@ export enum SubscriptionEnum {
 export interface IProjectNotification  {
     subscribe(type: SubscriptionEnum, func: Function);
     unsubscribe(type: SubscriptionEnum, func: Function);
-    notify(type: SubscriptionEnum, ...prms: any[]) 
+    notify(type: SubscriptionEnum, ...prms: any[]);
 }
 
 export class ProjectNotification extends NotificationService implements IProjectNotification {

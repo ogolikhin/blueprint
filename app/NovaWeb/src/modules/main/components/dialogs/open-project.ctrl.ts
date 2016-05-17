@@ -89,7 +89,7 @@ export class OpenProjectController extends BaseDialogController {
         suppressSorting: true,
         suppressFiltering : true
     }];
-    
+
     private loadProjects() {
         let self = this;
         this.service.getFolders()
@@ -111,7 +111,7 @@ export class OpenProjectController extends BaseDialogController {
         var id = (prms && prms.Id) ? prms.Id : null;
         this.service.getFolders(id)
             .then((data: any[]) => { //pSvc.IProjectNode[]
-                self.tree.setDataSource(data, id);    
+                self.tree.setDataSource(data, id);
             }, (error) => {
                 //self.showError(error);
             });

@@ -1,31 +1,15 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
 import * as Repository from "../../repositories/project-repository";
-import {IMainViewController} from "../../main.view";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
-    public require: any = {
-        mainView: "^bpMainView"
-    };
     public transclude: boolean = true;
 }
 
-class BaseController {
-    public handlers: Function[] = [];
-    public $onDestroy = () => {
-        if (this[`$scope`] && this.handlers.length) {
-            this.handlers.map(function (handler) {
-                this.$scope.$on("$destroy", handler);
-            });
-        }
-    }
-}
-
-class ProjectExplorerController extends BaseController {
-    private mainView: IMainViewController;
+class ProjectExplorerController {
     private tree: IBPTreeController;
 
     private selectedItem: any;
@@ -37,20 +21,19 @@ class ProjectExplorerController extends BaseController {
         private $log: ng.ILogService,
         private $timeout: ng.ITimeoutService) {
 
-        super();
     }
 
     public $onInit = () => {
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject)
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode)
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject);
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode);
     };
 
     private loadProject = (project: Repository.Data.IProject, alreadyOpened: boolean) => {
         if (alreadyOpened) {
-            this.tree.selectNode(project.id)
+            this.tree.selectNode(project.id);
             return;
-        }
-       
+        };
+
         this.tree.setDataSource([{
             Id: project.id,
             Type: `Project`,
@@ -59,7 +42,7 @@ class ProjectExplorerController extends BaseController {
             Children: project.artifacts.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it[`Children`])) {
                     it[`Children`] = [];
-    };
+                };
                 return it;
             })
         }]);
@@ -69,8 +52,6 @@ class ProjectExplorerController extends BaseController {
         var nodes = project.getArtifact(artifactId).artifacts;
         this.tree.setDataSource(nodes, artifactId);
     }
-
-    public datasource: any;
 
     public columns = [{
         headerName: "",
@@ -86,18 +67,12 @@ class ProjectExplorerController extends BaseController {
         suppressFiltering: true
     }];
 
-    //public loadElements = (prms: any): ng.IPromise<any[]> => {
-    //    //check passed in parameter
-    //    return this.repository.GetFolders();
-    //};
 
     public expandGroup = (prms: any) => {
         //check passesd in parameter
         let artifactId = (prms && prms.Id) ? prms.Id : null;
-
-        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, prms.Id);
-    
-//        return this.repository.service.getProject(this.repository.CurrentProject.id, artifactId);
+        //notify the service to load the node children
+        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
     };
 
     public selectElement = (item: any) => {
@@ -119,7 +94,7 @@ class ProjectExplorerController extends BaseController {
     };
 
     public doRowClick = (prms: any) => {
-        var selectedNode = prms.node;
+//        var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
             //console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");

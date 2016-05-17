@@ -1,5 +1,4 @@
 ﻿import "angular";
-import {Helper} from "./utils/helper"
 
 export interface INotification {
     signin(name: string, callback: any);
@@ -9,17 +8,17 @@ export interface INotification {
 
 class ICallbacks {
     name: string;
-    callbacks : Function[]
+    callbacks: Function[];
 }
 
-export class NotificationService implements INotification{
+export class NotificationService implements INotification {
     static $inject: [string] = ["$rootScope"];
     public handlers: ICallbacks[] = [];
 
     constructor(private root: ng.IRootScopeService) {
     }
 
-    private getHandlers(name: string): ICallbacks{
+    private getHandlers(name: string): ICallbacks {
         let handler = (this.handlers.filter(function (it: ICallbacks) {
             return it.name === name;
         }) || [])[0];
@@ -28,11 +27,11 @@ export class NotificationService implements INotification{
             this.handlers.push(handler);
         }
         return handler;
-    }
+    };
 
     public signin(name: string, callback: Function)  {
         let handler = this.getHandlers(name);
-        handler.callbacks.push(callback);         
+        handler.callbacks.push(callback);
     };
 
     public signout(name: string, callback: Function) {

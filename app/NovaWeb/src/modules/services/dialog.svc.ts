@@ -94,13 +94,13 @@ export class DialogService implements IDialogService {
     }
 }
 
-export interface IDialogController{
+export interface IDialogController {
     returnvalue: any;
     ok: Function;
     cancel: Function;
 }
 
-export class BaseDialogController implements IDialogController{
+export class BaseDialogController implements IDialogController {
 
     public hasCloseButton: boolean;
 

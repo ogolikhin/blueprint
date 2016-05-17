@@ -1,11 +1,12 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {IProjectService, ProjectService, Data} from "./project.svc";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
 
 export class ProjectServiceMock implements IProjectService {
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
+
     public getFolders(id?: number): ng.IPromise<any[]> {
         var deferred = this.$q.defer<any[]>();
         var folders = [
@@ -38,15 +39,12 @@ export class ProjectServiceMock implements IProjectService {
         deferred.resolve(folders);
         return deferred.promise;
     }
+
     public getProject(id?: number): ng.IPromise<Data.IProjectItem[]> {
         var deferred = this.$q.defer <Data.IProjectItem[]>();
         var items: Data.IProjectItem[] = [];
-
         deferred.resolve(items);
         return deferred.promise;
-    }
-    public loadProject(id?: number): Data.IProject {
-        return new Data.Project()
     }
 }
 
@@ -69,7 +67,7 @@ describe("ProjectService", () => {
                 // Act
             var error: any;
             var data: Data.IProjectNode[];
-            var result = projectService.getFolders().then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getFolders().then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -90,13 +88,13 @@ describe("ProjectService", () => {
             // Act
             var error: any;
             var data: Data.IProjectNode[];
-            var result = projectService.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
+            projectService.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
             expect(error).toBe(undefined, "responce got error");
-            expect(data).toEqual(jasmine.any(Array), "incorrect type")
-            expect(data.length).toBe(0, "incorrect data returned")
+            expect(data).toEqual(jasmine.any(Array), "incorrect type");
+            expect(data.length).toBe(0, "incorrect data returned");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

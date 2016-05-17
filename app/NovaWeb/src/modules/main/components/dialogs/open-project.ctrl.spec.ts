@@ -1,9 +1,9 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {IOpenProjectResult, OpenProjectController} from "./open-project.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {ProjectServiceMock} from "../../services/project.svc.spec";
-import {GridApi} from "ag-grid/main";
+
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -36,16 +36,16 @@ describe("Open Project.", () => {
         it("check return empty value", () => {
 
         // Arrange
-            var result: IOpenProjectResult =  <IOpenProjectResult>{
+            var result: IOpenProjectResult = <IOpenProjectResult>{
                 id: -1,
                 name: "",
-                description:""
-            }
+                description: ""
+            };
         // Act
 
         // Assert
-            expect(controller.returnvalue).toBeDefined();
-            expect(controller.returnvalue).toEqual(result);
+        expect(controller.returnvalue).toBeDefined();
+        expect(controller.returnvalue).toEqual(result);
     });
     });
     it("innerRenderer", () => {
@@ -63,7 +63,7 @@ describe("Open Project.", () => {
         };
         var paramsMockProject = {
             data: {
-                Type: "Project", 
+                Type: "Project",
                 Name: "<button onclick=\"alert('HEY!')\";>project</button>"
             },
             eGridCell: document.createElement("div")
@@ -84,7 +84,7 @@ describe("Open Project.", () => {
 
     describe("Verify control.", () => {
         it("Checking options: ", () => {
-            
+
         // Arrange
 
         // Act
@@ -106,12 +106,11 @@ describe("Open Project.", () => {
 describe("Embedded ag-grid events", () => {
     var controller: OpenProjectController;
     var $scope, elem;
-    var gridApi = new GridApi();
 
     beforeEach(inject(function (_$q_, _$rootScope_, _$compile_) {
         $scope = _$rootScope_.$new();
 
-        elem = angular.element('<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>');
+        elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
 
         controller = new OpenProjectController(
             $scope,

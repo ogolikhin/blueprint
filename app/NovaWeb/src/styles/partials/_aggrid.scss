@@ -172,6 +172,16 @@
     content: '\e83e';
   }
 
+  .ag-row-loading .ag-cell .ag-group-contracted i::before,
+  .ag-row-loading .ag-cell .ag-group-expanded i::before {
+    -webkit-animation: spin 1.5s infinite linear;
+    -moz-animation: spin 1.5s infinite linear;
+    -o-animation: spin 1.5s infinite linear;
+    animation: spin 1.5s infinite linear;
+    content: '\e031';
+    font-family: 'Glyphicons Halflings';
+  }
+
   .ag-cell.has-children {
     > span {
       margin-left: 0;

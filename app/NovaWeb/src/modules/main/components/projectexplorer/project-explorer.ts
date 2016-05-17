@@ -1,45 +1,64 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IProjectNotification} from "../../services/project-notification";
-import * as pSvc from "../../services/project.svc";
-import {IMainViewController} from "../../main.view";
+import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
+import * as Repository from "../../repositories/project-repository";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
     public controller: Function = ProjectExplorerController;
-    public require: any = {
-        mainView: "^bpMainView"
-    };
     public transclude: boolean = true;
 }
 
 class ProjectExplorerController {
-    public mainView: IMainViewController;
+    private tree: IBPTreeController;
 
     private selectedItem: any;
-
-    public static $inject: [string] = ["$scope", "localization", "projectService", "$element", "$log", "$timeout", "projectNotification"];
+    public static $inject: [string] = ["$scope", "localization", "projectRepository", "$log", "$timeout"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
-        private service: pSvc.IProjectService,
-        private $element,
+        private repository: Repository.IProjectRepository,
         private $log: ng.ILogService,
-        private $timeout: ng.ITimeoutService,
-        private notification: IProjectNotification) {
+        private $timeout: ng.ITimeoutService) {
+
     }
 
     public $onInit = () => {
-        this.notification.subscribeToOpenProject(function (evt, selected) {
-            alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
-        });
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject);
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode);
     };
+
+    private loadProject = (project: Repository.Data.IProject, alreadyOpened: boolean) => {
+        if (alreadyOpened) {
+            this.tree.selectNode(project.id);
+            return;
+        };
+
+        this.tree.setDataSource([{
+            Id: project.id,
+            Type: `Project`,
+            Name: project.name,
+            loaded: true,
+            Children: project.artifacts.map(function (it) {
+                if (it.HasChildren && !angular.isArray(it[`Children`])) {
+                    it[`Children`] = [];
+                };
+                return it;
+            })
+        }]);
+    }
+
+    public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
+        var nodes = project.getArtifact(artifactId).artifacts;
+        this.tree.setDataSource(nodes, artifactId);
+    }
 
     public columns = [{
         headerName: "",
         field: "Name",
         cellClassRules: {
-            "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
+            "has-children": function (params) { return params.data.HasChildren; },
+            "is-folder": function (params) { return params.data.Type === "Folder"; },
             "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",
@@ -48,15 +67,12 @@ class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    public loadElements = (prms: any): ng.IPromise<any[]> => {
-        //check passed in parameter
-        return this.service.getFolders();
-    };
 
-    public expandGroup = (prms: any): ng.IPromise<any[]> => {
+    public expandGroup = (prms: any) => {
         //check passesd in parameter
-        var id = (prms && prms.Id) ? prms.Id : null;
-        return this.service.getFolders(id);
+        let artifactId = (prms && prms.Id) ? prms.Id : null;
+        //notify the service to load the node children
+        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
     };
 
     public selectElement = (item: any) => {
@@ -78,7 +94,7 @@ class ProjectExplorerController {
     };
 
     public doRowClick = (prms: any) => {
-        var selectedNode = prms.node;
+//        var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
             //console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");

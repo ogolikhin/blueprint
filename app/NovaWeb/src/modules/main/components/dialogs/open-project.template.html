@@ -2,11 +2,11 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <bp-tree grid-class ="project-tree"
+    <bp-tree bp-ref="ctrl.tree"
+             grid-class ="project-tree"
              header-height="20"
              row-height="20"
              grid-columns="ctrl.columns"
-             on-load="ctrl.doLoad(prms)"
              on-expand="ctrl.doExpand(prms)"
              on-select="ctrl.doSelect(item)">
     </bp-tree>

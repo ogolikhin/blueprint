@@ -8,8 +8,12 @@ import "ng-draggable";
 import "../shell";
 import {ProjectService} from "./services/project.svc";
 import {ProjectNotification} from "./services/project-notification";
+import {ProjectRepository} from "./repositories/project-repository";
 
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
+import {BPTreeInlineEditing} from "../core/widgets/bp-tree-inline-editing/bp-tree-inline-editing";
+import {BPTreeDragndrop} from "../core/widgets/bp-tree-dragndrop/bp-tree-dragndrop";
+import {BPTooltip} from "../core/widgets/bp-tooltip/bp-tooltip";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -34,6 +38,7 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .run(config)
     .service("projectService", ProjectService)
     .service("projectNotification", ProjectNotification)
+    .service("projectRepository", ProjectRepository)
     .component("bpTree", new BPTreeComponent())
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
@@ -42,6 +47,9 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .component("bpAccordion", new BpAccordion())
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorerComponent())
+    .directive("bpTreeInlineEditing", BPTreeInlineEditing.Factory())
+    .directive("bpTreeDragndrop", BPTreeDragndrop.Factory())
+    .directive("bpTooltip", BPTooltip.Factory())
     .config(routesConfig);
 
 

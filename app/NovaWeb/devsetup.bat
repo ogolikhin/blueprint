@@ -1,6 +1,4 @@
-call npm update
-call npm install -g webpack typings typescript gulp karma-cli
-call typings i
+call npm install -g gulp karma-cli
 call npm i
 call gulp help
 pause

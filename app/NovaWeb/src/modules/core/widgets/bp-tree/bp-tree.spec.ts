@@ -1,7 +1,7 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {BPTreeController} from "./bp-tree";
-import {GridApi, InMemoryRowModel, RowNode} from "ag-grid/main";
+import {GridApi} from "ag-grid/main";
 
 
 describe("Embedded ag-grid events", () => {
@@ -12,7 +12,7 @@ describe("Embedded ag-grid events", () => {
     beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();
 
-        elem = angular.element('<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>');
+        elem = angular.element(`<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>`);
 
         controller = new BPTreeController($scope, $timeout);
         _$compile_(elem)($scope);
@@ -81,79 +81,78 @@ describe("Embedded ag-grid events", () => {
         expect(cellRendererFolder).toEqual(undefined);
     });
 
-    it("onGidReady",  inject(($q: ng.IQService) => {
-        // Arrange
-        var dataFromCall;
-        gridApi.setRowData = function (data) {
-            dataFromCall = data;
-        };
-        controller.onLoad = function () {
-            var deferred = $q.defer();
-            deferred.resolve({
-                Type: "Project",
-                Name: "project"
-            });
-            return deferred.promise;
-        }
+    //it("setDataSource",  inject(($q: ng.IQService) => {
+    //    // Arrange
+    //    var dataFromCall;
+    //    gridApi.setRowData = function (data) {
+    //        dataFromCall = data;
+    //    };
 
-        // Act
-        var options = controller.options;
+    //    // Act
+    //    var options = controller.options;
 
-        controller.options.api = gridApi;
-        options.onGridReady();
-        $scope.$apply();
+    //    controller.options.api = gridApi;
+    //    $scope.$apply();
 
-        // Assert
-        expect(dataFromCall.Type).toBeTruthy;
-        expect(dataFromCall.Name).toBeTruthy;
-    }));
+    //    controller.setDataSource([{
+    //        id: 1, Name: `Name 1`
+    //    }]);
+    //    controller.setDataSource([{
+    //        id: 2, Name: `Name 2`
+    //    }]);
+
+    //    // Assert
+    //    let data = controller.options.api.getRenderedNodes();
+    //    expect(dataFromCall.Type).toBeTruthy;
+    //    expect(dataFromCall.Name).toBeTruthy;
+    //}));
 
 
-    it("rowGroupOpened", inject(($q: ng.IQService) => {
-        // Arrange
-        var dataFromCall;
-        var paramsMock = {
-            node: {
-                data: {
-                    Id: 77,
-                    Type: "Folder",
-                    Name: "folder",
-                    Children: [],
-                },
-                expanded: true
-            }
-        };
-        controller.onExpand = function () {
-            var deferred = $q.defer();
-            deferred.resolve([{
-                Id: 88,
-                Type: "Project",
-                Name: "Project",
-            }]);
-            return deferred.promise;
-        }
+    //it("rowGroupOpened", inject(($q: ng.IQService) => {
+    //    // Arrange
+    //    var dataFromCall;
+    //    var paramsMock = {
+    //        node: {
+    //            data: {
+    //                Id: 77,
+    //                Type: "Folder",
+    //                Name: "folder",
+    //                Children: [],
+    //            },
+    //            expanded: true
+    //        }
+    //    };
+    //    controller.onExpand = function () {
+    //        var deferred = $q.defer();
+    //        deferred.resolve([{
+    //            Id: 88,
+    //            Type: "Project",
+    //            Name: "Project",
+    //        }]);
+    //        return deferred.promise;
+    //    };
 
-        var setRowDataMock = function (data) {
-            dataFromCall = data;
-        };
-        gridApi.setRowData = setRowDataMock;
+    //    var setRowDataMock = function (data) {
+    //        dataFromCall = data;
+    //    };
+    //    gridApi.setRowData = setRowDataMock;
 
-        // Act
-        var options = controller.options;
-        controller.options.api = gridApi;
-        options.onRowGroupOpened(paramsMock);
-        expect(paramsMock.node.data["open"]).toBeUndefined;
-        expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
+    //    // Act
+    //    var options = controller.options;
+    //    controller.options.api = gridApi;
+    //    options.onRowGroupOpened(paramsMock);
+    //    expect(paramsMock.node.data["open"]).toBeUndefined;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
 
-        $scope.$apply();
+    //    $scope.$apply();
 
-        // Assert
-        expect(paramsMock.node.data.Children).toEqual(jasmine.any(Array));
-        expect(paramsMock.node.data.Children.length).toEqual(1);
-        expect(paramsMock.node.data.Children[0].Type).toBe("Project");
-        expect(paramsMock.node.data["open"]).toBeTruthy;
-        expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
-    }));
+    //    // Assert
+    //    expect(paramsMock.node.data.Children).toEqual(jasmine.any(Array));
+    //    expect(paramsMock.node.data.Children.length).toEqual(1);
+    //    expect(paramsMock.node.data.Children[0].Type).toBe("Project");
+    //    expect(paramsMock.node.data["open"]).toBeTruthy;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
+    //}));
 
     /*it("cellFocused", () => {
         // Arrange

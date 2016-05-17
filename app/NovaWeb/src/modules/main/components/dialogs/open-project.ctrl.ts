@@ -1,5 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
+import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
+
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
 import * as pSvc from "../../services/project.svc";
 
@@ -12,6 +14,8 @@ export interface IOpenProjectResult {
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private selectedItem: any;
+    private tree: IBPTreeController;
+
 
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
@@ -24,6 +28,8 @@ export class OpenProjectController extends BaseDialogController {
         private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
+
+        this.loadProjects();
     };
 
 
@@ -63,8 +69,9 @@ export class OpenProjectController extends BaseDialogController {
         headerName: this.localization.get("App_Header_Name"),
         field: "Name",
         cellClassRules: {
-            "has-children": function(params) { return params.data.Type === "Folder" && params.data.HasChildren; },
-            "is-project": function(params) { return params.data.Type === "Project"; }
+            "has-children": function(params) { return params.data.HasChildren; },
+            "is-folder": function (params) { return params.data.Type === "Folder"; },
+            "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",
         cellRendererParams: {
@@ -83,15 +90,31 @@ export class OpenProjectController extends BaseDialogController {
         suppressFiltering : true
     }];
 
-    public doLoad = (prms: any): ng.IPromise<any[]> => {
-        //check passed in parameter
-        return this.service.getFolders();
-    };
+    private loadProjects() {
+        let self = this;
+        this.service.getFolders()
+            .then((data: any[]) => { //pSvc.IProjectNode[]
+                self.tree.setDataSource(data);
+            }, (error) => {
+                //self.showError(error);
+            });
+    }
 
-    public doExpand = (prms: any): ng.IPromise<any[]> => {
+    //public doLoad = (prms: any): ng.IPromise<any[]> => {
+    //    //check passed in parameter
+    //    return this.service.getFolders();
+    //};
+
+    public doExpand = (prms: any) => {
+        let self = this;
         //check passesd in parameter
         var id = (prms && prms.Id) ? prms.Id : null;
-        return this.service.getFolders(id);
+        this.service.getFolders(id)
+            .then((data: any[]) => { //pSvc.IProjectNode[]
+                self.tree.setDataSource(data, id);
+            }, (error) => {
+                //self.showError(error);
+            });
     };
 
     public doSelect = (item: any) => {

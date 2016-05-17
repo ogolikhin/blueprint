@@ -64,6 +64,7 @@
         color: $brand-secondary;
         display: inline-block;
         height: $aggrid-row-height;
+        vertical-align: bottom;
       }
     }
 
@@ -133,11 +134,52 @@
     }
   }
 
+// icons for artifacts and folders
+  .ag-cell.is-folder {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e802';
+    }
+  }
+
   .ag-cell.is-project {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e879';
     }
+  }
+
+  .ag-row-group-contracted .ag-cell,
+  .ag-row-group-expanded .ag-cell {
+    .ag-group-contracted i::before,
+    .ag-group-expanded i::before {
+      line-height: $aggrid-row-height;
+    }
+
+    // disables the icons for groups (to show the group-specific ones)
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      display: none;
+    }
+  }
+
+// group specific icons
+  .ag-row-group .is-folder .ag-group-contracted i::before {
+    content: '\e802';
+  }
+
+  .ag-row-group .is-folder .ag-group-expanded i::before {
+    content: '\e83e';
+  }
+
+  .ag-row-loading .ag-cell .ag-group-contracted i::before,
+  .ag-row-loading .ag-cell .ag-group-expanded i::before {
+    -webkit-animation: spin 1.5s infinite linear;
+    -moz-animation: spin 1.5s infinite linear;
+    -o-animation: spin 1.5s infinite linear;
+    animation: spin 1.5s infinite linear;
+    content: '\e031';
+    font-family: 'Glyphicons Halflings';
   }
 
   .ag-cell.has-children {
@@ -176,6 +218,8 @@
 }
 
 //drag and drop related styles
+$aggrid-dnd-handle-width: 14px;
+
 .project-explorer {
   .ag-row-dnd-handle {
     background: transparent;
@@ -183,10 +227,11 @@
     display: none;
     font-size: $aggrid-row-height;
     height: $aggrid-row-height;
-    line-height: $aggrid-row-height;
+    line-height: #{$aggrid-row-height - 2px};
     position: absolute;
-    top: 1px;
-    width: 10px;
+    text-indent: #{($aggrid-dnd-handle-width - $aggrid-row-height) / 2};
+    top: 2px;
+    width: $aggrid-dnd-handle-width;
   }
 
   .ag-row-dnd-handle::before {
@@ -195,25 +240,42 @@
     font-family: 'bp-font';
   }
 
-  .ag-row:hover .ag-row-dnd-handle {
+  .ag-body:not(.ag-body-inline-editing) .ag-row:hover .ag-row-dnd-handle {
     display: block;
   }
 
   .ag-cell {
-    margin-left: 10px;
+    margin-left: $aggrid-dnd-handle-width;
   }
 
   .ag-row:not(.drag-over) .ag-cell {
     z-index: 100;
 
-    &.drag-enter {
-      border: dashed 1px $body-color;
+    &.ag-group-cell.drag-enter > span > .ag-group-value {
+      border: dotted 1px $body-color;
+      border-left: 0;
+      left: -1px;
+      line-height: #{$aggrid-row-height - 2px};
+      position: relative;
+    }
 
-      > span {
-        left: -1px;
-        position: relative;
-        top: -1px;
+    &.ag-group-cell.drag-enter > span > .ag-group-contracted i,
+    &.ag-group-cell.drag-enter > span > .ag-group-expanded i {
+      border: dotted 1px $body-color;
+      border-right: 0;
+      left: -1px;
+      position: relative;
+
+      &::before {
+        line-height: #{$aggrid-row-height - 2px};
       }
+    }
+
+    &.drag-enter:not(.ag-group-cell) > span > .ag-group-value {
+      border: dotted 1px $body-color;
+      left: -1px;
+      line-height: #{$aggrid-row-height - 2px};
+      position: relative;
     }
   }
 
@@ -227,8 +289,9 @@
     background: transparent;
     font-size: 0;
     height: 2px;
+    left: $aggrid-dnd-handle-width;
     position: absolute;
-    width: 100%;
+    width: calc(100% - #{$aggrid-dnd-handle-width});
   }
 
   .ag-row-dnd-pre {
@@ -256,7 +319,15 @@
     top: 1px;
   }
 
-  @for $i from 5 through 1 {
+  $aggrid-dnd-max-level: 5;
+
+  @for $i from 0 through $aggrid-dnd-max-level - 1 {
+    .ag-row-level-#{$i} + .ag-row-level-#{$i + 1} .ag-row-dnd-pre {
+      z-index: 400;
+    }
+  }
+
+  @for $i from $aggrid-dnd-max-level through 1 {
     @for $j from 0 through ($i - 1) {
       .ag-row-level-#{$i} + .ag-row-level-#{$j} .ag-row-dnd-pre {
         display: none;

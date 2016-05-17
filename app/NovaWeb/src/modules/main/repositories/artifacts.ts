@@ -43,7 +43,7 @@ export class Project implements IProject {
                 } else if (node.artifacts) {
                     item = this.getArtifact(id, node.artifacts);
                 }
-            });
+            }.bind(this));
         }
         return item;
     };

@@ -22,9 +22,9 @@
                       "displayNameFinder": "vm.loginService.userInfo.displayName" 
                   },
                 "svgPageStoryteller": {
-                      "labelHeader": "[id*='label-H']",
-                      "labelBody": "[id*='label-B']",
-                      "labelForUserTaskBody": "[id*='label-']",
+                      "labelHeader": "[id*='Label-H']",
+                      "labelBody": "[id*='Label-B']",
+                      "labelForUserTaskBody": "[id*='overlay-']",
                       "image": "image",
                       "panelModalWUtilityPanel": "modalWUtilityPanel",
                       "panelDiscussions": "discussions",

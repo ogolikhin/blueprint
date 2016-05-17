@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463504179733" stop="1463504200915">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463504179734" stop="1463504180089" status="passed">
+			<name>Should be able to toggle to user system process</name>
+			<title>Should be able to toggle to user system process</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="9a3d3232-95ce-4dfe-9c22-02d8947d572f-attachment.png" type="image/png" size="96046"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463504180089" stop="1463504181165" status="passed">
+			<name>Should be able to publish the artifact</name>
+			<title>Should be able to publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="927c0345-fd11-4e28-a867-df67d4f1a320-attachment.png" type="image/png" size="108182"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463504181165" stop="1463504188984" status="passed">
+			<name>Should be able to edit system precondition shape header</name>
+			<title>Should be able to edit system precondition shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="17afe15f-654c-4901-ac17-d10637eb8c96-attachment.png" type="image/png" size="98873"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463504188984" stop="1463504189354" status="passed">
+			<name>Should be able to edit user task shape header</name>
+			<title>Should be able to edit user task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="5154183f-4046-4dff-b9c0-c3fa0be3c93c-attachment.png" type="image/png" size="99081"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463504189355" stop="1463504189725" status="passed">
+			<name>Should be able to edit system task shape header</name>
+			<title>Should be able to edit system task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="109be060-ab85-42fe-870e-926a5d707205-attachment.png" type="image/png" size="98557"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463504189726" stop="1463504190102" status="failed">
+			<name>Should be able to edit system precondition shape body</name>
+			<title>Should be able to edit system precondition shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="c9c3f709-9cce-42f3-9e80-7de4f5277435-attachment.png" type="image/png" size="100957"/>
+			</attachments>
+			<failure>
+				<message>Expected &apos;Sys_P0Brecondition&apos; to be &apos;Sys_P0B&apos;.</message>
+				<stack-trace>Error: Failed expectation
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\EditingNavigatingModalStorytellerSpec.ts:71:55)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:96:23
+    at new Promise (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1043:7)
+    at controlFlowExecute (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:82:18)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2697:25
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:639:7
+    at process._tickCallback (internal/process/next_tick.js:103:7)</stack-trace>
+			</failure>
+		</test-case>
+		<test-case start="1463504190103" stop="1463504195521" status="failed">
+			<name>Should be able to edit System task shape body</name>
+			<title>Should be able to edit System task shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="719a73fa-be98-498d-89b8-c9a159360d54-attachment.png" type="image/png" size="102247"/>
+			</attachments>
+			<failure>
+				<message>Expected &apos;User_T1BT&apos; to be &apos;Sys_T2B&apos;.</message>
+				<stack-trace>Error: Failed expectation
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\EditingNavigatingModalStorytellerSpec.ts:79:55)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:96:23
+    at new Promise (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1043:7)
+    at controlFlowExecute (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:82:18)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2697:25
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:639:7
+    at process._tickCallback (internal/process/next_tick.js:103:7)</stack-trace>
+			</failure>
+		</test-case>
+		<test-case start="1463504195522" stop="1463504200914" status="failed">
+			<name>Should be able to edit user task shape body</name>
+			<title>Should be able to edit user task shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="c4e809a4-84f5-4488-9b83-70741f30ee9d-attachment.png" type="image/png" size="104151"/>
+			</attachments>
+			<failure>
+				<message>Expected &apos;Sys_T2BT&apos; to be &apos;User_T1B&apos;.</message>
+				<stack-trace>Error: Failed expectation
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\EditingNavigatingModalStorytellerSpec.ts:89:55)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:96:23
+    at new Promise (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1043:7)
+    at controlFlowExecute (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:82:18)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2697:25
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:639:7
+    at process._tickCallback (internal/process/next_tick.js:103:7)</stack-trace>
+			</failure>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

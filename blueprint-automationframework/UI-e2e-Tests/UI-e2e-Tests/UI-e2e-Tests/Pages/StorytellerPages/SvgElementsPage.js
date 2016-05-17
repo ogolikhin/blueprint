@@ -124,8 +124,9 @@ var Svgelementspages = (function () {
     // funtion for edit shape's header
     Svgelementspages.prototype.editHeader = function (shape, headerName) {
         this.labelHeader.then(function (elements) {
-            console.log("Total is label " + elements.length);
+            console.log("Total is label from edit header " + elements.length);
             if (shape <= elements.length) {
+                browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(headerName).perform();
@@ -138,28 +139,42 @@ var Svgelementspages = (function () {
         });
     };
     // function to verify shape's header name
+    /* TO DO this funtion can be deleted but wait until dev finalized their code
+  /*  public verifyHeaderName(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then((elements) => {
+            elements[shape].all(by.tagName('div')).then((el) => {
+                console.log("inside of finding div");
+                el[1].getText()
+                    .then((gettext) => {
+                        console.log(gettext);
+                        this.header = gettext;
+                        console.log("inside "+this.header);
+                        return this.header;
+                    });
+            });
+            return this.header;
+        });
+
+    }*/
     Svgelementspages.prototype.verifyHeaderName = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
         return this.labelHeader.then(function (elements) {
-            elements[shape].all(by.tagName('div')).then(function (el) {
-                console.log("inside of finding div");
-                el[1].getText()
-                    .then(function (gettext) {
-                    console.log(gettext);
-                    _this.header = gettext;
-                    console.log("inside " + _this.header);
-                    return _this.header;
-                });
+            elements[shape].getText().then(function (gettext) {
+                _this.header = gettext;
             });
             return _this.header;
         });
+        //return this.header;
+        //  });
     };
     //funtion to edit body  of a shape
     Svgelementspages.prototype.editBody = function (shape, bodyText) {
         this.labelBody.then(function (elements) {
             console.log("Total is label " + elements.length);
             if (shape <= elements.length) {
+                browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
@@ -172,25 +187,39 @@ var Svgelementspages = (function () {
         });
     };
     //funtion to verify text body  of a shape
+    /* TO DO this funtion can be deleted but wait until dev finalized their code
+        public verifyBodyText1(shape): Promise<string> {
+            browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
+            return this.labelBody.then((elements) => {
+                elements[shape].all(by.tagName('div')).then((el) => {
+                    console.log("inside of finding div");
+                    el[1].getText()
+                        .then((gettext) => {
+                            console.log(gettext);
+                            this.body = gettext;
+                            console.log("inside " + this.body);
+                            return this.body;
+                        });
+                });
+                return this.body;
+            });
+    
+        }*/
+    //===
     Svgelementspages.prototype.verifyBodyText = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
         return this.labelBody.then(function (elements) {
-            elements[shape].all(by.tagName('div')).then(function (el) {
-                console.log("inside of finding div");
-                el[1].getText()
-                    .then(function (gettext) {
-                    console.log(gettext);
-                    _this.body = gettext;
-                    console.log("inside " + _this.body);
-                    return _this.body;
-                });
+            elements[shape].getText().then(function (gettext) {
+                _this.body = gettext;
             });
             return _this.body;
         });
+        //return this.header;
+        //  });
     };
     // function to edit body text for user task
-    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    // TO DO this funtion can be deleted but wait until dev finalized their code 
     Svgelementspages.prototype.editBodyForUserTask = function (shape, bodyText) {
         this.label.then(function (elements) {
             console.log("Total is label for label " + elements.length);
@@ -209,7 +238,7 @@ var Svgelementspages = (function () {
         });
     };
     // function to verify  body text for user task
-    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    //TO DO this funtion can be deleted but wait until dev finalized their code 
     Svgelementspages.prototype.verifyUserTaskBodyText = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
@@ -229,10 +258,10 @@ var Svgelementspages = (function () {
     };
     //funtion to find an element and select the shape
     Svgelementspages.prototype.findElementAndSelect = function (shape) {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
-        return this.labelHeader.then(function (elements) {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        return this.label.then(function (elements) {
             console.log("inside of finding element");
-            console.log("Total is label " + elements.length);
+            console.log("Total is label from find and select " + elements.length);
             return elements[shape];
         });
     };

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463502974328" stop="1463502992627">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463502974330" stop="1463502974680" status="passed">
+			<name>Should be able to toggle to user system process</name>
+			<title>Should be able to toggle to user system process</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="da504483-8633-47e5-aa34-e2ca881f254f-attachment.png" type="image/png" size="95912"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463502974680" stop="1463502975729" status="passed">
+			<name>Should be able to publish the artifact</name>
+			<title>Should be able to publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="a3cd8b02-740f-43ae-a3a7-7a6b4d1cc60f-attachment.png" type="image/png" size="108058"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463502975729" stop="1463502992626" status="passed">
+			<name>Should be able to edit system precondition shape header</name>
+			<title>Should be able to edit system precondition shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="80270f6e-12fb-4c01-b5f2-00dc889c51e1-attachment.png" type="image/png" size="98736"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

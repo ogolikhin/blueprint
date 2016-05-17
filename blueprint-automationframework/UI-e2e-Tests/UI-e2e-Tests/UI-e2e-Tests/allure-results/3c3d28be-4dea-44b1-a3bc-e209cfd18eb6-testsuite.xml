@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463506263540" stop="1463506285040">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463506263541" stop="1463506263893" status="passed">
+			<name>Should be able to toggle to user system process</name>
+			<title>Should be able to toggle to user system process</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="6113a13f-3b84-491e-9cf0-36e6f8822124-attachment.png" type="image/png" size="95637"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506263893" stop="1463506264915" status="passed">
+			<name>Should be able to publish the artifact</name>
+			<title>Should be able to publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="da282483-a636-4e4e-9217-b78726afcecd-attachment.png" type="image/png" size="108004"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506264916" stop="1463506272687" status="passed">
+			<name>Should be able to edit system precondition shape header</name>
+			<title>Should be able to edit system precondition shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="364991c6-6f32-4adf-8fdd-c649ef45f105-attachment.png" type="image/png" size="98449"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506272687" stop="1463506273071" status="passed">
+			<name>Should be able to edit user task shape header</name>
+			<title>Should be able to edit user task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="ce92ac78-bb2d-4f01-906e-05f191bbf929-attachment.png" type="image/png" size="98689"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506273072" stop="1463506273430" status="passed">
+			<name>Should be able to edit system task shape header</name>
+			<title>Should be able to edit system task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="be138588-ddff-4b90-828e-25f0a2024f52-attachment.png" type="image/png" size="98159"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506273430" stop="1463506273849" status="passed">
+			<name>Should be able to edit system precondition shape body</name>
+			<title>Should be able to edit system precondition shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="0dbcec7f-f446-494f-bb93-af43fdbd4268-attachment.png" type="image/png" size="98047"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506273849" stop="1463506279286" status="passed">
+			<name>Should be able to edit System task shape body</name>
+			<title>Should be able to edit System task shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="3b8f419e-c8a8-42a8-887b-c32529bbbc17-attachment.png" type="image/png" size="99543"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506279286" stop="1463506284686" status="passed">
+			<name>Should be able to edit user task shape body</name>
+			<title>Should be able to edit user task shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="7bfd9f3f-2a3d-4e8c-8367-f66d795bc85c-attachment.png" type="image/png" size="101008"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463506284686" stop="1463506285040" status="passed">
+			<name>Should be able to navigate to info Panel when click a user task</name>
+			<title>Should be able to navigate to info Panel when click a user task</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="e561f531-9713-4692-93e5-eb47ef6f2991-attachment.png" type="image/png" size="102420"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

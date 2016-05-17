@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463503322272" stop="1463503341637">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463503322274" stop="1463503322632" status="passed">
+			<name>Should be able to toggle to user system process</name>
+			<title>Should be able to toggle to user system process</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="10d50e75-900c-4a52-af61-9ebb322984ce-attachment.png" type="image/png" size="95023"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503322633" stop="1463503323619" status="passed">
+			<name>Should be able to publish the artifact</name>
+			<title>Should be able to publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="c33f41bf-8283-4feb-b505-2bb14de0f5c4-attachment.png" type="image/png" size="107473"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503323619" stop="1463503340325" status="passed">
+			<name>Should be able to edit system precondition shape header</name>
+			<title>Should be able to edit system precondition shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="885931ef-f126-4acb-be4b-3ba7194ba22a-attachment.png" type="image/png" size="97827"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503340325" stop="1463503340699" status="passed">
+			<name>Should be able to edit user task shape header</name>
+			<title>Should be able to edit user task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="447c587d-d797-41d3-9a49-57a9e939ce2d-attachment.png" type="image/png" size="98031"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503340699" stop="1463503341072" status="passed">
+			<name>Should be able to edit system task shape header</name>
+			<title>Should be able to edit system task shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="70e943ea-89c8-44fa-9abb-66de958a0faa-attachment.png" type="image/png" size="97548"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503341073" stop="1463503341354" status="passed">
+			<name>Should be able to edit system precondition shape body</name>
+			<title>Should be able to edit system precondition shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="3b67f3af-0ef9-40e5-8d9f-cd4ef36d4a73-attachment.png" type="image/png" size="100043"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463503341355" stop="1463503341637" status="passed">
+			<name>Should be able to edit System task shape body</name>
+			<title>Should be able to edit System task shape body</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="f0b43d6b-32ef-47a4-b6b2-6829f444808f-attachment.png" type="image/png" size="101880"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

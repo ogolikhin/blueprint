@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463500209818" stop="1463500223548">
+	<name>EditingNavigatingModalStoryteller</name>
+	<title>EditingNavigatingModalStoryteller</title>
+	<test-cases>
+		<test-case start="1463500209820" stop="1463500210660" status="failed">
+			<name>Should be able to toggle to user system process</name>
+			<title>Should be able to toggle to user system process</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="d7622848-2beb-43a8-a5ab-2f4053269e5b-attachment.png" type="image/png" size="85637"/>
+			</attachments>
+			<failure>
+				<message>Expected &apos;&apos; to be &apos;User-System Process&apos;.</message>
+				<stack-trace>Error: Failed expectation
+    at Object.&lt;anonymous&gt; (C:\Git\BlueprintSys\blueprint\blueprint-automationframework\UI-e2e-Tests\UI-e2e-Tests\UI-e2e-Tests\Specs\Storyteller\EditingNavigatingModalStorytellerSpec.ts:30:91)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:96:23
+    at new Promise (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:1043:7)
+    at controlFlowExecute (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\jasminewd2\index.js:82:18)
+    at TaskQueue.execute_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2790:14)
+    at TaskQueue.executeNext_ (C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2773:21)
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:2697:25
+    at C:\Users\makbar\AppData\Roaming\npm\node_modules\protractor\node_modules\selenium-webdriver\lib\promise.js:639:7
+    at process._tickCallback (internal/process/next_tick.js:103:7)</stack-trace>
+			</failure>
+		</test-case>
+		<test-case start="1463500210660" stop="1463500211518" status="passed">
+			<name>Should be able to publish the artifact</name>
+			<title>Should be able to publish the artifact</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="de094945-7e2d-4456-a11d-7b0ebb90a26c-attachment.png" type="image/png" size="95423"/>
+			</attachments>
+		</test-case>
+		<test-case start="1463500211519" stop="1463500223548" status="passed">
+			<name>Should be able to edit system precondition shape header</name>
+			<title>Should be able to edit system precondition shape header</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="a5126a0f-a0ac-4484-a39c-9c3cd9190bf2-attachment.png" type="image/png" size="84801"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

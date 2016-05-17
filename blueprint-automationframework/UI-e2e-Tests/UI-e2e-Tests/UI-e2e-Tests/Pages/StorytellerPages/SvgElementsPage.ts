@@ -83,11 +83,12 @@ class Svgelementspages {
 
 // funtion for edit shape's header
     public  editHeader(shape, headerName) {
-        this.labelHeader.then((elements) =>{
-            console.log("Total is label " + elements.length);
-            
-            if (shape <= elements.length) {
-                browser.actions().doubleClick(elements[shape]).perform();
+        this.labelHeader.then((elements) => {
+            console.log("Total is label from edit header " + elements.length); 
+
+           if (shape <= elements.length) {
+               browser.actions().doubleClick(elements[shape]).perform();
+               browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(headerName).perform();
                 browser.actions().sendKeys('\n').perform();
@@ -102,7 +103,8 @@ class Svgelementspages {
     }
 
 // function to verify shape's header name
-    public verifyHeaderName(shape): Promise<string> {
+    /* TO DO this funtion can be deleted but wait until dev finalized their code 
+  /*  public verifyHeaderName(shape): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
         return this.labelHeader.then((elements) => {
             elements[shape].all(by.tagName('div')).then((el) => {
@@ -118,6 +120,19 @@ class Svgelementspages {
             return this.header;
         });
 
+    }*/
+
+    public verifyHeaderName(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then((elements) => {
+            elements[shape].getText().then((gettext) => {
+                this.header = gettext; 
+            });
+            return this.header;
+        });
+            //return this.header;
+      //  });
+
     }
 
 //funtion to edit body  of a shape
@@ -126,11 +141,12 @@ class Svgelementspages {
         this.labelBody.then((elements) =>{
         console.log("Total is label " + elements.length);
         if (shape <= elements.length) {
-               browser.actions().doubleClick(elements[shape]).perform();
-               browser.actions().sendKeys(protractor.Key.DELETE).perform();
-               browser.actions().sendKeys(bodyText).perform();
-               browser.actions().sendKeys('\n').perform();
-               console.log("End of edtign");
+                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().sendKeys(protractor.Key.DELETE).perform();
+                browser.actions().sendKeys(bodyText).perform();
+                browser.actions().sendKeys('\n').perform();
+                console.log("End of edtign");
 
            } else {
                console.log("Your element is not in array-this is custom error message");
@@ -138,9 +154,10 @@ class Svgelementspages {
         });
 
     }
-//funtion to verify text body  of a shape
 
-    public verifyBodyText(shape): Promise<string> {
+//funtion to verify text body  of a shape
+/* TO DO this funtion can be deleted but wait until dev finalized their code 
+    public verifyBodyText1(shape): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
         return this.labelBody.then((elements) => {
             elements[shape].all(by.tagName('div')).then((el) => {
@@ -156,10 +173,25 @@ class Svgelementspages {
             return this.body;
         });
 
+    }*/
+
+    //===
+    public verifyBodyText(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
+        return this.labelBody.then((elements) => {
+            elements[shape].getText().then((gettext) => {
+                this.body = gettext;
+            });
+            return this.body;
+        });
+        //return this.header;
+        //  });
+
     }
-    
+
+ 
     // function to edit body text for user task
-    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    // TO DO this funtion can be deleted but wait until dev finalized their code 
     public editBodyForUserTask(shape, bodyText) {
         this.label.then((elements) => {
             console.log("Total is label for label " + elements.length);
@@ -182,7 +214,7 @@ class Svgelementspages {
     }
 
 // function to verify  body text for user task
-    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    //TO DO this funtion can be deleted but wait until dev finalized their code 
 
     public verifyUserTaskBodyText(shape): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
@@ -205,11 +237,10 @@ class Svgelementspages {
 //funtion to find an element and select the shape
 
     public  findElementAndSelect(shape): Promise<protractor.WebElement> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
-        return this.labelHeader.then((elements) =>{
-          
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        return this.label.then((elements) =>{
             console.log("inside of finding element");
-            console.log("Total is label " + elements.length);
+            console.log("Total is label from find and select " + elements.length);
             return elements[shape];
         });
     }
@@ -246,6 +277,7 @@ class Svgelementspages {
                }
            });
    }
+    
 }
 
 export = Svgelementspages;

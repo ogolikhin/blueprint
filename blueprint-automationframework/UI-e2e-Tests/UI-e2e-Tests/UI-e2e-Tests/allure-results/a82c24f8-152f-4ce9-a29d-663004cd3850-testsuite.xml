@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1463498067330" stop="1463498072768">
+	<name>LoginPage- Storyteller</name>
+	<title>LoginPage- Storyteller</title>
+	<test-cases>
+		<test-case start="1463498070008" stop="1463498072767" status="passed">
+			<name>Should be able to login </name>
+			<title>Should be able to login </title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="53f00f72-4120-479f-9d3a-a7d294579b7e-attachment.png" type="image/png" size="82021"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

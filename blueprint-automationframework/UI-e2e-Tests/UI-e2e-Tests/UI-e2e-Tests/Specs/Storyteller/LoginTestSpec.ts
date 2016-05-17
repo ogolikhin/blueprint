@@ -18,7 +18,7 @@ describe("LoginPage- Storyteller",
         beforeAll(() => {
             // Arrange
             var ID = createArtifact.createArt();
-            var site = OR.mockData.siteUrl+ ID;
+            var site = OR.mockData.siteUrl + ID;
             browser.get(site);
             loginPage = new Page();
         });

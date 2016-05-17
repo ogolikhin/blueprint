@@ -34,7 +34,7 @@ describe("EditingNavigatingModalStoryteller", function () {
         //Act
         svgElementsPage.editHeader(0, "s1");
         svgElementsPage.verifyHeaderName(0).then(function (t) { });
-        // Assert
+        //Assert
         expect(svgElementsPage.verifyHeaderName(0)).toBe("s1");
     });
     it("Should be able to edit user task shape header", function () {
@@ -60,17 +60,17 @@ describe("EditingNavigatingModalStoryteller", function () {
     });
     it("Should be able to edit user task shape body", function () {
         //Act
-        svgElementsPage.editBody(1, "Sys_T2B");
+        svgElementsPage.editBody(1, "User_T1B");
         svgElementsPage.verifyBodyText(1).then(function (t) { });
-        // Assert
-        expect(svgElementsPage.verifyBodyText(1)).toBe("Sys_T2B");
+        // Assert 
+        expect(svgElementsPage.verifyBodyText(1)).toBe("User_T1B");
     });
-    it("Should be able to edit user task shape body", function () {
+    it("Should be able to edit system task shape body", function () {
         //Act
-        svgElementsPage.editBodyForUserTask(3, "User_T1B");
-        svgElementsPage.verifyUserTaskBodyText(3).then(function (t) { });
+        svgElementsPage.editBody(2, "Sys_T2B");
+        svgElementsPage.verifyBodyText(2).then(function (t) { });
         //Assert
-        expect(svgElementsPage.verifyUserTaskBodyText(3)).toBe("User_T1B");
+        expect(svgElementsPage.verifyBodyText(2)).toBe("Sys_T2B");
     });
     it("Should be able to navigate to info Panel when click a user task", function () {
         //Act

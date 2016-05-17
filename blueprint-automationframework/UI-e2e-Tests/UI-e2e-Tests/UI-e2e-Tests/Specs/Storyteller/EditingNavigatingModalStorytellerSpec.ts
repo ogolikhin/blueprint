@@ -43,9 +43,11 @@ describe("EditingNavigatingModalStoryteller",
             //Act
             svgElementsPage.editHeader(0, "s1");
             svgElementsPage.verifyHeaderName(0).then((t) => { });
-            // Assert
+            //Assert
             expect(svgElementsPage.verifyHeaderName(0)).toBe("s1");
+            
         });
+       
         it("Should be able to edit user task shape header", () => {
             //Act
             svgElementsPage.editHeader(1, "User_T1");
@@ -60,6 +62,7 @@ describe("EditingNavigatingModalStoryteller",
             // Assert
             expect(svgElementsPage.verifyHeaderName(2)).toBe("Sys_T1");
         });
+        
         it("Should be able to edit system precondition shape body", () => {
             //Act
             svgElementsPage.editBody(0, "Sys_P0B");
@@ -70,20 +73,20 @@ describe("EditingNavigatingModalStoryteller",
         });
         it("Should be able to edit user task shape body", () => {
             //Act
-            svgElementsPage.editBody(1, "Sys_T2B");
+            svgElementsPage.editBody(1, "User_T1B");
             svgElementsPage.verifyBodyText(1).then((t) => { });
-            // Assert
-            expect(svgElementsPage.verifyBodyText(1)).toBe("Sys_T2B");
-           
+            // Assert 
+            expect(svgElementsPage.verifyBodyText(1)).toBe("User_T1B");
+            
         });
+ 
 
-
-        it("Should be able to edit user task shape body", () => {
+        it("Should be able to edit system task shape body", () => {
             //Act
-            svgElementsPage.editBodyForUserTask(3, "User_T1B");
-            svgElementsPage.verifyUserTaskBodyText(3).then((t) => { });
+            svgElementsPage.editBody(2, "Sys_T2B");
+            svgElementsPage.verifyBodyText(2).then((t) => { });
             //Assert
-            expect(svgElementsPage.verifyUserTaskBodyText(3)).toBe("User_T1B");
+            expect(svgElementsPage.verifyBodyText(2)).toBe("Sys_T2B");
             
         });
 
@@ -94,10 +97,10 @@ describe("EditingNavigatingModalStoryteller",
            }); 
            //Assert
             svgElementsPage.findFooterAndInfoIcon(19);
-           
+            
         });
 
-        
+      
         it("Should be able to navigate Properties tab", ()=> {
             //Act
             svgElementsPage.panelProperties.click();

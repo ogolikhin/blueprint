@@ -1,29 +1,42 @@
-var loginPage = require("../../Pages/StorytellerPages/LoginPage");
+/**
+ * This spec file will contain tests on  login page of storyteller
+ * Assumption: Project and user need to be predefined.
+ * Author : Mohammed Ali Akbar
+ * Created date: May10,2016
+ * last modified by:
+ * Last modified on:
+ */
 var createArtifact = require("../../Model/CreateArtifacts");
-//var json = require("./json/OR.json");
+var Page = require("../../Pages/StorytellerPages/LoginPage");
 var OR = require('../../Json/OR.json');
-describe("LoginPage", function () {
-    var ID = createArtifact.createArt();
-    beforeEach(function () {
-        //Arrange
-        // ID = 
-        browser.ignoreSynchronization = true;
+var loginPage;
+describe("LoginPage- Storyteller", function () {
+    beforeAll(function () {
+        // Arrange
+        var ID = createArtifact.createArt();
+        var site = OR.mockData.siteUrl + ID;
+        browser.get(site);
+        loginPage = new Page();
     });
-    var site = 'http://52.202.237.164/Web/#/Storyteller/' + ID;
-    browser.get(site);
-    it("enter user name", function () {
-        browser.driver.sleep(5000);
-        // loginPage.login(OR.locators.storyteller.testdata.TName);
+    it("Should be able to login ", function () {
+        //Act
         loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
-        browser.driver.sleep(5000);
-        loginPage.sessionDialofBox();
-        //svgElementspage.editHeader(0, "user1");
-        //loginPage.s
-        var l = loginPage.expect();
-        var ex = false;
-        //  ex = l.sessionDialofBox1().;
-        // expect(l.sessionDialofBox1()).toBe(false);
-        browser.driver.sleep(5000);
+        //Act
+        loginPage.sessionDialofBox()
+            .then(function (presence) {
+            console.log("Session Dialog Box appears: " + presence);
+            if (presence) {
+                // Assert
+                expect(loginPage.getSessionDialofBoxWarningMessage()).toBe("This user is already logged into Blueprint in another browser/session. \n" + " Do you want to override the previous session?");
+                loginPage.sessionDialogBoxYesButton.click();
+                browser.driver.sleep(1000);
+            }
+            else {
+                console.log("Session Dialog Box appears: " + presence);
+            }
+        });
+        //Assert
+        expect(loginPage.getdisplayNameFinder.getText()).toBe("Default Instance Admin");
     });
 });
 //# sourceMappingURL=LoginTestSpec.js.map

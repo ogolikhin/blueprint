@@ -29,9 +29,12 @@ exports.config = {
     framework: 'jasmine2',
     seleniumAddress: 'http://localhost:4444/wd/hub',
     specs: ['./Specs/Storyteller/LoginTestSpec.js', './Specs/Storyteller/EditingNavigatingModalStorytellerSpec.js'],
-    
+    //allScriptsTimeout: 20000,
     onPrepare: function () {
-        
+        //browser.ignoreSynchronization=true;
+        // browser.driver.manage().timeouts().implicitlyWait(25000);
+        browser.manage().timeouts().implicitlyWait(25000);
+        //browser.manage().timeouts().pageLoadTimeout(10000);
         
         /*
         // Add a screenshot reporter and store screenshots to `/Reports`:

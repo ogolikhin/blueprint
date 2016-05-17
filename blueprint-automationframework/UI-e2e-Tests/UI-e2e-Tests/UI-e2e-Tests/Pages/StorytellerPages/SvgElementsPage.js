@@ -3,16 +3,127 @@
  * Assumption: Project and user need to be predefined.
  * Author : Mohammed Ali Akbar
  * Created date: May10,2016
- *
+ * last modified by:
+ * Last modified on:
  */
 var OR = require('../../Json/OR.json');
-var ttt;
+var arrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
 var Svgelementspages = (function () {
     function Svgelementspages() {
+        this.labelHeader = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelHeader));
+        this.labelBody = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelBody));
+        this.label = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelForUserTaskBody));
+        this.image = element.all(By.tagName(OR.locators.storyteller.svgPageStoryteller.image));
+        this.panelDiscussions = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussions));
+        this.panelProperties = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelProperties));
+        this.panelFiles = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelFiles));
+        this.panelRelationships = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelRelationships));
+        this.panelHistory = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelHistory));
+        this.panelPreview = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelPreview));
+        this.panelCloseButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelCloseButton));
+        this.panelDiscussionTextArea = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextArea));
+        this.panelDiscussionTextAreaBody = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaBody));
+        this.panelDiscussionPostButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelDiscussionPostButton));
+        this.storytellerToggleTextForBusniessProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
+        this.storytellerToggleTextForUserSystemProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForUserSystemProcess));
+        this.storytellerTogglecheckBox = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerTogglecheckBox));
+        this.publishArtifact = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.publishArtifact));
+        this.publishArtifactSucessMessage = element(By.id(OR.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
+        this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
     }
-    //funtion to edit header of a shape
-    Svgelementspages.editHeader = function (shape, headerName) {
-        Svgelementspages.labelHeader.then(function (elements) {
+    Object.defineProperty(Svgelementspages.prototype, "getLabelHeader", {
+        get: function () { return this.labelHeader; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getLabelBody", {
+        get: function () { return this.labelBody; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getlabel", {
+        get: function () { return this.label; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getImage", {
+        get: function () { return this.image; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelDiscussions", {
+        get: function () { return this.panelDiscussions; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelProperties", {
+        get: function () { return this.panelProperties; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelFiles", {
+        get: function () { return this.panelFiles; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelHistory", {
+        get: function () { return this.panelHistory; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getpanelPreview", {
+        get: function () { return this.panelPreview; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelCloseButton", {
+        get: function () { return this.panelCloseButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelDiscussionTextArea", {
+        get: function () { return this.panelDiscussionTextArea; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelDiscussionTextAreaBody", {
+        get: function () { return this.panelDiscussionTextAreaBody; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getStorytellerToggleTextForBusniessProcess", {
+        get: function () { return this.storytellerToggleTextForBusniessProcess; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getStorytellerToggleTextForUserSystemProcess", {
+        get: function () { return this.storytellerToggleTextForUserSystemProcess; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getStorytellerTogglecheckBox", {
+        get: function () { return this.storytellerTogglecheckBox; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPublishArtifact", {
+        get: function () { return this.publishArtifact; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPublishArtifactSucessMessage", {
+        get: function () { return this.publishArtifactSucessMessage; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPostCommentText", {
+        get: function () { return this.postCommentText; },
+        enumerable: true,
+        configurable: true
+    });
+    // funtion for edit shape's header
+    Svgelementspages.prototype.editHeader = function (shape, headerName) {
+        this.labelHeader.then(function (elements) {
             console.log("Total is label " + elements.length);
             if (shape <= elements.length) {
                 browser.actions().doubleClick(elements[shape]).perform();
@@ -26,34 +137,33 @@ var Svgelementspages = (function () {
             }
         });
     };
-    //funtion to verify header name of a shape
-    Svgelementspages.verifyHeaderName = function (shape, headername) {
-        Svgelementspages.labelHeader.then(function (elements) {
-            browser.driver.sleep(5000);
-            console.log("inside of finding element");
-            console.log("Total is label " + elements.length);
+    // function to verify shape's header name
+    Svgelementspages.prototype.verifyHeaderName = function (shape) {
+        var _this = this;
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then(function (elements) {
             elements[shape].all(by.tagName('div')).then(function (el) {
                 console.log("inside of finding div");
-                el[1].getText().then(function (gettext) {
-                    console.log("inside of finding getText");
-                    console.log("Header text is -----" + gettext);
-                    expect(gettext).toBe(headername);
-                    console.log("OUT OF FINDING TEXT");
+                el[1].getText()
+                    .then(function (gettext) {
+                    console.log(gettext);
+                    _this.header = gettext;
+                    console.log("inside " + _this.header);
+                    return _this.header;
                 });
             });
+            return _this.header;
         });
     };
     //funtion to edit body  of a shape
-    Svgelementspages.editBody = function (shape, bodyText) {
-        Svgelementspages.labelBody.then(function (elements) {
+    Svgelementspages.prototype.editBody = function (shape, bodyText) {
+        this.labelBody.then(function (elements) {
             console.log("Total is label " + elements.length);
             if (shape <= elements.length) {
                 browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
-                browser.driver.sleep(5000);
                 browser.actions().sendKeys('\n').perform();
-                browser.driver.sleep(5000);
                 console.log("End of edtign");
             }
             else {
@@ -61,104 +171,100 @@ var Svgelementspages = (function () {
             }
         });
     };
-    //funtion to  verify body text  of a shape
-    Svgelementspages.verifyBodyText = function (shape, bodyText) {
-        Svgelementspages.labelBody.then(function (elements1) {
-            browser.driver.sleep(5000);
-            console.log("inside of finding element");
-            console.log("Total is label " + elements1.length);
-            elements1[shape].all(by.tagName('div')).then(function (el) {
+    //funtion to verify text body  of a shape
+    Svgelementspages.prototype.verifyBodyText = function (shape) {
+        var _this = this;
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
+        return this.labelBody.then(function (elements) {
+            elements[shape].all(by.tagName('div')).then(function (el) {
                 console.log("inside of finding div");
-                el[1].getText().then(function (gettext) {
-                    console.log("inside of finding getText");
-                    console.log("Body text is -----" + gettext);
-                    expect(gettext).toBe(bodyText);
-                    console.log("OUT OF FINDING TEXT");
+                el[1].getText()
+                    .then(function (gettext) {
+                    console.log(gettext);
+                    _this.body = gettext;
+                    console.log("inside " + _this.body);
+                    return _this.body;
                 });
             });
+            return _this.body;
+        });
+    };
+    // function to edit body text for user task
+    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    Svgelementspages.prototype.editBodyForUserTask = function (shape, bodyText) {
+        this.label.then(function (elements) {
+            console.log("Total is label for label " + elements.length);
+            if (shape <= elements.length) {
+                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().sendKeys(protractor.Key.DELETE).perform();
+                browser.actions().sendKeys(bodyText).perform();
+                // browser.driver.sleep(5000);
+                browser.actions().sendKeys('\n').perform();
+                // browser.driver.sleep(5000);
+                console.log("End of edtign");
+            }
+            else {
+                console.log("Your element is not in array-this is custom error message");
+            }
+        });
+    };
+    // function to verify  body text for user task
+    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    Svgelementspages.prototype.verifyUserTaskBodyText = function (shape) {
+        var _this = this;
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        return this.label.then(function (elements) {
+            elements[shape].all(by.tagName('div')).then(function (el) {
+                console.log("inside of finding div");
+                el[1].getText()
+                    .then(function (gettext) {
+                    console.log(gettext);
+                    _this.labelForUserTaskBody = gettext;
+                    console.log("inside " + _this.labelForUserTaskBody);
+                    return _this.labelForUserTaskBody;
+                });
+            });
+            return _this.labelForUserTaskBody;
         });
     };
     //funtion to find an element and select the shape
-    Svgelementspages.findElementAndSelect = function (shape) {
-        Svgelementspages.labelHeader.then(function (elements) {
-            browser.driver.sleep(5000);
+    Svgelementspages.prototype.findElementAndSelect = function (shape) {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then(function (elements) {
             console.log("inside of finding element");
             console.log("Total is label " + elements.length);
-            elements[shape].click();
+            return elements[shape];
         });
     };
     //funtion to find footer and information icon of a shape
-    Svgelementspages.findFooterAndInfoIcon = function () {
+    Svgelementspages.prototype.findFooterAndInfoIcon = function (icon) {
         var x = element.all(By.tagName(OR.locators.storyteller.image));
-        Svgelementspages.image.then(function (el) {
+        this.image.then(function (el) {
             console.log("Finding Icon " + el.length);
-            el[19].click();
-            browser.driver.sleep(5000);
+            el[icon].click();
         });
     };
-    //funtion to verify Panel Discussion
-    Svgelementspages.verifyPanelDiscussion = function () {
-        Svgelementspages.panelDiscussions.click();
-        expect(Svgelementspages.panelDiscussions.getText()).toEqual(['Discussions']);
-    };
-    //funtion to verify Panel Properties
-    Svgelementspages.verifyPanelProperties = function () {
-        Svgelementspages.panelProperties.click();
-        expect(Svgelementspages.panelProperties.getText()).toEqual(['Properties']);
-    };
-    //funtion to verify Panel File
-    Svgelementspages.verifyPanelFiles = function () {
-        Svgelementspages.panelFiles.click();
-        expect(Svgelementspages.panelFiles.getText()).toEqual(['Files']);
-    };
-    //funtion to verify Panel Relationships
-    Svgelementspages.verifyPanelRelationships = function () {
-        Svgelementspages.panelrelationships.click();
-        expect(Svgelementspages.panelrelationships.getText()).toEqual(['Relationships']);
-    };
-    //funtion to verify Panel History
-    Svgelementspages.verifyPanelHistory = function () {
-        Svgelementspages.panelHistory.click();
-        expect(Svgelementspages.panelHistory.getText()).toEqual(['History']);
-    };
-    //funtion to verify Panel Preview
-    Svgelementspages.verifyPanelPreview = function () {
-        Svgelementspages.panelPreview.click();
-        expect(Svgelementspages.panelPreview.getText()).toEqual(['Preview']);
-    };
-    //funtion to verify Panel CloseButton
-    Svgelementspages.verifyPanelCloseButton = function () {
-        Svgelementspages.panelCloseButton.click();
-    };
-    //funtion to verify Panel Post Comment
-    Svgelementspages.verifyPostComment = function () {
-        Svgelementspages.panelDiscussionTextArea.click();
-        browser.driver.switchTo().frame(OR.locators.storyteller.panelDiscussionTextAreaIframeId);
+    // function to post a comment at discussion panel
+    Svgelementspages.prototype.postComment = function (comment) {
+        var _this = this;
+        browser.driver.sleep(2000);
+        this.panelDiscussions.click();
+        this.panelDiscussionTextArea.click();
+        browser.driver.switchTo().frame(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);
         browser.ignoreSynchronization = true;
-        browser.waitForAngular();
-        browser.sleep(500);
-        browser.driver.sleep(5000);
-        console.log("After iframe Post method");
-        Svgelementspages.panelDiscussionTextAreaBody.sendKeys("This process need to be edited");
-        browser.driver.sleep(5000);
-        browser.driver.switchTo().defaultContent();
-        browser.driver.sleep(5000);
-        Svgelementspages.panelDiscussionPostButton.click();
-        browser.driver.sleep(5000);
+        this.panelDiscussionTextAreaBody.isPresent()
+            .then(function (tt) {
+            console.log(tt);
+            if (tt === true) {
+                _this.panelDiscussionTextAreaBody.sendKeys(comment);
+                browser.driver.switchTo().defaultContent();
+            }
+            if (tt === false) {
+                fail("Eelement not found");
+                browser.driver.switchTo().defaultContent();
+            }
+        });
     };
-    Svgelementspages.labelHeader = element.all(by.css(OR.locators.storyteller.labelHeader));
-    Svgelementspages.labelBody = element.all(by.css(OR.locators.storyteller.labelBody));
-    Svgelementspages.image = element.all(By.tagName(OR.locators.storyteller.image));
-    Svgelementspages.panelDiscussions = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelDiscussions));
-    Svgelementspages.panelProperties = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelProperties));
-    Svgelementspages.panelFiles = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelFiles));
-    Svgelementspages.panelrelationships = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelrelationships));
-    Svgelementspages.panelHistory = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelHistory));
-    Svgelementspages.panelPreview = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelPreview));
-    Svgelementspages.panelCloseButton = element(By.css(OR.locators.storyteller.panelCloseButton));
-    Svgelementspages.panelDiscussionTextArea = element(By.id(OR.locators.storyteller.panelDiscussionTextArea));
-    Svgelementspages.panelDiscussionTextAreaBody = browser.element(By.id(OR.locators.storyteller.panelDiscussionTextAreaBody));
-    Svgelementspages.panelDiscussionPostButton = browser.element(By.css(OR.locators.storyteller.panelDiscussionPostButton));
     return Svgelementspages;
 })();
 module.exports = Svgelementspages;

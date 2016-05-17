@@ -12,36 +12,47 @@
 
     },
     "storyteller": {
+                "loginPageStoryteller": {
+                      "loginField": "loginField",
+                      "passwordField": "passwordField",
+                      "loginButton": "loginButton",
+                      "sessionDialogBox": ".new-line.ng-binding",
+                      "sessionDialogBoxYesButton": "Yes",
+                      "sessionDialogBoxWarningMessage": ".new-line.ng-binding",
+                      "displayNameFinder": "vm.loginService.userInfo.displayName" 
+                  },
+                "svgPageStoryteller": {
+                      "labelHeader": "[id*='label-H']",
+                      "labelBody": "[id*='label-B']",
+                      "labelForUserTaskBody": "[id*='label-']",
+                      "image": "image",
+                      "panelModalWUtilityPanel": "modalWUtilityPanel",
+                      "panelDiscussions": "discussions",
+                      "panelProperties": "properties",
+                      "panelFiles": "files",
+                      "panelRelationships": "relationships",
+                      "panelHistory": "history",
+                      "panelPreview": "preview",
+                      "panelCloseButton": ".k-icon.k-i-close",
+                      "panelDiscussionTextArea": "mceu_8-body",
+                      "panelDiscussionTextAreaIframeId": "ui-tinymce-0_ifr",
+                      "panelDiscussionTextAreaBody": "tinymce",
+                      "panelDiscussionPostButton": ".btn.action-btn.btn-sm.ng-binding",
+                      "storytellerToggleTextForBusniessProcess": ".nova-switch-outer-text.nova-switch-unchecked-label.ng-binding",
+                      "storytellerToggleTextForUserSystemProcess": ".nova-switch-outer-text.nova-switch-checked-label.ng-binding",
+                      "storytellerTogglecheckBox": ".nova-switch",
+                      "postCommentText": ".comment-content.silverlight-rich-text.ng-binding" 
+                },
+                "utilityPanelStoryteller": {
+                  "publishArtifact": ".fonticon-upload-cloud",
+                  "publishArtifactSucessMessage": "success" 
+                } ,
+                  "testdata": {
+                    "TName": "admin",
+                    "lPass": "$Admin93"
+                  }
 
-      "labelHeader": "[id*='label-H']",
-      "labelBody": "[id*='label-B']",
-      "image": "image",
-      "panelModalWUtilityPanel": "modalWUtilityPanel",
-      "panelDiscussions": "discussions",
-      "panelProperties": "properties",
-      "panelFiles": "files",
-      "panelrelationships": "relationships",
-      "panelHistory": "history",
-      "panelPreview": "preview",
-      "panelCloseButton": ".k-icon.k-i-close",
-      "panelDiscussionTextArea": "mceu_8-body",
-      "panelDiscussionTextAreaIframeId": "ui-tinymce-0_ifr",
-      "panelDiscussionTextAreaBody": "tinymce",
-      "panelDiscussionPostButton": ".btn.action-btn.btn-sm.ng-binding",
-
-
-      "testdata": {
-
-
-        "TName": "admin",
-        "lPass": "$Admin93"
-
-
-
-      }
-
-
-    }
+    } 
 
   },
   "mockData": {
@@ -51,7 +62,8 @@
     "artifactTypeId": "77",
     "artifactProperties": "[]",
     "getAuthenticationApiUrl": "http://52.202.237.164/authentication/v1/login",
-    "postCreateArtifactUrl": "http://52.202.237.164/api/v1/projects/1/artifacts" 
+    "postCreateArtifactUrl": "http://52.202.237.164/api/v1/projects/1/artifacts",
+    "siteUrl": "http://52.202.237.164/Web/#/Storyteller/" 
 
 
   } 

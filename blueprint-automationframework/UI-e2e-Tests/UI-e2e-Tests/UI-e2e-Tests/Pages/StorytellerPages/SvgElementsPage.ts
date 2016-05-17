@@ -3,31 +3,87 @@
  * Assumption: Project and user need to be predefined.
  * Author : Mohammed Ali Akbar
  * Created date: May10,2016
- * 
+ * last modified by:
+ * Last modified on:
  */
 
 var OR = require('../../Json/OR.json');
 import Promise = protractor.promise.Promise;
-var ttt;
+import ElementFinder = protractor.ElementFinder;
+import ElementArrayFinder = protractor.ElementArrayFinder;
+import arrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
+
+
 
 class Svgelementspages {
-    private static labelHeader = element.all(by.css(OR.locators.storyteller.labelHeader));
-    private static labelBody = element.all(by.css(OR.locators.storyteller.labelBody));
-    private static image = element.all(By.tagName(OR.locators.storyteller.image));
-    private static panelDiscussions = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelDiscussions));
-    private static panelProperties = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelProperties));
-    private static panelFiles = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelFiles));
-    private static panelrelationships = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelrelationships));
-    private static panelHistory = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelHistory));
-    private static panelPreview = element.all(by.id(OR.locators.storyteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.panelPreview));
-    private static panelCloseButton = element(By.css(OR.locators.storyteller.panelCloseButton));
-    private static panelDiscussionTextArea = element(By.id(OR.locators.storyteller.panelDiscussionTextArea));
-    private static panelDiscussionTextAreaBody = browser.element(By.id(OR.locators.storyteller.panelDiscussionTextAreaBody));
-    private static panelDiscussionPostButton = browser.element(By.css(OR.locators.storyteller.panelDiscussionPostButton));
+    header: string;
+    body: string;
+    labelForUserTaskBody: string;
+    private labelHeader: ElementArrayFinder;
+    private labelBody: ElementArrayFinder;
+    private label: ElementArrayFinder;
+    private image: ElementArrayFinder;
+    private  panelDiscussions: ElementArrayFinder;
+    private panelProperties: ElementArrayFinder;
+    private panelFiles: ElementArrayFinder;
+    private panelRelationships: ElementArrayFinder;
+    private panelHistory: ElementArrayFinder;
+    private panelPreview: ElementArrayFinder;
+    private panelCloseButton: ElementFinder;
+    private panelDiscussionTextArea: ElementFinder;
+    private panelDiscussionTextAreaBody: ElementFinder;
+    private panelDiscussionPostButton: ElementFinder;
+    private storytellerToggleTextForBusniessProcess: ElementFinder;
+    private storytellerToggleTextForUserSystemProcess: ElementFinder;
+    private storytellerTogglecheckBox: ElementFinder;
+    private publishArtifact: ElementFinder;
+    private publishArtifactSucessMessage: ElementFinder;
+    private postCommentText: ElementFinder;
 
-    //funtion to edit header of a shape
-    public static editHeader(shape, headerName) {
-        Svgelementspages.labelHeader.then((elements) =>{
+    constructor() {
+        this.labelHeader = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelHeader));
+        this.labelBody = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelBody));
+        this.label = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelForUserTaskBody));
+        this.image = element.all(By.tagName(OR.locators.storyteller.svgPageStoryteller.image));
+        this.panelDiscussions = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussions));
+        this.panelProperties = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelProperties));
+        this.panelFiles = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelFiles));
+        this.panelRelationships = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelRelationships));
+        this.panelHistory = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelHistory));
+        this.panelPreview = element.all(by.id(OR.locators.storyteller.svgPageStoryteller.panelModalWUtilityPanel)).all(by.id(OR.locators.storyteller.svgPageStoryteller.panelPreview));
+        this.panelCloseButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelCloseButton));
+        this.panelDiscussionTextArea = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextArea));
+        this.panelDiscussionTextAreaBody = element(By.id(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaBody));
+        this.panelDiscussionPostButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.panelDiscussionPostButton));
+        this.storytellerToggleTextForBusniessProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForBusniessProcess));
+        this.storytellerToggleTextForUserSystemProcess = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerToggleTextForUserSystemProcess));
+        this.storytellerTogglecheckBox = element(By.css(OR.locators.storyteller.svgPageStoryteller.storytellerTogglecheckBox));
+        this.publishArtifact = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.publishArtifact));
+        this.publishArtifactSucessMessage = element(By.id(OR.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
+        this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
+    }
+    public get getLabelHeader(): ElementArrayFinder { return this.labelHeader; }
+    public get getLabelBody(): ElementArrayFinder { return this.labelBody; }
+    public get getlabel(): ElementArrayFinder { return this.label; }
+    public get getImage(): ElementArrayFinder { return this.image; }
+    public get getPanelDiscussions(): ElementArrayFinder { return this.panelDiscussions; }
+    public get getPanelProperties(): ElementArrayFinder { return this.panelProperties; }
+    public get getPanelFiles(): ElementArrayFinder { return this.panelFiles; }
+    public get getPanelHistory(): ElementArrayFinder { return this.panelHistory; }
+    public get getpanelPreview(): ElementArrayFinder { return this.panelPreview; }
+    public get getPanelCloseButton(): ElementFinder { return this.panelCloseButton; }
+    public get getPanelDiscussionTextArea(): ElementFinder { return this.panelDiscussionTextArea; }
+    public get getPanelDiscussionTextAreaBody(): ElementFinder { return this.panelDiscussionTextAreaBody; }
+    public get getStorytellerToggleTextForBusniessProcess(): ElementFinder { return this.storytellerToggleTextForBusniessProcess; }
+    public get getStorytellerToggleTextForUserSystemProcess(): ElementFinder { return this.storytellerToggleTextForUserSystemProcess; }
+    public get getStorytellerTogglecheckBox(): ElementFinder { return this.storytellerTogglecheckBox; }
+    public get getPublishArtifact(): ElementFinder { return this.publishArtifact; }
+    public get getPublishArtifactSucessMessage(): ElementFinder { return this.publishArtifactSucessMessage; }
+    public get getPostCommentText(): ElementFinder { return this.postCommentText; }
+
+// funtion for edit shape's header
+    public  editHeader(shape, headerName) {
+        this.labelHeader.then((elements) =>{
             console.log("Total is label " + elements.length);
             
             if (shape <= elements.length) {
@@ -45,162 +101,150 @@ class Svgelementspages {
         });
     }
 
-    //funtion to verify header name of a shape
-
-    public static verifyHeaderName(shape, headername) {
-        Svgelementspages.labelHeader.then((elements) =>{
-            browser.driver.sleep(5000);
-            console.log("inside of finding element");
-            console.log("Total is label " + elements.length);
-            elements[shape].all(by.tagName('div')).then((el)=> {
-            console.log("inside of finding div");
-            el[1].getText().then((gettext)=>{
-                    console.log("inside of finding getText");
-                    console.log("Header text is -----" + gettext);
-                    expect(gettext).toBe(headername);
-                    console.log("OUT OF FINDING TEXT");
-                });
-
+// function to verify shape's header name
+    public verifyHeaderName(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then((elements) => {
+            elements[shape].all(by.tagName('div')).then((el) => {
+                console.log("inside of finding div");
+                el[1].getText()
+                    .then((gettext) => {
+                        console.log(gettext);
+                        this.header = gettext;
+                        console.log("inside "+this.header);
+                        return this.header;
+                    });
             });
-
+            return this.header;
         });
+
     }
 
-    //funtion to edit body  of a shape
+//funtion to edit body  of a shape
 
-    public static editBody(shape, bodyText) {
-        Svgelementspages.labelBody.then((elements) =>{
+    public  editBody(shape, bodyText) {
+        this.labelBody.then((elements) =>{
         console.log("Total is label " + elements.length);
         if (shape <= elements.length) {
                browser.actions().doubleClick(elements[shape]).perform();
                browser.actions().sendKeys(protractor.Key.DELETE).perform();
                browser.actions().sendKeys(bodyText).perform();
-               browser.driver.sleep(5000);
                browser.actions().sendKeys('\n').perform();
-               browser.driver.sleep(5000);
                console.log("End of edtign");
 
            } else {
                console.log("Your element is not in array-this is custom error message");
-           }
-
-
-       });
+        }
+        });
 
     }
+//funtion to verify text body  of a shape
 
-      //funtion to  verify body text  of a shape
-
-    public static verifyBodyText(shape, bodyText) {
-
-        Svgelementspages.labelBody.then((elements1)=>{
-            browser.driver.sleep(5000);
-            console.log("inside of finding element");
-            console.log("Total is label " + elements1.length);
-            elements1[shape].all(by.tagName('div')).then((el)=>{
-            console.log("inside of finding div");
-                el[1].getText().then((gettext)=> {
-                    console.log("inside of finding getText");
-                    console.log("Body text is -----" + gettext);
-                    expect(gettext).toBe(bodyText);
-                    console.log("OUT OF FINDING TEXT");
-                });
-
+    public verifyBodyText(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
+        return this.labelBody.then((elements) => {
+            elements[shape].all(by.tagName('div')).then((el) => {
+                console.log("inside of finding div");
+                el[1].getText()
+                    .then((gettext) => {
+                        console.log(gettext);
+                        this.body = gettext;
+                        console.log("inside " + this.body);
+                        return this.body;
+                    });
             });
+            return this.body;
+        });
+
+    }
+    
+    // function to edit body text for user task
+    // TO DO: this function might not be needed if we can have same body ID pattern as system task
+    public editBodyForUserTask(shape, bodyText) {
+        this.label.then((elements) => {
+            console.log("Total is label for label " + elements.length);
+            if (shape <= elements.length) {
+                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().sendKeys(protractor.Key.DELETE).perform();
+                browser.actions().sendKeys(bodyText).perform();
+                // browser.driver.sleep(5000);
+                browser.actions().sendKeys('\n').perform();
+                // browser.driver.sleep(5000);
+                console.log("End of edtign");
+
+            } else {
+                console.log("Your element is not in array-this is custom error message");
+            }
+
 
         });
+
     }
 
-    //funtion to find an element and select the shape
+// function to verify  body text for user task
+    // TO DO: this function might not be needed if we can have same body ID pattern as system task
 
-    public static findElementAndSelect(shape) {
-        Svgelementspages.labelHeader.then((elements) =>{
-            browser.driver.sleep(5000);
+    public verifyUserTaskBodyText(shape): Promise<string> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
+        return this.label.then((elements) => {
+            elements[shape].all(by.tagName('div')).then((el) => {
+                console.log("inside of finding div");
+                el[1].getText()
+                    .then((gettext) => {
+                        console.log(gettext);
+                        this.labelForUserTaskBody = gettext;
+                        console.log("inside " + this.labelForUserTaskBody);
+                        return this.labelForUserTaskBody;
+                    });
+            });
+            return this.labelForUserTaskBody;
+        });
+
+    }
+
+//funtion to find an element and select the shape
+
+    public  findElementAndSelect(shape): Promise<protractor.WebElement> {
+        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+        return this.labelHeader.then((elements) =>{
+          
             console.log("inside of finding element");
             console.log("Total is label " + elements.length);
-            elements[shape].click();
-
+            return elements[shape];
         });
     }
 
 
-    //funtion to find footer and information icon of a shape
+//funtion to find footer and information icon of a shape
 
-    public static findFooterAndInfoIcon() {
+    public  findFooterAndInfoIcon(icon) {
         var x = element.all(By.tagName(OR.locators.storyteller.image)); 
-        Svgelementspages.image.then((el) =>{
+        this.image.then((el) =>{
             console.log("Finding Icon " + el.length);
-            el[19].click();
-            browser.driver.sleep(5000);
-
+            el[icon].click();
         });
     }
 
-    //funtion to verify Panel Discussion
-
-    public static verifyPanelDiscussion() {
-        Svgelementspages.panelDiscussions.click();
-        expect(Svgelementspages.panelDiscussions.getText()).toEqual(['Discussions']);
-        
-   }
-
-    //funtion to verify Panel Properties
-   public static verifyPanelProperties() {
-       Svgelementspages.panelProperties.click();
-       expect(Svgelementspages.panelProperties.getText()).toEqual(['Properties']);
-       
-   }
-
-     //funtion to verify Panel File
-   public static verifyPanelFiles() {
-       Svgelementspages.panelFiles.click();
-       expect(Svgelementspages.panelFiles.getText()).toEqual(['Files']);
-       
-   }
-
-    //funtion to verify Panel Relationships
-   public static verifyPanelRelationships() {
-       Svgelementspages.panelrelationships.click();
-       expect(Svgelementspages.panelrelationships.getText()).toEqual(['Relationships']);
-       
-   }
-
-    //funtion to verify Panel History
-   public static verifyPanelHistory() {
-       Svgelementspages.panelHistory.click();
-       expect(Svgelementspages.panelHistory.getText()).toEqual(['History']);
-       
-   }
-
-
-    //funtion to verify Panel Preview
-   public static verifyPanelPreview() {
-       Svgelementspages.panelPreview.click();
-       expect(Svgelementspages.panelPreview.getText()).toEqual(['Preview']);
-       
-   }
-
-
-     //funtion to verify Panel CloseButton
-   public static verifyPanelCloseButton() {
-       Svgelementspages.panelCloseButton.click();
-   }
-
-   //funtion to verify Panel Post Comment
-   public static verifyPostComment() {
-       Svgelementspages.panelDiscussionTextArea.click();
-       browser.driver.switchTo().frame(OR.locators.storyteller.panelDiscussionTextAreaIframeId);
+ 
+// function to post a comment at discussion panel
+   public postComment(comment) {
+       browser.driver.sleep(2000);
+       this.panelDiscussions.click();
+       this.panelDiscussionTextArea.click();
+       browser.driver.switchTo().frame(OR.locators.storyteller.svgPageStoryteller.panelDiscussionTextAreaIframeId);
        browser.ignoreSynchronization = true;
-       browser.waitForAngular();
-       browser.sleep(500);
-       browser.driver.sleep(5000);
-       console.log("After iframe Post method");
-       Svgelementspages.panelDiscussionTextAreaBody.sendKeys("This process need to be edited");
-       browser.driver.sleep(5000);
-       browser.driver.switchTo().defaultContent();
-       browser.driver.sleep(5000);
-       Svgelementspages.panelDiscussionPostButton.click();
-       browser.driver.sleep(5000);
+       this.panelDiscussionTextAreaBody.isPresent()
+           .then((tt) => {
+               console.log(tt);
+               if (tt === true) {
+                   this.panelDiscussionTextAreaBody.sendKeys(comment);
+                   browser.driver.switchTo().defaultContent();
+               }
+               if (tt === false) {
+                   fail("Eelement not found");
+                   browser.driver.switchTo().defaultContent();
+               }
+           });
    }
 }
 

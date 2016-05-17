@@ -1,40 +1,49 @@
-﻿import loginPage = require("../../Pages/StorytellerPages/LoginPage");
-import svgElementspage = require("../../Pages/StorytellerPages/SvgElementsPage");
+﻿
+/**
+ * This spec file will contain tests on  login page of storyteller 
+ * Assumption: Project and user need to be predefined.
+ * Author : Mohammed Ali Akbar
+ * Created date: May10,2016
+ * last modified by:
+ * Last modified on:
+ */
 import createArtifact = require("../../Model/CreateArtifacts");
-//var json = require("./json/OR.json");
+import Page = require("../../Pages/StorytellerPages/LoginPage");
+
 var OR = require('../../Json/OR.json');
-describe("LoginPage",
+var loginPage;
+
+describe("LoginPage- Storyteller",
     () => {
+        beforeAll(() => {
+            // Arrange
+            var ID = createArtifact.createArt();
+            var site = OR.mockData.siteUrl+ ID;
+            browser.get(site);
+            loginPage = new Page();
+        });
 
-        var ID = createArtifact.createArt();
-        beforeEach(
-            () => {
-                //Arrange
-                // ID = 
-                browser.ignoreSynchronization = true;
-            });
+  
+        it("Should be able to login ", () => {
+            //Act
+            loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
+            //Act
+            loginPage.sessionDialofBox()
+                .then((presence) => {
+                    console.log("Session Dialog Box appears: " + presence);
+                    if (presence) {
+                       // Assert
+                            expect(loginPage.getSessionDialofBoxWarningMessage()).toBe("This user is already logged into Blueprint in another browser/session. \n" + " Do you want to override the previous session?");
+                             loginPage.sessionDialogBoxYesButton.click();
+                            browser.driver.sleep(1000);
+                        } else {
+                            console.log("Session Dialog Box appears: " + presence);
+                        }
+                });
+            //Assert
+            expect(loginPage.getdisplayNameFinder.getText()).toBe("Default Instance Admin");
 
-      var site = 'http://52.202.237.164/Web/#/Storyteller/' + ID;
-       browser.get(site);
-
-
-        it("enter user name",
-            () => {
-              
-                browser.driver.sleep(5000);
-               // loginPage.login(OR.locators.storyteller.testdata.TName);
-                loginPage.login(OR.locators.storyteller.testdata.TName, OR.locators.storyteller.testdata.lPass);
-               browser.driver.sleep(5000);
-
-               loginPage.sessionDialofBox();
-                //svgElementspage.editHeader(0, "user1");
-                //loginPage.s
-                var l = loginPage.expect();
-                let ex: boolean = false;
-              //  ex = l.sessionDialofBox1().;
-               // expect(l.sessionDialofBox1()).toBe(false);
-               browser.driver.sleep(5000);
-            });
+        });
 
     })
     

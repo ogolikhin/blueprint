@@ -1,99 +1,157 @@
-﻿import svgElementsPage = require("../../Pages/StorytellerPages/SvgElementsPage");
+﻿/**
+ * This spec file will contain All major locator and action that can be performed on storyteller svg(graphic)
+ * Assumption: Project and user need to be predefined.
+ * Author : Mohammed Ali Akbar
+ * Created date: May10,2016
+ * last modified by:
+ * Last modified on:
+ */
+import Page = require("../../Pages/StorytellerPages/SvgElementsPage");
 import createArtifact = require("../../Model/CreateArtifacts");
-//var json = require("./json/OR.json");
 var OR = require('../../Json/OR.json');
+var svgElementsPage;
 
 describe("EditingNavigatingModalStoryteller",
     () => {
-       // browser.driver.findElement(By.css('.nova-switch-label')).click();
-        it("enter user name",() => {
-            expect(browser.element(By.css('.nova-switch-outer-text.nova-switch-unchecked-label.ng-binding')).getText()).toEqual('Business Process');
-            if ((element(by.css('.nova-switch')).isSelected())) {
-                element(by.css('.nova-switch')).click();
-            }
-            
-            // browser.driver.sleep(5000);
-            // svgElementsPage.editHeader(0, "user1");
-             browser.driver.sleep(5000);
-         });
-
-        it('Verify user can publish the artifact', () => {
-            browser.driver.sleep(5000);
-            browser.element(By.css('.fonticon-upload-cloud')).click();
-            //SvgElementCounter.findLabelAndSelect(1);
-
-            // SvgTitleForSystemtask.findSystemTitle(0, "ST1");
-            browser.driver.sleep(5000);
-            //SvgPanel.findPanel();
-
-
+        beforeAll(() => {
+            //Arrange
+            svgElementsPage = new Page();
         });
 
-        it('Verify user task Panel Icon', () => {
-            browser.driver.sleep(5000);
-            //  browser.element(By.id('label-H38')).click();
-            svgElementsPage.findElementAndSelect(1);
-
-            // SvgTitleForSystemtask.findSystemTitle(0, "ST1");
-            browser.driver.sleep(5000);
-           // SvgPanel.findPanel();
+      
+        it("Should be able to toggle to user system process", () => {
            
-
+            //expect(svgElementsPage.getStorytellerToggleTextForBusniessProcess.getText()).toBe('Business Process');
+            //Act
+           if (svgElementsPage.getStorytellerTogglecheckBox.isSelected()) {
+               svgElementsPage.getStorytellerTogglecheckBox.click();  
+            }
+            //Assert
+           expect(svgElementsPage.getStorytellerToggleTextForUserSystemProcess.getText()).toBe('User-System Process');
+        
         });
 
-        it('Verify infomation Icon is clickable', () => {
-            browser.driver.sleep(5000);
-            //  browser.element(By.id('label-H38')).click();
-            svgElementsPage.findFooterAndInfoIcon();
+        it("Should be able to publish the artifact", () => {
+            //Act
+            svgElementsPage.getPublishArtifact.click();
+           // Assert
+            expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("The Process has been published.");
+            //browser.driver.sleep(5000);
+        });
 
-            // SvgTitleForSystemtask.findSystemTitle(0, "ST1");
-            browser.driver.sleep(5000);
+        it("Should be able to edit system precondition shape header", () => {
+            //Act
+            svgElementsPage.editHeader(0, "s1");
+            svgElementsPage.verifyHeaderName(0).then((t) => { });
+            // Assert
+            expect(svgElementsPage.verifyHeaderName(0)).toBe("s1");
+        });
+        it("Should be able to edit user task shape header", () => {
+            //Act
+            svgElementsPage.editHeader(1, "User_T1");
+            svgElementsPage.verifyHeaderName(1).then((t) => { });
+            // Assert
+            expect(svgElementsPage.verifyHeaderName(1)).toBe("User_T1");
+        });
+        it("Should be able to edit system task shape header", () => {
+            //Act
+            svgElementsPage.editHeader(2, "Sys_T1");
+            svgElementsPage.verifyHeaderName(2).then((t) => { });
+            // Assert
+            expect(svgElementsPage.verifyHeaderName(2)).toBe("Sys_T1");
+        });
+        it("Should be able to edit system precondition shape body", () => {
+            //Act
+            svgElementsPage.editBody(0, "Sys_P0B");
+            svgElementsPage.verifyBodyText(0).then((t) => { });
+            // Assert
+            expect(svgElementsPage.verifyBodyText(0)).toBe("Sys_P0B");
+           
+        });
+        it("Should be able to edit user task shape body", () => {
+            //Act
+            svgElementsPage.editBody(1, "Sys_T2B");
+            svgElementsPage.verifyBodyText(1).then((t) => { });
+            // Assert
+            expect(svgElementsPage.verifyBodyText(1)).toBe("Sys_T2B");
+           
+        });
+
+
+        it("Should be able to edit user task shape body", () => {
+            //Act
+            svgElementsPage.editBodyForUserTask(3, "User_T1B");
+            svgElementsPage.verifyUserTaskBodyText(3).then((t) => { });
+            //Assert
+            expect(svgElementsPage.verifyUserTaskBodyText(3)).toBe("User_T1B");
             
-
-        });
-        it('Verify user task Panel has Properties tab', ()=> {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelProperties();
-            browser.driver.sleep(5000);
         });
 
-        it('Verify user task Panel has Discussion tab', () => {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelDiscussion();
-            browser.driver.sleep(5000);
+        it("Should be able to navigate to info Panel when click a user task", () => {
+            //Act
+           svgElementsPage.findElementAndSelect(2).then((el) => {
+                el.click();
+           }); 
+           //Assert
+            svgElementsPage.findFooterAndInfoIcon(19);
+           
         });
 
-
-        it('Verify post comment', () => {
-            browser.driver.sleep(5000);
-
-            svgElementsPage.verifyPostComment();;
-            browser.driver.sleep(5000);
+        
+        it("Should be able to navigate Properties tab", ()=> {
+            //Act
+            svgElementsPage.panelProperties.click();
+            //Assert
+            expect(svgElementsPage.panelProperties.getText()).toEqual(['Properties']);
+            
         });
 
-        it('Verify user task Panel has Files tab', () => {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelFiles();
-            browser.driver.sleep(5000);
+        it("Should be able to navigate Discussion tab", () => {
+         
+            //Act
+            svgElementsPage.panelDiscussions.click();
+            //Assert
+            expect(svgElementsPage.panelDiscussions.getText()).toEqual(['Discussions']);
+           
         });
 
-        it('Verify user task Panel has Relationships tab', () => {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelRelationships();;
-            browser.driver.sleep(5000);
+        it("Should be able to post comment", () => {
+            //Act
+            svgElementsPage.postComment("This test case  need to be updated");
+            svgElementsPage.panelDiscussionPostButton.click();
+            //Assert
+            expect(svgElementsPage.getPostCommentText.getText()).toBe("This test case  need to be updated");
+             browser.driver.sleep(1000);
         });
 
-        it('Verify user task Panel has History tab', () => {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelHistory();
-            browser.driver.sleep(5000);
+        it("Should be able to navigate Files tab", () => {
+            //Act
+            svgElementsPage.panelFiles.click();
+            //Assert
+            expect(svgElementsPage.panelFiles.getText()).toEqual(['Files']);
+          
         });
 
-        it('Verify user task Panel has CloseButton tab',
-        () => {
-            browser.driver.sleep(5000);
-            svgElementsPage.verifyPanelCloseButton();
-            browser.driver.sleep(5000);
+        it("Should be able to navigate Relationships tab", () => {
+            //Act
+            svgElementsPage.panelRelationships.click();
+            //Assert
+            expect(svgElementsPage.panelRelationships.getText()).toEqual(['Relationships']);
+            
+        });
+
+        it("Should be able to navigate History tab", () => {
+            //Act
+            svgElementsPage.panelHistory.click();
+            //Assert
+            expect(svgElementsPage.panelHistory.getText()).toEqual(['History']);
+        });
+
+        it("Should be able to close info Panel",() => {
+            //Act
+            svgElementsPage.panelCloseButton.click();
+         
+            //TO DO Assert
         });
 
 

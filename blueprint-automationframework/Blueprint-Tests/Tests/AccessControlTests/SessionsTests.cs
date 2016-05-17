@@ -2,7 +2,9 @@
 using CustomAttributes;
 using Model.Factories;
 using Common;
+using Helper;
 using Model;
+using TestCommon;
 using Utilities;
 using Utilities.Factories;
 
@@ -10,32 +12,22 @@ namespace AccessControlTests
 {
     [TestFixture]
     [Category(Categories.AccessControl)]
-    public class SessionsTests
+    public class SessionsTests : TestBase
     {
-        private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
         private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAddToDatabase();
         }
 
         [TearDown]
         public void TearDown()
         {
             Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
-
-            // Delete all sessions created by the tests.
-            foreach (var session in _accessControl.Sessions.ToArray())
-            {
-                _accessControl.DeleteSession(session);
-            }
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         /// <summary>
@@ -46,7 +38,7 @@ namespace AccessControlTests
         private ISession AddSessionToAccessControl(ISession session)
         {
             // POST the new session.
-            ISession createdSession = _accessControl.AddSession(session);
+            ISession createdSession = Helper.AccessControl.AddSession(session);
 
             // Verify that the POST returned the expected session.
             Assert.True(session.Equals(createdSession),
@@ -87,7 +79,7 @@ namespace AccessControlTests
         {
             ISession createdSession = CreateAndAddSessionToAccessControl();
 
-            ISession returnedSession = _accessControl.AuthorizeOperation(createdSession, operation, artifactId);
+            ISession returnedSession = Helper.AccessControl.AuthorizeOperation(createdSession, operation, artifactId);
 
             Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }
@@ -100,7 +92,7 @@ namespace AccessControlTests
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _accessControl.AuthorizeOperation(session, "do_some_action", artifactId);
+                Helper.AccessControl.AuthorizeOperation(session, "do_some_action", artifactId);
             }, "Calling PUT without a session token should return 400 Bad Request!");
         }
 
@@ -109,7 +101,7 @@ namespace AccessControlTests
         {
             ISession addedSession = CreateAndAddSessionToAccessControl();
 
-            ISession returnedSession = _accessControl.GetSession(addedSession.UserId);
+            ISession returnedSession = Helper.AccessControl.GetSession(addedSession.UserId);
 
             Assert.That(addedSession.Equals(returnedSession), "'GET {0}' returned a different session than the one we added!", addedSession.UserId);
         }
@@ -124,7 +116,7 @@ namespace AccessControlTests
             ISession session = SessionFactory.CreateRandomSession();
 
             // Try to get the session without the session token, which should give a 404 error.
-            Assert.Throws<Http404NotFoundException>(() => { _accessControl.GetSession(session.UserId); });
+            Assert.Throws<Http404NotFoundException>(() => { Helper.AccessControl.GetSession(session.UserId); });
         }
 
         [TestCase]
@@ -136,7 +128,7 @@ namespace AccessControlTests
             ISession createdSession = CreateAndAddSessionToAccessControl();
 
             // Delete the session.  We should get no errors.
-            _accessControl.DeleteSession(createdSession);
+            Helper.AccessControl.DeleteSession(createdSession);
         }
 
         [TestCase]
@@ -145,7 +137,7 @@ namespace AccessControlTests
         public void DeleteSessionsWithoutSessionToken_Verify400BadRequest()
         {
             // Call the DELETE RestAPI without a session token which should return a 400 error.
-            Assert.Throws<Http400BadRequestException>(() => { _accessControl.DeleteSession(null); });
+            Assert.Throws<Http400BadRequestException>(() => { Helper.AccessControl.DeleteSession(null); });
         }
 
         [TestCase]
@@ -153,10 +145,10 @@ namespace AccessControlTests
         [Description("Check that GET active licenses info returns 200 OK")]
         public void GetActiveLicensesInfo_200OK()
         {
-            ///TODO: add expected results
+            // TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicensesInfo(LicenseState.active);
+                Helper.AccessControl.GetLicensesInfo(LicenseState.active);
             });
         }
 
@@ -166,10 +158,11 @@ namespace AccessControlTests
         public void GetLockedLicensesInfo_200OK()
         {
             ISession session = CreateAndAddSessionToAccessControl();
-            ///TODO: add expected results
+
+            // TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicensesInfo(LicenseState.locked, session: session);
+                Helper.AccessControl.GetLicensesInfo(LicenseState.locked, session: session);
             });
         }
 
@@ -181,12 +174,14 @@ namespace AccessControlTests
             // Setup: Create a session for test.
             ISession session = CreateAndAddSessionToAccessControl();
             int numberOfDays = 1;
-            //in our test environment we have only transactions related to consumerType = 1 - regular client
+
+            // In our test environment we have only transactions related to consumerType = 1 - regular client
             int consumerType = 1;
-            ///TODO: add expected results
+
+            // TODO: add expected results
             Assert.DoesNotThrow(() =>
             {
-                _accessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
+                Helper.AccessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
             });
         }
 
@@ -195,8 +190,9 @@ namespace AccessControlTests
         {
             // Setup: Create a session for test.
             ISession session = CreateAndAddSessionToAccessControl();
-            ///TODO: add expected results
-            var sessionsList = _accessControl.GetActiveSessions(session: session);
+
+            // TODO: add expected results
+            var sessionsList = Helper.AccessControl.GetActiveSessions(session: session);
             Assert.That(sessionsList.Count > 0, "GetActiveSessions should find at least 1 active session, but found none.");
         }
     }

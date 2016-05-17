@@ -54,6 +54,42 @@ namespace Helper
             return user;
         }
 
+        /// <summary>
+        /// Used to specify which type of session tokens to get for the user.
+        /// </summary>
+        [Flags]
+        public enum AuthenticationTokenTypes
+        {
+            None = 0,
+            AccessControlToken = 1,
+            OpenApiToken = 2,
+            BothAccessControlAndOpenApiTokens = 3
+        }
+
+        /// <summary>
+        /// Creates a new user object with random values and adds it to the Blueprint database,
+        /// then authenticates to AdminStore and/or OpenApi to get session tokens.
+        /// </summary>
+        /// <param name="targets">The authentication targets.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user that has the requested access tokens.</returns>
+        public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets, UserSource source = UserSource.Database)
+        {
+            IUser user = CreateUserAndAddToDatabase(source);
+
+            if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
+            {
+                AdminStore.AddSession(user);
+            }
+
+            if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
+            {
+                BlueprintServer.LoginUsingBasicAuthorization(user);
+            }
+
+            return user;
+        }
+
         #endregion User management
 
         #region Members inherited from IDisposable

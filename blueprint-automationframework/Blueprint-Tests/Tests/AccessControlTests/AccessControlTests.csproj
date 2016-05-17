@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AccessControlTests</RootNamespace>
     <AssemblyName>AccessControlTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -86,6 +87,10 @@
     <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
       <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj">
+      <Project>{8a66038c-22fc-4c28-ba0d-714614a50418}</Project>
+      <Name>TestCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

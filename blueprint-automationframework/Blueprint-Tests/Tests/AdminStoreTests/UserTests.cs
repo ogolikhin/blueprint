@@ -1,46 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using Common;
 using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
+using TestCommon;
 using Utilities;
 using Utilities.Factories;
 
 namespace AdminStoreTests
 {
-    public class UserTests
+    public class UserTests : TestBase
     {
-        private IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
         private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new Helper.TestHelper();
+            _user = Helper.CreateUserAndAddToDatabase();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    // AdminStore removes and adds a new session in some cases, so we should expect a 404 error in some cases.
-                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
-                    _adminStore.DeleteSession(session, expectedStatusCodes);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         [TestCase(MinPasswordLength)]
@@ -55,13 +39,13 @@ namespace AdminStoreTests
             // Execute: change the user's password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.ResetPassword(_user, newPassword);
+                Helper.AdminStore.ResetPassword(_user, newPassword);
             }, "Password reset failed when we passed a valid username & password!");
 
             // Verify: make sure user can login with the new password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, newPassword);
+                Helper.AdminStore.AddSession(_user.Username, newPassword);
             }, "User couldn't login after resetting their password!");
         }
 
@@ -77,7 +61,7 @@ namespace AdminStoreTests
             // Execute & Verify: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.ResetPassword(missingUser, newPassword);
+                Helper.AdminStore.ResetPassword(missingUser, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user that doesn't exist!");
 
             const string expectedExceptionMessage = "Invalid username or password";
@@ -99,13 +83,13 @@ namespace AdminStoreTests
             // Execute & Verify: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.ResetPassword(userWithNullPassword, newPassword);
+                Helper.AdminStore.ResetPassword(userWithNullPassword, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user with no Old Password!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Username and password cannot be empty";
@@ -128,13 +112,13 @@ namespace AdminStoreTests
             // Execute: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _adminStore.ResetPassword(userWithBadPassword, newPassword);
+                Helper.AdminStore.ResetPassword(userWithBadPassword, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user that doesn't exist!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Invalid username or password";
@@ -152,13 +136,13 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                _adminStore.ResetPassword(_user, newPassword);
+                Helper.AdminStore.ResetPassword(_user, newPassword);
             }, "Password reset should get a 400 Bad Request when passing a null or empty new password!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be empty";
@@ -175,13 +159,13 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to the same password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                _adminStore.ResetPassword(_user, _user.Password);
+                Helper.AdminStore.ResetPassword(_user, _user.Password);
             }, "Password reset should get a 400 Bad Request when old and new passwords are the same!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to the old one";
@@ -202,13 +186,13 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                _adminStore.ResetPassword(_user, newPassword);
+                Helper.AdminStore.ResetPassword(_user, newPassword);
             }, "Password reset should get a 400 Bad Request when the new password doesn't meet the complexity rules!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Password reset failed, new password is invalid";
@@ -229,13 +213,13 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                _adminStore.ResetPassword(_user, newPassword);
+                Helper.AdminStore.ResetPassword(_user, newPassword);
             }, "Password reset should get a 400 Bad Request when passing new password that is too short or too long!");
 
             // Verify: make sure user can still login with their old password.
             Assert.DoesNotThrow(() =>
             {
-                _adminStore.AddSession(_user.Username, _user.Password);
+                Helper.AdminStore.AddSession(_user.Username, _user.Password);
             }, "User couldn't login with their old password after an unsuccessful password reset!");
 
             const string expectedExceptionMessage = "Password reset failed, new password is invalid";

@@ -2,43 +2,45 @@
 using NUnit.Framework;
 using CustomAttributes;
 using Helper;
-using Model;
-using Model.Factories;
 
 namespace AccessControlTests
 {
     [TestFixture]
     [Category(Categories.AccessControl)]
-    public class StatusTests
+    public static class StatusTests
     {
-        private IAccessControl _accessControl = AccessControlFactory.GetAccessControlFromTestConfig();
-
         [TestCase]
         [TestRail(96117)]
         [Description("Check that GET /svc/AccessControl/status returns 200 OK and returns a JSON structure with the status of all dependent services.")]
-        public void GetStatus_OK()
+        public static void GetStatus_OK()
         {
-            string content = null;
-
-            Assert.DoesNotThrow(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                content = _accessControl.GetStatus();
-            }, "'GET /status' should return 200 OK.");
+                string content = null;
 
-            var extraExpectedStrings = new List<string> { "AccessControl", "AdminStorage" };
+                Assert.DoesNotThrow(() =>
+                {
+                    content = helper.AccessControl.GetStatus();
+                }, "'GET /status' should return 200 OK.");
 
-            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+                var extraExpectedStrings = new List<string> {"AccessControl", "AdminStorage"};
+
+                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+            }
         }
 
         [TestCase]
         [TestRail(106951)]
         [Description("Checks that GET /svc/accesscontrol/status/upcheck returns 200 OK.")]
-        public void GetStatusUpcheck_OK()
+        public static void GetStatusUpcheck_OK()
         {
-            Assert.DoesNotThrow(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                _accessControl.GetStatusUpcheck();
-            });
+                Assert.DoesNotThrow(() =>
+                {
+                    helper.AccessControl.GetStatusUpcheck();
+                }, "'GET /status/upcheck' should return 200 OK.");
+            }
         }
     }
 }

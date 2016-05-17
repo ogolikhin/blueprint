@@ -42,14 +42,16 @@ describe("Component AppComponent", () => {
             var vm: AppController = componentTest.createComponent({});
             spyOn(session, "logout").and.callThrough();
             spyOn($state, "reload").and.callThrough();
+            var event = componentTest.scope.$broadcast("dummyEvent");
 
             //Act
-            vm.logout(componentTest.scope.$broadcast("dummyEvent"));
+            vm.logout(event);
             componentTest.scope.$digest();
 
             //Assert
             expect(session.logout).toHaveBeenCalled();
             expect($state.reload).toHaveBeenCalled();
+            expect(event.defaultPrevented).toBeTruthy();
 
 
         }));
@@ -61,15 +63,17 @@ describe("Component AppComponent", () => {
             //Arrange
             var vm: AppController = componentTest.createComponent({});
             spyOn($window, "open").and.callThrough();
+            var event = componentTest.scope.$broadcast("dummyEvent");
 
             //Act
-            vm.navigateToHelpUrl(componentTest.scope.$broadcast("dummyEvent"));
+            vm.navigateToHelpUrl(event);
 
             //Assert
             /* tslint:disable */
             var expectedOptions: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = 1300, height = 800, top = 160, left = 150";
             /* tslint:enable */
             expect($window.open).toHaveBeenCalledWith("http://HelpURL", "_blank", expectedOptions);
+            expect(event.defaultPrevented).toBeTruthy();
 
         }));
     });

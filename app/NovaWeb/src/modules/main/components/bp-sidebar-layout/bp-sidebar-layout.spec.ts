@@ -38,9 +38,10 @@ describe("Component BpSidebarLayout", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            var event = directiveTest.scope.$broadcast("dummyEvent");
 
             //Act
-            vm.toggleLeft(directiveTest.scope.$broadcast("dummyEvent"));
+            vm.toggleLeft(event);
             directiveTest.scope.$digest();
 
             //Assert
@@ -48,14 +49,16 @@ describe("Component BpSidebarLayout", () => {
             expect(vm.isRightToggled).toBe(true);
             expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(false);
             expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(true);
+            expect(event.defaultPrevented).toBeTruthy();
         });
         it("should toggle the right side correctly", () => {
 
             //Arrange
             var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            var event = directiveTest.scope.$broadcast("dummyEvent");
 
             //Act
-            vm.toggleRight(directiveTest.scope.$broadcast("dummyEvent"));
+            vm.toggleRight(event);
             directiveTest.scope.$digest();
 
             //Assert
@@ -63,6 +66,7 @@ describe("Component BpSidebarLayout", () => {
             expect(vm.isRightToggled).toBe(false);
             expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("left-panel-visible")).toBe(true);
             expect(directiveTest.element.find(".bp-sidebar-wrapper").hasClass("right-panel-visible")).toBe(false);
+            expect(event.defaultPrevented).toBeTruthy();
         });
         it("should toggle the both sides correctly", () => {
 

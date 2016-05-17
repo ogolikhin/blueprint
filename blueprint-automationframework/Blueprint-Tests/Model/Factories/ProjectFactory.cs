@@ -1,6 +1,7 @@
 ﻿using Common;
 using Model.Impl;
 using System.Data;
+using System.Net;
 using Utilities.Factories;
 using System.Linq;
 using System.Collections.Generic;
@@ -57,7 +58,8 @@ namespace Model.Factories
             string path = I18NHelper.FormatInvariant("{0}", SVC_PROJECTS_PATH);
 
             RestApiFacade restApi = new RestApiFacade(_address, user.Username, user.Password, user.Token?.OpenApiToken);
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
+            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
+            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             if (projects.Count == 0)
             {

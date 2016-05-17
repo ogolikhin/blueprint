@@ -32,26 +32,27 @@ class ProjectExplorerController {
         if (alreadyOpened) {
             this.tree.selectNode(project.id);
             return;
-        };
+        }
 
         this.tree.setDataSource([{
             Id: project.id,
             Type: `Project`,
             Name: project.name,
-            loaded: true,
+            Loaded: true,
+            HasChildren: true,
             Children: project.artifacts.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it[`Children`])) {
                     it[`Children`] = [];
-                };
+                }
                 return it;
             })
         }]);
-    }
+    };
 
     public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
         var nodes = project.getArtifact(artifactId).artifacts;
         this.tree.setDataSource(nodes, artifactId);
-    }
+    };
 
     public columns = [{
         headerName: "",
@@ -68,9 +69,13 @@ class ProjectExplorerController {
     }];
 
 
-    public expandGroup = (prms: any) => {
-        //check passesd in parameter
-        let artifactId = (prms && prms.Id) ? prms.Id : null;
+    public doLoad = (prms: any): any[] => {
+        //the explorer must be empty on a first load
+        if (!prms) {
+            return null;
+        }
+        //check passesed in parameter
+        let artifactId = angular.isNumber(prms.Id) ? prms.Id : null;
         //notify the service to load the node children
         this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
     };

@@ -87,13 +87,6 @@
       }
     }
 
-    .ag-overlay-loading-wrapper {
-      font-size: $font-size-smallest;
-      padding-top: $aggrid-row-height;
-      text-align: left;
-      vertical-align: top;
-    }
-
     input {
       border: solid 1px $brand-secondary;
       box-sizing: border-box;
@@ -135,10 +128,20 @@
   }
 
 // icons for artifacts and folders
+  .ag-cell {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e85f';
+      font-size: $font-size-smaller;
+      text-indent: -.2em;
+    }
+  }
+
   .ag-cell.is-folder {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e802';
+      text-indent: 0;
     }
   }
 
@@ -146,6 +149,7 @@
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e879';
+      text-indent: 0;
     }
   }
 
@@ -164,12 +168,27 @@
   }
 
 // group specific icons
+  .ag-row-group .ag-group-contracted i::before,
+  .ag-row-group .ag-group-expanded i::before {
+    content: '\e85f';
+    font-size: $font-size-smaller;
+    text-indent: -.2em;
+  }
+
   .ag-row-group .is-folder .ag-group-contracted i::before {
     content: '\e802';
+    text-indent: 0;
   }
 
   .ag-row-group .is-folder .ag-group-expanded i::before {
     content: '\e83e';
+    text-indent: 0;
+  }
+
+  .ag-row-group .is-project .ag-group-contracted i::before,
+  .ag-row-group .is-project .ag-group-expanded i::before {
+    content: '\e879';
+    text-indent: 0;
   }
 
   .ag-row-loading .ag-cell .ag-group-contracted i::before,
@@ -214,6 +233,21 @@
         color: $white;
       }
     }
+  }
+}
+
+.project-explorer {
+  .ag-overlay-loading-wrapper {
+    display: none;
+  }
+}
+
+.project-tree {
+  .ag-overlay-loading-wrapper {
+    font-size: $font-size-smallest;
+    padding-top: $aggrid-row-height;
+    text-align: left;
+    vertical-align: top;
   }
 }
 

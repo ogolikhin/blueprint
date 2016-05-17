@@ -3,7 +3,7 @@
          enable-editing-on="Name"
          enable-dragndrop="true"
          data-source ="$ctrl.datasource"
-         on-expand="$ctrl.expandGroup(prms)"
+         on-load="$ctrl.doLoad(prms)"
          on-select="$ctrl.selectElement(item)"
          on-row-click="$ctrl.doRowClick(prms)">
 </bp-tree>

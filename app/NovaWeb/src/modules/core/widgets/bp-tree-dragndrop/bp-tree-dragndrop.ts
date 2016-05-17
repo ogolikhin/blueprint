@@ -47,7 +47,7 @@ export class BPTreeDragndrop implements ng.IDirective {
             var hasContentBeenAlreadyLoaded = function(targetPath, nodesObj) {
                 var node = traverseData(targetPath, nodesObj);
 
-                return !!node.alreadyLoadedFromServer;
+                return !!node.Loaded;
             };
 
             var adjustPath = function(sourcePath, targetPath) {

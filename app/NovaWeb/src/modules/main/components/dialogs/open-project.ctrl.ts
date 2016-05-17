@@ -28,8 +28,6 @@ export class OpenProjectController extends BaseDialogController {
         private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
-
-        this.loadProjects();
     };
 
 
@@ -89,32 +87,19 @@ export class OpenProjectController extends BaseDialogController {
         suppressSorting: true,
         suppressFiltering : true
     }];
-
-    private loadProjects() {
+    
+    public doLoad = (prms: any): any[] => {
+        //check passed in parameter
         let self = this;
-        this.service.getFolders()
-            .then((data: any[]) => { //pSvc.IProjectNode[]
-                self.tree.setDataSource(data);
-            }, (error) => {
-                //self.showError(error);
-            });
-    }
-
-    //public doLoad = (prms: any): ng.IPromise<any[]> => {
-    //    //check passed in parameter
-    //    return this.service.getFolders();
-    //};
-
-    public doExpand = (prms: any) => {
-        let self = this;
-        //check passesd in parameter
-        var id = (prms && prms.Id) ? prms.Id : null;
+        let id = (prms && angular.isNumber(prms.Id)) ? prms.Id : null;
         this.service.getFolders(id)
             .then((data: any[]) => { //pSvc.IProjectNode[]
                 self.tree.setDataSource(data, id);
             }, (error) => {
                 //self.showError(error);
             });
+
+        return null;
     };
 
     public doSelect = (item: any) => {

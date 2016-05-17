@@ -36,8 +36,8 @@ $buildParams = @{
     visualStudioVersion = "14.0"
 }
 
-#Setup-Environment @buildParams -removeFiles $removeFiles
-#Build-Nova-Services @buildParams
-#Run-Nova-Unit-Tests @buildParams
+Setup-Environment @buildParams -removeFiles $removeFiles
+Build-Nova-Services @buildParams
+Run-Nova-Unit-Tests @buildParams
 
 Build-Nova-Html @buildParams

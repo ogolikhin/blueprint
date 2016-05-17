@@ -129,7 +129,7 @@ export class BPTreeController  {
             this.gridColumns = [];
         }
 
-    }
+            }
     public addNode(data: ITreeNode)  {
         this.rowData = [data].concat(this.rowData);
         this.options.api.setRowData(this.rowData);
@@ -139,7 +139,7 @@ export class BPTreeController  {
             data.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it.Children)) {
                     it.Children = [];
-                };
+        };
             });
             let node = this.findNode(id);
             if (node) {
@@ -182,8 +182,8 @@ export class BPTreeController  {
             enableColResize: true,
             columnDefs: this.gridColumns,
             icons: {
-                groupExpanded: "<i class='fonticon-folder-open' />",
-                groupContracted: "<i class='fonticon-folder' />"
+                groupExpanded: "<i class='fonticon-' />",
+                groupContracted: "<i class='fonticon-' />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
             onCellFocused: this.cellFocused,
@@ -250,7 +250,7 @@ export class BPTreeController  {
                             if (it.data.HasChildren && !angular.isArray(it.data.Children)) {
                                 it.Children = [];
                             };
-                        });
+            });
                         node.data.alreadyLoadedFromServer = true;
                         node.data.open = true;
                         self.options.api.setRowData(self.rowData);
@@ -270,27 +270,32 @@ export class BPTreeController  {
         }
     };
 
-    private rowClicked = (params: any) => {
+    private rowFocus = (target: any) => {
         function findAncestor(el, cls) {
             while ((el = el.parentElement) && !el.classList.contains(cls));
             return el;
         }
 
-        var clickedCell = findAncestor(params.event.target, "ag-cell");
+        var clickedCell = findAncestor(target, "ag-cell");
         if (clickedCell) {
             clickedCell.focus();
         }
+    };
 
-        if (typeof this.onRowClick === `function`) {
+    private rowClicked = (params: any) => {
             var self = this;
 
             self.clickTimeout = self.$timeout(function () {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
+
+            self.rowFocus(params.event.target);
+
+            if (typeof self.onRowClick === `function`) {
                 self.onRowClick({prms: params});
-            }, 250);
         }
+        }, 250);
     };
 
     private rowDoubleClicked = (params: any) => {
@@ -307,8 +312,14 @@ export class BPTreeController  {
             this.onRowPostCreate({prms: params});
         } else {
             if (this.enableDragndrop) {
+                let node = params.node;
+                let path = node.childIndex;
+                while (node.level) {
+                    node = node.parent;
+                    path = node.childIndex + "/" + path;
+                }
                 let row = angular.element(params.eRow)[0];
-                row.setAttribute("bp-tree-dragndrop", "");
+                row.setAttribute("bp-tree-dragndrop", path);
             }
         }
     };

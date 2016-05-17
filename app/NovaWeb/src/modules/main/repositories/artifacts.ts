@@ -17,7 +17,7 @@ export interface IProjectItem extends IItem {
     //flags:
 }
 
-export interface IProject {
+export interface IProject { 
     id: number;
     name: string;
     artifacts: IProjectItem[]

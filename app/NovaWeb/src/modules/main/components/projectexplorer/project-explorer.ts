@@ -27,7 +27,7 @@ class BaseController {
 class ProjectExplorerController extends BaseController {
     private mainView: IMainViewController;
     private tree: IBPTreeController;
-    
+
     private selectedItem: any;
     public static $inject: [string] = ["$scope", "localization", "projectRepository", "$log", "$timeout"];
     constructor(
@@ -59,7 +59,7 @@ class ProjectExplorerController extends BaseController {
             Children: project.artifacts.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it[`Children`])) {
                     it[`Children`] = [];
-                };
+    };
                 return it;
             })
         }]);
@@ -77,6 +77,7 @@ class ProjectExplorerController extends BaseController {
         field: "Name",
         cellClassRules: {
             "has-children": function (params) { return params.data.HasChildren; },
+            "is-folder": function (params) { return params.data.Type === "Folder"; },
             "is-project": function (params) { return params.data.Type === "Project"; }
         },
         cellRenderer: "group",

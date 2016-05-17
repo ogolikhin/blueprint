@@ -52,7 +52,7 @@ export interface ITreeNode {
     Id: number;
     HasChildren: boolean;
     Children: ITreeNode[];
-    alreadyLoadedFromServer: boolean;
+    Loaded: boolean;
     open: boolean;
 }
 export interface IBPTreeController {
@@ -142,7 +142,7 @@ export class BPTreeController  {
             let node = this.findNode(id);
             if (node) {
                 node.data.Children = data;
-                node.data.alreadyLoadedFromServer = true;
+                node.data.Loaded = true;
                 node.open = true;
             } else {
                 this.rowData = data.concat(this.rowData || []);
@@ -156,7 +156,9 @@ export class BPTreeController  {
             if (node.data.Id === id) {
                 node.setSelected(true);
             }
-        });        this.options.api.refreshView();    }
+        });
+        this.options.api.refreshView();
+    }
 
     private findNode(id: number): any {
         let node: any;
@@ -231,14 +233,27 @@ export class BPTreeController  {
     private rowGroupOpened = (params: any) => {
         let self = this;
         let node = params.node;
-        if (node.data.HasChildren && !node.data.alreadyLoadedFromServer) {
+        if (node.data.HasChildren && !node.data.Loaded) {
             if (angular.isFunction(self.onLoad)) {
+                // this is a bit of a trick, to get the actual row expanded
+                let row = null;
+                let rowIndex = node.rowTop / self.options.rowHeight;
+                let element = self.$element[0];
+                if (element) {
+                    row = element.querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
+                    if(row) {
+                        row.className += " ag-row-loading";
+                    }
+                }
+                // DO NOT REMOVE this is to remove the loading icon
+                //row.className = row.className.replace(/ ag-row-loading/g, "");
+
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (angular.isArray(nodes)) {
                     node.data.Children = nodes;
-                    node.data.alreadyLoadedFromServer = true;
+                    node.data.Loaded = true;
                     node.data.open = true;
                     self.setDataSource(); // pass nothing to just reload 
                 }
@@ -248,11 +263,13 @@ export class BPTreeController  {
     };
 
     private cellFocused = (params: any) => {
-        var model = this.options.api.getModel();
-        this.selectedRow = model.getRow(params.rowIndex);
-        this.selectedRow.setSelected(true, true);
-        if (typeof this.onSelect === `function`) {
-            this.onSelect({item: this.selectedRow.data});
+        if (params.rowIndex) {
+            var model = this.options.api.getModel();
+            this.selectedRow = model.getRow(params.rowIndex);
+            this.selectedRow.setSelected(true, true);
+            if (typeof this.onSelect === `function`) {
+                this.onSelect({item: this.selectedRow.data});
+            }
         }
     };
 

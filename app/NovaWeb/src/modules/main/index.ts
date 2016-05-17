@@ -12,6 +12,7 @@ import {ProjectNotification} from "./services/project-notification";
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {BPTreeInlineEditing} from "../core/widgets/bp-tree-inline-editing/bp-tree-inline-editing";
 import {BPTreeDragndrop} from "../core/widgets/bp-tree-dragndrop/bp-tree-dragndrop";
+import {BPTooltip} from "../core/widgets/bp-tooltip/bp-tooltip";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -46,6 +47,7 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .component("bpProjectExplorer", new ProjectExplorerComponent())
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.Factory())
     .directive("bpTreeDragndrop", BPTreeDragndrop.Factory())
+    .directive("bpTooltip", BPTooltip.Factory())
     .config(routesConfig);
 
 

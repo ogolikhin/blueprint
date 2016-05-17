@@ -1,0 +1,68 @@
+.bp-tooltip-trigger:hover {
+  cursor: default;
+
+  .bp-tooltip {
+    display: block;
+    opacity: 1;
+  }
+}
+
+.bp-tooltip {
+  border: 0;
+  display: none;
+  margin: 0;
+  opacity: 0;
+  padding: 0;
+  position: fixed;
+  z-index: $tooltip-z-index;
+}
+
+.bp-tooltip-content {
+  background: $black;
+  border: 0;
+  border-radius: $border-radius-amount;
+  color: $white;
+  font-family: "Open Sans", sans-serif;
+  font-size: $font-size-tiniest;
+  font-weight: 400;
+  line-height: 25px;
+  margin: 0;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+
+.bp-tooltip-top-tip::after {
+  border-color: rgba($black, 0);
+  border-bottom-color: $black;
+  border-style: solid;
+  border-width: 5px;
+  bottom: 100%;
+  content: ' ';
+  height: 0;
+  pointer-events: none;
+  position: absolute;
+  margin-left: -5px;
+  width: 0;
+}
+
+.bp-tooltip-bottom-tip::after {
+  border-color: rgba($black, 0);
+  border-style: solid;
+  border-top-color: $black;
+  border-width: 5px;
+  content: ' ';
+  height: 0;
+  margin-left: -5px;
+  pointer-events: none;
+  position: absolute;
+  top: 100%;
+  width: 0;
+}
+
+.bp-tooltip-left-tip::after {
+  left: 8px;
+}
+
+.bp-tooltip-right-tip::after {
+  left: calc(100% - 13px);
+}

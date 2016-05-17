@@ -28,7 +28,9 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.session.logout().finally(() => this.$state.reload());
+        var promise: ng.IPromise<any> = this.session.logout()
+        console.log(promise);
+        promise.finally(() => this.$state.reload());
     }
 
     public navigateToHelpUrl(evt: ng.IAngularEvent) {
@@ -50,7 +52,7 @@ export class AppController {
         //Note: Hiding the URL bar is no longer possible in most browsers (security feature).
         //Note2: Chrome ignores 'width' if you don't also specify 'height
         /* tslint:disable */
-        var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height=" + height + ", top=" + top + ", left=" + left;
+        var windowFeatures: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = " + width + ", height = " + height + ", top = " + top + ", left = " + left;
         /*tslint:enable*/
 
         return $window.open(url, title, windowFeatures);

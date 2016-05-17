@@ -203,8 +203,8 @@ export class BPTreeController  {
                 group: true,
                 expanded: rowItem.open,
                 children: rowItem.children,
-                field: "Name",
-                key: rowItem.Id // the key is used by the default group cellRenderer
+                field: "name",
+                key: rowItem.id // the key is used by the default group cellRenderer
             };
         } else {
             return null;

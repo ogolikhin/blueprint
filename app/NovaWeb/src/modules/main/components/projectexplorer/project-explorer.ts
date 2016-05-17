@@ -68,9 +68,13 @@ class ProjectExplorerController {
     }];
 
 
-    public expandGroup = (prms: any) => {
-        //check passesd in parameter
-        let artifactId = (prms && prms.Id) ? prms.Id : null;
+    public doLoad = (prms: any): any[] => {
+        //the explorer must be empty on a first load
+        if (!prms) {
+            return null;
+        }
+        //check passesed in parameter
+        let artifactId = angular.isNumber(prms.Id) ? prms.Id : null;
         //notify the service to load the node children
         this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
     };

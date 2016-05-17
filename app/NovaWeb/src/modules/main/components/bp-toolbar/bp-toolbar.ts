@@ -3,7 +3,6 @@ import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {IProjectNotification, SubscriptionEnum} from "../../services/project-notification";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project.ctrl";
-import {IMainViewController} from "../../main.view";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -13,15 +12,12 @@ interface IBPToolbarController {
 export class BPToolbarComponent implements ng.IComponentOptions {
     public template: string = require("./bp-toolbar.html");
     public controller: Function = BPToolbarController;
-    public require: any = {
-        mainView: "^bpMainView"
-    };
 }
 
 class BPToolbarController implements IBPToolbarController {
 
     static $inject = ["localization", "dialogService", "projectNotification" ];
-    private mainView: IMainViewController;
+
     constructor(private localization: ILocalizationService, private dialogService: IDialogService, private notificator: IProjectNotification) {
     }
 

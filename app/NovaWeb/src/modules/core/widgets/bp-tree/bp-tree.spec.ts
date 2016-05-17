@@ -1,7 +1,7 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {BPTreeController} from "./bp-tree";
-import {GridApi, InMemoryRowModel, RowNode} from "ag-grid/main";
+import {GridApi} from "ag-grid/main";
 
 
 describe("Embedded ag-grid events", () => {
@@ -12,7 +12,7 @@ describe("Embedded ag-grid events", () => {
     beforeEach(inject(function(_$q_, _$rootScope_, _$compile_, $timeout) {
         $scope = _$rootScope_.$new();
 
-        elem = angular.element('<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>');
+        elem = angular.element(`<div ag-grid="$ctrl.gridOptions" class="ag-grid"></div>`);
 
         controller = new BPTreeController($scope, $timeout);
         _$compile_(elem)($scope);
@@ -81,29 +81,28 @@ describe("Embedded ag-grid events", () => {
         expect(cellRendererFolder).toEqual(undefined);
     });
 
-    it("onGidReady",  inject(($q: ng.IQService) => {
+    it("setDataSource",  inject(($q: ng.IQService) => {
         // Arrange
         var dataFromCall;
         gridApi.setRowData = function (data) {
             dataFromCall = data;
         };
-        controller.onLoad = function () {
-            var deferred = $q.defer();
-            deferred.resolve({
-                Type: "Project",
-                Name: "project"
-            });
-            return deferred.promise;
-        }
 
         // Act
         var options = controller.options;
 
         controller.options.api = gridApi;
-        options.onGridReady();
         $scope.$apply();
 
+        controller.setDataSource([{
+            id: 1, Name: `Name 1`
+        }]);
+        controller.setDataSource([{
+            id: 2, Name: `Name 2`
+        }]);
+
         // Assert
+        let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall.Type).toBeTruthy;
         expect(dataFromCall.Name).toBeTruthy;
     }));
@@ -131,7 +130,7 @@ describe("Embedded ag-grid events", () => {
                 Name: "Project",
             }]);
             return deferred.promise;
-        }
+        };
 
         var setRowDataMock = function (data) {
             dataFromCall = data;

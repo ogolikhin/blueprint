@@ -1,6 +1,6 @@
-﻿//import {ILocalizationService} from "../../../core/localization";
-import "angular"
+﻿import "angular";
 import * as Grid from "ag-grid/main";
+import {Helper} from "../../../core/utils/helper";
 
 /*
 tslint:disable
@@ -54,7 +54,7 @@ export interface ITreeNode {
     Id: number;
     HasChildren: boolean;
     Children: ITreeNode[];
-    alreadyLoadedFromServer : boolean;
+    alreadyLoadedFromServer: boolean;
     open: boolean;
 }
 export interface IBPTreeController {
@@ -109,8 +109,8 @@ export class BPTreeController  {
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
         this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
-        if (this.gridColumns) {
-            for (let i = 0, gridCol; gridCol = this.gridColumns[i++];) {
+        if (angular.isArray(this.gridColumns)) {
+            this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
                     if (!gridCol.cellRendererParams ||
@@ -124,12 +124,12 @@ export class BPTreeController  {
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
                 }
-            }
+            });
         } else {
             this.gridColumns = [];
         }
+    }
 
-            }
     public addNode(data: ITreeNode)  {
         this.rowData = [data].concat(this.rowData);
         this.options.api.setRowData(this.rowData);
@@ -139,19 +139,18 @@ export class BPTreeController  {
             data.map(function (it) {
                 if (it.HasChildren && !angular.isArray(it.Children)) {
                     it.Children = [];
-        };
+                };
             });
             let node = this.findNode(id);
             if (node) {
                 node.data.Children = data;
                 node.alreadyLoadedFromServer = true;
                 node.open = true;
-            }
-            else {
-                this.rowData = data.concat(this.rowData || [])
+            } else {
+                this.rowData = data.concat(this.rowData || []);
             }
             this.options.api.setRowData(this.rowData);
-        } 
+        }
     }
 
     public selectNode(id: number) {
@@ -193,26 +192,13 @@ export class BPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady
         };
-        
-    };
-
-    private stripHTMLTags = (stringToSanitize: string): string => {
-        var stringSanitizer = window.document.createElement("DIV");
-        stringSanitizer.innerHTML = stringToSanitize;
-        return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    };
-
-    private escapeHTMLText = (stringToEscape: string): string => {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
     };
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
 
-        return "<span" + inlineEditing + ">" + this.escapeHTMLText(currentValue) + "</span>";
+        return "<span" + inlineEditing + ">" + Helper.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {
@@ -229,10 +215,7 @@ export class BPTreeController  {
         }
     };
 
-
-
     private onGridReady = (params: any) => {
-        let self = this;
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
@@ -272,7 +255,8 @@ export class BPTreeController  {
 
     private rowFocus = (target: any) => {
         function findAncestor(el, cls) {
-            while ((el = el.parentElement) && !el.classList.contains(cls));
+            while ((el = el.parentElement) && !el.classList.contains(cls)) {
+            }
             return el;
         }
 

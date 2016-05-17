@@ -36,13 +36,14 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(projectId: number, artifactId? : number): ng.IPromise<Data.IProjectItem[]> {
+    public getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]> {
         var defer = this.$q.defer<any>();
-        if (!projectId)
-            throw new Error("Inavlid parameter ")
+        if (!projectId) {
+            throw new Error("Inavlid parameter ");
+        }
 
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
-            
+
         this.$http.get<any>(url)
             .success((result: Data.IProjectItem[]) => {
                 defer.resolve(result);

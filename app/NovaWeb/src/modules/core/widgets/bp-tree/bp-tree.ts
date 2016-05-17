@@ -281,28 +281,30 @@ export class BPTreeController  {
         let self = this;
         let node = params.node;
 
-        // this is a bit of a trick, to get the actual row expanded
-        let rowIndex = node.rowTop / self.options.rowHeight;
-        let row = self.$element[0].querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
-
         if (node.data.Type === `Folder`) {
             if (typeof self.onExpand === `function`) {
                 if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-                    if (node.expanded) {
-                        row.className += " ag-row-loading";
+                    // this is a bit of a trick, to get the actual row expanded
+                    let rowIndex = node.rowTop / self.options.rowHeight;
+                    let element = self.$element[0];
+                    if (element) {
+                        var row = element.querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
+                        if(node.expanded && row) {
+                            row.className += " ag-row-loading";
+                            //row.className = row.className.replace(/ ag-row-loading/g, "");
+                        }
+                    }
 
+                    if (node.expanded) {
                         self.onExpand({ prms: node.data })
                             .then((data: any) => { //pSvc.IProjectNode[]
                                 node.data.Children = data;
                                 node.data.open = true;
                                 node.data.alreadyLoadedFromServer = true;
-                                row.className = row.className.replace(/ ag-row-loading/g, "");
                                 self.options.api.setRowData(self.rowData);
                             }, (error) => {
                                 //self.showError(error);
                             });
-                    } else {
-                        row.className = row.className.replace(/ ag-row-loading/g, "");
                     }
                 }
                 node.data.open = node.expanded;

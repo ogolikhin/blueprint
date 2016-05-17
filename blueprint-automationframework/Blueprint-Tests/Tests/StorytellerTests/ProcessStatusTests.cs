@@ -1,0 +1,183 @@
+﻿using CustomAttributes;
+using Helper;
+using Model;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using Model.Factories;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StorytellerTests
+{
+    [Explicit(IgnoreReasons.UnderDevelopment)]
+    [TestFixture]
+    [Category(Categories.Storyteller)]
+    public class ProcessStatusTests
+    {
+        // TODO This will need to be updated with the value that cannot does not exist in the system 
+        //Non-existence artifact Id sample
+        private const int NONEXISTENT_ARTIFACT_ID = 99999999;
+        //Invalid process artifact Id sample
+        private const int INVALID_ID = -33;
+
+        private IAdminStore _adminStore;
+        private IBlueprintServer _blueprintServer;
+        private IStoryteller _storyteller;
+        private IUser _primaryUser;
+        private IUser _secondaryUser;
+        private IProject _project;
+        private IList<int> _invalidList;
+
+        #region Setup and Cleanup
+
+        [TestFixtureSetUp]
+        public void ClassSetUp()
+        {
+            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
+            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
+            _primaryUser = UserFactory.CreateUserAndAddToDatabase();
+            _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
+            _project = ProjectFactory.GetProject(_primaryUser, shouldRetrievePropertyTypes: true);
+
+            _invalidList = new List<int>() { NONEXISTENT_ARTIFACT_ID, INVALID_ID }.AsReadOnly();
+
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
+            _adminStore.AddSession(_primaryUser);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.AccessControlToken),
+                "The primary user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_primaryUser, string.Empty);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.OpenApiToken),
+                "The primary user didn't get an OpenApi token!");
+
+            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
+            _adminStore.AddSession(_secondaryUser);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.AccessControlToken),
+                "The secondary user didn't get an Access Control token!");
+
+            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
+            _blueprintServer.LoginUsingBasicAuthorization(_secondaryUser, string.Empty);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.OpenApiToken),
+                "The secondary user didn't get an OpenApi token!");
+
+        }
+
+        [TestFixtureTearDown]
+        public void ClassTearDown()
+        {
+            if (_adminStore != null)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in _adminStore.Sessions.ToArray())
+                {
+                    _adminStore.DeleteSession(session);
+                }
+            }
+
+            if (_primaryUser != null)
+            {
+                _primaryUser.DeleteUser();
+                _primaryUser = null;
+            }
+
+            if (_secondaryUser != null)
+            {
+                _secondaryUser.DeleteUser();
+                _secondaryUser = null;
+            }
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            if (_storyteller.Artifacts != null)
+            {
+                // Delete or Discard all the artifacts that were added.
+                var savedArtifactsListPrimaryUser = new List<IArtifactBase>();
+                var savedArtifactsListSecondaryUser = new List<IArtifactBase>();
+                foreach (var artifact in _storyteller.Artifacts.ToArray())
+                {
+                    if (!_invalidList.Contains(artifact.Id) && artifact.IsPublished)
+                    {
+                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
+                    }
+
+                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    {
+                        savedArtifactsListPrimaryUser.Add(artifact);
+                    }
+
+                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    {
+                        savedArtifactsListSecondaryUser.Add(artifact);
+                    }
+                }
+
+                if (savedArtifactsListPrimaryUser.Any())
+                {
+                    Artifact.DiscardArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
+                }
+
+                if (savedArtifactsListSecondaryUser.Any())
+                {
+                    Artifact.DiscardArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
+                }
+
+                // Clear all possible List Items
+                savedArtifactsListPrimaryUser.Clear();
+                savedArtifactsListSecondaryUser.Clear();
+                _storyteller.Artifacts.Clear();
+            }
+        }
+
+        #endregion Setup and Cleanup
+
+        #region Tests
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase]
+        [Description("Lock on an artifact with the second user. Verify that the" +
+             "status of the process model obtained by the first user.")]
+        public void LockArtifactWithSecondUser_VerifyTheReturnedProcessStatusWithFirstUser()
+        {
+            // Create and save the process artifact with the second user 
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _secondaryUser);
+
+            // Publish the processArtifact so that it's accesssible by the first user
+            var returnedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(processArtifact, _storyteller, _secondaryUser);
+
+            _storyteller.PublishProcess(_secondaryUser, returnedProcess);
+
+            // Get the process Artifact to update
+            returnedProcess = _storyteller.GetProcess(_secondaryUser, returnedProcess.Id);
+
+            // Find precondition task
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Outgoing link for the default precondition was not found.");
+
+            // Add user/system Task immediately after the precondition
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Update the process to lock by the first user
+            _storyteller.UpdateProcess(_secondaryUser, returnedProcess);
+
+            // Get the process with the first user
+            var processRetrievedByFirstUser = _storyteller.GetProcess(_primaryUser, returnedProcess.Id);
+
+            // Verify that the processRetrivedByFirstUser's status
+
+            Assert.That(!(processRetrievedByFirstUser == null), "The process retrieved by the first user is null");
+        }
+
+        #endregion Tests
+    }
+}

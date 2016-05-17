@@ -142,7 +142,7 @@ describe("Embedded ag-grid events", () => {
     //    controller.options.api = gridApi;
     //    options.onRowGroupOpened(paramsMock);
     //    expect(paramsMock.node.data["open"]).toBeUndefined;
-    //    expect(paramsMock.node.data["Loaded"]).toBeUndefined;
+    //    expect(paramsMock.node.data["loaded"]).toBeUndefined;
 
     //    $scope.$apply();
 
@@ -151,7 +151,7 @@ describe("Embedded ag-grid events", () => {
     //    expect(paramsMock.node.data.Children.length).toEqual(1);
     //    expect(paramsMock.node.data.Children[0].Type).toBe("Project");
     //    expect(paramsMock.node.data["open"]).toBeTruthy;
-    //    expect(paramsMock.node.data["Loaded"]).toBeTruthy;
+    //    expect(paramsMock.node.data["loaded"]).toBeTruthy;
     //}));
 
     /*it("cellFocused", () => {

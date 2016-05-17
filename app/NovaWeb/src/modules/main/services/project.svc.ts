@@ -1,39 +1,30 @@
-﻿import "angular";
+﻿/// <reference path="../../core/notification.ts" />
 import {ILocalizationService} from "../../core/localization";
+import {IProjectNotification} from "./project-notification";
+import * as Data from "../repositories/artifacts";
 
+export {Data}
 
-export interface IProjectNode {
-    Type: string;
-    Id: number;
-    ParentFolderId: number;
-    Name: string;
-    Description?: string;
-    Children?: IProjectNode[];
-}
 
 export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(id?: number): ng.IPromise<any[]>;
+    getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]>;
 }
 
 export class ProjectService implements IProjectService {
-    static $inject: [string] = ["$q", "$http", "localization"];
+    static $inject: [string] = ["$q", "$http", "localization", "projectNotification"];
+
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private localization: ILocalizationService) {
+        private localization: ILocalizationService,
+        private notification: IProjectNotification) {
     }
 
-
-    public getFolders(id?: number): ng.IPromise<any[]> {
+    public getFolders(id?: number): ng.IPromise<Data.IProjectNode[]> {
         var defer = this.$q.defer<any>();
         this.$http.get<any>(`svc/adminstore/instance/folders/${id || 1}/children`)
-            .success((result: IProjectNode[]) => {
-                angular.forEach(result, (it) => {
-                    if (it.Type === "Folder") {
-                        it.Children = new Array<IProjectNode>();
-                    }
-                });
+            .success((result: Data.IProjectNode[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
@@ -45,10 +36,15 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<any[]> {
+    public getProject(projectId: number, artifactId? : number): ng.IPromise<Data.IProjectItem[]> {
         var defer = this.$q.defer<any>();
-        this.$http.get<any>(`svc/adminstore/project/${id}`)
-            .success((result: IProjectNode[]) => {
+        if (!projectId)
+            throw new Error("Inavlid parameter ")
+
+        let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
+            
+        this.$http.get<any>(url)
+            .success((result: Data.IProjectItem[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
@@ -60,29 +56,6 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public loadProject(id?: number): Project {
-        let project: Project = null;
-        this.getProject(id).then((data: any) => {
-            project = new Project(data);
-        }).catch(() => {
-        
-        })
 
-        return project;
-    }
 }
 
-interface IProject {
-    id: number;
-    name: string;
-}
-
-export class Project implements IProject {
-    public id: number;
-    public name: string;
-
-    constructor(data: any) {
-        this.id = data.id;
-        this.name = data.name;
-    }
-}

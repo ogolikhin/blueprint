@@ -8,6 +8,7 @@ import "ng-draggable";
 import "../shell";
 import {ProjectService} from "./services/project.svc";
 import {ProjectNotification} from "./services/project-notification";
+import {ProjectRepository} from "./repositories/project-repository";
 
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {BPTreeInlineEditing} from "../core/widgets/bp-tree-inline-editing/bp-tree-inline-editing";
@@ -36,6 +37,7 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .run(config)
     .service("projectService", ProjectService)
     .service("projectNotification", ProjectNotification)
+    .service("projectRepository", ProjectRepository)
     .component("bpTree", new BPTreeComponent())
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())

@@ -176,6 +176,7 @@ export class BPTreeController  {
             headerHeight: this.headerHeight,
             showToolPanel: false,
             suppressContextMenu: true,
+            suppressMovableColumns: true,
             rowBuffer: this.rowBuffer,
             rowHeight: this.rowHeight,
             enableColResize: true,

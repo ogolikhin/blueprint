@@ -279,7 +279,13 @@ $aggrid-dnd-handle-width: 14px;
   }
 
   .ag-cell {
-    margin-left: $aggrid-dnd-handle-width;
+    //margin-left: $aggrid-dnd-handle-width;
+  }
+
+  .ag-row-draggable {
+    .ag-group-value::before {
+      cursor: move;
+    }
   }
 
   .ag-row:not(.drag-over) .ag-cell {

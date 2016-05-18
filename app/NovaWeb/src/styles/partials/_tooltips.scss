@@ -8,6 +8,7 @@
   z-index: $tooltip-z-index;
 
   &.show {
+    animation: fadeIn .4s;
     display: block;
     opacity: 1;
   }
@@ -32,12 +33,6 @@
 
 .bp-tooltip-top-tip::after,
 .bp-tooltip-bottom-tip::after {
-  //border-color: rgba($black, 0);
-  //border-style: solid;
-  //border-width: 7px;
-  //content: ' ';
-  //height: 0;
-  //margin-left: -5px;
   color: $black;
   display: block;
   font-family: sans-serif;
@@ -48,17 +43,14 @@
   position: absolute;
   text-shadow: 0 2px 6px rgba($black, .75);
   transform: scaleX(1.5);
-  //width: 0;
 }
 
 .bp-tooltip-top-tip::after {
-  //border-bottom-color: $black;
   bottom: 100%;
   content: '▲';
 }
 
 .bp-tooltip-bottom-tip::after {
-  //border-top-color: $black;
   content: '▼';
   top: 100%;
 }

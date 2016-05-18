@@ -1,3 +1,5 @@
+import {Helper} from "../../utils/helper";
+
 export class BPTooltip implements ng.IDirective {
     public link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
@@ -15,31 +17,6 @@ export class BPTooltip implements ng.IDirective {
         BPTooltip.prototype.link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => {
             var self = this;
             self.tooltipContent = $attrs[self["name"]];
-
-            function hasClass(el, className) {
-                if (el.classList) {
-                    return el.classList.contains(className);
-                } else {
-                    return !!el.className.match(new RegExp("(\\s|^)" + className + "(\\s|$)"));
-                }
-            }
-
-            function addClass(el, className) {
-                if (el.classList) {
-                    el.classList.add(className);
-                } else if (!hasClass(el, className)) {
-                    el.className += " " + className;
-                }
-            }
-
-            function removeClass(el, className) {
-                if (el.classList) {
-                    el.classList.remove(className);
-                } else if (hasClass(el, className)) {
-                    var reg = new RegExp("(\\s|^)" + className + "(\\s|$)");
-                    el.className = el.className.replace(reg, " ");
-                }
-            }
 
             function zIndexedParent(el) {
                 let node = el.parentElement;
@@ -62,7 +39,7 @@ export class BPTooltip implements ng.IDirective {
             }
 
             if ($element && $element.length && self.tooltipContent) {
-                if (hasClass(document.body, "is-touch")) {
+                if (Helper.hasCssClass(document.body, "is-touch")) {
                     //disabled for touch devices (for now)
                 } else {
                     let elem = $element[0];
@@ -91,34 +68,34 @@ export class BPTooltip implements ng.IDirective {
                         if (e.clientX > document.body.clientWidth / 2) {
                             tooltip.style.left = "";
                             tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
-                            removeClass(tooltip, "bp-tooltip-left-tip");
-                            addClass(tooltip, "bp-tooltip-right-tip");
+                            Helper.removeCssClass(tooltip, "bp-tooltip-left-tip");
+                            Helper.addCssClass(tooltip, "bp-tooltip-right-tip");
                         } else {
                             tooltip.style.right = "";
                             tooltip.style.left = (e.clientX - 15) + "px";
-                            removeClass(tooltip, "bp-tooltip-right-tip");
-                            addClass(tooltip, "bp-tooltip-left-tip");
+                            Helper.removeCssClass(tooltip, "bp-tooltip-right-tip");
+                            Helper.addCssClass(tooltip, "bp-tooltip-left-tip");
                         }
                         //if (e.clientY > document.body.clientHeight / 2) {
                         if (e.clientY > 80) {
                             tooltip.style.top = "";
                             tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
-                            removeClass(tooltip, "bp-tooltip-top-tip");
-                            addClass(tooltip, "bp-tooltip-bottom-tip");
+                            Helper.removeCssClass(tooltip, "bp-tooltip-top-tip");
+                            Helper.addCssClass(tooltip, "bp-tooltip-bottom-tip");
                         } else {
                             tooltip.style.bottom = "";
                             tooltip.style.top = e.clientY + 30 + "px";
-                            removeClass(tooltip, "bp-tooltip-bottom-tip");
-                            addClass(tooltip, "bp-tooltip-top-tip");
+                            Helper.removeCssClass(tooltip, "bp-tooltip-bottom-tip");
+                            Helper.addCssClass(tooltip, "bp-tooltip-top-tip");
                         }
                     });
 
                     elem.addEventListener("mouseover", function fn(e) {
-                        addClass(tooltip, "show");
+                        Helper.addCssClass(tooltip, "show");
                     });
 
                     elem.addEventListener("mouseout", function fn(e) {
-                        removeClass(tooltip, "show");
+                        Helper.removeCssClass(tooltip, "show");
                     });
                 }
             }

@@ -6,6 +6,8 @@ export enum SubscriptionEnum {
     ProjectLoaded,
     ProjectNodeLoad,
     ProjectNodeLoaded,
+    ProjectClose,
+    ProjectClosed,
     CurrentProjectChanged,
 }
 

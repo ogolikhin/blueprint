@@ -39,6 +39,7 @@ class ProjectExplorerController {
             type: `Project`,
             name: project.name,
             loaded: true,
+            hasChildren: true,
             children: project.artifacts.map(function (it) {
                 if (it.hasChildren && !angular.isArray(it[`children`])) {
                     it[`children`] = [];

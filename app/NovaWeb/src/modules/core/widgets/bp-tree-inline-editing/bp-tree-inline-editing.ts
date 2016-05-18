@@ -32,7 +32,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
             if (Controller) {
                 var data = $scope["data"];
-                var currentValue = data.Name;
+                var currentValue = data.name;
 
                 var span = $element[0];
                 span.removeAttribute("bp-tree-inline-editing");
@@ -63,7 +63,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
                     // to avoid any strange combination of characters (e.g. Ctrl+Z) or empty strings. Do we need more validation?
                     if (newValue !== "" && newValue.charCodeAt(0) > 32) {
                         valueSpan.querySelector("span").textContent = newValue;
-                        self.selectedNode.data.Name = newValue;
+                        self.selectedNode.data.name = newValue;
                     } else {
                         valueSpan.querySelector("span").textContent = currentValue;
                     }

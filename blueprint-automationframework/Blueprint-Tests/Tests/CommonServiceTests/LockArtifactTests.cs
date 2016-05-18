@@ -117,11 +117,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            var artifactsToLock = new List<IArtifactBase> { artifact };
-
-            // User locks the artifact
-            var lockResults = Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
-            var lockResultInfo = lockResults.First();
+            var lockResultInfo = artifact.Lock(_user);
 
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
@@ -146,11 +142,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            var artifactsToLock = new List<IArtifactBase> { artifact };
-
-            // Second user locks the artifact
-            var lockResults = Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user2);
-            var lockResultInfo = lockResults.First();
+            var lockResultInfo = artifact.Lock(_user2);
 
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The second user was not able to obtain a lock on the artifact that" +
@@ -175,19 +167,18 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            var artifactsToLock = new List<IArtifactBase> { artifact };
-
             // first user locks the artifact
-            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
+            artifact.Lock(_user);
 
             // Assert that the second user cannot save the artifact
-            var ex = Assert.Throws<Http409ConflictException>(
-                () =>
-                    // Second user tries to save the artifact
-                    artifact.Save(_user2)
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // Second user tries to save the artifact
+                artifact.Save(_user2),
+                "The second user attempted to save the artifact locked by another user and either an unexpected exception was thrown or" +
+                "the second user's attempted save was successful."
                 );
 
-            Assert.IsNotNull(ex.RestResponse.Content);
+            Assert.IsNotNull(ex.RestResponse.Content, "No response content found in the exception message.");
 
             var failedSaveArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
             var failedSaveArtifactResult = failedSaveArtifactResults.First(a => a.ArtifactId == artifact.Id);
@@ -221,13 +212,14 @@ namespace CommonServiceTests
             Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
 
             // Assert that the second user cannot publish the artifact
-            var ex = Assert.Throws<Http409ConflictException>(
-                () =>
-                    // Second user tries to publish the artifact
-                    artifact.Publish(_user2)
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // Second user tries to publish the artifact
+                artifact.Publish(_user2),
+                "The second user attempted to publish the artifact locked by another user and either an unexpected exception was thrown or" +
+                "the second user's attempted publish was successful."
                 );
 
-            Assert.IsNotNull(ex.RestResponse.Content);
+            Assert.IsNotNull(ex.RestResponse.Content, "No response content found in the exception message.");
 
             var failedPublishArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
             var failedPublishArtifactResult = failedPublishArtifactResults.First(a => a.ArtifactId == artifact.Id);
@@ -317,7 +309,7 @@ namespace CommonServiceTests
         /// </summary>
         /// <param name="project">The project where the artifact will be created</param>
         /// <param name="user">The user creating the artifact</param>
-        /// <param name="baseArtifactType">THe base type of the artifact being created</param>
+        /// <param name="baseArtifactType">The base type of the artifact being created</param>
         /// <returns>The created artifact</returns>
         private IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType baseArtifactType )
         {

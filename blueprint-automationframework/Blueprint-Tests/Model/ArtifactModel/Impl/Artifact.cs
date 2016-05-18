@@ -168,7 +168,7 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        public List<LockResultInfo> Lock(
+        public LockResultInfo Lock(
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -181,7 +181,18 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToLock = new List<IArtifactBase> { this };
 
-            return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            var artifactLockResults = LockArtifacts(
+                artifactToLock,
+                Address,
+                user,
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
+
+            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+
+            var artifactLockResult = artifactLockResults.First();
+
+            return artifactLockResult;
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,

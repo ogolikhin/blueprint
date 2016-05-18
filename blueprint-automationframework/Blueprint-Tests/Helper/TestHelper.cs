@@ -78,13 +78,11 @@ namespace Helper
                 AdminStore?.Dispose();
                 AccessControl?.Dispose();
 
-                /*
                 foreach (var artifact in Artifacts)
                 {
                     artifact.Delete();
                     artifact.Publish();
                 }
-                */
 
                 foreach (var project in Projects)
                 {

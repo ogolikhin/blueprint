@@ -49,43 +49,47 @@ export class BPTooltip implements ng.IDirective {
                     var elem = $element[0];
                     elem.removeAttribute("bp-tooltip");
                     if (self.tooltipContent) {
-                        let tooltip = document.createElement("DIV");
-                        tooltip.className = "bp-tooltip";
+                        if (hasClass(document.body, "is-touch")) {
+                            //disabled for touch devices (for now)
+                        } else {
+                            let tooltip = document.createElement("DIV");
+                            tooltip.className = "bp-tooltip";
 
-                        let tooltipContent = document.createElement("DIV");
-                        tooltipContent.className = "bp-tooltip-content";
-                        tooltipContent.innerHTML = self.tooltipContent;
+                            let tooltipContent = document.createElement("DIV");
+                            tooltipContent.className = "bp-tooltip-content";
+                            tooltipContent.innerHTML = self.tooltipContent;
 
-                        tooltip.appendChild(tooltipContent);
+                            tooltip.appendChild(tooltipContent);
 
-                        elem.className += " bp-tooltip-trigger";
-                        elem.appendChild(tooltip);
+                            elem.className += " bp-tooltip-trigger";
+                            elem.appendChild(tooltip);
 
-                        elem.addEventListener("mousemove", function fn(e) {
-                            let tooltip = <HTMLElement>elem.querySelectorAll(".bp-tooltip")[0];
-                            if (e.clientX > document.body.clientWidth / 2) {
-                                tooltip.style.left = "";
-                                tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
-                                removeClass(tooltip, "bp-tooltip-left-tip");
-                                addClass(tooltip, "bp-tooltip-right-tip");
-                            } else {
-                                tooltip.style.right = "";
-                                tooltip.style.left = (e.clientX - 8) + "px";
-                                removeClass(tooltip, "bp-tooltip-right-tip");
-                                addClass(tooltip, "bp-tooltip-left-tip");
-                            }
-                            if (e.clientY > document.body.clientHeight / 2) {
-                                tooltip.style.top = "";
-                                tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 15)) + "px";
-                                removeClass(tooltip, "bp-tooltip-top-tip");
-                                addClass(tooltip, "bp-tooltip-bottom-tip");
-                            } else {
-                                tooltip.style.bottom = "";
-                                tooltip.style.top = e.clientY + 26 + "px";
-                                removeClass(tooltip, "bp-tooltip-bottom-tip");
-                                addClass(tooltip, "bp-tooltip-top-tip");
-                            }
-                        });
+                            elem.addEventListener("mousemove", function fn(e) {
+                                let tooltip = <HTMLElement>elem.querySelectorAll(".bp-tooltip")[0];
+                                if (e.clientX > document.body.clientWidth / 2) {
+                                    tooltip.style.left = "";
+                                    tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
+                                    removeClass(tooltip, "bp-tooltip-left-tip");
+                                    addClass(tooltip, "bp-tooltip-right-tip");
+                                } else {
+                                    tooltip.style.right = "";
+                                    tooltip.style.left = (e.clientX - 8) + "px";
+                                    removeClass(tooltip, "bp-tooltip-right-tip");
+                                    addClass(tooltip, "bp-tooltip-left-tip");
+                                }
+                                if (e.clientY > document.body.clientHeight / 2) {
+                                    tooltip.style.top = "";
+                                    tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 15)) + "px";
+                                    removeClass(tooltip, "bp-tooltip-top-tip");
+                                    addClass(tooltip, "bp-tooltip-bottom-tip");
+                                } else {
+                                    tooltip.style.bottom = "";
+                                    tooltip.style.top = e.clientY + 26 + "px";
+                                    removeClass(tooltip, "bp-tooltip-bottom-tip");
+                                    addClass(tooltip, "bp-tooltip-top-tip");
+                                }
+                            });
+                        }
                     }
                 }
             };

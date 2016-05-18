@@ -310,7 +310,7 @@ export class BPTreeController  {
 
             if (typeof self.onRowClick === `function`) {
                 self.onRowClick({prms: params});
-        }
+        } 
         }, 250);
     };
 

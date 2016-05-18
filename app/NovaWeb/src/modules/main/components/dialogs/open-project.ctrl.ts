@@ -65,7 +65,7 @@ export class OpenProjectController extends BaseDialogController {
             "is-folder": function (params) { return params.data.type === "Folder"; },
             "is-project": function (params) { return params.data.type === "Project"; }
         },
-        cellRenderer: "group",  
+        cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
                 var sanitizedName = this.escapeHTMLText(params.data.name);
@@ -79,9 +79,9 @@ export class OpenProjectController extends BaseDialogController {
         },
         suppressMenu: true,
         suppressSorting: true,
-        suppressFiltering : true 
+        suppressFiltering : true
     }];
-    
+
     public doLoad = (prms: any): any[] => {
         //check passed in parameter
         let self = this;

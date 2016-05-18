@@ -22,6 +22,7 @@ export class ProjectRepository implements IProjectRepository {
         //subscribe to event
         this.notificator.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
         this.notificator.subscribe(SubscriptionEnum.ProjectNodeLoad, this.loadChildren.bind(this));
+        this.notificator.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
     }
 
     public ProjectCollection: Data.IProject[] = [];
@@ -42,12 +43,6 @@ export class ProjectRepository implements IProjectRepository {
         return this._currentProjet;
     }
 
-    private addProject = (project: Data.IProject) : Data.IProject => {
-        this.ProjectCollection.push(project);
-        this.CurrentProject = project;
-        return project;
-    }
-
     private loadProject = (projectId: number, projectName: string) => {
         let self = this;
         let project = this.ProjectCollection.filter(function (it) {
@@ -64,8 +59,9 @@ export class ProjectRepository implements IProjectRepository {
                     project = new Data.Project(result);
                     project.id = projectId;
                     project.name = projectName;
-                    self.addProject(project);
-                    self.notificator.notify(SubscriptionEnum.ProjectLoaded, self.CurrentProject, false);
+                    self.ProjectCollection.push(project);
+                    self.notificator.notify(SubscriptionEnum.ProjectLoaded, project, false);
+                    self.CurrentProject = project;
                 }).catch(() => {
 
                 });
@@ -87,5 +83,19 @@ export class ProjectRepository implements IProjectRepository {
             });
     }
 
+    private closeProject(allFlag: boolean) {
+        let self = this;
+        let projectsToRemove: Data.IProject[] = [];
+        this.ProjectCollection = this.ProjectCollection.filter(function (it: Data.IProject) {
+            let result = true;
+            if (allFlag || it.id === self.CurrentProject.id) {
+                projectsToRemove.push(it);
+                result = false;
+            }
+            return result;
+        });
+        self.notificator.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
+        this.CurrentProject = this.ProjectCollection[0] || null;
+    }
 
 }

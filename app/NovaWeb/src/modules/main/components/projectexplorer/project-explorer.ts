@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
-import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
+import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import * as Repository from "../../repositories/project-repository";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -24,8 +24,10 @@ class ProjectExplorerController {
     }
 
     public $onInit = () => {
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject);
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode);
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
     };
 
     private loadProject = (project: Repository.Data.IProject, alreadyOpened: boolean) => {
@@ -33,25 +35,33 @@ class ProjectExplorerController {
             this.tree.selectNode(project.id);
             return;
         };
-
-        this.tree.setDataSource([{
+        this.tree.addNode(<ITreeNode>{
             id: project.id,
             type: `Project`,
             name: project.name,
-            loaded: true,
             hasChildren: true,
-            children: project.artifacts.map(function (it) {
-                if (it.hasChildren && !angular.isArray(it[`children`])) {
-                    it[`children`] = [];
-                };
-                return it;
-            })
-        }]);
+            open: true
+        }); 
+        
+        this.tree.setDataSource(project.artifacts, project.id);
+    }
+
+    private activateProject() {
+        if (this.repository.CurrentProject) {
+            this.tree.selectNode(this.repository.CurrentProject.id);
+        }
     }
 
     public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
         var nodes = project.getArtifact(artifactId).artifacts;
         this.tree.setDataSource(nodes, artifactId);
+    }
+
+    public closeProject(projects: Repository.Data.IProject[]) {
+        projects.map(function (it: Repository.Data.IProject) {
+            this.tree.removeNode(it.id);
+        }.bind(this)); 
+        this.tree.setDataSource();
     }
 
     public columns = [{

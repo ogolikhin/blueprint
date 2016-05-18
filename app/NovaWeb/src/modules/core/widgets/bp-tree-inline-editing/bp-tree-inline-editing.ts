@@ -155,13 +155,13 @@ export class BPTreeInlineEditing implements ng.IDirective {
                         //user pressed Enter key on folder, do nothing and let ag-grid open/close the folder, unless editing
                         var element = e.target || e.srcElement;
                         if (element.tagName.toLowerCase() !== "input") {
-                            console.log("pressed Enter on folder: I should open/close [" + data.Id + ": " + data.Name + "]");
+                            console.log("pressed Enter on folder: I should open/close [" + data.id + ": " + data.name + "]");
                         } else {
                             e.preventDefault();
                         }
                     } else if (key === 13) {
                         //user pressed Enter on artifact, let's load it
-                        console.log("pressed Enter on artifact: I should load artifact [" + data.Id + ": " + data.Name + "]");
+                        console.log("pressed Enter on artifact: I should load artifact [" + data.id + ": " + data.name + "]");
                     } else if (key === 113) {
                         //user pressed F2, let's rename
                         inlineEdit();

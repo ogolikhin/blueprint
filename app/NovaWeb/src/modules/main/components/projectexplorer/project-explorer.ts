@@ -102,7 +102,7 @@ class ProjectExplorerController {
 //        var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
-            //console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+            //console.log("clicked on row: I should load artifact [" + selectedNode.data.id + ": " + selectedNode.data.name + "]");
         }
     };
 }

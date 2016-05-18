@@ -19,15 +19,15 @@ describe("Embedded ag-grid events", () => {
         //act
         controller.gridColumns = [{
             headerName: "Header",
-            field: "Name",
+            field: "name",
             cellClassRules: {
-                "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
-                "is-project": function (params) { return params.data.Type === "Project"; }
+                "has-children": function (params) { return params.data.type === "Folder" && params.data.hasChildren; },
+                "is-project": function (params) { return params.data.type === "Project"; }
             },
             cellRenderer: "group",
             cellRendererParams: {
                 innerRenderer: (params) => {
-                    return params.data.Name;
+                    return params.data.name;
                 }
             }
         }];
@@ -62,12 +62,12 @@ describe("Embedded ag-grid events", () => {
         // Arrange
         var paramsMock = {
             data: {
-                Name: "artifact"
+                name: "artifact"
             }
         };
         var paramsMockFolder = {
             data: {
-                Type: "Folder",
+                type: "Folder",
             }
         };
 

@@ -27,7 +27,17 @@ class BPToolbarController implements IBPToolbarController {
         }
         evt.preventDefault();
         var element = evt.currentTarget;
-        this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+        switch (element.id) {
+            case `ProjectClose`:
+                this.notificator.notify(SubscriptionEnum.ProjectClose);
+                break;
+            case `ProjectCloseAll`:
+                this.notificator.notify(SubscriptionEnum.ProjectClose, true);
+                break;
+            default:
+                this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                break;
+        }
     }
 
     showSubLevel(evt: any): void {

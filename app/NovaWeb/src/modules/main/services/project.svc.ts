@@ -16,7 +16,7 @@ export class ProjectService implements IProjectService {
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private localization: ILocalizationService, 
+        private localization: ILocalizationService,
         private notification: IProjectNotification) {
     }
 

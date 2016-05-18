@@ -60,7 +60,7 @@ export interface ITreeNode {
 export interface IBPTreeController {
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
-    onRowClick?: Function;              
+    onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
 
@@ -128,7 +128,7 @@ export class BPTreeController  {
             this.gridColumns = [];
         }
     }
-    
+
     public $onInit = () => {
         this.options = <Grid.GridOptions>{
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
@@ -163,17 +163,17 @@ export class BPTreeController  {
             });
         }
         let node = this.getNode(id, this._datasource || []);
-        if (node) {
+            if (node) {
             //set parent node reference
             (node.children = data).map(function (it: ITreeNode) {
                 it.parentNode = node;
             });
             node.loaded = true;
-            node.open = true;
-        } else {
+                node.open = true;
+            } else {
             this._datasource = (angular.isArray(data) ? data : [data]).concat(this._datasource || []);
+            }
         }
-    }
 
     //to remove a data node (by id) from the datasource
     public removeNode(id: number) {
@@ -223,9 +223,10 @@ export class BPTreeController  {
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing" : "";
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing " : "";
+        var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
 
-        return `<span ${inlineEditing}>${Helper.escapeHTMLText(currentValue)}</span>`;
+        return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
 
     private getNodeChildDetails(rowItem) {

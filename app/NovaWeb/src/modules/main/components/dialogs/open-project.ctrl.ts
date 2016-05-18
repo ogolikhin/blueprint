@@ -28,28 +28,20 @@ export class OpenProjectController extends BaseDialogController {
         private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
-
-        this.loadProjects();
     };
 
 
     //Dialog return value
     public get returnvalue(): IOpenProjectResult {
         return <IOpenProjectResult>{
-            id: (this.selectedItem && this.selectedItem["Id"]) || -1,
-            name: (this.selectedItem && this.selectedItem["Name"]) || "",
-            description: (this.selectedItem && this.selectedItem["Description"]) || ""
+            id: (this.selectedItem && this.selectedItem["id"]) || -1,
+            name: (this.selectedItem && this.selectedItem["name"]) || "",
+            description: (this.selectedItem && this.selectedItem["description"]) || ""
         };
     };
     public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.Type === `Project`;
+        return this.selectedItem && this.selectedItem.type === `Project`;
     }
-
-    //public stripHTMLTags = (stringToSanitize: string): string => {
-    //    var stringSanitizer = window.document.createElement("DIV");
-    //    stringSanitizer.innerHTML = stringToSanitize;
-    //    return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    //};
 
     public escapeHTMLText = (stringToEscape: string): string =>  {
         var stringEscaper = window.document.createElement("TEXTAREA");
@@ -67,18 +59,18 @@ export class OpenProjectController extends BaseDialogController {
 
     public columns = [{
         headerName: this.localization.get("App_Header_Name"),
-        field: "Name",
+        field: "name",
         cellClassRules: {
-            "has-children": function(params) { return params.data.HasChildren; },
-            "is-folder": function (params) { return params.data.Type === "Folder"; },
-            "is-project": function (params) { return params.data.Type === "Project"; }
+            "has-children": function(params) { return params.data.hasChildren; },
+            "is-folder": function (params) { return params.data.type === "Folder"; },
+            "is-project": function (params) { return params.data.type === "Project"; }
         },
-        cellRenderer: "group",
+        cellRenderer: "group",  
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = this.escapeHTMLText(params.data.Name);
+                var sanitizedName = this.escapeHTMLText(params.data.name);
 
-                if (params.data.Type === "Project") {
+                if (params.data.type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
                 }
@@ -87,34 +79,21 @@ export class OpenProjectController extends BaseDialogController {
         },
         suppressMenu: true,
         suppressSorting: true,
-        suppressFiltering : true
+        suppressFiltering : true 
     }];
-
-    private loadProjects() {
+    
+    public doLoad = (prms: any): any[] => {
+        //check passed in parameter
         let self = this;
-        this.service.getFolders()
-            .then((data: any[]) => { //pSvc.IProjectNode[]
-                self.tree.setDataSource(data);
-            }, (error) => {
-                //self.showError(error);
-            });
-    }
-
-    //public doLoad = (prms: any): ng.IPromise<any[]> => {
-    //    //check passed in parameter
-    //    return this.service.getFolders();
-    //};
-
-    public doExpand = (prms: any) => {
-        let self = this;
-        //check passesd in parameter
-        var id = (prms && prms.Id) ? prms.Id : null;
+        let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
         this.service.getFolders(id)
             .then((data: any[]) => { //pSvc.IProjectNode[]
                 self.tree.setDataSource(data, id);
             }, (error) => {
                 //self.showError(error);
             });
+
+        return null;
     };
 
     public doSelect = (item: any) => {
@@ -122,7 +101,7 @@ export class OpenProjectController extends BaseDialogController {
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;
             if (item.Description) {
-                var description = item.Description;
+                var description = item.description;
                 var virtualDiv = window.document.createElement("DIV");
                 virtualDiv.innerHTML = description;
                 var aTags = virtualDiv.querySelectorAll("a");

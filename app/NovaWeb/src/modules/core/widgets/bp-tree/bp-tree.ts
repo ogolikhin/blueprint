@@ -14,8 +14,7 @@ Sample template. See following parameters:
     enable-editing-on="name,desc" - list of column where to activate inline editing
     enable-dragndrop="true" - enable rows drag and drop
     grid-columns="$ctrl.columns"  - column definition
-    on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes
-    on-expand="$ctrl.doExpand(prms)" - gets data to load a sub-tree (child node)
+    on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes or a sub-tree (child node)
     on-select="$ctrl.doSelect(item)"> - to be called then a node is selected
     on-row-click="$ctrl.doRowClick(prms)" - to be called when a row is clicked
     on-row-dblclick="$ctrl.doRowDblClick(prms)" - to be called when a row is double-clicked (will cancel single-click)
@@ -43,7 +42,6 @@ export class BPTreeComponent implements ng.IComponentOptions {
         bpRef: "=?",
         //events
         onLoad: "&?",
-        onExpand: "&?",
         onSelect: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
@@ -51,16 +49,15 @@ export class BPTreeComponent implements ng.IComponentOptions {
     };
 }
 export interface ITreeNode {
-    Id: number;
-    HasChildren: boolean;
-    Children: ITreeNode[];
-    alreadyLoadedFromServer: boolean;
+    id: number;
+    hasChildren: boolean;
+    children: ITreeNode[];
+    loaded: boolean;
     open: boolean;
 }
 export interface IBPTreeController {
     onLoad?: Function;
     onSelect?: Function;
-    onExpand?: Function;
     onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
@@ -86,7 +83,6 @@ export class BPTreeController  {
     //events
     public onLoad: Function;
     public onSelect: Function;
-    public onExpand: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
@@ -134,36 +130,37 @@ export class BPTreeController  {
         this.rowData = [data].concat(this.rowData);
         this.options.api.setRowData(this.rowData);
     }
+
     public setDataSource(data?: any[], id?: number) {
         if (angular.isArray(data)) {
             data.map(function (it) {
-                if (it.HasChildren && !angular.isArray(it.Children)) {
-                    it.Children = [];
+                if (it.hasChildren && !angular.isArray(it.children)) {
+                    it.children = [];
                 };
             });
             let node = this.findNode(id);
             if (node) {
-                node.data.Children = data;
-                node.alreadyLoadedFromServer = true;
+                node.data.children = data;
+                node.data.loaded = true;
                 node.open = true;
             } else {
                 this.rowData = data.concat(this.rowData || []);
             }
         }
-        this.options.api.setRowData(this.rowData);
+        this.options.api.setRowData(this.rowData); 
     }
 
     public selectNode(id: number) {
-        this.options.api.forEachNode(function (node) {
-            if (node.data.Id === id) {
-                node.setSelected(true);
-            }
-        });        this.options.api.refreshView();    }
+        let node = this.findNode(id);
+        if (node) {
+            this.options.api.refreshView();
+        }
+    }
 
     private findNode(id: number): any {
         let node: any;
         this.options.api.forEachNode(function (it) {
-            if (it.data.Id === id) {
+            if (it.data.id === id) {
                 node = it;
             }
         });
@@ -197,18 +194,19 @@ export class BPTreeController  {
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
+        var cancelDragndrop = this.enableDragndrop ? " ng-cancel-drag" : "";
 
-        return "<span" + inlineEditing + ">" + Helper.escapeHTMLText(currentValue) + "</span>";
+        return "<span" + inlineEditing + cancelDragndrop + ">" + Helper.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {
-        if (rowItem.Children) {
+        if (rowItem.children) {
             return {
                 group: true,
                 expanded: rowItem.open,
-                children: rowItem.Children,
-                field: "Name",
-                key: rowItem.Id // the key is used by the default group cellRenderer
+                children: rowItem.children,
+                field: "name",
+                key: rowItem.id // the key is used by the default group cellRenderer
             };
         } else {
             return null;
@@ -221,7 +219,9 @@ export class BPTreeController  {
             params.api.sizeColumnsToFit();
         }
         if (angular.isFunction(self.onLoad)) {
-            let nodes = self.onLoad({ prms: self.options });
+            //this verifes and updates current node to inject children
+            //NOTE:: this method may uppdate grid datasource using setDataSource method
+            let nodes = self.onLoad({ prms: null });
             if (angular.isArray(nodes)) {
                 self.setDataSource(nodes);
             }
@@ -231,16 +231,16 @@ export class BPTreeController  {
     private rowGroupOpened = (params: any) => {
         let self = this;
         let node = params.node;
-        if (node.data.HasChildren && !node.data.alreadyLoadedFromServer) {
-            if (true) { //node.expanded
-                if (angular.isFunction(self.onExpand)) {
-                    let nodes = self.onExpand({ prms: node.data });
-                    if (angular.isArray(nodes)) {
-                        node.data.Children = nodes;
-                        node.data.alreadyLoadedFromServer = true;
-                        node.data.open = true;
-                        self.setDataSource(); // pass nothing to just reload 
-                    }
+        if (node.data.hasChildren && !node.data.loaded) {
+            if (angular.isFunction(self.onLoad)) {
+                let nodes = self.onLoad({ prms: node.data });
+                //this verifes and updates current node to inject children
+                //NOTE:: this method may uppdate grid datasource using setDataSource method
+                if (angular.isArray(nodes)) {
+                    node.data.children = nodes;
+                    node.data.loaded = true;
+                    node.data.open = true;
+                    self.setDataSource(); // pass nothing to just reload 
                 }
             }
         }

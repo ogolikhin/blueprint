@@ -5,7 +5,6 @@ import * as Data from "../repositories/artifacts";
 
 export {Data}
 
-
 export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
     getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]>;
@@ -17,7 +16,7 @@ export class ProjectService implements IProjectService {
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private localization: ILocalizationService,
+        private localization: ILocalizationService, 
         private notification: IProjectNotification) {
     }
 
@@ -29,7 +28,7 @@ export class ProjectService implements IProjectService {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("", "Error")
+                    message: (err ? err.message : "") || this.localization.get("", "Error")
                 };
                 defer.reject(error);
             });

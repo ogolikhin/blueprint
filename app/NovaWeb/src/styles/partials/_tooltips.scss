@@ -1,12 +1,3 @@
-.bp-tooltip-trigger:hover {
-  cursor: default;
-
-  .bp-tooltip {
-    display: block;
-    opacity: 1;
-  }
-}
-
 .bp-tooltip {
   border: 0;
   display: none;
@@ -15,6 +6,12 @@
   padding: 0;
   position: fixed;
   z-index: $tooltip-z-index;
+
+  &.show {
+    animation: fadeIn .4s;
+    display: block;
+    opacity: 1;
+  }
 }
 
 .bp-tooltip-content {
@@ -34,38 +31,34 @@
   white-space: nowrap;
 }
 
-.bp-tooltip-top-tip::after {
-  border-color: rgba($black, 0);
-  border-bottom-color: $black;
-  border-style: solid;
-  border-width: 5px;
-  bottom: 100%;
-  content: ' ';
-  height: 0;
+.bp-tooltip-top-tip::after,
+.bp-tooltip-bottom-tip::after {
+  color: $black;
+  display: block;
+  font-family: sans-serif;
+  font-size: 12px;
+  height: 8px;
+  line-height: 8px;
   pointer-events: none;
   position: absolute;
-  margin-left: -5px;
-  width: 0;
+  text-shadow: 0 2px 6px rgba($black, .75);
+  transform: scaleX(1.5);
+}
+
+.bp-tooltip-top-tip::after {
+  bottom: 100%;
+  content: '▲';
 }
 
 .bp-tooltip-bottom-tip::after {
-  border-color: rgba($black, 0);
-  border-style: solid;
-  border-top-color: $black;
-  border-width: 5px;
-  content: ' ';
-  height: 0;
-  margin-left: -5px;
-  pointer-events: none;
-  position: absolute;
+  content: '▼';
   top: 100%;
-  width: 0;
 }
 
 .bp-tooltip-left-tip::after {
-  left: 13px;
+  left: 10px;
 }
 
 .bp-tooltip-right-tip::after {
-  left: calc(100% - 13px);
+  left: calc(100% - 20px);
 }

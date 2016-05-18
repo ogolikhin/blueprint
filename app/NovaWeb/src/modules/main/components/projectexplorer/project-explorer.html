@@ -1,9 +1,9 @@
 ﻿<bp-tree bp-ref="$ctrl.tree"
          grid-columns="$ctrl.columns"
-         enable-editing-on="Name"
+         enable-editing-on="name"
          enable-dragndrop="true"
          data-source ="$ctrl.datasource"
-         on-expand="$ctrl.expandGroup(prms)"
+         on-load="$ctrl.doLoad(prms)"
          on-select="$ctrl.selectElement(item)"
          on-row-click="$ctrl.doRowClick(prms)">
 </bp-tree>

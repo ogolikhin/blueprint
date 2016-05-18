@@ -153,7 +153,8 @@ export class BPTreeController  {
     public selectNode(id: number) {
         let node = this.findNode(id);
         if (node) {
-            this.options.api.refreshView();        }
+            this.options.api.refreshView();
+        }
     }
 
     private findNode(id: number): any {
@@ -193,8 +194,9 @@ export class BPTreeController  {
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
+        var cancelDragndrop = this.enableDragndrop ? " ng-cancel-drag" : "";
 
-        return "<span" + inlineEditing + ">" + Helper.escapeHTMLText(currentValue) + "</span>";
+        return "<span" + inlineEditing + cancelDragndrop + ">" + Helper.escapeHTMLText(currentValue) + "</span>";
     };
 
     private getNodeChildDetails(rowItem) {

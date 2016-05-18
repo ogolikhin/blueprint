@@ -1,3 +1,5 @@
+import {Helper} from "../../utils/helper";
+
 export class BPTreeDragndrop implements ng.IDirective {
     public link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
@@ -239,17 +241,18 @@ export class BPTreeDragndrop implements ng.IDirective {
                 //}
 
                 if (self.typeNotDraggable.indexOf(node.typeId) === -1) {
+                    Helper.addCssClass($row, "ag-row-draggable");
                     $row.setAttribute("ng-drag", "true");
                     $row.setAttribute("ng-drag-data", "data");
                     $row.setAttribute("ng-drag-start", dragStartCallbackAsString);
 
-                    var $dragHandle = document.createElement("DIV");
-                    $dragHandle.className = "ag-row-dnd-handle";
-                    $dragHandle.setAttribute("ng-drag-handle", "");
-                    $dragHandle.addEventListener("mousedown", function(e) {
-                        $cell.focus();
-                    });
-                    $row.insertBefore($dragHandle, $row.firstChild);
+                    //var $dragHandle = document.createElement("DIV");
+                    //$dragHandle.className = "ag-row-dnd-handle";
+                    //$dragHandle.setAttribute("ng-drag-handle", "");
+                    //$dragHandle.addEventListener("mousedown", function(e) {
+                     //   $cell.focus();
+                    //});
+                    //$row.insertBefore($dragHandle, $row.firstChild);
                 }
 
                 $compile($element)($scope);

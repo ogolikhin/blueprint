@@ -1,3 +1,5 @@
+import {Helper} from "../../utils/helper";
+
 export class BPTreeInlineEditing implements ng.IDirective {
     public link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes) => void;
     //public template = '<div>{{name}}</div>';
@@ -37,18 +39,13 @@ export class BPTreeInlineEditing implements ng.IDirective {
                 var span = $element[0];
                 span.removeAttribute("bp-tree-inline-editing");
 
-                var containerCell = findAncestorByClass(span, "ag-cell");
-                var gridBody = findAncestorByClass(span, "ag-body");
+                var containerCell = Helper.findAncestorByCssClass(span, "ag-cell");
+                var containerRow = Helper.findAncestorByCssClass(span, "ag-row");
+                var gridBody = Helper.findAncestorByCssClass(span, "ag-body");
 
                 containerCell.addEventListener("keydown", inputEventHandler);
                 containerCell.addEventListener("keypress", inputEventHandler);
                 containerCell.addEventListener("dblclick", dblClickHandler);
-            }
-
-            function findAncestorByClass(el, cls) {
-                while ((el = el.parentElement) && !el.classList.contains(cls)) {
-                }
-                return el;
             }
 
             function stopEditing() {
@@ -90,6 +87,9 @@ export class BPTreeInlineEditing implements ng.IDirective {
 
                     var input = document.createElement("input");
                     input.setAttribute("type", "text");
+                    if (Helper.hasCssClass(containerRow, "ag-row-draggable")) {
+                        input.setAttribute("ng-cancel-drag", "");
+                    }
                     input.setAttribute("value", currentValue);
 
                     editSpan.appendChild(input);

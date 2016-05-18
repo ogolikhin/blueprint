@@ -12,7 +12,6 @@ class ProjectNotificationMock implements IProjectNotification {
     };
     public notify(type: SubscriptionEnum, ...prms: any[]) {
     };
-
 }
 
 export class ProjectServiceMock implements IProjectService {
@@ -73,7 +72,7 @@ describe("ProjectService", () => {
                 // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
                 .respond(200, <Data.IProjectNode[]>[
-                        { Id: 3, "ParentFolderId": 1, Name: "Imported Projects", Type: "Folder", Description : "" }
+                        { id: 3, parentFolderId: 1, name: "Imported Projects", type: "Folder", description : "" }
                     ]
                     );
 
@@ -87,7 +86,7 @@ describe("ProjectService", () => {
             expect(error).toBe(undefined, "responce got error");
             expect(data).toEqual(jasmine.any(Array), "incorrect type");
             expect(data.length).toBe(1, "incorrect data returned");
-            expect(data[0].Id).toBe(3, "incorrect id returned");
+            expect(data[0].id).toBe(3, "incorrect id returned");
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
             }));

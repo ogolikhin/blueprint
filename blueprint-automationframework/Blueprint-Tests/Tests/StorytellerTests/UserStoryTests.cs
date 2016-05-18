@@ -1,4 +1,5 @@
 ﻿using Common;
+using CustomAttributes;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
@@ -107,7 +108,8 @@ namespace StorytellerTests
             Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
         }
 
-        [Test]
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/GFj2bmZm
         [Description("Verify the contents of generated or updated user stories")]
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {

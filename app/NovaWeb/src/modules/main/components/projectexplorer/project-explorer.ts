@@ -32,38 +32,38 @@ class ProjectExplorerController {
         if (alreadyOpened) {
             this.tree.selectNode(project.id);
             return;
-        }
+        };
 
         this.tree.setDataSource([{
-            Id: project.id,
-            Type: `Project`,
-            Name: project.name,
+            id: project.id,
+            type: `Project`,
+            name: project.name,
             loaded: true,
-            HasChildren: true,
-            Children: project.artifacts.map(function (it) {
-                if (it.HasChildren && !angular.isArray(it[`Children`])) {
-                    it[`Children`] = [];
-                }
+            hasChildren: true,
+            children: project.artifacts.map(function (it) {
+                if (it.hasChildren && !angular.isArray(it[`children`])) {
+                    it[`children`] = [];
+                };
                 return it;
             })
         }]);
-    };
+    }
 
     public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
         var nodes = project.getArtifact(artifactId).artifacts;
         this.tree.setDataSource(nodes, artifactId);
-    };
+    }
 
     public columns = [{
         headerName: "",
-        field: "Name",
+        field: "name",
         cellClassRules: {
-            "has-children": function (params) { return params.data.HasChildren; },
-            "is-folder": function (params) { return params.data.Type === "Folder"; },
-            "is-project": function (params) { return params.data.Type === "Project"; }
+            "has-children": function (params) { return params.data.hasChildren; },
+            "is-folder": function (params) { return params.data.type === "Folder"; },
+            "is-project": function (params) { return params.data.type === "Project"; }
         },
         cellRenderer: "group",
-        suppressMenu: true,
+        suppressMenu: true, 
         suppressSorting: true,
         suppressFiltering: true
     }];
@@ -75,7 +75,7 @@ class ProjectExplorerController {
             return null;
         }
         //check passesed in parameter
-        let artifactId = angular.isNumber(prms.Id) ? prms.Id : null;
+        let artifactId = angular.isNumber(prms.id) ? prms.id : null;
         //notify the service to load the node children
         this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
     };
@@ -85,7 +85,7 @@ class ProjectExplorerController {
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;
             if (item.Description) {
-                var description = item.Description;
+                var description = item.description;
                 var virtualDiv = window.document.createElement("DIV");
                 virtualDiv.innerHTML = description;
                 var aTags = virtualDiv.querySelectorAll("a");
@@ -102,7 +102,7 @@ class ProjectExplorerController {
 //        var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
-            //console.log("clicked on row: I should load artifact [" + selectedNode.data.Id + ": " + selectedNode.data.Name + "]");
+            //console.log("clicked on row: I should load artifact [" + selectedNode.data.id + ": " + selectedNode.data.name + "]");
         }
     };
 }

@@ -12,7 +12,7 @@ export interface IProjectItem extends IItem {
     projectId: number;
     version: number;
     artifacts: IProjectItem[];
-    HasChildren: boolean;  ///needs to be changed camelCase 
+    hasChildren: boolean;  ///needs to be changed camelCase 
     //flags:
 }
 
@@ -38,7 +38,7 @@ export class Project implements IProject {
             return this.getArtifact(id, this.artifacts);
         } else {
             nodes.map(function (node) {
-                if (node[`Id`] === id) {  ///needs to be changed camelCase 
+                if (node.id === id) {  ///needs to be changed camelCase 
                     item = node;
                 } else if (node.artifacts) {
                     item = this.getArtifact(id, node.artifacts);
@@ -51,10 +51,10 @@ export class Project implements IProject {
 }
 
 export interface IProjectNode {
-    Type: string;
-    Id: number;
-    ParentFolderId: number;
-    Name: string;
-    Description?: string;
-    Children?: IProjectNode[];
+    type: string;
+    id: number;
+    parentFolderId: number;
+    name: string;
+    description?: string;
+    children?: IProjectNode[];
 }

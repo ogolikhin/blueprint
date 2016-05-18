@@ -19,15 +19,15 @@ describe("Embedded ag-grid events", () => {
         //act
         controller.gridColumns = [{
             headerName: "Header",
-            field: "Name",
+            field: "name",
             cellClassRules: {
-                "has-children": function (params) { return params.data.Type === "Folder" && params.data.HasChildren; },
-                "is-project": function (params) { return params.data.Type === "Project"; }
+                "has-children": function (params) { return params.data.type === "Folder" && params.data.hasChildren; },
+                "is-project": function (params) { return params.data.type === "Project"; }
             },
             cellRenderer: "group",
             cellRendererParams: {
                 innerRenderer: (params) => {
-                    return params.data.Name;
+                    return params.data.name;
                 }
             }
         }];
@@ -40,9 +40,9 @@ describe("Embedded ag-grid events", () => {
     it("getNodeChildDetails", () => {
         // Arrange
         var rowItemMock = {
-            Children: true,
+            children: true,
             open: true,
-            Id: 1
+            id: 1
         };
 
         var rowItemMockNoChildren = {};
@@ -62,12 +62,12 @@ describe("Embedded ag-grid events", () => {
         // Arrange
         var paramsMock = {
             data: {
-                Name: "artifact"
+                name: "artifact"
             }
         };
         var paramsMockFolder = {
             data: {
-                Type: "Folder",
+                type: "Folder",
             }
         };
 
@@ -142,7 +142,7 @@ describe("Embedded ag-grid events", () => {
     //    controller.options.api = gridApi;
     //    options.onRowGroupOpened(paramsMock);
     //    expect(paramsMock.node.data["open"]).toBeUndefined;
-    //    expect(paramsMock.node.data["loaded"]).toBeUndefined;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
 
     //    $scope.$apply();
 
@@ -151,7 +151,7 @@ describe("Embedded ag-grid events", () => {
     //    expect(paramsMock.node.data.Children.length).toEqual(1);
     //    expect(paramsMock.node.data.Children[0].Type).toBe("Project");
     //    expect(paramsMock.node.data["open"]).toBeTruthy;
-    //    expect(paramsMock.node.data["loaded"]).toBeTruthy;
+    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
     //}));
 
     /*it("cellFocused", () => {

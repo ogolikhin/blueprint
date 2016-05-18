@@ -10,6 +10,7 @@ $gray-lighter:      #ccc;
 $gray-lightest:     #e8e8e8;
 $blue-lightest:     #e7ebf2;
 $white:             #fff;
+$black:             #000;
 
 $brand-primary:     #1c285c;
 $brand-secondary:   #009cdc;
@@ -30,6 +31,7 @@ $font-size-root:     16px;
 $font-size-smaller:  .875rem;  //~14px
 $font-size-smallest: .75rem;   //~12px
 $font-size-tiny:     .6875rem; //~11px
+$font-size-tiniest:  .625rem; //~10px
 $font-size-micro:    .5625rem; //~9px
 $font-size-nano:     .5rem; //~9px
 $font-size-bigger:   1.125rem; //~18px
@@ -65,7 +67,8 @@ $project-picker-tree-height: 244px;
 $project-picker-data-width: 350px;
 
 //vertical order
-$sidebar-z-index: 1000;
+$tooltip-z-index: 10000;
+$sidebar-z-index: 500;
 $toolbar-z-index: $sidebar-z-index + 100;
 
 //other

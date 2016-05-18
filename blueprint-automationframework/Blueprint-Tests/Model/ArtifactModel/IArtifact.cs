@@ -68,6 +68,59 @@ namespace Model.ArtifactModel
         int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
+        /// Gets diagram content for RapidReview (Storyteller)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        /// of the user that created the artifact. </param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <exception cref="ArgumentException">If method called for Artifact different than diagram.</exception>
+        RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets UseCase content for RapidReview (Storyteller)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        /// of the user that created the artifact. </param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        ///<exception cref="ArgumentException">If method called for Artifact different than Usecase.</exception>
+        RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets glossary content for RapidReview (Storyteller)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        /// of the user that created the artifact. </param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <exception cref="ArgumentException">If method called for Artifact different than Glossary.</exception>
+        RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets artifact info
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        /// of the user that created the artifact. </param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Artifact info is used by other metod to determine type of artifact</returns>
+        ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Gets properties for RapidReview (Storyteller)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        /// of the user that created the artifact. </param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
         /// Lock an Artifact
         /// </summary>
         /// <param name="user">The user locking the artifact</param>

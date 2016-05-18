@@ -14,7 +14,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty("typePrefix")]
         public string TypePrefix { get; set; }
         [JsonProperty("baseItemTypePredefined")]
-        public int BaseTypePredefined { get; set; }
+        public ItemTypePredefined BaseTypePredefined { get; set; }
         [JsonProperty("link")]
         public string Link { get; set; }
     }

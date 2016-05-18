@@ -12,6 +12,7 @@ using ServiceLibrary.Models;
 
 namespace AdminStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("instance")]
     [BaseExceptionFilter]
     public class InstanceController : LoggableApiController

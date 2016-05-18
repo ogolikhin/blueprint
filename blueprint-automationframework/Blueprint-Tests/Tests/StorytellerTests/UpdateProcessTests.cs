@@ -110,6 +110,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Update the name of process and verify that the returned process has the" +
                      "modified name.")]
+        [Explicit(IgnoreReasons.UnderDevelopment)]//now /svc/components/storyteller/processes/{Id} doesn't allow to update process name
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create and get the default process

@@ -11,16 +11,16 @@
             <div class="artifact-icon fonticon-bp-ui-mockup-form-setting"></div>
             <div class="artifact-heading">
                 <div class="name">Client Login
-                    <i class="readonly-indicator"></i>
-                    <i class="lock-indicator"></i>
-                    <i class="dirty-indicator"></i>
+                    <i class="readonly-indicator" bp-tooltip="Read only"></i>
+                    <i class="lock-indicator" bp-tooltip="Locked"></i>
+                    <i class="dirty-indicator" bp-tooltip="Dirty"></i>
                 </div>
                 <div class="type-id">User story - US123456</div>
             </div>
             <div class="page-top-toolbar">
-                <button class="btn btn-bluelight">Discard</button>
-                <button class="btn btn-bluelight">Save</button>
-                <button class="btn btn-primary">Publish</button>
+                <button class="btn btn-bluelight" bp-tooltip="Discard">Discard</button>
+                <button class="btn btn-bluelight" bp-tooltip="Save">Save</button>
+                <button class="btn btn-primary" bp-tooltip="Publish">Publish</button>
             </div>
         </div>
         <div class="page-body">
@@ -103,7 +103,7 @@
                     </div>
 
                     <uib-tabset>
-                        <uib-tab index="0" heading="Description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis auctor lorem. Integer arcu quam, viverra non tempor quis, dignissim vitae magna. Proin iaculis arcu quam, nec sollicitudin mi tincidunt eu. Vestibulum id congue justo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed condimentum leo vitae pellentesque sodales. Ut et rhoncus neque.</uib-tab>
+                        <uib-tab index="0" heading="Description">Lorem ipsum dolor, consectetur adipiscing elit <strong bp-tooltip="This is the text of the tooltip">sit amet</strong>. Sed quis auctor lorem. Integer arcu quam, viverra non tempor quis, dignissim vitae magna. Proin iaculis arcu quam, nec sollicitudin mi tincidunt eu. Vestibulum id congue justo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed condimentum leo vitae pellentesque sodales. Ut et rhoncus neque.</uib-tab>
                         <uib-tab index="1" heading="Additional notes">Fusce pellentesque pellentesque augue, sit amet ultricies mauris dictum sit amet. Vestibulum sed leo suscipit, dignissim nisi non, dictum tellus. Etiam tincidunt nisl at ante vehicula, vitae pretium eros semper. Maecenas eu lacus faucibus, pretium sapien in, ullamcorper magna. Aenean eget bibendum orci, sit amet rutrum metus. Mauris non justo at mauris viverra ultricies sed vitae odio. Nunc volutpat nisi ac magna efficitur, ut dignissim erat sodales. In non lorem mi. Nam ipsum lectus, luctus vitae tellus quis, porta imperdiet nisi. Sed vehicula risus vitae dolor aliquet lacinia. Nam convallis gravida enim. Etiam congue quam in lectus iaculis, at pretium libero ultrices. Integer tempus nunc sed eleifend imperdiet. Cras sed tempus felis, sed sodales ante. Ut auctor vitae dolor eget blandit.</uib-tab>
                     </uib-tabset>
                 </div>

@@ -50,12 +50,14 @@ function Build-Nova-Services{
 
     Write-Section "Building Nova services"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
+    $sharedTrailingArgs = "/maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:AutoParameterizationWebConfigConnectionStrings=False"
+    
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`"" + $sharedTrailingArgs
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`"" + $sharedTrailingArgs
 }
 
 function Build-Nova-Html{
@@ -77,8 +79,9 @@ function Build-Nova-Html{
     {
        pushd "$workspace\app\NovaWeb"
    
-       Invoke-MyExpression ".\devsetup.bat" ""
-       Invoke-MyExpression "npm" "install -g"
+       Invoke-MyExpression "npm" "install"
+       Invoke-MyExpression "npm" "update"
+       Invoke-MyExpression "typings" "i"
 
        # Increment build version number
        $version = $blueprintVersion.split(".")

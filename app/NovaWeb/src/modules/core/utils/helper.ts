@@ -43,4 +43,9 @@
         }
     };
 
+    static findAncestorByCssClass = (element: Element, className: string): any => {
+        while ((element = element.parentElement) && !element.classList.contains(className)) {
+        }
+        return element;
+    };
 }

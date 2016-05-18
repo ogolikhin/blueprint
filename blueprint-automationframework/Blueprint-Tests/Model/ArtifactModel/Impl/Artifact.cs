@@ -1,10 +1,11 @@
-﻿using System.Net;
+﻿using Common;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Utilities;
-using NUnit.Framework;
 using Utilities.Facades;
-using Common;
 
 namespace Model.ArtifactModel.Impl
 {

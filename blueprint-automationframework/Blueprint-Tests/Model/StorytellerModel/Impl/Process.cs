@@ -109,6 +109,8 @@ namespace Model.StorytellerModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
+        public Status Status { get; set; }
+
         public ProcessType ProcessType
         {
             get
@@ -1557,6 +1559,57 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         public string Label { get; set; }
 
+    }
+
+    public class Status
+    {
+        /// <summary>
+        /// Check if the process is locked
+        /// </summary>
+        public bool IsLocked { get; set; }
+
+        /// <summary>
+        /// Check if the process is locked by the user who retrieve the process model
+        /// </summary>
+        public bool IsLockedByMe { get; set; }
+
+        /// <summary>
+        /// Check if the process is deleted by the user who retrieve the process model
+        /// </summary>
+        public bool IsDeleted { get; set; }
+
+        /// <summary>
+        /// Check if the process is read-only
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
+        /// Check if the process is not published
+        /// </summary>
+        public bool IsUnpublished { get; set; }
+
+        /// <summary>
+        /// Check if the process is ever been published
+        /// </summary>
+        public bool HasEverBeenPublished { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public bool HasReadOnlyReuse { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public bool HasReuse { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int LockOwnerId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int RevisionId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int UserId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int VersionId { get; set; } 
     }
     public class AssociatedArtifact : ArtifactReference
     {

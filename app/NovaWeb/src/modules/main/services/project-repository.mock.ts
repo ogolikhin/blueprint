@@ -8,29 +8,29 @@ export class ProjectRepositoryMock implements IProjectRepository {
         var deferred = this.$q.defer<any[]>();
         var folders = [
             {
-                "Id": 3,
-                "ParentFolderId": 1,
-                "Name": "Folder with content",
-                "Type": "Folder"
+                "id": 3,
+                "parentFolderId": 1,
+                "name": "Folder with content",
+                "type": "Folder"
             },
             {
-                "Id": 7,
-                "ParentFolderId": 1,
-                "Name": "Empty folder",
-                "Type": "Folder"
+                "id": 7,
+                "parentFolderId": 1,
+                "name": "Empty folder",
+                "type": "Folder"
             },
             {
-                "Id": 8,
-                "ParentFolderId": 1,
-                "Name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
-                "Type": "Folder"
+                "id": 8,
+                "parentFolderId": 1,
+                "name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
+                "type": "Folder"
             },
             {
-                "Id": 33,
-                "ParentFolderId": 1,
-                "Name": "Process",
-                "Description": "Process description",
-                "Type": "Project"
+                "id": 33,
+                "parentFolderId": 1,
+                "name": "Process",
+                "description": "Process description",
+                "type": "Project"
             }
         ];
         deferred.resolve(folders);

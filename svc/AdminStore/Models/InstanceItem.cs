@@ -34,7 +34,6 @@ namespace AdminStore.Models
         public bool? IsAccesible { get; set; }
     }
 
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum InstanceItemTypeEnum
     {
         Folder = 0,

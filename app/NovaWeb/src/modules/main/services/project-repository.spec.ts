@@ -28,9 +28,8 @@ describe("ProjectService", () => {
                 // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
                 .respond(200, <Models.IProjectNode[]>[
-                        { id: 3, parentFolderId: 1, name: "Imported Projects", type: "Folder", description : "" }
-                    ]
-                    );
+                    { id: 3, name: "Imported Projects", type: 0, description: "", parentFolderId: 1, hasChildren: false }
+                    ]);
 
                 // Act
             var error: any;

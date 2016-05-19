@@ -7,7 +7,7 @@ export {Models}
 
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]>;
+    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
 }
 
 export class ProjectRepository implements IProjectRepository {
@@ -35,7 +35,7 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
-    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]> {
+    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
         if (!projectId) {
             throw new Error("Inavlid parameter ");
@@ -44,7 +44,7 @@ export class ProjectRepository implements IProjectRepository {
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
 
         this.$http.get<any>(url)
-            .success((result: Models.IProjectItem[]) => {
+            .success((result: Models.IArtifact[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {

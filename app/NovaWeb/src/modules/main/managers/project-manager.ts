@@ -58,7 +58,7 @@ export class ProjectManager implements IProjectManager {
             self.notificator.notify(SubscriptionEnum.ProjectLoaded, self.CurrentProject, true);
         } else {
             this._repository.getProject(projectId)
-                .then((result: Models.IProjectItem[]) => {
+                .then((result: Models.IArtifact[]) => {
                     project = new Models.Project(result);
                     project.id = projectId;
                     project.name = projectName;
@@ -76,10 +76,10 @@ export class ProjectManager implements IProjectManager {
         let self = this;
 
         this._repository.getProject(projectId, artifactId)
-            .then((result: Models.IProjectItem[]) => {
+            .then((result: Models.IArtifact[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
                 if (node) {
-                    node.artifacts = result;
+                    node.children = result;
                     self.notificator.notify(SubscriptionEnum.ProjectChildrenLoaded, this.CurrentProject, artifactId);
                 }
             }).catch(() => {

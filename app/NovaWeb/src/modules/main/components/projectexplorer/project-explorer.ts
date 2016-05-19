@@ -49,11 +49,11 @@ class ProjectExplorerController {
             open: true
         }); 
         
-        this.tree.setDataSource(project.artifacts, project.id);
+        this.tree.setDataSource(project.children, project.id);
     }
 
     private loadProjectChildren = (project: $manager.Models.IProject, artifactId) => {
-        var nodes = project.getArtifact(artifactId).artifacts;
+        var nodes = project.getArtifact(artifactId).children;
         this.tree.setDataSource(nodes, artifactId);
     }
 

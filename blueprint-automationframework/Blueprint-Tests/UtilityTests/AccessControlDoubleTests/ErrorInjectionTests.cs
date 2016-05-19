@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
-namespace AccessControlDoubleTests
+namespace UtilityTests.AccessControlDoubleTests
 {
     /// <summary>
     /// These tests don't test any Blueprint functionality.  They only test whether the AccessControlDouble is functioning properly.
@@ -68,8 +68,12 @@ namespace AccessControlDoubleTests
             }
         }
 
+        #region StartInjectingErrors tests
+
         [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void AddSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        [TestRail(107486)]
+        [Description("Start Injecting Errors for POST requests.  Try to add a session and verify the injected error is returned.")]
+        public void StartInjectingErrorsForPOST_AddSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
 
@@ -83,7 +87,9 @@ namespace AccessControlDoubleTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void AuthorizeOperation_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        [TestRail(107487)]
+        [Description("Add a session.  Start Injecting Errors for PUT requests.  Try to authorize a session and verify the injected error is returned.")]
+        public void StartInjectingErrorsForPUT_AuthorizeOperation_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
@@ -98,7 +104,9 @@ namespace AccessControlDoubleTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void DeleteSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        [TestRail(107488)]
+        [Description("Add a session.  Start Injecting Errors for DELETE requests.  Try to delete a session and verify the injected error is returned.")]
+        public void StartInjectingErrorsForDELETE_DeleteSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
@@ -113,7 +121,9 @@ namespace AccessControlDoubleTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void GetSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        [TestRail(107489)]
+        [Description("Add a session.  Start Injecting Errors for GET requests.  Try to get a session and verify the injected error is returned.")]
+        public void StartInjectingErrorsForGET_GetSession_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             ISession randomSession = SessionFactory.CreateRandomSession();
             ISession createdSession = _accessControl.AddSession(randomSession);
@@ -128,7 +138,9 @@ namespace AccessControlDoubleTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodesAndExceptions))]
-        public void GetStatus_ExpectError(HttpStatusCode statusCode, Type expectedException)
+        [TestRail(107490)]
+        [Description("Start Injecting Errors for GET requests.  Try to get /status and verify the injected error is returned.")]
+        public void StartInjectingErrorsForGET_GetStatus_ExpectError(HttpStatusCode statusCode, Type expectedException)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
@@ -140,7 +152,9 @@ namespace AccessControlDoubleTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
-        public static void InjectErrorsForInvalidRequestType_VerifyAccessControlDoubleReturns404(HttpStatusCode statusCode)
+        [TestRail(107491)]
+        [Description("Try to start Injecting Errors for OPTIONS requests.  Verify a 404 error is returned.")]
+        public static void StartInjectingErrorsForInvalidRequestType_VerifyAccessControlDoubleReturns404(HttpStatusCode statusCode)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
@@ -150,5 +164,111 @@ namespace AccessControlDoubleTests
                 }, "We should get a 404 error for invalid request method: OPTIONS!");
             }
         }
+
+        #endregion StartInjectingErrors tests
+
+        #region StopInjectingErrors tests
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107492)]
+        [Description("Start Injecting Errors for POST requests, then Stop Injecting Errors.  Try to add a session and verify it's successful.")]
+        public void StopInjectingErrorsForPOST_AddSession_ExpectSuccess(HttpStatusCode statusCode)
+        {
+            ISession randomSession = SessionFactory.CreateRandomSession();
+
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, statusCode);
+                accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.POST);
+
+                Assert.DoesNotThrow(() => { _accessControl.AddSession(randomSession); },
+                    "AddSession should not return an error after we've stopped injecting errors from AccessControlDouble!");
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107493)]
+        [Description("Add a session.  Start Injecting Errors for PUT requests, then Stop Injecting Errors.  Try to authorize a session and verify it's successful.")]
+        public void StopInjectingErrorsForPUT_AuthorizeOperation_ExpectSuccess(HttpStatusCode statusCode)
+        {
+            ISession randomSession = SessionFactory.CreateRandomSession();
+            ISession createdSession = _accessControl.AddSession(randomSession);
+
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, statusCode);
+                accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.PUT);
+
+                Assert.DoesNotThrow(() => { _accessControl.AuthorizeOperation(createdSession); },
+                    "GetSession should not return an error after we've stopped injecting errors from AccessControlDouble!");
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107494)]
+        [Description("Add a session.  Start Injecting Errors for DELETE requests, then Stop Injecting Errors.  Try to delete a session and verify it's successful.")]
+        public void StopInjectingErrorsForDELETE_DeleteSession_ExpectSuccess(HttpStatusCode statusCode)
+        {
+            ISession randomSession = SessionFactory.CreateRandomSession();
+            ISession createdSession = _accessControl.AddSession(randomSession);
+
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, statusCode);
+                accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.DELETE);
+
+                Assert.DoesNotThrow(() => { _accessControl.DeleteSession(createdSession); },
+                    "GetSession should not return an error after we've stopped injecting errors from AccessControlDouble!");
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107495)]
+        [Description("Add a session.  Start Injecting Errors for GET requests, then Stop Injecting Errors.  Try to get a session and verify it's successful.")]
+        public void StopInjectingErrorsForGET_GetSession_ExpectSuccess(HttpStatusCode statusCode)
+        {
+            ISession randomSession = SessionFactory.CreateRandomSession();
+            ISession createdSession = _accessControl.AddSession(randomSession);
+
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, statusCode);
+                accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.GET);
+
+                Assert.DoesNotThrow(() => { _accessControl.GetSession(createdSession.UserId); },
+                    "GetSession should not return an error after we've stopped injecting errors from AccessControlDouble!");
+            }
+        }
+
+        [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107496)]
+        [Description("Start Injecting Errors for GET requests, then Stop Injecting Errors.  Try to get /status and verify it's successful.")]
+        public void StopInjectingErrorsForGET_GetStatus_ExpectSuccess(HttpStatusCode statusCode)
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, statusCode);
+                accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.GET);
+
+                Assert.DoesNotThrow(() => { _accessControl.GetStatus(); },
+                    "GetStatus should not return an error after we've stopped injecting errors from AccessControlDouble!");
+            }
+        }
+
+        [TestCase]
+        [TestRail(107497)]
+        [Description("Try to Stop Injecting Errors for OPTIONS requests.  Verify a 404 error is returned.")]
+        public static void StopInjectingErrorsForInvalidRequestType_VerifyAccessControlDoubleReturns404()
+        {
+            using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
+            {
+                Assert.Throws<Http404NotFoundException>(() =>
+                {
+                    accessControlDoubleHelper.StopInjectingErrors(RestRequestMethod.OPTIONS);
+                }, "We should get a 404 error for invalid request method: OPTIONS!");
+            }
+        }
+
+        #endregion StopInjectingErrors tests
     }
 }

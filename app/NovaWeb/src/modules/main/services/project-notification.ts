@@ -1,31 +1,34 @@
 ﻿import "angular";
+import {NotificationService} from "../../core/notification";
 
-export interface IProjectNotification {
-    subscribeToOpenProject(func: Function);
-    notifyOpenProject(...prms: any[]) 
+export enum SubscriptionEnum {
+    ProjectLoad,
+    ProjectLoaded,
+    ProjectChildrenLoad,
+    ProjectChildrenLoaded,
+    ProjectClose,
+    ProjectClosed,
+    CurrentProjectChanged,
 }
 
-export class ProjectNotification   {
+export interface IProjectNotification  {
+    subscribe(type: SubscriptionEnum, func: Function);
+    unsubscribe(type: SubscriptionEnum, func: Function);
+    notify(type: SubscriptionEnum, ...prms: any[]);
+}
 
-    static $inject: [string] = ["$rootScope"];
-    constructor(private root: ng.IRootScopeService) {
+export class ProjectNotification extends NotificationService implements IProjectNotification {
+
+    public subscribe(type: SubscriptionEnum, func: Function) {
+        this.signin(SubscriptionEnum[type], func);
     }
 
-    private subscribe(name: string, callback: any) : Function {
-        return this.root.$on(name, callback);
-    };
-
-    private notify(name: string, ...prms: any[]) {
-        this.root.$emit.apply(this.root,[name].concat(prms));
+    public unsubscribe(type: SubscriptionEnum, func: Function) {
+        this.signout(SubscriptionEnum[type], func);
     }
 
-    public subscribeToOpenProject(func: Function) {
-        var method = this.subscribe("openproject", func);
-        return method;
+    public notify(type: SubscriptionEnum, ...prms: any[]) {
+        this.dispatch(SubscriptionEnum[type], prms);
     }
-    public notifyOpenProject(...prms:any[]) {
-        this.notify.apply(this, ["openproject"].concat(prms));
-    }
-
 };
 

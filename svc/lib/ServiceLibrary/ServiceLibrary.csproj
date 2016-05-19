@@ -72,6 +72,7 @@
     <Compile Include="..\..\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\SessionOptionalAttribute.cs" />

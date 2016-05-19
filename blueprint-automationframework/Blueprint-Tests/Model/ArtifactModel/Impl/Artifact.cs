@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Newtonsoft.Json;
 using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
@@ -11,49 +9,8 @@ using Common;
 
 namespace Model.ArtifactModel.Impl
 {
-    public enum LockResult
-    {
-        Success,
-        AlreadyLocked,
-        Failure
-    }
-
-    public enum DiscardResult
-    {
-        Success,
-        Failure
-    }
-
     public class Artifact : ArtifactBase, IArtifact
     {
-        #region Constants
-
-        #endregion Constants
-
-        #region Properties
-
-        //TODO  Check if we can remove the setters and get rid of these warnings
-
-        //TODO  Check if we can modify properties to do public List Attachments { get; } = new List(); instead of in constructor
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Property>>))]
-        public List<Property> Properties { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Comment>>))]
-        public List<Comment> Comments { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Trace>>))]
-        public List<Trace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<Attachment>>))]
-        public List<Attachment> Attachments { get; set; }
-
-        #endregion Properties
-
         #region Constructors
 
         /// <summary>
@@ -62,10 +19,10 @@ namespace Model.ArtifactModel.Impl
         public Artifact()
         {
             //Required for deserializing OpenApiArtifact
-            Properties = new List<Property>();
-            Comments = new List<Comment>();
-            Traces = new List<Trace>();
-            Attachments = new List<Attachment>();
+            Properties = new List<OpenApiProperty>();
+            Comments = new List<OpenApiComment>();
+            Traces = new List<OpenApiTrace>();
+            Attachments = new List<OpenApiAttachment>();
         }
 
         /// <summary>
@@ -111,28 +68,6 @@ namespace Model.ArtifactModel.Impl
             SaveArtifact(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        public void Publish(IUser user = null,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform Publish.");
-                user = CreatedBy;
-            }
-
-            var artifactToPublish = new List<IArtifactBase> { this };
-
-            PublishArtifacts(
-                artifactToPublish, 
-                Address, 
-                user,
-                shouldKeepLock,
-                expectedStatusCodes, 
-                sendAuthorizationAsCookie);
-        }
-
         public List<DiscardArtifactResult> Discard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -176,26 +111,6 @@ namespace Model.ArtifactModel.Impl
 
             return discardArtifactResults;
         }
-        public List<DeleteArtifactResult> Delete(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
-        {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
-                user = CreatedBy;
-            }
-
-            var deleteArtifactResults = DeleteArtifact(
-                this,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren);
-
-            return deleteArtifactResults;
-        }
 
         public int GetVersion(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -212,7 +127,7 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        public List<LockResultInfo> Lock(
+        public LockResultInfo Lock(
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -225,7 +140,18 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToLock = new List<IArtifactBase> { this };
 
-            return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            var artifactLockResults = LockArtifacts(
+                artifactToLock,
+                Address,
+                user,
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
+
+            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+
+            var artifactLockResult = artifactLockResults.First();
+
+            return artifactLockResult;
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,
@@ -489,58 +415,6 @@ namespace Model.ArtifactModel.Impl
 
             return discardedResultList;
         }
-        
-        /// <summary>
-        /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts)
-        /// </summary>
-        /// <param name="artifactsToPublish">The list of artifacts to publish</param>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
-            string address,
-            IUser user,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            return OpenApiArtifact.PublishArtifacts(
-                artifactsToPublish,
-                address,
-                user,
-                shouldKeepLock,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-        }
-
-        /// <summary>
-        /// Delete a single artifact on Blueprint server.
-        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
-        /// </summary>
-        /// <param name="artifactToDelete">The artifact to delete</param>
-        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
-        {
-            return OpenApiArtifact.DeleteArtifact(
-                artifactToDelete,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren);
-        }
 
         /// <summary>
         /// Gets the Version property of an Artifact via API call
@@ -653,27 +527,5 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Static Methods
-    }
-
-    public class LockResultInfo
-    {
-        public LockResult Result { get; set; }
-
-        public VersionInfo Info { get; set; }
-    }
-
-    public class VersionInfo
-    {
-        public int? ArtifactId { get; set; }
-        public int ServerArtifactVersionId { get; set; }
-        public DateTime? UtcLockedDateTime { get; set; }
-        public string LockOwnerLogin { get; set; }
-        public int ProjectId { get; set; }
-    }
-
-    public class DiscardResultInfo
-    {
-        public DiscardResult Result { get; set; }
-        public string Message { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 
 namespace ArtifactStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {

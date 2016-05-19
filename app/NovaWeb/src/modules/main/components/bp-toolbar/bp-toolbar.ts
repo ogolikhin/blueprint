@@ -1,8 +1,8 @@
-﻿import {ILocalizationService} from "../../../core/localization";
+﻿/// <reference path="../../../core/notification.ts" />
+import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
-import {IProjectNotification} from "../../services/project-notification";
+import {IProjectNotification, SubscriptionEnum} from "../../services/project-notification";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project.ctrl";
-import {IMainViewController} from "../../main.view";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -12,16 +12,13 @@ interface IBPToolbarController {
 export class BPToolbarComponent implements ng.IComponentOptions {
     public template: string = require("./bp-toolbar.html");
     public controller: Function = BPToolbarController;
-    public require: any = {
-        parent: "^bpMainView"
-    };
 }
 
 class BPToolbarController implements IBPToolbarController {
 
     static $inject = ["localization", "dialogService", "projectNotification" ];
-    public parent: IMainViewController;
-    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private notification: IProjectNotification) {
+
+    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private notificator: IProjectNotification) {
     }
 
     execute(evt: any): void {
@@ -30,7 +27,17 @@ class BPToolbarController implements IBPToolbarController {
         }
         evt.preventDefault();
         var element = evt.currentTarget;
-        this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+        switch (element.id) {
+            case `ProjectClose`:
+                this.notificator.notify(SubscriptionEnum.ProjectClose);
+                break;
+            case `ProjectCloseAll`:
+                this.notificator.notify(SubscriptionEnum.ProjectClose, true);
+                break;
+            default:
+                this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
+                break;
+        }
     }
 
     showSubLevel(evt: any): void {
@@ -51,8 +58,7 @@ class BPToolbarController implements IBPToolbarController {
             css: "nova-open-project"
         }).then((selected: IOpenProjectResult) => {
             if (selected && selected.id) {
-                this.notification.notifyOpenProject(selected);
-                //this.dialogService.alert(`Project \"${selected.name} [ID:${selected.id}]\" is selected.`);
+                this.notificator.notify(SubscriptionEnum.ProjectLoad, selected.id, selected.name);
             }
         });
     }

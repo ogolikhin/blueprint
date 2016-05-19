@@ -85,6 +85,8 @@ namespace AccessControlTests
         }
 
         [TestCase]
+        [TestRail(96116)]
+        [Description("Put session without SessionToken returns 400.")]
         public void PutSessionWithoutSessionToken_Verify400BadRequest()
         {
             ISession session = SessionFactory.CreateSession(_user);
@@ -97,6 +99,8 @@ namespace AccessControlTests
         }
 
         [TestCase]
+        [TestRail(96111)]
+        [Description("Check that AccessControl returns active Session-Token for the user.")]
         public void GetSessionForUserIdWithActiveSession_VerifyPostAndGetSessionsMatch()
         {
             ISession addedSession = CreateAndAddSessionToAccessControl();
@@ -107,6 +111,8 @@ namespace AccessControlTests
         }
 
         [TestCase]
+        [TestRail(96112)]
+        [Description("Get Session-Token for user without active session returns 404 - Not Found.")]
         public void GetSessionsForUserIdWithNoActiveSessions_Verify404NotFound()
         {
             // Add 1 session to AccessControl.
@@ -186,6 +192,8 @@ namespace AccessControlTests
         }
 
         [TestCase]
+        [TestRail(96108)]
+        [Description("Check that GET active sessiones returns active sessions.")]
         public void GetActiveSessions_VerifySessionsWereFound()
         {
             // Setup: Create a session for test.

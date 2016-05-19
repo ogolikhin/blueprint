@@ -100,6 +100,33 @@ namespace Model.ArtifactModel
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiProperty> Properties { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiComment> Comments { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiTrace> Traces { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiAttachment> Attachments { get; set; }
+
+        /// <summary>
+        /// Delete the artifact on Blueprint server.
+        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
+        /// </summary>
+        /// <param name="user">(optional) The user deleting the artifact. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
+        List<DeleteArtifactResult> Delete(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false,
+            bool deleteChildren = false);
+
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation
         /// </summary>
@@ -110,5 +137,15 @@ namespace Model.ArtifactModel
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<ArtifactReference> GetNavigation(IUser user, List<IArtifact> artifacts,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publish the artifact on Blueprint server.
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to delete using the credentials
+        /// of the user that created the artifact.</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which define the whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        void Publish(IUser user = null, bool shouldKeepLock = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
     }
 }

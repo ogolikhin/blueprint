@@ -1,5 +1,6 @@
-﻿//import {ILocalizationService} from "../../../core/localization";
+﻿import "angular";
 import * as Grid from "ag-grid/main";
+import {Helper} from "../../../core/utils/helper";
 
 /*
 tslint:disable
@@ -13,8 +14,7 @@ Sample template. See following parameters:
     enable-editing-on="name,desc" - list of column where to activate inline editing
     enable-dragndrop="true" - enable rows drag and drop
     grid-columns="$ctrl.columns"  - column definition
-    on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes
-    on-expand="$ctrl.doExpand(prms)" - gets data to load a sub-tree (child node)
+    on-load="$ctrl.doLoad(prms)"  - gets data to load tree root nodes or a sub-tree (child node)
     on-select="$ctrl.doSelect(item)"> - to be called then a node is selected
     on-row-click="$ctrl.doRowClick(prms)" - to be called when a row is clicked
     on-row-dblclick="$ctrl.doRowDblClick(prms)" - to be called when a row is double-clicked (will cancel single-click)
@@ -23,6 +23,7 @@ Sample template. See following parameters:
 */ /*
 tslint:enable
 */
+
 
 export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
@@ -37,15 +38,38 @@ export class BPTreeComponent implements ng.IComponentOptions {
         headerHeight: "<",
         //settings
         gridColumns: "<",
+        //to set connection with parent
+        bpRef: "=?",
         //events
         onLoad: "&?",
-        onExpand: "&?",
         onSelect: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?"
     };
 }
+export interface ITreeNode {
+    id: number;
+    name: string;
+    hasChildren: boolean;
+    parentNode?: ITreeNode;
+    children?: ITreeNode[];
+    loaded?: boolean;
+    open?: boolean;
+}
+export interface IBPTreeController {
+    onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
+    onSelect?: Function;                //to be called on time of ag-grid row selection
+    onRowClick?: Function;
+    onRowDblClick?: Function;
+    onRowPostCreate?: Function;
+
+    addNode(data: any, id?: number );           //to add a data node to the datasource
+    removeNode(id: number);                     //to remove a data node (by id) from the datasource
+    selectNode(id: number);                     //to select a row in in ag-grid (by id)
+    setDataSource(data?: any, id?: number);     //
+}
+
 
 export class BPTreeController  {
     static $inject = ["$element", "$timeout"];
@@ -58,21 +82,25 @@ export class BPTreeController  {
     public headerHeight: number;
     //settings
     public gridColumns: any[];
+
     //events
     public onLoad: Function;
     public onSelect: Function;
-    public onExpand: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
 
+    public bpRef: BPTreeController;
+
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
-    private rowData: any = null;
+    private _datasource: ITreeNode[] = [];
     private selectedRow: any;
     private clickTimeout: any;
 
     constructor(private $element, private $timeout: ng.ITimeoutService) {
+        this.bpRef = this;
+
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
@@ -80,14 +108,13 @@ export class BPTreeController  {
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
         this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
-        if (this.gridColumns) {
-            for (let i = 0; i < this.gridColumns.length; i++) {
-                let gridCol = this.gridColumns[i];
+        if (angular.isArray(this.gridColumns)) {
+            this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
                     if (!gridCol.cellRendererParams ||
                         (gridCol.cellRendererParams && !gridCol.cellRendererParams.innerRenderer) ||
-                        (gridCol.cellRendererParams && typeof gridCol.cellRendererParams.innerRenderer !== "function")
+                        (gridCol.cellRendererParams && !angular.isFunction(gridCol.cellRendererParams.innerRenderer))
                     ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
@@ -96,64 +123,11 @@ export class BPTreeController  {
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
                 }
-            }
+            }.bind(this));
         } else {
             this.gridColumns = [];
         }
-
-        // not used for now, we need a way to filter keys! See below
-        /*
-        // gets called once before the renderer is used
-        this.cellEditor.prototype.init = function (params) {
-            if (params.keyPress !== 113 && params.keyPress) {
-                console.log("should cancel");
-            }
-            // save the current value
-            this.previousValue = params.value;
-            // create the cell
-            this.eInput = document.createElement("input");
-            this.eInput.value = params.value;
-        };
-
-        // gets called once when grid ready to insert the element
-        this.cellEditor.prototype.getGui = function () {
-            return this.eInput;
-        };
-
-        // focus and select can be done after the gui is attached
-        this.cellEditor.prototype.afterGuiAttached = function () {
-            this.eInput.focus();
-            this.eInput.select();
-        };
-
-        // returns the new value after editing
-        this.cellEditor.prototype.getValue = function () {
-            var value = this.eInput.value;
-            if (value === "") {
-                value = this.previousValue;
-            }
-            return value;
-        };
-
-        // any cleanup we need to be done here
-        this.cellEditor.prototype.destroy = function () {
-            // but this example is simple, no cleanup, we could
-            // even leave this method out as it's optional
-        };
-
-        // if true, then this editor will appear in a popup
-        this.cellEditor.prototype.isPopup = function () {
-            // and we could leave this method out also, false is the default
-            return false;
-        };
-        */
     }
-
-    //private cellEditor = () => { };
-    // we can't use ag-grid's editor as it doesn't work on folders and it gets activated by too many triggers.
-    // To enable set the following in GridOptions.columnDefs
-    //editable: true,
-    //cellEditor: this.cellEditor,
 
     public $onInit = () => {
         this.options = <Grid.GridOptions>{
@@ -166,8 +140,8 @@ export class BPTreeController  {
             enableColResize: true,
             columnDefs: this.gridColumns,
             icons: {
-                groupExpanded: "<i class='fonticon-folder-open' />",
-                groupContracted: "<i class='fonticon-folder' />"
+                groupExpanded: "<i class='fonticon-' />",
+                groupContracted: "<i class='fonticon-' />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
             onCellFocused: this.cellFocused,
@@ -179,33 +153,90 @@ export class BPTreeController  {
         };
     };
 
-    private stripHTMLTags = (stringToSanitize: string): string => {
-        var stringSanitizer = window.document.createElement("DIV");
-        stringSanitizer.innerHTML = stringToSanitize;
-        return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    };
+    //to add a data node to the datasource
+    public addNode(data: any, id?: number)  {
+        if (angular.isArray(data)) {
+            data.map(function (it: ITreeNode) {
+                if (it.hasChildren && !angular.isArray(it.children)) {
+                    it.children = [];
+                };
+            });
+        }
+        let node = this.getNode(id, this._datasource || []);
+            if (node) {
+            //set parent node reference
+            (node.children = data).map(function (it: ITreeNode) {
+                it.parentNode = node;
+            });
+            node.loaded = true;
+                node.open = true;
+            } else {
+            this._datasource = (angular.isArray(data) ? data : [data]).concat(this._datasource || []);
+            }
+        }
 
-    private escapeHTMLText = (stringToEscape: string): string => {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
+    //to remove a data node (by id) from the datasource
+    public removeNode(id: number) {
+        let node = this.getNode(id, this._datasource || []);
+        if (node) {
+            if (node.parentNode) {
+                node.parentNode.children = node.parentNode.children.filter(function (it: ITreeNode) {
+                    return it.id !== id;
+                });
+            } else {
+                this._datasource = this._datasource.filter(function (it: ITreeNode) {
+                    return it.id !== id;
+                });
+            }
+        }
+    }
+
+    //to select a tree node in ag grid
+    public selectNode(id: number) {
+        this.options.api.getModel().forEachNode(function (it) {
+            if (it.data.id === id) {
+                it.setSelected(true, true);            }
+        });
+    }
+
+    //sets a new datasource or add a datasource to specific node  children collection
+    public setDataSource(data?: any, id?: number) {
+        if (data) {
+            this.addNode(data, id);
+        }
+        this.options.api.setRowData(this._datasource);
+    }
+
+    private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
+        let item: ITreeNode;
+        if (nodes) {
+            nodes.map(function (node: ITreeNode) {
+                if (!item && node.id === id) {  ///needs to be changed camelCase 
+                    item = node;
+                } else if (!item && node.children) {
+                    item = this.getNode(id, node.children);
+                }
+            }.bind(this));
+        }
+        return item;
     };
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? " bp-tree-inline-editing" : "";
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing " : "";
+        var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
 
-        return "<span" + inlineEditing + ">" + this.escapeHTMLText(currentValue) + "</span>";
+        return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
 
     private getNodeChildDetails(rowItem) {
-        if (rowItem.Children) {
+        if (rowItem.children) {
             return {
                 group: true,
                 expanded: rowItem.open,
-                children: rowItem.Children,
-                field: "Name",
-                key: rowItem.Id // the key is used by the default group cellRenderer
+                children: rowItem.children,
+                field: "name",
+                key: rowItem.id // the key is used by the default group cellRenderer
             };
         } else {
             return null;
@@ -215,20 +246,35 @@ export class BPTreeController  {
     private onGridReady = (params: any) => {
         let self = this;
         if (params && params.api) {
-            //params.api.setHeaderHeight(self.headerHeight);
             params.api.sizeColumnsToFit();
         }
-        /*if (params && params.columnApi && self.gridColumns.length) {
-            let columnName = self.gridColumns[0].field;
-            params.columnApi.autoSizeColumns([columnName]);
-        }*/
-        if (typeof self.onLoad === "function") {
-            self.onLoad({ prms: self.options }).then((data: any) => {
-                self.options.api.setRowData(self.rowData = data);
-            }, (error) => {
-                //self.showError(error);
-            });
+        if (angular.isFunction(self.onLoad)) {
+            //this verifes and updates current node to inject children
+            //NOTE:: this method may uppdate grid datasource using setDataSource method
+            let nodes = self.onLoad({ prms: null });
+            if (angular.isArray(nodes)) {
+                self.setDataSource(nodes);
+            }
         }
+    };
+
+    private rowGroupOpened = (params: any) => {
+        let self = this;
+        let node = params.node;
+        if (node.data.hasChildren && !node.data.loaded) {
+            if (angular.isFunction(self.onLoad)) {
+                let nodes = self.onLoad({ prms: node.data });
+                //this verifes and updates current node to inject children
+                //NOTE:: this method may uppdate grid datasource using setDataSource method
+                if (angular.isArray(nodes)) {
+                    node.data.children = nodes;
+                    node.data.loaded = true;
+                    node.data.open = true;
+                    self.setDataSource(); // pass nothing to just reload 
+                }
+            }
+        }
+        node.data.open = node.expanded;
     };
 
     private cellFocused = (params: any) => {
@@ -240,28 +286,32 @@ export class BPTreeController  {
         }
     };
 
-    private rowClicked = (params: any) => {
+    private rowFocus = (target: any) => {
         function findAncestor(el, cls) {
-            while ((el = el.parentElement) && !el.classList.contains(cls));
+            while ((el = el.parentElement) && !el.classList.contains(cls)) {
+            }
             return el;
         }
 
-        var clickedCell = findAncestor(params.event.target, "ag-cell");
+        var clickedCell = findAncestor(target, "ag-cell");
         if (clickedCell) {
             clickedCell.focus();
         }
+    };
 
-        if (typeof this.onRowClick === `function`) {
+    private rowClicked = (params: any) => {
             var self = this;
-
             self.clickTimeout = self.$timeout(function () {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
 
+            self.rowFocus(params.event.target);
+
+            if (typeof self.onRowClick === `function`) {
                 self.onRowClick({prms: params});
-            }, 250);
-        }
+        } 
+        }, 250);
     };
 
     private rowDoubleClicked = (params: any) => {
@@ -273,31 +323,8 @@ export class BPTreeController  {
         }
     };
 
-    private rowGroupOpened = (params: any) => {
-        let self = this;
-        let node = params.node;
-        if (node.data.Type === `Folder`) {
-            if (typeof self.onExpand === `function`) {
-                if (node.data.Children && !node.data.Children.length && !node.data.alreadyLoadedFromServer) {
-                    if (node.expanded) {
-                        self.onExpand({ prms: node.data })
-                            .then((data: any) => { //pSvc.IProjectNode[]
-                                node.data.Children = data;
-                                node.data.open = true;
-                                node.data.alreadyLoadedFromServer = true;
-                                self.options.api.setRowData(self.rowData);
-                            }, (error) => {
-                                //self.showError(error);
-                            });
-                    }
-                }
-                node.data.open = node.expanded;
-            }
-        }
-    };
-
     private rowPostCreate = (params: any) => {
-        if (typeof this.onRowPostCreate === `function`) {
+        if (angular.isFunction(this.onRowPostCreate)) {
             this.onRowPostCreate({prms: params});
         } else {
             if (this.enableDragndrop) {

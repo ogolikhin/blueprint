@@ -100,6 +100,18 @@ namespace Model.ArtifactModel
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiProperty> Properties { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiComment> Comments { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiTrace> Traces { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        List<OpenApiAttachment> Attachments { get; set; }
+
         /// <summary>
         /// Delete the artifact on Blueprint server.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.

@@ -8,26 +8,6 @@ namespace Model.ArtifactModel
     public interface IArtifact : IArtifactBase
     {
         /// <summary>
-        /// List of Artifact Properties
-        /// </summary>
-        List<Property> Properties { get; }
-
-        /// <summary>
-        /// List of Artifact Comments
-        /// </summary>
-        List<Comment> Comments { get; }
-
-        /// <summary>
-        /// List of Artifact Traces
-        /// </summary>
-        List<Trace> Traces { get; }
-
-        /// <summary>
-        ///  List of Artifact Attachments
-        /// </summary>
-        List<Attachment> Attachments { get; }
-
-        /// <summary>
         /// Save the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
@@ -118,5 +98,14 @@ namespace Model.ArtifactModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
         RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+
+        /// <summary>
+        /// Lock an Artifact
+        /// </summary>
+        /// <param name="user">The user locking the artifact</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>The artifact lock result information</returns>
+        LockResultInfo Lock(IUser user, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
     }
 }

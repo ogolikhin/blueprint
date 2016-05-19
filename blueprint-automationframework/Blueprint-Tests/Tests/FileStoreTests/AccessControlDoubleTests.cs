@@ -109,6 +109,9 @@ namespace FileStoreTests
         #region Success tests
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107472)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "POST a file to FileStore.  Verify it returns 201 Created.")]
         public void PostFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -126,6 +129,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107473)]
+        [Description("POST the first chunk of a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "PUT a chunk to the file in FileStore.  Verify it returns 200 OK.")]
         public void PutFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -143,6 +149,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107474)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "GET the file from FileStore.  Verify it returns 200 OK.")]
         public void GetFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -160,6 +169,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107475)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "DELETE the file from FileStore.  Verify it returns 200 OK.")]
         public void DeleteFile_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -177,6 +189,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107476)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "Get the metadata (HEAD) of the file from FileStore.  Verify it returns 200 OK.")]
         public void GetFileMetadata_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -198,6 +213,9 @@ namespace FileStoreTests
         #region Error tests
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107477)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to POST a file to FileStore.  Verify it returns 401 Unauthorized.")]
         public void PostFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -212,6 +230,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107478)]
+        [Description("POST the first chunk of a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to PUT a chunk to the file on FileStore.  Verify it returns 401 Unauthorized.")]
         public void PutFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -226,6 +247,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107479)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to GET the file from FileStore.  Verify it returns 401 Unauthorized.")]
         public void GetFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -240,6 +264,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107480)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to DELETE the file on FileStore.  Verify it returns 401 Unauthorized.")]
         public void DeleteFile_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -254,6 +281,9 @@ namespace FileStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107481)]
+        [Description("POST a file to FileStore.  Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to get the file metadata (HEAD) from FileStore.  Verify it returns 401 Unauthorized.")]
         public void GetFileMetadata_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())

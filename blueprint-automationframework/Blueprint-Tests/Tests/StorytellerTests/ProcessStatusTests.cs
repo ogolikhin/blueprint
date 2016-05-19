@@ -147,56 +147,10 @@ namespace StorytellerTests
         {
             // Create and save the process artifact with the second user 
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _secondaryUser);
-            //Create Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: T, T, F, F, T, F
-            var expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, false});
-            VerifyStatus(process, expectedProcessStatuses);
 
-            // Publish the saved process
-            _storyteller.PublishProcess(_secondaryUser, process);
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
-            // Get the process Artifact after publish
-            process = _storyteller.GetProcess(_secondaryUser, process.Id);
-            //Get Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: F, F, F, F, F, T
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { false, false, false, false, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
-
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-            // Find outgoing process link for precondition task
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
-            Assert.IsNotNull(preconditionOutgoingLink, "Outgoing link for the default precondition was not found.");
-            // Add user/system Task immediately after the precondition
-            process.AddUserAndSystemTask(preconditionOutgoingLink);
-
-            // Update the process to lock by the second user
-            process = _storyteller.UpdateProcess(_secondaryUser, process);
-            //Update Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: T, T, F, F, T, T
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, true });
-            VerifyStatus(process, expectedProcessStatuses);
-
-            // Get the process with the first user
-            process = _storyteller.GetProcess(_primaryUser, process.Id);
-            //Update Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: T, F, F, T, F, T
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, false, false, true, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase]
-        [Description("Lock an existing process by deleting with the second user. Verify that the" +
-     "status of the process model obtained by the first user.")]
-        public void LockArtifactByDeletingWithSecondUser_VerifyTheReturnedProcessStatusWithFirstUser()
-        {
-            // Create and save the process artifact with the second user 
-            var processArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
-            var process = _storyteller.GetProcess(_secondaryUser, processArtifact.Id);
-
-            //Create Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: T, T, F, F, T, F
+            // Expected Status: true, true, false, false, true, fals
             var expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, false });
             VerifyStatus(process, expectedProcessStatuses);
 
@@ -205,8 +159,67 @@ namespace StorytellerTests
 
             // Get the process Artifact after publish
             process = _storyteller.GetProcess(_secondaryUser, process.Id);
-            //Get Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: F, F, F, F, F, T
+
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+
+            // Expected Status: false, false, false, false, false, true 
+            expectedProcessStatuses = new Queue<bool>(new List<bool> { false, false, false, false, false, true });
+            VerifyStatus(process, expectedProcessStatuses);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+            
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+            Assert.IsNotNull(preconditionOutgoingLink, "Outgoing link for the default precondition was not found.");
+            
+            // Add user/system Task immediately after the precondition
+            process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Update the process to lock by the second user
+            process = _storyteller.UpdateProcess(_secondaryUser, process);
+
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+            
+            // Expected Status: true, true, false, false, true, true
+            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, true });
+            VerifyStatus(process, expectedProcessStatuses);
+
+            // Get the process with the first user
+            process = _storyteller.GetProcess(_primaryUser, process.Id);
+            
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+            
+            // Expected Status: true, false, false, true, false, true 
+            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, false, false, true, false, true });
+            VerifyStatus(process, expectedProcessStatuses);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase]
+        [Description("Lock an existing process by deleting with the second user. Verify that the" +
+            "status of the process model obtained by the first user.")]
+        public void LockArtifactByDeletingWithSecondUser_VerifyTheReturnedProcessStatusWithFirstUser()
+        {
+            // Create and save the process artifact with the second user 
+            var processArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _secondaryUser);
+            var process = _storyteller.GetProcess(_secondaryUser, processArtifact.Id);
+
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+
+            // Expected Status: true, true, false, false, true, false 
+            var expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, false });
+            VerifyStatus(process, expectedProcessStatuses);
+
+            // Publish the saved process
+            _storyteller.PublishProcess(_secondaryUser, process);
+
+            // Get the process Artifact after publish
+            process = _storyteller.GetProcess(_secondaryUser, process.Id);
+
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+
+            // Expected Status: false, false, false, false, false, true
             expectedProcessStatuses = new Queue<bool>(new List<bool> { false, false, false, false, false, true });
             VerifyStatus(process, expectedProcessStatuses);
 
@@ -215,48 +228,50 @@ namespace StorytellerTests
 
             // Get the process with the first user
             process = _storyteller.GetProcess(_primaryUser, process.Id);
-            //Update Status: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            //Status: T, F, F, T, F, T
+
+            // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
+
+            // Expected Status: true, false, false, true, false, true
             expectedProcessStatuses = new Queue<bool>(new List<bool> { true, false, false, true, false, true });
-            //VerifyStatus(process, expectedProcessStatuses);
+            VerifyStatus(process, expectedProcessStatuses);
         }
 
         #endregion Tests
 
         /// <summary>
-        /// Verify Status of process by checking the status boolean parameter from the process model
+        /// Verify process status by checking the status boolean parameters from the process model
         /// </summary>
-        /// <param name="process">The process model retrieved from the server side</param>
-        /// <param name="statuses">The list of boolean parameter that represents expected status of the returned process</param>
-        public static void VerifyStatus(IProcess process, Queue<bool> statuses)
+        /// <param name="retrievedProcess">The process model retrieved from the server side</param>
+        /// <param name="expectedStatuses">The list of boolean parameters that represents expected status of the returned process</param>
+        public static void VerifyStatus(IProcess retrievedProcess, Queue<bool> expectedStatuses)
         {
-            ThrowIf.ArgumentNull(process, nameof(process));
+            ThrowIf.ArgumentNull(retrievedProcess, nameof(retrievedProcess));
 
-            ThrowIf.ArgumentNull(statuses, nameof(statuses));
+            ThrowIf.ArgumentNull(expectedStatuses, nameof(expectedStatuses));
 
-            var retrivedProcessStatus = process.Status;
+            var retrivedProcessStatus = retrievedProcess.Status;
 
-            Assert.That(retrivedProcessStatus.IsLocked.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsLocked.Equals(expectedStatuses.Dequeue()),
                 "IsLocked from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsLocked, !retrivedProcessStatus.IsLocked);
 
-            Assert.That(retrivedProcessStatus.IsLockedByMe.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsLockedByMe.Equals(expectedStatuses.Dequeue()),
                 "IsLockedByMe from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsLockedByMe, !retrivedProcessStatus.IsLockedByMe);
 
-            Assert.That(retrivedProcessStatus.IsDeleted.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsDeleted.Equals(expectedStatuses.Dequeue()),
                 "IsDeleted from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsDeleted, !retrivedProcessStatus.IsDeleted);
 
-            Assert.That(retrivedProcessStatus.IsReadOnly.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsReadOnly.Equals(expectedStatuses.Dequeue()),
                 "IsReadOnly from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsReadOnly, !retrivedProcessStatus.IsReadOnly);
 
-            Assert.That(retrivedProcessStatus.IsUnpublished.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsUnpublished.Equals(expectedStatuses.Dequeue()),
                 "IsUnpublished from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsUnpublished, !retrivedProcessStatus.IsUnpublished);
 
-            Assert.That(retrivedProcessStatus.HasEverBeenPublished.Equals(statuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.HasEverBeenPublished.Equals(expectedStatuses.Dequeue()),
                 "HasEverBeenPublished from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.HasEverBeenPublished, !retrivedProcessStatus.HasEverBeenPublished);
         }

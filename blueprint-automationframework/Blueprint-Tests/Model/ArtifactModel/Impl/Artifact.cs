@@ -68,28 +68,6 @@ namespace Model.ArtifactModel.Impl
             SaveArtifact(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
-        public void Publish(IUser user = null,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform Publish.");
-                user = CreatedBy;
-            }
-
-            var artifactToPublish = new List<IArtifactBase> { this };
-
-            PublishArtifacts(
-                artifactToPublish, 
-                Address, 
-                user,
-                shouldKeepLock,
-                expectedStatusCodes, 
-                sendAuthorizationAsCookie);
-        }
-
         public List<DiscardArtifactResult> Discard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -132,26 +110,6 @@ namespace Model.ArtifactModel.Impl
                 sendAuthorizationAsCookie);
 
             return discardArtifactResults;
-        }
-        public List<DeleteArtifactResult> Delete(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
-        {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform Delete.");
-                user = CreatedBy;
-            }
-
-            var deleteArtifactResults = DeleteArtifact(
-                this,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren);
-
-            return deleteArtifactResults;
         }
 
         public int GetVersion(IUser user = null,
@@ -456,58 +414,6 @@ namespace Model.ArtifactModel.Impl
                 artifactsToDiscard.Count, discardedResultList.Count);
 
             return discardedResultList;
-        }
-        
-        /// <summary>
-        /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts)
-        /// </summary>
-        /// <param name="artifactsToPublish">The list of artifacts to publish</param>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
-        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
-            string address,
-            IUser user,
-            bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            return OpenApiArtifact.PublishArtifacts(
-                artifactsToPublish,
-                address,
-                user,
-                shouldKeepLock,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-        }
-
-        /// <summary>
-        /// Delete a single artifact on Blueprint server.
-        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
-        /// </summary>
-        /// <param name="artifactToDelete">The artifact to delete</param>
-        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
-        {
-            return OpenApiArtifact.DeleteArtifact(
-                artifactToDelete,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren);
         }
 
         /// <summary>

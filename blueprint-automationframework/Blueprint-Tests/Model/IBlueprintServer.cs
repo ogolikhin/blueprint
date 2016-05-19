@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Utilities.Facades;
 
 namespace Model
 {
-    public interface IBlueprintServer
+    public interface IBlueprintServer : IDisposable
     {
         string Address { get; }
 

@@ -331,5 +331,49 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IAdminStore
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AdminStore), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in Sessions.ToArray())
+                {
+                    // AdminStore removes and adds a new session in some cases, so we should expect a 401 error in some cases.
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
+                    DeleteSession(session, expectedStatusCodes);
+                }
+
+                Sessions.Clear();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

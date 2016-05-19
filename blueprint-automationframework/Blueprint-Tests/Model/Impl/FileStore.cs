@@ -14,6 +14,7 @@ namespace Model.Impl
     {
         private const string SVC_PATH = "svc/filestore";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+        private IUser _user = null;
 
         #region Inherited from IFileStore
 
@@ -211,6 +212,12 @@ namespace Model.Impl
 
             Files.Add(file);
 
+            // We'll use this user in Dispose() to delete the files.
+            if (_user == null)
+            {
+                _user = user;
+            }
+
             return file;
         }
 
@@ -312,5 +319,55 @@ namespace Model.Impl
         }
 
         #endregion Inherited from IFileStore
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all files that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(FileStore), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                Logger.WriteDebug("Deleting all files created by this FileStore instance...");
+
+                if (Files.Count > 0)
+                {
+                    Assert.NotNull(_user,
+                        "It shouldn't be possible for the '{0}' member variable to be null if files were added to Filestore!", nameof(_user));
+                }
+
+                // Delete all the files that were created.
+                foreach (var file in Files.ToArray())
+                {
+                    DeleteFile(file.Id, _user);
+                }
+
+                Files.Clear();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

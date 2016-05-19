@@ -55,6 +55,10 @@ namespace Model.Impl
             return user.Token;
         }
 
+        #endregion Public functions
+
+        #region Inherited from IBlueprintServer
+
         /// <summary>
         /// Login to the Blueprint server using the Basic authorization method.
         /// </summary>
@@ -139,8 +143,43 @@ namespace Model.Impl
             return GetStatusUpcheck("svc", expectedStatusCodes);
         }
 
-        #endregion Public functions
+        #endregion Inherited from IBlueprintServer
 
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting anything created by this object.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(BlueprintServer), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // TODO: Delete any resources created by this class.
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting anything created by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
 
         #region Private functions
 

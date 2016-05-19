@@ -19,11 +19,17 @@ namespace AdminStore.Controllers
         {
             //Arrange
             var folderId = 99;
+            var userId = 9;
+            var session = new Session { UserId = userId };
             var folder = new InstanceItem { Id = folderId };
             var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
-            mockInstanceRepository.Setup(r => r.GetInstanceFolderAsync(folderId)).ReturnsAsync(folder);
+            mockInstanceRepository.Setup(r => r.GetInstanceFolderAsync(folderId, userId)).ReturnsAsync(folder);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object);
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             //Act
             var result = await instanceController.GetInstanceFolderAsync(folderId);

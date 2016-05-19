@@ -23,12 +23,8 @@ namespace AdminStore.Models
         [JsonProperty]
         public InstanceItemTypeEnum Type { get; set; }
 
-        
-        public bool HasChildren {
-            get {
-                return this.Type == InstanceItemTypeEnum.Folder;
-            }
-        }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? HasChildren { get; set; }
 
         [JsonIgnore]
         public bool? IsAccesible { get; set; }

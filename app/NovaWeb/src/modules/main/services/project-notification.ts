@@ -4,8 +4,8 @@ import {NotificationService} from "../../core/notification";
 export enum SubscriptionEnum {
     ProjectLoad,
     ProjectLoaded,
-    ProjectNodeLoad,
-    ProjectNodeLoaded,
+    ProjectChildrenLoad,
+    ProjectChildrenLoaded,
     ProjectClose,
     ProjectClosed,
     CurrentProjectChanged,
@@ -28,7 +28,7 @@ export class ProjectNotification extends NotificationService implements IProject
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.notifyTo(SubscriptionEnum[type], prms);
+        this.dispatch(SubscriptionEnum[type], prms);
     }
 };
 

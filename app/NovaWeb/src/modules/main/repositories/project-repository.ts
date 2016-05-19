@@ -1,18 +1,20 @@
-﻿import * as Data from "./artifacts";
+﻿import * as Models from "../models/models";
 import {IProjectService} from "../services/project.svc";
 import {IProjectNotification, SubscriptionEnum } from "../services/project-notification";
 
-export {SubscriptionEnum, Data}
+export {SubscriptionEnum, Models}
 
 export interface IProjectRepository {
-    service: IProjectService;
+    //service: IProjectService;
     Notificator: IProjectNotification;
-    ProjectCollection: Data.IProject[];
-    CurrentProject: Data.IProject;
+    ProjectCollection: Models.IProject[];
+    CurrentProject: Models.IProject;
+
+    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>
 }
 
 export class ProjectRepository implements IProjectRepository {
-    private _currentProjet: Data.IProject;
+    private _currentProjet: Models.IProject;
 
     static $inject: [string] = ["projectService", "projectNotification"];
     constructor(
@@ -21,25 +23,22 @@ export class ProjectRepository implements IProjectRepository {
 
         //subscribe to event
         this.notificator.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
-        this.notificator.subscribe(SubscriptionEnum.ProjectNodeLoad, this.loadChildren.bind(this));
+        this.notificator.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this));
         this.notificator.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
     }
 
-    public ProjectCollection: Data.IProject[] = [];
-
-    public get service(): IProjectService {
-        return this._service;
-    }
+    public ProjectCollection: Models.IProject[] = [];
 
     public get Notificator(): IProjectNotification {
         return this.notificator;
     }
 
-    public set CurrentProject(project: Data.IProject) {
+    public set CurrentProject(project: Models.IProject) {
         this._currentProjet = project;
         this.notificator.notify(SubscriptionEnum.CurrentProjectChanged, this._currentProjet);
     }
-    public get CurrentProject(): Data.IProject {
+
+    public get CurrentProject(): Models.IProject {
         return this._currentProjet;
     }
 
@@ -53,10 +52,9 @@ export class ProjectRepository implements IProjectRepository {
             this.CurrentProject = project;
             self.notificator.notify(SubscriptionEnum.ProjectLoaded, self.CurrentProject, true);
         } else {
-
-            this.service.getProject(projectId)
-                .then((result: Data.IProjectItem[]) => {
-                    project = new Data.Project(result);
+            this._service.getProject(projectId)
+                .then((result: Models.IProjectItem[]) => {
+                    project = new Models.Project(result);
                     project.id = projectId;
                     project.name = projectName;
                     self.ProjectCollection.push(project);
@@ -68,15 +66,15 @@ export class ProjectRepository implements IProjectRepository {
         }
     }
 
-    private loadChildren = (projectId: number, artifactId: number) => {
+    private loadProjectChildren = (projectId: number, artifactId: number) => {
         let self = this;
 
-        this.service.getProject(projectId, artifactId)
-            .then((result: Data.IProjectItem[]) => {
+        this._service.getProject(projectId, artifactId)
+            .then((result: Models.IProjectItem[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
                 if (node) {
                     node.artifacts = result;
-                    self.notificator.notify(SubscriptionEnum.ProjectNodeLoaded, this.CurrentProject, artifactId);
+                    self.notificator.notify(SubscriptionEnum.ProjectChildrenLoaded, this.CurrentProject, artifactId);
                 }
             }).catch(() => {
 
@@ -85,8 +83,8 @@ export class ProjectRepository implements IProjectRepository {
 
     private closeProject(allFlag: boolean) {
         let self = this;
-        let projectsToRemove: Data.IProject[] = [];
-        this.ProjectCollection = this.ProjectCollection.filter(function (it: Data.IProject) {
+        let projectsToRemove: Models.IProject[] = [];
+        this.ProjectCollection = this.ProjectCollection.filter(function (it: Models.IProject) {
             let result = true;
             if (allFlag || it.id === self.CurrentProject.id) {
                 projectsToRemove.push(it);
@@ -98,4 +96,7 @@ export class ProjectRepository implements IProjectRepository {
         this.CurrentProject = this.ProjectCollection[0] || null;
     }
 
+    public getFolders(id?: number) {
+        return this._service.getFolders(id);
+    }
 }

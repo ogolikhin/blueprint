@@ -24,13 +24,19 @@ class ProjectExplorerController {
     }
 
     public $onInit = () => {
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectNodeLoaded, this.loadProjectNode.bind(this));
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
         this.repository.Notificator.subscribe(Repository.SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
+        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     };
 
-    private loadProject = (project: Repository.Data.IProject, alreadyOpened: boolean) => {
+    private activateProject() {
+        if (this.repository.CurrentProject) {
+            this.selectItem(this.repository.CurrentProject.id);
+        }
+    }
+
+    private loadProject = (project: Repository.Models.IProject, alreadyOpened: boolean) => {
         if (alreadyOpened) {
             this.tree.selectNode(project.id);
             return;
@@ -46,22 +52,20 @@ class ProjectExplorerController {
         this.tree.setDataSource(project.artifacts, project.id);
     }
 
-    private activateProject() {
-        if (this.repository.CurrentProject) {
-            this.tree.selectNode(this.repository.CurrentProject.id);
-        }
-    }
-
-    public loadProjectNode = (project: Repository.Data.IProject, artifactId) => {
+    private loadProjectChildren = (project: Repository.Models.IProject, artifactId) => {
         var nodes = project.getArtifact(artifactId).artifacts;
         this.tree.setDataSource(nodes, artifactId);
     }
 
-    public closeProject(projects: Repository.Data.IProject[]) {
-        projects.map(function (it: Repository.Data.IProject) {
+    private closeProject(projects: Repository.Models.IProject[]) {
+        projects.map(function (it: Repository.Models.IProject) {
             this.tree.removeNode(it.id);
         }.bind(this)); 
         this.tree.setDataSource();
+    }
+
+    private selectItem(id: number) {
+        this.tree.selectNode(this.repository.CurrentProject.id);
     }
 
     public columns = [{
@@ -78,41 +82,28 @@ class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
-            return null;
+            return null;    
         }
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
-        //notify the service to load the node children
-        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectNodeLoad, this.repository.CurrentProject.id, artifactId);
+        //notify the repository to load the node children
+        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectChildrenLoad, this.repository.CurrentProject.id, artifactId);
     };
 
-    public selectElement = (item: any) => {
+    public doSelect = (item: any) => {
         //check passed in parameter
-        this.$scope.$applyAsync((s) => {
-            this.selectedItem = item;
-            if (item.Description) {
-                var description = item.description;
-                var virtualDiv = window.document.createElement("DIV");
-                virtualDiv.innerHTML = description;
-                var aTags = virtualDiv.querySelectorAll("a");
-                for (var a = 0; a < aTags.length; a++) {
-                    aTags[a].setAttribute("target", "_blank");
-                }
-                description = virtualDiv.innerHTML;
-                //self.selectedItem.Description = this.$sce.trustAsHtml(description);
-            }
-        });
+        //this.$scope.$applyAsync((s) => {});
+        this.selectItem(item);
     };
 
     public doRowClick = (prms: any) => {
 //        var selectedNode = prms.node;
         var cell = prms.eventSource.eBodyRow.firstChild;
         if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
-            //console.log("clicked on row: I should load artifact [" + selectedNode.data.id + ": " + selectedNode.data.name + "]");
+            //console.log("clicked on row: I should load artifact [" + selectedNode.Models.id + ": " + selectedNode.Models.name + "]");
         }
     };
 }

@@ -1,6 +1,6 @@
 ﻿import "angular";
 
-export interface IItem {
+interface IItem {
     id: number;
     name: string;
     typeId: number;

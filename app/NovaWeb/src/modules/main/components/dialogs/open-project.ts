@@ -1,9 +1,9 @@
 ﻿import "angular";
+import {Helper} from "../../../core/utils/helper";
 import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
-
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as Repository from "../../repositories/project-repository";
+import {IProjectManager} from "../../managers/project-manager";
 
 export interface IOpenProjectResult {
     id: number;
@@ -16,12 +16,12 @@ export class OpenProjectController extends BaseDialogController {
     private selectedItem: any;
     private tree: IBPTreeController; 
     
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private repository: Repository.IProjectRepository,
+        private projectManager: IProjectManager,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
@@ -42,12 +42,6 @@ export class OpenProjectController extends BaseDialogController {
         return this.selectedItem && this.selectedItem.type === `Project`;
     }
 
-    public escapeHTMLText = (stringToEscape: string): string =>  {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
-    };
-
     private onEnterKeyOnProject = (e: any) => {
         var key = e.which || e.keyCode;
         if (key === 13) {
@@ -67,7 +61,7 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = this.escapeHTMLText(params.data.name);
+                var sanitizedName = Helper.escapeHTMLText(params.data.name);
 
                 if (params.data.type === "Project") {
                     var cell = params.eGridCell;
@@ -85,7 +79,7 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.repository.getFolders(id)
+        this.projectManager.getFolders(id)
             .then((data: any[]) => { //pSvc.IProjectNode[]
                 self.tree.setDataSource(data, id);
             }, (error) => {

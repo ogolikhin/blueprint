@@ -23,6 +23,15 @@ export interface IProject {
     getArtifact(id: number, node?: IProjectItem[]): IProjectItem;
 }
 
+export interface IProjectNode {
+    type: string;
+    id: number;
+    parentFolderId: number;
+    name: string;
+    description?: string;
+    children?: IProjectNode[];
+}
+
 export class Project implements IProject {
     public id: number;
     public name: string;
@@ -50,11 +59,4 @@ export class Project implements IProject {
 
 }
 
-export interface IProjectNode {
-    type: string;
-    id: number;
-    parentFolderId: number;
-    name: string;
-    description?: string;
-    children?: IProjectNode[];
-}
+

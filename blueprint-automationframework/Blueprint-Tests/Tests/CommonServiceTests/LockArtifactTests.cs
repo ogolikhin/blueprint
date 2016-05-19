@@ -117,7 +117,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            var lockResultInfo = artifact.Lock(_user);
+            var lockResultInfo = artifact.Lock();
 
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
@@ -142,6 +142,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
+            // Second user locks the artifact
             var lockResultInfo = artifact.Lock(_user2);
 
             // Assert that the lock was successfully obtained
@@ -167,8 +168,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            // first user locks the artifact
-            artifact.Lock(_user);
+            artifact.Lock();
 
             // Assert that the second user cannot save the artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
@@ -206,10 +206,7 @@ namespace CommonServiceTests
             // Publish artifact to ensure no lock remains on the newly created artifact
             artifact.Publish();
 
-            var artifactsToLock = new List<IArtifactBase> { artifact };
-
-            // first user locks the artifact
-            Artifact.LockArtifacts(artifactsToLock, _blueprintServer.Address, _user);
+            artifact.Lock();
 
             // Assert that the second user cannot publish the artifact
             var ex = Assert.Throws<Http409ConflictException>(() =>
@@ -276,30 +273,94 @@ namespace CommonServiceTests
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [TestRail(107366)]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLockForArtifactWithAuthorizationAsCookie_VerifyLockObtained()
+        [Description("Attempt to lock artifact by sending authorization as a cookie instead of as a header.  Verify that" +
+                     "the lock is obtained.")]
+        public void GetLockForArtifactWithAuthorizationAsCookie_VerifyLockObtained(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
+            artifact.Save();
+
+            // Publish artifact to ensure no lock remains on the newly created artifact
+            artifact.Publish();
+
+            var lockResultInfo = artifact.Lock(sendAuthorizationAsCookie: true);
+
+            // Assert that the lock was successfully obtained
+            Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
+                                                                       "the artifact was not locked by any user.");
+
+            // Assert that user can Publish the artifact to verify that the lock was actually obtained
+            Assert.DoesNotThrow(() =>
+                artifact.Publish(),
+                "The user was unable to Publish the artifact even though the lock appears to have been obtained successfully."
+                );
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLockForVariousArtifactTypes_VerifyLocksObtained()
+        [TestRail(107368)]
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.Document)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [Description("User attempts to get a lock for various artifact types.  Verify that the lock is obtained.")]
+        public void GetLockForVariousArtifactTypes_VerifyLocksObtained(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
+
+            // Adds the artifact
+            artifact.Save();
+
+            // Publish artifact to ensure no lock remains on the newly created artifact
+            artifact.Publish();
+
+            var lockResultInfo = artifact.Lock();
+
+            // Assert that the lock was successfully obtained
+            Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
+                                                                       "the artifact was not locked by any user.");
+
+            // Assert that user can Publish the artifact to verify that the lock was actually obtained
+            Assert.DoesNotThrow(() =>
+                artifact.Publish(),
+                "The user was unable to Publish the artifact even though the lock appears to have been obtained successfully."
+                );
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [TestRail(107378)]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLockForArtifactWhenLockAlreadyExistsForUser_VerifyLockObtained()
+        [Description("User attempts to get a lock when they already have a lock on the artifact.  Verify that the lock is obtained.")]
+        public void GetLockForArtifactWhenLockAlreadyExistsForUser_VerifyLockObtained(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
+
+            // Adds the artifact
+            artifact.Save();
+
+            artifact.Publish();
+
+            // Saves the artifact
+            artifact.Save();
+
+            // Attempt to lock artifact that already has been locked due to the save
+            var lockResultInfo = artifact.Lock();
+
+            // Assert that the lock was successfully obtained
+            Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
+                                                                       "the artifact was already locked by the user.");
+
+            // Assert that user can Publish the artifact to verify that the lock was actually obtained
+            Assert.DoesNotThrow(() =>
+                artifact.Publish(),
+                "The user was unable to Publish the artifact even though the lock appears to have been obtained successfully."
+                );
         }
 
         #region Private Methods

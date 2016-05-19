@@ -24,8 +24,10 @@ namespace Model.ArtifactModel.Impl
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]
         public IArtifact Artifact { get; set; }
+        public int ArtifactId { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }
+        public int ProjectId { get; set; }
     }
 
     public class OpenApiArtifactResult

@@ -248,7 +248,7 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToUpdate.ProjectId);
 
             //TODO: Remove this when solution to have the property to update configurable
-            var propertyToSave = artifactToUpdate.Properties.First(p => p.Name == "Description");
+            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
 
             // Todo: Expland this to have the properties to update configurable
             // Create a copy of the artifact to update that only includes the properties to be updated
@@ -259,7 +259,7 @@ namespace Model.ArtifactModel.Impl
                 {
                     new PropertyForUpdate
                     {
-                        PropertyTypeId = propertyToSave.PropertyTypeId,
+                        PropertyTypeId = propertyToUpdate.PropertyTypeId,
                         TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
                     }
                 }
@@ -275,14 +275,14 @@ namespace Model.ArtifactModel.Impl
             Assert.That(updateResultList.Count == 1, "Only a single artifact was updated, but multiple artifact results were returned");
 
             // Get the updated artifact from the result list
-            var updateResult = updateResultList.Find(a => a.Artifact.Id == artifactToUpdate.Id);
+            var updateResult = updateResultList.Find(a => a.ArtifactId == artifactToUpdate.Id);
 
             if (updateResult.ResultCode == HttpStatusCode.OK)
             {
-                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}", updateResult.Artifact.Id, updateResult.ResultCode);
+                Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}", updateResult.ArtifactId, updateResult.ResultCode);
 
-                // Copy updated artifact into original artifact
-                ReplacePropertiesWithPropertiesFromSourceArtifact(updateResult.Artifact, artifactToUpdate);
+                // Copy updated property into original artifact
+                propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
 
                 artifactToUpdate.IsSaved = true;
             }

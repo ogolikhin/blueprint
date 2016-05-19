@@ -20,11 +20,11 @@ export interface IProjectNotification  {
 export class ProjectNotification extends NotificationService implements IProjectNotification {
 
     public subscribe(type: SubscriptionEnum, func: Function) {
-        this.signin(SubscriptionEnum[type], func);
+        this.attach(SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
-        this.signout(SubscriptionEnum[type], func);
+        this.detach(SubscriptionEnum[type], func);
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {

@@ -17,19 +17,12 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class ProcessStatusTests
     {
-        // TODO This will need to be updated with the value that cannot does not exist in the system 
-        //Non-existence artifact Id sample
-        private const int NONEXISTENT_ARTIFACT_ID = 99999999;
-        //Invalid process artifact Id sample
-        private const int INVALID_ID = -33;
-
         private IAdminStore _adminStore;
         private IBlueprintServer _blueprintServer;
         private IStoryteller _storyteller;
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
-        private IList<int> _invalidList;
 
         #region Setup and Cleanup
 
@@ -42,8 +35,6 @@ namespace StorytellerTests
             _primaryUser = UserFactory.CreateUserAndAddToDatabase();
             _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
             _project = ProjectFactory.GetProject(_primaryUser, shouldRetrievePropertyTypes: true);
-
-            _invalidList = new List<int>() { NONEXISTENT_ARTIFACT_ID, INVALID_ID }.AsReadOnly();
 
             // Get a valid Access Control token for the user (for the new Storyteller REST calls).
             _adminStore.AddSession(_primaryUser);
@@ -101,17 +92,17 @@ namespace StorytellerTests
                 var savedArtifactsListSecondaryUser = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
-                    if (!_invalidList.Contains(artifact.Id) && artifact.IsPublished)
+                    if (artifact.IsPublished)
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
                     }
 
-                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
+                    if (!artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
                     {
                         savedArtifactsListPrimaryUser.Add(artifact);
                     }
 
-                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
+                    if (!artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
                     {
                         savedArtifactsListSecondaryUser.Add(artifact);
                     }

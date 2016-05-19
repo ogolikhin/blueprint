@@ -1,7 +1,7 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
-import * as Repository from "../../repositories/project-repository";
+import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -13,59 +13,59 @@ class ProjectExplorerController {
     private tree: IBPTreeController;
 
     private selectedItem: any;
-    public static $inject: [string] = ["$scope", "localization", "projectRepository", "$log", "$timeout"];
+    public static $inject: [string] = ["$scope", "localization", "projectManager", "$log", "$timeout"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
-        private repository: Repository.IProjectRepository,
+        private manager: IProjectManager,
         private $log: ng.ILogService,
         private $timeout: ng.ITimeoutService) {
 
     }
 
     public $onInit = () => {
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
-        this.repository.Notificator.subscribe(Repository.SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+        this.manager.subscribe(SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
+        this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
+        this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     };
 
     private activateProject() {
-        if (this.repository.CurrentProject) {
-            this.selectItem(this.repository.CurrentProject.id);
+        if (this.manager.CurrentProject) {
+            this.selectItem(this.manager.CurrentProject.id);
         }
     }
 
-    private loadProject = (project: Repository.Models.IProject, alreadyOpened: boolean) => {
+    private loadProject = (project: Models.IProject, alreadyOpened: boolean) => {
         if (alreadyOpened) {
             this.tree.selectNode(project.id);
             return;
         };
         this.tree.addNode(<ITreeNode>{
             id: project.id,
-            type: `Project`,
+            type: 1,
             name: project.name,
             hasChildren: true,
             open: true
         }); 
         
-        this.tree.setDataSource(project.artifacts, project.id);
+        this.tree.setDataSource(project.children, project.id);
     }
 
-    private loadProjectChildren = (project: Repository.Models.IProject, artifactId) => {
-        var nodes = project.getArtifact(artifactId).artifacts;
+    private loadProjectChildren = (project: Models.IProject, artifactId) => {
+        var nodes = project.getArtifact(artifactId).children;
         this.tree.setDataSource(nodes, artifactId);
     }
 
-    private closeProject(projects: Repository.Models.IProject[]) {
-        projects.map(function (it: Repository.Models.IProject) {
+    private closeProject(projects: Models.IProject[]) {
+        projects.map(function (it: Models.IProject) {
             this.tree.removeNode(it.id);
         }.bind(this)); 
         this.tree.setDataSource();
     }
 
     private selectItem(id: number) {
-        this.tree.selectNode(this.repository.CurrentProject.id);
+        this.tree.selectNode(this.manager.CurrentProject.id);
     }
 
     public columns = [{
@@ -73,8 +73,8 @@ class ProjectExplorerController {
         field: "name",
         cellClassRules: {
             "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === "Folder"; },
-            "is-project": function (params) { return params.data.type === "Project"; }
+            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
         suppressMenu: true, 
@@ -90,7 +90,7 @@ class ProjectExplorerController {
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
         //notify the repository to load the node children
-        this.repository.Notificator.notify(Repository.SubscriptionEnum.ProjectChildrenLoad, this.repository.CurrentProject.id, artifactId);
+        this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
     };
 
     public doSelect = (item: any) => {
@@ -99,11 +99,4 @@ class ProjectExplorerController {
         this.selectItem(item);
     };
 
-    public doRowClick = (prms: any) => {
-//        var selectedNode = prms.node;
-        var cell = prms.eventSource.eBodyRow.firstChild;
-        if (cell.className.indexOf("ag-cell-inline-editing") === -1) {
-            //console.log("clicked on row: I should load artifact [" + selectedNode.Models.id + ": " + selectedNode.Models.name + "]");
-        }
-    };
 }

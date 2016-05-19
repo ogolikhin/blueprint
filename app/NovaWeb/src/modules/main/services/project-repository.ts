@@ -5,12 +5,12 @@ import * as Models from "../models/models";
 
 export {Models}
 
-export interface IProjectService {
+export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]>;
+    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
 }
 
-export class ProjectService implements IProjectService {
+export class ProjectRepository implements IProjectRepository {
     static $inject: [string] = ["$q", "$http", "localization", "projectNotification"];
 
     constructor(
@@ -35,7 +35,7 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]> {
+    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
         if (!projectId) {
             throw new Error("Inavlid parameter ");
@@ -44,7 +44,7 @@ export class ProjectService implements IProjectService {
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
 
         this.$http.get<any>(url)
-            .success((result: Models.IProjectItem[]) => {
+            .success((result: Models.IArtifact[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {

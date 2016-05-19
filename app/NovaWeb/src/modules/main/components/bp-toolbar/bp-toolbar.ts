@@ -2,7 +2,7 @@
 import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
 import {IProjectNotification, SubscriptionEnum} from "../../services/project-notification";
-import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project.ctrl";
+import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;

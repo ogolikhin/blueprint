@@ -1,24 +1,26 @@
 ﻿import * as Models from "../models/models";
-import {IProjectService} from "../services/project.svc";
+import {IProjectRepository} from "../services/project-repository";
 import {IProjectNotification, SubscriptionEnum } from "../services/project-notification";
 
 export {SubscriptionEnum, Models}
 
-export interface IProjectRepository {
-    //service: IProjectService;
-    Notificator: IProjectNotification;
+export interface IProjectManager {
+    // Notification
+    subscribe(type: SubscriptionEnum, func: Function);
+    notify(type: SubscriptionEnum, ...prms: any[]);
+
     ProjectCollection: Models.IProject[];
     CurrentProject: Models.IProject;
 
-    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>
+    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 }
 
-export class ProjectRepository implements IProjectRepository {
+export class ProjectManager implements IProjectManager {
     private _currentProjet: Models.IProject;
 
-    static $inject: [string] = ["projectService", "projectNotification"];
+    static $inject: [string] = ["projectRepository", "projectNotification"];
     constructor(
-        private _service: IProjectService,
+        private _repository: IProjectRepository,
         private notificator: IProjectNotification) {
 
         //subscribe to event
@@ -27,11 +29,14 @@ export class ProjectRepository implements IProjectRepository {
         this.notificator.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
     }
 
-    public ProjectCollection: Models.IProject[] = [];
+    public subscribe(type: SubscriptionEnum, func: Function) {
+        this.notificator.subscribe(type, func);
+    };
+    public notify(type: SubscriptionEnum, ...prms: any[]) {
+        this.notificator.notify(type, ...prms);
+    };
 
-    public get Notificator(): IProjectNotification {
-        return this.notificator;
-    }
+    public ProjectCollection: Models.IProject[] = [];
 
     public set CurrentProject(project: Models.IProject) {
         this._currentProjet = project;
@@ -52,16 +57,17 @@ export class ProjectRepository implements IProjectRepository {
             this.CurrentProject = project;
             self.notificator.notify(SubscriptionEnum.ProjectLoaded, self.CurrentProject, true);
         } else {
-            this._service.getProject(projectId)
-                .then((result: Models.IProjectItem[]) => {
+            this._repository.getProject(projectId)
+                .then((result: Models.IArtifact[]) => {
                     project = new Models.Project(result);
                     project.id = projectId;
                     project.name = projectName;
                     self.ProjectCollection.push(project);
                     self.notificator.notify(SubscriptionEnum.ProjectLoaded, project, false);
                     self.CurrentProject = project;
-                }).catch(() => {
-
+                }).catch((error: any) => {
+                    //TODO: show error
+                    console.log(error.message);
                 });
         }
     }
@@ -69,11 +75,11 @@ export class ProjectRepository implements IProjectRepository {
     private loadProjectChildren = (projectId: number, artifactId: number) => {
         let self = this;
 
-        this._service.getProject(projectId, artifactId)
-            .then((result: Models.IProjectItem[]) => {
+        this._repository.getProject(projectId, artifactId)
+            .then((result: Models.IArtifact[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
                 if (node) {
-                    node.artifacts = result;
+                    node.children = result;
                     self.notificator.notify(SubscriptionEnum.ProjectChildrenLoaded, this.CurrentProject, artifactId);
                 }
             }).catch(() => {
@@ -97,6 +103,6 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     public getFolders(id?: number) {
-        return this._service.getFolders(id);
+        return this._repository.getFolders(id);
     }
 }

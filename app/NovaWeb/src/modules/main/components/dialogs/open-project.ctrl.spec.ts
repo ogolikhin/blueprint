@@ -2,19 +2,14 @@
 import "angular-mocks";
 import {IOpenProjectResult, OpenProjectController} from "./open-project.ctrl";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
-import {ProjectServiceMock} from "../../services/project.svc.spec";
+import {ProjectRepositoryMock} from "../../services/project-repository.spec";
 
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
-    constructor() {
-    }
+    public close(result?: any): void {}
 
-    public close(result?: any): void {
-    }
-
-    public dismiss(reason?: any): void {
-    }
+    public dismiss(reason?: any): void {}
 
     public result: angular.IPromise<any>;
 

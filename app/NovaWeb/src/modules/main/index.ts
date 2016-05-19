@@ -6,9 +6,9 @@ import * as agGrid from "ag-grid/main";
 import "ag-grid-enterprise/main";
 import "ng-draggable";
 import "../shell";
-import {ProjectService} from "./services/project.svc";
+import {ProjectRepository} from "./services/project-repository";
 import {ProjectNotification} from "./services/project-notification";
-import {ProjectRepository} from "./repositories/project-repository";
+import {ProjectManager} from "./managers/project-manager";
 
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {BPTreeInlineEditing} from "../core/widgets/bp-tree-inline-editing/bp-tree-inline-editing";
@@ -36,9 +36,9 @@ export function config($rootScope: ng.IRootScopeService) {
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable"])
     .run(config)
-    .service("projectService", ProjectService)
     .service("projectNotification", ProjectNotification)
     .service("projectRepository", ProjectRepository)
+    .service("projectManager", ProjectManager)
     .component("bpTree", new BPTreeComponent())
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())

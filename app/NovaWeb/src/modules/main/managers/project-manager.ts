@@ -1,24 +1,28 @@
 ﻿import * as Models from "../models/models";
-import {IProjectService} from "../services/project.svc";
+import {IProjectRepository} from "../services/project-repository";
 import {IProjectNotification, SubscriptionEnum } from "../services/project-notification";
 
 export {SubscriptionEnum, Models}
 
-export interface IProjectRepository {
-    //service: IProjectService;
-    Notificator: IProjectNotification;
+export interface IProjectManager {
+    // Notification
+    subscribe(type: SubscriptionEnum, func: Function);
+    notify(type: SubscriptionEnum, ...prms: any[]);
+
     ProjectCollection: Models.IProject[];
     CurrentProject: Models.IProject;
 
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>
+
+
 }
 
-export class ProjectRepository implements IProjectRepository {
+export class ProjectManager implements IProjectManager {
     private _currentProjet: Models.IProject;
 
-    static $inject: [string] = ["projectService", "projectNotification"];
+    static $inject: [string] = ["projectRepository", "projectNotification"];
     constructor(
-        private _service: IProjectService,
+        private _service: IProjectRepository,
         private notificator: IProjectNotification) {
 
         //subscribe to event
@@ -27,11 +31,14 @@ export class ProjectRepository implements IProjectRepository {
         this.notificator.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
     }
 
-    public ProjectCollection: Models.IProject[] = [];
+    public subscribe(type: SubscriptionEnum, func: Function) {
+        this.notificator.subscribe(type, func);
+    };
+    public notify(type: SubscriptionEnum, ...prms: any[]) {
+        this.notificator.notify(type, ...prms);
+    };
 
-    public get Notificator(): IProjectNotification {
-        return this.notificator;
-    }
+    public ProjectCollection: Models.IProject[] = [];
 
     public set CurrentProject(project: Models.IProject) {
         this._currentProjet = project;

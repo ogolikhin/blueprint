@@ -5,12 +5,12 @@ import * as Models from "../models/models";
 
 export {Models}
 
-export interface IProjectService {
+export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]>;
 }
 
-export class ProjectService implements IProjectService {
+export class ProjectRepository implements IProjectRepository {
     static $inject: [string] = ["$q", "$http", "localization", "projectNotification"];
 
     constructor(

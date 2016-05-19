@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {IProjectService, ProjectService, Models} from "./project.svc";
+import {IProjectRepository, ProjectRepository, Models} from "./project-repository";
 import {IProjectNotification, SubscriptionEnum} from "./project-notification";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
 
@@ -14,7 +14,7 @@ class ProjectNotificationMock implements IProjectNotification {
     };
 }
 
-export class ProjectServiceMock implements IProjectService {
+export class ProjectRepositoryMock implements IProjectRepository {
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
 
@@ -62,13 +62,13 @@ export class ProjectServiceMock implements IProjectService {
 describe("ProjectService", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("projectService", ProjectService);
+        $provide.service("projectRepository", ProjectRepository);
         $provide.service("projectNotification", ProjectNotificationMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
 
     describe("getFolders", () => {
-        it("resolve successfully - one older", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+        it("resolve successfully - one older", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
                 // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
                 .respond(200, <Models.IProjectNode[]>[
@@ -79,7 +79,7 @@ describe("ProjectService", () => {
                 // Act
             var error: any;
             var data: Models.IProjectNode[];
-            projectService.getFolders().then((responce) => { data = responce; }, (err) => error = err);
+            projectRepository.getFolders().then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert
@@ -91,7 +91,7 @@ describe("ProjectService", () => {
             $httpBackend.verifyNoOutstandingRequest();
             }));
         });
-        it("resolve unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+        it("resolve unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectRepository: IProjectRepository) => {
             // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/5/children")
                 .respond(200, <any[]>[]
@@ -100,7 +100,7 @@ describe("ProjectService", () => {
             // Act
             var error: any;
             var data: Models.IProjectNode[];
-            projectService.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
+            projectRepository.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 
             // Assert

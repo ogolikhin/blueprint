@@ -52,7 +52,8 @@ namespace AdminStore.Controllers
         [ActionName("GetInstanceFolder")]
         public async Task<InstanceItem> GetInstanceFolderAsync(int id)
         {
-            return await _instanceRepository.GetInstanceFolderAsync(id);
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await _instanceRepository.GetInstanceFolderAsync(id, session.UserId);
         }
 
         /// <summary>

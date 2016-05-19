@@ -6,7 +6,7 @@ namespace AdminStore.Repositories
 {
     public interface ISqlInstanceRepository
     {
-        Task<InstanceItem> GetInstanceFolderAsync(int folderId);
+        Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId);
 
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId);
 

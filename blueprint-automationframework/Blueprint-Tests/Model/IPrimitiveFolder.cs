@@ -16,6 +16,6 @@ namespace Model.Impl
         string FolderName { get; }
 
         [JsonProperty("Type")]
-        string InstanceType { get; }
+        int InstanceType { get; }
     }
 }

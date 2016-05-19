@@ -6,8 +6,6 @@ using Model;
 using Model.Factories;
 using Utilities;
 using System.Net;
-using System.Collections.Generic;
-
 
 namespace AdminStoreTests
 {

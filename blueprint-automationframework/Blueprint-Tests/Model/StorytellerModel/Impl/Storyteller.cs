@@ -348,19 +348,17 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/publish", SVC_PATH, URL_PROCESSES, process.Id);
+            const string path = "/svc/shared/artifacts/publish";
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            var publishProcessResult = restApi.SendRequestAndGetResponse(
-                path, 
-                RestRequestMethod.POST, 
+            restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST, new List<int> { process.Id },
                 expectedStatusCodes: expectedStatusCodes);
 
             // Mark artifact in artifact list as published
             MarkArtifactAsPublished(process.Id);
 
-            return publishProcessResult.Content;
+            return restApi.Content;
         }
 
         public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,

@@ -28,7 +28,7 @@ export class ProjectNotification extends NotificationService implements IProject
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.dispatch(SubscriptionEnum[type], prms);
+        this.dispatch(SubscriptionEnum[type], ...prms);
     }
 };
 

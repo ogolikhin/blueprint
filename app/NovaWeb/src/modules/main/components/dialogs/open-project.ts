@@ -39,7 +39,7 @@ export class OpenProjectController extends BaseDialogController {
         };
     };
     public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.type === 1;
+        return this.selectedItem && this.selectedItem.type === Models.ArtifactTypeEnum.Folder;
     }
 
     private onEnterKeyOnProject = (e: any) => {
@@ -55,8 +55,8 @@ export class OpenProjectController extends BaseDialogController {
         field: "name",
         cellClassRules: {
             "has-children": function(params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === 0; },
-            "is-project": function (params) { return params.data.type === 1; }
+            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
         cellRendererParams: {

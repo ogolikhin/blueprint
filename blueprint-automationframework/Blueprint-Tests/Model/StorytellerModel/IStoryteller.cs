@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel
 {
-    public interface IStoryteller
+    public interface IStoryteller : IDisposable
     {
         /// <summary>
         /// List of created artifacts.
         /// </summary>
-        List<IOpenApiArtifact> Artifacts { get; }
+        List<IArtifact> Artifacts { get; }
 
         /// <summary>
         /// Create and Save a Process artifact
@@ -20,7 +21,7 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to create the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
         /// <returns>The saved artifact object</returns>
-        IOpenApiArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Create and Save Multiple Process Artifacts
@@ -29,7 +30,7 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
         /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
         /// <returns>The list of the saved artifact objects</returns>
-        List<IOpenApiArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
+        List<IArtifact> CreateAndSaveProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
         /// Create and Publish a single Process Artifact
@@ -37,7 +38,7 @@ namespace Model.StorytellerModel
         /// <param name="project">The project where the process artifact is to be added</param>
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
         /// <returns>the published artifact object</returns>
-        IOpenApiArtifact CreateAndPublishProcessArtifact(IProject project, IUser user);
+        IArtifact CreateAndPublishProcessArtifact(IProject project, IUser user);
 
         /// <summary>
         /// Create and Publish Multiple Process Artifacts
@@ -46,7 +47,7 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to create the process artifacts</param>
         /// <param name="numberOfArtifacts">The number of process artifacts to create</param>
         /// <returns>The list of the published artifact objects</returns>
-        List<IOpenApiArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
+        List<IArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
         /// Generate or Update User Stories for the Process Artifact.
@@ -80,14 +81,6 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of process objects</returns>
         IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
-
-        /// <summary>
-        /// Get the Id of the Process Artifact Type from the specified Project
-        /// </summary>
-        /// <param name="user">The user credentials for the request to get the artifact type Id</param>
-        /// <param name="project">The project from which the artifact type is retrieved</param>
-        /// <returns>The Id of process artifact type</returns>
-        int GetProcessArtifactTypeId(IUser user, IProject project);
 
         /// <summary>
         /// Get a Process Artifact from a Breadcrumb Trail
@@ -155,14 +148,14 @@ namespace Model.StorytellerModel
         string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Discard a process artifact
+        /// Discard changes to a process artifact
         /// </summary>
-        /// <param name="artifact">The artifact to be discarded</param>
+        /// <param name="artifact">The artifact with changes to be discarded</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The List of DiscardArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDiscardArtifactResult> DiscardProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Delete a process artifact
@@ -173,7 +166,7 @@ namespace Model.StorytellerModel
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<IDeleteArtifactResult> DeleteProcessArtifact(IOpenApiArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false);
+        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false);
 
         /// <summary>
         /// Returns URL of the Blueprint server

@@ -19,7 +19,8 @@ namespace Utilities.Factories
         public static HttpRequestBaseException Create(int statusCode, string innerExceptionMsg, RestResponse restResponse = null)
         {
             HttpRequestBaseException ex = null;
-            string message = I18NHelper.FormatInvariant("Received status code: {0}.", statusCode);
+            string message = I18NHelper.FormatInvariant("Received status code: {0}.  Content = '{1}'",
+                statusCode, restResponse?.Content ?? "null");
 
             switch (statusCode)
             {

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\Blueprint-Tests.Common.props" />
+  <Import Project="..\..\Blueprint-Tests.Common.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -31,16 +31,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <HintPath>..\..\..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -53,28 +53,45 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
+    <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
+    <Compile Include="ArtifactModel\IPropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiAttachment.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiArtifact.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
+    <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
+    <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
+    <Compile Include="ArtifactModel\IOpenApiProperty.cs" />
     <Compile Include="CommonConstants.cs" />
-    <Compile Include="IArtifactType.cs" />
+    <Compile Include="Factories\ArtifactStoreFactory.cs" />
+    <Compile Include="Factories\FactoryCommon.cs" />
+    <Compile Include="IArtifactStore.cs" />
+    <Compile Include="ArtifactModel\IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
-    <Compile Include="Impl\ArtifactType.cs" />
-    <Compile Include="IPrimitiveFolder.cs" />
-    <Compile Include="Impl\PrimitiveFolder.cs" />
-    <Compile Include="OpenApiModel\IArtifact.cs" />
-    <Compile Include="OpenApiModel\IArtifactBase.cs" />
-    <Compile Include="OpenApiModel\IArtifactResult.cs" />
-    <Compile Include="OpenApiModel\IAttachment.cs" />
-    <Compile Include="OpenApiModel\IAuthor.cs" />
-    <Compile Include="OpenApiModel\IComment.cs" />
-    <Compile Include="OpenApiModel\Impl\Artifact.cs" />
-    <Compile Include="OpenApiModel\Impl\ArtifactResult.cs" />
-    <Compile Include="OpenApiModel\Impl\Attachment.cs" />
-    <Compile Include="OpenApiModel\Impl\Comment.cs" />
-    <Compile Include="OpenApiModel\Impl\Property.cs" />
-    <Compile Include="OpenApiModel\Impl\Trace.cs" />
-    <Compile Include="OpenApiModel\IProperty.cs" />
+    <Compile Include="Impl\ArtifactStore.cs" />
+    <Compile Include="Impl\NovaServiceBase.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactType.cs" />
+    <Compile Include="ArtifactModel\Impl\Discussion.cs" />
+    <Compile Include="ArtifactModel\IArtifact.cs" />
+    <Compile Include="ArtifactModel\IArtifactBase.cs" />
+    <Compile Include="ArtifactModel\Impl\Author.cs" />
+    <Compile Include="ArtifactModel\Impl\Artifact.cs" />
+    <Compile Include="ArtifactModel\Impl\ArtifactResult.cs" />
+    <Compile Include="ArtifactModel\Impl\Attachment.cs" />
+    <Compile Include="ArtifactModel\Impl\Comment.cs" />
+    <Compile Include="ArtifactModel\Impl\Property.cs" />
+    <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
+    <Compile Include="ArtifactModel\Impl\Trace.cs" />
+    <Compile Include="ArtifactModel\IProperty.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />
+    <Compile Include="StorytellerModel\IProcessLink.cs" />
     <Compile Include="StorytellerModel\IProcessShape.cs" />
     <Compile Include="StorytellerModel\IProcess.cs" />
     <Compile Include="StorytellerModel\IStoryteller.cs" />
@@ -94,30 +111,30 @@
     <Compile Include="Factories\UserFactory.cs" />
     <Compile Include="IAccessControl.cs" />
     <Compile Include="IAdminStore.cs" />
-    <Compile Include="IActor.cs" />
+    <Compile Include="ArtifactModel\IActor.cs" />
     <Compile Include="IAgilePack.cs" />
-    <Compile Include="IAuthorHistory.cs" />
-    <Compile Include="IBaseline.cs" />
-    <Compile Include="IBaselineAndReviewFolder.cs" />
-    <Compile Include="IBaselinesAndReviews.cs" />
+    <Compile Include="ArtifactModel\IAuthorHistory.cs" />
+    <Compile Include="ArtifactModel\IBaseline.cs" />
+    <Compile Include="ArtifactModel\IBaselineAndReviewFolder.cs" />
+    <Compile Include="ArtifactModel\IBaselinesAndReviews.cs" />
     <Compile Include="IBlueprintServer.cs" />
     <Compile Include="IBlueprintToken.cs" />
-    <Compile Include="IBusinessProcessDiagram.cs" />
-    <Compile Include="ICollection.cs" />
-    <Compile Include="ICollectionFolder.cs" />
-    <Compile Include="ICollections.cs" />
+    <Compile Include="ArtifactModel\IBusinessProcessDiagram.cs" />
+    <Compile Include="ArtifactModel\ICollection.cs" />
+    <Compile Include="ArtifactModel\ICollectionFolder.cs" />
+    <Compile Include="ArtifactModel\ICollections.cs" />
     <Compile Include="IDatabase.cs" />
-    <Compile Include="IDiagramBase.cs" />
-    <Compile Include="IDiscussion.cs" />
+    <Compile Include="ArtifactModel\IDiagramBase.cs" />
+    <Compile Include="ArtifactModel\IDiscussion.cs" />
     <Compile Include="IDocument.cs" />
-    <Compile Include="IDomainDiagram.cs" />
+    <Compile Include="ArtifactModel\IDomainDiagram.cs" />
     <Compile Include="IEpic.cs" />
     <Compile Include="IFeature.cs" />
     <Compile Include="IFile.cs" />
     <Compile Include="IFileStore.cs" />
     <Compile Include="IFolder.cs" />
-    <Compile Include="IGenericDiagram.cs" />
-    <Compile Include="IGlossary.cs" />
+    <Compile Include="ArtifactModel\IGenericDiagram.cs" />
+    <Compile Include="ArtifactModel\IGlossary.cs" />
     <Compile Include="IGroup.cs" />
     <Compile Include="ILicenseActivity.cs" />
     <Compile Include="Impl\AccessControl.cs" />
@@ -137,22 +154,21 @@
     <Compile Include="InstanceAdminRole.cs" />
     <Compile Include="IPaginable.cs" />
     <Compile Include="IProject.cs" />
-    <Compile Include="IRelationship.cs" />
-    <Compile Include="IReview.cs" />
+    <Compile Include="ArtifactModel\IRelationship.cs" />
+    <Compile Include="ArtifactModel\IReview.cs" />
     <Compile Include="IScenario.cs" />
     <Compile Include="IServiceErrorMessage.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="IStandardPack.cs" />
-    <Compile Include="IStoryboard.cs" />
+    <Compile Include="ArtifactModel\IStoryboard.cs" />
     <Compile Include="StorytellerModel\IStorytellerUserStory.cs" />
-    <Compile Include="ITextualRequirement.cs" />
+    <Compile Include="ArtifactModel\ITextualRequirement.cs" />
     <Compile Include="ITheme.cs" />
-    <Compile Include="ITrace.cs" />
-    <Compile Include="IUIMockup.cs" />
+    <Compile Include="ArtifactModel\IUIMockup.cs" />
     <Compile Include="StorytellerModel\UploadResult.cs" />
     <Compile Include="UpdateResult.cs" />
-    <Compile Include="IUseCase.cs" />
-    <Compile Include="IUseCaseDiagram.cs" />
+    <Compile Include="ArtifactModel\IUseCase.cs" />
+    <Compile Include="ArtifactModel\IUseCaseDiagram.cs" />
     <Compile Include="IUser.cs" />
     <Compile Include="IUserStory.cs" />
     <Compile Include="LicenseType.cs" />
@@ -162,6 +178,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj">
+      <Project>{bd40aaa8-1ca8-43e9-867d-aade6acc8ed7}</Project>
+      <Name>CustomAttributes</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestConfiguration\TestConfig.csproj">
       <Project>{28AB2F4A-233B-4B44-914F-C0F0FA5A30B8}</Project>
@@ -183,7 +203,5 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Facades\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

@@ -4,11 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -29,8 +30,8 @@ namespace Model.StorytellerModel.Impl
 
         public const string EndName = "End";
 
+        public const double DefaultOrderIndex = 0;
 
-        private const double DefaultOrderIndex = 0;
 
         private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
@@ -53,8 +54,6 @@ namespace Model.StorytellerModel.Impl
         private const string StoryLinks = "StoryLinks";
 
         private const string ItemLabel = "ItemLabel";
-
-        private const string LinkLabels = "LinkLabels";
 
         public const string ImageId = "ImageId";
 
@@ -102,8 +101,8 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
-        public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
+        public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -138,7 +137,7 @@ namespace Model.StorytellerModel.Impl
         {
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
-            ArtifactPathLinks = new List<ArtifactPathLink>();
+            DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
@@ -251,7 +250,7 @@ namespace Model.StorytellerModel.Impl
             // Find the incoming link for the next system taskshape
             var incomingProcessLink = GetIncomingLinkForShape(nextSystemTaskShape);
 
-            // Add user decision point before next shape
+            // Add system decision point before next shape
             var systemDecisionPoint = AddSystemDecisionPoint(incomingProcessLink);
 
             // Add new branch to system decision point
@@ -286,6 +285,9 @@ namespace Model.StorytellerModel.Impl
 
             // Add a system task to the branch and return the system task shape object
             AddSystemTask(processLink);
+
+            // Add a DecisionBranchDestinationLink to register the added branch merge point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
         }
 
 
@@ -312,6 +314,9 @@ namespace Model.StorytellerModel.Impl
             // Add default link label
             processLink.Label = I18NHelper.FormatInvariant("{0} {1}", DefaultDecisionLabelPrefix, (int) orderIndex + 1);
 
+            // Add a DecisionBranchDestinationLink to register the added branch merge point
+            AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
+
             // Add a user task to the branch and return the user task shape object
             return AddUserAndSystemTask(processLink);
         }
@@ -333,17 +338,55 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
+        public DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
+        {
+            // Create a DecisionBranchDestinationLink
+            var decisionBranchDestinationLink = new DecisionBranchDestinationLink
+            {
+                DestinationId = destinationId,
+                Label = null,
+                Orderindex = orderIndex,
+                SourceId = sourceId
+            };
+
+            if (DecisionBranchDestinationLinks == null)
+            {
+                DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
+            }
+            DecisionBranchDestinationLinks.Add(decisionBranchDestinationLink);
+
+            return decisionBranchDestinationLink;
+        }
+
+        public void ChangeBranchMergePoint(IProcessShape decisionPoint, double orderIndex, ProcessLink branchMergeLink, IProcessShape mergePoint)
+        {
+            ThrowIf.ArgumentNull(decisionPoint, nameof(decisionPoint));
+            ThrowIf.ArgumentNull(branchMergeLink, nameof(branchMergeLink));
+            ThrowIf.ArgumentNull(mergePoint, nameof(mergePoint));
+
+            // Update destination id of the merge link with id of the next shape
+            branchMergeLink.DestinationId = mergePoint.Id;
+
+            // Find the DecisionBranchDestinationLink to update
+            var targetDecisionBranchDestinationLink = DecisionBranchDestinationLinks.Find(dbd => dbd.Orderindex.Equals(orderIndex));
+
+            // Update the destination id of the DecisionBranchDestinationLink with id of the next shape
+            targetDecisionBranchDestinationLink.DestinationId = mergePoint.Id;
+        }
+
         public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = Shapes.Exists(shape => shape.PropertyValues.ContainsKey(clientType)) ? clientType : clientType.LowerCaseFirstCharacter();
 
             var shapesFound =
                 Shapes.FindAll(
-                    p =>
-                        Convert.ToInt32(p.PropertyValues[clientType].Value, CultureInfo.InvariantCulture) ==
-                        (int) processShapeType);
+                    shape =>
+                        Convert.ToInt32(shape.PropertyValues[clientType].Value, CultureInfo.InvariantCulture).
+                        Equals((int)processShapeType));
 
-            return shapesFound.ConvertAll(p => (IProcessShape) p);
+            return shapesFound.ConvertAll(o => (IProcessShape) o);
         }
 
         public ProcessLink GetIncomingLinkForShape(IProcessShape processShape)
@@ -380,13 +423,32 @@ namespace Model.StorytellerModel.Impl
             return processLink;
         }
 
-        public IProcessShape GetNextShape(IProcessShape shape)
+        public List<ProcessLink> GetOutgoingLinksForShape(IProcessShape processShape)
         {
-            // Find the outgoing link for the process shape
-            var outgoingLink = Links.ToList().Find(l => l.SourceId == shape.Id);
+            ThrowIf.ArgumentNull(processShape, nameof(processShape));
 
+            // Find all outgoing links for the process shape
+            var links = Links.FindAll(l => l.SourceId == processShape.Id);
+
+            return links;
+        }
+
+        public IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null)
+        {
+            // Find the outgoing link for the proess shape
+            var links = Links.FindAll(l => l.SourceId == shape.Id);
+
+            var outgoingLink = orderIndex == null ? links.First() : links.Find(link => link.Orderindex == orderIndex);
+            
             // Return the next shape which is located via the link destination Id
             return GetProcessShapeById(outgoingLink.DestinationId);
+        }
+
+        public DecisionBranchDestinationLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex)
+        {
+            return DecisionBranchDestinationLinks.Find(
+                dbd => dbd.SourceId.Equals(decisionShape.Id) && dbd.Orderindex.Equals(orderIndex));
         }
 
         public IProcessShape GetProcessShapeByShapeName(string shapeName)
@@ -423,9 +485,45 @@ namespace Model.StorytellerModel.Impl
             return (ProcessShapeType)shapeType;
         }
 
+        public void DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(IProcessShape systemDecision, IProcessShape mergePointShape)
+        {
+            ThrowIf.ArgumentNull(systemDecision, nameof(systemDecision));
+            ThrowIf.ArgumentNull(mergePointShape, nameof(mergePointShape));
+
+            // Get system decision outgoing process link of the lowest order
+            var outgoingSystemDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(systemDecision, DefaultOrderIndex);
+
+            // Get the system task or system decision after the system decision on the lowest order branch.
+            var systemTaskOnLowestOrderBranchOfSystemDecision = GetProcessShapeById(outgoingSystemDecisionProcessLinkOfLowestOrder.DestinationId);
+
+            // Get the shapes to be deleted
+            var shapesToDelete = GetShapesBetween(systemDecision, new List<IProcessShape> { mergePointShape }, ignoreLowestBranch: true);
+
+            // Delete all shapes and outgoing links for the shapes
+            DeleteShapesAndOutgoingLinks(shapesToDelete);
+
+            // Delete the system decision and update the process link to have the system task or system shape on the lowest order branch
+            DeleteSystemDecisionAndUpdateProcessLink(systemDecision, systemTaskOnLowestOrderBranchOfSystemDecision);
+
+            // Delete all DecisionBranchDestinationLink associated with the root userDecision
+            DeleteDecisionBranchDestinationLinksForDecision(systemDecision);
+
+            // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
+            var decisions = shapesToDelete.ToList().
+                FindAll(
+                s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
+            foreach (var decision in decisions)
+            {
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
+            }
+        }
+
         public void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
     IProcessShape branchMergePointShape)
         {
+            ThrowIf.ArgumentNull(systemDecision, nameof(systemDecision));
+            ThrowIf.ArgumentNull(branchMergePointShape, nameof(branchMergePointShape));
+
             // Get system decision outgoing process link of the specified branch
             var outgoingSystemDecisionProcessLink = GetOutgoingLinkForShape(systemDecision, orderIndex);
 
@@ -445,6 +543,18 @@ namespace Model.StorytellerModel.Impl
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             DeleteProcessLink(outgoingSystemDecisionProcessLink);
+
+            // Delete a DecisionBranchDestinationLink associated with the deleted branch
+            DeleteDecisionBranchDestinationLink(branchMergePointShape.Id, orderIndex, systemDecision.Id);
+
+            // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
+            var decisions = shapesToDelete.ToList().
+                FindAll(
+                s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
+            foreach (var decision in decisions)
+            {
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
+            }
         }
 
         public void DeleteUserAndSystemTask(IProcessShape userTask)
@@ -474,6 +584,9 @@ namespace Model.StorytellerModel.Impl
 
         public void DeleteUserDecisionWithBranchesNotOfTheLowestOrder(IProcessShape userDecision, IProcessShape mergePointShape)
         {
+            ThrowIf.ArgumentNull(userDecision, nameof(userDecision));
+            ThrowIf.ArgumentNull(mergePointShape, nameof(mergePointShape));
+
             // Get user decision outgoing process link of the lowest order
             var outgoingUserDecisionProcessLinkOfLowestOrder = GetOutgoingLinkForShape(userDecision, DefaultOrderIndex);
 
@@ -488,10 +601,25 @@ namespace Model.StorytellerModel.Impl
 
             // Delete the user decision and update the process link to have the user task as the merge point
             DeleteUserDecisionAndUpdateProcessLink(userDecision, userTaskOnLowestOrderBranchOfUserDecision);
+
+            // Delete all DecisionBranchDestinationLink associated with the root userDecision
+            DeleteDecisionBranchDestinationLinksForDecision(userDecision);
+
+            // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
+            var decisions = shapesToDelete.ToList().
+                FindAll(
+                s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
+            foreach (var decision in decisions)
+            {
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
+            }
         }
 
         public void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape)
         {
+            ThrowIf.ArgumentNull(userDecision, nameof(userDecision));
+            ThrowIf.ArgumentNull(branchMergePointShape, nameof(branchMergePointShape));
+
             // Get user decision outgoing process link of the specified branch
             var outgoingUserDecisionProcessLink = GetOutgoingLinkForShape(userDecision, orderIndex);
 
@@ -507,6 +635,37 @@ namespace Model.StorytellerModel.Impl
             DeleteShapesAndOutgoingLinks(shapesToDelete);
 
             DeleteProcessLink(outgoingUserDecisionProcessLink);
+
+            // Delete a DecisionBranchDestinationLink associated with the deleted branch
+            DeleteDecisionBranchDestinationLink(branchMergePointShape.Id, orderIndex, userDecision.Id);
+            
+            // Delete all DecisionBranchDestinationLinks associated with decisions belongs to shapesToDelete
+            var decisions = shapesToDelete.ToList().
+                FindAll(
+                s => s.IsTypeOf(ProcessShapeType.SystemDecision) || s.IsTypeOf(ProcessShapeType.UserDecision));
+            foreach (var decision in decisions)
+            {
+                DeleteDecisionBranchDestinationLinksForDecision(decision);
+            }
+        }
+
+        public void DeleteDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId)
+        {
+            var decisionBranchDestinatilnLink = DecisionBranchDestinationLinks.Find(
+                dbd =>
+                    dbd.DestinationId.Equals(destinationId) && dbd.Orderindex.Equals(orderIndex)
+                         && dbd.SourceId.Equals(sourceId));
+
+            DecisionBranchDestinationLinks.Remove(decisionBranchDestinatilnLink);
+        }
+
+        public void DeleteDecisionBranchDestinationLinksForDecision(IProcessShape decision)
+        {
+            if (DecisionBranchDestinationLinks == null)
+            {
+                DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
+            }
+            DecisionBranchDestinationLinks.RemoveAll(dbd => dbd.SourceId.Equals(decision.Id));
         }
 
         public void MoveUserAndSystemTaskBeforeShape(IProcessShape userTaskToMove, IProcessShape destinationShape)
@@ -574,7 +733,7 @@ namespace Model.StorytellerModel.Impl
         private IProcessShape CreateUserTask(
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -639,7 +798,7 @@ namespace Model.StorytellerModel.Impl
             string associatedImageUrl, 
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -708,7 +867,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -732,7 +891,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new system decision point</returns>
         private IProcessShape CreateSystemDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -760,7 +919,7 @@ namespace Model.StorytellerModel.Impl
             ProcessShapeType processShapeType,
             string shapeNamePrefix,
             string itemLabel,
-            ArtifactPathLink associatedArtifact,
+            AssociatedArtifact associatedArtifact,
             double width,
             double height,
             int x,
@@ -1199,6 +1358,17 @@ namespace Model.StorytellerModel.Impl
             return processShapes;
         }
 
+
+        /// <summary>
+        /// Delete a Single System Decision and Update the Process Link
+        /// </summary>
+        /// <param name="systemDecision">The system decision to be deleted</param>
+        /// <param name="nextShape">The shape that immediately follows the deleted system decision</param>
+        private void DeleteSystemDecisionAndUpdateProcessLink(IProcessShape systemDecision, IProcessShape nextShape)
+        {
+            DeleteProcessShapeAndUpdateProcessLink(systemDecision, nextShape);
+        }
+
         /// <summary>
         /// Delete a Single User Task and Update the Process Link
         /// </summary>
@@ -1288,7 +1458,7 @@ namespace Model.StorytellerModel.Impl
 
         public string TypePrefix { get; set; }
 
-        public ArtifactPathLink AssociatedArtifact { get; set; }
+        public AssociatedArtifact AssociatedArtifact { get; set; }
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
@@ -1301,11 +1471,11 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public AssociatedArtifact AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new ArtifactPathLink()
+            AssociatedArtifact = new AssociatedArtifact()
             {
                 BaseItemTypePredefined = artifact.BaseItemTypePredefined,
                 Id = artifact.Id,
@@ -1320,67 +1490,76 @@ namespace Model.StorytellerModel.Impl
 
         public bool IsTypeOf(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = PropertyValues.ContainsKey(clientType) ? clientType : clientType.LowerCaseFirstCharacter();
+
             return
                 Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
                     (int) processShapeType);
         }
     }
 
-    public class ProcessLink
+    public class ProcessLink : IProcessLink
     {
-        /// <summary>		
-        /// Source Id for the process link		
+
+        /// <summary>
+        /// Source Id for the process link
         /// </summary>
         public int SourceId { get; set; }
 
         /// <summary>		
-        /// Destination Id for the process link		
+        /// Destination Id for the process link
         /// </summary>
         public int DestinationId { get; set; }
 
         /// <summary>		
-        /// Order index for the process link (Order in which the links are drawn for decision points)		
+        /// Order index for the process link (Order in which the links are drawn for decision points)
         /// </summary>
         public double Orderindex { get; set; }
 
         /// <summary>		
-        /// Label for the process link		
+        /// Label for the process link
         /// </summary>
         public string Label { get; set; }
     }
 
-    public class ArtifactPathLink
+    public class DecisionBranchDestinationLink : IProcessLink
     {
-        /// <summary>
-        /// The Id of the Artifact
-        /// </summary>
-        public int Id { get; set; }
+        /*
+        /// This class is also used to represents DecisionBranchDestinationLink
+        /// The Id of the shape after the merge point
+        /// (e.g. endShape ID in the picture)	
+        [S]--[P]--+--<UD1>--+--[UT1]--+--[ST2]--+--[E]
+                       |                        |
+                       +-------[UT3]--+--[ST4]--+
+        */
 
         /// <summary>
-        /// The Project Id for the artifact
+        /// The Id of source decision process shape (e.g. UD1)
         /// </summary>
-        public int ProjectId { get; set; }
+        public int SourceId { get; set; }
 
-        /// <summary>
-        /// The name of the artifact
+        /// <summary>		
+        /// The Id of the shape after the merge point
+        /// (e.g. endShape ID in the picture)
         /// </summary>
-        public string Name { get; set; }
+        public int DestinationId { get; set; }
 
-        /// <summary>
-        /// The type prefix for the artifact
+        /// <summary>		
+        /// Order index for the process link (Order in which the links are drawn for decision points)
+        /// (e.g. orderindex value of the first branch of UD1)
         /// </summary>
-        public string TypePrefix { get; set; }
+        public double Orderindex { get; set; }
 
-        /// <summary>
-        /// The base item type for the artifact
+        /// <summary>		
+        /// Label for the DecisionBranchDestinationLink
         /// </summary>
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
+        public string Label { get; set; }
 
-        /// <summary>
-        /// The link to navigate to the artifact
-        /// </summary>
-        public string Link { get; set; }
+    }
+    public class AssociatedArtifact : ArtifactReference
+    {
     }
 
     public class PropertyValueInformation

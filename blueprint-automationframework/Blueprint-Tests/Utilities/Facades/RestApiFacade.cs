@@ -463,6 +463,54 @@ namespace Utilities.Facades
         }
 
         /// <summary>
+        /// Creates the web request with a specific body and get the response object.
+        /// </summary>
+        /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
+        /// <param name="method">The method (GET, POST...).</param>
+        /// <param name="requestBody">The body to send in the request.</param>
+        /// <param name="contentType">(optional) The Mime content type.</param>
+        /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
+        /// <returns>The RestResponse object.</returns>
+        /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        public RestResponse SendRequestBodyAndGetResponse(
+            string resourcePath,
+            RestRequestMethod method,
+            string requestBody,
+            string contentType = "text/plain",
+            Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            Dictionary<string, string> cookies = null)
+        {
+            ThrowIf.ArgumentNull(requestBody, nameof(requestBody));
+
+            Logger.WriteTrace("Base URI for REST request is: {0}", _baseUri);
+            var client = new RestClient(_baseUri);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
+            request.AddParameter(contentType, requestBody, ParameterType.RequestBody);
+
+            try
+            {
+                var response = client.Execute(request);
+                Logger.WriteDebug("SendRequestAndGetResponse() got Status Code '{0}' for user '{1}'.",
+                    response.StatusCode, _username);
+
+                _restResponse = ConvertToRestResponse(response);
+
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
+
+                return _restResponse;
+            }
+            catch (WebException e)
+            {
+                throw WebExceptionConverter.Convert(e, _restResponse);
+            }
+        }
+
+        /// <summary>
         /// Creates the web request with a JSON body and get the response object.
         /// </summary>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>

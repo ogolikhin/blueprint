@@ -105,7 +105,7 @@ namespace CommonUtilities
         /// <returns>The new Uri.</returns>
         public static Uri CreateUri(Uri requestUri, string svcBaseUri, string svcPath)
         {
-            string path = requestUri.LocalPath.Replace(svcPath, string.Empty);
+            string path = requestUri.LocalPath.ToLowerInvariant().Replace(svcPath.ToLowerInvariant(), string.Empty);
             Uri uri = new Uri(I18NHelper.FormatInvariant("{0}/{1}/{2}", svcBaseUri, path.TrimEnd('/'), requestUri.Query).TrimEnd('/'));
 
             return uri;

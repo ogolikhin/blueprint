@@ -1,8 +1,0 @@
-node_modules
-dist
-reports
-.idea
-out
-typings
-*.iml
-/*.sln

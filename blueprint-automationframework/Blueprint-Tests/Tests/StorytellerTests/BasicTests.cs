@@ -1,12 +1,15 @@
 ﻿using System.Linq;
 using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Helper;
+using System.Net;
 
 namespace StorytellerTests
 {
@@ -49,7 +52,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -86,14 +89,13 @@ namespace StorytellerTests
         #endregion Setup and Cleanup
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
-        [TestCase(5, 4, 1, 2)]
+        [TestCase(5, 4, 2)]
         [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
                      "returned process has the same Id as the process artifact Id and that the numbers of " +
-                     "shapes, links, artifact path links and property values are as expected.")]
+                     "shapes, links and property values are as expected.")]
         public void GetDefaultProcess_VerifyReturnedProcess(
             int defaultShapesCount, 
             int defaultLinksCount, 
-            int defaultArtifactPathLinksCount, 
             int defaultPropertyValuesCount)
         {
             var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
@@ -108,8 +110,6 @@ namespace StorytellerTests
                 "The number of shapes in a default process is {0} but {1} shapes were returned.", defaultShapesCount, returnedProcess.Shapes.Count);
             Assert.That(returnedProcess.Links.Count == defaultLinksCount,
                 "The number of links in a default process is {0} but {1} links were returned.", defaultLinksCount, returnedProcess.Links.Count);
-            Assert.That(returnedProcess.ArtifactPathLinks.Count == defaultArtifactPathLinksCount,
-                "The number of artifact path links in a default process is {0} but {1} artifact path links were returned.", defaultArtifactPathLinksCount, returnedProcess.ArtifactPathLinks.Count);
             Assert.That(returnedProcess.PropertyValues.Count == defaultPropertyValuesCount,
                 "The number of property values in a default process is {0} but {1} property values were returned.", defaultPropertyValuesCount, returnedProcess.PropertyValues.Count);
         }
@@ -117,7 +117,7 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
@@ -131,19 +131,108 @@ namespace StorytellerTests
             Assert.IsNotNull(returnedProcess, "List of processes must have newly created process, but it doesn't.");
         }
 
-        [TestCase]
-        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact()
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestRail(102883)]
+        [Description("Create artifact, save and publish it. Search created artifact by name. Search must return created artifact.")]
+        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            //Create an artifact with ArtifactType and populate all required values without properties
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
 
+            artifact.Save(_user);
             artifact.Publish(_user);
-            artifact.IsPublished = true;
 
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    var artifactsList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                    Assert.IsTrue(artifactsList.Count > 0);
+                }, "Couldn't find an artifact named '{0}'.", artifact.Name);
+            }
+
+            finally
+            {
+                artifact.Delete(_user);
+                artifact.Publish(_user);
+            }
+        }
+
+        [TestCase]
+        [TestRail(102884)]
+        [Description("Check that search artifact by name returns 10 artifacts only.")]
+        public void GetSearchArtifactResults_ReturnedListHasExpectedLength()
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            var artifactList = new List<IArtifact>();
+
+            for (int i = 0; i < 12; i++)
+            {
+                var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+                artifact.Save(_user);
+                artifact.Publish(_user);
+                artifactList.Add(artifact);
+            }
+
+            //Implementation of CreateArtifact uses Artifact_ prefix to name artifacts
+            string searchString = "Artifact_";
+            try
+            {
+                Assert.DoesNotThrow(() =>
+                {
+                    var searchResultList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
+                    Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
+                });
+            }
+
+            finally
+            {
+                foreach (var artifactToDelete in artifactList)
+                {
+                    artifactToDelete.Delete(_user);
+                    artifactToDelete.Publish(_user);
+                }
+            }
+        }
+
+        [TestCase]
+        [TestRail(107376)]
+        [Description("Add a user task after an existing user task, discard")]
+        public void DiscardArtifactAddedUserTask_VerifyResult()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the end shape
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the incoming link for the end shape
+            var endIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
+
+            // Add a user/system task immediately before the end shape
+            process.AddUserAndSystemTask(endIncomingLink);
+
+            // Update and Verify the modified process
+            var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            var processArtifact = new Artifact(_storyteller.Address, changedProcess.Id, changedProcess.ProjectId);
+
+            List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
             Assert.DoesNotThrow(() =>
             {
-                var artifactsList = artifact.SearchArtifactsByName(user: _user, searchSubstring: artifact.Name);
-                Assert.IsTrue(artifactsList.Count > 0);
-            }, "Couldn't find an artifact named '{0}'.", artifact.Name);
+                discardResultList = processArtifact.NovaDiscard(_user);
+            }, "Must return no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
         }
     }
 }

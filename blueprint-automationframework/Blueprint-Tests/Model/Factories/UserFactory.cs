@@ -12,6 +12,33 @@ namespace Model.Factories
     public static class UserFactory
     {
         /// <summary>
+        /// Creates a deep copy of the specified user.
+        /// </summary>
+        /// <param name="user">The user to copy.</param>
+        /// <returns>A new user that has the same data as the specified user.</returns>
+        public static IUser CreateCopyOfUser(IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            IUser copy = null;
+
+            if (user.Source == UserSource.Database)
+            {
+                copy = new DatabaseUser(user as DatabaseUser);
+            }
+            else if (user.Source == UserSource.Windows)
+            {
+                copy = new WindowsUser(user as WindowsUser);
+            }
+            else
+            {
+                throw new ArgumentException(I18NHelper.FormatInvariant("user.Source is set to an invalid type: '{0}'", user.Source.ToString()));
+            }
+
+            return copy;
+        }
+
+        /// <summary>
         /// Creates a new user object with random values and adds it to the Blueprint database.
         /// </summary>
         /// <param name="source">(optional) Where the user exists.</param>

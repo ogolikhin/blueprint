@@ -68,7 +68,9 @@ namespace AccessControlTests
             return AddSessionToAccessControl(session);
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96103)]
+        [Description("Check that POST new session returns 200 OK")]
         public void PostNewSession_Verify200OK()
         {
             // POST the new session.  There should be no errors.
@@ -79,6 +81,8 @@ namespace AccessControlTests
         [TestCase(null, 1234)]
         [TestCase("do_some_action", null)]
         [TestCase("do_some_action", 1234)]
+        [TestRail(96104)]
+        [Description("Check that PUT for valid Session returns 200 OK")]
         public void PutSessionWithSessionToken_Verify200OK(string operation, int? artifactId)
         {
             ISession createdSession = CreateAndAddSessionToAccessControl();
@@ -88,7 +92,9 @@ namespace AccessControlTests
             Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96116)]
+        [Description("Put session without SessionToken returns 400.")]
         public void PutSessionWithoutSessionToken_Verify400BadRequest()
         {
             ISession session = SessionFactory.CreateSession(_user);
@@ -100,7 +106,9 @@ namespace AccessControlTests
             }, "Calling PUT without a session token should return 400 Bad Request!");
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96111)]
+        [Description("Check that AccessControl returns active Session-Token for the user.")]
         public void GetSessionForUserIdWithActiveSession_VerifyPostAndGetSessionsMatch()
         {
             ISession addedSession = CreateAndAddSessionToAccessControl();
@@ -110,7 +118,9 @@ namespace AccessControlTests
             Assert.That(addedSession.Equals(returnedSession), "'GET {0}' returned a different session than the one we added!", addedSession.UserId);
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96112)]
+        [Description("Get Session-Token for user without active session returns 404 - Not Found.")]
         public void GetSessionsForUserIdWithNoActiveSessions_Verify404NotFound()
         {
             // Add 1 session to AccessControl.
@@ -123,7 +133,9 @@ namespace AccessControlTests
             Assert.Throws<Http404NotFoundException>(() => { _accessControl.GetSession(session.UserId); });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96103)]
+        [Description("Check that DELETE session returns 200 OK")]
         public void DeleteSessionWithSessionToken_Verify200OK()
         {
             // Setup: Create a session to be deleted.
@@ -133,14 +145,18 @@ namespace AccessControlTests
             _accessControl.DeleteSession(createdSession);
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96106)]
+        [Description("Check that DELETE session without SessionToken returns 400 BadRequest")]
         public void DeleteSessionsWithoutSessionToken_Verify400BadRequest()
         {
             // Call the DELETE RestAPI without a session token which should return a 400 error.
             Assert.Throws<Http400BadRequestException>(() => { _accessControl.DeleteSession(null); });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96107)]
+        [Description("Check that GET active licenses info returns 200 OK")]
         public void GetActiveLicensesInfo_200OK()
         {
             ///TODO: add expected results
@@ -150,7 +166,9 @@ namespace AccessControlTests
             });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96110)]
+        [Description("Check that GET locked licenses info returns 200 OK")]
         public void GetLockedLicensesInfo_200OK()
         {
             ISession session = CreateAndAddSessionToAccessControl();
@@ -161,7 +179,9 @@ namespace AccessControlTests
             });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96109)]
+        [Description("Check that GET info about license transactions returns 200 OK")]
         public void GetLicenseTransactionsInfo_200OK()
         {
             // Setup: Create a session for test.
@@ -176,7 +196,9 @@ namespace AccessControlTests
             });
         }
 
-        [Test]
+        [TestCase]
+        [TestRail(96108)]
+        [Description("Check that GET active sessiones returns active sessions.")]
         public void GetActiveSessions_VerifySessionsWereFound()
         {
             // Setup: Create a session for test.

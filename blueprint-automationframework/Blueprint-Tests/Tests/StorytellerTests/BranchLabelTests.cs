@@ -8,7 +8,7 @@ using Model.StorytellerModel.Impl;
 using Utilities.Factories;
 using System.Collections.Generic;
 using System.Linq;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 
 namespace StorytellerTests
 {
@@ -51,7 +51,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -96,10 +96,13 @@ namespace StorytellerTests
         [Description("Add a randomized user decision branch label for a specific branch and verify that the label is returned " +
                      "after saving the process.")]
         public void AddUserDecisionBranchWithPlainTextLabelOfVaryingLength_VerifyReturnedBranchLabel(
-            int lengthOfLabelSent, 
+            int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var process = CreateProcessWithSingleUserDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Get precondition shape in process
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -126,7 +129,10 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch,
             ProcessType processType)
         {
-            var process = CreateProcessWithSingleUserDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Get precondition shape in process
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -155,7 +161,10 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfUserDecisionBranch)
         {
-            var process = CreateProcessWithSingleUserDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
+               _storyteller,
+               _project,
+               _user);
 
             // Save the process
             _storyteller.UpdateProcess(_user, process);
@@ -186,7 +195,10 @@ namespace StorytellerTests
         public void DeleteUserDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfUserDecisionBranch)
         {
-            var process = CreateProcessWithSingleUserDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Save the process
             _storyteller.UpdateProcess(_user, process);
@@ -219,10 +231,13 @@ namespace StorytellerTests
         [Description("Add a randomized system decision branch label for a specific branch and verify that the label is returned " +
              "after saving the process.")]
         public void AddSystemDecisionBranchWithPlainTextLabelOfVaryingLength_VerifyReturnedBranchLabel(
-    int lengthOfLabelSent,
-    double orderIndexOfSystemDecisionBranch)
+            int lengthOfLabelSent,
+            double orderIndexOfSystemDecisionBranch)
         {
-            var process = CreateProcessWithSingleSystemDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -249,7 +264,10 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch,
             ProcessType processType)
         {
-            var process = CreateProcessWithSingleSystemDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -278,7 +296,10 @@ namespace StorytellerTests
             int lengthOfLabelSent,
             double orderIndexOfSystemDecisionBranch)
         {
-            var process = CreateProcessWithSingleSystemDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Save the process
             _storyteller.UpdateProcess(_user, process);
@@ -309,7 +330,10 @@ namespace StorytellerTests
         public void DeleteSystemDecisionBranchLabel_VerifyReturnedBranchHasLabelRemoved(
             double orderIndexOfSystemDecisionBranch)
         {
-            var process = CreateProcessWithSingleSystemDecision();
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
+                _storyteller,
+                _project,
+                _user);
 
             // Save the process
             _storyteller.UpdateProcess(_user, process);
@@ -331,60 +355,6 @@ namespace StorytellerTests
 
             // Update and Verify the returned process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
-        }
-
-        /// <summary>
-        /// Create a Process that Contains a Single User Decision
-        /// </summary>
-        /// <returns>The created process</returns>
-        private IProcess CreateProcessWithSingleUserDecision()
-        {
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-
-            // Find precondition task
-            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
-
-            // Find outgoing process link for precondition
-            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
-
-            // Get the branch end point
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
-
-            // Add Decision point with branch to end
-            process.AddUserDecisionPointWithBranchAfterShape(
-                preconditionTask,
-                preconditionOutgoingLink.Orderindex + 1,
-                branchEndPoint.Id);
-
-            return process;
-        }
-
-        /// <summary>
-        /// Create a Process that Contains a Single System Decision
-        /// </summary>
-        /// <returns>The created process</returns>
-        private IProcess CreateProcessWithSingleSystemDecision()
-        {
-            // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-
-            // Find the default UserTask
-            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            // Find the target SystemTask
-            var targetSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
-
-            // Find the branch end point for the system decision point
-            var branchEndPoint = process.GetProcessShapeByShapeName(Process.EndName);
-
-            // Find the outgoing process link from the default UserTask
-            var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
-
-            // Add System Decision point with branch to end
-            process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
-
-            return process;
         }
     }
 }

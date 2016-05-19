@@ -8,24 +8,8 @@ using Utilities.Facades;
 
 namespace Model.Impl
 {
-    public class BlueprintServer : IBlueprintServer
+    public class BlueprintServer : NovaServiceBase, IBlueprintServer
     {
-        #region Properties and member variables.
-
-        private string _address;
-
-        /// <summary>
-        /// Gets/sets the URL address of the server.  Note: any trailing '/' characters will be removed.
-        /// </summary>
-        public string Address
-        {
-            get { return _address; }
-            set { _address = (value != null) ? value.TrimEnd('/') : null; }
-        }
-
-        #endregion Properties and member variables.
-
-
         #region Public functions
 
         /// <summary>
@@ -70,6 +54,10 @@ namespace Model.Impl
 
             return user.Token;
         }
+
+        #endregion Public functions
+
+        #region Inherited from IBlueprintServer
 
         /// <summary>
         /// Login to the Blueprint server using the Basic authorization method.
@@ -146,23 +134,52 @@ namespace Model.Impl
         /// <seealso cref="IBlueprintServer.GetStatus"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            const string path = "svc/status";
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (preAuthorizedKey != null)
-            {
-                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
-            }
-
-            Logger.WriteInfo("Getting status for all Blueprint services...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            return response.Content;
+            return GetStatus("svc", preAuthorizedKey, expectedStatusCodes);
         }
 
-        #endregion Public functions
+        /// <seealso cref="IBlueprintServer.GetStatusUpcheck"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatusUpcheck("svc", expectedStatusCodes);
+        }
 
+        #endregion Inherited from IBlueprintServer
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting anything created by this object.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(BlueprintServer), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // TODO: Delete any resources created by this class.
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting anything created by this object.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
 
         #region Private functions
 

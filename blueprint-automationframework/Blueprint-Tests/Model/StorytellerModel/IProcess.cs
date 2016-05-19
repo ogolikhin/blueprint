@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -20,18 +20,18 @@ namespace Model.StorytellerModel
     /// </summary>
     public enum PropertyTypeName
     {
-        associatedImageUrl,
-        clientType,
-        description,
-        height,
-        imageId,
-        itemLabel,
-        label,
-        persona,
-        storyLinks,
-        width,
-        x,
-        y
+        AssociatedImageUrl,
+        ClientType,
+        Description,
+        Height,
+        ImageId,
+        ItemLabel,
+        Label,
+        Persona,
+        StoryLinks,
+        Width,
+        X,
+        Y
     }
 
     /// <summary>
@@ -129,9 +129,10 @@ namespace Model.StorytellerModel
         List<ProcessLink> Links { get; }
 
         /// <summary>
-        /// Artifact path links for the Process.  This supports breadcrumb navigation.
+        /// Decision branch destination links for decision shapes in the Process. This list contains list of merge point
+        /// information for all available decisions in the process. The list is empty if the process contain only main branch
         /// </summary>
-        List<ArtifactPathLink> ArtifactPathLinks { get; }
+        List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; }
 
         /// <summary>
         /// The Property values for the Process
@@ -176,6 +177,28 @@ namespace Model.StorytellerModel
         /// in the process graph)</param>
         /// <returns>The process link that was added</returns>
         ProcessLink AddLink(int sourceId, int destinationId, double orderIndex);
+
+        /// <summary>
+        /// Add a DecisionBranchDestinationLink to a Process
+        /// </summary>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="sourceId">The Id of the source decision</param>
+        /// <returns>The DecisionBranchDestinationLink that was added</returns>
+        DecisionBranchDestinationLink AddDecisionBranchDestinationLink(int destinationId,
+            double orderIndex, int sourceId);
+
+        /// <summary>
+        /// Change a branch merge point of the decision
+        /// </summary>
+        /// <param name="decisionPoint">The user or system decision point</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="branchMergeLink">The existing merge link for the branch</param>
+        /// <param name="mergePoint">The new merge shape</param>
+        void ChangeBranchMergePoint(IProcessShape decisionPoint, double orderIndex,
+            ProcessLink branchMergeLink, IProcessShape mergePoint);
 
         /// <summary>
         /// Add a User Decision Point with a Branch After an Existing Shape
@@ -282,11 +305,37 @@ namespace Model.StorytellerModel
         ProcessLink GetOutgoingLinkForShape(IProcessShape processShape, double? orderIndex = null);
 
         /// <summary>
+        /// Get the Outgoing Process Links for a Shape
+        /// </summary>
+        /// <param name="processShape">The process shape</param>
+        /// <returns>The outgoing process links</returns>
+        List<ProcessLink> GetOutgoingLinksForShape(IProcessShape processShape);
+
+        /// <summary>
         /// Get the Shape Following an Existing Shape
         /// </summary>
         /// <param name="shape">The existing shape</param>
+        /// <param name="orderIndex">(optional) The order index of the link to find</param>
         /// <returns>The shape following the existing shape</returns>
-        IProcessShape GetNextShape(IProcessShape shape);
+        IProcessShape GetNextShape(IProcessShape shape, double? orderIndex = null);
+
+        /// <summary>
+        /// Get the DecisionBranchDestinationLink for the decision
+        /// </summary>
+        /// <param name="decisionShape">The source decision shape for the DecisionBranchDestinationLink looking for</param>
+        /// <param name="orderIndex">The order index of the branch based from the shource decision shape</param>
+        /// <returns>The DecisionBranchDestinationLink the source decision</returns>
+        DecisionBranchDestinationLink GetDecisionBranchDestinationLinkForDecisionShape(IProcessShape decisionShape,
+            double orderIndex);
+
+        /// <summary>
+        /// Delete a System Decision with all Branches that are Not of the Lowest Order
+        /// </summary>
+        /// <param name="systemDecision">The system decision point to be deleted</param>
+        /// <param name="mergePointShape">The shape where all the associated branches terminate</param>
+        void DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(
+            IProcessShape systemDecision,
+            IProcessShape mergePointShape);
 
         /// <summary>
         /// Delete a System Decision Branch
@@ -327,6 +376,21 @@ namespace Model.StorytellerModel
         /// <param name="orderIndex">The order index of the branch</param>
         /// <param name="branchMergePointShape">The end point of the branch</param>
         void DeleteUserDecisionBranch(IProcessShape userDecision, double orderIndex, IProcessShape branchMergePointShape);
+
+        /// <summary>
+        /// Delete a DecisionBranchDestinationLink from a Process
+        /// </summary>
+        /// <param name="destinationId">The artifact Id of the link destination</param>
+        /// <param name="orderIndex">The order index of the link (Indicates display order 
+        /// in the process graph)</param>
+        /// <param name="sourceId">The Id of the source decision</param>
+        void DeleteDecisionBranchDestinationLink(int destinationId, double orderIndex, int sourceId);
+
+        /// <summary>
+        /// Delete all available DecisionBranchDestinationLinks for the source decision
+        /// </summary>
+        /// <param name="decision">The source decision</param>
+        void DeleteDecisionBranchDestinationLinksForDecision(IProcessShape decision);
 
         /// <summary>
         /// Move a User and System Task to Before a Shape

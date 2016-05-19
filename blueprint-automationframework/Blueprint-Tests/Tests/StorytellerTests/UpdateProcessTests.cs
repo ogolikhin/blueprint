@@ -4,7 +4,8 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -68,7 +69,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -109,6 +110,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Update the name of process and verify that the returned process has the" +
                      "modified name.")]
+        [Explicit(IgnoreReasons.UnderDevelopment)]//now /svc/components/storyteller/processes/{Id} doesn't allow to update process name
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create and get the default process
@@ -116,7 +118,6 @@ namespace StorytellerTests
 
             // Modify default process Name
             returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
@@ -444,10 +445,6 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
-
             // Create and save process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
@@ -465,10 +462,6 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
-
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
@@ -485,10 +478,6 @@ namespace StorytellerTests
         {
             // Create and get the default process
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
-
-            // Modify default process Name
-            returnedProcess.Name = RandomGenerator.RandomValueWithPrefix("returnedProcess", 4);
-            returnedProcess.ArtifactPathLinks[0].Name = returnedProcess.Name;
 
             // Create and publish process artifact to be used as include; enable recursive delete flag
             var includedProcessArtifact = _storyteller.CreateAndPublishProcessArtifact(_project, _user);
@@ -530,8 +519,8 @@ namespace StorytellerTests
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value = deserialzedUploadResult.UriToFile;
-            defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value = deserialzedUploadResult.Guid;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString().LowerCaseFirstCharacter()].Value = deserialzedUploadResult.UriToFile;
+            defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString().LowerCaseFirstCharacter()].Value = deserialzedUploadResult.Guid;
 
             // Save the process with the updated properties
             returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
@@ -542,8 +531,8 @@ namespace StorytellerTests
             // Assert that the Default Precondition SystemTask contains value
             defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
-            var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.associatedImageUrl.ToString()].Value.ToString();
-            var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.imageId.ToString()].Value.ToString();
+            var updatedAssociatedImageUrl = defaultPreconditionShape.PropertyValues[PropertyTypeName.AssociatedImageUrl.ToString().LowerCaseFirstCharacter()].Value.ToString();
+            var updatedImageId = defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString().LowerCaseFirstCharacter()].Value.ToString();
 
             Assert.That(updatedAssociatedImageUrl.Contains("/svc/components/RapidReview/diagram/image/"), "The updated associatedImageUri of The precondition contains {0}", updatedAssociatedImageUrl);
 
@@ -636,7 +625,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             var systemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
             
             // Add additonal branch to the System Decision point
@@ -665,7 +654,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -700,7 +689,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -738,7 +727,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add a System Decision point with branch (root System Decision point) with branch merging to branchEndPoint
+            // Add a System Decision point with branch (root System Decision point) with a branch merging to branchEndPoint
             var rootSystemDecisionPoint = process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Get the link between the system decision point and the System task on the second branch
@@ -836,7 +825,7 @@ namespace StorytellerTests
             // Find the outgoing process link from the default UserTask
             var defaultUserTaskOutgoingProcessLink = process.GetOutgoingLinkForShape(defaultUserTask);
 
-            // Add System Decision point with branch merging to branchEndPoint
+            // Add System Decision point with a branch merging to branchEndPoint
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(targetSystemTask, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint.Id);
 
             // Update and Verify the modified process
@@ -915,6 +904,39 @@ namespace StorytellerTests
 
             // Assert that the number of UserTasks from the published Process is equal to the number of UserStoryGenerated or Updated
             Assert.That(userStories.Count == userTasksOnProcess, "The number of UserStories generated from the process is {0} but The process has {1} UserTasks.", userStories.Count, userTasksOnProcess);
+        }
+
+        [TestCase]
+        [Description("Add new User Task to the default process. Save, do not publish changes." +
+                     "Get discussions for this User Task returns no errors. Regression for bug 178131.")]
+        public void GetDiscussionsForSavedUnpublishedUserTask_ThrowsNoErrors()
+        {
+            // Create and get the default process
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = returnedProcess.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user/system Task immediately after the precondition
+            returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Save changes without publishing
+            returnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+
+            // Get newly added User Task
+            var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
+            Assert.DoesNotThrow(() =>
+            {
+                var discussions = OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemId: unpublishedUserTask.Id,
+                includeDraft: true, user: _user);
+                Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
+                Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");
+            }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");
         }
 
         /// <summary>

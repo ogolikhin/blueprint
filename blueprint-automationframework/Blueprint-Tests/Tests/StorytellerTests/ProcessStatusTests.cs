@@ -13,7 +13,6 @@ using Utilities;
 
 namespace StorytellerTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopment)]
     [TestFixture]
     [Category(Categories.Storyteller)]
     public class ProcessStatusTests
@@ -139,7 +138,7 @@ namespace StorytellerTests
 
         #region Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(107383)]
         [TestCase]
         [Description("Lock an existing process by updating with the second user. Verify that the" +
              "status of the process model obtained by the first user.")]
@@ -195,7 +194,7 @@ namespace StorytellerTests
             VerifyStatus(process, expectedProcessStatuses);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(107384)]
         [TestCase]
         [Description("Lock an existing process by deleting with the second user. Verify that the" +
             "status of the process model obtained by the first user.")]

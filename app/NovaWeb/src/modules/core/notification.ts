@@ -19,7 +19,7 @@ export class NotificationService implements INotificationService {
     private getHandlers(name: string): ICallbacks {
         let handler = (this.handlers.filter(function (it: ICallbacks) {
             return it.name === name;
-        }) || [])[0];
+        }))[0];
         if (!handler) {
             handler = <ICallbacks>{ name: name, callbacks: [] };
             this.handlers.push(handler);

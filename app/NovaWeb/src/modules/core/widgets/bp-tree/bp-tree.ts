@@ -281,7 +281,7 @@ export class BPTreeController  {
         var model = this.options.api.getModel();
         this.selectedRow = model.getRow(params.rowIndex);
         this.selectedRow.setSelected(true, true);
-        if (typeof this.onSelect === `function`) {
+        if (angular.isFunction(this.onSelect)) {
             this.onSelect({item: this.selectedRow.data});
         }
     };
@@ -308,7 +308,7 @@ export class BPTreeController  {
 
             self.rowFocus(params.event.target);
 
-            if (typeof self.onRowClick === `function`) {
+            if (angular.isFunction(self.onRowClick)) {
                 self.onRowClick({prms: params});
         } 
         }, 250);
@@ -318,7 +318,7 @@ export class BPTreeController  {
         // this is just to cancel the (single) click event in case of double-click
         this.$timeout.cancel(this.clickTimeout);
 
-        if (typeof this.onRowDblClick === `function`) {
+        if (angular.isFunction(this.onRowDblClick)) {
             this.onRowDblClick({prms: params});
         }
     };

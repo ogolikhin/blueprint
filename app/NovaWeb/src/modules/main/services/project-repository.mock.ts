@@ -37,9 +37,9 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
-    public getProject(id?: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]> {
-        var deferred = this.$q.defer<Models.IProjectItem[]>();
-        var items: Models.IProjectItem[] = [
+    public getProject(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
+        var deferred = this.$q.defer<Models.IArtifact[]>();
+        var items: Models.IArtifact[] = [
             {
                 id: artifactId || id,
                 name: (artifactId ? `Artifact ${artifactId}` : `Project ${id}`) ,
@@ -48,7 +48,6 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 predefinedType: 1,
                 projectId: id,
                 version: 1,
-                artifacts: [],
                 hasChildren: false
 
             }

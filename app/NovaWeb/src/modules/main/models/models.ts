@@ -1,50 +1,48 @@
 ﻿import "angular";
 
-interface IItem {
+export interface IArtifact  {
     id: number;
     name: string;
+    projectId: number;
     typeId: number;
     parentId: number;
     predefinedType: number;
-}
-
-export interface IProjectItem extends IItem {
-    projectId: number;
-    version: number;
-    artifacts: IProjectItem[];
-    hasChildren: boolean;  ///needs to be changed camelCase 
+    version?: number;
+    hasChildren?: boolean;  
+    children?: IArtifact[];
     //flags:
 }
 
 export interface IProject {
     id: number;
     name: string;
-    artifacts: IProjectItem[];
-    getArtifact(id: number, node?: IProjectItem[]): IProjectItem;
+    children: IArtifact[];
+    getArtifact(id: number, node?: IArtifact[]): IArtifact;
 }
 
 export interface IProjectNode {
-    type: string;
     id: number;
-    parentFolderId: number;
+    type: number;
     name: string;
+    parentFolderId: number;
     description?: string;
+    hasChildren: boolean;
     children?: IProjectNode[];
 }
 
 export class Project implements IProject {
     public id: number;
     public name: string;
-    public artifacts: IProjectItem[];
+    public children: IArtifact[];
 
-    constructor(data?: IProjectItem[]) {
-        this.artifacts = data;
+    constructor(data?: IArtifact[]) {
+        this.children = data;
     };
 
-    public getArtifact(id: number, nodes?: IProjectItem[]): IProjectItem {
-        let item: IProjectItem;
+    public getArtifact(id: number, nodes?: IArtifact[]): IArtifact {
+        let item: IArtifact;
         if (!nodes) {
-            return this.getArtifact(id, this.artifacts);
+            return this.getArtifact(id, this.children);
         } else {
             nodes.map(function (node) {
                 if (node.id === id) {  ///needs to be changed camelCase 

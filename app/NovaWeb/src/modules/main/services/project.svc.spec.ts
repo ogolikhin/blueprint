@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {IProjectService, ProjectService, Data} from "./project.svc";
+import {IProjectService, ProjectService, Models} from "./project.svc";
 import {IProjectNotification, SubscriptionEnum} from "./project-notification";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
 
@@ -51,9 +51,9 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<Data.IProjectItem[]> {
-        var deferred = this.$q.defer <Data.IProjectItem[]>();
-        var items: Data.IProjectItem[] = [];
+    public getProject(id?: number): ng.IPromise<Models.IProjectItem[]> {
+        var deferred = this.$q.defer <Models.IProjectItem[]>();
+        var items: Models.IProjectItem[] = [];
         deferred.resolve(items);
         return deferred.promise;
     }
@@ -71,14 +71,14 @@ describe("ProjectService", () => {
         it("resolve successfully - one older", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
                 // Arrange
             $httpBackend.expectGET("svc/adminstore/instance/folders/1/children")
-                .respond(200, <Data.IProjectNode[]>[
+                .respond(200, <Models.IProjectNode[]>[
                         { id: 3, parentFolderId: 1, name: "Imported Projects", type: "Folder", description : "" }
                     ]
                     );
 
                 // Act
             var error: any;
-            var data: Data.IProjectNode[];
+            var data: Models.IProjectNode[];
             projectService.getFolders().then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 
@@ -99,7 +99,7 @@ describe("ProjectService", () => {
 
             // Act
             var error: any;
-            var data: Data.IProjectNode[];
+            var data: Models.IProjectNode[];
             projectService.getFolders(5).then((responce) => { data = responce; }, (err) => error = err);
             $httpBackend.flush();
 

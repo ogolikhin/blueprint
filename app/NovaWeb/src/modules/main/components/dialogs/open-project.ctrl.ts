@@ -3,7 +3,7 @@ import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
 
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as pSvc from "../../services/project.svc";
+import * as Repository from "../../repositories/project-repository";
 
 export interface IOpenProjectResult {
     id: number;
@@ -14,15 +14,14 @@ export interface IOpenProjectResult {
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private selectedItem: any;
-    private tree: IBPTreeController;
-
-
+    private tree: IBPTreeController; 
+    
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private service: pSvc.IProjectService,
+        private repository: Repository.IProjectRepository,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
@@ -86,7 +85,7 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.service.getFolders(id)
+        this.repository.getFolders(id)
             .then((data: any[]) => { //pSvc.IProjectNode[]
                 self.tree.setDataSource(data, id);
             }, (error) => {

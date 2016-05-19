@@ -3,7 +3,7 @@
 export interface INotification {
     signin(name: string, callback: any);
     signout(name: string, callback: any);
-    notifyTo(name: string, ...prms: any[]);
+    dispatch(name: string, ...prms: any[]);
 }
 
 class ICallbacks {
@@ -41,7 +41,7 @@ export class NotificationService implements INotification {
         }) || [];
     };
 
-    public notifyTo(name: string, prms: any[]) {
+    public dispatch(name: string, prms: any[]) {
         let handler = this.getHandlers(name);
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);

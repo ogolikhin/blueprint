@@ -1,13 +1,13 @@
 ﻿/// <reference path="../../core/notification.ts" />
 import {ILocalizationService} from "../../core/localization";
 import {IProjectNotification} from "./project-notification";
-import * as Data from "../repositories/artifacts";
+import * as Models from "../models/models";
 
-export {Data}
+export {Models}
 
 export interface IProjectService {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]>;
+    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -20,10 +20,10 @@ export class ProjectService implements IProjectService {
         private notification: IProjectNotification) {
     }
 
-    public getFolders(id?: number): ng.IPromise<Data.IProjectNode[]> {
+    public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {
         var defer = this.$q.defer<any>();
         this.$http.get<any>(`svc/adminstore/instance/folders/${id || 1}/children`)
-            .success((result: Data.IProjectNode[]) => {
+            .success((result: Models.IProjectNode[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {
@@ -35,7 +35,7 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(projectId: number, artifactId?: number): ng.IPromise<Data.IProjectItem[]> {
+    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IProjectItem[]> {
         var defer = this.$q.defer<any>();
         if (!projectId) {
             throw new Error("Inavlid parameter ");
@@ -44,7 +44,7 @@ export class ProjectService implements IProjectService {
         let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
 
         this.$http.get<any>(url)
-            .success((result: Data.IProjectItem[]) => {
+            .success((result: Models.IProjectItem[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
                 var error = {

@@ -193,9 +193,9 @@ export class BPTreeController  {
 
     //to select a tree node in ag grid
     public selectNode(id: number) {
-        this.options.api.forEachNode(function (it) {
+        this.options.api.getModel().forEachNode(function (it) {
             if (it.data.id === id) {
-                it.setSelected(true);            }
+                it.setSelected(true, true);            }
         });
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities;
@@ -170,7 +171,7 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        public List<LockResultInfo> Lock(
+        public LockResultInfo Lock(
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -183,7 +184,18 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToLock = new List<IArtifactBase> { this };
 
-            return LockArtifacts(artifactToLock, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            var artifactLockResults = LockArtifacts(
+                artifactToLock,
+                Address,
+                user,
+                expectedStatusCodes,
+                sendAuthorizationAsCookie);
+
+            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+
+            var artifactLockResult = artifactLockResults.First();
+
+            return artifactLockResult;
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,
@@ -211,6 +223,143 @@ namespace Model.ArtifactModel.Impl
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifactInfo;
+        }
+
+        public RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetDiagramContentForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactInfo = GetArtifactInfo(user: user);
+            string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            switch (artifactInfo.BaseTypePredefined)
+            {
+                case ItemTypePredefined.BusinessProcess:
+                case ItemTypePredefined.DomainDiagram:
+                case ItemTypePredefined.GenericDiagram:
+                case ItemTypePredefined.Storyboard:
+                case ItemTypePredefined.UseCaseDiagram:
+                case ItemTypePredefined.UIMockup:
+                    path = I18NHelper.FormatInvariant("{0}/{1}", URL_DIAGRAM, Id);
+                    break;
+                default:
+                    throw new ArgumentException("Method works for graphical artifacts only.");
+            }
+            var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(resourcePath: path,
+                method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return diagramContent;
+        }
+
+        public RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetUseCaseContentForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactInfo = GetArtifactInfo(user: user);
+            string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", URL_USECASE, Id);
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(resourcePath: path,
+                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return returnedArtifactContent;
+            }
+            else
+            {
+                throw new ArgumentException("Method works for UseCase artifacts only.");
+            }
+        }
+
+        public RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetGlossaryContentForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            var artifactInfo = GetArtifactInfo(user: user);
+            string path;
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
+            {
+                path = I18NHelper.FormatInvariant("{0}/{1}", URL_GLOSSARY, Id);
+                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(resourcePath: path,
+                    method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+                return returnedArtifactContent;
+            }
+            else
+            {
+                throw new ArgumentException("Method works for Glossary artifacts only.");
+            }
+        }
+
+        public RapidReviewProperties GetPropertiesForRapidReview(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            if (user == null)
+            {
+                Assert.NotNull(CreatedBy, "No user is available to perform GetPropertiesForRapidReview.");
+                user = CreatedBy;
+            }
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            string path = URL_ARTIFACTPROPERTIES;
+            var artifactIds = new List<int> { Id };
+            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(resourcePath: path,
+                method: RestRequestMethod.POST, jsonObject: artifactIds, expectedStatusCodes: expectedStatusCodes);
+            return returnedArtifactProperties[0];
         }
 
         #endregion Methods

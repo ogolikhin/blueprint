@@ -1,7 +1,9 @@
 ﻿import "angular";
 import {ILocalizationService} from "../../../core/localization";
+import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
+
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as pSvc from "../../services/project.svc";
+import * as Repository from "../../repositories/project-repository";
 
 export interface IOpenProjectResult {
     id: number;
@@ -12,13 +14,14 @@ export interface IOpenProjectResult {
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private selectedItem: any;
-
+    private tree: IBPTreeController; 
+    
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private service: pSvc.IProjectService,
+        private repository: Repository.IProjectRepository,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
@@ -30,20 +33,14 @@ export class OpenProjectController extends BaseDialogController {
     //Dialog return value
     public get returnvalue(): IOpenProjectResult {
         return <IOpenProjectResult>{
-            id: (this.selectedItem && this.selectedItem["Id"]) || -1,
-            name: (this.selectedItem && this.selectedItem["Name"]) || "",
-            description: (this.selectedItem && this.selectedItem["Description"]) || ""
+            id: (this.selectedItem && this.selectedItem["id"]) || -1,
+            name: (this.selectedItem && this.selectedItem["name"]) || "",
+            description: (this.selectedItem && this.selectedItem["description"]) || ""
         };
     };
     public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.Type === `Project`;
+        return this.selectedItem && this.selectedItem.type === `Project`;
     }
-
-    //public stripHTMLTags = (stringToSanitize: string): string => {
-    //    var stringSanitizer = window.document.createElement("DIV");
-    //    stringSanitizer.innerHTML = stringToSanitize;
-    //    return stringSanitizer.textContent || stringSanitizer.innerText || "";
-    //};
 
     public escapeHTMLText = (stringToEscape: string): string =>  {
         var stringEscaper = window.document.createElement("TEXTAREA");
@@ -61,17 +58,18 @@ export class OpenProjectController extends BaseDialogController {
 
     public columns = [{
         headerName: this.localization.get("App_Header_Name"),
-        field: "Name",
+        field: "name",
         cellClassRules: {
-            "has-children": function(params) { return params.data.Type === "Folder" && params.data.HasChildren; },
-            "is-project": function(params) { return params.data.Type === "Project"; }
+            "has-children": function(params) { return params.data.hasChildren; },
+            "is-folder": function (params) { return params.data.type === "Folder"; },
+            "is-project": function (params) { return params.data.type === "Project"; }
         },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = this.escapeHTMLText(params.data.Name);
+                var sanitizedName = this.escapeHTMLText(params.data.name);
 
-                if (params.data.Type === "Project") {
+                if (params.data.type === "Project") {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
                 }
@@ -83,15 +81,18 @@ export class OpenProjectController extends BaseDialogController {
         suppressFiltering : true
     }];
 
-    public doLoad = (prms: any): ng.IPromise<any[]> => {
+    public doLoad = (prms: any): any[] => {
         //check passed in parameter
-        return this.service.getFolders();
-    };
+        let self = this;
+        let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
+        this.repository.getFolders(id)
+            .then((data: any[]) => { //pSvc.IProjectNode[]
+                self.tree.setDataSource(data, id);
+            }, (error) => {
+                //self.showError(error);
+            });
 
-    public doExpand = (prms: any): ng.IPromise<any[]> => {
-        //check passesd in parameter
-        var id = (prms && prms.Id) ? prms.Id : null;
-        return this.service.getFolders(id);
+        return null;
     };
 
     public doSelect = (item: any) => {
@@ -99,7 +100,7 @@ export class OpenProjectController extends BaseDialogController {
         this.$scope.$applyAsync((s) => {
             this.selectedItem = item;
             if (item.Description) {
-                var description = item.Description;
+                var description = item.description;
                 var virtualDiv = window.document.createElement("DIV");
                 virtualDiv.innerHTML = description;
                 var aTags = virtualDiv.querySelectorAll("a");

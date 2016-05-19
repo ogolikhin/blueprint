@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentForRapidReviewTests.cs" />
     <Compile Include="DiscardTests.cs" />
     <Compile Include="NavigationTests.cs" />
     <Compile Include="LockArtifactTests.cs" />

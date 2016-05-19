@@ -86,6 +86,9 @@ namespace AdminStoreTests
         #region Success tests
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107437)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & PUT requests.  " +
+            "POST a new session to AdminStore.  Verify it returns 200 OK.")]
         public void PostSession_AccessControlErrorAllMethodsExceptPOST_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -101,6 +104,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107438)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: GET, HEAD & POST requests.  " +
+            "Try to delete an existing session from AdminStore.  Verify it returns 200 OK.")]
         public void DeleteSession_AccessControlErrorAllMethodsExceptDELETEandPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -117,6 +123,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107439)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "Try to get an existing session from AdminStore.  Verify it returns 200 OK.")]
         [Ignore(IgnoreReasons.UnderDevelopment)]    // AdminStore.GetSession() isn't implemented!!
         public void GetSession_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
@@ -135,6 +144,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107440)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD, POST & PUT requests.  " +
+            "Try to get the config.js file from AdminStore.  Verify it returns 200 OK.")]
         public void GetConfigJs_AccessControlErrorAllMethods_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -153,6 +165,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107441)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
+            "Try to get the Login User for a valid session token.  Verify it returns 200 OK.")]
         public void GetLoginUser_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -174,6 +189,9 @@ namespace AdminStoreTests
         #region Error tests
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107442)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: POST requests.  " +
+            "Try to POST a new session to AdminStore.  Verify it returns a 500 Internal Server error.")]
         public void PostSession_AccessControlErrorPOST_Expect500Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -186,6 +204,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodesAndExpectedExceptions))]
+        [TestRail(107443)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE requests.  " +
+            "Try to delete an existing session from AdminStore.  Verify it returns the same error code that the AccessControlDouble is set to return.")]
         public void DeleteSession_AccessControlErrorDELETE_ExpectError(HttpStatusCode accessControlError, Type expectedException)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -200,6 +221,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107444)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to delete an existing session from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void DeleteSession_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -214,6 +238,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107445)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to get a session token for the specified User ID.  Verify it returns a 401 Unauthorized error.")]
         [Ignore(IgnoreReasons.UnderDevelopment)]    // AdminStore.GetSession() isn't implemented!!
         public void GetSession_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
@@ -229,13 +256,16 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107446)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE requests.  " +
+            "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void GetLicenseTransactions_AccessControlErrorDELETE_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
                 _adminStore.AddSession(_user.Username, _user.Password);
 
-                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
+                accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);   // XXX: Why does GET /license/transactions make a DELETE request to AccessControl???
 
                 Assert.Throws<Http401UnauthorizedException>(() => { _adminStore.GetLicenseTransactions(numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for DELETE requests!", accessControlError);
@@ -243,6 +273,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107447)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: GET requests.  " +
+            "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void GetLicenseTransactions_AccessControlErrorGET_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -257,6 +290,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107448)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: HEAD requests.  " +
+            "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void GetLicenseTransactions_AccessControlErrorHEAD_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -271,6 +307,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107449)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: POST requests.  " +
+            "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void GetLicenseTransactions_AccessControlErrorPOST_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -285,6 +324,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107450)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to get license transactions from AdminStore.  Verify it returns a 401 Unauthorized error.")]
         public void GetLicenseTransactions_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -299,6 +341,9 @@ namespace AdminStoreTests
         }
 
         [Test, TestCaseSource(nameof(StatusCodes))]
+        [TestRail(107451)]
+        [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
+            "Try to get the Login User for an existing session token.  Verify it returns a 401 Unauthorized error.")]
         public void GetLoginUser_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())

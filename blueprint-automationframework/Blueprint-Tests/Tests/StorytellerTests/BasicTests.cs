@@ -202,14 +202,22 @@ namespace StorytellerTests
 
         [TestCase]
         [TestRail(107376)]
-        [Description("change artifact name, discard")]
-        public void DiscardArtifactWithChangedName_VerifyResult()
+        [Description("Add a user task after an existing user task, discard")]
+        public void DiscardArtifactAddedUserTask_VerifyResult()
         {
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
 
-            // Modify default process Name
-            process.Name = "new name";
+            // Find the end shape
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the incoming link for the end shape
+            var endIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
+
+            // Add a user/system task immediately before the end shape
+            process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
             var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);

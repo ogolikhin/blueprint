@@ -1,4 +1,5 @@
-﻿using Model.ArtifactModel;
+﻿using System.Collections.Generic;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using TestConfig;
 using Utilities;

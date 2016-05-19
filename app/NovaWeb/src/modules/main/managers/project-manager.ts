@@ -12,9 +12,7 @@ export interface IProjectManager {
     ProjectCollection: Models.IProject[];
     CurrentProject: Models.IProject;
 
-    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>
-
-
+    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -22,7 +20,7 @@ export class ProjectManager implements IProjectManager {
 
     static $inject: [string] = ["projectRepository", "projectNotification"];
     constructor(
-        private _service: IProjectRepository,
+        private _repository: IProjectRepository,
         private notificator: IProjectNotification) {
 
         //subscribe to event
@@ -59,7 +57,7 @@ export class ProjectManager implements IProjectManager {
             this.CurrentProject = project;
             self.notificator.notify(SubscriptionEnum.ProjectLoaded, self.CurrentProject, true);
         } else {
-            this._service.getProject(projectId)
+            this._repository.getProject(projectId)
                 .then((result: Models.IProjectItem[]) => {
                     project = new Models.Project(result);
                     project.id = projectId;
@@ -67,8 +65,9 @@ export class ProjectManager implements IProjectManager {
                     self.ProjectCollection.push(project);
                     self.notificator.notify(SubscriptionEnum.ProjectLoaded, project, false);
                     self.CurrentProject = project;
-                }).catch(() => {
-
+                }).catch((error: any) => {
+                    //TODO: show error
+                    console.log(error.message);
                 });
         }
     }
@@ -76,7 +75,7 @@ export class ProjectManager implements IProjectManager {
     private loadProjectChildren = (projectId: number, artifactId: number) => {
         let self = this;
 
-        this._service.getProject(projectId, artifactId)
+        this._repository.getProject(projectId, artifactId)
             .then((result: Models.IProjectItem[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
                 if (node) {
@@ -104,6 +103,6 @@ export class ProjectManager implements IProjectManager {
     }
 
     public getFolders(id?: number) {
-        return this._service.getFolders(id);
+        return this._repository.getFolders(id);
     }
 }

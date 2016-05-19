@@ -42,7 +42,6 @@ export class NotificationService implements INotificationService {
                 return it.name !== handler.name;
             });
         }
-            
     };
 
     public dispatch(name: string, ...prms: any[]) {
@@ -51,16 +50,5 @@ export class NotificationService implements INotificationService {
             it.apply(it, prms);
         });
     }
-
-
-    //public subscribeTo(name: string, callback: any): Function {
-    //    return this.root.$on(name, callback);
-    //};
-
-    //public notifyTo(name: string, ...prms: any[]) {
-    //    this.root.$emit.apply(this.root, [name].concat(prms));
-    //}
-
-
 };
 

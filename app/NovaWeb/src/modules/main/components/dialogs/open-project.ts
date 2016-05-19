@@ -1,4 +1,5 @@
 ﻿import "angular";
+import {Helper} from "../../../core/utils/helper";
 import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
@@ -41,12 +42,6 @@ export class OpenProjectController extends BaseDialogController {
         return this.selectedItem && this.selectedItem.type === `Project`;
     }
 
-    public escapeHTMLText = (stringToEscape: string): string =>  {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
-    };
-
     private onEnterKeyOnProject = (e: any) => {
         var key = e.which || e.keyCode;
         if (key === 13) {
@@ -66,7 +61,7 @@ export class OpenProjectController extends BaseDialogController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = this.escapeHTMLText(params.data.name);
+                var sanitizedName = Helper.escapeHTMLText(params.data.name);
 
                 if (params.data.type === "Project") {
                     var cell = params.eGridCell;

@@ -1,6 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {IProjectRepository, ProjectRepository, Models} from "./project-repository";
+import {ProjectRepositoryMock} from "./project-repository.mock";
 import {IProjectNotification, SubscriptionEnum} from "./project-notification";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
 
@@ -12,51 +13,6 @@ class ProjectNotificationMock implements IProjectNotification {
     };
     public notify(type: SubscriptionEnum, ...prms: any[]) {
     };
-}
-
-export class ProjectRepositoryMock implements IProjectRepository {
-    public static $inject = ["$q"];
-    constructor(private $q: ng.IQService) { }
-
-    public getFolders(id?: number): ng.IPromise<any[]> {
-        var deferred = this.$q.defer<any[]>();
-        var folders = [
-            {
-                "Id": 3,
-                "ParentFolderId": 1,
-                "Name": "Folder with content",
-                "Type": "Folder"
-            },
-            {
-                "Id": 7,
-                "ParentFolderId": 1,
-                "Name": "Empty folder",
-                "Type": "Folder"
-            },
-            {
-                "Id": 8,
-                "ParentFolderId": 1,
-                "Name": "<button onclick=\"alert('Hey!')\">Embedded HTML in name</button>",
-                "Type": "Folder"
-            },
-            {
-                "Id": 33,
-                "ParentFolderId": 1,
-                "Name": "Process",
-                "Description": "Process description",
-                "Type": "Project"
-            }
-        ];
-        deferred.resolve(folders);
-        return deferred.promise;
-    }
-
-    public getProject(id?: number): ng.IPromise<Models.IProjectItem[]> {
-        var deferred = this.$q.defer <Models.IProjectItem[]>();
-        var items: Models.IProjectItem[] = [];
-        deferred.resolve(items);
-        return deferred.promise;
-    }
 }
 
 describe("ProjectService", () => {

@@ -81,7 +81,7 @@ namespace AdminStoreTests
 
                 /*Executes get folder REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                 HttpStatusCode statusCode = helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
+                helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
             }
             
             if (_user != null)
@@ -108,7 +108,7 @@ namespace AdminStoreTests
 
                 /*Executes get folder REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER EXISTS. INSTANCE 99 DOESN'T EXIST*/
-                HttpStatusCode statusCode = helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(nonExistingFolder, session, expectedCodeslist, false);
+                helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(nonExistingFolder, session, expectedCodeslist, false);
             }
 
             if (_user != null)
@@ -155,7 +155,7 @@ namespace AdminStoreTests
 
                 /*Executes get folder REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                HttpStatusCode statusCode = helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
+                helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
             }
 
             if (_user != null)
@@ -178,7 +178,7 @@ namespace AdminStoreTests
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
             using (TestHelper helper = new TestHelper())
             {
-                HttpStatusCode statusCode = helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, null, expectedCodeslist, hasChildren, true);
+                helper.AdminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, null, expectedCodeslist, hasChildren, true);
             }
         }
     }

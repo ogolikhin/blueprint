@@ -105,6 +105,7 @@ namespace CommonServiceTests
 
         #endregion Setup and Cleanup
 
+        // TODO: check discard exception: Artifact 13631 has nothing to discard on tear-down
         [TestRail(107358)]
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.BusinessProcess)]

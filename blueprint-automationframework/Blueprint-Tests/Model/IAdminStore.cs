@@ -121,13 +121,31 @@ namespace Model
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets setting from ConfigControl .
+        /// Gets setting from ConfigControl.
+        /// (Runs: GET /config/settings)
+        /// </summary>
+        /// <param name="user">The user containing the token to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Settings dictionary. Now it is empty.</returns>
+        Dictionary<string, object> GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets setting from ConfigControl.
         /// (Runs: GET /config/settings)
         /// </summary>
         /// <param name="session">A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Settings dictionary. Now it is empty.</returns>
         Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets config.js from ConfigControl.
+        /// (Runs: GET /config/config.js)
+        /// </summary>
+        /// <param name="user">The user containing the token to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>config.js file.</returns>
+        string GetConfigJs(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets config.js from ConfigControl.
@@ -147,6 +165,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
         IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets list of license transactions.
+        /// (Runs: GET /licenses/transactions?days=numberOfDays)
+        /// </summary>
+        /// <param name="user">The user containing the token to authenticate with.</param>
+        /// <param name="numberOfDays">Number of days of license transactions history.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of LicenseActivity.</returns>
+        IList<LicenseActivity> GetLicenseTransactions(IUser user, int numberOfDays, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Reset the user's password with a new one.

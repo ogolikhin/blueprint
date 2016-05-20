@@ -36,7 +36,7 @@ export class BPTooltip implements ng.IDirective {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
-                function mouseMove(e) {
+                function updateTooltip(e) {
                     if (e.clientX > document.body.clientWidth / 2) {
                         tooltip.style.left = "";
                         tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
@@ -61,11 +61,11 @@ export class BPTooltip implements ng.IDirective {
                     }
                 }
 
-                function mouseOver(e) {
+                function showTooltip(e) {
                     angular.element(tooltip).addClass("show");
                 }
 
-                function mouseOut(e) {
+                function hideTooltip(e) {
                     angular.element(tooltip).removeClass("show");
                 }
 
@@ -91,14 +91,18 @@ export class BPTooltip implements ng.IDirective {
                     elem.appendChild(tooltip);
                 }
 
-                elem.addEventListener("mousemove", mouseMove);
-                elem.addEventListener("mouseover", mouseOver);
-                elem.addEventListener("mouseout", mouseOut);
+                elem.addEventListener("mousemove", updateTooltip);
+                elem.addEventListener("mouseover", showTooltip);
+                elem.addEventListener("mousedown", hideTooltip);
+                elem.addEventListener("mouseout", hideTooltip);
+                //elem.addEventListener("transitionend", hideTooltip);
 
                 $scope.$on('$destroy', function () {
-                    elem.removeEventListener("mousemove", mouseMove);
-                    elem.removeEventListener("mouseover", mouseOver);
-                    elem.removeEventListener("mouseout", mouseOut);
+                    elem.removeEventListener("mousemove", updateTooltip);
+                    elem.removeEventListener("mouseover", showTooltip);
+                    elem.removeEventListener("mousedown", hideTooltip);
+                    elem.removeEventListener("mouseout", hideTooltip);
+                    //elem.removeEventListener("transitionend", hideTooltip);
                     tooltip.remove();
                 });
             }
@@ -109,7 +113,7 @@ export class BPTooltip implements ng.IDirective {
         //list of other dependencies*/
     ) {}
 
-    public static Factory() {
+    public static factory() {
         var directive = (
             //list of dependencies
         ) => {

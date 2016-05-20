@@ -8,11 +8,9 @@ using Utilities.Facades;
 
 namespace Model.Impl
 {
-    public class ConfigControl : IConfigControl
+    public class ConfigControl : NovaServiceBase, IConfigControl
     {
         private const string SVC_PATH = "/svc/configcontrol";
-
-        private readonly string _address;
 
         /// <summary>
         /// Constructor.
@@ -22,7 +20,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
+            Address = address;
         }
 
         #region Inherited from IConfigControl
@@ -30,7 +28,7 @@ namespace Model.Impl
         /// <see cref="IConfigControl.GetLog(List{HttpStatusCode})"/>
         public IFile GetLog(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, token: string.Empty);
+            var restApi = new RestApiFacade(Address, token: string.Empty);
             var path = I18NHelper.FormatInvariant("{0}/log/getlog", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(
@@ -53,6 +51,18 @@ namespace Model.Impl
             }
 
             return file;
+        }
+
+        /// <see cref="IConfigControl.GetStatus(List{HttpStatusCode})"/>
+        public string GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
+        {
+            return GetStatus(SVC_PATH, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IConfigControl.GetStatusUpcheck"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
         #endregion Inherited from IConfigControl

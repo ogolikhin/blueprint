@@ -1,13 +1,15 @@
 ﻿using System.Linq;
 using CustomAttributes;
 using Model;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Helper;
+using System.Net;
 
 namespace StorytellerTests
 {
@@ -50,7 +52,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -115,7 +117,7 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IOpenApiArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
@@ -140,7 +142,7 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
 
             artifact.Save(_user);
             artifact.Publish(_user);
@@ -149,7 +151,7 @@ namespace StorytellerTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    var artifactsList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
+                    var artifactsList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
                     Assert.IsTrue(artifactsList.Count > 0);
                 }, "Couldn't find an artifact named '{0}'.", artifact.Name);
             }
@@ -167,23 +169,23 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListHasExpectedLength()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifactList = new List<IOpenApiArtifact>();
-            IOpenApiArtifact artifact;
+            var artifactList = new List<IArtifact>();
+
             for (int i = 0; i < 12; i++)
             {
-                artifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
+                var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);
                 artifact.Save(_user);
                 artifact.Publish(_user);
                 artifactList.Add(artifact);
             }
 
-            //Implementation of CreateOpenApiArtifact use OpenApi_Artifact_ prefix to name artifacts
-            string searchString = "OpenApi_Artifact_";
+            //Implementation of CreateArtifact uses Artifact_ prefix to name artifacts
+            string searchString = "Artifact_";
             try
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    var searchResultList = OpenApiArtifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
+                    var searchResultList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
                     Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
                 });
             }
@@ -196,6 +198,41 @@ namespace StorytellerTests
                     artifactToDelete.Publish(_user);
                 }
             }
+        }
+
+        [TestCase]
+        [TestRail(107376)]
+        [Description("Add a user task after an existing user task, discard")]
+        public void DiscardArtifactAddedUserTask_VerifyResult()
+        {
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+
+            // Find the end shape
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find the incoming link for the end shape
+            var endIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            Assert.IsNotNull(endIncomingLink, "Process link was not found.");
+
+            // Add a user/system task immediately before the end shape
+            process.AddUserAndSystemTask(endIncomingLink);
+
+            // Update and Verify the modified process
+            var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            var processArtifact = new Artifact(_storyteller.Address, changedProcess.Id, changedProcess.ProjectId);
+
+            List<DiscardArtifactResult> discardResultList = null;
+            string expectedMessage = "Successfully discarded";
+            Assert.DoesNotThrow(() =>
+            {
+                discardResultList = processArtifact.NovaDiscard(_user);
+            }, "Must return no errors.");
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
+                (HttpStatusCode)0, discardResultList[0].ResultCode);
         }
     }
 }

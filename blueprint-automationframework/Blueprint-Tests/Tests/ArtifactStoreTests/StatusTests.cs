@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -27,7 +28,9 @@ namespace ArtifactStoreTests
                 content = _adminStore.GetStatus();
             }, "The GET /status endpoint should return 200 OK!");
 
-            CommonServiceHelper.ValidateStatusResponseContent(content);
+            var extraExpectedStrings = new List<string> { "ArtifactStore" };
+
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
         }
 
         [TestCase(null)]

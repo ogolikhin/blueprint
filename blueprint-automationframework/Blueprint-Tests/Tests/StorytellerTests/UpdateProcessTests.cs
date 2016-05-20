@@ -4,8 +4,8 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
-using Model.OpenApiModel.Impl;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
@@ -69,7 +69,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -110,6 +110,7 @@ namespace StorytellerTests
         [TestCase]
         [Description("Update the name of process and verify that the returned process has the" +
                      "modified name.")]
+        [Explicit(IgnoreReasons.UnderDevelopment)]//now /svc/components/storyteller/processes/{Id} doesn't allow to update process name
         public void ModifyReturnedProcessName_VerifyReturnedProcess()
         {
             // Create and get the default process
@@ -931,7 +932,7 @@ namespace StorytellerTests
             var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
             Assert.DoesNotThrow(() =>
             {
-                var discussions = OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemID: unpublishedUserTask.Id,
+                var discussions = OpenApiArtifact.GetDiscussions(address: _storyteller.Address, itemId: unpublishedUserTask.Id,
                 includeDraft: true, user: _user);
                 Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
                 Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");

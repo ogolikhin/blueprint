@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
+using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.Factories;
-using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using Helper;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StorytellerTests
 {
@@ -49,7 +49,7 @@ namespace StorytellerTests
             if (_storyteller.Artifacts != null)
             {
                 // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
+                var savedArtifactsList = new List<IArtifactBase>();
                 foreach (var artifact in _storyteller.Artifacts.ToArray())
                 {
                     if (artifact.IsPublished)
@@ -87,8 +87,8 @@ namespace StorytellerTests
 
         #region Tests
 
-        [TestCase]
         [TestRail(96091)]
+        [TestCase]
         [Description("Change the merge point of the second branch of system decision. Verify that returned process after the save " +
                      "contains valid merge point information.")]
         public void ChangeSystemDecisionMergePointForSecondBranch_VerifyReturnProcess()
@@ -143,8 +143,8 @@ namespace StorytellerTests
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96092)]
+        [TestCase]
         [Description("Change the merge point of the second branch of user decision. Verify that returned process after the save " +
                      "contains valid merge point information.")]
         public void ChangeUserDecisionMergePointForSecondBranch_VerifyReturnProcess()
@@ -202,8 +202,8 @@ namespace StorytellerTests
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96093)]
+        [TestCase]
         [Description("Save the process with a system decision which contains two branches beside the main branch. " +
                      "Each branch merges to different locations. Verify that returned process after the save " +
                      "contains valid merge point information.")]
@@ -270,8 +270,8 @@ namespace StorytellerTests
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96094)]
+        [TestCase]
         [Description("Save the process with a user decision which contains two branches beside the main branch. " +
              "Each branch merges to different locations. Verify that returned process after the save " +
              "contains valid merge point information.")]

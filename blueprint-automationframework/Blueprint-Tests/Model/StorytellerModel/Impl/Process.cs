@@ -4,11 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -23,9 +24,9 @@ namespace Model.StorytellerModel.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "<Start with a verb, i.e. select, run, view>";
+        public const string DefaultUserTaskName = "UT";
 
-        public const string DefaultSystemTaskName = "<Start with a verb, i.e. display, print, calculate>";
+        public const string DefaultSystemTaskName = "ST";
 
         public const string EndName = "End";
 
@@ -1470,7 +1471,7 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public AssociatedArtifact AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public AssociatedArtifact AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -1557,37 +1558,8 @@ namespace Model.StorytellerModel.Impl
         public string Label { get; set; }
 
     }
-    public class AssociatedArtifact
+    public class AssociatedArtifact : ArtifactReference
     {
-        /// <summary>
-        /// The Id of the Artifact
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// The Project Id for the artifact
-        /// </summary>
-        public int ProjectId { get; set; }
-
-        /// <summary>
-        /// The name of the artifact
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The type prefix for the artifact
-        /// </summary>
-        public string TypePrefix { get; set; }
-
-        /// <summary>
-        /// The base item type for the artifact
-        /// </summary>
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
-
-        /// <summary>
-        /// The link to navigate to the artifact
-        /// </summary>
-        public string Link { get; set; }
     }
 
     public class PropertyValueInformation

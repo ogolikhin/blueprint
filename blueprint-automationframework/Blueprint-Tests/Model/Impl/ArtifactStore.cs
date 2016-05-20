@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Common;
 using Utilities;
-using Utilities.Facades;
 
 namespace Model.Impl
 {
-    public class ArtifactStore : IArtifactStore
+    public class ArtifactStore : NovaServiceBase, IArtifactStore
     {
         private const string SVC_PATH = "svc/artifactstore";
-
-        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -20,7 +18,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
+            Address = address;
         }
 
         #region Members inherited from IArtifactStore
@@ -28,32 +26,51 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetStatus"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (preAuthorizedKey != null)
-            {
-                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
-            }
-
-            Logger.WriteInfo("Getting ArtifactStore status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            return response.Content;
+            return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            string path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
-
-            Logger.WriteInfo("Getting ArtifactStore status upcheck...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            return response.StatusCode;
+            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
         #endregion Members inherited from IArtifactStore
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all artifacts that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(ArtifactStore), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // TODO: Delete anything created by this class.
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all artifacts that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

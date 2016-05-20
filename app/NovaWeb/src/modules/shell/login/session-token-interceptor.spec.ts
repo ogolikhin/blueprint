@@ -1,13 +1,13 @@
 ﻿import "angular";
-import "angular-mocks"
+import "angular-mocks";
 import {SessionTokenInterceptor} from "./session-token-interceptor";
 import {SessionTokenHelper} from "./session.token.helper";
 
 describe("SessionTokenInterceptor", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-    
+
     }));
-    
+
     it("return http config when Session-Token already defined", () => {
         // Arrange
         let tokenHelperSpy = spyOn(SessionTokenHelper, "getSessionToken");
@@ -22,7 +22,7 @@ describe("SessionTokenInterceptor", () => {
         // Assert
         expect(result).toEqual(config, "Config is different");
         expect(tokenHelperSpy).not.toHaveBeenCalled();
-    });    
+    });
 
     it("add Session-Token when not defined", () => {
         // Arrange
@@ -38,6 +38,6 @@ describe("SessionTokenInterceptor", () => {
         expect(tokenHelperSpy).toHaveBeenCalled();
         expect(result.headers).toBeDefined("headers are not defined");
         expect(result.headers[SessionTokenHelper.SESSION_TOKEN_KEY]).toEqual(token, "token is different");
-    });    
+    });
 
 });

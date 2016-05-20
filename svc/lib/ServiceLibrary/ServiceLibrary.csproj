@@ -72,6 +72,7 @@
     <Compile Include="..\..\SolutionAssemblyVersion.cs">
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\SessionOptionalAttribute.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
     <Compile Include="Models\PerformanceLogModel.cs" />
     <Compile Include="Models\StandardLogModel.cs" />

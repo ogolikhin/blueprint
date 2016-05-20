@@ -10,12 +10,10 @@ using Model.Factories;
 
 namespace Model.Impl
 {
-    public class AdminStore : IAdminStore
+    public class AdminStore : NovaServiceBase, IAdminStore
     {
         private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
-
-        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -25,7 +23,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
+            Address = address;
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.AddSsoSession(string, string, bool?, List{HttpStatusCode})"/>
         public ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions/sso", SVC_PATH);
 
             string encodedSamlResponse = HashingUtilities.EncodeTo64UTF8(samlResponse);
@@ -101,7 +99,7 @@ namespace Model.Impl
         public ISession AddSession(string username = null, string password = null, bool? force = null,
             List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             string encodedUsername = HashingUtilities.EncodeTo64UTF8(username);
@@ -161,7 +159,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.DeleteSession(string, List{HttpStatusCode})"/>
         public void DeleteSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
@@ -181,7 +179,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, token: token);
+            RestApiFacade restApi = new RestApiFacade(Address, token: token);
             string path = I18NHelper.FormatInvariant("{0}/users/loginuser", SVC_PATH);
 
             try
@@ -226,36 +224,19 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetStatus"/>
         public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (preAuthorizedKey != null)
-            {
-                queryParameters.Add("preAuthorizedKey", preAuthorizedKey);
-            }
-
-            Logger.WriteInfo("Getting AdminStore status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-            return response.Content;
+            return GetStatus(SVC_PATH, preAuthorizedKey, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetStatusUpcheck"/>
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            string path = I18NHelper.FormatInvariant("{0}/status/upcheck", SVC_PATH);
-
-            Logger.WriteInfo("Getting AdminStore status upcheck...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            return response.StatusCode;
+            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetSettings(ISession, List{HttpStatusCode})"/>
         public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/config/settings", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
@@ -273,7 +254,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetConfigJs(ISession, List{HttpStatusCode})"/>
         public string GetConfigJs(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/config/config.js", SVC_PATH);
 
             Dictionary<string, string> additionalHeaders = null;
@@ -291,7 +272,7 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetLicenseTransactions(int, ISession, List{HttpStatusCode})"/>
         public IList<LicenseActivity> GetLicenseTransactions(int numberOfDays, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture)} };
@@ -340,7 +321,7 @@ namespace Model.Impl
 
             Logger.WriteInfo("Resetting user '{0}' password from '{1}' to '{2}'", user.Username, user.Password, newPassword ?? "null");
 
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(Address, string.Empty);
             restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.POST,
@@ -350,5 +331,49 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IAdminStore
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AdminStore), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in Sessions.ToArray())
+                {
+                    // AdminStore removes and adds a new session in some cases, so we should expect a 401 error in some cases.
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
+                    DeleteSession(session, expectedStatusCodes);
+                }
+
+                Sessions.Clear();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

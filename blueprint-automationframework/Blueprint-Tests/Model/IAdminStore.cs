@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Model
 {
-    public interface IAdminStore
+    public interface IAdminStore : IDisposable
     {
         List<ISession> Sessions { get; }
 

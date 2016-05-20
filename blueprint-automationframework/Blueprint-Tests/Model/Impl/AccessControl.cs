@@ -10,12 +10,10 @@ using Newtonsoft.Json;
 namespace Model.Impl
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
-    public class AccessControl : IAccessControl
+    public class AccessControl : NovaServiceBase, IAccessControl
     {
         private const string SVC_PATH = "svc/accesscontrol";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
-
-        private static string _address;
 
         /// <summary>
         /// Constructor.
@@ -25,7 +23,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(address, nameof(address));
 
-            _address = address;
+            Address = address;
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(session, nameof(session));
 
-            var restApi = new RestApiFacade(_address, session.SessionId);
+            var restApi = new RestApiFacade(Address, session.SessionId);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
             Dictionary<string, string> queryParameters = null;
 
@@ -81,7 +79,7 @@ namespace Model.Impl
             int? licenseLevel = null,
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, userId);
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
@@ -127,7 +125,7 @@ namespace Model.Impl
 
         public void DeleteSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)  // DELETE /sessions
         {
-            var restApi = new RestApiFacade(_address, session?.SessionId);
+            var restApi = new RestApiFacade(Address, session?.SessionId);
             string path = I18NHelper.FormatInvariant("{0}/sessions", SVC_PATH);
 
             Logger.WriteInfo("Deleting session '{0}'.", session?.SessionId);
@@ -139,7 +137,7 @@ namespace Model.Impl
 
         public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
 
             Logger.WriteTrace("path = '{0}'.", path);
@@ -153,19 +151,20 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public HttpStatusCode GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
+        public string GetStatus(List<HttpStatusCode> expectedStatusCodes = null)    // GET /status
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
-            string path = I18NHelper.FormatInvariant("{0}/status", SVC_PATH);
+            return GetStatus(SVC_PATH, preAuthorizedKey: null, expectedStatusCodes: expectedStatusCodes);
+        }
 
-            Logger.WriteInfo("Getting AccessControl status...");
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
-            return response.StatusCode;
+        /// <seealso cref="IAccessControl.GetStatusUpcheck"/>
+        public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
         public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(Address, string.Empty);
             string path;
 
             Dictionary<string, string> additionalHeaders = null;
@@ -204,7 +203,7 @@ namespace Model.Impl
 
         public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
@@ -232,7 +231,7 @@ namespace Model.Impl
 
         public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(_address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/sessions/select", SVC_PATH);
 
 
@@ -272,5 +271,47 @@ namespace Model.Impl
             }
         }
         #endregion Members inherited from IAccessControl
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AccessControl), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in Sessions.ToArray())
+                {
+                    DeleteSession(session);
+                }
+
+                Sessions.Clear();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

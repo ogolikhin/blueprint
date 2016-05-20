@@ -18,7 +18,7 @@ function Setup-Environment {
 
     #Remove and recreate folders
     Write-Subsection "Cleaning up and recreating folders" 
-    $folders = @("$workspace\TestResults", "$workspace\svc\DeployArtifacts")
+    $folders = @("$workspace\TestResults", "$workspace\Svc\DeployArtifacts", "$workspace\app\NovaWeb\dist")
     $folders | ForEach-Object { 
         New-Directory -directory $_ -recreate $removeFiles
     }
@@ -27,7 +27,7 @@ function Setup-Environment {
     Invoke-MyExpression "c:\nuget.exe" "restore ""$workspace\svc\Services.sln"" -PackagesDirectory ""$workspace/packages"""
 }
 
-function Build-Nova{
+function Build-Nova-Services{
     param(
         [Parameter(Mandatory=$true)][string]$workspace,
         [Parameter(Mandatory=$true)][string]$blueprintVersion,
@@ -50,13 +50,54 @@ function Build-Nova{
 
     Write-Section "Building Nova services"
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
+    $sharedTrailingArgs = "/maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:AutoParameterizationWebConfigConnectionStrings=False"
+    
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AccessControl\AccessControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AccessControl`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ConfigControl\ConfigControl.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ConfigControl`"" + $sharedTrailingArgs
 
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
-    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`" /maxcpucount /T:`"Build;WebPublish`" /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True"
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\FileStore\FileStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\FileStore`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\AdminStore\AdminStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\AdminStore`"" + $sharedTrailingArgs
+    Invoke-MsBuild @msBuildArgs -project $workspace\svc\ArtifactStore\ArtifactStore.csproj -trailingArguments "/p:publishUrl=`"$workspace\svc\DeployArtifacts\ArtifactStore`"" + $sharedTrailingArgs
+}
 
+function Build-Nova-Html{
+    param(
+        [Parameter(Mandatory=$true)][string]$workspace,
+        [Parameter(Mandatory=$true)][string]$blueprintVersion,
+
+        [Parameter(Mandatory=$true)][string]$msBuildPath,
+        [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
+        [Parameter(Mandatory=$true)][string]$visualStudioVersion,
+
+        #Unused, for splatting the same hashtable into multiple methods without error.
+        [Parameter(ValueFromRemainingArguments=$true)] $vars
+    )
+
+    Write-Section "Building Nova Html"
+
+    try
+    {
+       pushd "$workspace\app\NovaWeb"
+   
+       Invoke-MyExpression "npm" "install"
+       Invoke-MyExpression "npm" "update"
+       Invoke-MyExpression "typings" "i"
+
+       # Increment build version number
+       $version = $blueprintVersion.split(".")
+       $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
+       Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
+
+       # Build Nova Application
+       Invoke-MyExpression "npm" "run build"
+
+       # Test Nova Application
+       Invoke-MyExpression "npm" "run test"
+    }
+    finally
+    {
+        popd
+    }
 }
 
 function Run-Nova-Unit-Tests{

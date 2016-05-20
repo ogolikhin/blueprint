@@ -12,7 +12,7 @@ using Utilities.Facades;
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
+    [Category(Categories.FileStore)]
     public class NegativeTests
     {
         const string SVC_FILES_PATH = "svc/filestore/files";

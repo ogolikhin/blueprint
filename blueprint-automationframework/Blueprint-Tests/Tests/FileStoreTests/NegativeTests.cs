@@ -29,7 +29,7 @@ namespace FileStoreTests
         [TearDown]
         public void TestTearDown()
         {
-            Helper.Dispose();
+            Helper?.Dispose();
         }
 
         /// <summary>

@@ -237,6 +237,13 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
+        /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>
+        public Dictionary<string, object> GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetSettings(session, expectedStatusCodes);
+        }
+
         /// <seealso cref="IAdminStore.GetSettings(ISession, List{HttpStatusCode})"/>
         public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -253,6 +260,13 @@ namespace Model.Impl
             Logger.WriteInfo("Getting settings...");
             RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
+        }
+
+        /// <seealso cref="IAdminStore.GetConfigJs(IUser, List{HttpStatusCode})"/>
+        public string GetConfigJs(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetConfigJs(session, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetConfigJs(ISession, List{HttpStatusCode})"/>
@@ -279,17 +293,21 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture)} };
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
             {
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
             }
+
             try
             {
                 Logger.WriteInfo("Getting list of License Transactions...");
+
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
                 return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
             }
             catch (WebException ex)
@@ -298,6 +316,13 @@ namespace Model.Impl
                 Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
                 throw;
             }
+        }
+
+        /// <seealso cref="IAdminStore.GetLicenseTransactions(IUser, int, List{HttpStatusCode})"/>
+        public IList<LicenseActivity> GetLicenseTransactions(IUser user, int numberOfDays, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
         }
 
         public HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false)

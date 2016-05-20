@@ -38,34 +38,34 @@ class ProjectExplorerController {
 
     private loadProject = (project: Models.IProject, alreadyOpened: boolean) => {
         if (alreadyOpened) {
-            this.tree.selectNode(project.id);
+            this.selectItem(project.id);
             return;
-        };
+        }
         this.tree.addNode(<ITreeNode>{
             id: project.id,
             type: 1,
             name: project.name,
             hasChildren: true,
             open: true
-        }); 
-        
+        });
+
         this.tree.setDataSource(project.children, project.id);
-    }
+    };
 
     private loadProjectChildren = (project: Models.IProject, artifactId) => {
         var nodes = project.getArtifact(artifactId).children;
         this.tree.setDataSource(nodes, artifactId);
-    }
+    };
 
     private closeProject(projects: Models.IProject[]) {
         projects.map(function (it: Models.IProject) {
             this.tree.removeNode(it.id);
-        }.bind(this)); 
+        }.bind(this));
         this.tree.setDataSource();
     }
 
     private selectItem(id: number) {
-        this.tree.selectNode(this.manager.CurrentProject.id);
+        this.tree.selectNode(id);
     }
 
     public columns = [{
@@ -77,7 +77,7 @@ class ProjectExplorerController {
             "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
-        suppressMenu: true, 
+        suppressMenu: true,
         suppressSorting: true,
         suppressFiltering: true
     }];
@@ -85,7 +85,7 @@ class ProjectExplorerController {
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
-            return null;    
+            return null;
         }
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
@@ -98,5 +98,4 @@ class ProjectExplorerController {
         //this.$scope.$applyAsync((s) => {});
         this.selectItem(item);
     };
-
 }

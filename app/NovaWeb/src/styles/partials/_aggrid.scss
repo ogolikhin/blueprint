@@ -68,10 +68,11 @@
       }
     }
 
+    .ag-row-selected,
     .ag-cell-range-selected {
       outline: none;
 
-      > span > span {
+      span > span {
         background: $brand-secondary;
         color: $white;
       }

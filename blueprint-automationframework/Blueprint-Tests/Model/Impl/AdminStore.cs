@@ -16,7 +16,7 @@ namespace Model.Impl
         private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
-        public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
         private string _address = null;
 
         /// <summary>
@@ -308,9 +308,9 @@ namespace Model.Impl
             else
                 restApi = new RestApiFacade(_address, null);
 
-            string sCommand = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+            string command = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
 
-            string path = I18NHelper.FormatInvariant(sCommand, SVC_PATH, folderId);
+            string path = I18NHelper.FormatInvariant(command, SVC_PATH, folderId);
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "folderId", folderId.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
@@ -325,13 +325,13 @@ namespace Model.Impl
                 if (response.StatusCode == HttpStatusCode.OK)
                     if (!hasChildren)
                     {
-                        PrimitiveFolder pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
-                        Assert.IsNotNull(pf);
+                        var pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
                     }
                     else
                     {
-                        List<PrimitiveFolder> lpf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
-                        Assert.IsNotNull(lpf);
+                        var pf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
                     }
 
                 return response.StatusCode;

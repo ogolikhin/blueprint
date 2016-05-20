@@ -15,6 +15,9 @@ namespace AdminStoreTests
     {
         private readonly IAdminStore _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
 
+        private const int defaultFolderId = 1;
+        private const int nonExistingFolder = 99;
+
         [TestCase]
         [Description("Calls the /status endpoint for AdminStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
         public void Status_ValidateReturnedContent()
@@ -55,7 +58,7 @@ namespace AdminStoreTests
         [TestRail(119382)]
         [TestCase(false)]
         [TestCase(true)]
-        [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns HTTP OK code")]
+        [Description("Gets the folder or folder children and returns 'OK' if successful")]
         public void GetFolderOrChildren_OK(bool hasChildren)
         {
             IUser _user = UserFactory.CreateUserAndAddToDatabase();
@@ -63,9 +66,12 @@ namespace AdminStoreTests
             // Get a valid Access Control token for the user (for the new REST calls).
             ISession session = _adminStore.AddSession(_user.Username, _user.Password);
 
+            List<HttpStatusCode> expectedCodeslist = new List<HttpStatusCode>();
+            expectedCodeslist.Add(HttpStatusCode.OK);
+
             /*Executes get folder REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(1, session, null, hasChildren);
+            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
 
             Assert.IsTrue(statusCode == HttpStatusCode.OK);
 
@@ -78,7 +84,7 @@ namespace AdminStoreTests
 
         [TestRail(119383)]
         [Test]
-        [Description("Calls instance/folders/{folderId}/ command for AdminStore and returns HTTP Not Found code")]
+        [Description("Gets the folder and returns 'Not Found' if successfull")]
         public void GetFolder_NotFound()
         {
             IUser _user = UserFactory.CreateUserAndAddToDatabase();
@@ -91,7 +97,7 @@ namespace AdminStoreTests
 
             /*Executes get folder REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER EXISTS. INSTANCE 99 DOESN'T EXIST*/
-            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(99, session, expectedCodeslist, false);
+            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(nonExistingFolder, session, expectedCodeslist, false);
 
             Assert.True(statusCode == HttpStatusCode.NotFound);
 
@@ -105,7 +111,7 @@ namespace AdminStoreTests
         [TestRail(119384)]
         [TestCase(false)]
         [TestCase(true)]
-        [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns Unauthorized code")]
+        [Description("Gets the folder or folder children and returns 'Unauthorized' if successful")]
         public void GetFolderOrChildren_Unauthorized(bool hasChildren)
         {
             IUser _user = UserFactory.CreateUserAndAddToDatabase();
@@ -137,7 +143,7 @@ namespace AdminStoreTests
 
             /*Executes get folder REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(1, session, expectedCodeslist, hasChildren);
+            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, session, expectedCodeslist, hasChildren);
 
             Assert.True(statusCode == HttpStatusCode.Unauthorized);
 
@@ -151,7 +157,7 @@ namespace AdminStoreTests
         [TestRail(119385)]
         [TestCase(false)]
         [TestCase(true)]
-        [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns Bad Request code")]
+        [Description("Gets the folder or folder children and returns 'Bad Request' if successful")]
         public void GetFolderOrChildren_BadRequestd(bool hasChildren)
         {
             List<HttpStatusCode> expectedCodeslist = new List<HttpStatusCode>();
@@ -159,7 +165,7 @@ namespace AdminStoreTests
 
             /*Executes get folder REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(1, null, expectedCodeslist, hasChildren, true);
+            HttpStatusCode statusCode = _adminStore.GetReturnCodeFromFolderOrItsChildrenRequest(defaultFolderId, null, expectedCodeslist, hasChildren, true);
 
             Assert.True(statusCode == HttpStatusCode.BadRequest);
         }

@@ -12,6 +12,8 @@ export class BPTooltip implements ng.IDirective {
         var self = this;
         self.tooltipContent = $attrs[self["name"]];
 
+        var tooltip;
+
         function zIndexedParent(el) {
             let node = el.parentElement;
             while (node) {
@@ -32,49 +34,50 @@ export class BPTooltip implements ng.IDirective {
             return false;
         }
 
+        function updateTooltip(e) {
+            if (e.clientX > document.body.clientWidth / 2) {
+                tooltip.style.left = "";
+                tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
+                angular.element(tooltip).removeClass("bp-tooltip-left-tip");
+                angular.element(tooltip).addClass("bp-tooltip-right-tip");
+            } else {
+                tooltip.style.right = "";
+                tooltip.style.left = (e.clientX - 15) + "px";
+                angular.element(tooltip).removeClass("bp-tooltip-right-tip");
+                angular.element(tooltip).addClass("bp-tooltip-left-tip");
+            }
+            if (e.clientY > 80) { // put the tooltip at the bottom only within 80px from the top of the window
+                tooltip.style.top = "";
+                tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
+                angular.element(tooltip).removeClass("bp-tooltip-top-tip");
+                angular.element(tooltip).addClass("bp-tooltip-bottom-tip");
+            } else {
+                tooltip.style.bottom = "";
+                tooltip.style.top = e.clientY + 30 + "px";
+                angular.element(tooltip).removeClass("bp-tooltip-bottom-tip");
+                angular.element(tooltip).addClass("bp-tooltip-top-tip");
+            }
+        }
+
+        function showTooltip(e) {
+            angular.element(tooltip).addClass("show");
+        }
+
+        function hideTooltip(e) {
+            angular.element(tooltip).removeClass("show");
+        }
+
         if ($element && $element.length && self.tooltipContent) {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
-                function updateTooltip(e) {
-                    if (e.clientX > document.body.clientWidth / 2) {
-                        tooltip.style.left = "";
-                        tooltip.style.right = (document.body.clientWidth - e.clientX - 15) + "px";
-                        angular.element(tooltip).removeClass("bp-tooltip-left-tip");
-                        angular.element(tooltip).addClass("bp-tooltip-right-tip");
-                    } else {
-                        tooltip.style.right = "";
-                        tooltip.style.left = (e.clientX - 15) + "px";
-                        angular.element(tooltip).removeClass("bp-tooltip-right-tip");
-                        angular.element(tooltip).addClass("bp-tooltip-left-tip");
-                    }
-                    if (e.clientY > 80) { // put the tooltip at the bottom only within 80px from the top of the window
-                        tooltip.style.top = "";
-                        tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
-                        angular.element(tooltip).removeClass("bp-tooltip-top-tip");
-                        angular.element(tooltip).addClass("bp-tooltip-bottom-tip");
-                    } else {
-                        tooltip.style.bottom = "";
-                        tooltip.style.top = e.clientY + 30 + "px";
-                        angular.element(tooltip).removeClass("bp-tooltip-bottom-tip");
-                        angular.element(tooltip).addClass("bp-tooltip-top-tip");
-                    }
-                }
-
-                function showTooltip(e) {
-                    angular.element(tooltip).addClass("show");
-                }
-
-                function hideTooltip(e) {
-                    angular.element(tooltip).removeClass("show");
-                }
 
                 let elem = $element[0];
                 elem.removeAttribute("bp-tooltip");
 
                 self.attachToBody = zIndexedParent(elem);
 
-                let tooltip = document.createElement("DIV");
+                tooltip = document.createElement("DIV");
                 tooltip.className = "bp-tooltip";
 
                 let tooltipContent = document.createElement("DIV");

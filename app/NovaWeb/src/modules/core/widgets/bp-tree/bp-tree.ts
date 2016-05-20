@@ -195,7 +195,8 @@ export class BPTreeController  {
     public selectNode(id: number) {
         this.options.api.getModel().forEachNode(function (it) {
             if (it.data.id === id) {
-                it.setSelected(true, true);            }
+                it.setSelected(true, true);
+            }
         });
     }
 
@@ -287,30 +288,26 @@ export class BPTreeController  {
     };
 
     private rowFocus = (target: any) => {
-        function findAncestor(el, cls) {
-            while ((el = el.parentElement) && !el.classList.contains(cls)) {
-            }
-            return el;
-        }
-
-        var clickedCell = findAncestor(target, "ag-cell");
+        var clickedCell = Helper.findAncestorByCssClass(target, "ag-cell");
         if (clickedCell) {
             clickedCell.focus();
         }
     };
 
     private rowClicked = (params: any) => {
-            var self = this;
-            self.clickTimeout = self.$timeout(function () {
-                if (self.clickTimeout.$$state.status === 2) {
-                    return; // click event canceled by double-click
-                }
+        var self = this;
+        self.clickTimeout = self.$timeout(function () {
+            if (self.clickTimeout.$$state.status === 2) {
+                return; // click event canceled by double-click
+            }
 
             self.rowFocus(params.event.target);
 
             if (angular.isFunction(self.onRowClick)) {
                 self.onRowClick({prms: params});
-        } 
+            } else {
+                params.node.setSelected(true, true);
+            }
         }, 250);
     };
 

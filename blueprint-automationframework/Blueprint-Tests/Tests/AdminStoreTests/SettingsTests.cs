@@ -2,10 +2,10 @@
 using CustomAttributes;
 using Model;
 using Helper;
-using TestCommon;
 using Model.Factories;
 using System.Collections.Generic;
 using Common;
+using TestCommon;
 
 namespace AdminStoreTests
 {
@@ -37,6 +37,7 @@ namespace AdminStoreTests
             });
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [Test]//currently method is under development
         public void GetConfigJS_OK() // TODO: add check for returned content
         {
@@ -46,7 +47,7 @@ namespace AdminStoreTests
                 const int TEXT_RECORDS_TO_COMPARE = 6;
                 string[] textValues = new string[TEXT_RECORDS_TO_COMPARE];
 
-                string json = _adminStore.GetConfigJs(null);
+                string json = Helper.AdminStore.GetConfigJs(_user);
                 Logger.WriteDebug("Running: {0}", json);
 
                 using (var database = DatabaseFactory.CreateDatabase("AdminStore"))

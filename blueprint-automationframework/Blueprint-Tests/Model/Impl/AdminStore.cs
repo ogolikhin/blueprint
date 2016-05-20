@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 using Model.Factories;
+using Model.ArtifactModel;
 
 namespace Model.Impl
 {
@@ -14,6 +15,9 @@ namespace Model.Impl
     {
         private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
+
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
+        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -302,7 +306,7 @@ namespace Model.Impl
                 Logger.WriteInfo("Getting list of License Transactions...");
 
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                    queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
                 return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
             }
@@ -319,6 +323,51 @@ namespace Model.Impl
         {
             ISession session = SessionFactory.CreateSessionWithToken(user);
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
+        }
+
+        public HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false)
+        {
+            RestApiFacade restApi;
+            if (!badKey)
+                restApi = new RestApiFacade(_address, string.Empty);
+            else
+                restApi = new RestApiFacade(_address, null);
+
+            string command = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+
+            string path = I18NHelper.FormatInvariant(command, SVC_PATH, folderId);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "folderId", folderId.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            try
+            {
+                Logger.WriteInfo("Getting folder or its children - " + folderId);
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    if (!hasChildren)
+                    {
+                        var pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
+                    }
+                    else
+                    {
+                        var pf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
+                    }
+
+                return response.StatusCode;
+            }
+
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting folder or list of its children - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.ResetPassword(IUser, string, List{HttpStatusCode})"/>

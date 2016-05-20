@@ -245,7 +245,7 @@ namespace CommonServiceTests
         public void DeleteArtifactWhenLockedByOtherUser_VerifyNotDeleted(BaseArtifactType baseArtifactType)
         {
             // Create an artifact and publish with the user1
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
             artifact.Save();
             artifact.Publish();
 
@@ -274,10 +274,6 @@ namespace CommonServiceTests
             Assert.AreEqual(ArtifactValidationMessage.ArtifactAlreadyLocked,
                 failedDeleteArtifactResult.Message,
                 errorMessage);
-
-            // Remove locks by publishing the artifact for clean up process
-            _artifacts.Add(artifact);
-
         }
 
         [TestRail(107364)]
@@ -286,7 +282,7 @@ namespace CommonServiceTests
         public void DiscardArtifactWhenLockedByOtherUser_VerifyNotDiscarded(BaseArtifactType baseArtifactType)
         {
             // Create an artifact and publish with the user1
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            var artifact = CreateArtifact(_project, _user, baseArtifactType);
             artifact.Save();
             artifact.Publish();
 
@@ -319,9 +315,6 @@ namespace CommonServiceTests
             Assert.AreEqual(expectedMessage,
                 failedDiscardArtifactResult.Message,
                 errorMessage);
-
-            // Remove locks by publishing the artifact for clean up process
-            _artifacts.Add(artifact);
         }
 
         [TestRail(107365)]
@@ -332,10 +325,41 @@ namespace CommonServiceTests
             // Create artifact(s) and publish with the user1
             for (int i = 0; i < iteration; i++)
             {
-                var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+                var artifact = CreateArtifact(_project, _user, baseArtifactType);
                 artifact.Save();
                 artifact.Publish();
-                _artifacts.Add(artifact);
+            }
+
+            List<IArtifactBase> artifactList = _artifacts.ConvertAll(a => (IArtifactBase)a);
+
+            // Obtain locks for artifact(s) with the user1
+            var lockResultInfoList = Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user);
+
+            // Verify that lock obtained by checking the status section of artifact(s)?
+            foreach (var artifact in artifactList)
+            {
+                var lockResultInfo = lockResultInfoList[artifactList.IndexOf(artifact)];
+                Assert.That(lockResultInfo.Result.Equals(LockResult.Success),
+                    "The artifact {0} should be in \"Success\" but the result from the get lock call is \"{1}\",",
+                    artifact.Id, lockResultInfo.Result.ToString());
+                Assert.That(lockResultInfo.Info.LockOwnerLogin == null,
+                    "The artifact {0} should be locked by the user {1} but the result from the get lock call informed that "  +
+                    "it's locked by {2}.",
+                    artifact.Id, artifact.CreatedBy.Username, lockResultInfo.Info.LockOwnerLogin);
+            }
+        }
+
+        [TestRail(107366)]
+        [TestCase(BaseArtifactType.Process, 3)]
+        [Description("Verify that the locked artifacts with one user cannot be locked by other user")]
+        public void GetLocksForMultipleArtifactsWithOneArtifactLockedByOtherUser_VerifyLockIsNotObtainedForArtifactLockedByOtherUser(BaseArtifactType baseArtifactType, int iteration)
+        {
+            // Create artifact(s) and publish with the user1
+            for (int i = 0; i < iteration; i++)
+            {
+                var artifact = CreateArtifact(_project, _user, baseArtifactType);
+                artifact.Save();
+                artifact.Publish();
             }
 
             List<IArtifactBase> artifactList = _artifacts.ConvertAll(a => (IArtifactBase)a);
@@ -348,22 +372,14 @@ namespace CommonServiceTests
             {
                 var lockResultInfo = artifact.Lock(_user2);
                 Assert.That(lockResultInfo.Result.Equals(LockResult.AlreadyLocked),
-                    "The artifact {0} should be in \"AlreadyLocked\" but the result from the get lock call is {1},",
+                    "The artifact {0} should be in \"AlreadyLocked\" but the result from the get lock call is \"{1}\",",
                     artifact.Id, lockResultInfo.Result.ToString());
                 Assert.That(lockResultInfo.Info.LockOwnerLogin.Equals(artifact.CreatedBy.Username),
-                    "The artifact {0} should be locked by the user {1} but the result from the getl lock call shows " +
+                    "The artifact {0} should be locked by the user {1} but the result from the get lock call shows " +
                     "the lock owner is {2}.", artifact.Id, artifact.CreatedBy.Username, lockResultInfo.Info.LockOwnerLogin);
             }
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLocksForMultipleArtifactsWithOneArtifactLockedByOtherUsed_VerifyLockIsNotObtainedForArtifactLockedByOtherUser()
-        {
-            throw new NotImplementedException();
-        }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]

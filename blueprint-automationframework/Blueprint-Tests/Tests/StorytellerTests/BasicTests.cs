@@ -61,7 +61,10 @@ namespace StorytellerTests
                     }
                     else if (artifact.IsSaved)
                     {
-                        savedArtifactsList.Add(artifact);
+                        if (artifact.IsSaved)
+                        {
+                            savedArtifactsList.Add(artifact);
+                        }
                     }
                 }
                 if (savedArtifactsList.Any())
@@ -210,7 +213,7 @@ namespace StorytellerTests
 
             // Find the end shape
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
-
+            
             // Find the incoming link for the end shape
             var endIncomingLink = process.GetIncomingLinkForShape(endShape);
 
@@ -220,9 +223,9 @@ namespace StorytellerTests
             process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            var changedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
-            var processArtifact = new Artifact(_storyteller.Address, changedProcess.Id, changedProcess.ProjectId);
-
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            var processArtifact = _storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
+            
             List<DiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
             Assert.DoesNotThrow(() =>

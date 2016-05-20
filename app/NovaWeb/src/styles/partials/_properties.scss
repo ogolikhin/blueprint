@@ -1,0 +1,203 @@
+$property-min-height: 28px;
+$property-width: 392px;
+$property-horiz-spacing: 10px;
+$property-label-width: 100px;
+$property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
+
+.properties {
+  border: solid 1px $gray-lighter;
+
+  + .properties {
+    margin-top: 15px;
+  }
+
+  &::after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+
+  > .heading {
+    color: $gray-dark;
+    cursor: pointer;
+    font-size: $font-size-smaller;
+    font-weight: 600;
+    line-height: 1em;
+    min-height: 36px;
+    padding: 11px 14px 11px 9px;
+
+    &::before {
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px dashed;
+      border-top: 5px solid \9;
+      content: '';
+      display: inline-block;
+      height: 0;
+      margin-right: 5px;
+      position: relative;
+      top: -2px;
+      width: 0;
+    }
+  }
+
+  &.collapsed {
+    > .heading::before {
+      border-bottom: 5px solid transparent;
+      border-left: 5px dashed;
+      border-left: 5px solid \9;
+      border-top: 5px solid transparent;
+      left: 3px;
+      top: 0;
+    }
+
+    > .content {
+      display: none;
+    }
+  }
+
+  > .content {
+    align-content: flex-start;
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: $font-size-smallest;
+    justify-content: space-between;
+    margin: 0 10px;
+    overflow: auto;
+    padding: 0 0 10px;
+
+    // create "padding" to align un-even numbers of property groups
+    &::after,
+    &::before {
+      content: '';
+      display: flex;
+      //flex: 392px;
+      flex-grow: 0;
+      flex-shrink: 1;
+      order: 0;
+      width: 392px;
+  }
+
+    &::before {
+      order: 1;
+}
+  }
+}
+
+.property-group {
+  align-items: flex-start;
+  border-left: solid $property-horiz-spacing transparent;
+  border-right: solid $property-horiz-spacing transparent;
+  display: flex;
+  //flex: $property-width;
+  flex-basis: auto;
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  font-size: 0; // to eliminate empty space. Must redefine font-size in children!
+  //margin: 1px 0 0;
+  margin: 0 0 12px;
+  //max-width: $property-width;
+  min-height: $property-min-height;
+  order: 0;
+  width: $property-width;
+
+  label {
+    color: $gray-dark;
+    display: inline-block;
+    font-size: $font-size-smallest;
+    font-weight: 400;
+    margin: 6px 0 0;
+    width: $property-label-width;
+  }
+
+  input[type=text],
+  textarea {
+    border: solid 1px #eef0f0;
+    box-sizing: border-box;
+    color: $gray-dark;
+    font-size: $font-size-smallest;
+    font-weight: 400;
+    max-width: $property-input-width;
+    padding-left: 6px;
+    width: $property-input-width;
+
+    &.readonly {
+      border-color: transparent;
+    }
+
+    &.editable:focus,
+    &.editable:hover {
+      background: #fbf8e7 url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
+      padding-right: 20px;
+    }
+
+    &.typeahead {
+      background: url('images/typeahead-arrow.png') no-repeat right;
+      padding-right: 23px;
+    }
+
+    &::-ms-clear {
+      display: none;
+    }
+  }
+
+  input[type=text] {
+    min-height: $property-min-height;
+    padding-right: 6px;
+  }
+
+  textarea {
+    min-height: #{1.5 * $property-min-height};
+    overflow: auto;
+    padding-right: 20px;
+  }
+
+  &.error {
+    label + span {
+      display: inline-block;
+      position: relative;
+
+      input[type=text],
+      textarea {
+        border-bottom: solid 1px $brand-error;
+      }
+
+      input[type=text].typeahead {
+        border: solid 1px $brand-error;
+      }
+    }
+
+    label + span::after {
+      //background: rgba($white, .5);
+      bottom: -$font-size-smallest;
+      color: $brand-error;
+      content: attr(data-validation);
+      font-size: $font-size-micro;
+      padding: 1px;
+      position: absolute;
+      right: 2px;
+      text-align: right;
+    }
+  }
+
+  .dropdown-menu {
+    border: solid 1px $gray-lighter;
+    border-radius: 0;
+    color: $gray-dark;
+    font-size: $font-size-smallest;
+    padding: 0;
+    width: $property-input-width;
+
+    > li > a {
+      padding: 4px 6px;
+    }
+
+    > .active > a,
+    > .active > a:hover,
+    > .active > a:focus {
+      background: $brand-secondary;
+    }
+  }
+}

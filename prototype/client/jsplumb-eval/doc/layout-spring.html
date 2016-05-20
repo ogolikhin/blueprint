@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Spring Layout</h2>
+
+<p>This is a force-directed layout that models edges as springs.  [[Wikipedia|http://en.wikipedia.org/wiki/Force-directed<em>graph</em>drawing]] has a good introduction to these types of layouts.</p>
+
+<p><img src="spring-layout.png" alt="Spring Layout"></p>
+
+<p>This layout is useful for unstructured data - database schemas, mind maps, graphs, etc. Force-directed algorithms initially position nodes with a degree of randomness and so do not ever produce exactly the same result twice; for this reason it is recommended that you read the note on <a href="layouts.html#refreshvsrelayout">refresh vs re-layout</a>, and also familiarise yourself with the <a href="rendering.html#saverestore">UI state features</a> provided by the Surface component.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li><strong>padding</strong>   Optional [ x, y ] array of values to use as the padding between elements. Defaults to [50, 50], which is taken to mean 50 pixels around each individual Node.</li>
+<li><strong>absoluteBacked</strong> By default this is set to true. See <a href="#absolute-backing">below</a> for a discussion of this.</li>
+</ul>
+
+<h3>Example</h3>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a name="absolute-backing"></a></p>
+
+<h3>Absolute Backing</h3>
+
+<p><code>SpringLayout</code> extends <a href="layout-absolute.html"><code>AbsoluteLayout</code></a>, which means that, by default, the layout will defer to absolute node positions that are stored in the backing data for each node.  This is a very useful feature for the majority of applications: you do not typically want the layout to run if a human being has already taken a look at the data and perhaps moved things around to be more to their liking.</p>
+
+<h5>Specifying Position</h5>
+
+<p>The default parameters used by <code>AbsoluteLayout</code> are <code>left</code> and <code>top</code>.  So for instance you might have these nodes in your data:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">nodes</span><span class="o">:</span><span class="p">[</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nx">left</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span> <span class="nx">top</span><span class="o">:</span><span class="mi">150</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;One&quot;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="nx">left</span><span class="o">:</span><span class="mi">150</span><span class="p">,</span> <span class="nx">top</span><span class="o">:</span><span class="mi">250</span><span class="p">,</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;Two&quot;</span> <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>By default, the Spring layout will honour these values if they are present, rather than processing the nodes.</p>
+
+<p>If you do not wish to use <code>left</code> and <code>top</code>, you can provide your own <code>locationFunction</code>. This is discussed in the <a href="layout-absolute.html#location-function">documentation for the Absolute layout</a>.</p>
+
+<h5>Switching off Absolute backing</h5>
+
+<p>You can switch off Absolute backing via the <code>absoluteBacked</code> parameter:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkitInstance</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span><span class="p">,</span>
+    <span class="nx">absoluteBacked</span><span class="o">:</span><span class="kc">false</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<h3>Relayout</h3>
+
+<p>A relayout will generate a brand new arrangement of Nodes, due to the fact that Nodes are placed randomly initially.</p>
+
+<h3>Refresh</h3>
+
+<p>A refresh of the layout locks the positions of any nodes that were positioned in a previous run of the layout, and these nodes do not move: only nodes that have not yet been positioned by the layout algorithm will move.</p>
+
+<h3>Magnetization</h3>
+
+<p>This layout switches on <a href="magnetization.html#permanent">magnetization</a> by default. You can suppress this behaviour by setting <code>magnetize:false</code> on your layout parameters:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+  <span class="nx">container</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span>
+  <span class="nx">layout</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span><span class="p">,</span>
+    <span class="nx">magnetize</span><span class="o">:</span><span class="kc">false</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<h3>Demonstration</h3>
+
+<ul>
+<li>See a simple demonstration of this layout <a href="/demos/toolkit/spring/index.html">here</a>.</li>
+<li>This layout is also used by the <a href="/demos/toolkit/database-visualizer/index.html">Database Visualizer</a> and <a href="/demos/toolkit/hello-world/index.html">Hello World</a> examples.</li>
+</ul>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

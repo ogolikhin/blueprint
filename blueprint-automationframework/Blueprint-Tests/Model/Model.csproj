@@ -88,8 +88,6 @@
     <Compile Include="ArtifactModel\Impl\PropertyType.cs" />
     <Compile Include="ArtifactModel\Impl\Trace.cs" />
     <Compile Include="ArtifactModel\IProperty.cs" />
-    <Compile Include="Impl\PrimitiveFolder.cs" />
-    <Compile Include="IPrimitiveFolder.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />

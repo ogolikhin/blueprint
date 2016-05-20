@@ -1,0 +1,236 @@
+<div ng-controller="formSliderSwitcherController">
+    <!-- begin breadcrumb -->
+    <ol class="breadcrumb pull-right">
+        <li><a href="javascript:;">Home</a></li>
+        <li><a href="javascript:;">Form Stuff</a></li>
+        <li class="active">Form Slider + Switcher</li>
+    </ol>
+    <!-- end breadcrumb -->
+    <!-- begin page-header -->
+    <h1 class="page-header">Form Slider + Switcher <small>header small text goes here...</small></h1>
+    <!-- end page-header -->
+    
+    <!-- begin section-container -->
+    <div class="section-container section-with-top-border p-b-10">
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <h5 class="m-t-0">Switchery</h5>
+                <p class="m-b-15">
+                    Use the attribute <code>data-render="switchery"</code> to render the switchery switcher,
+                    and use the attribute <code>data-theme="default"</code> to set the theme color
+                </p>
+                <p class="m-b-15">
+                    <input type="checkbox" data-render="switchery" data-theme="inverse" checked />
+                </p>
+            
+                <h5 class="m-t-0">All Available Options</h5>
+                <ul class="p-l-20 m-b-15">
+                    <li class="m-b-5">theme: <code>data-theme="default"</code></li>
+                    <li class="m-b-5">secondary color: <code>data-secondary-color="#dfdfdf"</code></li>
+                    <li class="m-b-5">classname: <code>data-classname="switchery"</code></li>
+                    <li class="m-b-5">disabled: <code>data-disabled="true"</code></li>
+                    <li class="m-b-5">disabledOpacity: <code>data-disabled-opacity="0.5"</code></li>
+                    <li>speed: <code>data-speed="0.5s"</code></li>
+                </ul>
+            </div>
+            <!-- end col-6 -->
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <h5 class="m-t-0">Switchery Theme</h5>
+                <!-- begin row -->
+                <div class="row">
+                    <!-- begin col-6 -->
+                    <div class="col-md-6">
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="inverse" checked /> 
+                            <code class="m-l-5">data-theme="default"</code>
+                        </p>
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="grey" checked /> 
+                            <code class="m-l-5">data-theme="grey"</code>
+                        </p>
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="primary" checked /> 
+                            <code class="m-l-5">data-theme="primary"</code>
+                        </p>
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="info" checked /> 
+                            <code class="m-l-5">data-theme="info"</code>
+                        </p>
+                        <p class="m-b-15">
+                            <input type="checkbox" data-render="switchery" data-theme="purple" checked /> 
+                            <code class="m-l-5">data-theme="purple"</code>
+                        </p>
+                    </div>
+                    <!-- end col-6 -->
+                    <!-- begin col-6 -->
+                    <div class="col-md-6">
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="danger" checked /> 
+                            <code class="m-l-5">data-theme="danger"</code>
+                        </p>
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="warning" checked /> 
+                            <code class="m-l-5">data-theme="warning"</code>
+                        </p>
+                        <p>
+                            <input type="checkbox" data-render="switchery" data-theme="success" checked /> 
+                            <code class="m-l-5">data-theme="success"</code>
+                        </p>
+                        <p class="m-b-15">
+                            <input type="checkbox" data-render="switchery" data-theme="lime" checked /> 
+                            <code class="m-l-5">data-theme="lime"</code>
+                        </p>
+                    </div>
+                    <!-- end col-6 -->
+                </div>
+                <!-- end row -->
+                <h5>Switchery State</h5>
+                <p class="m-b-15">
+                    <input type="checkbox" data-render="switchery" data-theme="default" checked />
+                    <span class="m-l-5 m-r-20">checked</span>
+                    <input type="checkbox" data-render="switchery" data-theme="default" />
+                    <span class="m-l-5 m-r-20">unchecked</span>
+                    <input type="checkbox" data-render="switchery" data-theme="default" data-disabled="true" checked />
+                    <span class="m-l-5">disabled</span>
+                </p>
+            </div>
+            <!-- end col-6 -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end section-container -->
+    
+    <!-- begin section-container -->
+    <div class="section-container section-with-top-border p-b-10">
+        <!-- begin row -->
+        <div class="row">
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <h5 class="m-t-0">Powerange Slider</h5>
+                <p>
+                    Use the attribute <code>data-render="poweranger-slider"</code> to render the switchery powerange slider.
+                </p>
+                <!-- begin row -->
+                <div class="row">
+                    <!-- begin col-10 -->
+                    <div class="col-md-10">
+                        <div class="slider-wrapper slider-inverse m-b-15">
+                            <input type="text" data-render="powerange-slider" data-start="70" />
+                        </div>
+                    </div>
+                    <!-- end col-10 -->
+                </div>
+                <!-- end row -->
+                
+                <h5 class="m-t-0">All Available Options</h5>
+                <ul class="p-l-20">
+                    <li class="m-b-5">decimal: <code>data-decimal="false"</code></li>
+                    <li class="m-b-5">disable: <code>data-disable="false"</code></li>
+                    <li class="m-b-5">disableOpacity: <code>data-disable-opacity="0.5"</code></li>
+                    <li class="m-b-5">hideRange: <code>data-hide-range="false"</code></li>
+                    <li class="m-b-5">klass: <code>data-class=""</code></li>
+                    <li class="m-b-5">min: <code>data-min="0"</code></li>
+                    <li class="m-b-5">max: <code>data-max="100"</code></li>
+                    <li class="m-b-5">start: <code>data-min="null"</code></li>
+                    <li class="m-b-5">step: <code>data-min="null"</code></li>
+                    <li>vertical: <code>data-vertical="false"</code></li>
+                </ul>
+            </div>
+            <!-- end col-6 -->
+            <!-- begin col-6 -->
+            <div class="col-md-6">
+                <h5 class="m-t-0">Powerange Slider Theme</h5>
+                <p class="m-b-15">
+                    Available Classes for powerange slider is .slider-<code>inverse</code>, <code>grey</code>, <code>primary</code>, 
+                    <code>info</code>, <code>purple</code>, <code>danger</code>, <code>warning</code>, <code>success</code> and <code>lime</code>.
+                </p>
+                <div class="row m-b-15">
+                    <div class="col-md-4">
+                        <div class="slider-wrapper slider-inverse slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="30" />
+                        </div>
+                        <div class="slider-wrapper slider-grey slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="50" />
+                        </div>
+                        <div class="slider-wrapper slider-danger slider-without-range">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="70" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="slider-wrapper slider-primary slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="30" />
+                        </div>
+                        <div class="slider-wrapper slider-info slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="50" />
+                        </div>
+                        <div class="slider-wrapper slider-purple slider-without-range">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="70" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="slider-wrapper slider-warning slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="30" />
+                        </div>
+                        <div class="slider-wrapper slider-success slider-without-range m-b-5">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="50" />
+                        </div>
+                        <div class="slider-wrapper slider-lime slider-without-range">
+                            <input type="text" data-render="powerange-slider" data-hide-range="true" data-start="70" />
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="m-t-0">Vertical Slider</h5>
+                <p class="m-b-15">
+                    Add an attribute <code>data-vertical="true"</code> in order to display the slider in vertical mode
+                </p>
+                <div class="clearfix m-b-15">
+                    <div class="slider-wrapper slider-vertical slider-inverse slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="90" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-grey slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="70" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-primary slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="50" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-info slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="60" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-purple slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="80" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-danger slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="90" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-warning slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="95" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-success slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="70" data-height="120px" />
+                    </div>
+                    <div class="slider-wrapper slider-vertical slider-lime slider-without-range pull-left m-r-15">
+                        <input type="text" data-render="powerange-slider" data-hide-range="true" data-vertical="true" data-start="50" data-height="120px" />
+                    </div>
+                </div>
+            </div>
+            <!-- end col-6 -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end section-container -->
+
+    <!-- begin #footer -->
+    <div id="footer" class="footer">
+        <span class="pull-right">
+            <a href="javascript:;" class="btn-scroll-to-top" data-click="scroll-top">
+                <i class="fa fa-arrow-up"></i> <span class="hidden-xs">Back to Top</span>
+            </a>
+        </span>
+        &copy; 2015 <b>Source Admin</b> All Right Reserved
+    </div>
+    <!-- end #footer -->
+</div>

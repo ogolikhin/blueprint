@@ -1,0 +1,505 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <p><a id="top"></a></p>
+
+<h2>Multiple Renderers</h2>
+
+<p>This is an example of how the Toolkit supports multiple renderers for one dataset. It combines the <a href="demo-hierarchical.html">Hierarchical</a>, <a href="demo-circular.html">Circular</a>, <a href="demo-spring.html">Spring</a> and <a href="demo-absolute.html">Absolute</a> demonstrations into one page. Operations in one renderer affect the dataset and cause updates in all renderers.</p>
+
+<p><img src="demo-multiple-app.png" alt="Multiple Renderers Demo"></p>
+
+<ul>
+<li><a href="#setup">Page Setup</a></li>
+<li><a href="#templates">Templates</a></li>
+<li><a href="#loading">Data Loading</a></li>
+<li><a href="#view">View</a></li>
+<li><a href="#rendering">Rendering</a></li>
+<li><a href="#selecting">Selecting Nodes</a></li>
+<li><a href="#adding">Adding New Nodes</a></li>
+<li><a href="#deleting">Deleting Nodes</a></li>
+</ul>
+
+<p><a id="setup"></a></p>
+
+<h3>Page Setup</h3>
+
+<h6>CSS</h6>
+
+<ul>
+<li><strong>Font Awesome 4.0.3</strong> Used for all the iconography. Not a Toolkit requirement.</li>
+<li><strong>jsPlumbToolkit-defaults.css</strong> Recommended for all apps using the Toolkit, at least when you first start to build your app. This stylesheet contains sane defaults for the various widgets in the Toolkit.</li>
+<li><strong>jsPlumbToolkit-demo.css</strong> Common styles for the demonstration pages. Not a Toolkit requirement.</li>
+<li><strong>app.css</strong> Styles specific to this demo. </li>
+</ul>
+
+<h6>JS</h6>
+
+<ul>
+<li><strong>jsPlumb-x.x.x.js</strong></li>
+<li><strong>jsPlumbToolkit-x.x.x.js</strong></li>
+<li><strong>app.js</strong> Application specific JS.</li>
+<li><strong>demo-support.js</strong> Used to get random datasets for the demo to use</li>
+</ul>
+
+<hr>
+
+<p><a id="templates"></a></p>
+
+<h3>Templates</h3>
+
+<p>This demonstration uses a single template to render its nodes across all renderers:</p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplNode&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">&quot;width:${w}px;height:${h}px;&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;delete&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to delete&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-times&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;span&gt;</span>${name}<span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;add&quot;</span> <span class="na">title=</span><span class="s">&quot;Add child node&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-plus&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="loading"></a></p>
+
+<h3>Data Loading</h3>
+
+<p>Data for the demonstration is created using the <code>randomHierarchy</code> function from the included <code>demo-support.js</code> file. 
+This function creates an arbitrary hierarchy and assigns different widths/heights to the various nodes.</p>
+
+<p>The data is generated like this:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// make a random hierarchy</span>
+<span class="kd">var</span> <span class="nx">hierarchy</span> <span class="o">=</span> <span class="nx">jsPlumbToolkitDemoSupport</span><span class="p">.</span><span class="nx">randomHierarchy</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</code></pre></div>
+<p>And loaded via this call at the bottom of <code>app.js</code>:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span><span class="nx">data</span><span class="o">:</span> <span class="nx">hierarchy</span><span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="view"></a></p>
+
+<h3>View</h3>
+
+<p>This demonstration has a very simple view:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">view</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">nodes</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">template</span><span class="o">:</span> <span class="s2">&quot;tmplNode&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="rendering"></a></p>
+
+<h3>Rendering</h3>
+
+<p>The render parameters for this demonstration are broken up into two parts - common parameters, shared by all renderers, and then renderer-specific parameters (which are, in this case, just layout parameters, but could be anything).</p>
+
+<h6>Common Render Parameters</h6>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">jsPlumbOptions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">Anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+    <span class="nx">Connector</span><span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;StateMachine&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">curviness</span><span class="o">:</span> <span class="mi">10</span> <span class="p">}</span> <span class="p">],</span>
+    <span class="nx">DragOptions</span><span class="o">:</span> <span class="p">{</span> <span class="nx">cursor</span><span class="o">:</span> <span class="s2">&quot;pointer&quot;</span><span class="p">,</span> <span class="nx">zIndex</span><span class="o">:</span> <span class="mi">2000</span> <span class="p">},</span>
+    <span class="nx">PaintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s2">&quot;#89bcde&quot;</span> <span class="p">},</span>
+    <span class="nx">HoverPaintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s2">&quot;#FF6600&quot;</span><span class="p">,</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">3</span> <span class="p">},</span>
+    <span class="nx">Endpoints</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span> <span class="mi">2</span> <span class="p">}</span> <span class="p">],</span>
+        <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span> <span class="mi">2</span> <span class="p">}</span> <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="nx">EndpointStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;#89bcde&quot;</span> <span class="p">},</span>
+    <span class="nx">EndpointHoverStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;#FF6600&quot;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">commonParameters</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">view</span><span class="o">:</span> <span class="nx">view</span><span class="p">,</span>
+  <span class="nx">jsPlumb</span><span class="o">:</span> <span class="nx">jsPlumbOptions</span><span class="p">,</span>
+  <span class="nx">zoomToFit</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">lassoFilter</span><span class="o">:</span> <span class="s2">&quot;.controls, .controls *, .miniview, .miniview *&quot;</span><span class="p">,</span>
+  <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">canvasClick</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="nx">toolkit</span><span class="p">.</span><span class="nx">clearSelection</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">consumeRightClick</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Here&#39;s an explanation of what the various common parameters mean:</p>
+
+<ul>
+<li><strong>view</strong></li>
+</ul>
+
+<p>These are the Node, Port and Edge definitions.</p>
+
+<ul>
+<li><strong>consumeRightClick</strong></li>
+</ul>
+
+<p>This is something you&#39;ll find useful when developing: the default behaviour of the Surface widget is to consume 
+right-clicks.</p>
+
+<ul>
+<li><strong>lassoFilter</strong></li>
+</ul>
+
+<p>This selector specifies elements on which a mousedown should not cause the selection lasso to begin. In this 
+demonstration we exclude the buttons in the top left and the miniview. </p>
+
+<ul>
+<li><strong>events</strong></li>
+</ul>
+
+<p>We listen for the <code>canvasClick</code> event on the Surface: a click somewhere on the widget&#39;s whitespace. Then we clear 
+the Toolkit&#39;s current selection.</p>
+
+<ul>
+<li><strong>jsPlumb</strong></li>
+</ul>
+
+<p>Recall that the Surface widget is backed by an instance of jsPlumb. This parameter sets the 
+<a href="/docs/community/defaults.html">Defaults</a> for that object.  </p>
+
+<ul>
+<li><strong>zoomToFit</strong></li>
+</ul>
+
+<p>When true, this parameter instructs a Surface widget to zoom the content so that it is all visible, both when the 
+widget is first constructed (to cover the case that there is data already in the Toolkit) and also whenever new data is loaded via the <code>load</code> method on the Toolkit instance.</p>
+
+<h6>Renderer Specific Parameters</h6>
+
+<p>There are three things that are different for each renderer:</p>
+
+<ul>
+<li>the ID of the element to use as the Surface container</li>
+<li>the ID of the element to use as the miniview</li>
+<li>the layout parameters.</li>
+</ul>
+
+<p>All of this information is stored (indirectly, in the case of the element IDs) in the <code>rendererSpecs</code> object:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">rendererSpecs</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;hierarchical&quot;</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span>
+    <span class="nx">parameters</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">orientation</span><span class="o">:</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+      <span class="nx">padding</span><span class="o">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;circular&quot;</span><span class="o">:</span><span class="p">{</span>
+      <span class="nx">type</span><span class="o">:</span> <span class="s2">&quot;Circular&quot;</span><span class="p">,</span>
+      <span class="nx">parameters</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">padding</span><span class="o">:</span> <span class="mi">30</span>
+      <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;spring&quot;</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Spring&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;absolute&quot;</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span><span class="s2">&quot;Absolute&quot;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>These are processed in the following way:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">render</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">layoutParams</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">selector</span> <span class="o">=</span> <span class="s2">&quot;#demo-&quot;</span> <span class="o">+</span> <span class="nx">id</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">render</span><span class="p">({</span>
+    <span class="nx">container</span><span class="o">:</span> <span class="s2">&quot;demo-&quot;</span> <span class="o">+</span> <span class="nx">id</span><span class="p">,</span>
+    <span class="nx">layout</span><span class="o">:</span> <span class="nx">layoutParams</span><span class="p">,</span>
+    <span class="nx">miniview</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">container</span><span class="o">:</span> <span class="s2">&quot;miniview-&quot;</span> <span class="o">+</span> <span class="nx">id</span>
+    <span class="p">},</span>
+    <span class="nx">events</span><span class="o">:</span><span class="p">{</span>
+      <span class="s2">&quot;modeChanged&quot;</span> <span class="o">:</span><span class="kd">function</span> <span class="p">(</span><span class="nx">mode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getSelector</span><span class="p">(</span><span class="nx">selector</span> <span class="o">+</span> <span class="s2">&quot; [mode]&quot;</span><span class="p">),</span> <span class="s2">&quot;selected-mode&quot;</span><span class="p">);</span>
+        <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getSelector</span><span class="p">(</span><span class="nx">selector</span> <span class="o">+</span> <span class="s2">&quot; [mode=&#39;&quot;</span> <span class="o">+</span> <span class="nx">mode</span> <span class="o">+</span> <span class="s2">&quot;&#39;]&quot;</span><span class="p">),</span> <span class="s2">&quot;selected-mode&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span> <span class="nx">commonParameters</span><span class="p">);</span>
+
+  <span class="c1">// bind event listeners to the mode buttons</span>
+  <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;[mode]&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">));</span>
+  <span class="p">});</span>
+
+  <span class="c1">// on home button click, zoom content to fit.</span>
+  <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;[reset]&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">toolkit</span><span class="p">.</span><span class="nx">clearSelection</span><span class="p">();</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">zoomToFit</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="c1">// render each one</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">id</span> <span class="k">in</span> <span class="nx">rendererSpecs</span><span class="p">)</span>
+  <span class="nx">render</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">rendererSpecs</span><span class="p">[</span><span class="nx">id</span><span class="p">]);</span>
+</code></pre></div>
+<p>To explain each parameter:</p>
+
+<ul>
+<li><strong>container</strong> This is the ID of the element into which to render</li>
+<li><strong>layout</strong> These are the layout parameters for the specific renderer</li>
+<li><strong>miniview</strong> Specs for the miniview. In this demonstration we provide only the ID of the element to turn into a miniview.</li>
+<li><strong>events</strong> In this section we wire up the Surface&#39;s <code>modeChanged</code> event to some code that maintains the state of the buttons that appear in the top left corner of the canvas.</li>
+</ul>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="s2">&quot;modeChanged&quot;</span> <span class="o">:</span><span class="kd">function</span> <span class="p">(</span><span class="nx">mode</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getSelector</span><span class="p">(</span><span class="nx">selector</span> <span class="o">+</span> <span class="s2">&quot; [mode]&quot;</span><span class="p">),</span> <span class="s2">&quot;selected-mode&quot;</span><span class="p">);</span>
+  <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getSelector</span><span class="p">(</span><span class="nx">selector</span> <span class="o">+</span> <span class="s2">&quot; [mode=&#39;&quot;</span> <span class="o">+</span> <span class="nx">mode</span> <span class="o">+</span> <span class="s2">&quot;&#39;]&quot;</span><span class="p">),</span> <span class="s2">&quot;selected-mode&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Using jsPlumb to add/remove classes or get an appropriate selector is not necessary if you have some other library (such as jQuery) in your page. The Toolkit uses these methods because it does not need jQuery. Any library that returns a list-like object for a selector is appropriate to use here.</p>
+
+<ul>
+<li><strong>commonParameters</strong>  The <code>render</code> method takes an optional second argument, for use cases such as this, in which you want to share some parameters between several render calls.</li>
+</ul>
+
+<p>The renderer is assign to the variable <strong>r</strong>.  We then bind two click listeners to it:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;[mode]&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="nx">r</span><span class="p">.</span><span class="nx">setMode</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="c1">// on home button click, zoom content to fit.</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">selector</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;[reset]&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="nx">toolkit</span><span class="p">.</span><span class="nx">clearSelection</span><span class="p">();</span>
+  <span class="nx">r</span><span class="p">.</span><span class="nx">zoomToFit</span><span class="p">();</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The first of these extracts the desired mode from the button that was clicked and sets it on the renderer; this causes the <code>modeChanged</code> event to be fired, which is picked up by the code we discussed above.</p>
+
+<p>The second click listener here is used to clear the current selection and reset the renderer to the state in which all of the content is visible.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="selecting"></a></p>
+
+<h3>Selecting Nodes</h3>
+
+<p>Lasso selection is enabled by default on the Surface widget. To activate the lasso, click the pencil icon in the toolbar:</p>
+
+<p><img src="select-lasso.png" alt="Lasso Select Mode"></p>
+
+<p>The code that listens to clicks on this icon discussed above in the section about <a href="#rendering">rendering</a>.</p>
+
+<h5>Lasso Operation</h5>
+
+<p>The lasso works in two ways: when you drag from left to right, any node that intersects your lasso will be selected.  When you drag from right to left, only nodes that are enclosed by your lasso will be selected.</p>
+
+<h5>Exiting Select Mode</h5>
+
+<p>The Surface widget automatically exits select mode once the user has selected something. In this application we also listen to clicks on the whitespace in the widget and switch back to pan mode when we detect one. This is the <code>events</code> argument to the <code>render</code> call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">canvasClick</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">toolkit</span><span class="p">.</span><span class="nx">clearSelection</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>clearSelection</code> clears the current selection and switches back to Pan mode.</p>
+
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="adding"></a></p>
+
+<h3>Adding New Nodes</h3>
+
+<p>Each node in this demonstration has two buttons:</p>
+
+<p><img src="demo-hierarchy-single-node.png" alt="Single Node"></p>
+
+<p>Clicking on the <strong>+</strong> button causes a new node to be added as a child of the current Node. Here&#39;s the code that sets 
+up the listener and adds the child. Note the use of the <code>batch</code> function to suspend repainting until all 
+the model operations are completed - this is required by the <a href="demo-spring.html">Spring layout</a>; without it, the layout would repaint before the edge existed and the new node would not necessarily be positioned near the node that was clicked on:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nb">document</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;.add *&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// this helper method can retrieve the associated</span>
+  <span class="c1">// toolkit information from any DOM element.</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="c1">// get a random node.</span>
+  <span class="kd">var</span> <span class="nx">n</span> <span class="o">=</span> <span class="nx">jsPlumbToolkitDemoSupport</span><span class="p">.</span><span class="nx">randomNode</span><span class="p">();</span>
+  <span class="c1">// wrap the node and edge addition in a batch, because the spring layout prefers that all</span>
+  <span class="c1">// data operations be completed before a refresh of the layout.</span>
+  <span class="nx">toolkit</span><span class="p">.</span><span class="nx">batch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// add the node to the toolkit</span>
+    <span class="kd">var</span> <span class="nx">newNode</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">addNode</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span>
+    <span class="c1">// and add an edge for it from the current node.</span>
+    <span class="nx">toolkit</span><span class="p">.</span><span class="nx">addEdge</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span> <span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span> <span class="nx">newNode</span><span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+<hr>
+
+<p><a id="deleting"></a></p>
+
+<h3>Deleting Nodes</h3>
+
+<p>Clicking the delete button in this demonstration deletes not just the current node, but also all of its descendants.  This is done by creating a <a href="selections.html#descendantSelection">Selection</a> and then instructing the Toolkit to remove everything in that Selection:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nb">document</span><span class="p">,</span> <span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="s2">&quot;.remove *&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">selection</span> <span class="o">=</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">selectDescendants</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="nx">toolkit</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="nx">selection</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a href="#top">TOP</a></p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

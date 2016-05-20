@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html ng-app="nova" lang="en">
+<head>
+   <link rel="icon" type="image/ico" href="images/blueprint.ico">
+
+
+    <!-- build:css styles/lib.css -->
+   <!-- bower:css -->
+   <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" >
+   <link rel="stylesheet" type="text/css" href="bower_components/jqwidgets/jqwidgets/styles/jqx.base.css">
+   <link rel="stylesheet" type="text/css" href="bower_components/jstree/dist/themes/default/style.min.css">
+    <!-- endbower -->    
+    <!-- endbuild -->
+
+
+   <!-- build:css styles/app.css -->
+   <!-- inject:css -->
+   <link rel="stylesheet" type="text/css" href="css/blueprint.min.css" >
+
+   <link rel="stylesheet" type="text/css" href="css/nova.css" >
+
+    <!-- endinject -->
+    <!-- endbuild -->
+
+
+    <!-- build:js js/lib.js -->
+    <!-- bower:js -->
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/jstree/dist/jstree.min.js"></script>
+
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtooltip.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxnumberinput.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxradiobutton.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxinput.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxribbon.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxlayout.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdockinglayout.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxtree.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxwindow.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxexpander.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.selection.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.sort.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxgrid.filter.js"></script>
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+
+
+    <script type="text/javascript" src="bower_components/jqwidgets/jqwidgets/jqxangular.js"></script>
+
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <script src="scripts/mxClient.min.js"></script>
+
+    <script src="app/nova.js"></script>
+    <script src="app/mxutility.js"></script>
+
+    <!-- build:js js/app.js -->
+    <!-- inject:js -->
+    <!-- endinject -->
+
+
+
+
+
+</head>
+<body ng-controller="novaController" >
+    <jqx-menu id="topmenu" jqx-width="'100%'" jqx-height="'60px'" jqx-animation-show-duration="0" jqx-animation-hide-duration="0" jqx-animation-show-delay="'0'" jqx-animation-hide-delay="'0'" jqx-theme="'blueprint'">
+        <div id="blueprint-bar" >
+            <span class="left">blueprint ®</span>
+            <span class="right"><span class="glyphicon glyphicon-user"></span> Welcome Pegah Tabrizi | Logout </span>
+        </div> 
+ 
+      <ul>
+        <li><a href="#Home"><span class="glyphicon glyphicon-home"></span></a>
+            <ul>
+              <li>Save
+                <ul>
+                  <li>Save All</li>
+                  <li>Save</li>
+                </ul>
+              </li>
+              <li>Publish
+                <ul>
+                  <li>Publish All</li>
+                  <li>Publish</li>
+                </ul>
+              </li>
+              <li>Discard
+                <ul>
+                  <li>Discard All</li>
+                  <li>Discard</li>
+                </ul>
+              </li>
+              <li>Refresh
+                <ul>
+                  <li>Refresh All</li>
+                  <li>Refresh</li>
+                </ul>
+              </li>
+              <li>Print
+                <ul>
+                  <li>Print to PDF</li>
+                  <li>Print to Word</li>
+                </ul>
+              </li>
+              <li>Open</li>
+              <li>Open Recent
+                <ul>
+                  <li>Project 1</li>
+                  <li>Project 2</li>
+                </ul>
+              </li>
+              <li>Close
+                <ul>
+                  <li>Project 1</li>
+                  <li>Project 2</li>
+                </ul>
+              </li>                             
+              <li>Manage
+                <ul>
+                  <li>Jobs</li>
+                  <li>Instance Administration</li>
+                  <li>Project 1 - Project Administration</li>
+                </ul>
+              </li>                           
+            </ul>
+          </li>
+          <li>
+            View
+            <ul>
+              <li>TODO</li>
+            </ul>
+          </li>
+          <li>
+            Import/Export
+            <ul>
+              <li>Import
+                <ul>
+                  <li>Artifacts</li>
+                  <li class="disabled">Glossary Terms</li>
+                  <li>Visio Diagram</li>
+                  <li>Excel Update</li>
+                </ul>
+              </li>
+              <li>Export
+                <ul>
+                  <li>Office Document
+                    <ul>
+                      <li>From Selection</li>
+                      <li>From Selection - include descendants</li>
+                    </ul>
+                  </li>
+                  <li>ALM Export</li>
+                  <li>Test Plans</li>
+                  <li>Artifact List View</li>
+                  <li>Generate Excel Update Template</li>
+                  <li class="disabled">Visio Diagram</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+
+          <li>Help
+            <ul>
+              <li>Blueprint &trade; Help</li>
+              <li>Keyboard Shortcuts</li>
+               <li type='separator'></li>
+              <li>About Blueprint ®</li>
+            </ul>
+          </li>         
+      </ul>
+    </jqx-menu>
+
+
+    <jqx-docking-layout jqx-settings="settings" id="jqxLayout">
+
+        <!--right tabbedGroup-->
+        <div data-container="SolutionExplorerPanel">
+            <!--<div jstree id="jstree" selected-node="selectedTreeNode" selected-path ="selectedPath" selected-node-changed="nodeChanged" style="z-index:20000;"> </div> -->
+            <div id="jstree"></div>
+
+        </div>
+        <div data-container="PropertiesPanel">            
+           <div id="solutionExplorerTree" style="border: none;"></div> 
+
+        </div>
+
+        <!--documentGroup-->
+        <div data-container="Document1Panel">
+            <div style="overflow:hidden;height:100%;">
+               <div id="jqxgrid"></div>
+            </div>
+        </div>
+        
+        <div data-container="Document2Panel">
+            <div id="mxgraph">
+                <div id="outlineContainer" style="z-index:1;position:absolute;overflow:hidden;bottom:0px;right:0px;width:160px;height:120px;background:transparent;border-style:solid;border-color:lightgray;">        
+                </div>
+            </div>
+        </div>
+
+
+        <!--bottom tabbedGroup-->
+        <div data-container="ErrorListPanel">
+            List of errors</div>
+        <div data-container="OutputPanel">
+            Output</div>
+
+        <!--autoHideGroup-->
+        <div data-container="Utility-PropertiesPanel">
+            <div>
+            <img src="/images/Text.png" /> DOC281964 - Document - Features
+            <div id="props">
+                <div>Properties</div>
+                <div>
+                    <div class="row">
+                        <div class="col-xs-6">Name</div>
+                        <div class="col-xs-6"><input type="text"  value="Document - Features" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Id</div>
+                        <div class="col-xs-6"><input type="text"  value="DOC281964" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Artifact Type</div>
+                        <div class="col-xs-6"><input type="text"  value="Document" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">File</div>
+                        <div class="col-xs-6"><input type="text"  value="Document - Features.docx" ></div>
+                    </div>
+                </div>
+            </div>
+            <div id="author">
+                <div>Author History</div>
+                <div>
+                    <div class="row">
+                        <div class="col-xs-6">Created By</div>
+                        <div class="col-xs-6"><input type="text"  value="Aman Bhalla" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Last Edited by</div>
+                        <div class="col-xs-6"><input type="text"  value="Aman Bhalla" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Created On</div>
+                        <div class="col-xs-6"><input type="text"  value="2015-09-03 12:31 PM" ></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">Last Edited On</div>
+                        <div class="col-xs-6"><input type="text"  value="2015-09-03 12:31 PM" ></div>
+                    </div>
+                </div>
+            </div>
+            <div id='details'>
+                <div>Details</div>
+                <div>
+                    <textarea class="form-control" rows="7">Some details...</textarea>
+                </div>
+            </div>
+            </div>
+
+
+
+        </div>
+        <div data-container="DiscussionsPanel">List of Discussions</div>
+        <div data-container="FilesPanel">Files</div>
+        <div data-container="RelationshipsPanel">Relationships</div>
+        <div data-container="OutlinePanel">Outline</div>
+        <div data-container="BrowsePanel">Browse</div>
+        <div data-container="HistoryPanel">History</div>
+        <div data-container="ReviewsPanel">Review</div>
+
+    </jqx-docking-layout>
+
+</body>
+</html>

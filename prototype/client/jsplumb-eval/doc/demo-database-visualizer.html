@@ -1,0 +1,520 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <script src="/js/jquery.min.js"></script>
+        <title>jsPlumb Toolkit - documentation</title>
+        <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+
+
+
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+        <script src="/js/docs.js"></script>
+    </head>
+
+    <body>
+
+        <!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../index.html"><img src="../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../index.html#demos">DEMOS</a></li>
+<li><a href="../doc/home.html">DOCS</a></li>
+<li><a href="../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+        <div class="container padding-top">
+            <div class="row" id="docs">
+                <div class="docs-nav col-xs-3" tabindex="0">
+                    <ul>
+<li><a href="home.html">Home</a></li>
+<li><a href="getting-started.html">Getting Started</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a>
+    <ul>
+        <li><a href="basic-concepts.html#instantiating">Instantiating the Toolkit</a></li>
+        <li><a href="basic-concepts.html#basicloading">Loading Data</a></li>
+        <li><a href="basic-concepts.html#rendering">Rendering</a></li>
+    </ul>
+</li>  
+<li><a href="data-model.html">Data Model</a>
+    <ul>
+        <li><a href="data-model.html#format">Data Format</a></li>
+        <li><a href="data-model.html#node-edge-port-id">Node, Edge and Port IDs</a></li>
+        <li><a href="data-model.html#node-edge-port-type">Node, Edge and Port Type</a></li>
+        <li><a href="data-model.html#datafactories">Data Factories</a></li>
+    </ul>
+</li>  
+<li><a href="rendering.html">Rendering</a>
+<ul>
+    <li><a href="models-and-views.html">Models and Views</a></li>
+    <li><a href="templating.html">Templating</a></li>
+    <li><a href="layouts.html">Layouts</a></li>
+    <li><a href="ui-states.html">UI States</a></li>
+    <li><a href="path-tracing.html">Path Tracing</a></li>
+    <li><a href="rendering.html#dragpalette">Drag & Drop Nodes</a></li>
+    <li><a href="navigation.html">Navigating your Dataset</a></li>
+</ul>
+</li>
+<li>
+Data Management
+    <ul>
+        <li><a href="loading-and-saving-data.html">Loading & Saving Data</a></li>
+        <li><a href="loading-and-saving-data.html#loading">Loading</a></li>
+        <li><a href="updating-data.html">Updating Data</a></li>
+    </ul>
+</li>
+    
+<li><a href="css.html">CSS</a>
+    <ul>
+        <li><a href="css.html#defaultcss">Default CSS Stylesheet</a></li>
+        <li><a href="css.html#ref">Class Reference</a></li>
+    </ul>
+</li>
+  
+<li><a href="events.html">Events</a>
+    <ul>
+        <li><a href="events.html#toolkit">Toolkit Events</a></li>
+        <li><a href="events.html#surface">Rendering Events</a></li>
+    </ul>
+</li>
+  
+<li>Selecting Content
+    <ul>
+      <li><a href="selections.html">Selections</a></li>
+      <li><a href="paths.html">Paths</a></li>
+      <li><a href="filters.html">Filters</a></li>
+    </ul>
+</li>
+
+<li><a href="angular-integration.html">Angular Integration</a></li>
+<li>Demonstrations
+    <ul>
+      <li><a href="demo-hierarchical.html">Hierarchical Layout</a></li>
+      <li><a href="demo-spring.html">Spring Layout</a></li>
+      <li><a href="demo-imageWidget.html">Image Widget</a></li>
+      <li><a href="demo-circular.html">Circular Layout</a></li>
+      <li><a href="demo-multiple.html">Multiple Renderers</a></li>
+      <li><a href="demo-paths.html">Path Tracing</a></li>
+      <li><a href="demo-absolute.html">Absolute Layout</a></li>
+      <li><a href="demo-database-visualizer.html">Database Visualizer</a></li>
+      <li><a href="demo-flowchart-builder.html">Flowchart Builder</a></li>
+      <li><a href="demo-angular.html">Angular Integration</a></li>
+      <li><a href="demo-hello-world.html">Hello World</a></li>
+    </ul>
+</li>
+    
+<li><a href="UtilityFunctions.html">Utilities</a></li>
+<li><a href="dialogs.html">Dialogs</a></li>
+<li><a href="drawing.html">Drawing</a></li>
+</ul>
+                </div>
+                <div class="markdown-body col-xs-9">
+                    <h2>Database Visualizer</h2>
+
+<p>This is a simple database visualizer app, offering support for Tables and Views, with the ability to establish relationships between columns using the mouse.</p>
+
+<p><img src="demo-dbase.png" alt="Database Visualizer Demonstration"></p>
+
+<p>This page gives you an in-depth look at how the application is put together.</p>
+
+<ul>
+<li><a href="#setup">Page Setup</a></li>
+<li><a href="#templates">Templates</a></li>
+<li><a href="#loading">Data Loading</a></li>
+<li><a href="#dragging">Dragging New Nodes</a></li>
+<li><a href="#behaviour">Behaviour</a></li>
+<li><a href="#dialogs">Dialogs</a></li>
+</ul>
+
+<p><a id="setup"></a></p>
+
+<h3>Page Setup</h3>
+
+<h6>CSS</h6>
+
+<ul>
+<li><strong>Font Awesome 4.0.3</strong> Used for all the iconography. Not a Toolkit requirement.</li>
+<li><strong>jsPlumbToolkit-defaults.css</strong> Recommended for all apps using the Toolkit, at least when you first start to build your app. This stylesheet contains sane defaults for the various widgets in the Toolkit.</li>
+<li><strong>jsPlumbToolkit-demo.css</strong> Common styles for the demonstration pages. Not a Toolkit requirement.</li>
+<li><strong>app.css</strong> Styles specific to this demo. </li>
+</ul>
+
+<h6>JS</h6>
+
+<ul>
+<li><strong>jsPlumb-x.x.x.js</strong></li>
+<li><strong>jsPlumbToolkit-x.x.x.js</strong></li>
+<li><strong>app.js</strong> Application specific JS.</li>
+</ul>
+
+<hr>
+
+<p><a id="templates"></a></p>
+
+<h3>Templates</h3>
+
+<p>There are three templates used by the app - one each for the node types of <code>Table</code> and <code>View</code>, and one for the <code>Column</code> entries in a <code>Table</code>.  The Toolkit uses <a href="https://github.com/jsplumb/rotors">Rotors</a> as its default templating engine, which has the ability to update previously rendered content. Note that Rotors uses a <strong>strict</strong> XHTML syntax; you must ensure you close off all HTML tags that you are perhaps accustomed to leaving open, such as <code>&lt;input&gt;</code> or <code>&lt;br&gt;</code>.</p>
+
+<h5>Table</h5>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplTable&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table node&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;delete&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to delete&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-times&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;span&gt;</span>${name}<span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;new-column add&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to add a new column&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-plus&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;table-columns&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;r-each</span> <span class="na">in=</span><span class="s">&quot;columns&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;r-tmpl</span> <span class="na">id=</span><span class="s">&quot;tmplColumn&quot;</span><span class="nt">&gt;&lt;/r-tmpl&gt;</span>
+      <span class="nt">&lt;/r-each&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>In this template you can see the syntax for extracting values out of the content: <code>${name}</code>, for example. You can see also the <code>r-each</code> and <code>r-tmpl</code> elements - Rotors&#39; loop and nested template inclusion directives.</p>
+
+<h5>View</h5>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplView&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;view node&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;view-delete&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to delete&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-times&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>                     
+      <span class="nt">&lt;span&gt;</span>${name}<span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;edit&quot;</span> <span class="na">title=</span><span class="s">&quot;Click to edit&quot;</span><span class="nt">&gt;</span>                        
+        <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-pencil&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;view-details&quot;</span><span class="nt">&gt;</span>${query}<span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>The view node template is more simple than the table template; just a couple of data bindings. The type of the script is arbitrary: it just needs to be something the browser won&#39;t process. jsPlumb uses <code>jtk</code> as a convention.</p>
+
+<h5>Column</h5>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;jtk&quot;</span> <span class="na">id=</span><span class="s">&quot;tmplColumn&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;table-column table-column-type-${datatype}&quot;</span> <span class="na">primary-key=</span><span class="s">&quot;${primaryKey}&quot;</span> <span class="na">data-port-id=</span><span class="s">&quot;${id}&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table-column-edit&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-pencil table-column-edit-icon&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;table-column-delete&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">&quot;fa fa-times table-column-delete-icon&quot;</span><span class="nt">&gt;&lt;/i&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div&gt;</span>
+      <span class="nt">&lt;span&gt;</span>${id}<span class="nt">&lt;/span&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="c">&lt;!--</span>
+<span class="c">      configure the li as an edge source, with a type of column, a scope derived from</span>
+<span class="c">      the columns datatype, and a filter that prevents dragging new edges from the delete button or from the label.</span>
+<span class="c">    --&gt;</span>
+    <span class="nt">&lt;jtk-source</span> <span class="na">port-id=</span><span class="s">&quot;${id}&quot;</span> <span class="na">port-type=</span><span class="s">&quot;column&quot;</span> <span class="na">scope=</span><span class="s">&quot;${datatype}&quot;</span> <span class="na">filter=</span><span class="s">&quot;.table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon&quot;</span> <span class="na">filter-exclude=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;&lt;/jtk-source&gt;</span>
+
+    <span class="c">&lt;!--</span>
+<span class="c">      configure the li as an edge target, with a type of column, and a scope derived from the</span>
+<span class="c">      column&#39;s datatype.</span>
+<span class="c">     --&gt;</span>
+    <span class="nt">&lt;jtk-target</span> <span class="na">port-id=</span><span class="s">&quot;${id}&quot;</span> <span class="na">port-type=</span><span class="s">&quot;column&quot;</span> <span class="na">scope=</span><span class="s">&quot;${datatype}&quot;</span><span class="nt">&gt;&lt;/jtk-target&gt;</span>
+  <span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div>
+<p>This template demonstrates how to use <a href="templating.html#connectivity">the Toolkit&#39;s declarative connectivity constructs</a>: <code>jtk-source</code> tells the Toolkit that the parent element of the <code>jtk-source</code> element (in this case, an <code>LI</code>) should act as a connection source, and <code>jtk-target</code> tells the Toolkit that it is also a connection target. Follow the link for a more detailed discussion of how to use these elements in your templates.</p>
+
+<p><a id="loading"></a></p>
+
+<h3>Data Loading</h3>
+
+<p>Data for this application is stored in <code>data/schema-1.json</code> inside the application folder. It is loaded by this code:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">toolkit</span><span class="p">.</span><span class="nx">load</span><span class="p">({</span>
+  <span class="nx">url</span><span class="o">:</span> <span class="s2">&quot;data/schema-1.json&quot;</span><span class="p">,</span>
+  <span class="nx">onload</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">_updateDataset</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This shows the <code>onload</code> callback, which is a function the Surface will call once the data has been loaded. In this application, as with the <a href="demo-flowchart-builder.html">Flowchart Builder</a>, the current dataset is displayed in a small container below the work area.  <code>_updateDataset</code> is the method that keeps this element up to date.</p>
+
+<hr>
+
+<p><a id="dragging"></a></p>
+
+<h3>Dragging New Nodes</h3>
+
+<p>The Surface widget provides a means for you to configure a set of nodes that you wish to be able to drag and drop into the work area. This is the code in the Database Visualizer that does this:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">renderer</span><span class="p">.</span><span class="nx">registerDroppableNodes</span><span class="p">({</span>
+  <span class="nx">droppables</span><span class="o">:</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s2">&quot;#nodePalette li&quot;</span><span class="p">),</span>
+  <span class="nx">dragOptions</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">zIndex</span><span class="o">:</span> <span class="mi">50000</span><span class="p">,</span>
+    <span class="nx">cursor</span><span class="o">:</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+    <span class="nx">clone</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">},</span>
+  <span class="nx">typeExtractor</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">el</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s2">&quot;jtk-node-type&quot;</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">dataGenerator</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">type</span> <span class="p">};</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>The method is <code>registerDroppableNodes</code>. It takes four arguments:</p>
+
+<ul>
+<li><strong>droppables</strong> This is the list of elements you wish to make droppable. It doesn&#39;t matter where in your UI these elements are located; you just need to provide a suitable selector to find them all.</li>
+<li><strong>dragOptions</strong> Strictly speaking this is optional, but you will almost certainly want to ensure that the underlying library&#39;s drag method will create a clone of your element when a drag starts, so you&#39;d need to provide at least that parameter. Vanilla jsPlumb uses <a href="https://github.com/jsplumb/katavorio">Katavorio</a>for drag/drop, so the required parameter is <code>clone:true</code>. </li>
+<li><strong>typeGenerator</strong> This function is used by the Toolkit to determine the <code>type</code> of a Node you have just dropped. In this case we have written the Node type into the <code>jtk-node-type</code> attribute, so we just extract it from there.</li>
+<li><strong>dataGenerator</strong> This function is used by the Toolkit to generate an initial dataset for a Node you have just 
+dropped. It is called after the <code>typeGenerator</code> function.</li>
+</ul>
+
+<p><a id="behaviour"></a></p>
+
+<h3>Behaviour</h3>
+
+<p>The Toolkit publishes a long list of events during the rendering lifecycle - <code>nodeAdded</code>, <code>edgeAdded</code>, etc - all of which can be subscribed to from within a palette definition. But for your app&#39;s behaviour, it is better to use event delegation and configure all of your event listeners in one place. In the Database Visualizer there are six main pieces of behaviour we need to code that are not handled for us by the Toolkit:</p>
+
+<ul>
+<li>Delete Table/Delete View</li>
+<li>Add Column</li>
+<li>Edit Column</li>
+<li>Delete Column</li>
+<li>Change Table/View Name</li>
+<li>Edit View Query</li>
+<li>Edit Edge Detail</li>
+</ul>
+
+<p>We&#39;ll go through each of these and provide a brief code snippet highlighting the main points.</p>
+
+<h5>Delete Table/Delete View</h5>
+
+<p>These two are actually handled by the same piece of code:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.table-delete i, .view-delete i&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>                    
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgConfirm&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Delete &#39;&quot;</span> <span class="o">+</span> <span class="nx">info</span><span class="p">.</span><span class="nx">id</span>
+    <span class="p">},</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">toolkit</span><span class="p">.</span><span class="nx">removeNode</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Two pieces of core Toolkit functionality are used here. First, a method with which you will want to acquaint yourself: <code>getObjectInfo</code>.  This method (defined on a Surface, <em>not</em> on a Toolkit instance), takes a DOM element as argument and places it within the context of some object managed by the Toolkit instance that the renderer is associated with.  In this case, the click event occurs on an icon. <code>getObjectInfo</code> traverses up the icon&#39;s ancestors until it finds an element that is associated with a Toolkit object - in our app, either a Table or View. When a Toolkit object is found, <code>getObjectInfo</code> returns an object with these values:</p>
+
+<ul>
+<li><strong>id</strong> ID of the Toolkit object</li>
+<li><strong>obj</strong> The associated Toolkit object. May be a Node or a Port.</li>
+<li><strong>el</strong> The DOM element for the Toolkit object</li>
+<li><strong>type</strong> The type of the Toolkit object. This will be &quot;Node&quot; or &quot;Port&quot;.</li>
+</ul>
+
+<p>So in the Table/View delete handler, we first find the associated Toolkit object, and then we prompt the user to see if they wish to delete it. If the users answers yes, then we call <code>removeNode</code> on the Toolkit, passing in the ID of the object to delete. This will cause all Edges associated with the Node to be deleted, and for the UI to be updated accordingly.</p>
+
+<p>This application uses the Toolkit&#39;s <a href="dialogs.html">dialogs</a> import to manage simple interactions with data members such as this. Your application may choose to use a different mechanism.</p>
+
+<p>Note also the use of the <code>tap</code> event here, rather than <code>click</code>. <code>tap</code> is a synthesized event (on non-touch devices; on touch devices it is native) whose purpose is to avoid spurious calls: the default behaviour of a browser with a mouse is to fire a click event even if the mouse has moved between <code>mousedown</code> and <code>mouseup</code>! This event is made available through <a href="https://github.com/jsplumb/mottle">Mottle</a>, the event manager that vanilla jsPlumb uses.</p>
+
+<h5>Add Column</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.new-column i&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>            
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgColumnEdit&quot;</span><span class="p">,</span>
+    <span class="nx">title</span><span class="o">:</span> <span class="s2">&quot;Column Details&quot;</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// if the user supplied a column name, tell the toolkit to add a new port, providing it the</span>
+      <span class="c1">// id and name of the new column.  This will result in a callback to the portFactory defined above.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span><span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgMessage&quot;</span><span class="p">,</span> <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Column ids must be at least 2 characters!&quot;</span><span class="p">});</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">toolkit</span><span class="p">.</span><span class="nx">addNewPort</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">id</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">).</span><span class="nx">toLowerCase</span><span class="p">(),</span>
+            <span class="nx">primaryKey</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">primaryKey</span><span class="p">,</span>
+            <span class="nx">datatype</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">datatype</span>
+          <span class="p">});</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>In this handler we again use <code>getObjectInfo</code> to find the Node to which the current operation applies. Then we prompt the user for a column name, and if it is longer than 2 characters, we register it on the Toolkit. The method used for that is <code>addNewPort</code>, whose signature is:</p>
+
+<p><code>addNewPort({Node|String} node, {Object} data)</code></p>
+
+<p><code>node</code> can be a Node or a Node id (as in this case).  <code>data</code> is actually optional, but it is likely you&#39;ll want to provide some.</p>
+
+<h5>Edit Column</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.table-column-edit i&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>            
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgColumnEdit&quot;</span><span class="p">,</span>
+    <span class="nx">title</span><span class="o">:</span> <span class="s2">&quot;Column Details&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// if the user supplied a column name, tell the toolkit to add a new port, providing it the</span>
+      <span class="c1">// id and name of the new column.  This will result in a callback to the portFactory defined above.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span><span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgMessage&quot;</span><span class="p">,</span> <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Column ids must be at least 2 characters!&quot;</span><span class="p">});</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="nx">toolkit</span><span class="p">.</span><span class="nx">updatePort</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">id</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">id</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">).</span><span class="nx">toLowerCase</span><span class="p">(),</span>
+            <span class="nx">primaryKey</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">primaryKey</span><span class="p">,</span>
+            <span class="nx">datatype</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">datatype</span>
+          <span class="p">});</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This looks quite similar to the add column functionality: the major differences being that we pass in the column&#39;s <code>data</code> to the dialog, so that it may populate the UI, and we use <code>updatePort</code> in the callback.</p>
+
+<p>A note here on the various <code>update***</code> methods in the Toolkit. <code>updateEdge</code> will always result in the associated connection being updated and repainted accordingly. Also, if you&#39;re using the Toolkit with its default template rendering mechanism, any calls to <code>updatePort</code> or <code>updateNode</code> will result in the data changes being reapplied to the rendered elements; this is because Rotors supports subsequent updates to elements it has rendered. So, in this application, it suffices for us to call <code>updatePort</code> on the Toolkit and we know our UI will be updated correspondingly. If, however, you use a custom template renderer, this will not happen for you automatically. Manual intervention will be required.</p>
+
+<h5>Delete Column</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.table-column-delete i&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgConfirm&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Delete column &#39;&quot;</span> <span class="o">+</span> <span class="nx">info</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
+    <span class="p">},</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">toolkit</span><span class="p">.</span><span class="nx">removePort</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">getNode</span><span class="p">(),</span> <span class="nx">info</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This general pattern will be familiar to you now. Get the associated Toolkit object, prompt the user, take some action. Here we remove the column from the table by calling the <code>removePort</code> function, whose method signature is:</p>
+
+<p><code>removePort({Node|String} node, {Port|String} Port)</code></p>
+
+<p>Again, &quot;Node&quot; can be either the actual Node (which is what we pass in here), or a Node id, and Port can be an actual Port or just a Port id.</p>
+
+<h5>Change Table/View Name</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.view .name span, .table .name span&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgName&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+    <span class="nx">title</span><span class="o">:</span> <span class="s2">&quot;Edit &quot;</span> <span class="o">+</span> <span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">+</span> <span class="s2">&quot; name&quot;</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">&amp;&amp;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// if name is at least 2 chars long, update the underlying data and</span>
+        <span class="c1">// update the UI.</span>
+        <span class="nx">toolkit</span><span class="p">.</span><span class="nx">updateNode</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5>Edit View Query</h5>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;#canvas&quot;</span><span class="p">,</span> <span class="s2">&quot;tap&quot;</span><span class="p">,</span> <span class="s2">&quot;.view .edit i&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">info</span> <span class="o">=</span> <span class="nx">renderer</span><span class="p">.</span><span class="nx">getObjectInfo</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgViewQuery&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// update data, and UI (which works only if you use the Toolkit&#39;s default template engine, Rotors.</span>
+      <span class="nx">toolkit</span><span class="p">.</span><span class="nx">updateNode</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h5>Edit Edge Detail</h5>
+
+<p>This is slightly different to the previous examples: first a helper function is defined, which is then called in two places:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">_editEdge</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">edge</span><span class="p">,</span> <span class="nx">isNew</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">jsPlumbToolkit</span><span class="p">.</span><span class="nx">Dialogs</span><span class="p">.</span><span class="nx">show</span><span class="p">({</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="s2">&quot;dlgRelationshipType&quot;</span><span class="p">,</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">edge</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+    <span class="nx">onOK</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// update the type in the edge&#39;s data model...it will be re-rendered.</span>
+      <span class="c1">// `type` is set in the radio buttons in the dialog template.</span>
+      <span class="nx">toolkit</span><span class="p">.</span><span class="nx">updateEdge</span><span class="p">(</span><span class="nx">edge</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">onCancel</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="c1">// if the user pressed cancel on a new edge, delete the edge.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">isNew</span><span class="p">)</span> <span class="nx">toolkit</span><span class="p">.</span><span class="nx">removeEdge</span><span class="p">(</span><span class="nx">edge</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>This is then called when the user double clicks an existing edge; the registration for this is made in the palette passed to the <code>render</code> call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">edges</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">&quot;common&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">connector</span><span class="o">:</span> <span class="s2">&quot;StateMachine&quot;</span><span class="p">,</span>  <span class="c1">//  use StateMachine connector type</span>
+    <span class="nx">paintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s2">&quot;#f76258&quot;</span> <span class="p">},</span>   <span class="c1">// paint style for this edge type.</span>
+    <span class="nx">hoverPaintStyle</span><span class="o">:</span> <span class="p">{</span> <span class="nx">lineWidth</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s2">&quot;#434343&quot;</span> <span class="p">},</span> <span class="c1">// hover paint style for this edge type.</span>
+    <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+      <span class="s2">&quot;dblclick&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">_editEdge</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">edge</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="p">...</span><span class="nx">etc</span><span class="p">...</span>
+</code></pre></div>
+<p>And it is also called from the <code>edgeAdded</code> event handler passed in to the <code>render</code> call:</p>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">edgeAdded</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Check here that the edge was not added programmatically, ie. on load.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">addedByMouse</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">_editEdge</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">edge</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Note the check for <code>params.addedByMouse</code>. This is a useful check to keep in mind when working with the Toolkit.</p>
+
+<p><a name="dialogs"></a></p>
+
+<h3>Dialogs</h3>
+
+<p>The dialogs used in this application are also provided by the Toolkit . These are discussed - with reference 
+to the Database Visualizer application in particular - on <a href="dialogs.html">this page</a>. These were originally an optional
+include but they are only 8K unminified and so are now included with the main Toolkit JS.</p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

@@ -1,0 +1,55 @@
+@import 'modules/normalize';
+@import 'modules/variables';
+@import 'modules/mixins';
+@import 'modules/animations';
+@import 'modules/typography';
+@import 'modules/icons';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: $body-bg-color;
+  background-image: url('images/bp_logo_gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  background-repeat: no-repeat, no-repeat;
+  background-position: center 44%, top;
+  background-size: 84%, 100%;
+  color: $body-color;
+  overflow: hidden;
+}
+
+@import 'partials/navbar';
+@import 'partials/toolbar';
+@import 'partials/modal';
+@import 'partials/form';
+@import 'partials/button';
+
+.app-loading {
+  color: $gray-light;
+  font-size: $font-size-bigger;
+  padding: 32px;
+  text-align: center;
+  width: 100%;
+}
+
+@import 'partials/unsupported';
+
+#wrapper {
+  display: block;
+  height: calc(100% - #{$wrapper-height});
+  margin-top: $wrapper-height;
+  overflow: hidden;
+  position: relative;
+}
+
+@import 'partials/pagecontent';
+@import 'partials/sidebar';
+@import 'partials/breadcrumbs';
+@import 'partials/properties';
+@import 'partials/tabs';
+@import 'partials/accordion';
+@import 'partials/tooltips';
+@import 'partials/aggrid';
+@import 'partials/mobile-only';

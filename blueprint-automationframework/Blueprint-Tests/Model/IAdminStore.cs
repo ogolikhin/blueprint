@@ -156,16 +156,5 @@ namespace Model
         /// <param name="newPassword">The new password to set.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// Returns HTTP code for REST request to get folder folder or folder elements.
-        /// (Runs: GET instance/folders/folderId or instance/folders/folderId/children)
-        /// </summary>
-        /// <param name="folderId">Folder Id.</param>
-        /// <param name="session">(optional) A session to identify a user.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="hasChildren">Flag to differenciate two calls. With children and without.</param>
-        /// /// <returns>List of LicenseActivity.</returns>
-        /*List<PrimitiveFolder>*/
-        HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false);
     }
 }

@@ -1,14 +1,12 @@
 ﻿using System;
 using Newtonsoft.Json;
-
+using System.Collections.Generic;
 
 namespace Model.Impl
 {
     //class for object returned by adminstore/users/loginuser
     public class AdminStoreUser : User
     {
-        private const string SVC_PATH = "svc/AdminStore/folders";
-
         [JsonProperty("Login")]
         public new string Username { get; set; }//"Login" field in database.
 
@@ -56,5 +54,5 @@ namespace Model.Impl
         {
             throw new NotImplementedException();
         }
-   }
+    }
 }

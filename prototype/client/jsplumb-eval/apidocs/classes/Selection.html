@@ -1,0 +1,1560 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>Selection - jsPlumb API documentation</title>
+
+    <link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link href="../../css/main.css" rel="stylesheet">
+
+
+
+    <link rel="stylesheet" href="../../css/jsplumb-doc.css">
+
+    <!-- yuidoc -->
+
+
+    <link rel="stylesheet" href="../../css/external/cssgrids-min.css">
+    <link rel="stylesheet" href="../../css/external/prettify-min.css">
+
+    <link rel="shortcut icon" type="image/png" href="../../img/favicon.png">
+    <script src="https://yui-s.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+    <style>
+        #doc {
+            text-align:left;
+            margin-top:44px;
+        }
+    </style>
+</head>
+<body class="yui3-skin-sam">
+
+<!-- Fixed navbar -->
+<div class="navbar navbar-top navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="../../index.html"><img src="../../img/logo-medium-jsplumb.png"></a>
+
+        </div>
+
+        <div class="navbar-collapse collapse nav-wrapper">
+            <ul class="nav navbar-nav">
+                <li><a href="../../index.html#demos">DEMOS</a></li>
+<li><a href="../../doc/home.html">DOCS</a></li>
+<li><a href="../../apidocs/index.html">APIDOCS</a></li>
+
+            </ul>
+
+            <div class="social-nav hidden-xs">
+                <!--a href="#" class="link"><span class="icon-facebook"></span></a-->
+<a href="http://twitter.com/jsplumblib" class="link"><span class="icon-twitter"></span></a>
+<a href="http://github.com/sporritt/jsplumb/" class="link"><span class="icon-github"></span></a>
+<a href="http://www.linkedin.com/company/jsplumb" class="link"><span class="icon-linkedin"></span></a>
+
+            </div>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div id="doc">
+    <div id="bd" class="yui3-g">
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Edge.html">Edge</a></li>
+            
+                <li><a href="../classes/Graph.html">Graph</a></li>
+            
+                <li><a href="../classes/jsPlumb Palette directive.html">jsPlumb Palette directive</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit directive..html">jsPlumbToolkit directive.</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.DrawingTools.html">jsPlumbToolkit.DrawingTools</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Layouts.Spring.html">jsPlumbToolkit.Layouts.Spring</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Model.html">jsPlumbToolkit.Model</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Renderers.AbstractRenderer.html">jsPlumbToolkit.Renderers.AbstractRenderer</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Renderers.Miniview.html">jsPlumbToolkit.Renderers.Miniview</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Support.html">jsPlumbToolkit.Support</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkit.Widgets.Lasso.html">jsPlumbToolkit.Widgets.Lasso</a></li>
+            
+                <li><a href="../classes/jsPlumbToolkitInstance.html">jsPlumbToolkitInstance</a></li>
+            
+                <li><a href="../classes/Layouts.Absolute.html">Layouts.Absolute</a></li>
+            
+                <li><a href="../classes/Layouts.AbsoluteBackedLayout.html">Layouts.AbsoluteBackedLayout</a></li>
+            
+                <li><a href="../classes/Layouts.AbstractHierarchicalLayout.html">Layouts.AbstractHierarchicalLayout</a></li>
+            
+                <li><a href="../classes/Layouts.AbstractLayout.html">Layouts.AbstractLayout</a></li>
+            
+                <li><a href="../classes/Layouts.EmptyLayout.html">Layouts.EmptyLayout</a></li>
+            
+                <li><a href="../classes/Layouts.Hierarchical.html">Layouts.Hierarchical</a></li>
+            
+                <li><a href="../classes/Layouts.Mistletoe.html">Layouts.Mistletoe</a></li>
+            
+                <li><a href="../classes/Node.html">Node</a></li>
+            
+                <li><a href="../classes/Path.html">Path</a></li>
+            
+                <li><a href="../classes/Port.html">Port</a></li>
+            
+                <li><a href="../classes/Selection.html">Selection</a></li>
+            
+                <li><a href="../classes/Surface.html">Surface</a></li>
+            
+                <li><a href="../classes/ZoomWidget.html">ZoomWidget</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>Selection Class</h1>
+<div class="box meta">
+    
+
+    
+
+    
+
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    
+</div>
+
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_append">append</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_clear">clear</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_each">each</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_each">each</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_each">each</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_get">get</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_getEdge">getEdge</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_getEdgeCount">getEdgeCount</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_getNodeCount">getNodeCount</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_remove">remove</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setCapacityPolicy">setCapacityPolicy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setMaxEdges">setMaxEdges</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setMaxNodes">setMaxNodes</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_toggle">toggle</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_append" class="method item">
+    <h3 class="name"><code>append</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Appends the given object to the selection.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type"><a href="../classes/Node.html" class="crosslink">Node</a> | <a href="../classes/Edge.html" class="crosslink">Edge</a> | <a href="../classes/Node.html" class="crosslink">Node[]</a> | <a href="../classes/Edge.html" class="crosslink">Edge[]</a> | <a href="../classes/Path.html" class="crosslink">Path</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Object(s) to add. May take many forms - a Node, Node Id, or Edge, or a list of these,
+or a Path.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_clear" class="method item">
+    <h3 class="name"><code>clear</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Clears this selection.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_each" class="method item">
+    <h3 class="name"><code>each</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[type=&quot;Node&quot;]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Iterates the objects of the given type in the selection, calling the supplied callback
+for each item. The callback&#39;s signature should be <code>function(index, item)</code>. If you don&#39;t supply
+<code>type</code>, the default of "Node" will be used.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Function to call with each item.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[type=&quot;Node&quot;]</code>
+                        <span class="type">String</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_each" class="method item">
+    <h3 class="name"><code>each</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Iterates the Edges in the selection, calling the supplied callback
+for each item. The callback&#39;s signature should be <code>function(index, item)</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Function to call with each item.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_each" class="method item">
+    <h3 class="name"><code>each</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>fn</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Iterates the Nodes in the selection, calling the supplied callback
+for each item. The callback&#39;s signature should be <code>function(index, item)</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">fn</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Function to call with each item.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_get" class="method item">
+    <h3 class="name"><code>get</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>idx</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Gets the Node/Port at the given index.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">idx</code>
+                        <span class="type">Integer</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Index of the Node/Port to retrieve.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>Node/Port at the given index, null if nothing found at that index.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_getEdge" class="method item">
+    <h3 class="name"><code>getEdge</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>idx</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Gets the Edge at the given index.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">idx</code>
+                        <span class="type">Integer</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Index of the Edge to retrieve.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>Edge at the given index, null if nothing found at that index.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_getEdgeCount" class="method item">
+    <h3 class="name"><code>getEdgeCount</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Number</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Get the current number of Edges in the selection.</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Number</span>:
+                    
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_getNodeCount" class="method item">
+    <h3 class="name"><code>getNodeCount</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Number</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Get the current number of Nodes in the selection.</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Number</span>:
+                    
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_remove" class="method item">
+    <h3 class="name"><code>remove</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Removes the given object from the selection.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type"><a href="../classes/Node.html" class="crosslink">Node</a> | <a href="../classes/Edge.html" class="crosslink">Edge</a> | <a href="../classes/Node.html" class="crosslink">Node[]</a> | <a href="../classes/Edge.html" class="crosslink">Edge[]</a> | <a href="../classes/Path.html" class="crosslink">Path</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Object(s) to remove. May take many forms - a Node, Node Id, or Edge, or a list of these,
+or a Path.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_setCapacityPolicy" class="method item">
+    <h3 class="name"><code>setCapacityPolicy</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>policy</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the action taken when appending an edge or node that would
+take the selection above its limit for that given type. Depends on the current <code>capacityPolicy</code>,
+which can be either <code>jsPlumbToolkitUtil.Selection.DISCARD_EXISTING</code> (the default) or <code>jsPlumbToolkitUtil.Selection.DISCARD_NEW</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">policy</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>One of <code>jsPlumbToolkitUtil.Selection.DISCARD_EXISTING</code> (which removes the 0th entry from the list
+before insertion of the new value) or <code>jsPlumbToolkitUtil.Selection.DISCARD_NEW</code>.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_setMaxEdges" class="method item">
+    <h3 class="name"><code>setMaxEdges</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>_maxEdges</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the maximum number of edges the selection can hold. The action taken when appending an edge that would
+take the selection above its limit depends on the current <code>capacityPolicy</code>, which can be either
+Selection.DISCARD_EXISTING (the default) or Selection.DISCARD_NEW.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">_maxEdges</code>
+                        <span class="type">Integer</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_setMaxNodes" class="method item">
+    <h3 class="name"><code>setMaxNodes</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>_maxNodes</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the maximum number of nodes the selection can hold. The action taken when appending a node that would
+take the selection above its limit depends on the current <code>capacityPolicy</code>, which can be either
+Selection.DISCARD_EXISTING (the default) or Selection.DISCARD_NEW.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">_maxNodes</code>
+                        <span class="type">Integer</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_toggle" class="method item">
+    <h3 class="name"><code>toggle</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Toggles the given object&#39;s membership in the current selection. If <code>obj</code> is a Path, then the individual
+members of the Path are toggled independently.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type"><a href="../classes/Node.html" class="crosslink">Node</a> | <a href="../classes/Edge.html" class="crosslink">Edge</a> | <a href="../classes/Node.html" class="crosslink">Node[]</a> | <a href="../classes/Edge.html" class="crosslink">Edge[]</a> | <a href="../classes/Path.html" class="crosslink">Path</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Object(s) to add. May take many forms - a Node, Node Id, or Edge, or a list of these,
+or a Path.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+
+        
+
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 using Model.Factories;
+using Model.ArtifactModel;
 
 namespace Model.Impl
 {
@@ -14,6 +15,9 @@ namespace Model.Impl
     {
         private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
+
+        public List<IOpenApiArtifact> Artifacts { get; } = new List<IOpenApiArtifact>();
+        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -292,6 +296,51 @@ namespace Model.Impl
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
                 Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        public HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false)
+        {
+            RestApiFacade restApi;
+            if (!badKey)
+                restApi = new RestApiFacade(_address, string.Empty);
+            else
+                restApi = new RestApiFacade(_address, null);
+
+            string sCommand = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+
+            string path = I18NHelper.FormatInvariant(sCommand, SVC_PATH, folderId);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "folderId", folderId.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            try
+            {
+                Logger.WriteInfo("Getting folder or its children - " + folderId);
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    if (!hasChildren)
+                    {
+                        PrimitiveFolder pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+                        Assert.IsNotNull(pf);
+                    }
+                    else
+                    {
+                        List<PrimitiveFolder> lpf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                        Assert.IsNotNull(lpf);
+                    }
+
+                return response.StatusCode;
+            }
+
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting folder or list of its children - {0}", ex.Message);
                 throw;
             }
         }

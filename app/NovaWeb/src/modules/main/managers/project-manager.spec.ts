@@ -59,10 +59,10 @@ describe("Project Manager Test", () => {
             project = manager.CurrentProject;
 
             //Asserts
-            expect(project.children).toBeDefined();
-            expect(project.children).toEqual(jasmine.any(Array));
-            expect(project.children.length).toEqual(1);
-            expect(project.children[0].id).toEqual(1);
+            expect(project.artifacts).toBeDefined();
+            expect(project.artifacts).toEqual(jasmine.any(Array));
+            expect(project.artifacts.length).toEqual(1);
+            expect(project.artifacts[0].id).toEqual(1);
         }));
 
 

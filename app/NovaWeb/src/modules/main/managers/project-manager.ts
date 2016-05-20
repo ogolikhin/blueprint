@@ -13,6 +13,8 @@ export interface IProjectManager {
     CurrentProject: Models.IProject;
 
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
+
+    selectArtifact(data: Models.IProject | Models.IArtifact);
 }
 
 export class ProjectManager implements IProjectManager {
@@ -62,7 +64,7 @@ export class ProjectManager implements IProjectManager {
                     project = new Models.Project(result);
                     project.id = projectId;
                     project.name = projectName;
-                    self.ProjectCollection.push(project);
+                    self.ProjectCollection.unshift(project);
                     self.notificator.notify(SubscriptionEnum.ProjectLoaded, project, false);
                     self.CurrentProject = project;
                 }).catch((error: any) => {
@@ -79,7 +81,7 @@ export class ProjectManager implements IProjectManager {
             .then((result: Models.IArtifact[]) => {
                 let node = self.CurrentProject.getArtifact(artifactId);
                 if (node) {
-                    node.children = result;
+                    node.artifacts = result;
                     self.notificator.notify(SubscriptionEnum.ProjectChildrenLoaded, this.CurrentProject, artifactId);
                 }
             }).catch(() => {
@@ -104,5 +106,13 @@ export class ProjectManager implements IProjectManager {
 
     public getFolders(id?: number) {
         return this._repository.getFolders(id);
+    }
+
+    public selectArtifact(data: Models.IProject | Models.IArtifact) {
+        return data.id;
+        //if (data.)
+        //for (let p in this.ProjectCollection) {
+
+        //}
     }
 }

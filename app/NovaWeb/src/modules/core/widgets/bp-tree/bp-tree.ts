@@ -38,6 +38,9 @@ export class BPTreeComponent implements ng.IComponentOptions {
         headerHeight: "<",
         //settings
         gridColumns: "<",
+        
+        propertyMap: "<",
+
         //to set connection with parent
         bpRef: "=?",
         //events
@@ -51,6 +54,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
 export interface ITreeNode {
     id: number;
     name: string;
+    type: number;
     hasChildren: boolean;
     parentNode?: ITreeNode;
     children?: ITreeNode[];
@@ -64,10 +68,11 @@ export interface IBPTreeController {
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
 
-    addNode(data: any, id?: number );           //to add a data node to the datasource
+    addNode(data: any, index?: number, propertyMap?: any); //to add a data node to the datasource
+    addNodeChildren(id:number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
     selectNode(id: number);                     //to select a row in in ag-grid (by id)
-    setDataSource(data?: any, id?: number);     //
+    setDataSource(data?: any[]);     //
 }
 
 
@@ -82,6 +87,7 @@ export class BPTreeController  {
     public headerHeight: number;
     //settings
     public gridColumns: any[];
+    public propertyMap: any;
 
     //events
     public onLoad: Function;
@@ -94,9 +100,10 @@ export class BPTreeController  {
 
     public options: Grid.GridOptions;
     private editableColumns: string[] = [];
-    private _datasource: ITreeNode[] = [];
+    private _datasource: any[] = [];
     private selectedRow: any;
     private clickTimeout: any;
+
 
     constructor(private $element, private $timeout: ng.ITimeoutService) {
         this.bpRef = this;
@@ -153,27 +160,55 @@ export class BPTreeController  {
         };
     };
 
-    //to add a data node to the datasource
-    public addNode(data: any, id?: number)  {
-        if (angular.isArray(data)) {
-            data.map(function (it: ITreeNode) {
-                if (it.hasChildren && !angular.isArray(it.children)) {
-                    it.children = [];
-                };
-            });
+    private mapData(data: any, propertyMap?: any): ITreeNode {
+        propertyMap = propertyMap || this.propertyMap;
+        if (!this.propertyMap) {
+            return data; 
         }
-        let node = this.getNode(id, this._datasource || []);
-            if (node) {
-            //set parent node reference
-            (node.children = data).map(function (it: ITreeNode) {
-                it.parentNode = node;
-            });
-            node.loaded = true;
-                node.open = true;
+        let item = <ITreeNode>{};
+
+        for (let property in data) {
+            item[this.propertyMap[property] ? this.propertyMap[property] : property ] = data[property];
+        }
+        if (item.hasChildren) {
+            if (angular.isArray(item.children)) {
+                item.children.map(function (it) {
+                    return this.mapData(it, propertyMap);
+                }.bind(this))
             } else {
-            this._datasource = (angular.isArray(data) ? data : [data]).concat(this._datasource || []);
+                item.children = [];
             }
+        };
+        
+        return item;
+    }
+
+    //to add a data node to the datasource
+    public addNode(data: any[], index: number = 0, propertyMap?: any)  {
+        this._datasource = this._datasource || [];
+
+        data = data.map(function (it) {
+            return this.mapData(it, propertyMap);
+        }.bind(this));
+        
+        this._datasource.splice.apply(this._datasource, [index < 0 ? 0 : index, 0].concat(data));
+        
+    }
+    public addNodeChildren(nodeId: number, data: any[], propertyMap?: any) {
+        let node = this.getNode(nodeId, this._datasource);
+        if (node) {
+            data = data.map(function (it) {
+                it = this.mapData(it, propertyMap);
+                //set parent node reference
+                it.parentNode = node;
+                return it;
+            }.bind(this));
+            node.children = data;
+            node.loaded = true;
+            node.open = true;
         }
+        
+    }
 
     //to remove a data node (by id) from the datasource
     public removeNode(id: number) {
@@ -189,21 +224,23 @@ export class BPTreeController  {
                 });
             }
         }
+        this.options.api.clearRangeSelection();
     }
 
     //to select a tree node in ag grid
     public selectNode(id: number) {
         this.options.api.getModel().forEachNode(function (it) {
             if (it.data.id === id) {
-                it.setSelected(true, true);
-            }
+                it.setSelected(true, true);            } 
         });
     }
 
     //sets a new datasource or add a datasource to specific node  children collection
-    public setDataSource(data?: any, id?: number) {
+    public setDataSource(data?: any[]) {
         if (data) {
-            this.addNode(data, id);
+            this._datasource = data.map(function (it) {
+                return this.mapData(it);
+            }.bind(this))
         }
         this.options.api.setRowData(this._datasource);
     }
@@ -295,11 +332,11 @@ export class BPTreeController  {
     };
 
     private rowClicked = (params: any) => {
-        var self = this;
-        self.clickTimeout = self.$timeout(function () {
-            if (self.clickTimeout.$$state.status === 2) {
-                return; // click event canceled by double-click
-            }
+            var self = this;
+            self.clickTimeout = self.$timeout(function () {
+                if (self.clickTimeout.$$state.status === 2) {
+                    return; // click event canceled by double-click
+                }
 
             self.rowFocus(params.event.target);
 
@@ -307,7 +344,7 @@ export class BPTreeController  {
                 self.onRowClick({prms: params});
             } else {
                 params.node.setSelected(true, true);
-            }
+            } 
         }, 250);
     };
 

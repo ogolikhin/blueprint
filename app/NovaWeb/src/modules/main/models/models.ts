@@ -35,14 +35,14 @@ export interface IArtifact  {
     predefinedType: number;
     version?: number;
     hasChildren?: boolean;  
-    children?: IArtifact[];
+    artifacts?: IArtifact[];
     //flags:
 }
 
 export interface IProject {
     id: number;
     name: string;
-    children: IArtifact[];
+    artifacts: IArtifact[];
     getArtifact(id: number, node?: IArtifact[]): IArtifact;
 }
 
@@ -59,16 +59,16 @@ export interface IProjectNode {
 export class Project implements IProject {
     public id: number;
     public name: string;
-    public children: IArtifact[];
+    public artifacts: IArtifact[];
 
     constructor(data?: IArtifact[]) {
-        this.children = data;
+        this.artifacts = data;
     };
 
     public getArtifact(id: number, nodes?: IArtifact[]): IArtifact {
         let item: IArtifact;
         if (!nodes) {
-            return this.getArtifact(id, this.children);
+            return this.getArtifact(id, this.artifacts);
         } else {
             nodes.map(function (node) {
                 if (node.id === id) {  ///needs to be changed camelCase 

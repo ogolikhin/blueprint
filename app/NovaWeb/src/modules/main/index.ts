@@ -49,7 +49,7 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .component("bpProjectExplorer", new ProjectExplorerComponent())
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.Factory())
     .directive("bpTreeDragndrop", BPTreeDragndrop.Factory())
-    .directive("bpTooltip", BPTooltip.Factory())
+    .directive("bpTooltip", BPTooltip.factory())
     .config(routesConfig);
 
 

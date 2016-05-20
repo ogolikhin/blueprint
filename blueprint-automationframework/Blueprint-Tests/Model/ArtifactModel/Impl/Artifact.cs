@@ -87,6 +87,14 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes, 
                 sendAuthorizationAsCookie);
 
+            foreach (var discardArtifactResult in discardArtifactResults)
+            {
+                if (discardArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    IsSaved = false;
+                }
+            }
+
             return discardArtifactResults;
         }
 
@@ -108,6 +116,14 @@ namespace Model.ArtifactModel.Impl
                 user,
                 expectedStatusCodes,
                 sendAuthorizationAsCookie);
+
+            foreach (var discardArtifactResult in discardArtifactResults)
+            {
+                if (discardArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    IsSaved = false;
+                }
+            }
 
             return discardArtifactResults;
         }

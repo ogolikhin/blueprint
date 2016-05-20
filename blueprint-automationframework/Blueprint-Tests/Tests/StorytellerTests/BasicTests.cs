@@ -59,7 +59,7 @@ namespace StorytellerTests
                     {
                         _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
                     }
-                    else
+                    else if (artifact.IsSaved)
                     {
                         if (artifact.IsSaved)
                         {

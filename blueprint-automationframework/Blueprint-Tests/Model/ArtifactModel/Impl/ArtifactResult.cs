@@ -20,6 +20,10 @@ namespace Model.ArtifactModel.Impl
         Failure
     }
 
+    /// <summary>
+    /// Artifact Result Class
+    /// </summary>
+    ///<remarks>Not all of these properties will be used by REST calls that return it as a response</remarks>
     public class ArtifactResult
     {
         [JsonConverter(typeof(Deserialization.ConcreteConverter<Artifact>))]

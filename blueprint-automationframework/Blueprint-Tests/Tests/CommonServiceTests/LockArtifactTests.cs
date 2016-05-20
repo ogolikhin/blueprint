@@ -133,7 +133,7 @@ namespace CommonServiceTests
             // Assert that the lock was successfully obtained
             Assert.AreEqual(lockResultInfo.Result, 
                 LockResult.Success, 
-                I18NHelper.FormatInvariant("The user was not able to obtain a lock on the {0} artifact when" +
+                I18NHelper.FormatInvariant("The user was not able to obtain a lock on the {0} artifact when " +
                 "the artifact was not locked by any user.", baseArtifactType.ToString())
                                                                        );
 
@@ -286,32 +286,6 @@ namespace CommonServiceTests
             throw new NotImplementedException();
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestRail(107366)]
-        [TestCase(BaseArtifactType.Process)]
-        [Description("Attempt to lock artifact by sending authorization as a cookie instead of as a header.  Verify that" +
-                     "the lock is obtained.")]
-        public void GetLockForArtifactWithAuthorizationAsCookie_VerifyLockObtained(BaseArtifactType baseArtifactType)
-        {
-            var artifact = CreateArtifact(_project, _user, baseArtifactType);
-            artifact.Save();
-
-            // Publish artifact to ensure no lock remains on the newly created artifact
-            artifact.Publish();
-
-            var lockResultInfo = artifact.Lock(sendAuthorizationAsCookie: true);
-
-            // Assert that the lock was successfully obtained
-            Assert.AreEqual(lockResultInfo.Result, LockResult.Success, "The user was not able to obtain a lock on the artifact when" +
-                                                                       "the artifact was not locked by any user.");
-
-            // Assert that user can Publish the artifact to verify that the lock was actually obtained
-            Assert.DoesNotThrow(() =>
-                artifact.Publish(),
-                "The user was unable to Publish the artifact even though the lock appears to have been obtained successfully."
-                );
-        }
-
         [TestRail(107378)]
         [TestCase(BaseArtifactType.Process)]
         [Description("User attempts to get a lock when they already have a lock on the artifact.  Verify that the lock is obtained.")]
@@ -342,6 +316,7 @@ namespace CommonServiceTests
         }
 
         #region Private Methods
+
 
         /// <summary>
         /// Create Artifact and Add to Artifact List

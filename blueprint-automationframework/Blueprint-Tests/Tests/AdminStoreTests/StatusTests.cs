@@ -52,6 +52,7 @@ namespace AdminStoreTests
             });
         }
 
+        [TestRail(119382)]
         [TestCase(false)]
         [TestCase(true)]
         [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns HTTP OK code")]
@@ -75,6 +76,7 @@ namespace AdminStoreTests
             }
         }
 
+        [TestRail(119383)]
         [Test]
         [Description("Calls instance/folders/{folderId}/ command for AdminStore and returns HTTP Not Found code")]
         public void GetFolder_NotFound()
@@ -100,6 +102,7 @@ namespace AdminStoreTests
             }
         }
 
+        [TestRail(119384)]
         [TestCase(false)]
         [TestCase(true)]
         [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns Unauthorized code")]
@@ -145,6 +148,7 @@ namespace AdminStoreTests
             }
         }
 
+        [TestRail(119385)]
         [TestCase(false)]
         [TestCase(true)]
         [Description("Calls instance/folders/{folderId} or instance/folders/{folderId}/children command for AdminStore and returns Bad Request code")]

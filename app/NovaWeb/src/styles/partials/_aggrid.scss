@@ -72,18 +72,21 @@
     .ag-cell-range-selected {
       outline: none;
 
-      span > span {
+      .has-children .ag-group-expanded,
+      .has-children .ag-group-contracted {
+        background: transparent;
+      }
+
+      .has-children .ag-group-expanded::before,
+      .has-children .ag-group-contracted::before,
+      span > span,
+      i {
         background: $brand-secondary;
         color: $white;
       }
 
-      .ag-group-expanded,
-      .ag-group-contracted {
-        background: transparent;
-      }
-
-      i {
-        background: $brand-secondary;
+      > span .ag-group-inline-edit::before,
+      > span .ag-group-value::before {
         color: $white;
       }
     }
@@ -114,13 +117,6 @@
       text-align: left;
       vertical-align: bottom;
       width: 25px;
-    }
-
-    &.ag-cell-range-selected {
-      > span .ag-group-inline-edit::before,
-      > span .ag-group-value::before {
-        color: $white;
-      }
     }
 
     &.ag-cell-inline-editing .ag-group-value {
@@ -225,14 +221,6 @@
 
     .ag-group-contracted::before {
       content: '\e81f';
-    }
-
-    &.ag-cell-range-selected {
-      .ag-group-expanded::before,
-      .ag-group-contracted::before {
-        background: $brand-secondary;
-        color: $white;
-      }
     }
   }
 }

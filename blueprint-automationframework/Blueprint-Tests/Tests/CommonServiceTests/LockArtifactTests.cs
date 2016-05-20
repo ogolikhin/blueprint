@@ -239,31 +239,121 @@ namespace CommonServiceTests
                 errorMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [TestRail(107363)]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void DeleteArtifactWhenLockedByOtherUser_VerifyNotDeleted()
+        [Description("Verify that the artifact deletion doesn't work when the artifact is locked by the other user.")]
+        public void DeleteArtifactWhenLockedByOtherUser_VerifyNotDeleted(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            // Create an artifact and publish with the user1
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            artifact.Save();
+            artifact.Publish();
+
+            // Update the process to lock it with the user1
+            artifact.Lock(_user);
+
+            // Assert that the second user cannot delete the locked artifact
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // Second user tries to save the artifact
+                artifact.Delete(_user2),
+                "The second user attempted to delete the artifact locked by another user and either an unexpected " +
+                "exception was thrown or the second user's attempted delete was successful."
+                );
+
+            Assert.IsNotNull(ex.RestResponse.Content, "No response content found in the exception message.");
+
+            var failedDeleteArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
+            var failedDeleteArtifactResult = failedDeleteArtifactResults.First(a => a.ArtifactId == artifact.Id);
+
+            string errorMessage =
+                I18NHelper.FormatInvariant(
+                    "The expected message content is: \"{0}\" but \"{1}\" was returned",
+                    ArtifactValidationMessage.ArtifactAlreadyLocked,
+                    failedDeleteArtifactResult.Message);
+
+            Assert.AreEqual(ArtifactValidationMessage.ArtifactAlreadyLocked,
+                failedDeleteArtifactResult.Message,
+                errorMessage);
+
+            // Remove locks by publishing the artifact for clean up process
+            _artifacts.Add(artifact);
+
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [TestRail(107364)]
         [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void DiscardArtifactWhenLockedByOtherUser_VerifyNotDiscarded()
+        [Description("Verify that the artifact discard doesn't work when the artifact is locked by the other user.")]
+        public void DiscardArtifactWhenLockedByOtherUser_VerifyNotDiscarded(BaseArtifactType baseArtifactType)
         {
-            throw new NotImplementedException();
+            // Create an artifact and publish with the user1
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+            artifact.Save();
+            artifact.Publish();
+
+            // Update the process to lock it with the user1
+            artifact.Lock(_user);
+
+            // Assert that the second user cannot discard the locked artifact
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // Second user tries to save the artifact
+                artifact.Discard(_user2),
+                "The second user attempted to discard the artifact locked by another user and either an unexpected " +
+                "exception was thrown or the second user's attempted discard was successful."
+                );
+
+            Assert.IsNotNull(ex.RestResponse.Content, "No response content found in the exception message.");
+
+            var failedDiscardArtifactResults = JsonConvert.DeserializeObject<List<FailedArtifactResult>>(ex.RestResponse.Content);
+            var failedDiscardArtifactResult = failedDiscardArtifactResults.First(a => a.ArtifactId == artifact.Id);
+
+            string expectedMessage = I18NHelper.FormatInvariant(
+                ArtifactValidationMessage.ArtifactNothingToDiscard,
+                failedDiscardArtifactResult.ArtifactId);
+
+            string errorMessage =
+                I18NHelper.FormatInvariant(
+                    "The expected message content is: \"{0}\" but \"{1}\" was returned",
+                    ArtifactValidationMessage.ArtifactAlreadyLocked,
+                    failedDiscardArtifactResult.Message);
+
+            Assert.AreEqual(expectedMessage,
+                failedDiscardArtifactResult.Message,
+                errorMessage);
+
+            // Remove locks by publishing the artifact for clean up process
+            _artifacts.Add(artifact);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        [TestCase(BaseArtifactType.Process)]
-        [Description("")]
-        public void GetLocksForMultipleArtifacts_VerifyLocksObtained()
+        [TestRail(107365)]
+        [TestCase(BaseArtifactType.Process, 3)]
+        [Description("Verify the lock status perperty values of Locked artifacts")]
+        public void GetLocksForMultipleArtifacts_VerifyLocksObtained(BaseArtifactType baseArtifactType, int iteration)
         {
-            throw new NotImplementedException();
+            // Create artifact(s) and publish with the user1
+            for (int i = 0; i < iteration; i++)
+            {
+                var artifact = ArtifactFactory.CreateArtifact(_project, _user, baseArtifactType);
+                artifact.Save();
+                artifact.Publish();
+                _artifacts.Add(artifact);
+            }
+
+            List<IArtifactBase> artifactList = _artifacts.ConvertAll(a => (IArtifactBase)a);
+
+            // Obtain locks for artifact(s) with the user1
+            Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user);
+
+            // Verify that lock obtained by checking the status section of artifact(s)?
+            foreach (var artifact in _artifacts)
+            {
+                var lockResultInfo = artifact.Lock(_user2);
+                Assert.That(lockResultInfo.Result.Equals(LockResult.AlreadyLocked),
+                    "The artifact {0} should be in \"AlreadyLocked\" but the result from the get lock call is {1},",
+                    artifact.Id, lockResultInfo.Result.ToString());
+                Assert.That(lockResultInfo.Info.LockOwnerLogin.Equals(artifact.CreatedBy.Username),
+                    "The artifact {0} should be locked by the user {1} but the result from the getl lock call shows " +
+                    "the lock owner is {2}.", artifact.Id, artifact.CreatedBy.Username, lockResultInfo.Info.LockOwnerLogin);
+            }
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)]

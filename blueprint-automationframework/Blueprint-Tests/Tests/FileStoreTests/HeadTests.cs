@@ -24,7 +24,7 @@ namespace FileStoreTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            Helper.Dispose();
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup

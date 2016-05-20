@@ -24,7 +24,7 @@ namespace FileStoreTests
         [TearDown]
         public void TestTearDown()
         {
-            Helper.Dispose();
+            Helper?.Dispose();
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]

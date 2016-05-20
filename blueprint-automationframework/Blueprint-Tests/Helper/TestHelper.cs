@@ -17,6 +17,7 @@ namespace Helper
         public IAdminStore AdminStore { get; } = AdminStoreFactory.GetAdminStoreFromTestConfig();
         public IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
+        public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
 
@@ -112,6 +113,7 @@ namespace Helper
             {
                 Storyteller?.Dispose();
                 FileStore?.Dispose();
+                ConfigControl?.Dispose();
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
                 AdminStore?.Dispose();

@@ -4,6 +4,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.StorytellerModel;
+using NUnit.Framework;
 
 namespace Helper
 {
@@ -16,7 +17,8 @@ namespace Helper
         public IAdminStore AdminStore { get; } = AdminStoreFactory.GetAdminStoreFromTestConfig();
         public IArtifactStore ArtifactStore { get; } = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-        public IFileStore Filestore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
+        public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
+        public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
 
         // Lists of objects created by this class to be disposed:
@@ -80,11 +82,13 @@ namespace Helper
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
                 AdminStore.AddSession(user);
+                Assert.NotNull(user.Token?.AccessControlToken, "User '{0}' didn't get an AccessControl token!", user.Username);
             }
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
                 BlueprintServer.LoginUsingBasicAuthorization(user);
+                Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
             }
 
             return user;
@@ -108,7 +112,8 @@ namespace Helper
             if (disposing)
             {
                 Storyteller?.Dispose();
-                Filestore?.Dispose();
+                FileStore?.Dispose();
+                ConfigControl?.Dispose();
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
                 AdminStore?.Dispose();

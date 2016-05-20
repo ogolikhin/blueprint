@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Model
 {
-    public interface IConfigControl
+    public interface IConfigControl : IDisposable
     {
         /// <summary>
         /// Gets the log file from ConfigControl (no authentication is required).

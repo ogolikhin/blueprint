@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -66,5 +67,38 @@ namespace Model.Impl
         }
 
         #endregion Inherited from IConfigControl
+
+        #region Inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by releasing any resources that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(ConfigControl), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            // TODO: If ConfigControl starts using resources that need to be released, remember to update this Dispose() to release them.
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by releasing any resources that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Inherited from IDisposable
     }
 }

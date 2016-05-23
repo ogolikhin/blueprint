@@ -1,7 +1,8 @@
 ﻿
 export enum ArtifactTypeEnum {
-    Project = 0,
+    Project = -1,
 
+    Unknown = 0,
     // Artifacts
     Folder = 1,
     Actor = 2,
@@ -43,7 +44,7 @@ export interface IProject {
     id: number;
     name: string;
     artifacts: IArtifact[];
-    getArtifact(id: number, node?: IArtifact[]): IArtifact;
+    getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact;
 }
 
 export interface IProjectNode {
@@ -65,20 +66,20 @@ export class Project implements IProject {
         this.artifacts = data;
     };
 
-    public getArtifact(id: number, nodes?: IArtifact[]): IArtifact {
-        let item: IArtifact;
-        if (!nodes) {
-            return this.getArtifact(id, this.artifacts);
-        } else {
-            nodes.map(function (node) {
-                if (node.id === id) {  ///needs to be changed camelCase 
-                    item = node;
-                } else if (node.artifacts) {
-                    item = this.getArtifact(id, node.artifacts);
+    public getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact {
+        let artifact: IArtifact;
+        if (angular.isArray(artifacts)) {
+            for (let i = 0, it: IArtifact; !artifact && (it = artifacts[i++]);) {
+                if (it.id === artifactId) {
+                    artifact = it;
+                } else if (it.artifacts) {
+                    artifact = this.getArtifact(artifactId, it.artifacts);
                 }
-            }.bind(this));
+            }
+        } else {
+            artifact = this.getArtifact(artifactId, this.artifacts);
         }
-        return item;
+        return artifact;
     };
 
 }

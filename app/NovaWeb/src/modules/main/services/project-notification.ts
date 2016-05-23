@@ -9,6 +9,7 @@ export enum SubscriptionEnum {
     ProjectClose,
     ProjectClosed,
     CurrentProjectChanged,
+    CurrentArtifactChanged,
 }
 
 export interface IProjectNotification  {
@@ -18,17 +19,17 @@ export interface IProjectNotification  {
 }
 
 export class ProjectNotification extends NotificationService implements IProjectNotification {
-
+    private hostId = "projectnotificator"
     public subscribe(type: SubscriptionEnum, func: Function) {
-        this.attach(SubscriptionEnum[type], func);
+        this.attach(this.hostId, SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
-        this.detach(SubscriptionEnum[type], func);
+        this.detach(this.hostId, SubscriptionEnum[type], func);
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.dispatch(SubscriptionEnum[type], ...prms);
+        this.dispatch(this.hostId, SubscriptionEnum[type], ...prms);
     }
 };
 

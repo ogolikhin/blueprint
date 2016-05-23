@@ -5,6 +5,7 @@ import {INotificationService, NotificationService} from "./notification";
  
 describe("Global Notification", () => {
     let notificator: INotificationService;
+    let hostId = "host";
     beforeEach(()=> {
         notificator = new NotificationService();
     });
@@ -13,7 +14,7 @@ describe("Global Notification", () => {
         // Arrange
         let first = function (delta:number) {
         }
-        notificator.attach("first", first);
+        notificator.attach(hostId,"first", first);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -25,9 +26,9 @@ describe("Global Notification", () => {
         // Arrange
         let first = function (delta: number) {
         }
-        notificator.attach("first", first);
-        notificator.attach("first", first);
-        notificator.attach("first", first);
+        notificator.attach(hostId, "first", first);
+        notificator.attach(hostId, "first", first);
+        notificator.attach(hostId, "first", first);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -42,8 +43,8 @@ describe("Global Notification", () => {
         // Arrange
         let first = function (delta: number) {
         }
-        notificator.attach("first", first);
-        notificator.detach("first", first);
+        notificator.attach(hostId, "first", first);
+        notificator.detach(hostId, "first", first);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -55,8 +56,8 @@ describe("Global Notification", () => {
         }
         let second = function (delta: number) {
         }
-        notificator.attach("first", first);
-        notificator.detach("first", second);
+        notificator.attach(hostId, "first", first);
+        notificator.detach(hostId, "first", second);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -69,9 +70,9 @@ describe("Global Notification", () => {
         }
         let second = function (delta: any) {
         }
-        notificator.attach("first", first);
-        notificator.attach("first", second);
-        notificator.detach("first", first);
+        notificator.attach(hostId, "first", first);
+        notificator.attach(hostId, "first", second);
+        notificator.detach(hostId, "first", first);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -89,10 +90,10 @@ describe("Global Notification", () => {
         let func = function (delta: number) {
             value += delta;
         }
-        notificator.attach("first", func);
+        notificator.attach(hostId, "first", func);
 
         // Act
-        notificator.dispatch("first", 10);
+        notificator.dispatch(hostId, "first", 10);
 
         // Assert
         expect(value).toBe(11);
@@ -104,10 +105,10 @@ describe("Global Notification", () => {
         let func = function (delta: number) {
             value += delta;
         }
-        notificator.attach("first", func);
+        notificator.attach(hostId, "first", func);
 
         // Act
-        notificator.dispatch("invalid", 10);
+        notificator.dispatch(hostId, "invalid", 10);
 
         // Assert
         expect(value).toBe(1);

@@ -165,16 +165,16 @@ export class BPTreeController  {
         if (!this.propertyMap) {
             return data; 
         }
-        let item = <ITreeNode>{};
+        let item = {} as ITreeNode;
 
         for (let property in data) {
             item[this.propertyMap[property] ? this.propertyMap[property] : property ] = data[property];
         }
         if (item.hasChildren) {
-            if (angular.isArray(item.children)) {
-                item.children.map(function (it) {
+            if (angular.isArray(item.children) && item.children.length) {
+                item.children = item.children.map(function (it) {
                     return this.mapData(it, propertyMap);
-                }.bind(this))
+                }.bind(this)) as ITreeNode[];
             } else {
                 item.children = [];
             }
@@ -188,7 +188,8 @@ export class BPTreeController  {
         this._datasource = this._datasource || [];
 
         data = data.map(function (it) {
-            return this.mapData(it, propertyMap);
+            it = this.mapData(it, propertyMap);
+            return it;
         }.bind(this));
         
         this._datasource.splice.apply(this._datasource, [index < 0 ? 0 : index, 0].concat(data));

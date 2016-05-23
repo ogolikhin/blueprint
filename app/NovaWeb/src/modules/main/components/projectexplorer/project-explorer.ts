@@ -30,48 +30,35 @@ class ProjectExplorerController {
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
 
     };
+    // the object defines how data will map to ITreeNode
+    // on left
     public propertyMap = {
         id: "id",
-        type: "type",
+        typeId: "type",
         name: "name",
         hasChildren: "hasChildren",
         artifacts: "children"
-    };
+    }; 
 
-    private activateProject() {
-        if (this.manager.CurrentProject) {
-            this.selectArtifact(this.manager.CurrentProject.id);
-        }
+    private activateProject(project: Models.IProject) {
+        this.tree.selectNode(project.id);
     }
 
-    private loadProject = (project: Models.IProject, alreadyOpened: boolean) => {
-        if (alreadyOpened) {
-            this.selectArtifact(project.id);
-            return;
-        };
-
-        this.tree.addNode([
+    private loadProject = (project: Models.IProject) => {
+        this.tree.addNode([ 
             angular.extend({
-                type: 0,
+                predefinedType: Models.ArtifactTypeEnum.Project,
                 hasChildren: true,
+                loaded:true,
                 open: true
             }, project)
-        ], 0, {
-                id: "id",
-                type: "type",
-                name: "name",
-                hasChildren: "hasChildren",
-                artifacts: "children"
-            }); 
+        ]); 
         
         this.tree.setDataSource();
     }
 
-    private loadProjectChildren = (project: Models.IProject, artifactId) => {
-        var nodes = project.getArtifact(artifactId).artifacts;
-
-        this.tree.addNodeChildren(project.id, project.artifacts)
-
+    private loadProjectChildren = (artifact: Models.IArtifact) => {
+        this.tree.addNodeChildren(artifact.id, artifact.artifacts);
         this.tree.setDataSource();
     }
 
@@ -82,21 +69,14 @@ class ProjectExplorerController {
         this.tree.setDataSource();
     }
 
-    private selectArtifact(artifact:any) {
-        let selectedId = this.manager.selectArtifact(artifact);
-        if (selectedId) {
-            this.tree.selectNode(selectedId);
-        }
-        
-    }
 
     public columns = [{
         headerName: "",
         field: "name",
         cellClassRules: {
             "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
-            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
+            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
         suppressMenu: true, 
@@ -115,10 +95,10 @@ class ProjectExplorerController {
         this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
     };
 
-    public doSelect = (item: any) => {
+    public doSelect = (node: ITreeNode) => {
         //check passed in parameter
         //this.$scope.$applyAsync((s) => {});
-        this.selectArtifact(item);
+        this.manager.selectArtifact(node.id);
     };
 
 }

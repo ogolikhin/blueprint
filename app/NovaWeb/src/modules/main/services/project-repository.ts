@@ -1,6 +1,5 @@
 ﻿/// <reference path="../../core/notification.ts" />
 import {ILocalizationService} from "../../core/localization";
-import {IProjectNotification} from "./project-notification";
 import * as Models from "../models/models";
 
 export {Models}
@@ -11,13 +10,12 @@ export interface IProjectRepository {
 }
 
 export class ProjectRepository implements IProjectRepository {
-    static $inject: [string] = ["$q", "$http", "localization", "projectNotification"];
+    static $inject: [string] = ["$q", "$http", "localization"];
 
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
-        private localization: ILocalizationService,
-        private notification: IProjectNotification) {
+        private localization: ILocalizationService) {
     }
 
     public getFolders(id?: number): ng.IPromise<Models.IProjectNode[]> {

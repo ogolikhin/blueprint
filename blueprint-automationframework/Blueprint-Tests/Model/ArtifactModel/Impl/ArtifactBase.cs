@@ -360,5 +360,6 @@ namespace Model.ArtifactModel.Impl
     {
         public static readonly string ArtifactAlreadyLocked = "The artifact is locked by other user.";
         public static readonly string ArtifactAlreadyPublished = "Artifact {0} is already published in the project";
+        public static readonly string ArtifactNothingToDiscard = "Artifact {0} has nothing to discard";
     }
 }

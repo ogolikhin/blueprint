@@ -1,43 +1,45 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
-using Model;
-using Model.Factories;
 using NUnit.Framework;
 
 namespace ConfigControlTests
 {
-    public class StatusTests
+    public static class StatusTests
     {
-        private IConfigControl _configControl = ConfigControlFactory.GetConfigControlFromTestConfig();
-
         [TestCase]
         [TestRail(106946)]
         [Description("Check that GET /svc/configcontrol/status returns 200 OK")]
-        public void GetStatus_OK()
+        public static void GetStatus_OK()
         {
-            string content = null;
-
-            Assert.DoesNotThrow(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                content = _configControl.GetStatus();
-            }, "'GET /status' should return 200 OK.");
+                string content = null;
 
-            var extraExpectedStrings = new List<string> { "AdminStorage", "ConfigControl" };
+                Assert.DoesNotThrow(() =>
+                {
+                    content = helper.ConfigControl.GetStatus();
+                }, "'GET /status' should return 200 OK.");
 
-            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+                var extraExpectedStrings = new List<string> {"AdminStorage", "ConfigControl"};
+
+                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+            }
         }
 
 
         [TestCase]
         [TestRail(106952)]
         [Description("Check that GET /svc/configcontrol/status/upcheck endpoint for ConfigControl and verifies that it returns 200 OK.")]
-        public void GetStatusUpcheck_OK()
+        public static void GetStatusUpcheck_OK()
         {
-            Assert.DoesNotThrow(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                _configControl.GetStatusUpcheck();
-            });
+                Assert.DoesNotThrow(() =>
+                {
+                    helper.ConfigControl.GetStatusUpcheck();
+                });
+            }
         }
 
     }

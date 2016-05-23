@@ -1,17 +1,15 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
+using TestCommon;
 
 namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    public class HeadTests
+    public class HeadTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IFileStore _filestore;
         private IUser _user;
 
         #region Setup and Cleanup
@@ -19,44 +17,14 @@ namespace FileStoreTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
-
-            // Get a valid token for the user.
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_filestore != null)
-            {
-                // Delete all the files that were added.
-                foreach (var file in _filestore.Files.ToArray())
-                {
-                    _filestore.DeleteFile(file.Id, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                // Delete the user we created.
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -68,10 +36,10 @@ namespace FileStoreTests
         public void GetHeadOnly_VerifyFileMetaDataIdenticalToAddedFile(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: Create and add file to FileStore.
-            var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, _filestore, _user);
+            var storedFile = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
 
             // Get file meta-data.
-            var returnedFile = _filestore.GetFileMetadata(storedFile.Id, _user);
+            var returnedFile = Helper.FileStore.GetFileMetadata(storedFile.Id, _user);
 
             // Verify meta-data is the same as the file we added.
             FileStoreTestHelper.AssertFilesMetadataAreIdentical(storedFile, returnedFile);

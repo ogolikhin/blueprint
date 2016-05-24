@@ -1,7 +1,4 @@
 export class BPTooltip implements ng.IDirective {
-    public scope = {
-        bpTooltip: "@"
-    };
     public restrict = "A";
 
     private tooltipContent: string = "";

@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Common;
+using Helper;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Model.Impl;
+using TestCommon;
 
 namespace OpenAPITests
 {
     [TestFixture]
     [Category(Categories.OpenApi)]
-    public class ProjectTests
+    public class ProjectTests : TestBase
     {
         private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         private IUser _user = null;
@@ -18,20 +20,17 @@ namespace OpenAPITests
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
-        [Test]
+        [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         public void GetProjects()
         {
@@ -46,33 +45,23 @@ namespace OpenAPITests
             }
 
             // TODO: Verify that the projects we created were returned in the list of projects.
-
-            // TODO: Delete the projects we added.
         }
 
-        [Test]
+        [TestCase]
         [Ignore(IgnoreReasons.UnderDevelopment)]
         // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject().
         public void GetProject()
         {
             // Setup: Create a project and collect the projectID
-            IProject project = ProjectFactory.CreateProject();
+            IProject project = Helper.CreateProject();
 
-            try
-            {
-                // Try to get the project we added.
-                IProject foundProject = new Project().GetProject(_server.Address, project.Id, _user);
+            // Try to get the project we added.
+            IProject foundProject = new Project().GetProject(_server.Address, project.Id, _user);
 
-                // Verify that the projects we created were returned in the list of projects.
-                Assert.That(project.Equals(foundProject),
-                    "The project we found on the server is not the same as the project we added!\n--> Added project = {0}\n--> Found project = {1}",
-                    project.ToString(), foundProject.ToString());
-            }
-            finally
-            {
-                // Cleanup: Delete the project we added.
-                project.DeleteProject();
-            }
+            // Verify that the projects we created were returned in the list of projects.
+            Assert.That(project.Equals(foundProject),
+                "The project we found on the server is not the same as the project we added!\n--> Added project = {0}\n--> Found project = {1}",
+                project.ToString(), foundProject.ToString());
         }
     }
 }

@@ -228,7 +228,8 @@ export class BPTreeController  {
     public selectNode(id: number) {
         this.options.api.getModel().forEachNode(function (it) {
             if (it.data.id === id) {
-                it.setSelected(true, true);            }
+                it.setSelected(true, true);
+            }
         });
     }
 
@@ -258,7 +259,7 @@ export class BPTreeController  {
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing " : "";
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
         var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
 
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
@@ -329,18 +330,18 @@ export class BPTreeController  {
     };
 
     private rowClicked = (params: any) => {
-            var self = this;
-            self.clickTimeout = self.$timeout(function () {
-                if (self.clickTimeout.$$state.status === 2) {
-                    return; // click event canceled by double-click
-                }
+        var self = this;
 
-            self.rowFocus(params.event.target);
+        self.rowFocus(params.event.target);
+        params.node.setSelected(true, true);
+
+        self.clickTimeout = self.$timeout(function () {
+            if (self.clickTimeout.$$state.status === 2) {
+                return; // click event canceled by double-click
+            }
 
             if (angular.isFunction(self.onRowClick)) {
                 self.onRowClick({prms: params});
-            } else {
-                params.node.setSelected(true, true);
             }
         }, 250);
     };

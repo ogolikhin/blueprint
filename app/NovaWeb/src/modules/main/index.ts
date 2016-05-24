@@ -47,8 +47,8 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .component("bpAccordion", new BpAccordion())
     .component("bpAccordionPanel", new BpAccordionPanel())
     .component("bpProjectExplorer", new ProjectExplorerComponent())
-    .directive("bpTreeInlineEditing", BPTreeInlineEditing.Factory())
-    .directive("bpTreeDragndrop", BPTreeDragndrop.Factory())
+    .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())
+    .directive("bpTreeDragndrop", BPTreeDragndrop.factory())
     .directive("bpTooltip", BPTooltip.factory())
     .config(routesConfig);
 

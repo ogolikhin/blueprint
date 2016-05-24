@@ -26,7 +26,7 @@ namespace ArtifactStore.Models
         public string Prefix { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public PredefinedType? PredefinedType { get; set; }
+        public ItemTypePredefined? PredefinedType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Version { get; set; }

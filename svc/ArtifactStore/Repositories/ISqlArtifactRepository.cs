@@ -6,6 +6,6 @@ namespace ArtifactStore.Repositories
 {
     public interface ISqlArtifactRepository
     {
-        Task<List<Artifact>> GetProjectOrGetChildrenAsync(int projectId, int? artifactId, int userId);
+        Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId);
     }
 }

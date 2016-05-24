@@ -4,7 +4,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
@@ -32,7 +31,7 @@ namespace ArtifactStore.Repositories
             ConnectionWrapper = connectionWrapper;
         }
 
-        public async Task<List<Artifact>> GetProjectOrGetChildrenAsync(int projectId, int? artifactId, int userId)
+        public async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
         {
             if (projectId < 1)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -145,7 +144,7 @@ namespace ArtifactStore.Repositories
                 ParentId = v.ParentId,
                 TypeId = v.ItemTypeId,
                 Prefix = v.Prefix,
-                PredefinedType = v.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
                 Version = v.VersionsCount,
                 OrderIndex = v.OrderIndex,
                 HasChildren = v.HasChildren,
@@ -157,9 +156,9 @@ namespace ArtifactStore.Repositories
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
-                if(a.OrderIndex < 0 && a.PredefinedType == PredefinedType.CollectionFolder)
+                if(a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.CollectionFolder)
                     return maxIndexOrder + 1; // Collections folder comes after artifacts
-                if (a.OrderIndex < 0 && a.PredefinedType == PredefinedType.BaselineReviewFolder)
+                if (a.OrderIndex < 0 && a.PredefinedType == ItemTypePredefined.BaselineFolder)
                     return maxIndexOrder + 2; // Baseline and Reviews folder comes after Collections folder
 
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
@@ -268,7 +267,7 @@ namespace ArtifactStore.Repositories
         internal double? OrderIndex { get; set; }
         internal int StartRevision { get; set; }
         internal int EndRevision { get; set; }
-        internal int? ItemTypePredefined { get; set; }
+        internal ItemTypePredefined? ItemTypePredefined { get; set; }
         internal int? ItemTypeId { get; set; }
         internal string Prefix { get; set; }
         internal int? LockedByUserId { get; set; }

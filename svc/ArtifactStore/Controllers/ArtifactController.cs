@@ -51,7 +51,7 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _artifactRepository.GetProjectOrGetChildrenAsync(projectId, null, session.UserId);
+            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _artifactRepository.GetProjectOrGetChildrenAsync(projectId, artifactId, session.UserId);
+            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
         }
 
     }

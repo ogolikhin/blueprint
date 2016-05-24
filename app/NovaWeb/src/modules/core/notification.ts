@@ -28,17 +28,17 @@ export class NotificationService implements INotificationService {
     };
 
     public attach(host: string, name: string, callback: Function)  {
-        if (!host || !name)
+        if (!host || !name) {
             return;
-
+        }
         let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks.push(callback);
     };
 
     public detach(host: string, name: string, callback: Function) {
-        if (!host || !name)
+        if (!host || !name) {
             return;
-
+        }
         let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
             return it !== callback;
@@ -51,8 +51,9 @@ export class NotificationService implements INotificationService {
     };
 
     public dispatch(host: string, name: string, ...prms: any[]) {
-        if (!host || !name)
+        if (!host || !name) {
             return;
+        }
         let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);

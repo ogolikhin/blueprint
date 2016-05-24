@@ -1,9 +1,19 @@
 ﻿import * as Models from "../models/models";
 import {INotificationService} from "../../core/notification";
 import {IProjectRepository} from "../services/project-repository";
-import {IProjectNotification, SubscriptionEnum } from "../services/project-notification";
 
-export {SubscriptionEnum, Models}
+export {Models}
+
+export enum SubscriptionEnum { 
+    ProjectLoad,
+    ProjectLoaded,
+    ProjectChildrenLoad,
+    ProjectChildrenLoaded,
+    ProjectClose,
+    ProjectClosed,
+    CurrentProjectChanged,
+    CurrentArtifactChanged
+}
 
 export interface IProjectManager {
     // Notification
@@ -20,7 +30,8 @@ export interface IProjectManager {
     selectArtifact(artifactId: number): Models.IArtifact;
 }
 
-export class ProjectManager implements IProjectManager, IProjectNotification {
+
+export class ProjectManager implements IProjectManager {
     private notificationId: string = "projectmanager";
     private _currentProjet: Models.IProject;
     private _currentArtifact: Models.IArtifact;
@@ -108,7 +119,7 @@ export class ProjectManager implements IProjectManager, IProjectNotification {
 
         this._repository.getProject(projectId, artifactId)
             .then((result: Models.IArtifact[]) => {
-                let artifact= self.CurrentProject.getArtifact(artifactId);
+                let artifact = self.CurrentProject.getArtifact(artifactId);
                 if (artifact) {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
@@ -145,7 +156,7 @@ export class ProjectManager implements IProjectManager, IProjectNotification {
     }
     public selectArtifact(artifactId: number): Models.IArtifact {
         let artifact: Models.IArtifact;
-        for (let i = 0, project: Models.IProject; project = this.ProjectCollection[i++];) {
+        for (let i = 0, project: Models.IProject; project = this.ProjectCollection[i++]; ) {
             artifact = project.getArtifact(artifactId);
             if (artifact) {
                 break;

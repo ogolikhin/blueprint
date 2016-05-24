@@ -38,9 +38,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         headerHeight: "<",
         //settings
         gridColumns: "<",
-        
         propertyMap: "<",
-
         //to set connection with parent
         bpRef: "=?",
         //events
@@ -69,7 +67,7 @@ export interface IBPTreeController {
     onRowPostCreate?: Function;
 
     addNode(data: any, index?: number, propertyMap?: any); //to add a data node to the datasource
-    addNodeChildren(id:number, data: any[], propertyMap?: any); //to add a data node to the datasource
+    addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
     selectNode(id: number);                     //to select a row in in ag-grid (by id)
     setDataSource(data?: any[]);     //
@@ -163,7 +161,7 @@ export class BPTreeController  {
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
         if (!this.propertyMap) {
-            return data; 
+            return data;
         }
         let item = {} as ITreeNode;
 
@@ -179,7 +177,6 @@ export class BPTreeController  {
                 item.children = [];
             }
         };
-        
         return item;
     }
 
@@ -191,10 +188,10 @@ export class BPTreeController  {
             it = this.mapData(it, propertyMap);
             return it;
         }.bind(this));
-        
+
         this._datasource.splice.apply(this._datasource, [index < 0 ? 0 : index, 0].concat(data));
-        
     }
+
     public addNodeChildren(nodeId: number, data: any[], propertyMap?: any) {
         let node = this.getNode(nodeId, this._datasource);
         if (node) {
@@ -208,7 +205,6 @@ export class BPTreeController  {
             node.loaded = true;
             node.open = true;
         }
-        
     }
 
     //to remove a data node (by id) from the datasource
@@ -232,7 +228,7 @@ export class BPTreeController  {
     public selectNode(id: number) {
         this.options.api.getModel().forEachNode(function (it) {
             if (it.data.id === id) {
-                it.setSelected(true, true);            } 
+                it.setSelected(true, true);            }
         });
     }
 
@@ -241,7 +237,7 @@ export class BPTreeController  {
         if (data) {
             this._datasource = data.map(function (it) {
                 return this.mapData(it);
-            }.bind(this))
+            }.bind(this));
         }
         this.options.api.setRowData(this._datasource);
     }
@@ -345,7 +341,7 @@ export class BPTreeController  {
                 self.onRowClick({prms: params});
             } else {
                 params.node.setSelected(true, true);
-            } 
+            }
         }, 250);
     };
 

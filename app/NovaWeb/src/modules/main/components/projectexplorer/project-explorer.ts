@@ -12,7 +12,6 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 class ProjectExplorerController {
     private tree: IBPTreeController;
 
-    private selectedItem: any;
     public static $inject: [string] = ["$scope", "localization", "projectManager", "$log", "$timeout"];
     constructor(
         private $scope: ng.IScope,
@@ -49,7 +48,7 @@ class ProjectExplorerController {
             angular.extend({
                 predefinedType: Models.ArtifactTypeEnum.Project,
                 hasChildren: true,
-                loaded:true,
+                loaded: true,
                 open: true
             }, project)
         ]); 

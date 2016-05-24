@@ -1,25 +1,12 @@
 ﻿import "angular";
 import "angular-mocks";
 import {IProjectRepository, ProjectRepository, Models} from "./project-repository";
-import {ProjectRepositoryMock} from "./project-repository.mock";
-import {IProjectNotification, SubscriptionEnum} from "./project-notification";
 import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
-
-class ProjectNotificationMock implements IProjectNotification {
-
-    public subscribe(type: SubscriptionEnum, func: Function) {
-    };
-    public unsubscribe(type: SubscriptionEnum, func: Function) {
-    };
-    public notify(type: SubscriptionEnum, ...prms: any[]) {
-    };
-}
 
 describe("ProjectService", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectRepository", ProjectRepository);
-        $provide.service("projectNotification", ProjectNotificationMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
 

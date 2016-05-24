@@ -6,26 +6,27 @@ import {INotificationService, NotificationService} from "./notification";
 describe("Global Notification", () => {
     let notificator: INotificationService;
     let hostId = "host";
-    beforeEach(()=> {
+    
+    beforeEach(() => {
         notificator = new NotificationService();
     });
 
     it("add notifications", () => {
         // Arrange
-        let first = function (delta:number) {
-        }
-        notificator.attach(hostId,"first", first);
+        let first = function (delta: number) {
+        };
+        notificator.attach(hostId, "first", first);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
         expect(notificator["handlers"].length).toEqual(1);
-        expect(notificator["handlers"][0].name).toEqual("first");
+        expect(notificator["handlers"][0].name).toEqual(hostId + ".first");
 
     });
     it("add 3 notifications", () => {
         // Arrange
         let first = function (delta: number) {
-        }
+        };
         notificator.attach(hostId, "first", first);
         notificator.attach(hostId, "first", first);
         notificator.attach(hostId, "first", first);
@@ -42,7 +43,7 @@ describe("Global Notification", () => {
     it("attach and detach notifications", () => {
         // Arrange
         let first = function (delta: number) {
-        }
+        };
         notificator.attach(hostId, "first", first);
         notificator.detach(hostId, "first", first);
 
@@ -53,9 +54,9 @@ describe("Global Notification", () => {
     it("detach invalid", () => {
         // Arrange
         let first = function (delta: number) {
-        }
+        };
         let second = function (delta: number) {
-        }
+        };
         notificator.attach(hostId, "first", first);
         notificator.detach(hostId, "first", second);
 
@@ -67,9 +68,9 @@ describe("Global Notification", () => {
     it("attach 2 and detach 1 notifications", () => {
         // Arrange
         let first = function (delta: number) {
-        }
+        };
         let second = function (delta: any) {
-        }
+        };
         notificator.attach(hostId, "first", first);
         notificator.attach(hostId, "first", second);
         notificator.detach(hostId, "first", first);
@@ -84,12 +85,12 @@ describe("Global Notification", () => {
     });
 
 
-    it("dispatch notifications", () => {
+    it("dispatch successful", () => {
         // Arrange
         let value: number = 1;
         let func = function (delta: number) {
             value += delta;
-        }
+        };
         notificator.attach(hostId, "first", func);
 
         // Act
@@ -99,12 +100,12 @@ describe("Global Notification", () => {
         expect(value).toBe(11);
     });
 
-    it("dispatch and not executed", () => {
+    it("dispatch unsuccessful", () => {
         // Arrange
         let value: number = 1;
         let func = function (delta: number) {
             value += delta;
-        }
+        };
         notificator.attach(hostId, "first", func);
 
         // Act

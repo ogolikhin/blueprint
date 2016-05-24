@@ -69,7 +69,7 @@ export class Project implements IProject {
     public getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact {
         let artifact: IArtifact;
         if (angular.isArray(artifacts)) {
-            for (let i = 0, it: IArtifact; !artifact && (it = artifacts[i++]);) {
+            for (let i = 0, it: IArtifact; !artifact && (it = artifacts[i++]); ) {
                 if (it.id === artifactId) {
                     artifact = it;
                 } else if (it.artifacts) {

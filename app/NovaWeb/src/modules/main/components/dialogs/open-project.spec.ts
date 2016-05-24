@@ -2,9 +2,6 @@
 import "angular-mocks";
 import {IOpenProjectResult, OpenProjectController} from "./open-project";
 import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
-import {ProjectRepositoryMock} from "../../services/project-repository.mock";
-import {ProjectManager} from "../../managers/project-manager";
-
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -117,7 +114,7 @@ describe("Embedded ag-grid events", () => {
             $scope,
             new LocalizationServiceMock(),
             new ModalServiceInstanceMock(),
-            null, //new ProjectManager((_$q_),
+            null,
             null,
             null,
             null);

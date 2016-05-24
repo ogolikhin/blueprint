@@ -8,7 +8,6 @@ import "ng-draggable";
 import "../shell";
 import {NotificationService} from "../core/notification";
 import {ProjectRepository} from "./services/project-repository";
-import {ProjectNotification} from "./services/project-notification";
 import {ProjectManager} from "./managers/project-manager";
 
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";

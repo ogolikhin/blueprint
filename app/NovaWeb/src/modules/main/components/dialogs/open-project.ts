@@ -14,8 +14,8 @@ export interface IOpenProjectResult {
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private selectedItem: any;
-    private tree: IBPTreeController; 
-    
+    private tree: IBPTreeController;
+
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
@@ -90,7 +90,7 @@ export class OpenProjectController extends BaseDialogController {
             .then((data: Models.IProjectNode[]) => { //pSvc.IProjectNode[]
                 if (angular.isNumber(id)) {
                     self.tree.addNodeChildren(id, data);
-                } else { 
+                } else {
                     self.tree.addNode(data);
                 }
                 self.tree.setDataSource();

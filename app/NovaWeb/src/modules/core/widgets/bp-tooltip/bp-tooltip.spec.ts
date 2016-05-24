@@ -1,23 +1,63 @@
+import "../../../main"
 import "angular";
 import "angular-mocks";
-import {BPTooltip} from "./bp-tooltip"
+//import {ComponentTest} from "../../../util/component.test";
+//import {BPTooltip} from "./bp-tooltip"
 
 describe("Directive BP-Tooltip", () => {
-    var bpTooltip: BPTooltip;
-    var trigger = '<div bp-tooltip="Tooltip\'s content">Tooltip trigger</div>';
-    var scope, element;
+    var tooltipTrigger = `<div bp-tooltip="Tooltip's content">Tooltip trigger</div>`;
+    var compile, scope, directiveElement;
 
-    beforeEach(angular.mock.module("app", []).directive("bpTooltip", BPTooltip.factory()));
+    beforeEach(angular.mock.module("app.main"));
 
-    beforeEach(inject(function(_$rootScope_, _$compile_) {
-        scope = _$rootScope_.$new();
-        element = angular.element(trigger);
-        _$compile_(element)(scope);
+    //var directiveTest: ComponentTest<BPTooltip>;
+
+    beforeEach(() => {
+        //directiveTest = new ComponentTest<BPTooltip>(tooltipTrigger, "bp-tooltip");
+    });
+
+/*    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
+        $compileProvider.directive("bpTooltip", <any>BPTooltip.factory);
+        console.log("before each")
+
+    }));
+*/
+    it("can initialize", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+
+        // Arrange
+        let scope = $rootScope.$new();
+        let element = $compile(tooltipTrigger)(scope);
         scope.$digest();
+
+        // Act
+        $rootScope.$apply();
+        console.log(element);
+        // Assert
+        var childElement = element.find("div");
+        expect(childElement[0]).toBeDefined();
     }));
 
-    it("is invoked and the directive tag is removed from the trigger element", () => {
-        console.log(element);
-        console.log(element[0].children);
+
+/*
+    beforeEach(function() {
+        inject(function($compile, $rootScope) {
+            compile = $compile;
+            scope = $rootScope.$new();
+        });
+
+        directiveElement = getCompiledElement();
     });
+
+    function getCompiledElement(){
+        var element = angular.element(tooltipTrigger);
+        var compiledElement = compile(element)(scope);
+        scope.$digest();
+        return compiledElement;
+    }
+
+    it("is invoked and the directive tag is removed from the trigger element", () => {
+        console.log(directiveElement);
+        console.log(directiveElement[0].children);
+    });
+*/
 });

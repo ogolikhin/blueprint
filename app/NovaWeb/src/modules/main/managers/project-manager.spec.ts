@@ -1,23 +1,22 @@
 ﻿import "angular";
 import "angular-mocks";
-//import {Models} from "../services/project-repository";
+import { NotificationService} from "../../core/notification";
 import {ProjectRepositoryMock} from "../services/project-repository.mock";
-import {IProjectNotification, ProjectNotification, SubscriptionEnum} from "../services/project-notification";
-import {ProjectManager, Models} from "../managers/project-manager";
+import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
 
 
 describe("Project Manager Test", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("projectNotification", ProjectNotification);
+        $provide.service("notification", NotificationService);
         $provide.service("manager", ProjectManager);
     }));
 
     describe("Load projects: ", () => {
-        it("single project", inject(($rootScope: ng.IRootScopeService,manager: ProjectManager, projectNotification: IProjectNotification) => {
+        it("single project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
-            projectNotification.notify(SubscriptionEnum.ProjectLoad, 1);
+            manager.notify(SubscriptionEnum.ProjectLoad, 1);
             $rootScope.$digest();
             //Act
             let project = manager.CurrentProject;
@@ -27,12 +26,12 @@ describe("Project Manager Test", () => {
             expect(project.id).toEqual(1);
         }));
 
-        it("multiple project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager, projectNotification: IProjectNotification) => {
+        it("multiple project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
-            projectNotification.notify(SubscriptionEnum.ProjectLoad, 1);
+            manager.notify(SubscriptionEnum.ProjectLoad, 1);
             $rootScope.$digest();
 
-            projectNotification.notify(SubscriptionEnum.ProjectLoad, 2);
+            manager.notify(SubscriptionEnum.ProjectLoad, 2);
             $rootScope.$digest();
 
             //Act
@@ -42,27 +41,27 @@ describe("Project Manager Test", () => {
             //Asserts
             expect(projects).toEqual(jasmine.any(Array));
             expect(projects.length).toEqual(2);
-            expect(current).toEqual(projects[1]);
+            expect(current).toEqual(projects[0]);
         }));
 
-        it("project children", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager, projectNotification: IProjectNotification) => {
+        it("project children", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
 
-            projectNotification.notify(SubscriptionEnum.ProjectLoad, 1);
+            manager.notify(SubscriptionEnum.ProjectLoad, 1);
             $rootScope.$digest();
 
             let project: Models.IProject = manager.CurrentProject;
 
-            projectNotification.notify(SubscriptionEnum.ProjectChildrenLoad, project.id, 1);
+            manager.notify(SubscriptionEnum.ProjectChildrenLoad, project.id, 1);
 
             //Act
             project = manager.CurrentProject;
 
             //Asserts
-            expect(project.children).toBeDefined();
-            expect(project.children).toEqual(jasmine.any(Array));
-            expect(project.children.length).toEqual(1);
-            expect(project.children[0].id).toEqual(1);
+            expect(project.artifacts).toBeDefined();
+            expect(project.artifacts).toEqual(jasmine.any(Array));
+            expect(project.artifacts.length).toEqual(1);
+            expect(project.artifacts[0].id).toEqual(1);
         }));
 
 

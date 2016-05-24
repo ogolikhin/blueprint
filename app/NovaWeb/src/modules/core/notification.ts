@@ -1,9 +1,9 @@
 ﻿import "angular";
 
 export interface INotificationService {
-    attach(name: string, callback: any);
-    detach(name: string, callback: any);
-    dispatch(name: string, ...prms: any[]);
+    attach(host: string, name: string, callback: any);
+    detach(host: string, name: string, callback: any);
+    dispatch(host: string, name: string, ...prms: any[]);
 }
 
 class ICallbacks {
@@ -27,13 +27,19 @@ export class NotificationService implements INotificationService {
         return handler;
     };
 
-    public attach(name: string, callback: Function)  {
-        let handler = this.getHandlers(name);
+    public attach(host: string, name: string, callback: Function)  {
+        if (!host || !name) {
+            return;
+        }
+        let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks.push(callback);
     };
 
-    public detach(name: string, callback: Function) {
-        let handler = this.getHandlers(name);
+    public detach(host: string, name: string, callback: Function) {
+        if (!host || !name) {
+            return;
+        }
+        let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
             return it !== callback;
         });
@@ -44,8 +50,11 @@ export class NotificationService implements INotificationService {
         }
     };
 
-    public dispatch(name: string, ...prms: any[]) {
-        let handler = this.getHandlers(name);
+    public dispatch(host: string, name: string, ...prms: any[]) {
+        if (!host || !name) {
+            return;
+        }
+        let handler = this.getHandlers(`${host}.${name}`);
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);
         });

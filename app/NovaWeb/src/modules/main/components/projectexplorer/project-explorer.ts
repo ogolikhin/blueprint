@@ -12,7 +12,6 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 class ProjectExplorerController {
     private tree: IBPTreeController;
 
-    private selectedItem: any;
     public static $inject: [string] = ["$scope", "localization", "projectManager", "$log", "$timeout"];
     constructor(
         private $scope: ng.IScope,
@@ -28,56 +27,58 @@ class ProjectExplorerController {
         this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
-    };
 
-    private activateProject() {
-        if (this.manager.CurrentProject) {
-            this.selectItem(this.manager.CurrentProject.id);
-        }
+    };
+    // the object defines how data will map to ITreeNode
+    // on left
+    public propertyMap = {
+        id: "id",
+        typeId: "type",
+        name: "name",
+        hasChildren: "hasChildren",
+        artifacts: "children"
+    }; 
+
+    private activateProject(project: Models.IProject) {
+        this.tree.selectNode(project.id);
     }
 
-    private loadProject = (project: Models.IProject, alreadyOpened: boolean) => {
-        if (alreadyOpened) {
-            this.selectItem(project.id);
-            return;
-        }
-        this.tree.addNode(<ITreeNode>{
-            id: project.id,
-            type: 1,
-            name: project.name,
-            hasChildren: true,
-            open: true
-        });
+    private loadProject = (project: Models.IProject) => {
+        this.tree.addNode([ 
+            angular.extend({
+                predefinedType: Models.ArtifactTypeEnum.Project,
+                hasChildren: true,
+                loaded: true,
+                open: true
+            }, project)
+        ]); 
+        
+        this.tree.setDataSource();
+    }
 
-        this.tree.setDataSource(project.children, project.id);
-    };
-
-    private loadProjectChildren = (project: Models.IProject, artifactId) => {
-        var nodes = project.getArtifact(artifactId).children;
-        this.tree.setDataSource(nodes, artifactId);
-    };
+    private loadProjectChildren = (artifact: Models.IArtifact) => {
+        this.tree.addNodeChildren(artifact.id, artifact.artifacts);
+        this.tree.setDataSource();
+    }
 
     private closeProject(projects: Models.IProject[]) {
         projects.map(function (it: Models.IProject) {
             this.tree.removeNode(it.id);
-        }.bind(this));
+        }.bind(this)); 
         this.tree.setDataSource();
     }
 
-    private selectItem(id: number) {
-        this.tree.selectNode(id);
-    }
 
     public columns = [{
         headerName: "",
         field: "name",
         cellClassRules: {
             "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
-            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
+            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
-        suppressMenu: true,
+        suppressMenu: true, 
         suppressSorting: true,
         suppressFiltering: true
     }];
@@ -85,7 +86,7 @@ class ProjectExplorerController {
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
-            return null;
+            return null;    
         }
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
@@ -93,9 +94,10 @@ class ProjectExplorerController {
         this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
     };
 
-    public doSelect = (item: any) => {
+    public doSelect = (node: ITreeNode) => {
         //check passed in parameter
         //this.$scope.$applyAsync((s) => {});
-        this.selectItem(item);
+        this.manager.selectArtifact(node.id);
     };
+
 }

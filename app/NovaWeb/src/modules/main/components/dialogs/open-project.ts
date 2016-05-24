@@ -14,8 +14,8 @@ export interface IOpenProjectResult {
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private selectedItem: any;
-    private tree: IBPTreeController; 
-    
+    private tree: IBPTreeController;
+
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
@@ -27,8 +27,15 @@ export class OpenProjectController extends BaseDialogController {
         private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
+
     };
 
+    public propertyMap = {
+        id: "id",
+        type: "type",
+        name: "name",
+        hasChildren: "hasChildren"
+    };
 
     //Dialog return value
     public get returnvalue(): IOpenProjectResult {
@@ -81,7 +88,12 @@ export class OpenProjectController extends BaseDialogController {
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
         this.projectManager.getFolders(id)
             .then((data: Models.IProjectNode[]) => { //pSvc.IProjectNode[]
-                self.tree.setDataSource(data, id);
+                if (angular.isNumber(id)) {
+                    self.tree.addNodeChildren(id, data);
+                } else {
+                    self.tree.addNode(data);
+                }
+                self.tree.setDataSource();
             }, (error) => {
                 //self.showError(error);
             });

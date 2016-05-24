@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 using Model.Factories;
+using Model.ArtifactModel;
 
 namespace Model.Impl
 {
@@ -14,6 +15,9 @@ namespace Model.Impl
     {
         private const string SVC_PATH = "svc/adminstore";
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
+
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
+        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -233,6 +237,13 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
+        /// <seealso cref="IAdminStore.GetSettings(IUser, List{HttpStatusCode})"/>
+        public Dictionary<string, object> GetSettings(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetSettings(session, expectedStatusCodes);
+        }
+
         /// <seealso cref="IAdminStore.GetSettings(ISession, List{HttpStatusCode})"/>
         public Dictionary<string, object> GetSettings(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -249,6 +260,13 @@ namespace Model.Impl
             Logger.WriteInfo("Getting settings...");
             RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes);
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Content);
+        }
+
+        /// <seealso cref="IAdminStore.GetConfigJs(IUser, List{HttpStatusCode})"/>
+        public string GetConfigJs(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetConfigJs(session, expectedStatusCodes);
         }
 
         /// <seealso cref="IAdminStore.GetConfigJs(ISession, List{HttpStatusCode})"/>
@@ -275,23 +293,79 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture)} };
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
             {
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
             }
+
             try
             {
                 Logger.WriteInfo("Getting list of License Transactions...");
+
                 RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
                 return JsonConvert.DeserializeObject<List<LicenseActivity>>(response.Content);
             }
             catch (WebException ex)
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
                 Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetLicenseTransactions(IUser, int, List{HttpStatusCode})"/>
+        public IList<LicenseActivity> GetLicenseTransactions(IUser user, int numberOfDays, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ISession session = SessionFactory.CreateSessionWithToken(user);
+            return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
+        }
+
+        public HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false)
+        {
+            RestApiFacade restApi;
+            if (!badKey)
+                restApi = new RestApiFacade(_address, string.Empty);
+            else
+                restApi = new RestApiFacade(_address, null);
+
+            string command = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+
+            string path = I18NHelper.FormatInvariant(command, SVC_PATH, folderId);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "folderId", folderId.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> additionalHeaders = null;
+            if (session != null)
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+            try
+            {
+                Logger.WriteInfo("Getting folder or its children - " + folderId);
+                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                    if (!hasChildren)
+                    {
+                        var pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
+                    }
+                    else
+                    {
+                        var pf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
+                    }
+
+                return response.StatusCode;
+            }
+
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting folder or list of its children - {0}", ex.Message);
                 throw;
             }
         }
@@ -331,5 +405,49 @@ namespace Model.Impl
         }
 
         #endregion Members inherited from IAdminStore
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(AdminStore), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Delete all the sessions that were created.
+                foreach (var session in Sessions.ToArray())
+                {
+                    // AdminStore removes and adds a new session in some cases, so we should expect a 401 error in some cases.
+                    List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.Unauthorized };
+                    DeleteSession(session, expectedStatusCodes);
+                }
+
+                Sessions.Clear();
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
     }
 }

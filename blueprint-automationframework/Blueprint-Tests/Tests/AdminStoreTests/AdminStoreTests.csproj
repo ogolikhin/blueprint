@@ -91,6 +91,10 @@
       <Project>{d52d51b2-aec5-4118-a9c2-2a590bd083a3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj">
+      <Project>{8a66038c-22fc-4c28-ba0d-714614a50418}</Project>
+      <Name>TestCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

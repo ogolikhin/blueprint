@@ -24,9 +24,9 @@ namespace Model.StorytellerModel.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "<Start with a verb, i.e. select, run, view>";
+        public const string DefaultUserTaskName = "UT";
 
-        public const string DefaultSystemTaskName = "<Start with a verb, i.e. display, print, calculate>";
+        public const string DefaultSystemTaskName = "ST";
 
         public const string EndName = "End";
 

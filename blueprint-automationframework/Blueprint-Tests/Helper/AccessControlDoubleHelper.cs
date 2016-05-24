@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using Common;
+using CustomAttributes;
 using TestConfig;
 using Utilities.Facades;
 
@@ -11,12 +12,10 @@ namespace Helper
 {
     public class AccessControlDoubleHelper : IDisposable
     {
-        private const string KeyName = "AccessControl"; // This assumes the AccessControlDouble was installed and is pretending to be AccessControl.
         private const string SvcPath = "svc/accesscontrol";
 
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
 
-        private bool _isDisposed = false;
         private string _address;
         private ISet<RestRequestMethod> _injectedErrorMethods = new HashSet<RestRequestMethod>();
 
@@ -28,14 +27,14 @@ namespace Helper
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static AccessControlDoubleHelper GetAccessControlDoubleFromTestConfig()
         {
-            if (!_testConfig.Services.ContainsKey(KeyName))
+            if (!_testConfig.Services.ContainsKey(Categories.AccessControl))
             {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", KeyName);
+                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", Categories.AccessControl);
                 Logger.WriteError(msg);
                 throw new DataException(msg);
             }
 
-            return new AccessControlDoubleHelper(_testConfig.Services[KeyName].Address);
+            return new AccessControlDoubleHelper(_testConfig.Services[Categories.AccessControl].Address);
         }
 
         /// <summary>
@@ -57,6 +56,8 @@ namespace Helper
 
         #region IDisposable members
 
+        private bool _isDisposed = false;
+
         /// <summary>
         /// Disposes this object explicitly.
         /// </summary>
@@ -73,32 +74,34 @@ namespace Helper
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")] // We don't want to throw exceptions from Dispose()
         protected virtual void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (_isDisposed)
             {
-                if (disposing)
+                return;
+            }
+
+            if (disposing)
+            {
+                if (_injectedErrorMethods != null)
                 {
-                    if (_injectedErrorMethods != null)
+                    foreach (var method in _injectedErrorMethods.ToArray())
                     {
-                        foreach (var method in _injectedErrorMethods.ToArray())
+                        try
                         {
-                            try
-                            {
-                                StopInjectingErrors(method);
-                            }
-                            catch (Exception e)
-                            {
-                                // Don't allow exceptions to be thrown from the Dispose() method.
-                                Logger.WriteError("AccessControlDoubleHelper.Dispose() caught an exception while attempting to unset errors for method: {0}!  {1}",
-                                    method.ToString(), e.Message);
-                            }
+                            StopInjectingErrors(method);
+                        }
+                        catch (Exception e)
+                        {
+                            // Don't allow exceptions to be thrown from the Dispose() method.
+                            Logger.WriteError("AccessControlDoubleHelper.Dispose() caught an exception while attempting to unset errors for method: {0}!  {1}",
+                                method.ToString(), e.Message);
                         }
                     }
                 }
-
-                _injectedErrorMethods = null;
-
-                _isDisposed = true;
             }
+
+            _injectedErrorMethods = null;
+
+            _isDisposed = true;
         }
 
         #endregion IDisposable members

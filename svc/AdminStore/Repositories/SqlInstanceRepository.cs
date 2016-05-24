@@ -25,13 +25,15 @@ namespace AdminStore.Repositories
             ConnectionWrapper = connectionWrapper;
         }
 
-        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
         {
             if (folderId < 1)
                 throw new ArgumentOutOfRangeException(nameof(folderId));
 
             var prm = new DynamicParameters();
             prm.Add("@folderId", folderId);
+            prm.Add("@userId", userId);
+
             var folder = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if(folder == null)
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);

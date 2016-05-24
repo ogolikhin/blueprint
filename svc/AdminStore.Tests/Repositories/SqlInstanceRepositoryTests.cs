@@ -18,12 +18,13 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            int folderId = 99;
+            var folderId = 99;
+            var userId = 9;
             InstanceItem[] result = { new InstanceItem { Id = folderId, Name = "Blueprint", ParentFolderId = 88} };
             cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", folderId } }, result);
 
             // Act
-            var folder = await repository.GetInstanceFolderAsync(folderId);
+            var folder = await repository.GetInstanceFolderAsync(folderId, userId);
 
             // Assert
             cxn.Verify();
@@ -38,12 +39,13 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlInstanceRepository(cxn.Object);
-            int folderId = 99;
+            var folderId = 99;
+            var userId = 9;
             InstanceItem[] result = null;
             cxn.SetupQueryAsync("GetInstanceFolderById", new Dictionary<string, object> { { "folderId", folderId } }, result);
 
             // Act
-            var folder = await repository.GetInstanceFolderAsync(folderId);
+            await repository.GetInstanceFolderAsync(folderId, userId);
 
             // Assert
         }
@@ -57,7 +59,7 @@ namespace AdminStore.Repositories
             var repository = new SqlInstanceRepository(cxn.Object);
 
             // Act
-            var folder = await repository.GetInstanceFolderAsync(0);
+            await repository.GetInstanceFolderAsync(0, 9);
 
             // Assert
         }

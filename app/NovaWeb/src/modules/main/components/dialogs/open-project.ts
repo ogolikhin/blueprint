@@ -1,9 +1,9 @@
 ﻿import "angular";
+import {Helper} from "../../../core/utils/helper";
 import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
-
 import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import * as pSvc from "../../services/project.svc";
+import {IProjectManager, Models} from "../../managers/project-manager";
 
 export interface IOpenProjectResult {
     id: number;
@@ -16,20 +16,26 @@ export class OpenProjectController extends BaseDialogController {
     private selectedItem: any;
     private tree: IBPTreeController;
 
-
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogService", "params", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "params", "$sce"];
     constructor(
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private service: pSvc.IProjectService,
+        private projectManager: IProjectManager,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
     ) {
         super($uibModalInstance, params);
+
     };
 
+    public propertyMap = {
+        id: "id",
+        type: "type",
+        name: "name",
+        hasChildren: "hasChildren"
+    };
 
     //Dialog return value
     public get returnvalue(): IOpenProjectResult {
@@ -40,14 +46,8 @@ export class OpenProjectController extends BaseDialogController {
         };
     };
     public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.type === `Project`;
+        return this.selectedItem && this.selectedItem.type === Models.ArtifactTypeEnum.Folder;
     }
-
-    public escapeHTMLText = (stringToEscape: string): string =>  {
-        var stringEscaper = window.document.createElement("TEXTAREA");
-        stringEscaper.textContent = stringToEscape;
-        return stringEscaper.innerHTML;
-    };
 
     private onEnterKeyOnProject = (e: any) => {
         var key = e.which || e.keyCode;
@@ -62,15 +62,15 @@ export class OpenProjectController extends BaseDialogController {
         field: "name",
         cellClassRules: {
             "has-children": function(params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === "Folder"; },
-            "is-project": function (params) { return params.data.type === "Project"; }
+            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
-                var sanitizedName = this.escapeHTMLText(params.data.name);
+                var sanitizedName = Helper.escapeHTMLText(params.data.name);
 
-                if (params.data.type === "Project") {
+                if (params.data.type === 1) {
                     var cell = params.eGridCell;
                     cell.addEventListener("keydown", this.onEnterKeyOnProject);
                 }
@@ -86,9 +86,14 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.service.getFolders(id)
-            .then((data: any[]) => { //pSvc.IProjectNode[]
-                self.tree.setDataSource(data, id);
+        this.projectManager.getFolders(id)
+            .then((data: Models.IProjectNode[]) => { //pSvc.IProjectNode[]
+                if (angular.isNumber(id)) {
+                    self.tree.addNodeChildren(id, data);
+                } else {
+                    self.tree.addNode(data);
+                }
+                self.tree.setDataSource();
             }, (error) => {
                 //self.showError(error);
             });

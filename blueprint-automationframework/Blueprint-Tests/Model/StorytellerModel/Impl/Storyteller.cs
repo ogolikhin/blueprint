@@ -348,19 +348,17 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
             }
 
-            string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/publish", SVC_PATH, URL_PROCESSES, process.Id);
+            const string path = "/svc/shared/artifacts/publish";
             RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            var publishProcessResult = restApi.SendRequestAndGetResponse(
-                path, 
-                RestRequestMethod.POST, 
+            restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST, new List<int> { process.Id },
                 expectedStatusCodes: expectedStatusCodes);
 
             // Mark artifact in artifact list as published
             MarkArtifactAsPublished(process.Id);
 
-            return publishProcessResult.Content;
+            return restApi.Content;
         }
 
         public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
@@ -385,6 +383,66 @@ namespace Model.StorytellerModel.Impl
         }
 
         #endregion Implemented from IStoryteller
+
+        #region Members inherited from IDisposable
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Disposes this object by deleting all artifacts that were created.
+        /// </summary>
+        /// <param name="disposing">Pass true if explicitly disposing or false if called from the destructor.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            Logger.WriteTrace("{0}.{1} called.", nameof(Storyteller), nameof(Dispose));
+
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Delete all the artifacts that were created.
+                if (Artifacts != null)
+                {
+                    Logger.WriteDebug("Deleting/Discarding all artifacts created by this Storyteller instance...");
+
+                    // Delete or Discard all the artifacts that were added.
+                    var savedArtifactsList = new List<IArtifactBase>();
+
+                    foreach (var artifact in Artifacts.ToArray())
+                    {
+                        if (artifact.IsPublished)
+                        {
+                            DeleteProcessArtifact(artifact, deleteChildren: true);
+                        }
+                        else
+                        {
+                            savedArtifactsList.Add(artifact);
+                        }
+                    }
+
+                    if (savedArtifactsList.Any())
+                    {
+                        DiscardProcessArtifacts(savedArtifactsList, savedArtifactsList.First().Address, savedArtifactsList.First().CreatedBy);
+                    }
+                }
+            }
+
+            _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Disposes this object by deleting all sessions that were created.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion Members inherited from IDisposable
 
         #region Static Methods
 

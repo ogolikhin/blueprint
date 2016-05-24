@@ -6,7 +6,7 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel
 {
-    public interface IStoryteller
+    public interface IStoryteller : IDisposable
     {
         /// <summary>
         /// List of created artifacts.

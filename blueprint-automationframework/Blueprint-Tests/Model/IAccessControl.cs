@@ -16,7 +16,7 @@ namespace Model
         int Count { get; set; }
     }
 
-    public interface IAccessControl
+    public interface IAccessControl : IDisposable
     {
         /// <summary>
         /// Stores a list of sessions that were added to AccessControl, but haven't been deleted yet.

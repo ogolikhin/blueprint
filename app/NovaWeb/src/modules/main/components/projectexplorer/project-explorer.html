@@ -2,8 +2,8 @@
          grid-columns="$ctrl.columns"
          enable-editing-on="name"
          enable-dragndrop="true"
+         property-map="$ctrl.propertyMap"
          data-source ="$ctrl.datasource"
          on-load="$ctrl.doLoad(prms)"
-         on-select="$ctrl.selectElement(item)"
-         on-row-click="$ctrl.doRowClick(prms)">
+         on-select="$ctrl.doSelect(item)">
 </bp-tree>

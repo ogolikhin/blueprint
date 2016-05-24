@@ -4,8 +4,8 @@ using Common;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
+using TestCommon;
 using Utilities;
 using Utilities.Facades;
 
@@ -13,63 +13,36 @@ namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    public class NegativeTests
+    public class NegativeTests : TestBase
     {
         const string SVC_FILES_PATH = "svc/filestore/files";
 
-        private IAdminStore _adminStore;
-        private IFileStore _filestore;
         private IUser _user;
-        private IUser _userWithInvalidToken;
 
         [SetUp]
         public void TestSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
-            _userWithInvalidToken = UserFactory.CreateUserAndAddToDatabase();
-
-            // Get a valid token for the user.
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-            _userWithInvalidToken.SetToken(session.SessionId);  // This is needed to initialize the Token object, but tests will overwrite the token.
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
         [TearDown]
         public void TestTearDown()
         {
-            if (_filestore != null)
-            {
-                // Delete all the files that were added.
-                foreach (var file in _filestore.Files.ToArray())
-                {
-                    _filestore.DeleteFile(file.Id, _user);
-                }
-            }
+            Helper?.Dispose();
+        }
 
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
-
-            if (_userWithInvalidToken != null)
-            {
-                _userWithInvalidToken.DeleteUser(deleteFromDatabase: true);
-                _userWithInvalidToken = null;
-            }
+        /// <summary>
+        /// Creates a new user, adds it to Blueprint and sets its token to the invalid token provided.
+        /// </summary>
+        /// <param name="invalidToken">An invalid token to set for this user.</param>
+        /// <returns>The new user with an invalid token.</returns>
+        private IUser CreateUserWithInvalidToken(string invalidToken)
+        {
+            IUser user = Helper.CreateUserAndAddToDatabase();
+            user.SetToken(_user.Token.AccessControlToken);  // This is needed to initialize the Token object
+            user.Token.AccessControlToken = invalidToken;
+            return user;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
@@ -88,13 +61,12 @@ namespace FileStoreTests
             // Setup: create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            // Replace token with invalid token
-            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
+            IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
             // Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                _filestore.AddFile(file, _userWithInvalidToken);
+                Helper.FileStore.AddFile(file, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -122,18 +94,17 @@ namespace FileStoreTests
 
             // First POST the first chunk with a valid token.
             file.Content = chunk;
-            IFile postedFile = _filestore.PostFile(file, _user);
+            IFile postedFile = Helper.FileStore.PostFile(file, _user);
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
             chunk = rem.Take((int)chunkSize).ToArray();
 
-            // Replace token with invalid token
-            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
+            IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
             // Assert that exception is thrown for subsequent PUT request with invalid token
             Assert.Throws(exceptionType, () =>
             {
-                _filestore.PutFile(postedFile, chunk, _userWithInvalidToken);
+                Helper.FileStore.PutFile(postedFile, chunk, userWithInvalidToken);
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -154,17 +125,16 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
 
-            // Replace token with invalid token
-            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
+            IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
             // Assert that exception is thrown
             // Note: Empty authorization cookie returns 401 Unauthorized
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws(exceptionType, () =>
             {
-                _filestore.GetFile(storedFile.Id, _userWithInvalidToken); 
+                Helper.FileStore.GetFile(storedFile.Id, userWithInvalidToken); 
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -185,15 +155,14 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
 
-            // Replace token with invalid token
-            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
+            IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
             // Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                _filestore.GetFileMetadata(storedFile.Id, _userWithInvalidToken); 
+                Helper.FileStore.GetFileMetadata(storedFile.Id, userWithInvalidToken); 
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -214,15 +183,14 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
 
-            // Replace token with invalid token
-            _userWithInvalidToken.Token.AccessControlToken = accessControlToken;
+            IUser userWithInvalidToken = CreateUserWithInvalidToken(accessControlToken);
 
             // Assert that exception is thrown
             Assert.Throws(exceptionType, () =>
             {
-                _filestore.DeleteFile(storedFile.Id, _userWithInvalidToken); 
+                Helper.FileStore.DeleteFile(storedFile.Id, userWithInvalidToken); 
             }, I18NHelper.FormatInvariant("Did not throw {0} as expected", exceptionType.Name));
         }
 
@@ -241,7 +209,7 @@ namespace FileStoreTests
             // Execute: Post a file to FileStore with an invalid multipart-mime (i.e. the body doesn't contain multipart data).
             var ex = Assert.Throws<Http500InternalServerErrorException>(() =>
             {
-                _filestore.PostFile(file, _user, useMultiPartMime: false);
+                Helper.FileStore.PostFile(file, _user, useMultiPartMime: false);
             }, "FileStore should return a 500 Internal Server error when we pass an invalid multi-part mime.");
 
             // Verify: Exception should contain expected message.
@@ -268,7 +236,7 @@ namespace FileStoreTests
 
             // First POST the first chunk with a valid token.
             file.Content = chunk;
-            IFile postedFile = _filestore.PostFile(file, _user);
+            IFile postedFile = Helper.FileStore.PostFile(file, _user);
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
             chunk = rem.Take((int)chunkSize).ToArray();
@@ -278,7 +246,7 @@ namespace FileStoreTests
             // Execute: Put a file chunk to FileStore with invalid multipart-mime (i.e. the body doesn't contain multipart data).
             var ex = Assert.Throws<Http500InternalServerErrorException>(() =>
             {
-                _filestore.PutFile(postedFile, chunk, _user);
+                Helper.FileStore.PutFile(postedFile, chunk, _user);
             }, "FileStore should return a 500 Internal Server error when we pass an invalid multi-part mime.");
 
             // Verify: Exception should contain expected message.
@@ -305,7 +273,7 @@ Content-Type: text/plain
 
 -------------------------------28947758029299--";
 
-            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -330,7 +298,7 @@ Content-Type: text/plain
 
 ";
 
-            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -348,9 +316,9 @@ Content-Type: text/plain
         public void PostMultiPartMimeBodyStartingWithEndPart_Verify400Error()
         {
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
-            const string requestBody = "-------------------------------28947758029299\r\n"; // End '/r/n' is important here.
+            const string requestBody = "-------------------------------28947758029299\r\n"; // The end '\r\n' is important here.
 
-            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -372,7 +340,7 @@ Content-Type: text/plain
 Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
 Content-Type: text/plain";
 
-            var restApi = new RestApiFacade(_filestore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
 
             Assert.Throws<Http500InternalServerErrorException>(() =>
             {
@@ -402,7 +370,7 @@ Content-Type: text/plain";
             // Execute & Verify: Put a file chunk to FileStore with invalid multipart-mime (i.e. the body doesn't contain multipart data).
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                _filestore.PutFile(file, file.Content.ToArray(), _user);
+                Helper.FileStore.PutFile(file, file.Content.ToArray(), _user);
             }, "FileStore should return a 404 Not Found error when we PUT a file that doesn't exist.");
         }
 
@@ -418,7 +386,7 @@ Content-Type: text/plain";
             // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _filestore.AddFile(file, _user);
+                Helper.FileStore.AddFile(file, _user);
             }, "Did not throw HTTP Status Code 400 (Bad Request) as expected");
         }
 
@@ -434,7 +402,7 @@ Content-Type: text/plain";
             // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _filestore.AddFile(file, _user);
+                Helper.FileStore.AddFile(file, _user);
             }, "Did not throw HTTP Status Code 400 (Bad Request) as expected");
         }
     }

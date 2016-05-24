@@ -31,7 +31,7 @@ describe("Directive BP-Tooltip", () => {
 
         // Act
         $rootScope.$apply();
-        console.log(element);
+
         // Assert
         var childElement = element.find("div");
         expect(childElement[0]).toBeDefined();

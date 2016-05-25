@@ -1,10 +1,18 @@
-﻿export class Helper {
+﻿import {INotificationService} from "../notification";
+export class Helper {
 //    static Guid(): string {
 //        function s4(): string {
 //            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 //        }
 //        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
 //    }
+
+
+
+    //public static getInstance(): Helper {
+    //    return Helper._instance;
+    //}
+
 
     static stripHTMLTags = (stringToSanitize: string): string => {
         var stringSanitizer = window.document.createElement("DIV");
@@ -49,3 +57,14 @@
         return element;
     };
 }
+
+//export class Messages {
+
+
+//    private static _notification: INotificationService = angular.injector().get("notification") as INotificationService;
+
+
+//    public static ShowError(error: any) {
+//        Messages._notification.dispatch("main", "exception", error);
+//    }
+//}

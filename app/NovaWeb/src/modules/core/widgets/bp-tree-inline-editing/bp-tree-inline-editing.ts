@@ -27,7 +27,7 @@ export class BPTreeInlineEditing implements ng.IDirective {
             var parent = $scope.$parent;
             while (parent.$parent) {
                 parent = parent.$parent;
-                if (parent["$ctrl"] && parent["$ctrl"].rowData) {
+                if (parent["$ctrl"] && parent["$ctrl"]._datasource) {
                     Controller = parent["$ctrl"];
                 }
             }

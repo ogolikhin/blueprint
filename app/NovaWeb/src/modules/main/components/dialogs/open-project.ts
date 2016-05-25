@@ -93,7 +93,7 @@ export class OpenProjectController extends BaseDialogController {
                 } else {
                     self.tree.addNode(data);
                 }
-                self.tree.setDataSource();
+                self.tree.refresh();
             }, (error) => {
                 //self.showError(error);
             });
@@ -103,10 +103,11 @@ export class OpenProjectController extends BaseDialogController {
 
     public doSelect = (item: any) => {
         //check passed in parameter
+        let self = this;
         this.$scope.$applyAsync((s) => {
-            this.selectedItem = item;
-            if (item.Description) {
-                var description = item.description;
+            self.selectedItem = item;
+            if (self.selectedItem.description) {
+                var description = self.selectedItem.description;
                 var virtualDiv = window.document.createElement("DIV");
                 virtualDiv.innerHTML = description;
                 var aTags = virtualDiv.querySelectorAll("a");
@@ -114,7 +115,7 @@ export class OpenProjectController extends BaseDialogController {
                     aTags[a].setAttribute("target", "_blank");
                 }
                 description = virtualDiv.innerHTML;
-                this.selectedItem.Description = this.$sce.trustAsHtml(description);
+                self.selectedItem.description = this.$sce.trustAsHtml(description);
             }
         });
     }

@@ -60,8 +60,16 @@ namespace Model.ArtifactModel.Impl
 
     public class NovaDiscardArtifactResult
     {
+        public int ArtifactId { get; set; }
+        public string Message { get; set; }
+        public int Result { get; set; }     // NOTE: Success == 0.
+        public int ProjectId { get; set; }
+    }
+
+    public class NovaDiscardArtifactResults
+    {
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<DiscardArtifactResult> DiscardResults { get; set; }
+        public List<NovaDiscardArtifactResult> DiscardResults { get; set; }
     }
 
     public class DeleteArtifactResult

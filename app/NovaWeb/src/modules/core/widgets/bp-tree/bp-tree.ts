@@ -253,7 +253,7 @@ export class BPTreeController implements IBPTreeController  {
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing " : "";
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
         var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
 
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
@@ -300,7 +300,7 @@ export class BPTreeController implements IBPTreeController  {
                 if (angular.isArray(nodes)) {
                     this.addNodeChildren(node.data.id, nodes);
                     this.refresh(); // pass nothing to just reload 
-                }   
+                }
             }
         }
         node.data.open = node.expanded;
@@ -324,17 +324,17 @@ export class BPTreeController implements IBPTreeController  {
 
     private rowClicked = (params: any) => {
             var self = this;
+
+        self.rowFocus(params.event.target);
+        params.node.setSelected(true, true);
+
             self.clickTimeout = self.$timeout(function () {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
 
-            self.rowFocus(params.event.target);
-
             if (angular.isFunction(self.onRowClick)) {
                 self.onRowClick({prms: params});
-            } else {
-                params.node.setSelected(true, true);
             }
         }, 250);
     };

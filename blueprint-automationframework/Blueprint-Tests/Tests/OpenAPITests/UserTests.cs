@@ -1,35 +1,34 @@
 ﻿using System.Collections.Generic;
+using Common;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
 using NUnit.Framework;
-using Logger = Common.Logger;
+using TestCommon;
 
 namespace OpenAPITests
 {
     [TestFixture]
     [Category(Categories.OpenApi)]
-    public class UserTests
+    public class UserTests : TestBase
     {
         private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAddToDatabase();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_user != null)
-            {
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
-        [Test]
+        [TestCase]
         public void CreateUserInDatabase_VerifyUserExists()
         {
             List<IUser> users = UserFactory.GetUsers();
@@ -38,7 +37,7 @@ namespace OpenAPITests
             Assert.That(users.Exists(x => x.Username == username), "Couldn't find user '{0}' in database after adding the user to the database!", username);
         }
 
-        [Test]
+        [TestCase]
         public void DeleteUser_VerifyUserIsDeleted()
         {
             List<IUser> users = UserFactory.GetUsers();
@@ -55,7 +54,7 @@ namespace OpenAPITests
             Assert.IsFalse(users.Exists(x => x.Username == username), "We found user '{0}' in database after deleting the user!", username);
         }
 
-        [Test]
+        [TestCase]
         public static void GetUserInfoFromDatabase_VerifyUserExists()
         {
             List<IUser> users = UserFactory.GetUsers();

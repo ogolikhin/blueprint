@@ -8,6 +8,7 @@ import {ISession, SessionSvc} from "./login/session.svc";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
+import {NotificationService} from "../core/notification";
 
 angular.module("app.shell",
     [
@@ -21,6 +22,7 @@ angular.module("app.shell",
     .service("session", SessionSvc)
     .service("sessionTokenInterceptor", SessionTokenInterceptor)
     .service("serverLogger", ServerLoggerSvc)
+    .service("notification", NotificationService)
     .config(Logger)
     .config(initializeInterceptors);
 

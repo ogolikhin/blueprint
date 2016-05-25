@@ -66,15 +66,15 @@ export interface IBPTreeController {
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
 
-    addNode(data: any, index?: number, propertyMap?: any); //to add a data node to the datasource
+    addNode(data: any[], index?: number, propertyMap?: any); //to add a data node to the datasource
     addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
     selectNode(id: number);                     //to select a row in in ag-grid (by id)
-    setDataSource(data?: any[]);     //
+    refresh();                                  //
 }
 
 
-export class BPTreeController  {
+export class BPTreeController implements IBPTreeController  {
     static $inject = ["$element", "$timeout"];
     //properties
     public gridClass: string;
@@ -103,7 +103,7 @@ export class BPTreeController  {
     private clickTimeout: any;
 
 
-    constructor(private $element, private $timeout: ng.ITimeoutService) {
+    constructor(private $element?, private $timeout?: ng.ITimeoutService) {
         this.bpRef = this;
 
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
@@ -160,13 +160,13 @@ export class BPTreeController  {
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
-        if (!this.propertyMap) {
+        if (!propertyMap) {
             return data;
         }
         let item = {} as ITreeNode;
 
         for (let property in data) {
-            item[this.propertyMap[property] ? this.propertyMap[property] : property ] = data[property];
+            item[propertyMap[property] ? propertyMap[property] : property ] = data[property];
         }
         if (item.hasChildren) {
             if (angular.isArray(item.children) && item.children.length) {
@@ -233,13 +233,8 @@ export class BPTreeController  {
     }
 
     //sets a new datasource or add a datasource to specific node  children collection
-    public setDataSource(data?: any[]) {
-        if (data) {
-            this._datasource = data.map(function (it) {
-                return this.mapData(it);
-            }.bind(this));
-        }
-        this.options.api.setRowData(this._datasource);
+    public refresh() {
+        this.options.api.setRowData(this._datasource || []);
     }
 
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
@@ -258,7 +253,7 @@ export class BPTreeController  {
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
-        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? "bp-tree-inline-editing " : "";
+        var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
         var cancelDragndrop = this.enableDragndrop ? "ng-cancel-drag" : "";
 
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
@@ -288,7 +283,8 @@ export class BPTreeController  {
             //NOTE:: this method may uppdate grid datasource using setDataSource method
             let nodes = self.onLoad({ prms: null });
             if (angular.isArray(nodes)) {
-                self.setDataSource(nodes);
+                this.addNode(nodes);
+                this.refresh();
             }
         }
     };
@@ -302,10 +298,8 @@ export class BPTreeController  {
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (angular.isArray(nodes)) {
-                    node.data.children = nodes;
-                    node.data.loaded = true;
-                    node.data.open = true;
-                    self.setDataSource(); // pass nothing to just reload 
+                    this.addNodeChildren(node.data.id, nodes);
+                    this.refresh(); // pass nothing to just reload 
                 }
             }
         }
@@ -330,17 +324,17 @@ export class BPTreeController  {
 
     private rowClicked = (params: any) => {
             var self = this;
+
+        self.rowFocus(params.event.target);
+        params.node.setSelected(true, true);
+
             self.clickTimeout = self.$timeout(function () {
                 if (self.clickTimeout.$$state.status === 2) {
                     return; // click event canceled by double-click
                 }
 
-            self.rowFocus(params.event.target);
-
             if (angular.isFunction(self.onRowClick)) {
                 self.onRowClick({prms: params});
-            } else {
-                params.node.setSelected(true, true);
             }
         }, 250);
     };

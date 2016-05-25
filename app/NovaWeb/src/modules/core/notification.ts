@@ -27,11 +27,15 @@ export class NotificationService implements INotificationService {
         return handler;
     };
 
+    private getId(...args: string[]) {
+        return args.join(`.`);
+    }
+
     public attach(host: string, name: string, callback: Function)  {
         if (!host || !name) {
             return;
         }
-        let handler = this.getHandlers(`${host}.${name}`);
+        let handler = this.getHandlers(this.getId(host,name));
         handler.callbacks.push(callback);
     };
 
@@ -39,7 +43,7 @@ export class NotificationService implements INotificationService {
         if (!host || !name) {
             return;
         }
-        let handler = this.getHandlers(`${host}.${name}`);
+        let handler = this.getHandlers(this.getId(host, name));
         handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
             return it !== callback;
         });
@@ -54,7 +58,7 @@ export class NotificationService implements INotificationService {
         if (!host || !name) {
             return;
         }
-        let handler = this.getHandlers(`${host}.${name}`);
+        let handler = this.getHandlers(this.getId(host, name));
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);
         });

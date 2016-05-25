@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
@@ -24,7 +23,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetProjectOrGetChildrenAsync(0, 1, 2);
+            await repository.GetProjectOrArtifactChildrenAsync(0, 1, 2);
 
             // Assert
         }
@@ -38,7 +37,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetProjectOrGetChildrenAsync(1, 0, 2);
+            await repository.GetProjectOrArtifactChildrenAsync(1, 0, 2);
 
             // Assert
         }
@@ -52,7 +51,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetProjectOrGetChildrenAsync(1, 2, 0);
+            await repository.GetProjectOrArtifactChildrenAsync(1, 2, 0);
 
             // Assert
         }
@@ -66,7 +65,7 @@ namespace ArtifactStore.Repositories
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetProjectOrGetChildrenAsync(1, 1, 2);
+            await repository.GetProjectOrArtifactChildrenAsync(1, 1, 2);
 
             // Assert
         }
@@ -170,7 +169,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -210,7 +209,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -257,7 +256,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -293,7 +292,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[2].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[2].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[2].OrderIndex,
                     ParentId = input[2].ParentId,
                     Id = input[2].ItemId,
@@ -369,7 +368,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -406,7 +405,7 @@ namespace ArtifactStore.Repositories
             var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
                 name: "BaselinesAndReviews",
                 orderIndex: -1,
-                itemTypePredefined: 0x1000 | 0x100 | 1,
+                itemTypePredefined: ItemTypePredefined.BaselineFolder,
                 itemTypeId: 22,
                 prefix: "BRF",
                 lockedByUserId: null,
@@ -417,7 +416,7 @@ namespace ArtifactStore.Repositories
             var collections = CreateArtifactVersion(3, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
                 name: "Collections",
                 orderIndex: -1,
-                itemTypePredefined: 0x1000 | 0x200 | 1,
+                itemTypePredefined: ItemTypePredefined.CollectionFolder,
                 itemTypeId: 33,
                 prefix: "CF",
                 lockedByUserId: null,
@@ -431,7 +430,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -447,7 +446,7 @@ namespace ArtifactStore.Repositories
                 },
                 new Artifact
                 {
-                    PredefinedType = collections.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = collections.ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = collections.OrderIndex,
                     ParentId = collections.ParentId,
                     Id = collections.ItemId,
@@ -463,7 +462,7 @@ namespace ArtifactStore.Repositories
                 },
                 new Artifact
                 {
-                    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = baselinesAndReviews.OrderIndex,
                     ParentId = baselinesAndReviews.ParentId,
                     Id = baselinesAndReviews.ItemId,
@@ -503,7 +502,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = input[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = input[1].OrderIndex,
                     ParentId = input[1].ParentId,
                     Id = input[1].ItemId,
@@ -548,7 +547,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = inputOrphans[0].OrderIndex,
                     ParentId = inputOrphans[0].ParentId,
                     Id = inputOrphans[0].ItemId,
@@ -593,7 +592,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = inputOrphans[1].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = inputOrphans[1].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = inputOrphans[1].OrderIndex,
                     ParentId = inputOrphans[1].ParentId,
                     Id = inputOrphans[1].ItemId,
@@ -640,7 +639,7 @@ namespace ArtifactStore.Repositories
             {
                 new Artifact
                 {
-                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault().ToPredefinedType(),
+                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault(),
                     OrderIndex = inputOrphans[0].OrderIndex,
                     ParentId = inputOrphans[0].ParentId,
                     Id = inputOrphans[0].ItemId,
@@ -671,7 +670,7 @@ namespace ArtifactStore.Repositories
             if(artifactId == null)
                 cxn.SetupQueryAsync("GetProjectOrphans", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, inputOrphans);
             // Act
-            var actual = await repository.GetProjectOrGetChildrenAsync(projectId, artifactId, userId);
+            var actual = await repository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId);
 
             // Assert
             cxn.Verify();
@@ -775,7 +774,7 @@ namespace ArtifactStore.Repositories
                 CreateArtifactVersion(20, 1, 10, 99, int.MaxValue, RolePermissions.Read, true,
                                         name: "parent",
                                         orderIndex: 10,
-                                        itemTypePredefined: 0x1000 | 6,
+                                        itemTypePredefined: ItemTypePredefined.PrimitiveFolder,
                                         itemTypeId: 88,
                                         prefix: "PF",
                                         lockedByUserId: null,
@@ -784,7 +783,7 @@ namespace ArtifactStore.Repositories
                 CreateArtifactVersion(20, 1, 10, 1, 1, RolePermissions.Read, true,
                                         name: "parent (draft)",
                                         orderIndex: 10,
-                                        itemTypePredefined: 0x1000 | 6,
+                                        itemTypePredefined: ItemTypePredefined.PrimitiveFolder,
                                         itemTypeId: 88,
                                         prefix: "PF",
                                         lockedByUserId: 1,
@@ -803,7 +802,7 @@ namespace ArtifactStore.Repositories
                                                         bool hasDraft,
                                                         string name = null,
                                                         double? orderIndex = null,
-                                                        int? itemTypePredefined = null,
+                                                        ItemTypePredefined? itemTypePredefined = null,
                                                         int? itemTypeId = null,
                                                         string prefix = null,
                                                         int? lockedByUserId = null,

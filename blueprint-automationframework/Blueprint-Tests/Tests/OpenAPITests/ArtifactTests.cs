@@ -5,13 +5,15 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Helper;
+using TestCommon;
 
 
 namespace OpenAPITests
 {
     [TestFixture]
     [Category(Categories.OpenApi)]
-    public class ArtifactTests
+    public class ArtifactTests : TestBase
     {
         private IUser _user;
         private IProject _project;
@@ -22,19 +24,15 @@ namespace OpenAPITests
         [TestFixtureSetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
             _project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
         }
 
         [TestFixtureTearDown]
         public void TearDown()
         {
-            if (_user != null)
-            {
-                // TODO Add teardown to remove published artifact(s) before deleteting users
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
+            Helper?.Dispose();
         }
         
         #endregion Setup and Cleanup
@@ -48,7 +46,7 @@ namespace OpenAPITests
         public void AddArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+            _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
@@ -72,7 +70,7 @@ namespace OpenAPITests
         public void DiscardArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+            _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
@@ -98,7 +96,7 @@ namespace OpenAPITests
         public void PublishArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+            _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
             IOpenApiProperty property = new OpenApiProperty(_artifact.Address);
@@ -123,12 +121,11 @@ namespace OpenAPITests
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_01.txt")]
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_02.txt")]
         [Explicit(IgnoreReasons.UnderDevelopment)]
-
         public void AddArtifact_Actor_With(string sampleTextPath)
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);
             //Create an artifact with ArtifactType and populate all required values without properties
-            _artifact = ArtifactFactory.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
+            _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
             IOpenApiProperty property = new OpenApiProperty(_artifact.Address);

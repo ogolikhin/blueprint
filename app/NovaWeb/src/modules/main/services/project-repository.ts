@@ -10,11 +10,12 @@ export interface IProjectRepository {
 }
 
 export class ProjectRepository implements IProjectRepository {
-    static $inject: [string] = ["$q", "$http", "localization"];
+    static $inject: [string] = ["$q", "$http", "$log", "localization"];
 
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
+        private $log: ng.ILogService,
         private localization: ILocalizationService) {
     }
 
@@ -28,6 +29,7 @@ export class ProjectRepository implements IProjectRepository {
                     statusCode: statusCode,
                     message: (err ? err.message : "") || this.localization.get("", "Error")
                 };
+                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;
@@ -49,6 +51,7 @@ export class ProjectRepository implements IProjectRepository {
                     statusCode: statusCode,
                     message: (err ? err.Message : "") || this.localization.get("", "Error")
                 };
+                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;

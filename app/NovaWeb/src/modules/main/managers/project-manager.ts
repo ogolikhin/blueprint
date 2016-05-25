@@ -108,8 +108,7 @@ export class ProjectManager implements IProjectManager {
                     self.notify(SubscriptionEnum.ProjectLoaded, project);
                     self.CurrentProject = project;
                 }).catch((error: any) => {
-                    //TODO: show error
-                    console.log(error.message);
+                    this.notification.dispatch("main", "exception", error);
                 });
         }
     }
@@ -124,8 +123,8 @@ export class ProjectManager implements IProjectManager {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }
-            }).catch(() => {
-
+            }).catch((error: any) => {
+                this.notification.dispatch("main", "exception", error);
             });
     }
 

@@ -14,7 +14,7 @@ describe("Project Manager Test", () => {
     }));
 
     describe("Load projects: ", () => {
-        it("single project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
+        it("Load single project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
             manager.notify(SubscriptionEnum.ProjectLoad, 1);
             $rootScope.$digest();
@@ -66,6 +66,10 @@ describe("Project Manager Test", () => {
 
 
 
+
+    });
+
+    describe("Load projects: ", () => {
 
     });
 });

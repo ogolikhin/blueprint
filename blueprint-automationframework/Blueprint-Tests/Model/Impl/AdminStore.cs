@@ -17,7 +17,6 @@ namespace Model.Impl
         private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
-        private string _address = null;
 
         /// <summary>
         /// Constructor.
@@ -329,9 +328,9 @@ namespace Model.Impl
         {
             RestApiFacade restApi;
             if (!badKey)
-                restApi = new RestApiFacade(_address, string.Empty);
+                restApi = new RestApiFacade(Address, string.Empty);
             else
-                restApi = new RestApiFacade(_address, null);
+                restApi = new RestApiFacade(Address, null);
 
             string command = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
 

@@ -9,6 +9,11 @@ namespace Model.Impl
         public const string ACCESS_CONTROL_TOKEN_HEADER = "Session-Token";
         public const string OPENAPI_TOKEN_HEADER = "Authorization";
 
+        /// <summary>
+        /// This is the string that all OpenApi tokens start with.
+        /// </summary>
+        public const string OPENAPI_START_OF_TOKEN = "BlueprintToken";
+
         private string _accessControlToken;
         private string _openApiToken;
 
@@ -31,7 +36,7 @@ namespace Model.Impl
             get { return _accessControlToken; }
             set
             {
-                if ((value != null) && !value.StartsWithOrdinal("BlueprintToken"))
+                if ((value != null) && !value.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
                 {
                     Logger.WriteDebug("Setting AccessControlToken to: {0}", value);
                     _accessControlToken = value;
@@ -57,7 +62,7 @@ namespace Model.Impl
             get { return _openApiToken; }
             set
             {
-                if ((value != null) && value.StartsWithOrdinal("BlueprintToken"))
+                if ((value != null) && value.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
                 {
                     Logger.WriteDebug("Setting OpenApiToken to: {0}", value);
                     _openApiToken = value;
@@ -83,7 +88,7 @@ namespace Model.Impl
         {
             ThrowIf.IsNullOrWhiteSpace(token, nameof(token));
 
-            if (token.StartsWithOrdinal("BlueprintToken"))
+            if (token.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
             {
                 OpenApiToken = token;
             }

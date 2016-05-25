@@ -4,6 +4,7 @@ export interface INotificationService {
     attach(host: string, name: string, callback: any);
     detach(host: string, name: string, callback: any);
     dispatch(host: string, name: string, ...prms: any[]);
+    destroy(host?: string);
 }
 
 class ICallbacks {
@@ -27,23 +28,23 @@ export class NotificationService implements INotificationService {
         return handler;
     };
 
-    private getId(...args: string[]) {
+    private mask(...args: string[]) {
         return args.join(`.`);
     }
 
     public attach(host: string, name: string, callback: Function)  {
-        if (!host || !name) {
+        if (!host || !name || !callback) {
             return;
         }
-        let handler = this.getHandlers(this.getId(host,name));
+        let handler = this.getHandlers(this.mask(host, name));
         handler.callbacks.push(callback);
     };
 
     public detach(host: string, name: string, callback: Function) {
-        if (!host || !name) {
+        if (!host || !name || !callback) {
             return;
         }
-        let handler = this.getHandlers(this.getId(host, name));
+        let handler = this.getHandlers(this.mask(host, name));
         handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
             return it !== callback;
         });
@@ -55,12 +56,25 @@ export class NotificationService implements INotificationService {
     };
 
     public dispatch(host: string, name: string, ...prms: any[]) {
-        if (!host || !name) {
+        if (!host || !name ) {
             return;
         }
-        let handler = this.getHandlers(this.getId(host, name));
+        let handler = this.getHandlers(this.mask(host, name));
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);
+        });
+    }
+
+    public destroy(host?: string) {
+        //passin undefined host id destroyes everything
+        let re = new RegExp(`^${this.mask(host,"")}.`);
+        this.handlers = this.handlers.filter(function (it) {
+            if (!host || re.test(it.name)) {
+                delete it.callbacks;
+                return false;
+            }
+            return true;
+                
         });
     }
 };

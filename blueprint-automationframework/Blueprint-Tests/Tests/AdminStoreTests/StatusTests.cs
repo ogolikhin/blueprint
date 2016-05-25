@@ -66,7 +66,6 @@ namespace AdminStoreTests
         // TODO: Move these GetFolder tests to a new file, since they have nothing to do with status.
         [TestCase(false)]
         [TestCase(true)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(119382)]
         [Description("Gets the folder or folder children and returns 'OK' if successful")]
         public static void GetFolderOrChildren_OK(bool hasChildren)
@@ -94,7 +93,6 @@ namespace AdminStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(119383)]
         [Description("Gets the folder and returns 'Not Found' if successfull")]
         public static void GetFolder_NotFound()
@@ -123,7 +121,6 @@ namespace AdminStoreTests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(119384)]
         [Description("Gets the folder or folder children and returns 'Unauthorized' if successful")]
         public static void GetFolderOrChildren_Unauthorized(bool hasChildren)
@@ -171,7 +168,6 @@ namespace AdminStoreTests
 
         [TestCase(false)]
         [TestCase(true)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(119385)]
         [Description("Gets the folder or folder children and returns 'Bad Request' if successful")]
         public static void GetFolderOrChildren_BadRequestd(bool hasChildren)

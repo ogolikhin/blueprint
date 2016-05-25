@@ -97,8 +97,15 @@ namespace Utilities.Facades
             if (_token != null)
             {
                 Logger.WriteTrace("**** Adding Authorization headers.");
-                request.AddHeader("Authorization", _token);     // This is for old OpenAPI.
-                request.AddHeader("Session-Token", _token);     // This is for new AccessControl.
+
+                if (_token.StartsWithOrdinal("BlueprintToken"))
+                {
+                    request.AddHeader("Authorization", _token); // This is for old OpenAPI.
+                }
+                else
+                {
+                    request.AddHeader("Session-Token", _token); // This is for new AccessControl.
+                }
             }
 
             if (additionalHeaders == null)

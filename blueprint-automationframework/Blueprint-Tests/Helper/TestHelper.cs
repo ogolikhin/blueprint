@@ -168,7 +168,7 @@ namespace Helper
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
-                BlueprintServer.LoginUsingBasicAuthorization(user);
+                BlueprintServer.LoginUsingBasicAuthorization(user, string.Empty);
                 Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
             }
 

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using CustomAttributes;
 using Model;
 using Model.ArtifactModel;
@@ -10,16 +11,14 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using Helper;
 using System.Net;
+using TestCommon;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class BasicTests
+    public class BasicTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -28,65 +27,15 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IArtifactBase>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else if (artifact.IsSaved)
-                    {
-                        if (artifact.IsSaved)
-                        {
-                            savedArtifactsList.Add(artifact);
-                        }
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -101,9 +50,9 @@ namespace StorytellerTests
             int defaultLinksCount, 
             int defaultPropertyValuesCount)
         {
-            var artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
-            var returnedProcess = _storyteller.GetProcess(_user, artifact.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_user, artifact.Id);
 
             Assert.IsNotNull(returnedProcess, "The returned process was null.");
 
@@ -120,12 +69,12 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IArtifact artifact = _storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
+            IArtifact artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>
             {
-                processList = (List<IProcess>)_storyteller.GetProcesses(_user, _project.Id);
+                processList = (List<IProcess>)Helper.Storyteller.GetProcesses(_user, _project.Id);
             }, "GetProcesses must not return an error.");
 
             // Get returned process from list of processes
@@ -145,25 +94,19 @@ namespace StorytellerTests
         public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
 
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            try
-            {
-                Assert.DoesNotThrow(() =>
-                {
-                    var artifactsList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: artifact.Name);
-                    Assert.IsTrue(artifactsList.Count > 0);
-                }, "Couldn't find an artifact named '{0}'.", artifact.Name);
-            }
+            IList<IArtifactBase> artifactsList = null;
 
-            finally
+            Assert.DoesNotThrow(() =>
             {
-                artifact.Delete(_user);
-                artifact.Publish(_user);
-            }
+                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user, searchSubstring: artifact.Name);
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
+
+            Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
         }
 
         [TestCase]
@@ -176,7 +119,7 @@ namespace StorytellerTests
 
             for (int i = 0; i < 12; i++)
             {
-                var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+                var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
                 artifact.Save(_user);
                 artifact.Publish(_user);
                 artifactList.Add(artifact);
@@ -184,23 +127,14 @@ namespace StorytellerTests
 
             //Implementation of CreateArtifact uses Artifact_ prefix to name artifacts
             string searchString = "Artifact_";
-            try
-            {
-                Assert.DoesNotThrow(() =>
-                {
-                    var searchResultList = Artifact.SearchArtifactsByName(address: _storyteller.Address, user: _user, searchSubstring: searchString);
-                    Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
-                });
-            }
+            IList<IArtifactBase> searchResultList = null;
 
-            finally
+            Assert.DoesNotThrow(() =>
             {
-                foreach (var artifactToDelete in artifactList)
-                {
-                    artifactToDelete.Delete(_user);
-                    artifactToDelete.Publish(_user);
-                }
-            }
+                searchResultList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user, searchSubstring: searchString);
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
+
+            Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
         }
 
         [TestCase]
@@ -209,7 +143,7 @@ namespace StorytellerTests
         public void DiscardArtifactAddedUserTask_VerifyResult()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find the end shape
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
@@ -223,15 +157,17 @@ namespace StorytellerTests
             process.AddUserAndSystemTask(endIncomingLink);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
-            var processArtifact = _storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            var processArtifact = Helper.Storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
             
             List<DiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
+
             Assert.DoesNotThrow(() =>
             {
                 discardResultList = processArtifact.NovaDiscard(_user);
-            }, "Must return no errors.");
+            }, "Discard must return no errors.");
+
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
             Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",

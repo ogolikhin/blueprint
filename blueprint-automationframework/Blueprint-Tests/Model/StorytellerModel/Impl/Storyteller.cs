@@ -417,7 +417,7 @@ namespace Model.StorytellerModel.Impl
                         {
                             DeleteProcessArtifact(artifact, deleteChildren: true);
                         }
-                        else
+                        else if (artifact.IsSaved)
                         {
                             savedArtifactsList.Add(artifact);
                         }

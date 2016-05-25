@@ -169,7 +169,7 @@ namespace StorytellerTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    var artifactsList = Artifact.SearchArtifactsByName(address: _storyteller.Address,
+                    var artifactsList = Artifact.SearchArtifactsByName(address: Helper.BlueprintServer.Address,
                         user: _user, searchSubstring: artifact.Name, project: _project);
                     Assert.IsTrue(artifactsList.Count > 0);
                 }, "Couldn't find an artifact named '{0}'.", artifact.Name);

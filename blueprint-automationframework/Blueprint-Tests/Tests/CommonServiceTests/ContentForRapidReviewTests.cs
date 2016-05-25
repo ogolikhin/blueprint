@@ -151,14 +151,18 @@ namespace CommonServiceTests
             }
         }
 
-        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Process)]
         [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.BusinessProcess)]
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.Storyboard)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
         [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.Document)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.TextualRequirement)]
         [TestRail(107391)]
         [Description("Create artifact, get properties for it. Check that returned JSON has proper scheme.")]
         public void GetArtifactPropertiesForRapidReview_VerifyResults(BaseArtifactType artifactType)

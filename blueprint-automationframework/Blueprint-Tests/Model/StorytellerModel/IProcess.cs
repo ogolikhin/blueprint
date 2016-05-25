@@ -136,9 +136,9 @@ namespace Model.StorytellerModel
 
 
         /// <summary>
-        /// Status contains the process status information reside on server side
+        /// Status contains the process status information that resides on the server side
         /// </summary>
-        Status Status { get; set; }
+        ProcessStatus Status { get; set; }
 
         /// <summary>
         /// The Property values for the Process

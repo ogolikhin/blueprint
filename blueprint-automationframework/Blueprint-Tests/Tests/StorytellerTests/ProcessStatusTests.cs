@@ -141,8 +141,12 @@ namespace StorytellerTests
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
             // Expected Status: true, true, false, false, true, fals
-            var expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, false });
-            VerifyStatus(process, expectedProcessStatuses);
+            var expectedProcessStatus = new ProcessStatus(
+                isLocked: true, isLockedByMe: true, isDeleted: false,
+                isReadOnly: false, isUnpublished: true,
+                hasEverBeenPublished: false);
+
+            VerifyStatus(process, expectedProcessStatus);
 
             // Publish the saved process
             _storyteller.PublishProcess(_secondaryUser, process);
@@ -153,8 +157,12 @@ namespace StorytellerTests
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
             // Expected Status: false, false, false, false, false, true 
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { false, false, false, false, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
+            expectedProcessStatus = new ProcessStatus(
+                isLocked: false, isLockedByMe: false, isDeleted: false,
+                isReadOnly: false, isUnpublished: false,
+                hasEverBeenPublished: true);
+
+            VerifyStatus(process, expectedProcessStatus);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -170,19 +178,27 @@ namespace StorytellerTests
             process = _storyteller.UpdateProcess(_secondaryUser, process);
 
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            
+
             // Expected Status: true, true, false, false, true, true
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, true });
-            VerifyStatus(process, expectedProcessStatuses);
+            expectedProcessStatus = new ProcessStatus(
+                isLocked: true, isLockedByMe: true, isDeleted: false,
+                isReadOnly: false, isUnpublished: true,
+                hasEverBeenPublished: true);
+
+            VerifyStatus(process, expectedProcessStatus);
 
             // Get the process with the first user
             process = _storyteller.GetProcess(_primaryUser, process.Id);
-            
+
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
-            
-            // Expected Status: true, false, false, true, false, true 
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, false, false, true, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
+
+            // Expected Status: true, false, false, true, false, true
+            expectedProcessStatus = new ProcessStatus(
+                isLocked: true, isLockedByMe: false, isDeleted: false,
+                isReadOnly: true, isUnpublished: false,
+                hasEverBeenPublished: true);
+
+            VerifyStatus(process, expectedProcessStatus);
         }
 
         [TestRail(107384)]
@@ -198,8 +214,12 @@ namespace StorytellerTests
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
             // Expected Status: true, true, false, false, true, false 
-            var expectedProcessStatuses = new Queue<bool>(new List<bool> { true, true, false, false, true, false });
-            VerifyStatus(process, expectedProcessStatuses);
+            var expectedProcessStatus = new ProcessStatus(
+                isLocked: true, isLockedByMe: true, isDeleted: false,
+                isReadOnly: false, isUnpublished: true,
+                hasEverBeenPublished: false);
+
+            VerifyStatus(process, expectedProcessStatus);
 
             // Publish the saved process
             _storyteller.PublishProcess(_secondaryUser, process);
@@ -210,8 +230,12 @@ namespace StorytellerTests
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
             // Expected Status: false, false, false, false, false, true
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { false, false, false, false, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
+            expectedProcessStatus = new ProcessStatus(
+                isLocked: false, isLockedByMe: false, isDeleted: false,
+                isReadOnly: false, isUnpublished: false,
+                hasEverBeenPublished: true);
+
+            VerifyStatus(process, expectedProcessStatus);
 
             // Delete the process to lock by the second user
             _storyteller.DeleteProcessArtifact(processArtifact);
@@ -222,8 +246,12 @@ namespace StorytellerTests
             // Process Status flags: IsLocked, IsLockedByMe, IsDeleted, IsReadOnly, IsUnpublished, HasEverBeenPublished
 
             // Expected Status: true, false, false, true, false, true
-            expectedProcessStatuses = new Queue<bool>(new List<bool> { true, false, false, true, false, true });
-            VerifyStatus(process, expectedProcessStatuses);
+            expectedProcessStatus = new ProcessStatus(
+                isLocked: true, isLockedByMe: false, isDeleted: false,
+                isReadOnly: true, isUnpublished: false,
+                hasEverBeenPublished: true);
+
+            VerifyStatus(process, expectedProcessStatus);
         }
 
         #endregion Tests
@@ -232,36 +260,36 @@ namespace StorytellerTests
         /// Verify process status by checking the status boolean parameters from the process model
         /// </summary>
         /// <param name="retrievedProcess">The process model retrieved from the server side</param>
-        /// <param name="expectedStatuses">The list of boolean parameters that represents expected status of the returned process</param>
-        public static void VerifyStatus(IProcess retrievedProcess, Queue<bool> expectedStatuses)
+        /// <param name="expectedStatus">The list of boolean parameters that represents expected status of the returned process</param>
+        public static void VerifyStatus(IProcess retrievedProcess, ProcessStatus expectedStatus)
         {
             ThrowIf.ArgumentNull(retrievedProcess, nameof(retrievedProcess));
 
-            ThrowIf.ArgumentNull(expectedStatuses, nameof(expectedStatuses));
+            ThrowIf.ArgumentNull(expectedStatus, nameof(expectedStatus));
 
             var retrivedProcessStatus = retrievedProcess.Status;
 
-            Assert.That(retrivedProcessStatus.IsLocked.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsLocked.Equals(expectedStatus.IsLocked),
                 "IsLocked from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsLocked, !retrivedProcessStatus.IsLocked);
 
-            Assert.That(retrivedProcessStatus.IsLockedByMe.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsLockedByMe.Equals(expectedStatus.IsLockedByMe),
                 "IsLockedByMe from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsLockedByMe, !retrivedProcessStatus.IsLockedByMe);
 
-            Assert.That(retrivedProcessStatus.IsDeleted.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsDeleted.Equals(expectedStatus.IsDeleted),
                 "IsDeleted from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsDeleted, !retrivedProcessStatus.IsDeleted);
 
-            Assert.That(retrivedProcessStatus.IsReadOnly.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsReadOnly.Equals(expectedStatus.IsReadOnly),
                 "IsReadOnly from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsReadOnly, !retrivedProcessStatus.IsReadOnly);
 
-            Assert.That(retrivedProcessStatus.IsUnpublished.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.IsUnpublished.Equals(expectedStatus.IsUnpublished),
                 "IsUnpublished from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.IsUnpublished, !retrivedProcessStatus.IsUnpublished);
 
-            Assert.That(retrivedProcessStatus.HasEverBeenPublished.Equals(expectedStatuses.Dequeue()),
+            Assert.That(retrivedProcessStatus.HasEverBeenPublished.Equals(expectedStatus.HasEverBeenPublished),
                 "HasEverBeenPublished from the process model is {0} and {1} is expected.",
                 retrivedProcessStatus.HasEverBeenPublished, !retrivedProcessStatus.HasEverBeenPublished);
         }

@@ -109,7 +109,7 @@ namespace Model.StorytellerModel.Impl
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
-        public Status Status { get; set; }
+        public ProcessStatus Status { get; set; }
 
         public ProcessType ProcessType
         {
@@ -1561,8 +1561,18 @@ namespace Model.StorytellerModel.Impl
 
     }
 
-    public class Status
+    public class ProcessStatus
     {
+        public ProcessStatus (bool isLocked, bool isLockedByMe, bool isDeleted, bool isReadOnly, bool isUnpublished, bool hasEverBeenPublished)
+        {
+            IsLocked = isLocked;
+            IsLockedByMe = isLockedByMe;
+            IsDeleted = isDeleted;
+            IsReadOnly = isReadOnly;
+            IsUnpublished = isUnpublished;
+            HasEverBeenPublished = hasEverBeenPublished;
+        }
+
         /// <summary>
         /// Check if the process is locked
         /// </summary>
@@ -1584,7 +1594,7 @@ namespace Model.StorytellerModel.Impl
         public bool IsReadOnly { get; set; }
 
         /// <summary>
-        /// Check if the process is not published
+        /// Check if the process has saved changes which are not published yet
         /// </summary>
         public bool IsUnpublished { get; set; }
 

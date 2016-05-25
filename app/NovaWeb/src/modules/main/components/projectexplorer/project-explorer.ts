@@ -1,7 +1,9 @@
-﻿import "angular";
-import {ILocalizationService} from "../../../core/localization";
+﻿//import "angular";
+//import {Helper} from "../../../core/utils/helper";
+//import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
+
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");
@@ -9,26 +11,20 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-class ProjectExplorerController {
-    private tree: IBPTreeController;
-
-    public static $inject: [string] = ["$scope", "localization", "projectManager", "$log", "$timeout"];
-    constructor(
-        private $scope: ng.IScope,
-        private localization: ILocalizationService,
-        private manager: IProjectManager,
-        private $log: ng.ILogService,
-        private $timeout: ng.ITimeoutService) {
-
-    }
-
-    public $onInit = () => {
+export class ProjectExplorerController {
+    public tree: IBPTreeController;
+    
+    public static $inject: [string] = ["projectManager"];
+    constructor(private manager: IProjectManager) {
         this.manager.subscribe(SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+    }
 
-    };
+    //public $onInit = () => {
+
+    //};
     // the object defines how data will map to ITreeNode
     // on left
     public propertyMap = {
@@ -53,21 +49,20 @@ class ProjectExplorerController {
             }, project)
         ]); 
         
-        this.tree.setDataSource();
+        this.tree.refresh();
     }
 
     private loadProjectChildren = (artifact: Models.IArtifact) => {
         this.tree.addNodeChildren(artifact.id, artifact.artifacts);
-        this.tree.setDataSource();
+        this.tree.refresh();
     }
 
     private closeProject(projects: Models.IProject[]) {
         projects.map(function (it: Models.IProject) {
             this.tree.removeNode(it.id);
         }.bind(this)); 
-        this.tree.setDataSource();
+        this.tree.refresh();
     }
-
 
     public columns = [{
         headerName: "",
@@ -96,7 +91,6 @@ class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        //this.$scope.$applyAsync((s) => {});
         this.manager.selectArtifact(node.id);
     };
 

@@ -1,27 +1,12 @@
-import "../../../main"
+import "../..";
 import "angular";
 import "angular-mocks";
-//import {ComponentTest} from "../../../util/component.test";
-//import {BPTooltip} from "./bp-tooltip"
 
 describe("Directive BP-Tooltip", () => {
     var tooltipTrigger = `<div bp-tooltip="Tooltip's content">Tooltip trigger</div>`;
-    var compile, scope, directiveElement;
 
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("app.core"));
 
-    //var directiveTest: ComponentTest<BPTooltip>;
-
-    beforeEach(() => {
-        //directiveTest = new ComponentTest<BPTooltip>(tooltipTrigger, "bp-tooltip");
-    });
-
-/*    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-        $compileProvider.directive("bpTooltip", <any>BPTooltip.factory);
-        console.log("before each")
-
-    }));
-*/
     it("can initialize", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
 
         // Arrange

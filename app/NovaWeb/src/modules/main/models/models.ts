@@ -57,6 +57,14 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
+class BaseItem {
+
+    public setProperty(name: string, value: any) {
+        if (this[name]) {
+            this[name] = value;
+        }
+    }
+}
 export class Project implements IProject {
     public id: number;
     public name: string;

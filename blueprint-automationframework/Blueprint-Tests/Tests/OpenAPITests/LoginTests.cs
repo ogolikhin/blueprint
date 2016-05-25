@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomAttributes;
 using Common;
+using Helper;
 using Model.Factories;
+using TestCommon;
 using TestConfig;
 using Utilities;
 using Utilities.Facades;
@@ -17,7 +19,7 @@ namespace OpenAPITests
 {
     [TestFixture]
     [Category(Categories.OpenApi)]
-    public class LoginTests
+    public class LoginTests : TestBase
     {
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
 
@@ -27,17 +29,14 @@ namespace OpenAPITests
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAddToDatabase();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_user != null)
-            {
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #region Private Functions
@@ -200,7 +199,7 @@ namespace OpenAPITests
                 // Create the users & threads.
                 for (int i = 0; i < numUsers; ++i)
                 {
-                    IUser user = UserFactory.CreateUserAndAddToDatabase();
+                    IUser user = UserFactory.CreateUserAndAddToDatabase();  // Don't use Helper here because the users are deleted in the finally block.
                     users.Add(user);
                     threads.Add(CreateThreadToLoginWithValidCredentials(user, maxRetries, exceptions, threads));
                 }

@@ -26,6 +26,87 @@ namespace Helper
         public IList<IProject> Projects { get; } = new List<IProject>();
         public IList<IUser> Users { get; } = new List<IUser>();
 
+        #region Artifact Management
+
+        /// <summary>
+        /// Create an Open API artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
+        /// </summary>
+        /// <param name="address">address for Blueprint application server</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="project">The target project</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object for the target project with selected artifactType</returns>
+        public IOpenApiArtifact CreateOpenApiArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
+        {
+            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(address, user, project, artifactType);
+            Artifacts.Add(artifact);
+            return artifact;
+        }
+
+        /// <summary>
+        /// Create an Open API artifact object using the Blueprint application server address from the TestConfiguration file
+        /// </summary>
+        /// <param name="project">The target project</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object</returns>
+        public IOpenApiArtifact CreateOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType);
+            Artifacts.Add(artifact);
+            return artifact;
+        }
+
+        /// <summary>
+        /// Create an artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
+        /// </summary>
+        /// <param name="address">address for Blueprint application server</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="project">The target project</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object for the target project with selected artifactType</returns>
+        public IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
+        {
+            IArtifact artifact = ArtifactFactory.CreateArtifact(address, user, project, artifactType);
+            Artifacts.Add(artifact);
+            return artifact;
+        }
+
+        /// <summary>
+        /// Create an artifact object using the Blueprint application server address from the TestConfiguration file
+        /// </summary>
+        /// <param name="project">The target project</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="artifactType">artifactType</param>
+        /// <returns>new artifact object</returns>
+        public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType)
+        {
+            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
+            Artifacts.Add(artifact);
+            return artifact;
+        }
+
+        #endregion Artifact Management
+
+        #region Project Management
+
+        /// <summary>
+        /// Creates a new project object with the values specified, or with random values for any unspecified parameters.
+        /// </summary>
+        /// <param name="name">The name of the project.</param>
+        /// <param name="description">(optional) The description of the project.</param>
+        /// <param name="location">(optional) The location of the project.</param>
+        /// <param name="id">(optional) Internal database identifier.  Only set this if you read the project from the database.</param>
+        /// <returns>The new project object.</returns>
+        public IProject CreateProject(string name = null, string description = null, string location = null, int id = 0)
+        {
+            IProject project = ProjectFactory.CreateProject(name, description, location, id);
+            Projects.Add(project);
+            return project;
+        }
+
+        #endregion Project Management
+
         #region User management
 
         /// <summary>
@@ -87,7 +168,7 @@ namespace Helper
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
-                BlueprintServer.LoginUsingBasicAuthorization(user);
+                BlueprintServer.LoginUsingBasicAuthorization(user, string.Empty);
                 Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
             }
 

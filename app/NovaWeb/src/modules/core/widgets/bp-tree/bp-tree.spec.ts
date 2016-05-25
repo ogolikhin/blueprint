@@ -1,8 +1,24 @@
 ﻿import "angular";
 import "angular-mocks";
-import {BPTreeController} from "./bp-tree";
+import {BPTreeController, ITreeNode} from "./bp-tree";
 import {GridApi} from "ag-grid/main";
 
+function toFlat(root: any): any[] {
+    var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
+    while (stack.length !== 0) {
+        var node = stack.shift();
+        array.push(node);
+        if (angular.isArray(node.children)) {
+
+            for (var i = node.children.length - 1; i >= 0; i--) {
+                stack.push(node.children[i]);
+            }
+            node.children = null;
+        }
+    }
+
+    return array;
+}
 
 describe("Embedded ag-grid events", () => {
     var controller: BPTreeController;
@@ -81,97 +97,119 @@ describe("Embedded ag-grid events", () => {
         expect(cellRendererFolder).toEqual(undefined);
     });
 
-    //it("setDataSource",  inject(($q: ng.IQService) => {
-    //    // Arrange
-    //    var dataFromCall;
-    //    gridApi.setRowData = function (data) {
-    //        dataFromCall = data;
-    //    };
-
-    //    // Act
-    //    var options = controller.options;
-
-    //    controller.options.api = gridApi;
-    //    $scope.$apply();
-
-    //    controller.setDataSource([{
-    //        id: 1, Name: `Name 1`
-    //    }]);
-    //    controller.setDataSource([{
-    //        id: 2, Name: `Name 2`
-    //    }]);
-
-    //    // Assert
-    //    let data = controller.options.api.getRenderedNodes();
-    //    expect(dataFromCall.Type).toBeTruthy;
-    //    expect(dataFromCall.Name).toBeTruthy;
-    //}));
-
-
-    //it("rowGroupOpened", inject(($q: ng.IQService) => {
-    //    // Arrange
-    //    var dataFromCall;
-    //    var paramsMock = {
-    //        node: {
-    //            data: {
-    //                Id: 77,
-    //                Type: "Folder",
-    //                Name: "folder",
-    //                Children: [],
-    //            },
-    //            expanded: true
-    //        }
-    //    };
-    //    controller.onExpand = function () {
-    //        var deferred = $q.defer();
-    //        deferred.resolve([{
-    //            Id: 88,
-    //            Type: "Project",
-    //            Name: "Project",
-    //        }]);
-    //        return deferred.promise;
-    //    };
-
-    //    var setRowDataMock = function (data) {
-    //        dataFromCall = data;
-    //    };
-    //    gridApi.setRowData = setRowDataMock;
-
-    //    // Act
-    //    var options = controller.options;
-    //    controller.options.api = gridApi;
-    //    options.onRowGroupOpened(paramsMock);
-    //    expect(paramsMock.node.data["open"]).toBeUndefined;
-    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeUndefined;
-
-    //    $scope.$apply();
-
-    //    // Assert
-    //    expect(paramsMock.node.data.Children).toEqual(jasmine.any(Array));
-    //    expect(paramsMock.node.data.Children.length).toEqual(1);
-    //    expect(paramsMock.node.data.Children[0].Type).toBe("Project");
-    //    expect(paramsMock.node.data["open"]).toBeTruthy;
-    //    expect(paramsMock.node.data["alreadyLoadedFromServer"]).toBeTruthy;
-    //}));
-
-    /*it("cellFocused", () => {
+    it("add nodes with property map", inject(($q: ng.IQService) => {
         // Arrange
-
-        var paramsMock = {
-            rowIndex: 0
+        var dataFromCall: ITreeNode[];
+        gridApi.setRowData = function (data) {
+            dataFromCall = data as ITreeNode[];
         };
-        var getModel = function() {
-            var rowModel = new InMemoryRowModel();
-            return rowModel;
-        };
-        gridApi.getModel = getModel;
 
         // Act
-        var options = controller.gridOptions;
-        controller.gridOptions.api = gridApi;
-        options.onCellFocused(paramsMock);
+        var options = controller.options;
+
+        controller.options.api = gridApi;
         $scope.$apply();
 
+        controller.addNode([{ itemId: 1, TheName: `Name 1` }], 0, {
+                itemId : "id",
+                TheName : "name"
+            });
+        controller.refresh();
         // Assert
-    });*/
+        //let data = controller.options.api.getRenderedNodes();
+        expect(dataFromCall).toEqual(jasmine.any(Array));
+        expect(dataFromCall.length).toBe(1);
+        expect(dataFromCall[0].id).toBe(1);
+        expect(dataFromCall[0].name).toBe("Name 1");
+
+    }));
+
+    it("add nodes with property map with not matched properties", inject(($q: ng.IQService) => {
+        // Arrange
+        var dataFromCall: ITreeNode[];
+        gridApi.setRowData = function (data) {
+            dataFromCall = data as ITreeNode[];
+        };
+
+        // Act
+        var options = controller.options;
+
+        controller.options.api = gridApi;
+        $scope.$apply();
+
+        controller.addNode([{ itemId: 1, TheName: `Name 1` }], 0, {
+            id: "id",
+            name: "name"
+        });
+        controller.refresh();
+        // Assert
+        //let data = controller.options.api.getRenderedNodes();
+        expect(dataFromCall).toEqual(jasmine.any(Array));
+        expect(dataFromCall.length).toBe(1);
+        expect(dataFromCall[0].id).toBeUndefined();
+        expect(dataFromCall[0].name).toBeUndefined();
+        expect(dataFromCall[0]["itemId"]).toBeDefined();
+        expect(dataFromCall[0]["TheName"]).toBeDefined();
+
+    }));
+
+
+
+    it("add nodes", inject(($q: ng.IQService) => {
+        // Arrange
+        var dataFromCall;
+        gridApi.setRowData = function (data) {
+            dataFromCall = data;
+        };
+
+        // Act
+        var options = controller.options;
+
+        controller.options.api = gridApi;
+        $scope.$apply();
+
+        controller.addNode([
+            { id: 1, Name: `Name 1` },
+            { id: 2, Name: `Name 2` }
+        ]);
+        controller.refresh();
+        // Assert
+        //let data = controller.options.api.getRenderedNodes();
+        expect(dataFromCall).toEqual(jasmine.any(Array));
+        expect(dataFromCall.length).toBe(2);
+    }));
+    it("add children to node", inject(($q: ng.IQService) => {
+        // Arrange
+        var dataFromCall;
+        gridApi.setRowData = function (data) {
+            dataFromCall = data;
+        };
+
+        // Act
+        var options = controller.options;
+
+        controller.options.api = gridApi;
+        $scope.$apply();
+
+        controller.addNode([
+            { id: 1, Name: `Name 1` },
+            { id: 2, Name: `Name 2` }
+        ]);
+        controller.addNodeChildren(1, [
+            { id: 3, Name: `Name 3` },
+            { id: 4, Name: `Name 4` }
+        ]);
+        controller.refresh();
+        // Assert
+        //let data = controller.options.api.getRenderedNodes();
+        expect(dataFromCall).toEqual(jasmine.any(Array));
+        expect(dataFromCall.length).toBe(2);
+        expect(toFlat(dataFromCall).length).toBe(4);
+        expect(dataFromCall[0].open).toBeTruthy;
+        expect(dataFromCall[0].loaded).toBeTruthy;
+
+    }));
+
+
+    
 });

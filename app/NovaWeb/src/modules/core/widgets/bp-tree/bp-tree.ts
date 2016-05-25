@@ -160,13 +160,13 @@ export class BPTreeController implements IBPTreeController  {
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
-        if (!this.propertyMap) {
+        if (!propertyMap) {
             return data;
         }
         let item = {} as ITreeNode;
 
         for (let property in data) {
-            item[this.propertyMap[property] ? this.propertyMap[property] : property ] = data[property];
+            item[propertyMap[property] ? propertyMap[property] : property ] = data[property];
         }
         if (item.hasChildren) {
             if (angular.isArray(item.children) && item.children.length) {

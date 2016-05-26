@@ -163,6 +163,7 @@ namespace CommonServiceTests
         [TestCase(BaseArtifactType.Glossary)]
         [TestCase(BaseArtifactType.Storyboard)]
         [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(107391)]
         [Description("Create artifact, get properties for it. Check that returned JSON has proper scheme.")]
         public void GetArtifactPropertiesForRapidReview_VerifyResults(BaseArtifactType artifactType)

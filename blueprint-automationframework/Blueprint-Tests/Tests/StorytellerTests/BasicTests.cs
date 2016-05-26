@@ -95,6 +95,7 @@ namespace StorytellerTests
         [TestCase(BaseArtifactType.Glossary)]
         [TestCase(BaseArtifactType.Storyboard)]
         [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(102883)]
         [Description("Create artifact, save and publish it. Search created artifact by name within all projects. Search must return created artifact.")]
         public void GetSearchArtifactResultsAllProjects_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)

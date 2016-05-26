@@ -185,6 +185,7 @@ describe("Storyteller end to end test", function () {
         });
         it("Should be able to open Add comment modal at footer", function () {
             //Act
+            browser.driver.sleep(1000);
             svgElementsPage.navFooterAddCommentButton(2).then(function (el) { el.click(); }); //@parm shape index 
             //Assert
             //browser.driver.sleep(5000);
@@ -286,7 +287,7 @@ describe("Storyteller end to end test", function () {
             });
         });
         /*
-        TODO: Need more investogation
+        TODO: Need to refactor
            it("Should be able navigate to inclued Artifacts and navigate to parent artifact thru Breadcurmbs", () => {
                //Act
                svgElementsPage.getFooterAddIncludesButton.then((el) => {

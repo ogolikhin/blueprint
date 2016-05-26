@@ -396,7 +396,7 @@ describe("Storyteller end to end test", () => {
      describe("User Story File download", () => {
          it("should be able to download the file", () => {
              //Arrange
-             var fse = require('fs-extra');
+            
              var fs = require('fs');
              var directory = 'C:/DownloadFile';
              var filename = 'C:/DownloadFile/UT.feature';

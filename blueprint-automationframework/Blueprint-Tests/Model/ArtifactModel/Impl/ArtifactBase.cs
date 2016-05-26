@@ -49,7 +49,7 @@ namespace Model.ArtifactModel.Impl
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
-        public bool ShouldDeleteChildren { get; set; }
+        public bool ShouldDeleteChildren { get; set; } = false;
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 

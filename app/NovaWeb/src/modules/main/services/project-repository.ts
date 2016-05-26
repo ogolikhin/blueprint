@@ -6,7 +6,7 @@ export {Models}
 
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
-    getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
+    getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
 }
 
 export class ProjectRepository implements IProjectRepository {
@@ -35,7 +35,7 @@ export class ProjectRepository implements IProjectRepository {
         return defer.promise;
     }
 
-    public getProject(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
+    public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
         if (!projectId) {
             throw new Error("Inavlid parameter ");

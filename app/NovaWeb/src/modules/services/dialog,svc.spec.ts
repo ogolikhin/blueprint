@@ -1,7 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import * as $D from "./dialog.svc";
-import {LocalizationServiceMock, ModalServiceInstanceMock} from "../shell/login/mocks.spec";
+import {LocalizationServiceMock} from "../core/localization";
+import {ModalServiceInstanceMock} from "../shell/login/mocks.spec";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {
     public static $inject = ["$q"];

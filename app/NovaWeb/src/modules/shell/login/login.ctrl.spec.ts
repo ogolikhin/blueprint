@@ -2,7 +2,8 @@
 import "angular-mocks";
 import { SessionSvc } from "./session.svc";
 import { LoginCtrl, LoginState } from "./login.ctrl";
-import { LocalizationServiceMock, ConfigValueHelperMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
+import {LocalizationServiceMock} from "../../core/localization";
+import {ConfigValueHelperMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
 
 
 describe("LoginCtrl", () => {

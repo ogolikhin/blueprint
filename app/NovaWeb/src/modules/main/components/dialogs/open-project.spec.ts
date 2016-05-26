@@ -1,9 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
-import { NotificationService} from "../../../core/notification";
+import {NotificationService} from "../../../core/notification";
+import {LocalizationServiceMock} from "../../../core/localization";
 import {IOpenProjectResult, OpenProjectController} from "./open-project";
 import {IBPTreeController, BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
 

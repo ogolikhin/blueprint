@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import { NotificationService} from "../../../core/notification";
-import {ILocalizationService} from "../../../core/localization";
+import {LocalizationServiceMock} from "../../../core/localization";
 import {IBPTreeController, BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
@@ -11,6 +11,7 @@ import {ProjectExplorerController} from "./project-explorer"
 describe("Project Explorer Test", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("notification", NotificationService);
         $provide.service("manager", ProjectManager);

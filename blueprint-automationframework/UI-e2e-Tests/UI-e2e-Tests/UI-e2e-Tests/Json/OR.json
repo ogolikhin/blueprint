@@ -51,18 +51,18 @@
                       "footerViewUserStoriesButton": "[id *= 'overlay-PB']",
                       "footerAddIncludesButton": "[id *= 'overlay-LB']",
                       "addTaskButton": "[id *= 'overlay-L']",
-                  "addTaskItems": ".mxPopupMenuItem",
-                  "activeTabInModal": ".k-item.k-state-default.k-tab-on-top.k-state-active",
-                  "viewUserStoriesGherkinTitle": ".storyteller-gwt_title-gwt.ng-binding",
-                  "showMoreButtonAtModel": ".fonticon-caret-right",
-                  "includeButtonAtModel":  ".nova-tabset.small-padding.storyteller-gwt-tabset",
-                  "includeArtifactTextBox": "storyteller-systemtask-include",
-                  "includeArtifactDropdownList": ".dropdown-menu.ng-isolate-scope",
-                  "modelOKButton": ".btn.button-brand-secondary.ng-binding",
-                  "breadcurmbsList": ".nova-breadcrumbs",
-                  "confirmModalSaveButton": ".ng-binding.btn.button-branded-action",
-                  "userStoryLinkAtReviewTraceTab": "[data-ng-if=\"r.predefined !== 4097\"]",
-                  "userStoryLinkAtFileTab":  "[data-ng-click=\"filesCtrl.downloadAttachment(attachment)\"]"
+                      "addTaskItems": ".mxPopupMenuItem",
+                      "activeTabInModal": ".k-item.k-state-default.k-tab-on-top.k-state-active",
+                      "viewUserStoriesGherkinTitle": ".storyteller-gwt_title-gwt.ng-binding",
+                      "showMoreButtonAtModel": ".fonticon-caret-right",
+                      "includeButtonAtModel":  ".nova-tabset.small-padding.storyteller-gwt-tabset",
+                      "includeArtifactTextBox": "storyteller-systemtask-include",
+                      "includeArtifactDropdownList": ".dropdown-menu.ng-isolate-scope",
+                       "modelOKButton": ".btn.button-brand-secondary.ng-binding",
+                      "breadcurmbsList": ".nova-breadcrumbs",
+                      "confirmModalSaveButton": ".ng-binding.btn.button-branded-action",
+                      "userStoryLinkAtReviewTraceTab": "[data-ng-if=\"r.predefined !== 4097\"]",
+                      "userStoryLinkAtFileTab":  "[data-ng-click=\"filesCtrl.downloadAttachment(attachment)\"]"
 
                  
                         

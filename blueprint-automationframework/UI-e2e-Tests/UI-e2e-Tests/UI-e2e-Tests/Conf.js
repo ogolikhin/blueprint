@@ -12,18 +12,7 @@
     while (Date.now() - startTimes < 60000) {
     }
 }
-/*
-function send_mail() {
-    console.log("Sending Mail with reports for the test execution.");
-    var sys = require('util')
-    var exec = require('child_process').exec;
 
-    function puts(error, stdout, stderr) {
-        sys.puts(stdout)
-    }
-    exec("node mail.js", puts);
-}
-*/
 exports.config = {
     
     framework: 'jasmine2',
@@ -32,41 +21,10 @@ exports.config = {
     allScriptsTimeout: 20000,
     onPrepare: function () {
         browser.driver.manage().window().maximize();
-        //browser.ignoreSynchronization=true;
-        // browser.driver.manage().timeouts().implicitlyWait(25000);
         browser.manage().timeouts().implicitlyWait(25000);
         var logger = require('winston');
         logger.add(logger.transports.File, { filename: './Log/logfile.log' });
-        //browser.manage().timeouts().pageLoadTimeout(10000);
         
-        /*
-        // Add a screenshot reporter and store screenshots to `/Reports`:
-        var HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter');
-        jasmine.getEnv().addReporter(new HtmlScreenshotReporter({
-            dest: './Reports',
-            filename: 'Results.html'
-        }));
-
-        jasmine.getEnv().afterEach(function(done){
-            browser.takeScreenshot().then(function (png) {
-                allure.createAttachment('Screenshot', function () {
-                    return new Buffer(png, 'base64')
-                }, 'image/png')();
-                done();
-            })
-        });
-
-        console.log('Deleting old allure reports and files.');
-        var sys = require('util')
-        var exec = require('child_process').exec;
-
-        function puts(error, stdout, stderr) {
-            sys.puts(stdout)
-        }
-
-        exec("RD /S /Q allure-results", puts);
-        exec("RD /S /Q target", puts);
-*/
         var AllureReporter = require('jasmine-allure-reporter');
         jasmine.getEnv().addReporter(new AllureReporter({
             allureReport: {
@@ -82,12 +40,6 @@ exports.config = {
                 done();
             })
         });
-       // console.log('Stopping jetty server if any previous instance is running on port 1234.')
-
-     //   exec("mvn jetty:stop -Djetty.port=1234", puts);
-      //  var startTimer = Date.now();
-     //   while (Date.now() - startTimer < 10000) {
-      //  }
 
     },
     onComplete: function () {

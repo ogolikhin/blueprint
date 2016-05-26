@@ -9,23 +9,20 @@
 var Page = require("../../Pages/StorytellerPages/SvgElementsPage");
 var OR = require('../../Json/OR.json');
 var logger = require('winston');
-//var svgElementsPage;
-//svgElementsPage: Page;
 var svgElementsPage;
 describe("Storyteller end to end test", function () {
     beforeAll(function () {
-        //Arrange
-        //svgElementsPage = new Page();
+        //Arrange-global
         svgElementsPage = new Page();
     });
     afterAll(function () {
+        //cleanup
         browser.clearMockModules['svgElementsPage'];
     });
     describe("Editing-Navigating- Shapes and Info panel of Storyteller", function () {
         // logger.info("=======Start Editing-Navigating- Shapes and Info panel of Storyteller=======");
         it("Should be able to toggle to user system process", function () {
-            //expect(svgElementsPage.getStorytellerToggleTextForBusniessProcess.getText()).toBe('Business Process');
-            //Act
+            //Act           
             if (svgElementsPage.getStorytellerTogglecheckBox.isSelected()) {
                 svgElementsPage.getStorytellerTogglecheckBox.click();
             }
@@ -38,27 +35,16 @@ describe("Storyteller end to end test", function () {
             svgElementsPage.getPublishArtifact.click();
             // Assert
             expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("The Process has been published.");
-            //svgElementsPage.generateUserStoiesDropDownMenu();
-            //GENERATE USER STORY
+        });
+        it("Should be able generate user story", function () {
+            //Act
             svgElementsPage.getGenerateUserStoriesMenuButton.click();
-            svgElementsPage.generateUserStoiesDropDownMenu(1)
-                .then(function (el) {
-                el.click();
-            });
-            // expect(element(by.css('[data-ng-if="r.predefined !== 4097"]'))).toBeFalsy;
-            //Find user story Link and clcik
-            //END
-            //FOOTER NAVIGATION
-            /*
-            svgElementsPage.findFooterAndInfoIcon(14);
-            expect(svgElementsPage.panelRelationships.getText()).toEqual(['Relationships']);
-            browser.driver.sleep(5000);
-            svgElementsPage.findFooterAndInfoIcon(15);
-
-            browser.driver.sleep(5000);
-            svgElementsPage.findFooterAndInfoIcon(17);
-            */
-            browser.driver.sleep(5000);
+            svgElementsPage.generateUserStoiesDropDownMenu(1).then(function (el) { el.click(); }); //@parm 1 for generate All, 0 for generate from user task
+            //Assert
+            //TODO need to find the elment for sucess message
+            //expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("The Process has been published.");
+            //browser.driver.sleep(5000);
+            //expect(element(by.css("[data-ng-repeat=\"m in messages | filter:{ messageType: 2 } as results\"]"))).toBe("The Process has been published.");
         });
         it("Should be able to edit system precondition shape header", function () {
             //Act
@@ -106,21 +92,11 @@ describe("Storyteller end to end test", function () {
         });
         it("Should be able to navigate to info Panel when click a user task", function () {
             //Act
-            //svgElementsPage.findFooterAndInfoIcon(8);
-            // browser.driver.sleep(5000);
             svgElementsPage.findElementAndSelect(2).then(function (el) {
-                //el.click();
-                // browser.actions().doubleClick(el).perform();
-                //el.sendKeys("\n");
-                //   browser.actions().mouseMove(el).mouseDown(el).mouseUp(el).perform();
-                //browser.actions().mouseMove(el).click().perform();
-                // browser.driver.sleep(9000);
                 browser.actions().click(el).perform();
-                // browser.driver.sleep(9000);
             });
             //Assert
             svgElementsPage.findFooterAndInfoIcon(19);
-            // browser.driver.sleep(5000);
         });
         it("Should be able to navigate Properties tab", function () {
             //Act
@@ -171,61 +147,46 @@ describe("Storyteller end to end test", function () {
         it("Should be able to open Edit Detail modal at footer", function () {
             //Act
             svgElementsPage.navFooterEditDetailButton(2).then(function (el) { el.click(); }); //@parm shape index 
-            //browser.wait(protractor.until.elementIsVisible(svgElementsPage.navFooterEditDetailButton(2).getWebElement()), 1000).then((el) => { svgElementsPage.getDeleteButton.click(); });
             //Assert
-            //browser.driver.sleep(5000);
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelTitle.getWebElement()), 5000).then(function () {
                 expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
             });
-            //expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(function () {
                 svgElementsPage.getFooterModelCancelButton.click();
             });
-            //svgElementsPage.getFooterModelCancelButton.click();
         });
         it("Should be able to open Add comment modal at footer", function () {
             //Act
-            browser.driver.sleep(1000);
+            browser.driver.sleep(5000);
             svgElementsPage.navFooterAddCommentButton(2).then(function (el) { el.click(); }); //@parm shape index 
             //Assert
-            //browser.driver.sleep(5000);
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getActiveTabInModal.getWebElement()), 5000).then(function () {
                 expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Discussions");
             });
-            //expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Discussions");
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getPanelCloseButton.getWebElement()), 5000).then(function () {
                 svgElementsPage.getPanelCloseButton.click();
             });
-            //svgElementsPage.getPanelCloseButton.click();
         });
         it("Should be able to open review traces modal at footer", function () {
             //Act
             svgElementsPage.navFooterReviewTracesButton(2).then(function (el) { el.click(); }); //@parm shape index 
             //Assert
             browser.driver.sleep(5000);
-            //browser.wait(protractor.until.elementLocated(svgElementsPage.getActiveTabInModal.getWebElement()), 5000).then(() => {
-            // expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Relationships");
-            // });
             expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Relationships");
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getPanelCloseButton.getWebElement()), 5000).then(function () {
                 svgElementsPage.getPanelCloseButton.click();
             });
-            // svgElementsPage.getPanelCloseButton.click();
         });
         it("Should be able to open add Images-Mockups-Screenshots modal at footer", function () {
             //Act
             svgElementsPage.navFooterAddImageMockUpsScreenshotsButton(1).then(function (el) { el.click(); }); //@parm shape index 
             //Assert
-            //browser.driver.sleep(5000);
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelTitle.getWebElement()), 5000).then(function () {
                 expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
             });
-            //expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
-            //browser.driver.sleep(5000);
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(function () {
                 svgElementsPage.getFooterModelCancelButton.click();
             });
-            // svgElementsPage.getFooterModelCancelButton.click();
         });
         it("Should be able to open view user stories modal at footer ", function () {
             //Act
@@ -242,7 +203,6 @@ describe("Storyteller end to end test", function () {
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(function () {
                 svgElementsPage.getFooterModelCancelButton.click();
             });
-            // svgElementsPage.getFooterModelCancelButton.click();
         });
     }); // end of test suite
     describe("Include Artifacts and navigate to the attached artifacts thru Bread curmbs", function () {
@@ -255,13 +215,10 @@ describe("Storyteller end to end test", function () {
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getShowMoreButtonAtModel.getWebElement()), 5000).then(function () {
                 svgElementsPage.getShowMoreButtonAtModel.click();
             });
-            //svgElementsPage.getShowMoreButtonAtModel.click();
-            // browser.wait(protractor.until.elementIsVisible(svgElementsPage.getIncludeButtonAtModel.getWebElements()), 1000).then(() => {
             svgElementsPage.getIncludeButtonAtModel.then(function (el) {
                 console.log("Total button at Edit detail modal is : " + el.length);
                 browser.driver.sleep(5000);
                 el[1].click(); //@parm 0 for addtional info and 1 for include
-                // });
             });
             //Assert
             expect(svgElementsPage.artifactsSearchResultCount("fro")).toBeGreaterThan(0);
@@ -271,10 +228,8 @@ describe("Storyteller end to end test", function () {
                 el[0].click(); //@parm search item index
             });
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getModelOKButton.getWebElement()), 5000).then(function () {
-                //svgElementsPage.getShowMoreButtonAtModel.click();
                 svgElementsPage.getModelOKButton.click();
             });
-            // svgElementsPage.getModelOKButton.click();// Ok button on edit detail modal
             //Assert
             browser.driver.sleep(5000);
             svgElementsPage.getFooterAddIncludesButton.then(function (el) {
@@ -341,28 +296,23 @@ describe("Storyteller end to end test", function () {
             //fs.unlinkSync(filename);
             svgElementsPage.getPanelCloseButton.click();
             browser.driver.sleep(5000);
+            //TODO This function is tem solution. Need to refactor
         });
     }); //end of test suite
     describe("Add-Delete-Discard-Save user task and add decision Point", function () {
         logger.info("======= Add-Delete-Discard-Save user task and add decision Point =======");
         it("Should be able to delete user task ", function () {
             //Act
-            //svgElementsPage.navAddTaskButton(2).then((el) => {
-            //  browser.wait(protractor.until.elementIsVisible(el), 10000).then(() => { el.click() });
-            //el.click();
-            // });
-            //e
             svgElementsPage.navAddTaskButton(2).then(function (el) { el.click(); }); //@parm index for '+' icon
             svgElementsPage.selectAddItem(1).then(function (el) { el.click(); }); //@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getDeleteButton.getWebElement()), 1000).then(function () { svgElementsPage.getDeleteButton.click(); });
-            //svgElementsPage.getDeleteButton.click();
             //Assert
             expect(svgElementsPage.getWarningPopUP.getText()).toBe("Please confirm the deletion of the selected user task."); //A warning pop up windows display with following contents
             svgElementsPage.getWarningPopUpOKButton.click();
             browser.driver.sleep(5000);
             svgElementsPage.getLabelBody.then(function (el) {
-                logger.info("Length of body label from DELETE array is : " + +el.length);
-                console.log("Length of body label from DELETE array is: " + el.length);
+                logger.info("Length of body label  array is : " + +el.length);
+                console.log("Length of body label  array is: " + el.length);
                 expect(el.length).toEqual(3); //@parm is initial shape count. After delete total shape count should not increase.
             });
         });
@@ -397,8 +347,8 @@ describe("Storyteller end to end test", function () {
             // element(By.css(".ng-binding.btn.button-branded-action.button-branded-warning")).click();
             browser.driver.sleep(1000);
             svgElementsPage.getLabelBody.then(function (el) {
-                logger.info("Length of body level array is : " + +el.length);
-                console.log("Length of body level array is : " + el.length);
+                logger.info("Length of body lebel array is : " + +el.length);
+                console.log("Length of body lebel array is : " + el.length);
                 expect(el.length).toEqual(5); //@parm is modifided shape count. After Save total shape count should be increased.
             });
         });
@@ -410,8 +360,8 @@ describe("Storyteller end to end test", function () {
             //Assert
             browser.driver.sleep(1000);
             svgElementsPage.getLabelBody.then(function (el) {
-                logger.info("Length of body level array is : " + +el.length);
-                console.log("Length of body level array is : " + el.length);
+                logger.info("Length of body lebel array is : " + +el.length);
+                console.log("Length of body lebel array is : " + el.length);
                 expect(el.length).toEqual(7); //@parm is modifided shape count. After add total shape count should be increased.
             });
         });
@@ -423,8 +373,8 @@ describe("Storyteller end to end test", function () {
             //Assert
             browser.driver.sleep(1000);
             svgElementsPage.getLabelBody.then(function (el) {
-                logger.info("Length of body level array is : " + +el.length);
-                console.log("Length of body level array is : " + el.length);
+                logger.info("Length of body lebel array is : " + +el.length);
+                console.log("Length of body lebel array is : " + el.length);
                 expect(el.length).toEqual(12); //@parm is modifided shape count(this also include condition body). After Save total shape count should be increased.
             });
         });
@@ -436,13 +386,13 @@ describe("Storyteller end to end test", function () {
             //Assert
             browser.driver.sleep(1000);
             svgElementsPage.getLabelBody.then(function (el) {
-                logger.info("Length of body level array is : " + +el.length);
-                console.log("Length of body level array is : " + el.length);
+                logger.info("Length of body lebel array is : " + +el.length);
+                console.log("Length of body lebel array is : " + el.length);
                 expect(el.length).toEqual(16); //@parm is modifided shape count(this also include condition body). After Save total shape count should be increased.
             });
             browser.driver.sleep(9000);
         });
     }); //end of test suite
 });
-//});
+//TODO: overool wait.until need to be refactor 
 //# sourceMappingURL=EditingNavigatingModalStorytellerSpec.js.map

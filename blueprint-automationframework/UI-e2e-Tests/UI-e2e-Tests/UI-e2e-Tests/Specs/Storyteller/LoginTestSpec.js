@@ -29,7 +29,6 @@ describe("LoginPage- Storyteller", function () {
                 // Assert
                 expect(loginPage.getSessionDialofBoxWarningMessage()).toBe("This user is already logged into Blueprint in another browser/session. \n" + " Do you want to override the previous session?");
                 loginPage.sessionDialogBoxYesButton.click();
-                browser.driver.sleep(1000);
             }
             else {
                 console.log("Session Dialog Box appears: " + presence);

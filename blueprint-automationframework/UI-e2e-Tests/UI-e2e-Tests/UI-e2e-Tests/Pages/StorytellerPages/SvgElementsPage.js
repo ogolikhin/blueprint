@@ -325,26 +325,7 @@ var Svgelementspages = (function () {
             }
         });
     };
-    /*
     // function to verify shape's header name
-        /* TO DO this funtion can be deleted but wait until dev finalized their code
-      /*  public verifyHeaderName(shape): Promise<string> {
-            browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
-            return this.labelHeader.then((elements) => {
-                elements[shape].all(by.tagName('div')).then((el) => {
-                    console.log("inside of finding div");
-                    el[1].getText()
-                        .then((gettext) => {
-                            console.log(gettext);
-                            this.header = gettext;
-                            console.log("inside "+this.header);
-                            return this.header;
-                        });
-                });
-                return this.header;
-            });
-    
-       }*/
     Svgelementspages.prototype.verifyHeaderName = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
@@ -354,8 +335,6 @@ var Svgelementspages = (function () {
             });
             return _this.header;
         });
-        //return this.header;
-        //  });
     };
     //funtion to edit body  of a shape
     Svgelementspages.prototype.editBody = function (shape, bodyText) {
@@ -375,25 +354,6 @@ var Svgelementspages = (function () {
         });
     };
     //funtion to verify text body  of a shape
-    /* TO DO this funtion can be deleted but wait until dev finalized their code
-        public verifyBodyText1(shape): Promise<string> {
-            browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
-            return this.labelBody.then((elements) => {
-                elements[shape].all(by.tagName('div')).then((el) => {
-                    console.log("inside of finding div");
-                    el[1].getText()
-                        .then((gettext) => {
-                            console.log(gettext);
-                            this.body = gettext;
-                            console.log("inside " + this.body);
-                            return this.body;
-                        });
-                });
-                return this.body;
-            });
-    
-        }*/
-    //===
     Svgelementspages.prototype.verifyBodyText = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
@@ -403,11 +363,9 @@ var Svgelementspages = (function () {
             });
             return _this.body;
         });
-        //return this.header;
-        //  });
     };
     // function to edit body text for user task
-    // TO DO this funtion can be deleted but wait until dev finalized their code 
+    // TO DO: this funtion can be deleted but wait until dev finalized their code 
     Svgelementspages.prototype.editBodyForUserTask = function (shape, bodyText) {
         this.label.then(function (elements) {
             console.log("Total is label for label " + elements.length);
@@ -453,29 +411,15 @@ var Svgelementspages = (function () {
     };
     //funtion to find footer and information icon of a shape
     Svgelementspages.prototype.findFooterAndInfoIcon = function (icon) {
-        // var x = element.all(By.tagName(OR.locators.storyteller.image)); 
         this.image.then(function (el) {
             console.log("Finding Icon from Footer" + el.length);
-            //el[icon].element
-            //browser.driver.actions().mouseMove((el[icon])).click().perform();
-            // browser.executeScript('arguments[0].scrollIntoView(true);', el[icon].getWebElement());
-            // browser.driver.sleep(5000);
-            //browser.actions().mouseMove(el[icon]).mouseDown(el[icon]).mouseUp(el[icon]).perform();
-            //browser.executeScript("arguments[0].click();", el[icon]);
-            //executor.executeScript("arguments[0].click();", element);
             // NEED FOR FIREFOX
             el[icon].element(by.xpath('..'))
                 .isDisplayed()
                 .then(function (d) {
                 console.log("Image display : " + d);
             });
-            //var x = el[icon].element(by.xpath('..'));//.click();// this needed for firefox
-            // var x = element(By.id('overlay-CB3375'));//.click();
-            // browser.actions().mouseMove(x).mouseDown(x).mouseUp(x).perform();
-            // browser.executeScript("arguments[0].checked = true;", el[icon].element(by.xpath('..')));
             el[icon].click();
-            // x.click();
-            //browser.driver.sleep(50000);
         });
     };
     // function to post a comment at discussion panel
@@ -505,7 +449,7 @@ var Svgelementspages = (function () {
             return elements[menuItem];
         });
     };
-    // function to find overlayDB
+    // function to find footer edit detail Button
     Svgelementspages.prototype.navFooterEditDetailButton = function (button) {
         return this.footerEditDetailButton.then(function (elements) {
             logger.info("Total edit detail button is  :" + elements.length);
@@ -555,13 +499,10 @@ var Svgelementspages = (function () {
     };
     // function to find add button (+)
     Svgelementspages.prototype.navAddTaskButton = function (button) {
-        //browser.wait(protractor.until.elementIsVisible(this.addTaskButton), 10000).then;
-        //AnalysisPage.lastNodeIconFinder.click();
         return this.addTaskButton.then(function (elements) {
             logger.info("Total Add Task button is  :" + elements.length);
             console.log("Total Add Task button is  :" + elements.length);
             return elements[button];
-            //return browser.wait(protractor.until.elementIsVisible(elements[button]), 10000)
         });
     };
     // Function to find item in Add button

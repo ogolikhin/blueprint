@@ -30,9 +30,9 @@ var CreateArtifact = (function () {
         var res = request('GET', getAuthenticationApiUrl, options);
         var temToken = res.body.toString();
         var objFromgetRequest = JSON.parse(temToken); // parsing response to Json object
-        console.log("This is token receive from get request " + objFromgetRequest);
+        console.log("This is the token receive from get request " + objFromgetRequest);
         var blueprintAuthorizationToken = 'Blueprinttoken ' + objFromgetRequest;
-        console.log("This blueprint token" + blueprintAuthorizationToken);
+        console.log("This is blueprint token" + blueprintAuthorizationToken);
         // preparing post request data 
         var optionsForPostRequest = {
             method: 'POST',

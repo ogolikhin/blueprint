@@ -85,3 +85,6 @@ Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>fr
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
 
 Input_Required,"Required"
+
+Project_NotFound,"Couldn't find the project"
+Artifact_NotFound,"Couldn't find the artifact"

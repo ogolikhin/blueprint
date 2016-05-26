@@ -1,4 +1,5 @@
 ﻿import * as Models from "../models/models";
+import {ILocalizationService} from "../../core/localization";
 import {INotificationService} from "../../core/notification";
 import {IProjectRepository} from "../services/project-repository";
 
@@ -36,8 +37,9 @@ export class ProjectManager implements IProjectManager {
     private _currentProjet: Models.IProject;
     private _currentArtifact: Models.IArtifact;
 
-    static $inject: [string] = ["projectRepository", "notification"];
+    static $inject: [string] = ["localization", "projectRepository", "notification"];
     constructor(
+        private localization: ILocalizationService,
         private _repository: IProjectRepository,
         private notification: INotificationService) {
 
@@ -73,11 +75,11 @@ export class ProjectManager implements IProjectManager {
     }
 
     public set CurrentArtifact(artifact: Models.IArtifact) {
-        if (this._currentArtifact && artifact && this._currentArtifact.id === artifact.id) {
+        if (artifact && angular.isDefined(this._currentArtifact) && this._currentArtifact.id === artifact.id) {
             return;
         }
         if (artifact && artifact.projectId !== this._currentProjet.id) {
-            let project = this.getProject(this._currentArtifact.projectId);
+            let project = this.getProject(artifact.projectId);
             if (project) {
                 this.CurrentProject = project;
             }
@@ -93,39 +95,52 @@ export class ProjectManager implements IProjectManager {
     public ProjectCollection: Models.IProject[] = [];
 
     private loadProject = (projectId: number, projectName: string) => {
-        let self = this;
-        let project = this.getProject(projectId);
+        try {
+            let self = this;
+            let project = this.getProject(projectId);
 
-        if (project) {
-            this.CurrentProject = project;
-        } else {
-            this._repository.getProject(projectId)
-                .then((result: Models.IArtifact[]) => {
-                    project = new Models.Project(result);
-                    project.id = projectId;
-                    project.name = projectName;
-                    self.ProjectCollection.unshift(project);
-                    self.notify(SubscriptionEnum.ProjectLoaded, project);
-                    self.CurrentProject = project;
-                }).catch((error: any) => {
-                    this.notification.dispatch("main", "exception", error);
-                });
+            if (project) {
+                this.CurrentProject = project;
+            } else {
+                this._repository.getArtifacts(projectId)
+                    .then((result: Models.IArtifact[]) => {
+                        project = new Models.Project(result);
+                        project.id = projectId;
+                        project.name = projectName;
+                        self.ProjectCollection.unshift(project);
+                        self.notify(SubscriptionEnum.ProjectLoaded, project);
+                        self.CurrentProject = project;
+                    }).catch((error: any) => {
+                        this.notification.dispatch("main", "exception", error);
+                    });
+            } 
+        } catch (ex) {
+            this.notification.dispatch("main", "exception", ex);
         }
     }
 
     private loadProjectChildren = (projectId: number, artifactId: number) => {
-        let self = this;
-
-        this._repository.getProject(projectId, artifactId)
-            .then((result: Models.IArtifact[]) => {
-                let artifact = self.CurrentProject.getArtifact(artifactId);
-                if (artifact) {
+        try {
+            let self = this;
+            let project = this.getProject(projectId);
+            if (!project) {
+                throw new Error(this.localization.get("Project_NotFound","Couldn't find the project"));
+            }
+            let artifact = project.getArtifact(artifactId);
+            if (!artifact)
+            {
+                throw new Error(this.localization.get("Artifact_NotFound","Couldn't find the artifact"));
+            }
+            this._repository.getArtifacts(projectId, artifactId)
+                .then((result: Models.IArtifact[]) => {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
-                }
-            }).catch((error: any) => {
-                this.notification.dispatch("main", "exception", error);
-            });
+                }).catch((error: any) => {
+                    this.notification.dispatch("main", "exception", error);
+                });
+        } catch (ex) {
+            this.notification.dispatch("main", "exception", ex);
+        }
     }
 
     private closeProject(allFlag: boolean) {

@@ -1,15 +1,10 @@
 ﻿import "angular";
 import "angular-mocks";
-import {ILocalizationService} from "../../core/localization";
+import {ILocalizationService, LocalizationServiceMock} from "../../core/localization";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
 
-export class LocalizationServiceMock implements ILocalizationService {
-    public get(name: string): string {
-        return name;
-    }
-}
 
 export class ConfigValueHelperMock implements IConfigValueHelper {
     getBooleanValue(setting: string, fallBack?: boolean) {

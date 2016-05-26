@@ -1,6 +1,5 @@
 ﻿//import "angular";
 //import {Helper} from "../../../core/utils/helper";
-//import {ILocalizationService} from "../../../core/localization";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
 

@@ -1,6 +1,8 @@
 ﻿import {IProjectRepository, Models} from "./project-repository";
 
 export class ProjectRepositoryMock implements IProjectRepository {
+    
+
     public static $inject = ["$q"];
     constructor(private $q: ng.IQService) { }
 
@@ -37,21 +39,29 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
-    public getProject(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
-        var deferred = this.$q.defer<Models.IArtifact[]>();
-        var items: Models.IArtifact[] = [
-            {
-                id: artifactId || id,
-                name: (artifactId ? `Artifact ${artifactId}` : `Project ${id}`) ,
-                typeId: (artifactId ? 1 : 0),
-                parentId: 0,
-                predefinedType: 1,
-                projectId: id,
-                version: 1,
-                hasChildren: false
+    private createArtifact(projectId: number, artifactId: number) {
+        return {
+            id: artifactId,
+            name: `Artifact ${artifactId}`,
+            typeId: Math.floor(Math.random() * 100),
+            parentId: 0,
+            predefinedType: Math.floor(Math.random() * 100),
+            projectId: projectId,
+            hasChildren: false
+        } as Models.IArtifact;
+    }
 
-            }
-        ];
+    public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>   {
+         
+        var deferred = this.$q.defer<Models.IArtifact[]>();
+        let items: any; 
+        if (!id && !artifactId) {
+            items = null;
+        } else {
+            items = ([0, 1, 2, 3, 4]).map(function (it) {
+                return this.createArtifact(id, (artifactId || id)* 100 + it);
+            }.bind(this)) as Models.IArtifact[];
+        }
         deferred.resolve(items);
         return deferred.promise;
     }

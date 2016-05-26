@@ -160,6 +160,7 @@ describe("Storyteller end to end test", function () {
             browser.driver.sleep(5000);
             svgElementsPage.navFooterAddCommentButton(2).then(function (el) { el.click(); }); //@parm shape index 
             //Assert
+            browser.driver.sleep(5000);
             browser.wait(protractor.until.elementIsVisible(svgElementsPage.getActiveTabInModal.getWebElement()), 5000).then(function () {
                 expect(svgElementsPage.getActiveTabInModal.getText()).toBe("Discussions");
             });

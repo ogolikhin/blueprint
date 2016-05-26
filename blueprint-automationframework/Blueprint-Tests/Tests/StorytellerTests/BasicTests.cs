@@ -155,31 +155,26 @@ namespace StorytellerTests
         [TestCase(BaseArtifactType.Glossary)]
         [TestCase(BaseArtifactType.Storyboard)]
         [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(123257)]
         [Description("Create artifact, save and publish it. Search created artifact by name within the project where artifact was created. Search must return created artifact.")]
         public void GetSearchArtifactResultsForOneProject_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
 
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            try
-            {
-                Assert.DoesNotThrow(() =>
-                {
-                    var artifactsList = Artifact.SearchArtifactsByName(address: Helper.BlueprintServer.Address,
-                        user: _user, searchSubstring: artifact.Name, project: _project);
-                    Assert.IsTrue(artifactsList.Count > 0);
-                }, "Couldn't find an artifact named '{0}'.", artifact.Name);
-            }
+            IList<IArtifactBase> artifactsList = null;
 
-            finally
+            Assert.DoesNotThrow(() =>
             {
-                artifact.Delete(_user);
-                artifact.Publish(_user);
-            }
+                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user,
+                    searchSubstring: artifact.Name, project: _project);
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
+
+            Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
         }
 
         [TestCase]

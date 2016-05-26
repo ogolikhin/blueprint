@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Linq;
+﻿using System.Linq;
 using CustomAttributes;
 using Model;
 using Model.ArtifactModel;
@@ -89,9 +88,16 @@ namespace StorytellerTests
         [TestCase(BaseArtifactType.UIMockup)]
         [TestCase(BaseArtifactType.UseCaseDiagram)]
         [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.Document)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(102883)]
-        [Description("Create artifact, save and publish it. Search created artifact by name. Search must return created artifact.")]
-        public void GetSearchArtifactResults_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
+        [Description("Create artifact, save and publish it. Search created artifact by name within all projects. Search must return created artifact.")]
+        public void GetSearchArtifactResultsAllProjects_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
         {
             //Create an artifact with ArtifactType and populate all required values without properties
             var artifact = Helper.CreateArtifact(_project, _user, artifactType);
@@ -135,6 +141,40 @@ namespace StorytellerTests
             }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
 
             Assert.IsTrue(searchResultList.Count == 10, "Search results must have 10 artifacts, but they have '{0}'.", searchResultList.Count);
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.UseCase)]
+        [TestCase(BaseArtifactType.UIMockup)]
+        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(BaseArtifactType.GenericDiagram)]
+        [TestCase(BaseArtifactType.BusinessProcess)]
+        [TestCase(BaseArtifactType.Document)]
+        [TestCase(BaseArtifactType.DomainDiagram)]
+        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(BaseArtifactType.Storyboard)]
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestRail(123257)]
+        [Description("Create artifact, save and publish it. Search created artifact by name within the project where artifact was created. Search must return created artifact.")]
+        public void GetSearchArtifactResultsForOneProject_ReturnedListContainsCreatedArtifact(BaseArtifactType artifactType)
+        {
+            //Create an artifact with ArtifactType and populate all required values without properties
+            var artifact = Helper.CreateArtifact(_project, _user, artifactType);
+
+            artifact.Save(_user);
+            artifact.Publish(_user);
+
+            IList<IArtifactBase> artifactsList = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                artifactsList = Artifact.SearchArtifactsByName(address: Helper.Storyteller.Address, user: _user,
+                    searchSubstring: artifact.Name, project: _project);
+            }, "{0}.{1}() shouldn't throw an exception when passed valid parameters!", nameof(Artifact), nameof(Artifact.SearchArtifactsByName));
+
+            Assert.IsTrue(artifactsList.Count > 0, "No artifacts were found after adding an artifact!");
         }
 
         [TestCase]

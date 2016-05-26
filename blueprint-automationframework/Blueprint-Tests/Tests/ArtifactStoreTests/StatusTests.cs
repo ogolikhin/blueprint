@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
-using Model;
-using Model.Factories;
 using NUnit.Framework;
 using Utilities;
 
@@ -10,7 +8,6 @@ namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
-    [Explicit(IgnoreReasons.DeploymentNotReady)]
     public static class StatusTests
     {
         [TestCase]

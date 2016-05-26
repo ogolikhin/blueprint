@@ -21,11 +21,8 @@ export class ProjectExplorerController {
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     }
 
-    //public $onInit = () => {
-
-    //};
     // the object defines how data will map to ITreeNode
-    // on left
+    // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
         typeId: "type",
@@ -77,16 +74,6 @@ export class ProjectExplorerController {
         suppressFiltering: true
     }];
 
-    public doLoad = (prms: any): any[] => {
-        //the explorer must be empty on a first load
-        if (!prms) {
-            return null;    
-        }
-        //check passesed in parameter
-        let artifactId = angular.isNumber(prms.id) ? prms.id : null;
-        //notify the repository to load the node children
-        this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
-    };
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter

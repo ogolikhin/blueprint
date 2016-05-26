@@ -115,12 +115,12 @@ namespace CommonServiceTests
 
                 if (savedArtifactsListPrimaryUser.Any())
                 {
-                    OpenApiArtifact.DiscardArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
+                    Artifact.DiscardArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
                 }
 
                 if (savedArtifactsListSecondaryUser.Any())
                 {
-                    OpenApiArtifact.DiscardArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
+                    Artifact.DiscardArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
                 }
 
                 // Clear all possible List Items

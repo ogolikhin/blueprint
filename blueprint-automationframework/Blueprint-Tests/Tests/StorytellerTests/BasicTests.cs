@@ -169,8 +169,8 @@ namespace StorytellerTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                0, discardResultList[0].Result);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
         }
     }
 }

@@ -205,7 +205,7 @@ namespace StorytellerTests
             StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
             var processArtifact = Helper.Storyteller.Artifacts.Where(artifact => artifact.Id == process.Id).First();
             
-            List<DiscardArtifactResult> discardResultList = null;
+            List<NovaDiscardArtifactResult> discardResultList = null;
             string expectedMessage = "Successfully discarded";
 
             Assert.DoesNotThrow(() =>
@@ -215,8 +215,8 @@ namespace StorytellerTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual((HttpStatusCode)0, discardResultList[0].ResultCode, "Returned code must be {0}, but {1} was returned",
-                (HttpStatusCode)0, discardResultList[0].ResultCode);
+            Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                0, discardResultList[0].Result);
         }
     }
 }

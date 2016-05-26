@@ -98,7 +98,7 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
-        public List<DiscardArtifactResult> NovaDiscard(IUser user = null,
+        public List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
@@ -119,7 +119,7 @@ namespace Model.ArtifactModel.Impl
 
             foreach (var discardArtifactResult in discardArtifactResults)
             {
-                if (discardArtifactResult.ResultCode == HttpStatusCode.OK)
+                if (discardArtifactResult.Result == 0)
                 {
                     IsSaved = false;
                 }
@@ -387,7 +387,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<DiscardArtifactResult> NovaDiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+        public static List<NovaDiscardArtifactResult> NovaDiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -408,7 +408,7 @@ namespace Model.ArtifactModel.Impl
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
             var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
-            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResult, List<int>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
                 URL_NOVADISCARD,
                 RestRequestMethod.POST,
                 artifactsIds,
@@ -420,9 +420,9 @@ namespace Model.ArtifactModel.Impl
             foreach (var discardedResult in discardedResultList)
             {
                 var discardedArtifact = artifactsToDiscard.Find(a => (a.Id.Equals(discardedResult.ArtifactId)) &&
-                discardedResult.ResultCode == 0);
+                discardedResult.Result == 0);
                 discardedArtifact.IsSaved = false;
-                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.Result);
             }
 
             Assert.That(discardedResultList.Count.Equals(artifactsToDiscard.Count),

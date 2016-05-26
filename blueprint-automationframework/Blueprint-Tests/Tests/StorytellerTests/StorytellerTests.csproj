@@ -70,6 +70,7 @@
     <Compile Include="DeleteUserDecisionTests.cs" />
     <Compile Include="DeleteTaskTests.cs" />
     <Compile Include="BranchLabelTests.cs" />
+    <Compile Include="ProcessStatusTests.cs" />
     <Compile Include="UpdateProcessValidationTests.cs" />
     <Compile Include="UpdateProcessNegativeTests.cs" />
     <Compile Include="UpdateProcessTests.cs" />

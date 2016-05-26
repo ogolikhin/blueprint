@@ -134,6 +134,12 @@ namespace Model.StorytellerModel
         /// </summary>
         List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; }
 
+
+        /// <summary>
+        /// Status contains the process status information that resides on the server side
+        /// </summary>
+        ProcessStatus Status { get; set; }
+
         /// <summary>
         /// The Property values for the Process
         /// </summary>

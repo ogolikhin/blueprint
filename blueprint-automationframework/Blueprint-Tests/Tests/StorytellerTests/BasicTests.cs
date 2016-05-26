@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Linq;
+﻿using System.Linq;
 using CustomAttributes;
 using Model;
 using Model.ArtifactModel;

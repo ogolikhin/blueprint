@@ -24,7 +24,6 @@ namespace Model.Impl
         private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
-
         /// <summary>
         /// Id of the project
         /// </summary>
@@ -47,6 +46,24 @@ namespace Model.Impl
         /// Full path for the project. e.g. /Blueprint/Project
         /// </summary>
         public string Location { get; set; }
+
+        /// <summary>
+        /// Specifies if project is accessible
+        /// </summary>
+        [JsonProperty("IsAccessible")]
+        public string IsAccessible { get; set; }
+
+        /// <summary>
+        /// Specifies if project has children artifacts
+        /// </summary>
+        [JsonProperty("HasChildren")]
+        public string HasChildren { get; set; }
+
+        /// <summary>
+        /// Specifies parent folder id
+        /// </summary>
+        [JsonProperty("ParentFolderId")]
+        public string ParentFolderId { get; set; }
 
         [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactType>>))]

@@ -12,13 +12,14 @@ import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import ElementArrayFinder = protractor.ElementArrayFinder;
 import arrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
-
-
+import WebElement = protractor.WebElement;
+var logger = require('winston');
 
 class Svgelementspages {
     header: string;
     body: string;
     labelForUserTaskBody: string;
+ 
     private labelHeader: ElementArrayFinder;
     private labelBody: ElementArrayFinder;
     private label: ElementArrayFinder;
@@ -39,6 +40,39 @@ class Svgelementspages {
     private publishArtifact: ElementFinder;
     private publishArtifactSucessMessage: ElementFinder;
     private postCommentText: ElementFinder;
+    private generateUserStoriesMenuButton: ElementFinder;
+    private generateUserStoriesMenuIteams: ElementArrayFinder;
+    private overlayDB: ElementArrayFinder;
+    private footerDiscussionButton: ElementArrayFinder;
+    private footerModelTitle: ElementFinder;
+    private footerModelCancelButton: ElementFinder;
+    private footerEditDetailButton: ElementArrayFinder;
+    private footerAddCommentButton: ElementArrayFinder;
+    private footerReviewTracesButton: ElementArrayFinder;
+    private footerAddImageMockUpsScreenshotsButton: ElementArrayFinder;
+    private footerViewUserStoriesButton: ElementArrayFinder;
+    private footerAddIncludesButton: ElementArrayFinder;
+    private addTaskButton: ElementArrayFinder;
+    private addTaskItems: ElementArrayFinder;
+    private activeTabInModal: ElementFinder;
+    private viewUserStoriesGherkinTitle: ElementArrayFinder;
+    private showMoreButtonAtModel: ElementFinder;
+    private includeButtonAtModel: ElementArrayFinder;
+    private includeArtifactTextBox: ElementFinder;
+    private includeArtifactDropdownList: ElementArrayFinder;
+    private modelOKButton: ElementFinder;
+    private breadcurmbsList: ElementArrayFinder;
+    private confirmModalSaveButton: ElementFinder;
+    private deleteButton: ElementFinder;
+    private warningPopUP: ElementFinder;
+    private warningPopUpOKButton: ElementFinder;
+    private discardButton: ElementFinder;
+    private discardWarningPopUpOKButton: ElementFinder;
+    private saveButton: ElementFinder;
+    private saveButtonDisable: ElementFinder;
+    private userStoryLinkAtReviewTraceTab: ElementFinder;
+    private userStoryLinkAtFileTab: ElementFinder;
+
 
     constructor() {
         this.labelHeader = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelHeader));
@@ -61,34 +95,96 @@ class Svgelementspages {
         this.publishArtifact = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.publishArtifact));
         this.publishArtifactSucessMessage = element(By.id(OR.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
         this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
+        this.generateUserStoriesMenuButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
+        this.generateUserStoriesMenuIteams = element.all(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
+        this.footerModelTitle = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelTitle));
+        this.footerModelCancelButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
+        this.footerEditDetailButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
+        this.footerAddCommentButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddCommentButton));
+        this.footerReviewTracesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerReviewTracesButton));
+        this.footerAddImageMockUpsScreenshotsButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddImageMockUpsScreenshotsButton));
+        this.footerViewUserStoriesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerViewUserStoriesButton));
+        this.footerAddIncludesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddIncludesButton));
+        this.addTaskButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskButton));
+        this.addTaskItems = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskItems));
+        this.activeTabInModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.activeTabInModal));
+        this.viewUserStoriesGherkinTitle = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.viewUserStoriesGherkinTitle));
+        this.showMoreButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
+        this.includeButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
+        this.includeArtifactTextBox = element(By.id(OR.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
+        this.includeArtifactDropdownList = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
+        this.modelOKButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.modelOKButton));
+        this.breadcurmbsList = element(By.css(OR.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
+        this.confirmModalSaveButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
+        this.deleteButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.deleteButton));
+        this.warningPopUP = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUP));
+        this.warningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUpOKButton));
+        this.discardButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardButton));
+        this.discardWarningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardWarningPopUpOKButton));
+        this.saveButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButton));
+        this.saveButtonDisable = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButtonDisable));
+        this.userStoryLinkAtReviewTraceTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtReviewTraceTab));
+        this.userStoryLinkAtFileTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtFileTab));
     }
-    public get getLabelHeader(): ElementArrayFinder { return this.labelHeader; }
+   // public get getLabelHeader(): ElementArrayFinder { return this.labelHeader; }
     public get getLabelBody(): ElementArrayFinder { return this.labelBody; }
     public get getlabel(): ElementArrayFinder { return this.label; }
     public get getImage(): ElementArrayFinder { return this.image; }
     public get getPanelDiscussions(): ElementArrayFinder { return this.panelDiscussions; }
     public get getPanelProperties(): ElementArrayFinder { return this.panelProperties; }
     public get getPanelFiles(): ElementArrayFinder { return this.panelFiles; }
+    public get getPanelRelationships(): ElementArrayFinder { return this.panelRelationships; }
     public get getPanelHistory(): ElementArrayFinder { return this.panelHistory; }
     public get getpanelPreview(): ElementArrayFinder { return this.panelPreview; }
     public get getPanelCloseButton(): ElementFinder { return this.panelCloseButton; }
     public get getPanelDiscussionTextArea(): ElementFinder { return this.panelDiscussionTextArea; }
     public get getPanelDiscussionTextAreaBody(): ElementFinder { return this.panelDiscussionTextAreaBody; }
+    public get getPanelDiscussionPostButton(): ElementFinder { return this.panelDiscussionPostButton; }
     public get getStorytellerToggleTextForBusniessProcess(): ElementFinder { return this.storytellerToggleTextForBusniessProcess; }
     public get getStorytellerToggleTextForUserSystemProcess(): ElementFinder { return this.storytellerToggleTextForUserSystemProcess; }
     public get getStorytellerTogglecheckBox(): ElementFinder { return this.storytellerTogglecheckBox; }
     public get getPublishArtifact(): ElementFinder { return this.publishArtifact; }
     public get getPublishArtifactSucessMessage(): ElementFinder { return this.publishArtifactSucessMessage; }
     public get getPostCommentText(): ElementFinder { return this.postCommentText; }
-
-// funtion for edit shape's header
-    public  editHeader(shape, headerName) {
+    public get getGenerateUserStoriesMenuButton(): ElementFinder { return this.generateUserStoriesMenuButton; }
+    public get getGenerateUserStoriesMenuIteams(): ElementArrayFinder { return this.generateUserStoriesMenuIteams; }
+    public get getFooterModelTitle(): ElementFinder { return this.footerModelTitle; }
+    public get getFooterModelCancelButton(): ElementFinder { return this.footerModelCancelButton; }
+    public get getFooterEditDetailButton(): ElementArrayFinder { return this.footerEditDetailButton; }
+    public get getFooterAddCommentButton(): ElementArrayFinder { return this.footerAddCommentButton; }
+    public get getFooterReviewTracesButton(): ElementArrayFinder { return this.footerReviewTracesButton; }
+    public get getFooterAddImageMockUpsScreenshotsButton(): ElementArrayFinder { return this.footerAddImageMockUpsScreenshotsButton; }
+    public get getFooterViewUserStoriesButton(): ElementArrayFinder { return this.footerViewUserStoriesButton; }
+    public get getFooterAddIncludesButton(): ElementArrayFinder { return this.footerAddIncludesButton; }
+    public get getAddTaskButton(): ElementArrayFinder { return this.addTaskButton; }
+    public get getAddTaskItems(): ElementArrayFinder { return this.addTaskItems; }
+    public get getActiveTabInModal(): ElementFinder { return this.activeTabInModal; }
+    public get getViewUserStoriesGherkinTitle(): ElementArrayFinder { return this.viewUserStoriesGherkinTitle; }
+    public get getShowMoreButtonAtModel(): ElementFinder { return this.showMoreButtonAtModel; }
+    public get getIncludeArtifactTextBox(): ElementFinder { return this.includeArtifactTextBox; }
+    public get getIncludeArtifactDropdownList(): ElementArrayFinder { return this.includeArtifactDropdownList; }
+    public get getModelOKButton(): ElementFinder { return this.modelOKButton; }
+    public get getBreadcurmbsList(): ElementArrayFinder { return this.breadcurmbsList; }
+    public get getIncludeButtonAtModel(): ElementArrayFinder { return this.includeButtonAtModel; }
+    public get getConfirmModalSaveButton(): ElementFinder { return this.confirmModalSaveButton; }
+    public get getDeleteButton(): ElementFinder { return this.deleteButton; }
+    public get getWarningPopUP(): ElementFinder { return this.warningPopUP; }
+    public get getWarningPopUpOKButton(): ElementFinder { return this.warningPopUpOKButton; }
+    public get getDiscardButton(): ElementFinder { return this.discardButton; }
+    public get getDiscardWarningPopUpOKButton(): ElementFinder { return this.discardWarningPopUpOKButton; }
+    public get getSaveButton(): ElementFinder { return this.saveButton; }
+    public get getSaveButtonDisable(): ElementFinder { return this.saveButtonDisable; }
+    public get getuserStoryLinkAtReviewTraceTab(): ElementFinder { return this.userStoryLinkAtReviewTraceTab; }
+    public get getuserStoryLinkAtFileTab(): ElementFinder { return this.userStoryLinkAtFileTab; }
+    
+    // funtion for edit shape's header
+    public editHeader(shape: number, headerName: any): void {
         this.labelHeader.then((elements) => {
-            console.log("Total is label from edit header " + elements.length); 
+            console.log("Total is label from edit header " + elements.length);
 
-           if (shape <= elements.length) {
-               browser.actions().doubleClick(elements[shape]).perform();
-               browser.actions().doubleClick(elements[shape]).perform();
+            if (shape <= elements.length) {
+                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().doubleClick(elements[shape]).perform();//needed due to element location
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(headerName).perform();
                 browser.actions().sendKeys('\n').perform();
@@ -101,7 +197,7 @@ class Svgelementspages {
 
         });
     }
-
+/*
 // function to verify shape's header name
     /* TO DO this funtion can be deleted but wait until dev finalized their code 
   /*  public verifyHeaderName(shape): Promise<string> {
@@ -120,9 +216,9 @@ class Svgelementspages {
             return this.header;
         });
 
-    }*/
+   }*/ 
 
-    public verifyHeaderName(shape): Promise<string> {
+    public verifyHeaderName(shape: number): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
         return this.labelHeader.then((elements) => {
             elements[shape].getText().then((gettext) => {
@@ -137,7 +233,7 @@ class Svgelementspages {
 
 //funtion to edit body  of a shape
 
-    public  editBody(shape, bodyText) {
+    public  editBody(shape: number, bodyText: any):void {
         this.labelBody.then((elements) =>{
         console.log("Total is label " + elements.length);
         if (shape <= elements.length) {
@@ -176,7 +272,7 @@ class Svgelementspages {
     }*/
 
     //===
-    public verifyBodyText(shape): Promise<string> {
+    public verifyBodyText(shape: number): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelBody), 100000);
         return this.labelBody.then((elements) => {
             elements[shape].getText().then((gettext) => {
@@ -192,16 +288,14 @@ class Svgelementspages {
  
     // function to edit body text for user task
     // TO DO this funtion can be deleted but wait until dev finalized their code 
-    public editBodyForUserTask(shape, bodyText) {
+    public editBodyForUserTask(shape: number, bodyText: any) {
         this.label.then((elements) => {
             console.log("Total is label for label " + elements.length);
             if (shape <= elements.length) {
                 browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
-                // browser.driver.sleep(5000);
                 browser.actions().sendKeys('\n').perform();
-                // browser.driver.sleep(5000);
                 console.log("End of edtign");
 
             } else {
@@ -216,7 +310,7 @@ class Svgelementspages {
 // function to verify  body text for user task
     //TO DO this funtion can be deleted but wait until dev finalized their code 
 
-    public verifyUserTaskBodyText(shape): Promise<string> {
+    public verifyUserTaskBodyText(shape: number): Promise<string> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
         return this.label.then((elements) => {
             elements[shape].all(by.tagName('div')).then((el) => {
@@ -236,7 +330,7 @@ class Svgelementspages {
 
 //funtion to find an element and select the shape
 
-    public  findElementAndSelect(shape): Promise<protractor.WebElement> {
+    public findElementAndSelect(shape: number): Promise<protractor.WebElement> {
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.label), 100000);
         return this.label.then((elements) =>{
             console.log("inside of finding element");
@@ -248,17 +342,38 @@ class Svgelementspages {
 
 //funtion to find footer and information icon of a shape
 
-    public  findFooterAndInfoIcon(icon) {
-        var x = element.all(By.tagName(OR.locators.storyteller.image)); 
+    public findFooterAndInfoIcon(icon: number): void {
+       // var x = element.all(By.tagName(OR.locators.storyteller.image)); 
         this.image.then((el) =>{
-            console.log("Finding Icon " + el.length);
+            console.log("Finding Icon from Footer" + el.length);
+            //el[icon].element
+            //browser.driver.actions().mouseMove((el[icon])).click().perform();
+           // browser.executeScript('arguments[0].scrollIntoView(true);', el[icon].getWebElement());
+           // browser.driver.sleep(5000);
+            //browser.actions().mouseMove(el[icon]).mouseDown(el[icon]).mouseUp(el[icon]).perform();
+            //browser.executeScript("arguments[0].click();", el[icon]);
+            //executor.executeScript("arguments[0].click();", element);
+            // NEED FOR FIREFOX
+            el[icon].element(by.xpath('..'))
+                .isDisplayed()
+                .then((d) => {
+                    console.log("Image display : "+d);
+                });
+            //var x = el[icon].element(by.xpath('..'));//.click();// this needed for firefox
+
+           // var x = element(By.id('overlay-CB3375'));//.click();
+           
+          // browser.actions().mouseMove(x).mouseDown(x).mouseUp(x).perform();
+           // browser.executeScript("arguments[0].checked = true;", el[icon].element(by.xpath('..')));
             el[icon].click();
+           // x.click();
+           //browser.driver.sleep(50000);
         });
     }
 
  
 // function to post a comment at discussion panel
-   public postComment(comment) {
+    public postComment(comment: any): void {
        browser.driver.sleep(2000);
        this.panelDiscussions.click();
        this.panelDiscussionTextArea.click();
@@ -276,8 +391,116 @@ class Svgelementspages {
                    browser.driver.switchTo().defaultContent();
                }
            });
+    }
+// function for generate user story menu items
+   public generateUserStoiesDropDownMenu(menuItem: number): Promise<protractor.WebElement> {
+       return this.generateUserStoriesMenuIteams.all(by.tagName('li')).then((elements) => {
+           return elements[menuItem];
+       });
+
    }
-    
+
+
+// function to find overlayDB
+
+   public navFooterEditDetailButton(button: number): Promise<protractor.WebElement>  {
+      return this.footerEditDetailButton.then((elements) => {
+               logger.info("Total edit detail button is  :" + elements.length);
+               console.log("Total edit detail button is  :" + elements.length);
+                return elements[button];
+            });
+   }
+
+// function to find footer Discussion Button
+
+   public navFooterAddCommentButton(button: number): Promise<protractor.WebElement> {
+       return this.footerAddCommentButton.then((elements) => {
+                logger.info("Total Add Comment button is  :" + elements.length);
+                console.log("Total Add Comment button is  :" + elements.length);
+               return elements[button];
+           });
+   }
+
+// function to find footer Relationships Button
+
+   public navFooterReviewTracesButton(button: number): Promise<protractor.WebElement> {
+       return this.footerReviewTracesButton.then((elements) => {
+                logger.info("Total Review Traces button is  :" + elements.length);
+                console.log("Total Review Traces button is  :" + elements.length);
+               return elements[button];
+           });
+   }
+ // function to find footer Mockup Button
+
+   public navFooterAddImageMockUpsScreenshotsButton(button: number): Promise<protractor.WebElement> {
+       return this.footerAddImageMockUpsScreenshotsButton.then((elements) => {
+                logger.info("Total Add Image Mockups screenshot button is  :" + elements.length);
+                console.log("Total Add Image Mockups screenshot button is  :" + elements.length);
+               return elements[button];
+           });
+
+   }
+
+// function to find footer user story preview Button
+
+   public navFooterViewUserStoriesButton(button: number): Promise<protractor.WebElement> {
+       return this.footerViewUserStoriesButton.then((elements) => {
+                logger.info("Total view user stories button is  :" + elements.length);
+                console.log("Total view user stories button is  :" + elements.length);
+                return elements[button];
+            });
+
+   }
+
+// function to find footer include Button
+
+   public navFooterAddIncludesButton(button: number): Promise<protractor.WebElement> {
+       return this.footerAddIncludesButton.then((elements) => {
+                 logger.info("Total Add Includes button is  :" + elements.length);
+                 console.log("Total Add Includes button is  :" + elements.length);
+               return elements[button];
+           });
+    }
+
+// function to find add button (+)
+
+   public navAddTaskButton(button: number): Promise<protractor.WebElement> {
+     //browser.wait(protractor.until.elementIsVisible(this.addTaskButton), 10000).then;
+
+
+       //AnalysisPage.lastNodeIconFinder.click();
+  
+
+       return this.addTaskButton.then((elements) => {
+                logger.info("Total Add Task button is  :" + elements.length);
+                console.log("Total Add Task button is  :" + elements.length);
+                return elements[button];
+                //return browser.wait(protractor.until.elementIsVisible(elements[button]), 10000)
+            });
+    }
+
+// Function to find item in Add button
+
+   public selectAddItem(item: number): Promise<protractor.WebElement> {
+        return this.addTaskItems.then((elements) => {
+                logger.info("Total Add Task Items is  :" + elements.length);
+                console.log("Total Add Task Items is  :" + elements.length);
+                return elements[item];
+            });
+   }
+
+   // Function to search Artifacts
+
+   public artifactsSearchResultCount(searchString: string): Promise<number> {
+       this.getIncludeArtifactTextBox.sendKeys(searchString);
+       return this.getIncludeArtifactDropdownList.then((elements) => {
+                logger.info("Total artifacts item in the dropdown list is :" + elements.length);
+                console.log("Total artifacts item in the dropdown list is ::" + elements.length);
+           return elements.length;
+       });
+   }
+
+
 }
 
 export = Svgelementspages;

@@ -41,11 +41,46 @@
                       "storytellerToggleTextForBusniessProcess": ".nova-switch-outer-text.nova-switch-unchecked-label.ng-binding",
                       "storytellerToggleTextForUserSystemProcess": ".nova-switch-outer-text.nova-switch-checked-label.ng-binding",
                       "storytellerTogglecheckBox": ".nova-switch",
-                      "postCommentText": ".comment-content.silverlight-rich-text.ng-binding" 
+                      "postCommentText": ".comment-content.silverlight-rich-text.ng-binding",
+                      "footerModelTitle": ".modal-title.ng-binding",
+                      "footerModelCancelButton": ".btn.btn-default.ng-binding",
+                      "footerEditDetailButton": "[id *= 'overlay-DB']",
+                      "footerAddCommentButton": "[id *= 'overlay-CB']",
+                      "footerReviewTracesButton": "[id *= 'overlay-RB']",
+                      "footerAddImageMockUpsScreenshotsButton": "[id *= 'overlay-MB']",
+                      "footerViewUserStoriesButton": "[id *= 'overlay-PB']",
+                      "footerAddIncludesButton": "[id *= 'overlay-LB']",
+                      "addTaskButton": "[id *= 'overlay-L']",
+                  "addTaskItems": ".mxPopupMenuItem",
+                  "activeTabInModal": ".k-item.k-state-default.k-tab-on-top.k-state-active",
+                  "viewUserStoriesGherkinTitle": ".storyteller-gwt_title-gwt.ng-binding",
+                  "showMoreButtonAtModel": ".fonticon-caret-right",
+                  "includeButtonAtModel":  ".nova-tabset.small-padding.storyteller-gwt-tabset",
+                  "includeArtifactTextBox": "storyteller-systemtask-include",
+                  "includeArtifactDropdownList": ".dropdown-menu.ng-isolate-scope",
+                  "modelOKButton": ".btn.button-brand-secondary.ng-binding",
+                  "breadcurmbsList": ".nova-breadcrumbs",
+                  "confirmModalSaveButton": ".ng-binding.btn.button-branded-action",
+                  "userStoryLinkAtReviewTraceTab": "[data-ng-if=\"r.predefined !== 4097\"]",
+                  "userStoryLinkAtFileTab":  "[data-ng-click=\"filesCtrl.downloadAttachment(attachment)\"]"
+
+                 
+                        
                 },
                 "utilityPanelStoryteller": {
                   "publishArtifact": ".fonticon-upload-cloud",
-                  "publishArtifactSucessMessage": "success" 
+                  "publishArtifactSucessMessage": "success",
+                  "generateUserStoriesMenuButton": ".btn-group.dropdown.menu-group",
+                  "generateUserStoriesMenuIteams": ".btn-group.dropdown.menu-group.open",
+                  "deleteButton": ".fonticon-delete",
+                  "warningPopUP": ".modal-body",
+                  "warningPopUpOKButton": ".ng-binding.btn.button-branded-action.button-branded-warning",
+                  "discardButton": ".fonticon-restore",
+                  "discardWarningPopUpOKButton": ".ng-binding.btn.button-branded-action",
+                  "saveButton": ".fonticon-save-1",
+                  "saveButtonDisable": ".menu-item.disabled-block"
+
+
                 } ,
                   "testdata": {
                     "TName": "admin",
@@ -63,7 +98,8 @@
     "artifactProperties": "[]",
     "getAuthenticationApiUrl": "http://52.202.237.164/authentication/v1/login",
     "postCreateArtifactUrl": "http://52.202.237.164/api/v1/projects/1/artifacts",
-    "siteUrl": "http://52.202.237.164/Web/#/Storyteller/" 
+    "siteUrl": "http://52.202.237.164/Web/#/Storyteller/",
+    "baseURL": "http://52.202.237.164"
 
 
   } 

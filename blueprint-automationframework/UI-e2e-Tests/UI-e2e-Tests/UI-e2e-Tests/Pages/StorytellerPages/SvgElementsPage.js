@@ -8,6 +8,7 @@
  */
 var OR = require('../../Json/OR.json');
 var arrayListPresenceOfAll = require("../../Utility/ArrayListPresenceOfAll");
+var logger = require('winston');
 var Svgelementspages = (function () {
     function Svgelementspages() {
         this.labelHeader = element.all(by.css(OR.locators.storyteller.svgPageStoryteller.labelHeader));
@@ -30,13 +31,39 @@ var Svgelementspages = (function () {
         this.publishArtifact = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.publishArtifact));
         this.publishArtifactSucessMessage = element(By.id(OR.locators.storyteller.utilityPanelStoryteller.publishArtifactSucessMessage));
         this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
+        this.generateUserStoriesMenuButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
+        this.generateUserStoriesMenuIteams = element.all(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
+        this.footerModelTitle = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelTitle));
+        this.footerModelCancelButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
+        this.footerEditDetailButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
+        this.footerAddCommentButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddCommentButton));
+        this.footerReviewTracesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerReviewTracesButton));
+        this.footerAddImageMockUpsScreenshotsButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddImageMockUpsScreenshotsButton));
+        this.footerViewUserStoriesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerViewUserStoriesButton));
+        this.footerAddIncludesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddIncludesButton));
+        this.addTaskButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskButton));
+        this.addTaskItems = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskItems));
+        this.activeTabInModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.activeTabInModal));
+        this.viewUserStoriesGherkinTitle = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.viewUserStoriesGherkinTitle));
+        this.showMoreButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
+        this.includeButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
+        this.includeArtifactTextBox = element(By.id(OR.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
+        this.includeArtifactDropdownList = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
+        this.modelOKButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.modelOKButton));
+        this.breadcurmbsList = element(By.css(OR.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
+        this.confirmModalSaveButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
+        this.deleteButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.deleteButton));
+        this.warningPopUP = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUP));
+        this.warningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.warningPopUpOKButton));
+        this.discardButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardButton));
+        this.discardWarningPopUpOKButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.discardWarningPopUpOKButton));
+        this.saveButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButton));
+        this.saveButtonDisable = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.saveButtonDisable));
+        this.userStoryLinkAtReviewTraceTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtReviewTraceTab));
+        this.userStoryLinkAtFileTab = element(By.css(OR.locators.storyteller.svgPageStoryteller.userStoryLinkAtFileTab));
     }
-    Object.defineProperty(Svgelementspages.prototype, "getLabelHeader", {
-        get: function () { return this.labelHeader; },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Svgelementspages.prototype, "getLabelBody", {
+        // public get getLabelHeader(): ElementArrayFinder { return this.labelHeader; }
         get: function () { return this.labelBody; },
         enumerable: true,
         configurable: true
@@ -66,6 +93,11 @@ var Svgelementspages = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelRelationships", {
+        get: function () { return this.panelRelationships; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Svgelementspages.prototype, "getPanelHistory", {
         get: function () { return this.panelHistory; },
         enumerable: true,
@@ -88,6 +120,11 @@ var Svgelementspages = (function () {
     });
     Object.defineProperty(Svgelementspages.prototype, "getPanelDiscussionTextAreaBody", {
         get: function () { return this.panelDiscussionTextAreaBody; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getPanelDiscussionPostButton", {
+        get: function () { return this.panelDiscussionPostButton; },
         enumerable: true,
         configurable: true
     });
@@ -121,13 +158,163 @@ var Svgelementspages = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Svgelementspages.prototype, "getGenerateUserStoriesMenuButton", {
+        get: function () { return this.generateUserStoriesMenuButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getGenerateUserStoriesMenuIteams", {
+        get: function () { return this.generateUserStoriesMenuIteams; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterModelTitle", {
+        get: function () { return this.footerModelTitle; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterModelCancelButton", {
+        get: function () { return this.footerModelCancelButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterEditDetailButton", {
+        get: function () { return this.footerEditDetailButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterAddCommentButton", {
+        get: function () { return this.footerAddCommentButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterReviewTracesButton", {
+        get: function () { return this.footerReviewTracesButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterAddImageMockUpsScreenshotsButton", {
+        get: function () { return this.footerAddImageMockUpsScreenshotsButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterViewUserStoriesButton", {
+        get: function () { return this.footerViewUserStoriesButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getFooterAddIncludesButton", {
+        get: function () { return this.footerAddIncludesButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getAddTaskButton", {
+        get: function () { return this.addTaskButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getAddTaskItems", {
+        get: function () { return this.addTaskItems; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getActiveTabInModal", {
+        get: function () { return this.activeTabInModal; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getViewUserStoriesGherkinTitle", {
+        get: function () { return this.viewUserStoriesGherkinTitle; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getShowMoreButtonAtModel", {
+        get: function () { return this.showMoreButtonAtModel; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getIncludeArtifactTextBox", {
+        get: function () { return this.includeArtifactTextBox; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getIncludeArtifactDropdownList", {
+        get: function () { return this.includeArtifactDropdownList; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getModelOKButton", {
+        get: function () { return this.modelOKButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getBreadcurmbsList", {
+        get: function () { return this.breadcurmbsList; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getIncludeButtonAtModel", {
+        get: function () { return this.includeButtonAtModel; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getConfirmModalSaveButton", {
+        get: function () { return this.confirmModalSaveButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getDeleteButton", {
+        get: function () { return this.deleteButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getWarningPopUP", {
+        get: function () { return this.warningPopUP; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getWarningPopUpOKButton", {
+        get: function () { return this.warningPopUpOKButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getDiscardButton", {
+        get: function () { return this.discardButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getDiscardWarningPopUpOKButton", {
+        get: function () { return this.discardWarningPopUpOKButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getSaveButton", {
+        get: function () { return this.saveButton; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getSaveButtonDisable", {
+        get: function () { return this.saveButtonDisable; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getuserStoryLinkAtReviewTraceTab", {
+        get: function () { return this.userStoryLinkAtReviewTraceTab; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Svgelementspages.prototype, "getuserStoryLinkAtFileTab", {
+        get: function () { return this.userStoryLinkAtFileTab; },
+        enumerable: true,
+        configurable: true
+    });
     // funtion for edit shape's header
     Svgelementspages.prototype.editHeader = function (shape, headerName) {
         this.labelHeader.then(function (elements) {
             console.log("Total is label from edit header " + elements.length);
             if (shape <= elements.length) {
                 browser.actions().doubleClick(elements[shape]).perform();
-                browser.actions().doubleClick(elements[shape]).perform();
+                browser.actions().doubleClick(elements[shape]).perform(); //needed due to element location
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(headerName).perform();
                 browser.actions().sendKeys('\n').perform();
@@ -138,25 +325,26 @@ var Svgelementspages = (function () {
             }
         });
     };
+    /*
     // function to verify shape's header name
-    /* TO DO this funtion can be deleted but wait until dev finalized their code
-  /*  public verifyHeaderName(shape): Promise<string> {
-        browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
-        return this.labelHeader.then((elements) => {
-            elements[shape].all(by.tagName('div')).then((el) => {
-                console.log("inside of finding div");
-                el[1].getText()
-                    .then((gettext) => {
-                        console.log(gettext);
-                        this.header = gettext;
-                        console.log("inside "+this.header);
-                        return this.header;
-                    });
+        /* TO DO this funtion can be deleted but wait until dev finalized their code
+      /*  public verifyHeaderName(shape): Promise<string> {
+            browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
+            return this.labelHeader.then((elements) => {
+                elements[shape].all(by.tagName('div')).then((el) => {
+                    console.log("inside of finding div");
+                    el[1].getText()
+                        .then((gettext) => {
+                            console.log(gettext);
+                            this.header = gettext;
+                            console.log("inside "+this.header);
+                            return this.header;
+                        });
+                });
+                return this.header;
             });
-            return this.header;
-        });
-
-    }*/
+    
+       }*/
     Svgelementspages.prototype.verifyHeaderName = function (shape) {
         var _this = this;
         browser.wait(arrayListPresenceOfAll.presenceOfAll(this.labelHeader), 100000);
@@ -227,9 +415,7 @@ var Svgelementspages = (function () {
                 browser.actions().doubleClick(elements[shape]).perform();
                 browser.actions().sendKeys(protractor.Key.DELETE).perform();
                 browser.actions().sendKeys(bodyText).perform();
-                // browser.driver.sleep(5000);
                 browser.actions().sendKeys('\n').perform();
-                // browser.driver.sleep(5000);
                 console.log("End of edtign");
             }
             else {
@@ -267,10 +453,29 @@ var Svgelementspages = (function () {
     };
     //funtion to find footer and information icon of a shape
     Svgelementspages.prototype.findFooterAndInfoIcon = function (icon) {
-        var x = element.all(By.tagName(OR.locators.storyteller.image));
+        // var x = element.all(By.tagName(OR.locators.storyteller.image)); 
         this.image.then(function (el) {
-            console.log("Finding Icon " + el.length);
+            console.log("Finding Icon from Footer" + el.length);
+            //el[icon].element
+            //browser.driver.actions().mouseMove((el[icon])).click().perform();
+            // browser.executeScript('arguments[0].scrollIntoView(true);', el[icon].getWebElement());
+            // browser.driver.sleep(5000);
+            //browser.actions().mouseMove(el[icon]).mouseDown(el[icon]).mouseUp(el[icon]).perform();
+            //browser.executeScript("arguments[0].click();", el[icon]);
+            //executor.executeScript("arguments[0].click();", element);
+            // NEED FOR FIREFOX
+            el[icon].element(by.xpath('..'))
+                .isDisplayed()
+                .then(function (d) {
+                console.log("Image display : " + d);
+            });
+            //var x = el[icon].element(by.xpath('..'));//.click();// this needed for firefox
+            // var x = element(By.id('overlay-CB3375'));//.click();
+            // browser.actions().mouseMove(x).mouseDown(x).mouseUp(x).perform();
+            // browser.executeScript("arguments[0].checked = true;", el[icon].element(by.xpath('..')));
             el[icon].click();
+            // x.click();
+            //browser.driver.sleep(50000);
         });
     };
     // function to post a comment at discussion panel
@@ -292,6 +497,88 @@ var Svgelementspages = (function () {
                 fail("Eelement not found");
                 browser.driver.switchTo().defaultContent();
             }
+        });
+    };
+    // function for generate user story menu items
+    Svgelementspages.prototype.generateUserStoiesDropDownMenu = function (menuItem) {
+        return this.generateUserStoriesMenuIteams.all(by.tagName('li')).then(function (elements) {
+            return elements[menuItem];
+        });
+    };
+    // function to find overlayDB
+    Svgelementspages.prototype.navFooterEditDetailButton = function (button) {
+        return this.footerEditDetailButton.then(function (elements) {
+            logger.info("Total edit detail button is  :" + elements.length);
+            console.log("Total edit detail button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find footer Discussion Button
+    Svgelementspages.prototype.navFooterAddCommentButton = function (button) {
+        return this.footerAddCommentButton.then(function (elements) {
+            logger.info("Total Add Comment button is  :" + elements.length);
+            console.log("Total Add Comment button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find footer Relationships Button
+    Svgelementspages.prototype.navFooterReviewTracesButton = function (button) {
+        return this.footerReviewTracesButton.then(function (elements) {
+            logger.info("Total Review Traces button is  :" + elements.length);
+            console.log("Total Review Traces button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find footer Mockup Button
+    Svgelementspages.prototype.navFooterAddImageMockUpsScreenshotsButton = function (button) {
+        return this.footerAddImageMockUpsScreenshotsButton.then(function (elements) {
+            logger.info("Total Add Image Mockups screenshot button is  :" + elements.length);
+            console.log("Total Add Image Mockups screenshot button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find footer user story preview Button
+    Svgelementspages.prototype.navFooterViewUserStoriesButton = function (button) {
+        return this.footerViewUserStoriesButton.then(function (elements) {
+            logger.info("Total view user stories button is  :" + elements.length);
+            console.log("Total view user stories button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find footer include Button
+    Svgelementspages.prototype.navFooterAddIncludesButton = function (button) {
+        return this.footerAddIncludesButton.then(function (elements) {
+            logger.info("Total Add Includes button is  :" + elements.length);
+            console.log("Total Add Includes button is  :" + elements.length);
+            return elements[button];
+        });
+    };
+    // function to find add button (+)
+    Svgelementspages.prototype.navAddTaskButton = function (button) {
+        //browser.wait(protractor.until.elementIsVisible(this.addTaskButton), 10000).then;
+        //AnalysisPage.lastNodeIconFinder.click();
+        return this.addTaskButton.then(function (elements) {
+            logger.info("Total Add Task button is  :" + elements.length);
+            console.log("Total Add Task button is  :" + elements.length);
+            return elements[button];
+            //return browser.wait(protractor.until.elementIsVisible(elements[button]), 10000)
+        });
+    };
+    // Function to find item in Add button
+    Svgelementspages.prototype.selectAddItem = function (item) {
+        return this.addTaskItems.then(function (elements) {
+            logger.info("Total Add Task Items is  :" + elements.length);
+            console.log("Total Add Task Items is  :" + elements.length);
+            return elements[item];
+        });
+    };
+    // Function to search Artifacts
+    Svgelementspages.prototype.artifactsSearchResultCount = function (searchString) {
+        this.getIncludeArtifactTextBox.sendKeys(searchString);
+        return this.getIncludeArtifactDropdownList.then(function (elements) {
+            logger.info("Total artifacts item in the dropdown list is :" + elements.length);
+            console.log("Total artifacts item in the dropdown list is ::" + elements.length);
+            return elements.length;
         });
     };
     return Svgelementspages;

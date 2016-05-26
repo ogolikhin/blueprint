@@ -5,6 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>UI-e2e-Tests</Name>
     <RootNamespace>UI-e2e-Tests</RootNamespace>
+    <ScriptArguments>Conf.js</ScriptArguments>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -12,7 +13,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>f58d54cd-2f44-4d5b-88f1-d2d3b86bef8c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Pages\StorytellerPages\LoginPage.ts</StartupFile>
+    <StartupFile>node_modules\protractor\built\cli.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -24,7 +25,7 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <EnableTypeScript>true</EnableTypeScript>
-    <StartWebBrowser>false</StartWebBrowser>
+    <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +35,65 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <Content Include="DownloadFile\UT1.feature" />
     <Content Include="Json\OR.json" />
+    <Content Include="node_modules\fs-extra\.npmignore" />
+    <Content Include="node_modules\fs-extra\CHANGELOG.md" />
+    <Content Include="node_modules\fs-extra\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\.bin\rimraf" />
+    <Content Include="node_modules\fs-extra\node_modules\.bin\rimraf.cmd" />
+    <Content Include="node_modules\fs-extra\node_modules\balanced-match\.npmignore" />
+    <Content Include="node_modules\fs-extra\node_modules\balanced-match\LICENSE.md" />
+    <Content Include="node_modules\fs-extra\node_modules\balanced-match\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\balanced-match\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\brace-expansion\.npmignore" />
+    <Content Include="node_modules\fs-extra\node_modules\brace-expansion\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\brace-expansion\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\concat-map\.travis.yml" />
+    <Content Include="node_modules\fs-extra\node_modules\concat-map\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\concat-map\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\concat-map\README.markdown" />
+    <Content Include="node_modules\fs-extra\node_modules\glob\changelog.md" />
+    <Content Include="node_modules\fs-extra\node_modules\glob\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\glob\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\glob\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\graceful-fs\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\graceful-fs\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\graceful-fs\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\inflight\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\inflight\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\inflight\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\inherits\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\inherits\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\inherits\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\.npmignore" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\appveyor.yml" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\CHANGELOG.md" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\jsonfile\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\klaw\.npmignore" />
+    <Content Include="node_modules\fs-extra\node_modules\klaw\CHANGELOG.md" />
+    <Content Include="node_modules\fs-extra\node_modules\klaw\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\klaw\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\klaw\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\minimatch\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\minimatch\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\minimatch\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\once\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\once\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\once\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\path-is-absolute\license" />
+    <Content Include="node_modules\fs-extra\node_modules\path-is-absolute\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\path-is-absolute\readme.md" />
+    <Content Include="node_modules\fs-extra\node_modules\rimraf\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\rimraf\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\rimraf\README.md" />
+    <Content Include="node_modules\fs-extra\node_modules\wrappy\LICENSE" />
+    <Content Include="node_modules\fs-extra\node_modules\wrappy\package.json" />
+    <Content Include="node_modules\fs-extra\node_modules\wrappy\README.md" />
+    <Content Include="node_modules\fs-extra\package.json" />
+    <Content Include="node_modules\fs-extra\README.md" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <TypeScriptCompile Include="Model\CreateArtifacts.ts" />
@@ -53,6 +112,39 @@
     <Folder Include="Log\" />
     <Folder Include="Json\" />
     <Folder Include="allure-results\" />
+    <Folder Include="DownloadFile\" />
+    <Folder Include="node_modules\fs-extra\" />
+    <Folder Include="node_modules\fs-extra\lib\" />
+    <Folder Include="node_modules\fs-extra\lib\copy-sync\" />
+    <Folder Include="node_modules\fs-extra\lib\copy\" />
+    <Folder Include="node_modules\fs-extra\lib\empty\" />
+    <Folder Include="node_modules\fs-extra\lib\ensure\" />
+    <Folder Include="node_modules\fs-extra\lib\json\" />
+    <Folder Include="node_modules\fs-extra\lib\mkdirs\" />
+    <Folder Include="node_modules\fs-extra\lib\move\" />
+    <Folder Include="node_modules\fs-extra\lib\output\" />
+    <Folder Include="node_modules\fs-extra\lib\remove\" />
+    <Folder Include="node_modules\fs-extra\lib\util\" />
+    <Folder Include="node_modules\fs-extra\lib\walk\" />
+    <Folder Include="node_modules\fs-extra\node_modules\" />
+    <Folder Include="node_modules\fs-extra\node_modules\.bin\" />
+    <Folder Include="node_modules\fs-extra\node_modules\balanced-match\" />
+    <Folder Include="node_modules\fs-extra\node_modules\brace-expansion\" />
+    <Folder Include="node_modules\fs-extra\node_modules\concat-map\" />
+    <Folder Include="node_modules\fs-extra\node_modules\concat-map\example\" />
+    <Folder Include="node_modules\fs-extra\node_modules\concat-map\test\" />
+    <Folder Include="node_modules\fs-extra\node_modules\glob\" />
+    <Folder Include="node_modules\fs-extra\node_modules\graceful-fs\" />
+    <Folder Include="node_modules\fs-extra\node_modules\inflight\" />
+    <Folder Include="node_modules\fs-extra\node_modules\inherits\" />
+    <Folder Include="node_modules\fs-extra\node_modules\jsonfile\" />
+    <Folder Include="node_modules\fs-extra\node_modules\klaw\" />
+    <Folder Include="node_modules\fs-extra\node_modules\klaw\src\" />
+    <Folder Include="node_modules\fs-extra\node_modules\minimatch\" />
+    <Folder Include="node_modules\fs-extra\node_modules\once\" />
+    <Folder Include="node_modules\fs-extra\node_modules\path-is-absolute\" />
+    <Folder Include="node_modules\fs-extra\node_modules\rimraf\" />
+    <Folder Include="node_modules\fs-extra\node_modules\wrappy\" />
     <Folder Include="Pages\CommonPages\" />
     <Folder Include="Pages\StorytellerPages\" />
     <Folder Include="Scripts\typings\angular-protractor\" />
@@ -68,7 +160,60 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conf.js" />
-    <Compile Include="Utility\waitReady.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy-sync\copy-file-sync.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy-sync\copy-sync.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy-sync\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy\copy.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\copy\ncp.js" />
+    <Compile Include="node_modules\fs-extra\lib\empty\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\file.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\link.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\symlink-paths.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\symlink-type.js" />
+    <Compile Include="node_modules\fs-extra\lib\ensure\symlink.js" />
+    <Compile Include="node_modules\fs-extra\lib\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\json\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\json\jsonfile.js" />
+    <Compile Include="node_modules\fs-extra\lib\json\output-json-sync.js" />
+    <Compile Include="node_modules\fs-extra\lib\json\output-json.js" />
+    <Compile Include="node_modules\fs-extra\lib\mkdirs\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\mkdirs\mkdirs-sync.js" />
+    <Compile Include="node_modules\fs-extra\lib\mkdirs\mkdirs.js" />
+    <Compile Include="node_modules\fs-extra\lib\mkdirs\win32.js" />
+    <Compile Include="node_modules\fs-extra\lib\move\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\output\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\remove\index.js" />
+    <Compile Include="node_modules\fs-extra\lib\util\assign.js" />
+    <Compile Include="node_modules\fs-extra\lib\util\utimes.js" />
+    <Compile Include="node_modules\fs-extra\lib\walk\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\balanced-match\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\brace-expansion\example.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\brace-expansion\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\concat-map\example\map.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\concat-map\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\concat-map\test\map.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\glob\common.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\glob\glob.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\glob\sync.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\graceful-fs\fs.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\graceful-fs\graceful-fs.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\graceful-fs\legacy-streams.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\graceful-fs\polyfills.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\inflight\inflight.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\inherits\inherits.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\inherits\inherits_browser.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\inherits\test.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\jsonfile\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\klaw\src\assign.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\klaw\src\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\minimatch\minimatch.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\once\once.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\path-is-absolute\index.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\rimraf\bin.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\rimraf\rimraf.js" />
+    <Compile Include="node_modules\fs-extra\node_modules\wrappy\wrappy.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

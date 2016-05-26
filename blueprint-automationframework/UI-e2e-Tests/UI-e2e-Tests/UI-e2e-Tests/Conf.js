@@ -29,11 +29,14 @@ exports.config = {
     framework: 'jasmine2',
     seleniumAddress: 'http://localhost:4444/wd/hub',
     specs: ['./Specs/Storyteller/LoginTestSpec.js', './Specs/Storyteller/EditingNavigatingModalStorytellerSpec.js'],
-    //allScriptsTimeout: 20000,
+    allScriptsTimeout: 20000,
     onPrepare: function () {
+        browser.driver.manage().window().maximize();
         //browser.ignoreSynchronization=true;
         // browser.driver.manage().timeouts().implicitlyWait(25000);
         browser.manage().timeouts().implicitlyWait(25000);
+        var logger = require('winston');
+        logger.add(logger.transports.File, { filename: './Log/logfile.log' });
         //browser.manage().timeouts().pageLoadTimeout(10000);
         
         /*
@@ -102,14 +105,54 @@ exports.config = {
         // If true, include stack traces in failures.
         includeStackTrace: true,
         // Default time to wait in ms before a test fails.
-        defaultTimeoutInterval: 90000
+        defaultTimeoutInterval: 3600000
     },
-    
+ 
     multiCapabilities: [{
-            'browserName': 'chrome'
-        },
-        /* {
-         'browserName' : 'firefox'
-         }*/
-    ],
+            'browserName': 'chrome',
+            //'nativeEvents': true,
+           // 'disable-popup-blocking': true
+            'chromeOptions': {
+                // Get rid of --ignore-certificate yellow warning
+                args: ['--no-sandbox', '--test-type=browser'],
+                // Set download path and avoid prompting for download even though
+                // this is already the default on Chrome but for completeness
+                prefs: {
+                    'download': {
+                        'prompt_for_download': false,
+                        'default_directory': 'C:/DownloadFile'
+                    },
+                },
+            },
+           
+        },]
+   /*     
+         multiCapabilities: [{
+            'browserName': 'internet explorer',
+             'platform': 'ANY',
+            'version': '11',
+             'nativeEvents': false,
+                'unexpectedAlertBehaviour': 'accept',
+            'ignoreProtectedModeSettings': true,
+            'enablePersistentHover': false,
+            'disable-popup-blocking': true,
+        'ignoreZoomSetting': true
+
+
+        },],
+
+   capabilities: {
+        'browserName': 'internet explorer',
+        'version': 11,
+        'nativeEvents': false,
+        'unexpectedAlertBehaviour': 'accept',
+        'ignoreProtectedModeSettings': true,
+        'enablePersistentHover': false,
+          'ignoreZoomSetting': true,
+        'disable-popup-blocking': true
+        }*/
 };
+
+/* {
+         'browserName' : 'firefox'chrome
+         }*/

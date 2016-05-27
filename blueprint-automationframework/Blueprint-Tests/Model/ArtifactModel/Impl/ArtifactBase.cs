@@ -49,6 +49,7 @@ namespace Model.ArtifactModel.Impl
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
+        public bool ShouldDeleteChildren { get; set; } = false;
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 
@@ -114,7 +115,7 @@ namespace Model.ArtifactModel.Impl
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
+            bool? deleteChildren = null)
         {
             if (user == null)
             {
@@ -127,7 +128,7 @@ namespace Model.ArtifactModel.Impl
                 user,
                 expectedStatusCodes,
                 sendAuthorizationAsCookie,
-                deleteChildren);
+                deleteChildren ?? ShouldDeleteChildren);
 
             return deleteArtifactResults;
         }
@@ -147,7 +148,7 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false)
+            bool? deleteChildren = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
@@ -165,8 +166,9 @@ namespace Model.ArtifactModel.Impl
 
             var queryparameters = new Dictionary<string, string>();
 
-            if (deleteChildren)
+            if (deleteChildren ?? artifactToDelete.ShouldDeleteChildren)
             {
+                Logger.WriteDebug("*** Recursively deleting children for artifact ID: {0}.", artifactToDelete.Id);
                 queryparameters.Add("Recursively", "true");
             }
 
@@ -182,6 +184,9 @@ namespace Model.ArtifactModel.Impl
                 Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
                     path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
             }
+
+            // TODO:  Add an IsMarkedForDeletion flag to this class and set it to true if the delete was successful,
+            // TODO:  then in the Publish, if IsMarkedForDeletion is true, mark IsPublished to false and delete the Id...
 
             return artifactResults;
         }

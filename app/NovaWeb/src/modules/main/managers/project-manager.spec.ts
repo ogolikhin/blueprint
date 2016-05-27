@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization";
 import {NotificationService} from "../../core/notification";
-import {ProjectRepositoryMock} from "../services/project-repository";
+import {ProjectRepositoryMock} from "../services/project-repository.mock";
 import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
 
 

@@ -70,7 +70,7 @@ export interface IBPTreeController {
     addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
     selectNode(id: number);                     //to select a row in in ag-grid (by id)
-    refresh();                                  //
+    refresh(data?: any[]);                                  //
 }
 
 
@@ -181,7 +181,8 @@ export class BPTreeController implements IBPTreeController  {
     }
 
     //to add a data node to the datasource
-    public addNode(data: any[], index: number = 0, propertyMap?: any)  {
+    public addNode(data: any[], index: number = 0, propertyMap?: any) {
+
         this._datasource = this._datasource || [];
 
         data = data.map(function (it) {
@@ -226,15 +227,15 @@ export class BPTreeController implements IBPTreeController  {
 
     //to select a tree node in ag grid
     public selectNode(id: number) {
+        let cell = this.options.api.getFocusedCell();
+
         this.options.api.getModel().forEachNode(function (it) {
-            if (it.data.id === id) {
-                it.setSelected(true, true);            }
-        });
+            it.setSelected(it.data.id === id, true);        });
     }
 
     //sets a new datasource or add a datasource to specific node  children collection
-    public refresh() {
-        this.options.api.setRowData(this._datasource || []);
+    public refresh(data?: any[]) {
+        this.options.api.setRowData(data || this._datasource || []);
     }
 
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
@@ -364,42 +365,4 @@ export class BPTreeController implements IBPTreeController  {
             }
         }
     };
-}
-
-
-export class BPTreeControllerMock implements IBPTreeController {
-    private add(id: number) {
-        return {
-            id: id,
-            name: `Artifact ${id}`,
-            type: 1,
-        } as ITreeNode;
-
-    }
-    public _datasource: ITreeNode[] = [];
-    public addNode(data: any[], index?: number, propertyMap?: any) {
-        for (let i = 0; i < 10; i++) {
-            this._datasource.push(this.add(i));
-        }
-    }
-
-    public addNodeChildren(id: number, data: any[], propertyMap?: any) {
-        let node = this._datasource[0];
-        node.children = [];
-        for (let i = 100; i < 105; i++) {
-            node.children.push(this.add(i));
-        }
-        node.hasChildren = true;
-        node.loaded = true;
-    }
-
-    public removeNode(id: number) {
-        this._datasource = this._datasource.filter(function (it) {
-            return it.id !== id;
-        });
-    }
-
-    public selectNode(id: number) { }
-
-    public refresh() { }
 }

@@ -3,9 +3,9 @@ import "angular-mocks";
 import {NotificationService} from "../../../core/notification";
 import {IOpenProjectResult, OpenProjectController} from "./open-project";
 import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
-import {BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+import {BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization";
-import {ProjectRepositoryMock} from "../../services/project-repository";
+import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 

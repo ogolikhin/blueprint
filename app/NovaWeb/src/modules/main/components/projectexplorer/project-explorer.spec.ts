@@ -4,9 +4,9 @@ import {Helper} from "../../../core/utils/helper";
 import {NotificationService} from "../../../core/notification";
 import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
 import {ProjectExplorerController} from "./project-explorer"
-import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree";
+import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization";
-import {ProjectRepositoryMock} from "../../services/project-repository";
+import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 
 describe("Project Explorer Test", () => {

@@ -44,8 +44,8 @@ class Svgelementspages {
     private generateUserStoriesMenuIteams: ElementArrayFinder;
     private overlayDB: ElementArrayFinder;
     private footerDiscussionButton: ElementArrayFinder;
-    private footerModelTitle: ElementFinder;
-    private footerModelCancelButton: ElementFinder;
+    private footerModalTitle: ElementFinder;
+    private footerModalCancelButton: ElementFinder;
     private footerEditDetailButton: ElementArrayFinder;
     private footerAddCommentButton: ElementArrayFinder;
     private footerReviewTracesButton: ElementArrayFinder;
@@ -56,11 +56,11 @@ class Svgelementspages {
     private addTaskItems: ElementArrayFinder;
     private activeTabInModal: ElementFinder;
     private viewUserStoriesGherkinTitle: ElementArrayFinder;
-    private showMoreButtonAtModel: ElementFinder;
-    private includeButtonAtModel: ElementArrayFinder;
+    private showMoreButtonAtModal: ElementFinder;
+    private includeButtonAtModal: ElementArrayFinder;
     private includeArtifactTextBox: ElementFinder;
     private includeArtifactDropdownList: ElementArrayFinder;
-    private modelOKButton: ElementFinder;
+    private modalOKButton: ElementFinder;
     private breadcurmbsList: ElementArrayFinder;
     private confirmModalSaveButton: ElementFinder;
     private deleteButton: ElementFinder;
@@ -97,8 +97,8 @@ class Svgelementspages {
         this.postCommentText = element(By.css(OR.locators.storyteller.svgPageStoryteller.postCommentText));
         this.generateUserStoriesMenuButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuButton));
         this.generateUserStoriesMenuIteams = element.all(By.css(OR.locators.storyteller.utilityPanelStoryteller.generateUserStoriesMenuIteams));
-        this.footerModelTitle = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelTitle));
-        this.footerModelCancelButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
+        this.footerModalTitle = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelTitle));
+        this.footerModalCancelButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.footerModelCancelButton));
         this.footerEditDetailButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerEditDetailButton));
         this.footerAddCommentButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerAddCommentButton));
         this.footerReviewTracesButton = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.footerReviewTracesButton));
@@ -109,11 +109,11 @@ class Svgelementspages {
         this.addTaskItems = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.addTaskItems));
         this.activeTabInModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.activeTabInModal));
         this.viewUserStoriesGherkinTitle = element.all(By.css(OR.locators.storyteller.svgPageStoryteller.viewUserStoriesGherkinTitle));
-        this.showMoreButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
-        this.includeButtonAtModel = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
+        this.showMoreButtonAtModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.showMoreButtonAtModel));
+        this.includeButtonAtModal = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeButtonAtModel)).all(by.tagName("li"));
         this.includeArtifactTextBox = element(By.id(OR.locators.storyteller.svgPageStoryteller.includeArtifactTextBox));
         this.includeArtifactDropdownList = element(By.css(OR.locators.storyteller.svgPageStoryteller.includeArtifactDropdownList)).all(by.tagName("li"));
-        this.modelOKButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.modelOKButton));
+        this.modalOKButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.modelOKButton));
         this.breadcurmbsList = element(By.css(OR.locators.storyteller.svgPageStoryteller.breadcurmbsList)).all(by.tagName("li"));
         this.confirmModalSaveButton = element(By.css(OR.locators.storyteller.svgPageStoryteller.confirmModalSaveButton));
         this.deleteButton = element(By.css(OR.locators.storyteller.utilityPanelStoryteller.deleteButton));
@@ -135,7 +135,7 @@ class Svgelementspages {
     public get getPanelFiles(): ElementArrayFinder { return this.panelFiles; }
     public get getPanelRelationships(): ElementArrayFinder { return this.panelRelationships; }
     public get getPanelHistory(): ElementArrayFinder { return this.panelHistory; }
-    public get getpanelPreview(): ElementArrayFinder { return this.panelPreview; }
+    public get getPanelPreview(): ElementArrayFinder { return this.panelPreview; }
     public get getPanelCloseButton(): ElementFinder { return this.panelCloseButton; }
     public get getPanelDiscussionTextArea(): ElementFinder { return this.panelDiscussionTextArea; }
     public get getPanelDiscussionTextAreaBody(): ElementFinder { return this.panelDiscussionTextAreaBody; }
@@ -148,8 +148,8 @@ class Svgelementspages {
     public get getPostCommentText(): ElementFinder { return this.postCommentText; }
     public get getGenerateUserStoriesMenuButton(): ElementFinder { return this.generateUserStoriesMenuButton; }
     public get getGenerateUserStoriesMenuIteams(): ElementArrayFinder { return this.generateUserStoriesMenuIteams; }
-    public get getFooterModelTitle(): ElementFinder { return this.footerModelTitle; }
-    public get getFooterModelCancelButton(): ElementFinder { return this.footerModelCancelButton; }
+    public get getFooterModalTitle(): ElementFinder { return this.footerModalTitle; }
+    public get getFooterModalCancelButton(): ElementFinder { return this.footerModalCancelButton; }
     public get getFooterEditDetailButton(): ElementArrayFinder { return this.footerEditDetailButton; }
     public get getFooterAddCommentButton(): ElementArrayFinder { return this.footerAddCommentButton; }
     public get getFooterReviewTracesButton(): ElementArrayFinder { return this.footerReviewTracesButton; }
@@ -160,12 +160,12 @@ class Svgelementspages {
     public get getAddTaskItems(): ElementArrayFinder { return this.addTaskItems; }
     public get getActiveTabInModal(): ElementFinder { return this.activeTabInModal; }
     public get getViewUserStoriesGherkinTitle(): ElementArrayFinder { return this.viewUserStoriesGherkinTitle; }
-    public get getShowMoreButtonAtModel(): ElementFinder { return this.showMoreButtonAtModel; }
+    public get getShowMoreButtonAtModal(): ElementFinder { return this.showMoreButtonAtModal; }
     public get getIncludeArtifactTextBox(): ElementFinder { return this.includeArtifactTextBox; }
     public get getIncludeArtifactDropdownList(): ElementArrayFinder { return this.includeArtifactDropdownList; }
-    public get getModelOKButton(): ElementFinder { return this.modelOKButton; }
+    public get getModalOKButton(): ElementFinder { return this.modalOKButton; }
     public get getBreadcurmbsList(): ElementArrayFinder { return this.breadcurmbsList; }
-    public get getIncludeButtonAtModel(): ElementArrayFinder { return this.includeButtonAtModel; }
+    public get getIncludeButtonAtModal(): ElementArrayFinder { return this.includeButtonAtModal; }
     public get getConfirmModalSaveButton(): ElementFinder { return this.confirmModalSaveButton; }
     public get getDeleteButton(): ElementFinder { return this.deleteButton; }
     public get getWarningPopUP(): ElementFinder { return this.warningPopUP; }

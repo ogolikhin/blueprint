@@ -194,12 +194,12 @@ describe("Storyteller end to end test", () => {
                 //Act
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm shape index 
                 //Assert
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelTitle.getWebElement()), 5000).then(() => {
-                    expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalTitle.getWebElement()), 5000).then(() => {
+                    expect(svgElementsPage.getFooterModalTitle.getText()).toBe("Sys_T2B");
                 });
 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(() => {
-                    svgElementsPage.getFooterModelCancelButton.click();
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 5000).then(() => {
+                    svgElementsPage.getFooterModalCancelButton.click();
                 });       
             });
                     
@@ -236,12 +236,12 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.navFooterAddImageMockUpsScreenshotsButton(1).then((el) => { el.click(); });//@parm shape index 
                 //Assert
 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelTitle.getWebElement()), 5000).then(() => {
-                    expect(svgElementsPage.getFooterModelTitle.getText()).toBe("Sys_T2B");
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalTitle.getWebElement()), 5000).then(() => {
+                    expect(svgElementsPage.getFooterModalTitle.getText()).toBe("Sys_T2B");
                 });
 
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(() => {
-                    svgElementsPage.getFooterModelCancelButton.click();
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 5000).then(() => {
+                    svgElementsPage.getFooterModalCancelButton.click();
                 });
 
              });
@@ -258,8 +258,8 @@ describe("Storyteller end to end test", () => {
                     expect(el[1].getText()).toBe("When");
                     expect(el[2].getText()).toBe("Then");
                 });
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModelCancelButton.getWebElement()), 5000).then(() => {
-                    svgElementsPage.getFooterModelCancelButton.click();
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getFooterModalCancelButton.getWebElement()), 5000).then(() => {
+                    svgElementsPage.getFooterModalCancelButton.click();
                 });
 
                 
@@ -276,11 +276,11 @@ describe("Storyteller end to end test", () => {
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index
                 browser.driver.sleep(5000);
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getShowMoreButtonAtModel.getWebElement()), 5000).then(() => {
-                    svgElementsPage.getShowMoreButtonAtModel.click();
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getShowMoreButtonAtModal.getWebElement()), 5000).then(() => {
+                    svgElementsPage.getShowMoreButtonAtModal.click();
                 });
                 
-                    svgElementsPage.getIncludeButtonAtModel.then((el) => {
+                    svgElementsPage.getIncludeButtonAtModal.then((el) => {
                         console.log("Total button at Edit detail modal is : " + el.length);
                         browser.driver.sleep(5000);
                         el[1].click();//@parm 0 for addtional info and 1 for include
@@ -294,9 +294,9 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.getIncludeArtifactDropdownList.then((el) => { 
                     el[0].click(); //@parm search item index
                 });
-                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getModelOKButton.getWebElement()), 5000).then(() => {
+                browser.wait(protractor.until.elementIsVisible(svgElementsPage.getModalOKButton.getWebElement()), 5000).then(() => {
 
-                    svgElementsPage.getModelOKButton.click();
+                    svgElementsPage.getModalOKButton.click();
                 });
 
                         

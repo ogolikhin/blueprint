@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:test-suite xmlns:ns2="urn:model.allure.qatools.yandex.ru" start="1464316678808" stop="1464316701066">
+	<name>Storyteller end to end test Include Artifacts and navigate to the attached artifacts thru Bread curmbs</name>
+	<title>Storyteller end to end test Include Artifacts and navigate to the attached artifacts thru Bread curmbs</title>
+	<test-cases>
+		<test-case start="1464316678808" stop="1464316701066" status="passed">
+			<name>Should be able  include Artifacts at Edit Detail modal at footer</name>
+			<title>Should be able  include Artifacts at Edit Detail modal at footer</title>
+			<description></description>
+			<labels>
+			</labels>
+			<parameters>
+			</parameters>
+			<steps>
+			</steps>
+			<attachments>
+				<attachment title="Screenshot" source="5fde7d42-2a64-4c00-af86-ce507f74d606-attachment.png" type="image/png" size="103086"/>
+			</attachments>
+		</test-case>
+	</test-cases>
+</ns2:test-suite>

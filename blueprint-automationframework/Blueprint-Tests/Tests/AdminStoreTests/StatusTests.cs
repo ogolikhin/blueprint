@@ -3,9 +3,6 @@ using NUnit.Framework;
 using CustomAttributes;
 using Helper;
 using Utilities;
-using System.Net;
-using Model;
-using Model.Factories;
 
 namespace AdminStoreTests
 {

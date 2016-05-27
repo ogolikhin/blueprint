@@ -324,33 +324,39 @@ namespace Model.Impl
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
         }
 
-        public HttpStatusCode GetFolderOrItsChildrenById(int id, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool badKey = false, bool hasChildren = false)
+        public HttpStatusCode GetFolderOrItsChildrenById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false)
         {
-            string path = I18NHelper.FormatInvariant(hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}", SVC_PATH, id);
+            string instanceFolderPath = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            ISession session = null;
 
-            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes, badKey);
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
 
             if (!hasChildren)
             {
                 var pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
                 Assert.IsNotNull(pf, "Object could not be deserialized properly");
             }
-            else
+            else if ((response.StatusCode != HttpStatusCode.BadRequest) && (response.StatusCode != HttpStatusCode.Unauthorized))
             {
-                if (response.StatusCode != HttpStatusCode.BadRequest)
-                {
                     var pf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
                     Assert.IsNotNull(pf, "Object could not be deserialized properly");
-                }
             }
             return response.StatusCode;
         }
 
-        public HttpStatusCode GetProjectById(int id, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool badKey = false)
+        public HttpStatusCode GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/instance/projects/{1}", SVC_PATH, id);
+            ISession session = null;
 
-            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes, badKey);
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
 
             var pf = JsonConvert.DeserializeObject<Project>(response.Content);
             Assert.IsNotNull(pf, "Object could not be deserialized properly");
@@ -358,16 +364,17 @@ namespace Model.Impl
             return response.StatusCode;
         }
 
-        public RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes, bool badKey)
+        public RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
         {
             RestApiFacade restApi;
-            if (!badKey)
+            if (session != null)
                 restApi = new RestApiFacade(Address, string.Empty);
             else
                 restApi = new RestApiFacade(Address, null);
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
 

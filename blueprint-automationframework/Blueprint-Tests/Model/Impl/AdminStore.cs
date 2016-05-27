@@ -358,7 +358,7 @@ namespace Model.Impl
 
             RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
 
-            var pf = JsonConvert.DeserializeObject<Project>(response.Content);
+            var pf = JsonConvert.DeserializeObject<InstanceProject>(response.Content);
             Assert.IsNotNull(pf, "Object could not be deserialized properly");
 
             return response.StatusCode;

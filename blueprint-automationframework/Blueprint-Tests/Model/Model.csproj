@@ -74,6 +74,7 @@
     <Compile Include="ArtifactModel\IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
+    <Compile Include="Impl\InstanceProject.cs" />
     <Compile Include="Impl\NovaServiceBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactType.cs" />
     <Compile Include="ArtifactModel\Impl\Discussion.cs" />

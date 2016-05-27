@@ -21,7 +21,7 @@ export class OpenProjectController extends BaseDialogController {
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private projectManager: IProjectManager,
+        private manager: IProjectManager,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
@@ -62,8 +62,8 @@ export class OpenProjectController extends BaseDialogController {
         field: "name",
         cellClassRules: {
             "has-children": function(params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
-            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
+            "is-folder": function (params) { return params.data.type === 0; },
+            "is-project": function (params) { return params.data.type === 1; }
         },
         cellRenderer: "group",
         cellRendererParams: {
@@ -86,14 +86,9 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.projectManager.getFolders(id)
-            .then((data: Models.IProjectNode[]) => { //pSvc.IProjectNode[]
-                if (angular.isNumber(id)) {
-                    self.tree.addNodeChildren(id, data);
-                } else {
-                    self.tree.addNode(data);
-                }
-                self.tree.refresh();
+        this.manager.getFolders(id)
+            .then((nodes: Models.IProjectNode[]) => { 
+                self.tree.reload(nodes, id);
             }, (error) => {
                 //self.showError(error);
             });
@@ -119,4 +114,5 @@ export class OpenProjectController extends BaseDialogController {
             }
         });
     }
+
 }

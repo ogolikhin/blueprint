@@ -55,17 +55,17 @@ describe("Project Manager Test", () => {
 
             let project: Models.IProject = manager.CurrentProject;
 
-            manager.notify(SubscriptionEnum.ProjectChildrenLoad, project.id, 101);
+            manager.notify(SubscriptionEnum.ProjectChildrenLoad, project.id, 10);
             $rootScope.$digest();
 
             //Act
-            project = manager.CurrentProject;
+            let artifact = manager.CurrentProject.artifacts[0];
 
             //Asserts
-            expect(project.artifacts).toBeDefined();
-            expect(project.artifacts).toEqual(jasmine.any(Array));
-            expect(project.artifacts.length).toEqual(5);
-            expect(project.artifacts[0].id).toEqual(100);
+            expect(artifact).toBeDefined();
+            expect(artifact.artifacts).toEqual(jasmine.any(Array));
+            expect(artifact.artifacts.length).toEqual(5);
+            expect(artifact.artifacts[0].id).toEqual(1000);
         }));
         it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
@@ -277,7 +277,7 @@ describe("Project Manager Test", () => {
 
             //Act
 
-            let artifact = manager.selectArtifact(202);
+            let artifact = manager.selectArtifact(22);
 
             //Asserts
             expect(artifact).toBeDefined();

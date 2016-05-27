@@ -17,7 +17,7 @@ export class ProjectExplorerController {
     constructor(private manager: IProjectManager) {
         this.manager.subscribe(SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
+        this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     }
 
@@ -32,32 +32,21 @@ export class ProjectExplorerController {
     }; 
 
     private activateProject(project: Models.IProject) {
-        this.tree.selectNode(project.id);
+        if (project) {
+            this.tree.selectNode(project.id);
+        }
     }
 
-    private loadProject = (project: Models.IProject) => {
-        this.tree.addNode([ 
-            angular.extend({
-                predefinedType: Models.ArtifactTypeEnum.Project,
-                hasChildren: true,
-                loaded: true,
-                open: true
-            }, project)
-        ]); 
-        
-        this.tree.refresh();
+    private loadProject = (artifact: Models.IArtifact) => {
+        artifact = angular.extend(artifact, {
+            loaded: true,
+            open: true
+        });
+        this.tree.reload(this.manager.ProjectCollection);
     }
 
-    private loadProjectChildren = (artifact: Models.IArtifact) => {
-        this.tree.addNodeChildren(artifact.id, artifact.artifacts);
-        this.tree.refresh();
-    }
-
-    private closeProject(projects: Models.IProject[]) {
-        projects.map(function (it: Models.IProject) {
-            this.tree.removeNode(it.id);
-        }.bind(this)); 
-        this.tree.refresh();
+    public closeProject(projects: Models.IProject[]) {
+        this.tree.reload(this.manager.ProjectCollection);
     }
 
     public columns = [{
@@ -65,7 +54,7 @@ export class ProjectExplorerController {
         field: "name",
         cellClassRules: {
             "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
+            "is-folder": function (params) { return params.data.predefinedType=== Models.ArtifactTypeEnum.Folder; },
             "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",

@@ -35,5 +35,18 @@ export class BPTreeControllerMock implements IBPTreeController {
 
     public selectNode(id: number) { }
 
-    public refresh() { }
+    public reload(data?: any[], id?: number) {
+        for (let i = 0; i < 10; i++) {
+            this._datasource.push(this.add(i));
+        }
+        if (id) {
+            let node = this._datasource[id];
+            node.children = [];
+            for (let i = 100; i < 105; i++) {
+                node.children.push(this.add(i));
+            }
+            node.hasChildren = true;
+            node.loaded = true;
+        }
+    }
 }

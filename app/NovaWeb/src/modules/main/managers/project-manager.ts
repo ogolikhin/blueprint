@@ -36,6 +36,7 @@ export class ProjectManager implements IProjectManager {
     private notificationId: string = "projectmanager";
     private _currentProjet: Models.IProject;
     private _currentArtifact: Models.IArtifact;
+    private _projectCollection: Models.IProject[];
 
     static $inject: [string] = ["localization", "projectRepository", "notification"];
     constructor(
@@ -92,7 +93,11 @@ export class ProjectManager implements IProjectManager {
         return this._currentArtifact;
     }
 
-    public ProjectCollection: Models.IProject[] = [];
+    public get ProjectCollection(): Models.IProject[] {
+        if (!this._projectCollection)
+            this._projectCollection = [];
+        return this._projectCollection;
+    }
 
     private loadProject = (projectId: number, projectName: string) => {
         try {
@@ -100,14 +105,17 @@ export class ProjectManager implements IProjectManager {
             let project = this.getProject(projectId);
 
             if (project) {
+                this._projectCollection = this._projectCollection.filter(function (it) {
+                    return it !== project;
+                });
+                this._projectCollection.unshift(project);
+                self.notify(SubscriptionEnum.ProjectLoaded, project);
                 this.CurrentProject = project;
             } else {
                 this._repository.getArtifacts(projectId)
                     .then((result: Models.IArtifact[]) => {
-                        project = new Models.Project(result);
-                        project.id = projectId;
-                        project.name = projectName;
-                        self.ProjectCollection.unshift(project);
+                        project = new Models.Project(projectId, projectName, result);
+                        self._projectCollection.unshift(project);
                         self.notify(SubscriptionEnum.ProjectLoaded, project);
                         self.CurrentProject = project;
                     }).catch((error: any) => {
@@ -124,12 +132,12 @@ export class ProjectManager implements IProjectManager {
             let self = this;
             let project = this.getProject(projectId);
             if (!project) {
-                throw new Error(this.localization.get("Project_NotFound","Couldn't find the project"));
+                throw new Error(this.localization.get("Project_NotFound"));
             }
             let artifact = project.getArtifact(artifactId);
             if (!artifact)
             {
-                throw new Error(this.localization.get("Artifact_NotFound","Couldn't find the artifact"));
+                throw new Error(this.localization.get("Artifact_NotFound"));
             }
             this._repository.getArtifacts(projectId, artifactId)
                 .then((result: Models.IArtifact[]) => {
@@ -144,18 +152,23 @@ export class ProjectManager implements IProjectManager {
     }
 
     private closeProject(allFlag: boolean) {
-        let self = this;
-        let projectsToRemove: Models.IProject[] = [];
-        this.ProjectCollection = this.ProjectCollection.filter(function (it: Models.IProject) {
-            let result = true;
-            if (allFlag || it.id === self.CurrentProject.id) {
-                projectsToRemove.push(it);
-                result = false;
-            }
-            return result;
-        });
-        self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
-        this.CurrentProject = this.ProjectCollection[0] || null;
+        try {
+            let self = this;
+            let projectsToRemove: Models.IProject[] = [];
+            this._projectCollection = this._projectCollection.filter(function (it: Models.IProject) {
+                let result = true;
+                if (allFlag || it.id === self.CurrentProject.id) {
+                    projectsToRemove.push(it);
+                    result = false;
+                }
+                return result;
+            });
+            self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
+            this.CurrentProject = this.ProjectCollection[0] || null;
+        } catch (ex) {
+            this.notification.dispatch("main", "exception", ex);
+        }
+
     }
 
     public getFolders(id?: number) {

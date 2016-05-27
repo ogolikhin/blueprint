@@ -38,7 +38,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
         return deferred.promise;
     }
 
-    private createArtifact(projectId: number, artifactId: number) {
+    private createArtifact(projectId: number, artifactId?: number) {
         return {
             id: artifactId,
             name: `Artifact ${artifactId}`,
@@ -53,10 +53,14 @@ export class ProjectRepositoryMock implements IProjectRepository {
     public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
 
         var deferred = this.$q.defer<Models.IArtifact[]>();
-        let items: any;
+        let items: Models.IArtifact[];
         if (!id && !artifactId) {
             items = null;
-        } else {
+        } else if (id && !artifactId) {
+            items = ([0, 1, 2]).map(function (it) {
+                return this.createArtifact(id, id*10 + it);
+            }.bind(this)) as Models.IArtifact[];
+        } else if (id && artifactId) {
             items = ([0, 1, 2, 3, 4]).map(function (it) {
                 return this.createArtifact(id, (artifactId || id) * 100 + it);
             }.bind(this)) as Models.IArtifact[];

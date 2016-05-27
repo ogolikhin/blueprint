@@ -69,8 +69,11 @@ export interface IBPTreeController {
     addNode(data: any[], index?: number, propertyMap?: any); //to add a data node to the datasource
     addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
-    selectNode(id: number);                     //to select a row in in ag-grid (by id)
-    refresh(data?: any[]);                                  //
+
+    //to select a row in in ag-grid (by id)
+    selectNode(id: number);                    
+    //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
+    reload(data?: any[], id?: number);
 }
 
 
@@ -233,11 +236,6 @@ export class BPTreeController implements IBPTreeController  {
             it.setSelected(it.data.id === id, true);        });
     }
 
-    //sets a new datasource or add a datasource to specific node  children collection
-    public refresh(data?: any[]) {
-        this.options.api.setRowData(data || this._datasource || []);
-    }
-
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
         let item: ITreeNode;
         if (nodes) {
@@ -251,6 +249,34 @@ export class BPTreeController implements IBPTreeController  {
         }
         return item;
     };
+
+
+    //sets a new datasource or add a datasource to specific node  children collection
+    public reload(data?: any[], nodeId?: number) {
+        let nodes: ITreeNode[];
+
+        this._datasource = this._datasource || [];
+
+        if (data) {
+            nodes = data.map(function (it) {
+                return this.mapData(it, this.propertyMap) ;
+            }.bind(this)) as ITreeNode[];
+        }
+        if (nodeId) {
+            let node = this.getNode(nodeId, this._datasource);
+            if (node) {
+                node = angular.extend(node, {
+                    open: true,
+                    loaded: true,
+                    children: nodes
+                });
+            }
+
+        } else {
+            this._datasource = nodes;
+        }
+        this.options.api.setRowData(this._datasource);
+    }
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
@@ -284,8 +310,8 @@ export class BPTreeController implements IBPTreeController  {
             //NOTE:: this method may uppdate grid datasource using setDataSource method
             let nodes = self.onLoad({ prms: null });
             if (angular.isArray(nodes)) {
-                this.addNode(nodes);
-                this.refresh();
+                //this.addNode(nodes);
+                this.reload(nodes);
             }
         }
     };
@@ -299,8 +325,7 @@ export class BPTreeController implements IBPTreeController  {
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (angular.isArray(nodes)) {
-                    this.addNodeChildren(node.data.id, nodes);
-                    this.refresh(); // pass nothing to just reload 
+                    this.reload(nodes, node.data.id); // pass nothing to just reload 
                 }
             }
         }

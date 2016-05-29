@@ -39,7 +39,6 @@ namespace StorytellerTests
 
         #endregion Setup and Cleanup
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "processType")]
         [TestCase(5, 4, 2)]
         [Description("Get the default process after creating and saving a new process artifact.  Verify that the" +
                      "returned process has the same Id as the process artifact Id and that the numbers of " +

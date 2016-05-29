@@ -141,6 +141,11 @@ namespace Model.StorytellerModel
         ProcessStatus Status { get; set; }
 
         /// <summary>
+        /// The Artifact version information
+        /// </summary>
+        VersionInfo RequestedVersionInfo { get; set; }
+
+        /// <summary>
         /// The Property values for the Process
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }

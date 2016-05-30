@@ -11,12 +11,19 @@ export class BPTooltip implements ng.IDirective {
             let node = el.parentElement;
             while (node) {
                 let appliedStyle = window.getComputedStyle(node, null);
+                let zIndex = node.style.zIndex;
                 if (
-                    appliedStyle &&
-                    appliedStyle.zIndex &&
-                    appliedStyle.zIndex !== "" &&
-                    appliedStyle.zIndex !== "0" && // may be removed
-                    appliedStyle.zIndex !== "auto" && !isNaN(parseInt(appliedStyle.zIndex, 10))
+                    (
+                        appliedStyle &&
+                        appliedStyle.zIndex &&
+                        appliedStyle.zIndex !== "" &&
+                        appliedStyle.zIndex !== "0" && // may be removed
+                        appliedStyle.zIndex !== "auto" && !isNaN(parseInt(appliedStyle.zIndex, 10))
+                    ) || (
+                        zIndex !== "" &&
+                        zIndex !== "0" && // may be removed
+                        !isNaN(parseInt(zIndex, 10))
+                    )
                 ) {
                     return true;
                 }

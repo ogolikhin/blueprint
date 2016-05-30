@@ -14,7 +14,7 @@ namespace AdminStoreTests
     {
         private const int defaultFolderId = 1;
         private const int nonExistingFolder = int.MaxValue;
-        private const object noTokenInRequest = null;
+        private const IUser noTokenInRequest = null;
 
         private IUser _user = null;
 

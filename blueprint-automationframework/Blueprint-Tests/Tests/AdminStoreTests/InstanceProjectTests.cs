@@ -14,7 +14,7 @@ namespace AdminStoreTests
     {
         private const int defaultProjectId = 1;
         private const int nonExistingProject = int.MaxValue;
-        private const object noTokenInRequest = null;
+        private const IUser noTokenInRequest = null;
 
         private IUser _user = null;
 

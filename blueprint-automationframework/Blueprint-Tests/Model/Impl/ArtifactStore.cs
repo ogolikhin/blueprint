@@ -53,8 +53,8 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var pf = JsonConvert.DeserializeObject<List<Project>>(response.Content);
-                Assert.IsNotNull(pf, "Object could not be deserialized properly.");
+                var deserializedObject = JsonConvert.DeserializeObject<List<Project>>(response.Content);
+                Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly.");
             }
 
             return response.Content;

@@ -50,7 +50,7 @@ export class DialogService implements IDialogService {
         var settings = <ng.ui.bootstrap.IModalSettings>{
             template: this.params.template,
             controller: this.params.controller,
-            controllerAs: "ctrl",
+            controllerAs: "$ctrl",
             windowClass: this.params.css || "nova-messaging",
             backdrop: this.params.backdrop || false,
             resolve: {
@@ -95,7 +95,7 @@ export class DialogService implements IDialogService {
 }
 
 export interface IDialogController {
-    returnvalue: any;
+    returnValue: any;
     ok: Function;
     cancel: Function;
 }
@@ -104,7 +104,7 @@ export class BaseDialogController implements IDialogController {
 
     public hasCloseButton: boolean;
 
-    public get returnvalue(): any {
+    public get returnValue(): any {
         return true;
     }
 
@@ -116,7 +116,7 @@ export class BaseDialogController implements IDialogController {
     }
 
     public ok = () => {
-        this.$instance.close(this.returnvalue);
+        this.$instance.close(this.returnValue);
     };
 
     public cancel = () => {

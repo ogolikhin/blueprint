@@ -70,6 +70,7 @@ export interface IBPTreeController {
     addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
 
+    isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);                    
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -182,6 +183,9 @@ export class BPTreeController implements IBPTreeController  {
         };
         return item;
     }
+    public get isEmpty(): boolean {
+        return !Boolean(this._datasource && this._datasource.length);
+    }
 
     //to add a data node to the datasource
     public addNode(data: any[], index: number = 0, propertyMap?: any) {
@@ -253,10 +257,9 @@ export class BPTreeController implements IBPTreeController  {
 
     //sets a new datasource or add a datasource to specific node  children collection
     public reload(data?: any[], nodeId?: number) {
-        let nodes: ITreeNode[];
+        let nodes: ITreeNode[] = [];
 
         this._datasource = this._datasource || [];
-
         if (data) {
             nodes = data.map(function (it) {
                 return this.mapData(it, this.propertyMap) ;

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Common;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
 using NUnit.Framework;
@@ -185,6 +188,8 @@ namespace Helper
         /// <param name="disposing">Pass true if explicitly called, or false if called from the destructor.</param>
         protected virtual void Dispose(bool disposing)
         {
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(TestHelper.Dispose));
+
             if (_isDisposed)
             {
                 return;
@@ -200,10 +205,34 @@ namespace Helper
                 AdminStore?.Dispose();
                 AccessControl?.Dispose();
 
-                foreach (var artifact in Artifacts)
+                var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
+
+                // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
+                foreach (var artifact in Artifacts.ToArray())
                 {
-                    artifact.Delete();
-                    artifact.Publish();
+                    if (artifact.IsPublished)
+                    {
+                        artifact.Delete();
+                        artifact.Publish();
+                    }
+                    else if (artifact.IsSaved)
+                    {
+                        if (savedArtifactsDictionary.ContainsKey(artifact.CreatedBy))
+                        {
+                            savedArtifactsDictionary[artifact.CreatedBy].Add(artifact);
+                        }
+                        else
+                        {
+                            savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
+                        }
+                    }
+                }
+
+                // For each user that created artifacts, discard the list of artifacts they created.
+                foreach (IUser user in savedArtifactsDictionary.Keys)
+                {
+                    Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+                    Artifact.DiscardArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
                 }
 
                 foreach (var project in Projects)
@@ -218,6 +247,8 @@ namespace Helper
             }
 
             _isDisposed = true;
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(TestHelper.Dispose));
         }
 
         /// <summary>

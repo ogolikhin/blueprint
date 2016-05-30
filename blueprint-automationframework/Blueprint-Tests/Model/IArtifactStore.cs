@@ -24,5 +24,15 @@ namespace Model
         /// <returns>The status code returned by ArtifactStore.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets all children artifacts for specified by id project.
+        /// (Runs: GET /projects/{projectId}/children)
+        /// </summary>
+        /// <param name="id">The id of specified project.</param>
+        /// <param name="user">Current user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The status code returned by ArtifactStore.</returns>
+        string GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

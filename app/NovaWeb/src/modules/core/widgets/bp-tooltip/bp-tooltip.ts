@@ -1,11 +1,8 @@
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
 
-    private tooltipContent: string = "";
-    private attachToBody: boolean = false;
-
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes): void => {
-        this.tooltipContent = $attrs["bpTooltip"];
+        let tooltipText = $attrs["bpTooltip"];
 
         let tooltip = document.createElement("DIV");
         tooltip.className = "bp-tooltip";
@@ -58,24 +55,24 @@ export class BPTooltip implements ng.IDirective {
             angular.element(tooltip).removeClass("show");
         }
 
-        if ($element && $element.length && this.tooltipContent) {
+        if ($element && $element.length && tooltipText) {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
                 let elem = $element[0];
                 elem.removeAttribute("bp-tooltip");
 
-                this.attachToBody = zIndexedParent(elem);
+                let attachToBody = zIndexedParent(elem);
 
                 let tooltipContent = document.createElement("DIV");
                 tooltipContent.className = "bp-tooltip-content";
-                tooltipContent.innerHTML = this.tooltipContent;
+                tooltipContent.innerHTML = tooltipText;
 
                 tooltip.appendChild(tooltipContent);
 
                 elem.className += " bp-tooltip-trigger";
 
-                if (this.attachToBody) {
+                if (attachToBody) {
                     document.body.appendChild(tooltip);
                 } else {
                     elem.appendChild(tooltip);

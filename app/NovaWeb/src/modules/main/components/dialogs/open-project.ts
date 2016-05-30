@@ -41,7 +41,7 @@ export class OpenProjectController extends BaseDialogController {
 
     //Dialog return value
     public get returnValue(): IOpenProjectResult {
-        return this.selectedItem;
+        return this.selectedItem || null;
     };
 
     public get hasError(): boolean {

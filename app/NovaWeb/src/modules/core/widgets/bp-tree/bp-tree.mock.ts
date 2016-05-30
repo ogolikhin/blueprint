@@ -11,6 +11,11 @@ export class BPTreeControllerMock implements IBPTreeController {
 
     }
     public _datasource: ITreeNode[] = [];
+
+    public get isEmpty(): boolean {
+        return !Boolean(this._datasource && this._datasource.length);
+    }
+
     public addNode(data: any[], index?: number, propertyMap?: any) {
         for (let i = 0; i < 10; i++) {
             this._datasource.push(this.add(i));

@@ -49,8 +49,8 @@ describe("Open Project.", () => {
             // Act
 
             // Assert
-            expect(controller.returnvalue).toBeDefined();
-            expect(controller.returnvalue).toEqual(result);
+            expect(controller.returnValue).toBeDefined();
+            expect(controller.returnValue).toEqual(result);
         });
 
         it("innerRenderer", () => {
@@ -176,6 +176,18 @@ describe("Open Project.", () => {
 
             // Assert
             expect(cellRenderer).toContain("project");
+        }));
+        
+        it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
+
+            // Arrange
+
+            // Act, load empty datasource
+            controller.doLoad({ id: -1 });
+
+            // Assert
+            expect(controller.hasError).toBeTruthy();
+            expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
         }));
 
 

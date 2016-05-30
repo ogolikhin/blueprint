@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import * as $D from "./dialog.svc";
-import {LocalizationServiceMock} from "../core/localization";
+import {LocalizationServiceMock} from "../core/localization.mock";
 import {ModalServiceInstanceMock} from "../shell/login/mocks.spec";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {

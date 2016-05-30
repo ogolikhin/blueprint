@@ -1,5 +1,5 @@
 ﻿import "angular";
-import {ILocalizationService} from "../core/localization";
+//import {ILocalizationService} from "../core/localization";
 import {IEventManager, EventSubscriber} from "../core/event-manager";
 import {IDialogService} from "../services/dialog.svc";
 import * as Models from "./models/models";

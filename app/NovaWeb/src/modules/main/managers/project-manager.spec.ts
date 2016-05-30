@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization";
+import {LocalizationServiceMock} from "../../core/localization.mock";
 import {EventManager, EventSubscriber} from "../../core/event-manager";
 import {ProjectRepositoryMock} from "../services/project-repository.mock";
 import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
@@ -75,7 +75,7 @@ describe("Project Manager Test", () => {
 
             projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
                 error = ex;
-            })
+            });
 
             //Act
             projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, 5, 5);
@@ -93,7 +93,7 @@ describe("Project Manager Test", () => {
 
             projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
                 error = ex;
-            })
+            });
 
             //Act
             projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, 1, 5);
@@ -215,7 +215,6 @@ describe("Project Manager Test", () => {
             projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
             $rootScope.$digest();
 
-            let projectid = projectManager.CurrentProject.id;
             let artifact = projectManager.ProjectCollection[1].artifacts[1];
             projectManager.CurrentArtifact = artifact;
 
@@ -230,11 +229,6 @@ describe("Project Manager Test", () => {
     describe("Delete Project: ", () => {
         it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changedProject;
-            let func = function (project: Models.IProject) {
-                changedProject = project;
-            };
-
             projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
             projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
             projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
@@ -249,10 +243,6 @@ describe("Project Manager Test", () => {
         }));
         it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changedProject;
-            let func = function (project: Models.IProject) {
-                changedProject = project;
-            };
             projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
             projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
             projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");

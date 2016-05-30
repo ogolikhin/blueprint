@@ -1,11 +1,10 @@
 ﻿import "angular";
 import "angular-mocks";
-import {Helper} from "../../../core/utils/helper";
 import {EventManager} from "../../../core/event-manager";
-import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
-import {ProjectExplorerController} from "./project-explorer"
+import {ProjectManager, IProjectManager, SubscriptionEnum} from "../../managers/project-manager";
+import {ProjectExplorerController} from "./project-explorer";
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../core/localization";
+import {LocalizationServiceMock} from "../../../core/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 
@@ -25,7 +24,7 @@ describe("Project Explorer Test", () => {
         explorer.tree = new BPTreeControllerMock();
         explorer.tree.reload = function (data: any[], id?: number) {
             isReloadCalled = true;
-        }
+        };
     }));
 
     
@@ -47,7 +46,6 @@ describe("Project Explorer Test", () => {
         // Arrange
         isReloadCalled = false;
 
-        let current = projectManager.CurrentProject;
         projectManager["loadProject"](1, "Project 1");
                         
         // Act
@@ -65,13 +63,11 @@ describe("Project Explorer Test", () => {
         isReloadCalled = false;
         projectManager["loadProject"](1, "Project 1");    
         $rootScope.$digest();
-        let currentArtifact = projectManager.CurrentProject.artifacts[0];
 
         // Act
         projectManager["loadProjectChildren"](1, 10);    
         $rootScope.$digest();
 
-        let current = projectManager.CurrentProject;
         // Assert
         //let dsAfter = explorer.tree["_datasource"];
 
@@ -87,7 +83,6 @@ describe("Project Explorer Test", () => {
         projectManager["loadProject"](1, "Project 1");    
         $rootScope.$digest();
 
-        let count = projectManager.ProjectCollection.length;
         // Act
         projectManager.notify(SubscriptionEnum.ProjectClose);
         $rootScope.$digest();

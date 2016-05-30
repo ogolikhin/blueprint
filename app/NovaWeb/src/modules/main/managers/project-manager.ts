@@ -93,8 +93,9 @@ export class ProjectManager implements IProjectManager {
     }
 
     public get ProjectCollection(): Models.IProject[] {
-        if (!this._projectCollection)
+        if (!this._projectCollection) {
             this._projectCollection = [];
+        }
         return this._projectCollection;
     }
 
@@ -134,8 +135,7 @@ export class ProjectManager implements IProjectManager {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
             let artifact = project.getArtifact(artifactId);
-            if (!artifact)
-            {
+            if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
             this._repository.getArtifacts(projectId, artifactId)

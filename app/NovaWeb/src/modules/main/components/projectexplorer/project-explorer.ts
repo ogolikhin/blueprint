@@ -52,7 +52,7 @@ export class ProjectExplorerController {
         field: "name",
         cellClassRules: {
             "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.predefinedType=== Models.ArtifactTypeEnum.Folder; },
+            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
             "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
         },
         cellRenderer: "group",

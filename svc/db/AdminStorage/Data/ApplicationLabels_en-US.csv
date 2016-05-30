@@ -88,3 +88,6 @@ Input_Required,"Required"
 
 Project_NotFound,"Couldn't find the project"
 Artifact_NotFound,"Couldn't find the artifact"
+
+#Messages
+Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."

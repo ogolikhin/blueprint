@@ -5,6 +5,9 @@ using CustomAttributes;
 using System.Net;
 using System.Collections.Generic;
 using TestCommon;
+using Model.ArtifactModel;
+using Model.Factories;
+using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests 
 {
@@ -111,5 +114,53 @@ namespace ArtifactStoreTests
             }
         }
 
+
+        [Test]
+        [TestRail(125511)]
+        [Description("Executes Get project children call and returns 200 OK if successful")]
+        public void GetArtifactChildrenByProjectAndArtifactId_OK()
+        {
+            IOpenApiArtifact parentArtifact;
+            IOpenApiArtifact childArtifact;
+
+            using (TestHelper helper = new TestHelper())
+            {
+
+                IProject project = ProjectFactory.GetProject(_user, shouldRetrievePropertyTypes: true);
+
+                //Create parent artifact with ArtifactType and populate all required values without properties
+                parentArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
+                //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+                parentArtifact.Save();
+                //Publish artifact
+                parentArtifact.Publish();
+
+                //Create first child artifact with ArtifactType and populate all required values without properties
+                childArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
+                //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+                childArtifact.ParentId = parentArtifact.Id;
+                childArtifact.Save();
+                //Publish artifact
+                childArtifact.Publish();
+
+                //Create second child artifact with ArtifactType and populate all required values without properties
+                childArtifact = Helper.CreateOpenApiArtifact(project, _user, artifactType: BaseArtifactType.Document);
+                //add the created artifact object into BP using OpenAPI call - assertions are inside of AddArtifact
+                childArtifact.ParentId = parentArtifact.Id;
+                childArtifact.Save();
+                //Publish artifact
+                childArtifact.Publish();
+
+                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
+
+                Assert.DoesNotThrow(() =>
+                {
+                    expectedCodesList.Add(HttpStatusCode.OK);
+                    /*Executes get project children REST call and returns HTTP code*/
+                    /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
+                    helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(defaultProjectId, parentArtifact.Id, _user,  expectedCodesList);
+                }, "The GET /projects/{projectId}/children endpoint should return 200 OK!");
+            }
+        }
     }
 }

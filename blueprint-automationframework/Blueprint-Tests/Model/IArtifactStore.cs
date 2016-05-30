@@ -32,7 +32,19 @@ namespace Model
         /// <param name="id">The id of specified project.</param>
         /// <param name="user">Current user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The status code returned by ArtifactStore.</returns>
+        /// <returns>Response content</returns>
         string GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets all children artifacts by project and artifact id.
+        /// (Runs: GET /projects/{projectId}/artifacts/{artifactId})
+        /// </summary>
+        /// <param name="projectId">The id of specific project.</param>
+        /// <param name="artifactId">The id of specific artifact.</param>
+        /// <param name="user">Current user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Response content.</returns>
+        string GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

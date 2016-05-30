@@ -8,7 +8,6 @@ using Utilities.Facades;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-
 namespace Model.Impl
 {
     public class ArtifactStore : NovaServiceBase, IArtifactStore
@@ -39,6 +38,25 @@ namespace Model.Impl
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+        }
+
+        public string GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
+            ISession session = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, projectId, session, expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var deserializedObject = JsonConvert.DeserializeObject<List<Project>>(response.Content);
+                Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly.");
+            }
+
+            return response.Content;
         }
 
         public string GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)

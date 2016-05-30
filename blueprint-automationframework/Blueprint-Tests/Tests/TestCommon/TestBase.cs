@@ -1,4 +1,5 @@
 ﻿using System;
+using Common;
 using Helper;
 
 namespace TestCommon
@@ -24,6 +25,8 @@ namespace TestCommon
         /// <param name="disposing">Pass true if explicitly called, or false if called from the destructor.</param>
         protected virtual void Dispose(bool disposing)
         {
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestBase), nameof(TestBase.Dispose));
+
             if (_isDisposed)
             {
                 return;
@@ -35,6 +38,8 @@ namespace TestCommon
             }
 
             _isDisposed = true;
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestBase), nameof(TestBase.Dispose));
         }
 
         /// <summary>

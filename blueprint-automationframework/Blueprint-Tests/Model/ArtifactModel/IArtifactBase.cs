@@ -100,6 +100,12 @@ namespace Model.ArtifactModel
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
 
+        /// <summary>
+        /// Set this to true if you want the Delete method to also delete child artifacts.
+        /// Default is false.
+        /// </summary>
+        bool ShouldDeleteChildren { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<OpenApiProperty> Properties { get; set; }
 
@@ -125,7 +131,7 @@ namespace Model.ArtifactModel
         List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
-            bool deleteChildren = false);
+            bool? deleteChildren = null);
 
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation

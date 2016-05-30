@@ -2,6 +2,7 @@ import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import {LocalizationService} from "./localization";
+import {EventManager} from "./event-manager";
 import {ConfigValueHelper} from "./config.value.helper";
 import {DialogService} from "../services/dialog.svc";
 import {BPTreeInlineEditing} from "./widgets/bp-tree-inline-editing/bp-tree-inline-editing";
@@ -10,6 +11,7 @@ import {BPTooltip} from "./widgets/bp-tooltip/bp-tooltip";
 
 angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .service("localization", LocalizationService)
+    .service("eventManager", EventManager)
     .service("dialogService", DialogService)
     .service("configValueHelper", ConfigValueHelper)
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())

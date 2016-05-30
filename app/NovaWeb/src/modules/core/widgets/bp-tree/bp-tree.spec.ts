@@ -104,17 +104,14 @@ describe("Embedded ag-grid events", () => {
             dataFromCall = data as ITreeNode[];
         };
 
-        // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
         $scope.$apply();
-
-        controller.addNode([{ itemId: 1, TheName: `Name 1` }], 0, {
-                itemId : "id",
-                TheName : "name"
-            });
-        controller.refresh();
+        controller.propertyMap = {
+            itemId: "id",
+            TheName: "name"
+        };
+        // Act
+        controller.reload([{ itemId: 1, TheName: `Name 1` }]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -132,16 +129,14 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
-        $scope.$apply();
-
-        controller.addNode([{ itemId: 1, TheName: `Name 1` }], 0, {
+        controller.propertyMap = {
             id: "id",
             name: "name"
-        });
-        controller.refresh();
+        };
+        $scope.$apply();
+
+        controller.reload([{ itemId: 1, TheName: `Name 1` }]);
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -163,16 +158,13 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
         $scope.$apply();
 
-        controller.addNode([
+        controller.reload([
             { id: 1, Name: `Name 1` },
             { id: 2, Name: `Name 2` }
         ]);
-        controller.refresh();
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));
@@ -186,20 +178,18 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
         $scope.$apply();
 
-        controller.addNode([
+        controller.reload([
             { id: 1, Name: `Name 1` },
             { id: 2, Name: `Name 2` }
         ]);
-        controller.addNodeChildren(1, [
+        controller.reload( [
             { id: 3, Name: `Name 3` },
             { id: 4, Name: `Name 4` }
-        ]);
-        controller.refresh();
+        ], 1);
+        
         // Assert
         //let data = controller.options.api.getRenderedNodes();
         expect(dataFromCall).toEqual(jasmine.any(Array));

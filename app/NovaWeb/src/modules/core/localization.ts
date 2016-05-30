@@ -12,9 +12,3 @@ export class LocalizationService implements ILocalizationService {
         return  this.scope["config"].labels[name] || defaultValue || "";
     }
 }
-
-export class LocalizationServiceMock implements ILocalizationService {
-    public get(name: string): string {
-        return name;
-    }
-}

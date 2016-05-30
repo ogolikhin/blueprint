@@ -119,7 +119,7 @@ namespace Model.ArtifactModel.Impl
 
             foreach (var discardArtifactResult in discardArtifactResults)
             {
-                if (discardArtifactResult.Result == 0)
+                if (discardArtifactResult.Result == NovaDiscardArtifactResult.ResultCode.Success)
                 {
                     IsSaved = false;
                 }
@@ -433,13 +433,15 @@ namespace Model.ArtifactModel.Impl
             // When each artifact is successfully discarded, set IsSaved flag to false
             foreach (var discardedResult in discardedResultList)
             {
-                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id.Equals(discardedResult.ArtifactId)) &&
-                discardedResult.Result == 0);
+                var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId) &&
+                    discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success);
+
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, (int)discardedResult.Result);
+
                 if (discardedArtifact != null)
                 {
-                    discardedArtifact.IsSaved = false;
+                discardedArtifact.IsSaved = false;
                 }
-                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.Result);
             }
 
             Assert.That(discardedResultList.Count.Equals(artifactsToDiscard.Count),

@@ -27,26 +27,6 @@ export enum ArtifactTypeEnum {
     Collection = 17
 }
 
-export interface IArtifact  {
-    id: number;
-    name: string;
-    projectId: number;
-    typeId: ArtifactTypeEnum;
-    parentId: number;
-    predefinedType: number;
-    version?: number;
-    hasChildren?: boolean;  
-    artifacts?: IArtifact[];
-    //flags:
-}
-
-export interface IProject {
-    id: number;
-    name: string;
-    artifacts: IArtifact[];
-    getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact;
-}
-
 export interface IProjectNode {
     id: number;
     type: number;
@@ -57,21 +37,54 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
-class BaseItem {
 
-    public setProperty(name: string, value: any) {
-        if (this[name]) {
-            this[name] = value;
-        }
-    }
+export interface IArtifact  {
+    id: number;
+    name: string;
+    projectId: number;
+    typeId: number;
+    parentId: number;
+    predefinedType: ArtifactTypeEnum;
+    prefix?: string;
+    version?: number;
+    hasChildren?: boolean;  
+    artifacts?: IArtifact[];
+    //flags:
 }
+
+export interface IProject extends IArtifact {
+    getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact;
+}
+
+
 export class Project implements IProject {
     public id: number;
     public name: string;
+    public get projectId() {
+        return this.id;
+    }
+    public typeId: number;
+    public get parentId() {
+        return -1;
+    }
+
+    public get predefinedType(): ArtifactTypeEnum {
+        return ArtifactTypeEnum.Project;
+    }
+
+    public get hasChildren() {
+        return this.artifacts.length > 0;
+    }
+
     public artifacts: IArtifact[];
 
-    constructor(data?: IArtifact[]) {
-        this.artifacts = data;
+
+    constructor(id: number, name: string, data?: IArtifact[]) {
+        this.id = id;
+        this.name = name;
+        if (angular.isArray(data)) {
+            this.artifacts = data;
+        }
     };
 
     public getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact {
@@ -90,6 +103,16 @@ export class Project implements IProject {
         return artifact;
     };
 
+}
+
+
+class BaseItem {
+
+    public setProperty(name: string, value: any) {
+        if (this[name]) {
+            this[name] = value;
+        }
+    }
 }
 
 

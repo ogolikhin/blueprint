@@ -1,11 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
-import {NotificationService} from "../../../core/notification";
+import {EventManager} from "../../../core/event-manager";
 import {IOpenProjectResult, OpenProjectController} from "./open-project";
-import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
-import {BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
-import {LocalizationServiceMock} from "../../../core/localization";
-import {ProjectRepositoryMock} from "../../services/project-repository";
+import {ProjectManager, IProjectManager} from "../../managers/project-manager";
+import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
+import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -107,14 +107,13 @@ describe("Open Project.", () => {
     });
     
     describe("Embedded ag-grid events", () => {
-        let controller: OpenProjectController;
         let $scope ;
         let elem;
 
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("projectRepository", ProjectRepositoryMock);
-            $provide.service("notification", NotificationService);
+            $provide.service("eventManager", EventManager);
             $provide.service("manager", ProjectManager);
 
         }));

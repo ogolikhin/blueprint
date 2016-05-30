@@ -85,8 +85,8 @@ namespace CommonServiceTests
 
                 Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                         expectedMessage, discardResultList[0].Message);
-                Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                    0, discardResultList[0].Result);
+                Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                    NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
             }
 
             finally
@@ -115,8 +115,8 @@ namespace CommonServiceTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                         expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                0, discardResultList[0].Result);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
             // TODO: delete artifact created during the test.
         }
 
@@ -142,8 +142,8 @@ namespace CommonServiceTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                0, discardResultList[0].Result);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
         }
 
         [TestCase]
@@ -169,8 +169,8 @@ namespace CommonServiceTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(0, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                0, discardResultList[0].Result);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
         }
     }
 }

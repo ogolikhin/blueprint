@@ -1,30 +1,34 @@
 ﻿import "angular";
 import "angular-mocks";
-import {Helper} from "../../../core/utils/helper";
-import {NotificationService} from "../../../core/notification";
-import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
-import {ProjectExplorerController} from "./project-explorer"
-import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree";
-import {LocalizationServiceMock} from "../../../core/localization";
-import {ProjectRepositoryMock} from "../../services/project-repository";
+import {EventManager} from "../../../core/event-manager";
+import {ProjectManager, IProjectManager, SubscriptionEnum} from "../../managers/project-manager";
+import {ProjectExplorerController} from "./project-explorer";
+import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
+import {LocalizationServiceMock} from "../../../core/localization.mock";
+import {ProjectRepositoryMock} from "../../services/project-repository.mock";
 
 
 describe("Project Explorer Test", () => {
     let explorer: ProjectExplorerController;
+    let isReloadCalled: boolean;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectRepository", ProjectRepositoryMock);
-        $provide.service("notification", NotificationService);
-        $provide.service("manager", ProjectManager);
+        $provide.service("eventManager", EventManager);
+        $provide.service("projectManager", ProjectManager);
     }));
 
-    beforeEach(inject((manager: IProjectManager) => {
-        explorer = new ProjectExplorerController(manager);
+    beforeEach(inject((projectManager: IProjectManager) => {
+        explorer = new ProjectExplorerController(projectManager);
         explorer.tree = new BPTreeControllerMock();
+        explorer.tree.reload = function (data: any[], id?: number) {
+            isReloadCalled = true;
+        };
     }));
 
-    it("check property map", inject(($rootScope: ng.IRootScopeService, manager: IProjectManager) => {
+    
+    it("check property map", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
         // Act
         // Assert
@@ -38,75 +42,76 @@ describe("Project Explorer Test", () => {
 
     }));
 
-    it("Load project", inject(($rootScope: ng.IRootScopeService, manager: IProjectManager) => {
+    it("Load project", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
-        let dsBefore = explorer.tree["_datasource"].splice();
+        isReloadCalled = false;
+
+        projectManager["loadProject"](1, "Project 1");
                         
         // Act
-        manager.notify(SubscriptionEnum.ProjectLoaded);
         $rootScope.$digest();
 
         // Assert
-        let dsAfter = explorer.tree["_datasource"];
-
-        expect(dsBefore).toEqual(jasmine.any(Array));
-        expect(dsAfter).toEqual(jasmine.any(Array));
-        expect(dsAfter.length).toBeGreaterThan(dsBefore.length);
+        expect(isReloadCalled).toBeTruthy();
+        expect(projectManager.CurrentProject).toBeDefined();
+        expect(projectManager.CurrentProject["loaded"]).toBeTruthy();
+        expect(projectManager.CurrentProject["open"]).toBeTruthy();
 
     }));
-    it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, manager: IProjectManager) => {
+    it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
-        let dsBefore = explorer.tree["_datasource"].splice();
-            
+        isReloadCalled = false;
+        projectManager["loadProject"](1, "Project 1");    
+        $rootScope.$digest();
+
         // Act
-        // Act
-        manager.notify(SubscriptionEnum.ProjectLoaded, jasmine.any(Object));
-        manager.notify(SubscriptionEnum.ProjectChildrenLoaded, jasmine.any(Object));
+        projectManager["loadProjectChildren"](1, 10);    
         $rootScope.$digest();
 
         // Assert
-        let dsAfter = explorer.tree["_datasource"];
+        //let dsAfter = explorer.tree["_datasource"];
 
-        expect(dsBefore).toEqual(jasmine.any(Array));
-        expect(dsAfter).toEqual(jasmine.any(Array));
-        expect(dsAfter[0].children.length).toEqual(5);
-        expect(Helper.toFlat(dsAfter).length).toEqual(15);
-
+        expect(isReloadCalled).toBeTruthy();
+        expect(projectManager.CurrentProject.artifacts[0]["loaded"]).toBeTruthy();
+        expect(projectManager.CurrentProject.artifacts[0]["open"]).toBeTruthy();
+        expect(projectManager.CurrentProject.artifacts[0].artifacts).toEqual(jasmine.any(Array));
     }));
         
-    it("delete project succsessful", inject(($rootScope: ng.IRootScopeService, manager: IProjectManager) => {
+    it("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
-        manager.notify(SubscriptionEnum.ProjectLoaded, jasmine.any(Object));
-        let dsBefore = explorer.tree["_datasource"].splice();
+        isReloadCalled = false;
+        projectManager["loadProject"](1, "Project 1");    
+        $rootScope.$digest();
 
         // Act
-        manager.notify(SubscriptionEnum.ProjectClosed, [{ id: 1 }]);
+        projectManager.notify(SubscriptionEnum.ProjectClose);
         $rootScope.$digest();
 
         // Assert
-        let dsAfter = explorer.tree["_datasource"];
-
-        expect(dsBefore).toEqual(jasmine.any(Array));
-        expect(dsAfter).toEqual(jasmine.any(Array));
-        expect(dsAfter.length).toEqual(9);
+        expect(isReloadCalled).toBeTruthy();
+        expect(projectManager.CurrentProject).toBeNull();
+        expect(projectManager.ProjectCollection.length).toEqual(0);
 
     }));
 
-    it("delete project unsuccsessful", inject(($rootScope: ng.IRootScopeService, manager: IProjectManager) => {
+    it("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
-        manager.notify(SubscriptionEnum.ProjectLoaded, jasmine.any(Object));
-        let dsBefore = explorer.tree["_datasource"].splice();
+        isReloadCalled = false;
+        projectManager["loadProject"](1, "Project 1");
+        $rootScope.$digest();
+        projectManager["loadProject"](2, "Project 2");
+        $rootScope.$digest();
+        projectManager["loadProject"](3, "Project 3");
+        $rootScope.$digest();
+
 
         // Act
-        manager.notify(SubscriptionEnum.ProjectClosed, [ { id: 11 }]);
+        projectManager.notify(SubscriptionEnum.ProjectClose, true);
         $rootScope.$digest();
 
         // Assert
-        let dsAfter = explorer.tree["_datasource"];
-
-        expect(dsBefore).toEqual(jasmine.any(Array));
-        expect(dsAfter).toEqual(jasmine.any(Array));
-        expect(dsAfter.length).toEqual(10);
+        expect(isReloadCalled).toBeTruthy();
+        expect(projectManager.ProjectCollection.length).toEqual(0);
 
     }));
 

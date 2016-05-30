@@ -3,21 +3,15 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Helper;
-using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
-using Model.ArtifactModel;
-using System.Collections.Generic;
-using System.Linq;
+using TestCommon;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class DeleteUserDecisionTests
+    public class DeleteUserDecisionTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -26,62 +20,15 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IArtifactBase>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -102,7 +49,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -117,14 +64,14 @@ namespace StorytellerTests
             var userDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, branchEndPoint);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -143,7 +90,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find default system task
             var defaultSystemTask = process.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
@@ -155,7 +102,7 @@ namespace StorytellerTests
             var userDecision = process.AddUserDecisionPointWithBranchAfterShape(defaultSystemTask, defaultSystemTaskOutgoingLink.Orderindex + 1);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
@@ -165,7 +112,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -187,7 +134,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -220,7 +167,7 @@ namespace StorytellerTests
                 secondUserDecisionInProcess.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(firstUserDecisionInProcess.Name);
 
@@ -230,7 +177,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, mergePointForFirstUserDecision);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -255,7 +202,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -282,14 +229,14 @@ namespace StorytellerTests
             process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(innerUserDecision.Name);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -314,7 +261,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -341,14 +288,14 @@ namespace StorytellerTests
             var outerUserDecision = process.AddUserDecisionPointWithBranchAfterShape(preconditionTask, preconditionOutgoingLink.Orderindex + 1, endShape.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(outerUserDecision.Name);
 
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -369,7 +316,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -387,7 +334,7 @@ namespace StorytellerTests
             process.AddBranchWithUserAndSystemTaskToUserDecisionPoint(userDecision, preconditionOutgoingLink.Orderindex + 2, branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userDecision.Name);
 
@@ -397,7 +344,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -421,7 +368,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -455,7 +402,7 @@ namespace StorytellerTests
                 branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(secondUserDecision.Name);
 
@@ -465,7 +412,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -489,7 +436,7 @@ namespace StorytellerTests
             */
 
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -523,7 +470,7 @@ namespace StorytellerTests
                 branchEndPoint.Id);
 
             // Save the process
-            var returnedProcess = _storyteller.UpdateProcess(_user, process);
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
 
             var userDecisionToBeDeleted = returnedProcess.GetProcessShapeByShapeName(firstUserDecision.Name);
 
@@ -533,9 +480,7 @@ namespace StorytellerTests
             returnedProcess.DeleteUserDecisionWithBranchesNotOfTheLowestOrder(userDecisionToBeDeleted, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
-
-
     }
 }

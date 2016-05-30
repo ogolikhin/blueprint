@@ -1,6 +1,6 @@
 ﻿import * as Models from "../models/models";
 import {ILocalizationService} from "../../core/localization";
-import {INotificationService, EventSubscriber} from "../../core/notification";
+import {IEventManager, EventSubscriber} from "../../core/event-manager";
 import {IProjectRepository} from "../services/project-repository";
 
 export {Models}
@@ -17,7 +17,7 @@ export enum SubscriptionEnum {
 }
 
 export interface IProjectManager {
-    // Notification
+    // eventManager
     subscribe(type: SubscriptionEnum, func: Function);
     unsubscribe(type: SubscriptionEnum, func: Function);
     notify(type: SubscriptionEnum, ...prms: any[]);
@@ -37,11 +37,11 @@ export class ProjectManager implements IProjectManager {
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
 
-    static $inject: [string] = ["localization", "projectRepository", "notification"];
+    static $inject: [string] = ["localization", "eventManager", "projectRepository"];
     constructor(
         private localization: ILocalizationService,
-        private _repository: IProjectRepository,
-        private notification: INotificationService) {
+        private eventManager: IEventManager,
+        private _repository: IProjectRepository) {
 
         //subscribe to event
         this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
@@ -50,15 +50,15 @@ export class ProjectManager implements IProjectManager {
     }
 
     public subscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
+        this.eventManager.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.detach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
+        this.eventManager.detach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.notification.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
+        this.eventManager.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
     }
 
 
@@ -118,11 +118,11 @@ export class ProjectManager implements IProjectManager {
                         self.notify(SubscriptionEnum.ProjectLoaded, project);
                         self.CurrentProject = project;
                     }).catch((error: any) => {
-                        this.notification.dispatch(EventSubscriber.Main, "exception", error);
+                        this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
                     });
             } 
         } catch (ex) {
-            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
         }
     }
 
@@ -143,10 +143,10 @@ export class ProjectManager implements IProjectManager {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }).catch((error: any) => {
-                    this.notification.dispatch(EventSubscriber.Main, "exception", error);
+                    this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
                 });
         } catch (ex) {
-            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
         }
     }
 
@@ -165,7 +165,7 @@ export class ProjectManager implements IProjectManager {
             self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
             this.CurrentProject = this.ProjectCollection[0] || null;
         } catch (ex) {
-            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
         }
 
     }

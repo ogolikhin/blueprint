@@ -6,7 +6,7 @@ export enum EventSubscriber {
 }
 
 
-export interface INotificationService {
+export interface IEventManager {
     attach(subsriberId: EventSubscriber, name: string, callback: any);
     detach(subsriberId: EventSubscriber, name: string, callback: any);
     dispatch(subsriberId: EventSubscriber, name: string, ...prms: any[]);
@@ -18,7 +18,7 @@ class ICallbacks {
     callbacks: Function[];
 }
 
-export class NotificationService implements INotificationService {
+export class EventManager implements IEventManager {
     public handlers: ICallbacks[] = [];
 
     constructor() { }

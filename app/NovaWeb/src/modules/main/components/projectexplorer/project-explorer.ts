@@ -1,6 +1,4 @@
-﻿//import "angular";
-//import {Helper} from "../../../core/utils/helper";
-import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+﻿import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
 
 
@@ -14,11 +12,11 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     
     public static $inject: [string] = ["projectManager"];
-    constructor(private manager: IProjectManager) {
-        this.manager.subscribe(SubscriptionEnum.ProjectChanged, this.activateProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+    constructor(private projectManager: IProjectManager) {
+        this.projectManager.subscribe(SubscriptionEnum.ProjectChanged, this.activateProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     }
 
     // the object defines how data will map to ITreeNode
@@ -42,11 +40,11 @@ export class ProjectExplorerController {
             loaded: true,
             open: true
         });
-        this.tree.reload(this.manager.ProjectCollection);
+        this.tree.reload(this.projectManager.ProjectCollection);
     }
 
     public closeProject(projects: Models.IProject[]) {
-        this.tree.reload(this.manager.ProjectCollection);
+        this.tree.reload(this.projectManager.ProjectCollection);
     }
 
     public columns = [{
@@ -71,13 +69,13 @@ export class ProjectExplorerController {
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
         //notify the repository to load the node children
-        this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
+        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, this.projectManager.CurrentProject.id, artifactId);
     };
 
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.manager.selectArtifact(node.id);
+        this.projectManager.selectArtifact(node.id);
     };
 
 }

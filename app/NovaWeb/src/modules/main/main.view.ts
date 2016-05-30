@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService} from "../core/localization";
-import {INotificationService, EventSubscriber} from "../core/notification";
+import {IEventManager, EventSubscriber} from "../core/event-manager";
 import {IDialogService} from "../services/dialog.svc";
 import * as Models from "./models/models";
 
@@ -22,10 +22,10 @@ export class MainViewController implements IMainViewController {
         return this._currentArtifact;
     }
 
-    public static $inject: [string] = ["notification", "dialogService"];
-    constructor(private _notification: INotificationService, private dialogService: IDialogService) {
-        this._notification.attach(EventSubscriber.Main, "exception", this.showError.bind(this));
-        this._notification.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this));
+    public static $inject: [string] = ["eventManager", "dialogService"];
+    constructor(private eventManager: IEventManager, private dialogService: IDialogService) {
+        this.eventManager.attach(EventSubscriber.Main, "exception", this.showError.bind(this));
+        this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this));
     }
 
     private displayArtifact(artifact: Models.IArtifact) {

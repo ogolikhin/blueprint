@@ -1,4 +1,4 @@
-﻿import {INotificationService} from "../notification";
+﻿
 export class Helper {
 
     static stripHTMLTags = (stringToSanitize: string): string => {

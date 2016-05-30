@@ -1,17 +1,11 @@
-﻿using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
-using System.Collections.Generic;
 using Model.StorytellerModel;
-using Model.StorytellerModel.Impl;
 using Helper;
-using System.Net;
 using TestCommon;
-using Utilities.Factories;
 
 namespace StorytellerTests
 {
@@ -59,40 +53,56 @@ namespace StorytellerTests
 
             // Assert that the version of the saved process is correct (-1)
             Assert.AreEqual(process.Status.VersionId, SavedVersionId, 
-                "The process version Id was {0} but {1} was expected", process.Status.VersionId, SavedVersionId); 
+                "The process version Id was {0} but {1} was expected", process.Status.VersionId, SavedVersionId);
 
-            // Modify process name
-            process.Name = RandomGenerator.RandomValueWithPrefix("ModifiedProcess", 4);
-            
+            // Assert that the process type is Business Process
+            Assert.That(process.ProcessType == ProcessType.BusinessProcess, "Process was not a Business Process.");
+
+            // Modify process type to User to System Process
+            process.ProcessType = ProcessType.UserToSystemProcess;
+
             var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
 
-            
             // Assert that saving a change to a process does not increment the process version
             Assert.AreEqual(process.Status.VersionId, savedProcess.Status.VersionId,
                 "The process version should not change after a process is updated.");
 
             Helper.Storyteller.PublishProcess(_user, savedProcess);
 
-            var publishedProcess = Helper.Storyteller.GetProcess(_user, savedProcess.Id);
+            var publishedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Assert that the published process has the first published version Id (1)
             Assert.AreEqual(publishedProcess.Status.VersionId, FirstPublishedVersionId,
-                "The process version Id was {0} but {1} was expected", publishedProcess.Status.VersionId, FirstPublishedVersionId);
+                "The process version Id was {0} but {1} was expected", 
+                publishedProcess.Status.VersionId, FirstPublishedVersionId);
 
-            // Modify process name again
-            publishedProcess.Name = RandomGenerator.RandomValueWithPrefix("ModifiedProcess", 4);
+            // Modify process type back to Business Process
+            publishedProcess.ProcessType = ProcessType.BusinessProcess;
 
             var savedProcess2 = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _user);
 
             Helper.Storyteller.PublishProcess(_user, savedProcess2);
 
-            var publishedProcess2 = Helper.Storyteller.GetProcess(_user, savedProcess2.Id);
+            var publishedProcess2 = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Assert that version Id is incremented
             Assert.AreEqual(publishedProcess2.Status.VersionId, FirstPublishedVersionId + 1,
-                "The process version Id was {0} but {1} was expected", publishedProcess2.Status.VersionId, FirstPublishedVersionId + 1);
+                "The process version Id was {0} but {1} was expected", 
+                publishedProcess2.Status.VersionId, FirstPublishedVersionId + 1);
 
+            // Get the process for the first published version (1)
+            var historicalProcess = Helper.Storyteller.GetProcess(_user, artifact.Id, FirstPublishedVersionId);
 
+            Assert.IsFalse(historicalProcess.RequestedVersionInfo.IsHeadOrSavedDraftVersion, 
+                "A historical version was expected but not returned.");
+
+            Assert.IsTrue(historicalProcess.RequestedVersionInfo.IsVersionInformationProvided, 
+                "Version information was provided but not returned.");
+
+            Assert.AreEqual(publishedProcess.Status.VersionId, historicalProcess.RequestedVersionInfo.VersionId, 
+                "The historical version Id did not match the expected version Id.");
+
+            StorytellerTestHelper.AssertProcessesAreIdentical(publishedProcess, historicalProcess);
         }
     }
 }

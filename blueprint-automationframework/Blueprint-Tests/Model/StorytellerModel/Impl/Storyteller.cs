@@ -163,9 +163,12 @@ namespace Model.StorytellerModel.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
+
+            var queryParameters = new Dictionary<string, string>();
+
             if (versionIndex.HasValue)
             {
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
+                queryParameters.Add("versionId", versionIndex.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
@@ -174,6 +177,7 @@ namespace Model.StorytellerModel.Impl
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
@@ -227,9 +231,11 @@ namespace Model.StorytellerModel.Impl
             string breadcrumb = string.Join("/", artifactIds);
             string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, breadcrumb);
 
+            var queryParameters = new Dictionary<string, string>();
+
             if (versionIndex.HasValue)
             {
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
+                queryParameters.Add("versionId", versionIndex.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
@@ -238,6 +244,7 @@ namespace Model.StorytellerModel.Impl
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 

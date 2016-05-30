@@ -334,6 +334,20 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
+        public void UpdateArtifactName(IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            UpdateArtifactName(artifact: this, user: user, expectedStatusCodes: expectedStatusCodes,
+                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+        }
+
+        public PublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            return PublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
+                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+        }
+
         #endregion Methods
 
         #region Static Methods
@@ -421,7 +435,10 @@ namespace Model.ArtifactModel.Impl
             {
                 var discardedArtifact = artifactsToDiscard.Find(a => (a.Id.Equals(discardedResult.ArtifactId)) &&
                 discardedResult.Result == 0);
-                discardedArtifact.IsSaved = false;
+                if (discardedArtifact != null)
+                {
+                    discardedArtifact.IsSaved = false;
+                }
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.Result);
             }
 
@@ -503,6 +520,25 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
+        /// Updates name of artifact with random string
+        /// </summary>
+        /// <param name="artifact">....</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        public static void UpdateArtifactName(IArtifactBase artifact,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            OpenApiArtifact.UpdateArtifact(
+                artifact,
+                user,
+                expectedStatusCodes: expectedStatusCodes,
+                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+        }
+
+        /// <summary>
         /// Lock Artifact(s) 
         /// </summary>
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
@@ -543,6 +579,48 @@ namespace Model.ArtifactModel.Impl
                 cookies: cookies);
 
             return response;
+        }
+
+        /// <summary>
+        /// Publish a single artifact on Blueprint server
+        /// </summary>
+        /// <param name="artifactToPublish">The artifact to publish</param>
+        /// <param name="user">The user saving the artifact</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Resut of Publish operation</returns>
+        public static PublishArtifactResult PublishArtifact(IArtifactBase artifactToPublish,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            const string path = "/svc/shared/artifacts/publish";
+            RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, user.Username, user.Password, tokenValue);
+
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
+                new List<int> { artifactToPublish.Id },
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Mark artifact in artifact list as published
+            artifactToPublish.IsPublished = true;
+            artifactToPublish.IsSaved = false;
+            return publishResults[0];
         }
 
         #endregion Static Methods

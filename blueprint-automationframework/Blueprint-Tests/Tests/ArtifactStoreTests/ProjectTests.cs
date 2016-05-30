@@ -13,7 +13,8 @@ namespace ArtifactStoreTests
     public class ProjectTests : TestBase
     {
         private const int defaultProjectId = 1;
-        private const int nonExistingProject = 99;
+        private const int nonExistingProject = int.MaxValue;
+        private const object noTokenInRequest = null;
 
         private IUser _user = null;
 
@@ -105,7 +106,7 @@ namespace ArtifactStoreTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    helper.AdminStore.GetProjectById(defaultProjectId, null, expectedCodesList);
+                    helper.AdminStore.GetProjectById(defaultProjectId, noTokenInRequest, expectedCodesList);
                 }, "The GET /projects/{projectId}/children endpoint should return 400 Bad Request!");
             }
         }

@@ -13,7 +13,8 @@ namespace AdminStoreTests
     public class InstanceFolderTests : TestBase
     {
         private const int defaultFolderId = 1;
-        private const int nonExistingFolder = 99;
+        private const int nonExistingFolder = int.MaxValue;
+        private const object noTokenInRequest = null;
 
         private IUser _user = null;
 
@@ -42,9 +43,12 @@ namespace AdminStoreTests
                 List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
                 expectedCodesList.Add(HttpStatusCode.OK);
 
-                /*Executes get folder REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
+                Assert.DoesNotThrow(() =>
+                {
+                    /*Executes get folder or its children REST call and returns HTTP code*/
+                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
+                }, "AdminStore should return a 200 OK for the project that exists");
             }
         }
 
@@ -59,9 +63,12 @@ namespace AdminStoreTests
                 List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
                 expectedCodesList.Add(HttpStatusCode.NotFound);
 
-                /*Executes get folder REST call and returns HTTP code*/
-                /*FOLDER INSTANCE 99 DOESN'T EXIST*/
-                helper.AdminStore.GetFolderOrItsChildrenById(nonExistingFolder, _user, expectedCodesList);
+                Assert.DoesNotThrow(() =>
+                {
+                    /*Executes get folder or its children REST call and returns HTTP code*/
+                    /*FOLDER INSTANCE int.MaxValue DOESN'T EXIST*/
+                    helper.AdminStore.GetFolderOrItsChildrenById(nonExistingFolder, _user, expectedCodesList);
+                }, "AdminStore should return a 404 Not Found error when trying to get a non-existing Instance");
             }
         }
 
@@ -79,9 +86,12 @@ namespace AdminStoreTests
                 List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
                 expectedCodesList.Add(HttpStatusCode.Unauthorized);
 
-                /*Executes get folder REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
+                Assert.DoesNotThrow(() =>
+                {
+                    /*Executes get folder or its children REST call and returns HTTP code*/
+                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
+                }, "AdminStore should return a 401 Unauthorized error when trying to use expired session token");
             }
         }
 
@@ -94,11 +104,14 @@ namespace AdminStoreTests
             List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
             expectedCodesList.Add(HttpStatusCode.BadRequest);
 
-            /*Executes get folder REST call and returns HTTP code*/
+            /*Executes get folder or its children REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
             using (TestHelper helper = new TestHelper())
             {
-                helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, null, expectedCodesList, hasChildren);
+                Assert.DoesNotThrow(() =>
+                {
+                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, noTokenInRequest, expectedCodesList, hasChildren);
+                }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
             }
         }
 

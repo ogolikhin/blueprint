@@ -60,7 +60,7 @@ namespace Model.Impl
             return response.Content;
         }
 
-        public RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
+        private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
         {
             RestApiFacade restApi;
             if (session != null)

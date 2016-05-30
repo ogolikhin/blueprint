@@ -13,7 +13,8 @@ namespace AdminStoreTests
     public class InstanceProjectTests : TestBase
     {
         private const int defaultProjectId = 1;
-        private const int nonExistingProject = 99;
+        private const int nonExistingProject = int.MaxValue;
+        private const object noTokenInRequest = null;
 
         private IUser _user = null;
 
@@ -94,7 +95,7 @@ namespace AdminStoreTests
             /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
             using (TestHelper helper = new TestHelper())
             {
-                helper.AdminStore.GetProjectById(defaultProjectId, null, expectedCodesList);
+                helper.AdminStore.GetProjectById(defaultProjectId, noTokenInRequest, expectedCodesList);
             }
         }
     }

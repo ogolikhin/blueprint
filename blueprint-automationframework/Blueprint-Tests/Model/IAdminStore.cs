@@ -193,8 +193,8 @@ namespace Model
         /// <param name="session">A session to identify a user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <param name="badKey">Flag to set incorrect or correct key to produce Bad Request.</param>
-        /// <returns>HTTP Status Code.</returns>
-        HttpStatusCode GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Response content.</returns>
+        string GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns HTTP code for REST request to get project. 
@@ -205,8 +205,8 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <param name="badKey">Flag to set incorrect or correct key to produce Bad Request.</param>
         /// <param name="hasChildren">Flag to differenciate two calls. With children and without.</param>
-        /// <returns>HTTP Status Code.</returns>
-        HttpStatusCode GetFolderOrItsChildrenById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false);
+        /// <returns>Response content.</returns>
+        string GetFolderOrItsChildrenById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false);
 
     }
 }

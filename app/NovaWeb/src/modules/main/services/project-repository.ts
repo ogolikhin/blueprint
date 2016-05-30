@@ -1,5 +1,4 @@
-﻿/// <reference path="../../core/notification.ts" />
-import {ILocalizationService} from "../../core/localization";
+﻿import {ILocalizationService} from "../../core/localization";
 import * as Models from "../models/models";
 
 export {Models}

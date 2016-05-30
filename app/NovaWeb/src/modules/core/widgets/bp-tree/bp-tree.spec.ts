@@ -104,7 +104,6 @@ describe("Embedded ag-grid events", () => {
             dataFromCall = data as ITreeNode[];
         };
 
-        var options = controller.options;
         controller.options.api = gridApi;
         $scope.$apply();
         controller.propertyMap = {
@@ -130,7 +129,6 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
         controller.options.api = gridApi;
         controller.propertyMap = {
             id: "id",
@@ -160,8 +158,6 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
         $scope.$apply();
 
@@ -182,8 +178,6 @@ describe("Embedded ag-grid events", () => {
         };
 
         // Act
-        var options = controller.options;
-
         controller.options.api = gridApi;
         $scope.$apply();
 

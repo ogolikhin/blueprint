@@ -45,6 +45,7 @@ export interface IArtifact  {
     typeId: number;
     parentId: number;
     predefinedType: ArtifactTypeEnum;
+    prefix?: string;
     version?: number;
     hasChildren?: boolean;  
     artifacts?: IArtifact[];

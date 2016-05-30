@@ -1,4 +1,4 @@
-﻿import {IBPTreeController, ITreeNode} from "./bp-tree"
+﻿import {IBPTreeController, ITreeNode} from "./bp-tree";
 export {ITreeNode}
 
 export class BPTreeControllerMock implements IBPTreeController {

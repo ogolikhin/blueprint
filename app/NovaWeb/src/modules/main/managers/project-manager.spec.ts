@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization";
-import {NotificationService} from "../../core/notification";
+import {NotificationService, EventSubscriber} from "../../core/notification";
 import {ProjectRepositoryMock} from "../services/project-repository.mock";
 import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
 
@@ -73,7 +73,7 @@ describe("Project Manager Test", () => {
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
             $rootScope.$digest();
 
-            manager["notification"].attach("main", "exception", function (ex) {
+            manager["notification"].attach(EventSubscriber.Main, "exception", function (ex) {
                 error = ex;
             })
 
@@ -91,7 +91,7 @@ describe("Project Manager Test", () => {
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
             $rootScope.$digest();
 
-            manager["notification"].attach("main", "exception", function (ex) {
+            manager["notification"].attach(EventSubscriber.Main, "exception", function (ex) {
                 error = ex;
             })
 
@@ -114,7 +114,7 @@ describe("Project Manager Test", () => {
                 changedProject = project;
             };
 
-            manager.subscribe(SubscriptionEnum.CurrentProjectChanged, func);
+            manager.subscribe(SubscriptionEnum.ProjectChanged, func);
 
             //Act
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
@@ -128,7 +128,7 @@ describe("Project Manager Test", () => {
             // Arrange
             let changedProject;
             
-            manager.subscribe(SubscriptionEnum.CurrentProjectChanged, function (project: Models.IProject) {
+            manager.subscribe(SubscriptionEnum.ProjectChanged, function (project: Models.IProject) {
                 changedProject = project;
             });
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
@@ -152,7 +152,7 @@ describe("Project Manager Test", () => {
                 changed = artifact;
             };
 
-            manager.subscribe(SubscriptionEnum.CurrentArtifactChanged, func);
+            manager.subscribe(SubscriptionEnum.ArtifactChanged, func);
 
             //Act
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
@@ -165,7 +165,7 @@ describe("Project Manager Test", () => {
         it("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
             let changed;
-            manager.subscribe(SubscriptionEnum.CurrentArtifactChanged, function (artifact: Models.IArtifact) {
+            manager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
                 changed = artifact;
             });
             manager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
@@ -190,7 +190,7 @@ describe("Project Manager Test", () => {
             //Act
             manager.CurrentArtifact = manager.CurrentProject.artifacts[0];
 
-            manager.subscribe(SubscriptionEnum.CurrentArtifactChanged, function (artifact: Models.IArtifact) {
+            manager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
                 changed = artifact;
             });
             manager.CurrentArtifact = manager.ProjectCollection[0].artifacts[0];
@@ -203,7 +203,7 @@ describe("Project Manager Test", () => {
         it("Current artifact has changed for multiple project", inject(($rootScope: ng.IRootScopeService, manager: ProjectManager) => {
             // Arrange
             let changed;
-            manager.subscribe(SubscriptionEnum.CurrentArtifactChanged, function (artifact: Models.IArtifact) {
+            manager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
                 changed = artifact;
             });
 

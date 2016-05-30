@@ -1,6 +1,6 @@
 ﻿import * as Models from "../models/models";
 import {ILocalizationService} from "../../core/localization";
-import {INotificationService} from "../../core/notification";
+import {INotificationService, EventSubscriber} from "../../core/notification";
 import {IProjectRepository} from "../services/project-repository";
 
 export {Models}
@@ -12,8 +12,8 @@ export enum SubscriptionEnum {
     ProjectChildrenLoaded,
     ProjectClose,
     ProjectClosed,
-    CurrentProjectChanged,
-    CurrentArtifactChanged
+    ProjectChanged,
+    ArtifactChanged
 }
 
 export interface IProjectManager {
@@ -33,7 +33,6 @@ export interface IProjectManager {
 
 
 export class ProjectManager implements IProjectManager {
-    private notificationId: string = "projectmanager";
     private _currentProjet: Models.IProject;
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
@@ -51,15 +50,15 @@ export class ProjectManager implements IProjectManager {
     }
 
     public subscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.attach(this.notificationId, SubscriptionEnum[type], func);
+        this.notification.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.detach(this.notificationId, SubscriptionEnum[type], func);
+        this.notification.detach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.notification.dispatch(this.notificationId, SubscriptionEnum[type], ...prms);
+        this.notification.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
     }
 
 
@@ -68,7 +67,7 @@ export class ProjectManager implements IProjectManager {
             return;
         }
         this._currentProjet = project;
-        this.notify(SubscriptionEnum.CurrentProjectChanged, this._currentProjet);
+        this.notify(SubscriptionEnum.ProjectChanged, this._currentProjet);
     }
 
     public get CurrentProject(): Models.IProject {
@@ -86,7 +85,7 @@ export class ProjectManager implements IProjectManager {
             }
         }
         this._currentArtifact = artifact;
-        this.notify(SubscriptionEnum.CurrentArtifactChanged, this._currentArtifact);
+        this.notify(SubscriptionEnum.ArtifactChanged, this._currentArtifact);
     }
 
     public get CurrentArtifact(): Models.IArtifact {
@@ -119,11 +118,11 @@ export class ProjectManager implements IProjectManager {
                         self.notify(SubscriptionEnum.ProjectLoaded, project);
                         self.CurrentProject = project;
                     }).catch((error: any) => {
-                        this.notification.dispatch("main", "exception", error);
+                        this.notification.dispatch(EventSubscriber.Main, "exception", error);
                     });
             } 
         } catch (ex) {
-            this.notification.dispatch("main", "exception", ex);
+            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
         }
     }
 
@@ -144,10 +143,10 @@ export class ProjectManager implements IProjectManager {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }).catch((error: any) => {
-                    this.notification.dispatch("main", "exception", error);
+                    this.notification.dispatch(EventSubscriber.Main, "exception", error);
                 });
         } catch (ex) {
-            this.notification.dispatch("main", "exception", ex);
+            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
         }
     }
 
@@ -166,7 +165,7 @@ export class ProjectManager implements IProjectManager {
             self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
             this.CurrentProject = this.ProjectCollection[0] || null;
         } catch (ex) {
-            this.notification.dispatch("main", "exception", ex);
+            this.notification.dispatch(EventSubscriber.Main, "exception", ex);
         }
 
     }

@@ -1,10 +1,16 @@
 ﻿import "angular";
 
+export enum EventSubscriber {
+    Main,
+    ProjectManager
+}
+
+
 export interface INotificationService {
-    attach(host: string, name: string, callback: any);
-    detach(host: string, name: string, callback: any);
-    dispatch(host: string, name: string, ...prms: any[]);
-    destroy(host?: string);
+    attach(subsriberId: EventSubscriber, name: string, callback: any);
+    detach(subsriberId: EventSubscriber, name: string, callback: any);
+    dispatch(subsriberId: EventSubscriber, name: string, ...prms: any[]);
+    destroy(subsriberId?: EventSubscriber);
 }
 
 class ICallbacks {
@@ -29,22 +35,22 @@ export class NotificationService implements INotificationService {
     };
 
     private mask(...args: string[]) {
-        return args.join(`.`);
+        return args.join(`.`).toLowerCase();
     }
 
-    public attach(host: string, name: string, callback: Function)  {
-        if (!host || !name || !callback) {
+    public attach(subsriberId: EventSubscriber, name: string, callback: Function)  {
+        if (!name || !callback) {
             return;
         }
-        let handler = this.getHandlers(this.mask(host, name));
+        let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
         handler.callbacks.push(callback);
     };
 
-    public detach(host: string, name: string, callback: Function) {
-        if (!host || !name || !callback) {
+    public detach(subsriberId: EventSubscriber, name: string, callback: Function) {
+        if (!callback) {
             return;
         }
-        let handler = this.getHandlers(this.mask(host, name));
+        let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
         handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
             return it !== callback;
         });
@@ -55,21 +61,22 @@ export class NotificationService implements INotificationService {
         }
     };
 
-    public dispatch(host: string, name: string, ...prms: any[]) {
-        if (!host || !name ) {
+    public dispatch(subsriberId: EventSubscriber, name: string, ...prms: any[]) {
+        if (!name ) {
             return;
         }
-        let handler = this.getHandlers(this.mask(host, name));
+        let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
         handler.callbacks.map(function (it: Function) {
             it.apply(it, prms);
         });
     }
 
-    public destroy(host?: string) {
-        //passin undefined host id destroyes everything
-        let re = new RegExp(`^${this.mask(host,"")}.`);
+    public destroy(subsriberId?: EventSubscriber) {
+        //passing nothing or undefined host id removes all handlers
+        //otherwise, removes handler by specified id if found
+        let re = new RegExp(`^${this.mask(EventSubscriber[subsriberId],"")}.`);
         this.handlers = this.handlers.filter(function (it) {
-            if (!host || re.test(it.name)) {
+            if (subsriberId || re.test(it.name)) {
                 delete it.callbacks;
                 return false;
             }

@@ -15,7 +15,7 @@ export class ProjectExplorerController {
     
     public static $inject: [string] = ["projectManager"];
     constructor(private manager: IProjectManager) {
-        this.manager.subscribe(SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
+        this.manager.subscribe(SubscriptionEnum.ProjectChanged, this.activateProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
         this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));

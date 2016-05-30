@@ -1,11 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
-import {INotificationService, NotificationService} from "./notification";
+import {INotificationService, NotificationService, EventSubscriber} from "./notification";
 
  
 describe("Global Notification", () => {
     let notificator: INotificationService;
-    let hostId = "host";
+    let hostId: EventSubscriber = EventSubscriber.Main ;
     
     beforeEach(() => {
         notificator = new NotificationService();
@@ -28,7 +28,7 @@ describe("Global Notification", () => {
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
-        expect(notificator["handlers"].length).toEqual(0);
+        expect(notificator["handlers"].length).toEqual(1);
 
     });
     it("attach notifications with undefined event signatute", () => {
@@ -51,7 +51,7 @@ describe("Global Notification", () => {
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
         expect(notificator["handlers"].length).toEqual(1);
-        expect(notificator["handlers"][0].name).toEqual(hostId + ".first");
+        expect(notificator["handlers"][0].name).toEqual(EventSubscriber[hostId].toLowerCase() + ".first");
 
     });
     it("add 3 notifications", () => {
@@ -182,13 +182,13 @@ describe("Global Notification", () => {
         // Arrange
         let func = function (delta: number) {
         };
-        notificator.attach("test1", "first", func);
-        notificator.attach("test1", "second", func);
-        notificator.attach("test2", "first", func);
-        notificator.attach("test2", "second", func);
+        notificator.attach(EventSubscriber.Main, "first", func);
+        notificator.attach(EventSubscriber.Main, "second", func);
+        notificator.attach(EventSubscriber.ProjectManager, "first", func);
+        notificator.attach(EventSubscriber.ProjectManager, "second", func);
 
         // Act
-        notificator.destroy("test1");
+        notificator.destroy(EventSubscriber.Main);
 
         // Assert
         expect(notificator["handlers"]).toEqual(jasmine.any(Array));
@@ -202,20 +202,15 @@ describe("Global Notification", () => {
         // Arrange
         let func = function (delta: number) {
         };
-        notificator.attach("test1", "first", func);
-        notificator.attach("test1", "second", func);
-        notificator.attach("test2", "first", func);
-        notificator.attach("test2", "second", func);
+        notificator.attach(EventSubscriber.Main, "first", func);
+        notificator.attach(EventSubscriber.Main, "second", func);
+        notificator.attach(EventSubscriber.ProjectManager, "first", func);
+        notificator.attach(EventSubscriber.ProjectManager, "second", func);
 
-        // Act
-        notificator.destroy("test1");
-
-        // Assert
-        expect(notificator["handlers"]).toEqual(jasmine.any(Array));
-        expect(notificator["handlers"].length).toBe(2);
-        
         // Act
         notificator.destroy();
+
+        // Assert
         expect(notificator["handlers"].length).toBe(0);
 
     });

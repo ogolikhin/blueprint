@@ -1,11 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
-import { NotificationService} from "../../../core/notification";
+import {EventManager} from "../../../core/event-manager";
 import {IOpenProjectResult, OpenProjectController} from "./open-project";
-import {IBPTreeController, BPTreeControllerMock, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree.mock";
-import {LocalizationServiceMock} from "../../../shell/login/mocks.spec";
+import {ProjectManager, IProjectManager} from "../../managers/project-manager";
+import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
+import {LocalizationServiceMock} from "../../../core/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
-import {ProjectManager, IProjectManager, Models, SubscriptionEnum} from "../../managers/project-manager";
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -41,16 +41,10 @@ describe("Open Project.", () => {
         it("check return empty value", () => {
 
             // Arrange
-            var result: IOpenProjectResult = <IOpenProjectResult>{
-                id: -1,
-                name: "",
-                description: ""
-            };
             // Act
 
             // Assert
-            expect(controller.returnvalue).toBeDefined();
-            expect(controller.returnvalue).toEqual(result);
+            expect(controller.returnValue).toBeNull();
         });
 
         it("innerRenderer", () => {
@@ -107,14 +101,13 @@ describe("Open Project.", () => {
     });
     
     describe("Embedded ag-grid events", () => {
-        let controller: OpenProjectController;
         let $scope ;
         let elem;
 
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("projectRepository", ProjectRepositoryMock);
-            $provide.service("notification", NotificationService);
+            $provide.service("eventManager", EventManager);
             $provide.service("manager", ProjectManager);
 
         }));
@@ -178,6 +171,19 @@ describe("Open Project.", () => {
             // Assert
             expect(cellRenderer).toContain("project");
         }));
+        
+        //it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
+
+        //    // Arrange
+
+        //    // Act, load empty datasource
+        //    controller.doLoad({ id: -1 });
+        //    $rootScope.$digest();
+
+        //    // Assert
+        //    expect(controller.hasError).toBeTruthy();
+        //    expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
+        //}));
 
 
     });

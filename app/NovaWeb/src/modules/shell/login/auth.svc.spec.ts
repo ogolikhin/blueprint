@@ -1,7 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
-import {LocalizationServiceMock, ConfigValueHelperMock, WindowMock} from "./mocks.spec";
+import {LocalizationServiceMock} from "../../core/localization.mock";
+import {ConfigValueHelperMock, WindowMock} from "./mocks.spec";
 
 describe("AuthSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

@@ -60,9 +60,15 @@ namespace Model.ArtifactModel.Impl
 
     public class NovaDiscardArtifactResult
     {
+        public enum ResultCode
+        {
+            Success = 0,
+            Failure = 1
+        }
+
         public int ArtifactId { get; set; }
         public string Message { get; set; }
-        public int Result { get; set; }     // NOTE: Success == 0.
+        public ResultCode Result { get; set; }
         public int ProjectId { get; set; }
     }
 

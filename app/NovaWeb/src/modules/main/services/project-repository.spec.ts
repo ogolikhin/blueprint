@@ -1,9 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
+import {LocalizationServiceMock} from "../../core/localization.mock";
 import {IProjectRepository, ProjectRepository, Models} from "./project-repository";
-import {LocalizationServiceMock} from "../../shell/login/mocks.spec";
 
-describe("ProjectService", () => {
+describe("Project Repository", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("projectRepository", ProjectRepository);

@@ -28,8 +28,6 @@ namespace Model.StorytellerModel.Impl
 
         public string Address { get; }
 
-        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
-
         #region Constructor
 
         public Storyteller(string address)
@@ -42,6 +40,8 @@ namespace Model.StorytellerModel.Impl
         #endregion Constructor
 
         #region Implemented from IStoryteller
+
+        public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
         public IArtifact CreateAndSaveProcessArtifact(IProject project, BaseArtifactType artifactType, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -139,6 +139,10 @@ namespace Model.StorytellerModel.Impl
                 RestRequestMethod.POST,
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
+
+            // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
+            var artifact = Artifacts.Find(a => a.Id == process.Id);
+            artifact.ShouldDeleteChildren = true;
 
             return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
         }
@@ -372,7 +376,7 @@ namespace Model.StorytellerModel.Impl
             return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool deleteChildren = false)
+        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool? deleteChildren = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
 
@@ -408,14 +412,14 @@ namespace Model.StorytellerModel.Impl
                 {
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this Storyteller instance...");
 
-                    // Delete or Discard all the artifacts that were added.
                     var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
 
+                    // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
                     foreach (var artifact in Artifacts.ToArray())
                     {
                         if (artifact.IsPublished)
                         {
-                            DeleteProcessArtifact(artifact, deleteChildren: true);
+                            DeleteProcessArtifact(artifact);
                         }
                         else if (artifact.IsSaved)
                         {
@@ -430,15 +434,18 @@ namespace Model.StorytellerModel.Impl
                         }
                     }
 
+                    // For each user that created artifacts, discard the list of artifacts they created.
                     foreach (IUser user in savedArtifactsDictionary.Keys)
                     {
-                        Logger.WriteDebug("======== Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+                        Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
                         DiscardProcessArtifacts(savedArtifactsDictionary[user], savedArtifactsDictionary[user].First().Address, user);
                     }
                 }
             }
 
             _isDisposed = true;
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(Storyteller), nameof(Dispose));
         }
 
         /// <summary>

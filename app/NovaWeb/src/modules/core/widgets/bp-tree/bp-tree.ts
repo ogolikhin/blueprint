@@ -69,8 +69,12 @@ export interface IBPTreeController {
     addNode(data: any[], index?: number, propertyMap?: any); //to add a data node to the datasource
     addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
     removeNode(id: number);                     //to remove a data node (by id) from the datasource
-    selectNode(id: number);                     //to select a row in in ag-grid (by id)
-    refresh();                                  //
+
+    isEmpty: boolean;
+    //to select a row in in ag-grid (by id)
+    selectNode(id: number);                    
+    //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
+    reload(data?: any[], id?: number);
 }
 
 
@@ -179,9 +183,13 @@ export class BPTreeController implements IBPTreeController  {
         };
         return item;
     }
+    public get isEmpty(): boolean {
+        return !Boolean(this._datasource && this._datasource.length);
+    }
 
     //to add a data node to the datasource
-    public addNode(data: any[], index: number = 0, propertyMap?: any)  {
+    public addNode(data: any[], index: number = 0, propertyMap?: any) {
+
         this._datasource = this._datasource || [];
 
         data = data.map(function (it) {
@@ -226,15 +234,10 @@ export class BPTreeController implements IBPTreeController  {
 
     //to select a tree node in ag grid
     public selectNode(id: number) {
-        this.options.api.getModel().forEachNode(function (it) {
-            if (it.data.id === id) {
-                it.setSelected(true, true);            }
-        });
-    }
+        let cell = this.options.api.getFocusedCell();
 
-    //sets a new datasource or add a datasource to specific node  children collection
-    public refresh() {
-        this.options.api.setRowData(this._datasource || []);
+        this.options.api.getModel().forEachNode(function (it) {
+            it.setSelected(it.data.id === id, true);        });
     }
 
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
@@ -250,6 +253,33 @@ export class BPTreeController implements IBPTreeController  {
         }
         return item;
     };
+
+
+    //sets a new datasource or add a datasource to specific node  children collection
+    public reload(data?: any[], nodeId?: number) {
+        let nodes: ITreeNode[] = [];
+
+        this._datasource = this._datasource || [];
+        if (data) {
+            nodes = data.map(function (it) {
+                return this.mapData(it, this.propertyMap) ;
+            }.bind(this)) as ITreeNode[];
+        }
+        if (nodeId) {
+            let node = this.getNode(nodeId, this._datasource);
+            if (node) {
+                node = angular.extend(node, {
+                    open: true,
+                    loaded: true,
+                    children: nodes
+                });
+            }
+
+        } else {
+            this._datasource = nodes;
+        }
+        this.options.api.setRowData(this._datasource);
+    }
 
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
@@ -283,8 +313,8 @@ export class BPTreeController implements IBPTreeController  {
             //NOTE:: this method may uppdate grid datasource using setDataSource method
             let nodes = self.onLoad({ prms: null });
             if (angular.isArray(nodes)) {
-                this.addNode(nodes);
-                this.refresh();
+                //this.addNode(nodes);
+                this.reload(nodes);
             }
         }
     };
@@ -298,8 +328,7 @@ export class BPTreeController implements IBPTreeController  {
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (angular.isArray(nodes)) {
-                    this.addNodeChildren(node.data.id, nodes);
-                    this.refresh(); // pass nothing to just reload 
+                    this.reload(nodes, node.data.id); // pass nothing to just reload 
                 }
             }
         }

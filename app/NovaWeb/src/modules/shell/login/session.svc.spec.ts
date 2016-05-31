@@ -4,8 +4,8 @@ import { ISession,
         SessionSvc } from "./session.svc";
 import { ILoginInfo } from "./login.ctrl";
 import { IAuth} from "./auth.svc";
-import { LocalizationServiceMock,
-        AuthSvcMock,
+import {LocalizationServiceMock} from "../../core/localization.mock";
+import {AuthSvcMock,
         ModalServiceMock } from "./mocks.spec";
 import { DialogService} from "../../services/dialog.svc";
 

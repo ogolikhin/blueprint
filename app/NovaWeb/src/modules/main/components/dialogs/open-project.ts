@@ -7,13 +7,15 @@ import {IProjectManager, Models} from "../../managers/project-manager";
 
 export interface IOpenProjectResult {
     id: number;
+    type: number;
     name: string;
     description: string;
 }
 
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
-    private selectedItem: any;
+    private _selectedItem: IOpenProjectResult;
+    private _errorMessage: string;
     private tree: IBPTreeController;
 
     static $inject = ["$scope", "localization", "$uibModalInstance", "projectManager", "dialogService", "params", "$sce"];
@@ -21,7 +23,7 @@ export class OpenProjectController extends BaseDialogController {
         private $scope: ng.IScope,
         private localization: ILocalizationService,
         $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-        private projectManager: IProjectManager,
+        private manager: IProjectManager,
         private dialogService: IDialogService,
         params: IDialogSettings,
         private $sce: ng.ISCEService
@@ -38,18 +40,48 @@ export class OpenProjectController extends BaseDialogController {
     };
 
     //Dialog return value
-    public get returnvalue(): IOpenProjectResult {
-        return <IOpenProjectResult>{
-            id: (this.selectedItem && this.selectedItem["id"]) || -1,
-            name: (this.selectedItem && this.selectedItem["name"]) || "",
-            description: (this.selectedItem && this.selectedItem["description"]) || ""
-        };
+    public get returnValue(): IOpenProjectResult {
+        return this.selectedItem || null;
     };
-    public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.type === Models.ArtifactTypeEnum.Folder;
+
+    public get hasError(): boolean {
+        return Boolean(this._errorMessage);
+    }
+    public get errorMessage(): string {
+        return this._errorMessage;
     }
 
-    private onEnterKeyOnProject = (e: any) => {
+    public get isProjectSelected(): boolean {
+        return this.returnValue && this.returnValue.type === 1;
+    }
+
+    public get selectedItem() {
+        return this._selectedItem;
+    }
+
+    public set selectedItem(item: any) {
+        this._selectedItem = <IOpenProjectResult>{
+            id: (item && item["id"]) || -1,
+            name: (item && item["name"]) || "",
+            type: (item && item["type"]) || -1,
+            description: (item && item["description"]) || ""
+        }
+        if (this._selectedItem.description) {
+            var description = this._selectedItem.description;
+            var virtualDiv = window.document.createElement("DIV");
+            virtualDiv.innerHTML = description;
+            var aTags = virtualDiv.querySelectorAll("a");
+            for (var a = 0; a < aTags.length; a++) {
+                aTags[a].setAttribute("target", "_blank");
+            }
+            description = virtualDiv.innerHTML;
+            this._selectedItem.description = this.$sce.trustAsHtml(description);
+        }
+
+    }
+
+
+    private onEnterKeyPressed = (e: any) => {
         var key = e.which || e.keyCode;
         if (key === 13) {
             //user pressed Enter key on project
@@ -62,8 +94,8 @@ export class OpenProjectController extends BaseDialogController {
         field: "name",
         cellClassRules: {
             "has-children": function(params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.type === Models.ArtifactTypeEnum.Folder; },
-            "is-project": function (params) { return params.data.type === Models.ArtifactTypeEnum.Project; }
+            "is-folder": function (params) { return params.data.type === 0; },
+            "is-project": function (params) { return params.data.type === 1; }
         },
         cellRenderer: "group",
         cellRendererParams: {
@@ -72,7 +104,7 @@ export class OpenProjectController extends BaseDialogController {
 
                 if (params.data.type === 1) {
                     var cell = params.eGridCell;
-                    cell.addEventListener("keydown", this.onEnterKeyOnProject);
+                    cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
                 return sanitizedName;
             }
@@ -86,16 +118,14 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         let id = (prms && angular.isNumber(prms.id)) ? prms.id : null;
-        this.projectManager.getFolders(id)
-            .then((data: Models.IProjectNode[]) => { //pSvc.IProjectNode[]
-                if (angular.isNumber(id)) {
-                    self.tree.addNodeChildren(id, data);
-                } else {
-                    self.tree.addNode(data);
+        this.manager.getFolders(id)
+            .then((nodes: Models.IProjectNode[]) => { 
+                self.tree.reload(nodes, id);
+                if (self.tree.isEmpty) {
+                    this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
                 }
-                self.tree.refresh();
             }, (error) => {
-                //self.showError(error);
+                this._errorMessage = error.message;
             });
 
         return null;
@@ -106,17 +136,7 @@ export class OpenProjectController extends BaseDialogController {
         let self = this;
         this.$scope.$applyAsync((s) => {
             self.selectedItem = item;
-            if (self.selectedItem.description) {
-                var description = self.selectedItem.description;
-                var virtualDiv = window.document.createElement("DIV");
-                virtualDiv.innerHTML = description;
-                var aTags = virtualDiv.querySelectorAll("a");
-                for (var a = 0; a < aTags.length; a++) {
-                    aTags[a].setAttribute("target", "_blank");
-                }
-                description = virtualDiv.innerHTML;
-                self.selectedItem.description = this.$sce.trustAsHtml(description);
-            }
         });
     }
+
 }

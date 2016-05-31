@@ -1,7 +1,4 @@
-﻿//import "angular";
-//import {Helper} from "../../../core/utils/helper";
-//import {ILocalizationService} from "../../../core/localization";
-import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+﻿import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
 
 
@@ -15,18 +12,15 @@ export class ProjectExplorerController {
     public tree: IBPTreeController;
     
     public static $inject: [string] = ["projectManager"];
-    constructor(private manager: IProjectManager) {
-        this.manager.subscribe(SubscriptionEnum.CurrentProjectChanged, this.activateProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProjectChildren.bind(this));
-        this.manager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+    constructor(private projectManager: IProjectManager) {
+        this.projectManager.subscribe(SubscriptionEnum.ProjectChanged, this.activateProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
+        this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     }
 
-    //public $onInit = () => {
-
-    //};
     // the object defines how data will map to ITreeNode
-    // on left
+    // key: data property names, value: ITreeNode property names
     public propertyMap = {
         id: "id",
         typeId: "type",
@@ -36,32 +30,21 @@ export class ProjectExplorerController {
     }; 
 
     private activateProject(project: Models.IProject) {
-        this.tree.selectNode(project.id);
+        if (project) {
+            this.tree.selectNode(project.id);
+        }
     }
 
-    private loadProject = (project: Models.IProject) => {
-        this.tree.addNode([ 
-            angular.extend({
-                predefinedType: Models.ArtifactTypeEnum.Project,
-                hasChildren: true,
-                loaded: true,
-                open: true
-            }, project)
-        ]); 
-        
-        this.tree.refresh();
+    private loadProject = (artifact: Models.IArtifact) => {
+        artifact = angular.extend(artifact, {
+            loaded: true,
+            open: true
+        });
+        this.tree.reload(this.projectManager.ProjectCollection);
     }
 
-    private loadProjectChildren = (artifact: Models.IArtifact) => {
-        this.tree.addNodeChildren(artifact.id, artifact.artifacts);
-        this.tree.refresh();
-    }
-
-    private closeProject(projects: Models.IProject[]) {
-        projects.map(function (it: Models.IProject) {
-            this.tree.removeNode(it.id);
-        }.bind(this)); 
-        this.tree.refresh();
+    public closeProject(projects: Models.IProject[]) {
+        this.tree.reload(this.projectManager.ProjectCollection);
     }
 
     public columns = [{
@@ -81,17 +64,18 @@ export class ProjectExplorerController {
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
-            return null;    
+            return null;
         }
         //check passesed in parameter
         let artifactId = angular.isNumber(prms.id) ? prms.id : null;
         //notify the repository to load the node children
-        this.manager.notify(SubscriptionEnum.ProjectChildrenLoad, this.manager.CurrentProject.id, artifactId);
+        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, this.projectManager.CurrentProject.id, artifactId);
     };
+
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.manager.selectArtifact(node.id);
+        this.projectManager.selectArtifact(node.id);
     };
 
 }

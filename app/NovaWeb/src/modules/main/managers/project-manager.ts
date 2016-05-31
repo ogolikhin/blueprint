@@ -1,5 +1,6 @@
 ﻿import * as Models from "../models/models";
-import {INotificationService} from "../../core/notification";
+import {ILocalizationService} from "../../core/localization";
+import {IEventManager, EventSubscriber} from "../../core/event-manager";
 import {IProjectRepository} from "../services/project-repository";
 
 export {Models}
@@ -11,12 +12,12 @@ export enum SubscriptionEnum {
     ProjectChildrenLoaded,
     ProjectClose,
     ProjectClosed,
-    CurrentProjectChanged,
-    CurrentArtifactChanged
+    ProjectChanged,
+    ArtifactChanged
 }
 
 export interface IProjectManager {
-    // Notification
+    // eventManager
     subscribe(type: SubscriptionEnum, func: Function);
     unsubscribe(type: SubscriptionEnum, func: Function);
     notify(type: SubscriptionEnum, ...prms: any[]);
@@ -32,14 +33,15 @@ export interface IProjectManager {
 
 
 export class ProjectManager implements IProjectManager {
-    private notificationId: string = "projectmanager";
     private _currentProjet: Models.IProject;
     private _currentArtifact: Models.IArtifact;
+    private _projectCollection: Models.IProject[];
 
-    static $inject: [string] = ["projectRepository", "notification"];
+    static $inject: [string] = ["localization", "eventManager", "projectRepository"];
     constructor(
-        private _repository: IProjectRepository,
-        private notification: INotificationService) {
+        private localization: ILocalizationService,
+        private eventManager: IEventManager,
+        private _repository: IProjectRepository) {
 
         //subscribe to event
         this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
@@ -48,15 +50,15 @@ export class ProjectManager implements IProjectManager {
     }
 
     public subscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.attach(this.notificationId, SubscriptionEnum[type], func);
+        this.eventManager.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
-        this.notification.detach(this.notificationId, SubscriptionEnum[type], func);
+        this.eventManager.detach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public notify(type: SubscriptionEnum, ...prms: any[]) {
-        this.notification.dispatch(this.notificationId, SubscriptionEnum[type], ...prms);
+        this.eventManager.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
     }
 
 
@@ -65,7 +67,7 @@ export class ProjectManager implements IProjectManager {
             return;
         }
         this._currentProjet = project;
-        this.notify(SubscriptionEnum.CurrentProjectChanged, this._currentProjet);
+        this.notify(SubscriptionEnum.ProjectChanged, this._currentProjet);
     }
 
     public get CurrentProject(): Models.IProject {
@@ -73,74 +75,99 @@ export class ProjectManager implements IProjectManager {
     }
 
     public set CurrentArtifact(artifact: Models.IArtifact) {
-        if (this._currentArtifact && artifact && this._currentArtifact.id === artifact.id) {
+        if (artifact && angular.isDefined(this._currentArtifact) && this._currentArtifact.id === artifact.id) {
             return;
         }
         if (artifact && artifact.projectId !== this._currentProjet.id) {
-            let project = this.getProject(this._currentArtifact.projectId);
+            let project = this.getProject(artifact.projectId);
             if (project) {
                 this.CurrentProject = project;
             }
         }
         this._currentArtifact = artifact;
-        this.notify(SubscriptionEnum.CurrentArtifactChanged, this._currentArtifact);
+        this.notify(SubscriptionEnum.ArtifactChanged, this._currentArtifact);
     }
 
     public get CurrentArtifact(): Models.IArtifact {
         return this._currentArtifact;
     }
 
-    public ProjectCollection: Models.IProject[] = [];
+    public get ProjectCollection(): Models.IProject[] {
+        if (!this._projectCollection) {
+            this._projectCollection = [];
+        }
+        return this._projectCollection;
+    }
 
     private loadProject = (projectId: number, projectName: string) => {
-        let self = this;
-        let project = this.getProject(projectId);
+        try {
+            let self = this;
+            let project = this.getProject(projectId);
 
-        if (project) {
-            this.CurrentProject = project;
-        } else {
-            this._repository.getProject(projectId)
-                .then((result: Models.IArtifact[]) => {
-                    project = new Models.Project(result);
-                    project.id = projectId;
-                    project.name = projectName;
-                    self.ProjectCollection.unshift(project);
-                    self.notify(SubscriptionEnum.ProjectLoaded, project);
-                    self.CurrentProject = project;
-                }).catch((error: any) => {
-                    this.notification.dispatch("main", "exception", error);
+            if (project) {
+                this._projectCollection = this._projectCollection.filter(function (it) {
+                    return it !== project;
                 });
+                this._projectCollection.unshift(project);
+                self.notify(SubscriptionEnum.ProjectLoaded, project);
+                this.CurrentProject = project;
+            } else {
+                this._repository.getArtifacts(projectId)
+                    .then((result: Models.IArtifact[]) => {
+                        project = new Models.Project(projectId, projectName, result);
+                        self._projectCollection.unshift(project);
+                        self.notify(SubscriptionEnum.ProjectLoaded, project);
+                        self.CurrentProject = project;
+                    }).catch((error: any) => {
+                        this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
+                    });
+            } 
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
         }
     }
 
     private loadProjectChildren = (projectId: number, artifactId: number) => {
-        let self = this;
-
-        this._repository.getProject(projectId, artifactId)
-            .then((result: Models.IArtifact[]) => {
-                let artifact = self.CurrentProject.getArtifact(artifactId);
-                if (artifact) {
+        try {
+            let self = this;
+            let project = this.getProject(projectId);
+            if (!project) {
+                throw new Error(this.localization.get("Project_NotFound"));
+            }
+            let artifact = project.getArtifact(artifactId);
+            if (!artifact) {
+                throw new Error(this.localization.get("Artifact_NotFound"));
+            }
+            this._repository.getArtifacts(projectId, artifactId)
+                .then((result: Models.IArtifact[]) => {
                     artifact.artifacts = result;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
-                }
-            }).catch((error: any) => {
-                this.notification.dispatch("main", "exception", error);
-            });
+                }).catch((error: any) => {
+                    this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
+                });
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+        }
     }
 
     private closeProject(allFlag: boolean) {
-        let self = this;
-        let projectsToRemove: Models.IProject[] = [];
-        this.ProjectCollection = this.ProjectCollection.filter(function (it: Models.IProject) {
-            let result = true;
-            if (allFlag || it.id === self.CurrentProject.id) {
-                projectsToRemove.push(it);
-                result = false;
-            }
-            return result;
-        });
-        self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
-        this.CurrentProject = this.ProjectCollection[0] || null;
+        try {
+            let self = this;
+            let projectsToRemove: Models.IProject[] = [];
+            this._projectCollection = this._projectCollection.filter(function (it: Models.IProject) {
+                let result = true;
+                if (allFlag || it.id === self.CurrentProject.id) {
+                    projectsToRemove.push(it);
+                    result = false;
+                }
+                return result;
+            });
+            self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
+            this.CurrentProject = this.ProjectCollection[0] || null;
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+        }
+
     }
 
     public getFolders(id?: number) {

@@ -1,4 +1,4 @@
-﻿import {INotificationService} from "../notification";
+﻿
 export class Helper {
 
     static stripHTMLTags = (stringToSanitize: string): string => {
@@ -52,5 +52,22 @@ export class Helper {
         };
     };
     /* tslint:enable */
+
+    public static toFlat(root: any): any[] {
+        var stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
+        while (stack.length !== 0) {
+            var node = stack.shift();
+            array.push(node);
+            if (angular.isArray(node.children)) {
+
+                for (var i = node.children.length - 1; i >= 0; i--) {
+                    stack.push(node.children[i]);
+                }
+                node.children = null;
+            }
+        }
+
+        return array;
+    }
 }
 

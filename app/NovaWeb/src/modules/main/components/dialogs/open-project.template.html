@@ -2,32 +2,36 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <bp-tree bp-ref="ctrl.tree"
-             grid-class ="project-tree"
-             header-height="20"
-             row-height="20"
-             grid-columns="ctrl.columns"
-             property-map = "ctrl.propertyMap"
-             on-load="ctrl.doLoad(prms)"
-             on-select="ctrl.doSelect(item)">
-    </bp-tree>
-    <div class="project-data">
-        <div>{{::$root.config.labels["App_Project_Name"]}}</div>
-        <div class="project-name">{{ctrl.selectedItem.name}}</div>
-        <div ng-if="(ctrl.isProjectSelected)">
-            <div>{{::$root.config.labels["App_Project_Description"]}}</div>
-            <div class="project-description" ng-bind-html="ctrl.selectedItem.description"></div>
+    <div ng-if="$ctrl.hasError">
+        {{$ctrl.errorMessage}}
+    </div>
+    <div ng-if="!$ctrl.hasError">
+        <bp-tree bp-ref="$ctrl.tree"
+                 grid-class="project-tree"
+                 header-height="20"
+                 row-height="20"
+                 grid-columns="$ctrl.columns"
+                 property-map="$ctrl.propertyMap"
+                 on-load="$ctrl.doLoad(prms)"
+                 on-select="$ctrl.doSelect(item)">
+        </bp-tree>
+        <div class="project-data">
+            <div>{{::$root.config.labels["App_Project_Name"]}}</div>
+            <div class="project-name">{{$ctrl.selectedItem.name}}</div>
+            <div ng-if="($ctrl.isProjectSelected)">
+                <div>{{::$root.config.labels["App_Project_Description"]}}</div>
+                <div class="project-description" ng-bind-html="$ctrl.selectedItem.description"></div>
+            </div>
         </div>
     </div>
-
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
-        <button class="btn btn-secondary" ng-click="ctrl.cancel()">
-            <span ng-bind="ctrl.params.cancelButton"></span>
+        <button class="btn btn-secondary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.params.cancelButton"></span>
         </button>
-        <button class="btn btn-primary" ng-disabled="!ctrl.isProjectSelected" ng-click="ctrl.ok()">
-            <span ng-bind="ctrl.params.okButton"></span>
+        <button class="btn btn-primary" ng-disabled="!$ctrl.isProjectSelected" ng-click="$ctrl.ok()">
+            <span ng-bind="$ctrl.params.okButton"></span>
         </button>
     </div>
 </div>

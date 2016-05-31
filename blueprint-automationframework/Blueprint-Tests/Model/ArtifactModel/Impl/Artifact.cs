@@ -334,15 +334,7 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
-        public void UpdateArtifactName(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            UpdateArtifactName(artifact: this, user: user, expectedStatusCodes: expectedStatusCodes,
-                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
-        }
-
-        public PublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public NovaPublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             return PublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
                 sendAuthorizationAsCookie: sendAuthorizationAsCookie);
@@ -522,25 +514,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Updates name of artifact with random string
-        /// </summary>
-        /// <param name="artifact">....</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        public static void UpdateArtifactName(IArtifactBase artifact,
-            IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            OpenApiArtifact.UpdateArtifact(
-                artifact,
-                user,
-                expectedStatusCodes: expectedStatusCodes,
-                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
-        }
-
-        /// <summary>
         /// Lock Artifact(s) 
         /// </summary>
         /// <param name="artifactsToLock">The list of artifacts to lock</param>
@@ -591,7 +564,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Resut of Publish operation</returns>
-        public static PublishArtifactResult PublishArtifact(IArtifactBase artifactToPublish,
+        ///TODO: override the Publish() function in the Artifact class to call this PublishArtifact() function
+        public static NovaPublishArtifactResult PublishArtifact(IArtifactBase artifactToPublish,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
@@ -607,21 +581,17 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = string.Empty;
             }
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
             const string path = "/svc/shared/artifacts/publish";
             RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, user.Username, user.Password, tokenValue);
 
-            var publishResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
                 new List<int> { artifactToPublish.Id },
                 expectedStatusCodes: expectedStatusCodes);
 
-            // Mark artifact in artifact list as published
+            ///TODO: update after fix in PublishArtifacts from ArtifactBase.cs 
+            //if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
             artifactToPublish.IsPublished = true;
-            artifactToPublish.IsSaved = false;
+                artifactToPublish.IsSaved = false;
             return publishResults[0];
         }
 

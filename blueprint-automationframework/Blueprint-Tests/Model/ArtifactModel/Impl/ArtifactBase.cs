@@ -211,13 +211,16 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for breadcrumb navigation</param>
         /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="readOnly">(optional) Indicator which determines if returning artifact references are readOnly or not.
+        /// By default, readOnly is set to false</param>
         /// <returns>The List of ArtifactReferences after the get navigation call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<ArtifactReference> GetNavigation(
             string address,
             IUser user,
             List<IArtifact> artifacts,
-            List<HttpStatusCode> expectedStatusCodes = null
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool readOnly = false
             )
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -230,11 +233,23 @@ namespace Model.ArtifactModel.Impl
 
             var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
 
+            var queryParameters = new Dictionary<string, string>();
+
+            if (readOnly)
+            {
+                queryParameters.Add("readOnly", "true");
+            }
+            else
+            {
+                queryParameters.Add("readOnly", "false");
+            }
+
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             return response;
@@ -297,15 +312,11 @@ namespace Model.ArtifactModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            var artifactObjectList = (
-                from IArtifactBase artifact in artifactsToPublish
-                select new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
-
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<ArtifactBase>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 OpenApiArtifact.URL_PUBLISH,
                 RestRequestMethod.POST,
-                artifactObjectList,
+                artifactsToPublish,
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
@@ -314,15 +325,15 @@ namespace Model.ArtifactModel.Impl
             // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
             foreach (var publishedResult in publishedResultList)
             {
-                var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                var publishedArtifact = artifactsToPublish.Find(a => a.Id.Equals(publishedResult.ArtifactId));
                 publishedArtifact.IsSaved = false;
                 publishedArtifact.IsPublished = true;
                 Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
             }
 
-            Assert.That(publishedResultList.Count.Equals(artifactObjectList.Count),
+            Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
                 "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
-                artifactObjectList.Count, publishedResultList.Count);
+                artifactsToPublish.Count, publishedResultList.Count);
 
             return artifactResults;
         }

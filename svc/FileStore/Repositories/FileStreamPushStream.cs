@@ -21,14 +21,8 @@ namespace FileStore.Repositories
 
         public void Initialize(IFileStreamRepository fsr, IConfigRepository config, Guid fileId)
         {
-            if (fsr == null)
-            {
-                throw new ArgumentException("File stream repository param is null.");
-            }
-            if (config == null)
-            {
-                throw new ArgumentException("Config repository param is null.");
-            }
+            ThrowIf.ArgumentNull(fsr, nameof(fsr));
+            ThrowIf.ArgumentNull(config, nameof(config));
 
             _filesRepository = fsr;
             _configRepository = config;

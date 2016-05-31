@@ -48,22 +48,20 @@ namespace StorytellerTests
 
             int savedArtifactVersion = artifact.Version;
 
-            var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
+            var savedProcess = Helper.Storyteller.GetProcess(_user, artifact.Id);
 
-            Assert.IsFalse(IsHistoricalVersion(process), "A historical version was returned when it was not expected.");
+            Assert.IsFalse(IsHistoricalVersion(savedProcess), "A historical version was returned when it was not expected.");
 
             // Assert that version of the saved artifact and saved process are equal
-            Assert.AreEqual(savedArtifactVersion, process.Status.VersionId,  
+            Assert.AreEqual(savedArtifactVersion, savedProcess.Status.VersionId,  
                 "The saved artifact version does not equal the saved process version.");
 
             // Assert that the version of the saved process is correct (-1)
-            Assert.AreEqual(process.Status.VersionId, SavedVersionId, 
-                "The process version Id was {0} but {1} was expected", process.Status.VersionId, SavedVersionId);
+            Assert.AreEqual(savedProcess.Status.VersionId, SavedVersionId, 
+                "The process version Id was {0} but {1} was expected", savedProcess.Status.VersionId, SavedVersionId);
 
             // Assert that the process type is Business Process
-            Assert.That(process.ProcessType == ProcessType.BusinessProcess, "Process was not a Business Process.");
-
-            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+            Assert.That(savedProcess.ProcessType == ProcessType.BusinessProcess, "Process was not a Business Process.");
 
             Helper.Storyteller.PublishProcess(_user, savedProcess);
 
@@ -94,7 +92,7 @@ namespace StorytellerTests
                 "The process version Id was {0} but {1} was expected", 
                 publishedProcess2.Status.VersionId, FirstPublishedVersionId + 1);
 
-            // Get the process for the first published version (1)
+            // Get the process for the first published (historical) version (1)
             var historicalProcess = Helper.Storyteller.GetProcess(_user, artifact.Id, FirstPublishedVersionId);
 
             Assert.IsTrue(IsHistoricalVersion(historicalProcess), "A historical version was expected but not returned.");
@@ -112,14 +110,13 @@ namespace StorytellerTests
         }
 
         /// <summary>
-        /// Check whether a returned process is a historical version
+        /// Check whether a process is a historical version
         /// </summary>
-        /// <param name="returnedProcess">The process returned from the Get call</param>
-        /// <returns>Returns true is process is a hsitorical version; Else returns false.</returns>
-        private static bool IsHistoricalVersion(IProcess returnedProcess)
+        /// <param name="process">The process to be checked as historical</param>
+        /// <returns>Returns true if the process is a historical version; Else returns false.</returns>
+        private static bool IsHistoricalVersion(IProcess process)
         {
-            
-            return returnedProcess.Status.IsReadOnly && !returnedProcess.RequestedVersionInfo.IsHeadOrSavedDraftVersion;
+            return process.Status.IsReadOnly && !process.RequestedVersionInfo.IsHeadOrSavedDraftVersion;
         }
     }
 }

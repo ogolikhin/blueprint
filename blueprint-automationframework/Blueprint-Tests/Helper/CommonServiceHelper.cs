@@ -51,12 +51,15 @@ namespace Helper
         /// <param name="user">The user who have access to the project</param>
         /// <param name="resultArtifactReferenceList">The returned artifact reference list from GET navigation call</param>
         /// <param name="artifactList">The list of artifacts for the navigation</param>
+        /// <param name="readOnly">(optional) Indicator that returning artifact reference links are readOnly format</param>
         /// <exception cref="AssertionException">If any expected fields are not found.</exception>
         public static void VerifyNavigation(
             IProject project,
             IUser user,
             List<ArtifactReference> resultArtifactReferenceList,
-            List<IArtifact> artifactList)
+            List<IArtifact> artifactList,
+            bool readOnly = false
+            )
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -143,7 +146,8 @@ namespace Helper
             string linkPath = NAVIGATION_BASE_URL;
             foreach (var artifactReference in resultArtifactReferenceList)
             {
-                linkPath = I18NHelper.FormatInvariant("{0}{1}/", linkPath, artifactReference.Id);
+                linkPath = readOnly ? I18NHelper.FormatInvariant("{0}{1}/?readOnly=1", linkPath, artifactReference.Id)
+                    : I18NHelper.FormatInvariant("{0}{1}/", linkPath, artifactReference.Id);
                 if (artifactReference.Id.Equals(NONEXISTENT_ARTIFACT_ID) || artifactReference.Name.Equals(INACCESSIBLE_ARTIFACT_NAME))
                 {
                     Assert.That(artifactReference.Link == null,

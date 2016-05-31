@@ -211,13 +211,16 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for breadcrumb navigation</param>
         /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="readOnly">(optional) Indicator which determines if returning artifact references are readOnly or not.
+        /// By default, readOnly is set to false</param>
         /// <returns>The List of ArtifactReferences after the get navigation call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<ArtifactReference> GetNavigation(
             string address,
             IUser user,
             List<IArtifact> artifacts,
-            List<HttpStatusCode> expectedStatusCodes = null
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool readOnly = false
             )
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -228,7 +231,8 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = readOnly ? I18NHelper.FormatInvariant("{0}/{1}?readOnly=true", URL_NAVIGATION, String.Join("/", artifactIds))
+                : I18NHelper.FormatInvariant("{0}/{1}?readOnly=false", URL_NAVIGATION, String.Join("/", artifactIds));
 
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 

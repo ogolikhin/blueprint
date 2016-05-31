@@ -2,7 +2,7 @@
 import "angular-mocks";
 import { SessionSvc } from "./session.svc";
 import { LoginCtrl, LoginState } from "./login.ctrl";
-import {LocalizationServiceMock} from "../../core/localization";
+import {LocalizationServiceMock} from "../../core/localization.mock";
 import {ConfigValueHelperMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock } from "./mocks.spec";
 
 

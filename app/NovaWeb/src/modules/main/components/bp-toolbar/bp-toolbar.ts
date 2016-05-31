@@ -1,7 +1,5 @@
-﻿/// <reference path="../../../core/notification.ts" />
-import {ILocalizationService} from "../../../core/localization";
+﻿import {ILocalizationService} from "../../../core/localization";
 import {IDialogSettings, IDialogService} from "../../../services/dialog.svc";
-//import {IProjectNotification, SubscriptionEnum} from "../../services/project-notification";
 import {IProjectManager, SubscriptionEnum } from "../../managers/project-manager";
 import {IOpenProjectResult, OpenProjectController} from "../dialogs/open-project";
 
@@ -19,7 +17,7 @@ class BPToolbarController implements IBPToolbarController {
 
     static $inject = ["localization", "dialogService", "projectManager" ];
 
-    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private manager: IProjectManager) {
+    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private projectManager: IProjectManager) {
     }
 
     execute(evt: any): void {
@@ -30,10 +28,10 @@ class BPToolbarController implements IBPToolbarController {
         var element = evt.currentTarget;
         switch (element.id) {
             case `ProjectClose`:
-                this.manager.notify(SubscriptionEnum.ProjectClose);
+                this.projectManager.notify(SubscriptionEnum.ProjectClose);
                 break;
             case `ProjectCloseAll`:
-                this.manager.notify(SubscriptionEnum.ProjectClose, true);
+                this.projectManager.notify(SubscriptionEnum.ProjectClose, true);
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -59,7 +57,7 @@ class BPToolbarController implements IBPToolbarController {
             css: "nova-open-project"
         }).then((selected: IOpenProjectResult) => {
             if (selected && selected.id) {
-                this.manager.notify(SubscriptionEnum.ProjectLoad, selected.id, selected.name);
+                this.projectManager.notify(SubscriptionEnum.ProjectLoad, selected.id, selected.name);
             }
         });
     }

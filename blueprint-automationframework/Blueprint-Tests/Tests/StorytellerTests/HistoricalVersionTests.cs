@@ -13,7 +13,7 @@ namespace StorytellerTests
     [Category(Categories.Storyteller)]
     public class HistoricalVersionTests : TestBase
     {
-        private const int SavedVersionId = -1;
+        private const int UnpublishedVersionId = -1;
         private const int FirstPublishedVersionId = 1;
 
         private IUser _user;
@@ -42,7 +42,7 @@ namespace StorytellerTests
         [Description("Gets a historical version of an artifact after changes have been made to the live version then " +
                      "verifies that the historical version matches the original state of the artifact before the changes" +
                      "were made.")]
-        public void GetHistoricalVersion_VerifyReturnedProcess()
+        public void GetHistoricalVersionOfPublishedProcessWithChange_VerifyReturnedHistoricalVersionDoesNotContainChange()
         {
             var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, BaseArtifactType.Process, _user);
 
@@ -57,8 +57,8 @@ namespace StorytellerTests
                 "The saved artifact version does not equal the saved process version.");
 
             // Assert that the version of the saved process is correct (-1)
-            Assert.AreEqual(savedProcess.Status.VersionId, SavedVersionId, 
-                "The process version Id was {0} but {1} was expected", savedProcess.Status.VersionId, SavedVersionId);
+            Assert.AreEqual(savedProcess.Status.VersionId, UnpublishedVersionId, 
+                "The process version Id was {0} but {1} was expected", savedProcess.Status.VersionId, UnpublishedVersionId);
 
             // Assert that the process type is Business Process
             Assert.That(savedProcess.ProcessType == ProcessType.BusinessProcess, "Process was not a Business Process.");

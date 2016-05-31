@@ -20,10 +20,7 @@ namespace FileStore.Repositories
 
         public void Initialize(IFilesRepository fr, Guid fileId)
         {
-            if (fr == null)
-            {
-                throw new ArgumentException("File repository param is null.");
-            }
+            ThrowIf.ArgumentNull(fr, nameof(fr));
 
             _filesRepository = fr; 
 

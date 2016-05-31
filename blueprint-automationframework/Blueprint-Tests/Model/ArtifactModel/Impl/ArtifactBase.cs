@@ -297,15 +297,11 @@ namespace Model.ArtifactModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            var artifactObjectList = (
-                from IArtifactBase artifact in artifactsToPublish
-                select new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
-
             RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<ArtifactBase>>(
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 OpenApiArtifact.URL_PUBLISH,
                 RestRequestMethod.POST,
-                artifactObjectList,
+                artifactsToPublish,
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
@@ -314,15 +310,15 @@ namespace Model.ArtifactModel.Impl
             // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
             foreach (var publishedResult in publishedResultList)
             {
-                var publishedArtifact = artifactObjectList.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+                var publishedArtifact = artifactsToPublish.Find(a => a.Id.Equals(publishedResult.ArtifactId));
                 publishedArtifact.IsSaved = false;
                 publishedArtifact.IsPublished = true;
                 Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
             }
 
-            Assert.That(publishedResultList.Count.Equals(artifactObjectList.Count),
+            Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
                 "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
-                artifactObjectList.Count, publishedResultList.Count);
+                artifactsToPublish.Count, publishedResultList.Count);
 
             return artifactResults;
         }

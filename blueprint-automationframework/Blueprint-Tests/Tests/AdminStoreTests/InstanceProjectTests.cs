@@ -5,6 +5,7 @@ using Helper;
 using System.Net;
 using Model;
 using TestCommon;
+using Utilities;
 
 namespace AdminStoreTests
 {
@@ -36,16 +37,9 @@ namespace AdminStoreTests
         [Description("Gets the project and returns 'OK' if successful")]
         public void GetProjectById_OK()
         {
-            // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
-            {
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.OK);
-
-                /*Executes get project REST call and returns HTTP code*/
-                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) USED */
-                helper.AdminStore.GetProjectById(defaultProjectId, _user, expectedCodesList);
-            }
+            /*Executes get project REST call and returns HTTP code*/
+            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) USED */
+            Helper.AdminStore.GetProjectById(defaultProjectId, _user);
         }
 
         [Test]
@@ -53,15 +47,11 @@ namespace AdminStoreTests
         [Description("Gets the project and returns 'Not Found' if successfull")]
         public void GetProjectById_NotFound()
         {
-            // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http404NotFoundException>(() =>
             {
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.NotFound);
-
                 /*Executes get project REST call and returns HTTP code*/
-                helper.AdminStore.GetProjectById(nonExistingProject, _user, expectedCodesList);
-            }
+                Helper.AdminStore.GetProjectById(nonExistingProject, _user);
+            }, "AdminStore should return a 404 Not Found error when trying to call non existing project");
         }
 
         [Test]
@@ -70,33 +60,27 @@ namespace AdminStoreTests
         public void GetProjectById_Unauthorized()
         {
             // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
+            _user.SetToken("CD4351BF-0162-4AB9-BA80-1A932D94CF7F");
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _user.SetToken("CD4351BF-0162-4AB9-BA80-1A932D94CF7F");
-
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.Unauthorized);
-
                 /*Executes get project REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                helper.AdminStore.GetProjectById(defaultProjectId, _user, expectedCodesList);
-            }
+                Helper.AdminStore.GetProjectById(defaultProjectId, _user);
+            }, "AdminStore should return a 401 Unauthorized error when trying to call with expired token");
         }
 
         [Test]
         [TestRail(123272)]
         [Description("Executes Get project call and returns 'Bad Request' if successful")]
-        public static void GetProjectById_BadRequest()
+        public void GetProjectById_BadRequest()
         {
-            List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-            expectedCodesList.Add(HttpStatusCode.BadRequest);
-
-            /*Executes get project REST call and returns HTTP code*/
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http400BadRequestException>(() =>
             {
-                helper.AdminStore.GetProjectById(defaultProjectId, noTokenInRequest, expectedCodesList);
-            }
+                /*Executes get project REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
+                Helper.AdminStore.GetProjectById(defaultProjectId, noTokenInRequest);
+            }, "AdminStore should return a 400 Bad reques error when trying to call without session token");
         }
     }
 }

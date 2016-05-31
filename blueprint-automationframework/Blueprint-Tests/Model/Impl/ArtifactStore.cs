@@ -40,10 +40,11 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
-        public string GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<ArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
             ISession session = null;
+            List<ArtifactType> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -52,17 +53,18 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var deserializedObject = JsonConvert.DeserializeObject<List<Project>>(response.Content);
-                Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly.");
+                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 
-            return response.Content;
+            return artifactList;
         }
 
-        public string GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<ArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);
             ISession session = null;
+            List <ArtifactType> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -71,11 +73,11 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var deserializedObject = JsonConvert.DeserializeObject<List<Project>>(response.Content);
-                Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly.");
+                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 
-            return response.Content;
+            return artifactList;
         }
 
         private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)

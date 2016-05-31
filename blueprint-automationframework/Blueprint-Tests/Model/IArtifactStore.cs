@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -33,7 +34,7 @@ namespace Model
         /// <param name="user">Current user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Response content</returns>
-        string GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<ArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets all children artifacts by project and artifact id.
@@ -44,7 +45,7 @@ namespace Model
         /// <param name="user">Current user.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Response content.</returns>
-        string GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<ArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
     }
 }

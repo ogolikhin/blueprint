@@ -324,9 +324,10 @@ namespace Model.Impl
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
         }
 
-        public string GetFolderOrItsChildrenById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false)
+        public IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string instanceFolderPath = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
+            string instanceFolderPath = "{0}/instance/folders/{1}";
+
             string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
             ISession session = null;
 
@@ -335,20 +336,33 @@ namespace Model.Impl
 
             RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
 
-            if (!hasChildren)
-            {
-                var deserializedObject = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
-                Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly");
-            }
-            else if ((response.StatusCode != HttpStatusCode.BadRequest) && (response.StatusCode != HttpStatusCode.Unauthorized))
-            {
-                    var deserializedObject = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
-                    Assert.IsNotNull(deserializedObject, "Object could not be deserialized properly");
-            }
-            return response.Content;
+            var primitiveFolder = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+            Assert.IsNotNull(primitiveFolder, "Object could not be deserialized properly");
+
+            return primitiveFolder;
         }
 
-        public string GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<PrimitiveFolder> GetFolderChildrenByFolderId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string instanceFolderPath = "{0}/instance/folders/{1}/children";
+            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            ISession session = null;
+            List<PrimitiveFolder> primitiveFolderList = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                    primitiveFolderList = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                    Assert.IsNotNull(primitiveFolderList, "Object could not be deserialized properly");
+            }
+            return primitiveFolderList;
+        }
+
+        public IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/instance/projects/{1}", SVC_PATH, id);
             ISession session = null;
@@ -358,10 +372,10 @@ namespace Model.Impl
 
             RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
 
-            var pf = JsonConvert.DeserializeObject<InstanceProject>(response.Content);
-            Assert.IsNotNull(pf, "Object could not be deserialized properly");
+            IProject project = JsonConvert.DeserializeObject<InstanceProject>(response.Content);
+            Assert.IsNotNull(project, "Object could not be deserialized properly");
 
-            return response.Content;
+            return project;
         }
 
         private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)

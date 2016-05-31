@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using CustomAttributes;
 using Helper;
-using System.Net;
 using Model;
 using TestCommon;
+using Utilities;
 
 namespace AdminStoreTests
 {
@@ -31,25 +30,30 @@ namespace AdminStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        [TestRail(119382)]
-        [Description("Gets the folder or folder children and returns 'OK' if successful")]
-        public void GetFolderOrChildren_OK(bool hasChildren)
+        [TestCase]
+        [Description("Gets the folder and returns 'OK' if successful")]
+        public void GetFolderById_OK()
         {
-            // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
+            Assert.DoesNotThrow(() =>
             {
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.OK);
+                /*Executes get folder REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderById(defaultFolderId, _user);
+            }, "AdminStore should return a 200 OK for the folder that exists");
+        }
 
-                Assert.DoesNotThrow(() =>
-                {
-                    /*Executes get folder or its children REST call and returns HTTP code*/
-                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
-                }, "AdminStore should return a 200 OK for the project that exists");
-            }
+
+        [TestCase]
+        [TestRail(119382)]
+        [Description("Gets the folder children and returns 'OK' if successful")]
+        public void GetFolderChildrenById_OK()
+        {
+           Assert.DoesNotThrow(() =>
+            {
+                /*Executes get folder children REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderChildrenByFolderId(defaultFolderId, _user);
+            }, "AdminStore should return a 200 OK for the folder that exists");
         }
 
         [TestCase]
@@ -57,62 +61,69 @@ namespace AdminStoreTests
         [Description("Gets the folder and returns 'Not Found' if successfull")]
         public void GetFolder_NotFound()
         {
-            // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http404NotFoundException>(() =>
             {
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.NotFound);
-
-                Assert.DoesNotThrow(() =>
-                {
-                    /*Executes get folder or its children REST call and returns HTTP code*/
-                    /*FOLDER INSTANCE int.MaxValue DOESN'T EXIST*/
-                    helper.AdminStore.GetFolderOrItsChildrenById(nonExistingFolder, _user, expectedCodesList);
-                }, "AdminStore should return a 404 Not Found error when trying to get a non-existing Instance");
-            }
+                /*Executes get folder REST call and returns HTTP code*/
+                /*FOLDER INSTANCE int.MaxValue DOESN'T EXIST*/
+                Helper.AdminStore.GetFolderById(nonExistingFolder, _user);
+            }, "AdminStore should return a 404 Not Found error when trying to get a non-existing Instance");
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
+        [TestCase]
         [TestRail(119384)]
         [Description("Gets the folder or folder children and returns 'Unauthorized' if successful")]
-        public void GetFolderOrChildren_Unauthorized(bool hasChildren)
+        public void GetFolderById_Unauthorized()
         {
-            // Get a valid Access Control token for the user (for the new REST calls).
-            using (TestHelper helper = new TestHelper())
+            _user.SetToken("CD4351BF-0162-4AB9-BA80-1A932D94CF7F");
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _user.SetToken("CD4351BF-0162-4AB9-BA80-1A932D94CF7F");
-
-                List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-                expectedCodesList.Add(HttpStatusCode.Unauthorized);
-
-                Assert.DoesNotThrow(() =>
-                {
-                    /*Executes get folder or its children REST call and returns HTTP code*/
-                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, _user, expectedCodesList, hasChildren);
-                }, "AdminStore should return a 401 Unauthorized error when trying to use expired session token");
-            }
+                /*Executes get folder REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderById(defaultFolderId, _user);
+            }, "AdminStore should return a 401 Unauthorized error when trying to use expired session token");
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
+        [TestCase]
+        [TestRail(119384)]
+        [Description("Gets the folder or folder children and returns 'Unauthorized' if successful")]
+        public void GetFolderChildrenByFolderId_Unauthorized()
+        {
+            // Get a valid Access Control token for the user (for the new REST calls).
+            _user.SetToken("CD4351BF-0162-4AB9-BA80-1A932D94CF7F");
+
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                /*Executes get folder children REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderChildrenByFolderId(defaultFolderId, _user);
+            }, "AdminStore should return a 401 Unauthorized error when trying to use expired session token");
+        }
+
+        [TestCase]
         [TestRail(119385)]
         [Description("Gets the folder or folder children and returns 'Bad Request' if successful")]
-        public static void GetFolderOrChildren_BadRequest(bool hasChildren)
+        public void GetFolderById_BadRequest()
         {
-            List<HttpStatusCode> expectedCodesList = new List<HttpStatusCode>();
-            expectedCodesList.Add(HttpStatusCode.BadRequest);
-
-            /*Executes get folder or its children REST call and returns HTTP code*/
-            /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http400BadRequestException>(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    helper.AdminStore.GetFolderOrItsChildrenById(defaultFolderId, noTokenInRequest, expectedCodesList, hasChildren);
-                }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
-            }
+                /*Executes get folder REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderById(defaultFolderId, noTokenInRequest);
+            }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
+        }
+
+        [TestCase]
+        [TestRail(119385)]
+        [Description("Gets the folder or folder children and returns 'Bad Request' if successful")]
+        public void GetFolderOrChildren_BadRequest()
+        {
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                /*Executes get folder children REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderChildrenByFolderId(defaultFolderId, noTokenInRequest);
+            }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
         }
 
     }

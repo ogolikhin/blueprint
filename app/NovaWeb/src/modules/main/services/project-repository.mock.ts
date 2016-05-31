@@ -7,6 +7,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
 
     public getFolders(id?: number): ng.IPromise<any[]> {
         var deferred = this.$q.defer<any[]>();
+        
         var folders = [
             {
                 "id": 3,
@@ -34,6 +35,10 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 "type": "Project"
             }
         ];
+        if (id || id < 0) {
+            folders = null;
+        }
+
         deferred.resolve(folders);
         return deferred.promise;
     }

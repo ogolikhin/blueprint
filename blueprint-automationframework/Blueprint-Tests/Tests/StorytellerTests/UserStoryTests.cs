@@ -380,6 +380,28 @@ namespace StorytellerTests
             }, "Update Nonfunctional Requirements must not return an error.");
         }
 
+        [TestCase]
+        [Description("")]
+        [TestRail(000)]
+        public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingSTTitle()
+        {
+            // Create and publish a process artifact
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
+
+            // Checking Object: The Process that contains shapes including user task shapes
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            
+            var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            var persona = userTasksOnProcess[0].PropertyValues["persona"].Value;
+            var taskName = userTasksOnProcess[0].Name;
+            string expectedStoryTitle = I18NHelper.FormatInvariant("<html>\r\n<body>\r\n<p style=\"margin: 0px\">As a <span style=\"color: #3398db;\">{0}</span>, I want to <span style=\"color: #3398db;\">{1}</span></p>\r\n</body>\r\n</html>\r\n",
+                persona.ToString(), taskName);
+
+            // Test Object: Generated User Stories from the Process
+            List <IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            Assert.AreEqual(expectedStoryTitle, userStories[0].CustomProperties[0].Value);
+        }
+
         #endregion Tests
 
         /// <summary>

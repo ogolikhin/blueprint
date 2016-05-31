@@ -126,6 +126,71 @@ namespace Helper
         }
 
         /// <summary>
+        /// Verify process status by checking the status boolean parameters from the process model
+        /// </summary>
+        /// <param name="retrievedProcess">The process model retrieved from the server side</param>
+        /// <param name="processStatusState">The process status state that represents expected status of the returned process</param>
+        public static void VerifyProcessStatus(IProcess retrievedProcess, ProcessStatusState processStatusState)
+        {
+            ThrowIf.ArgumentNull(retrievedProcess, nameof(retrievedProcess));
+
+            ProcessStatus expectedStatus = null;
+            switch (processStatusState)
+            {
+                case ProcessStatusState.NeverPublishedAndUpdated:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: true, isDeleted: false,
+                        isReadOnly: false, isUnpublished: true,
+                        hasEverBeenPublished: false);
+                    break;
+                case ProcessStatusState.PublishedAndNotLocked:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: false, isLockedByMe: false, isDeleted: false,
+                        isReadOnly: false, isUnpublished: false,
+                        hasEverBeenPublished: true);
+                    break;
+                case ProcessStatusState.PublishedAndLockedByMe:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: true, isDeleted: false,
+                        isReadOnly: false, isUnpublished: true,
+                        hasEverBeenPublished: true);
+                    break;
+                case ProcessStatusState.PublishedAndLocked:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: false, isDeleted: false,
+                        isReadOnly: true, isUnpublished: false,
+                        hasEverBeenPublished: true);
+                    break;
+            }
+
+            var retrivedProcessStatus = retrievedProcess.Status;
+
+            Assert.That(retrivedProcessStatus.IsLocked.Equals(expectedStatus.IsLocked),
+                "IsLocked from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.IsLocked, expectedStatus.IsLocked);
+
+            Assert.That(retrivedProcessStatus.IsLockedByMe.Equals(expectedStatus.IsLockedByMe),
+                "IsLockedByMe from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.IsLockedByMe, expectedStatus.IsLockedByMe);
+
+            Assert.That(retrivedProcessStatus.IsDeleted.Equals(expectedStatus.IsDeleted),
+                "IsDeleted from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.IsDeleted, expectedStatus.IsDeleted);
+
+            Assert.That(retrivedProcessStatus.IsReadOnly.Equals(expectedStatus.IsReadOnly),
+                "IsReadOnly from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.IsReadOnly, expectedStatus.IsReadOnly);
+
+            Assert.That(retrivedProcessStatus.IsUnpublished.Equals(expectedStatus.IsUnpublished),
+                "IsUnpublished from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.IsUnpublished, expectedStatus.IsUnpublished);
+
+            Assert.That(retrivedProcessStatus.HasEverBeenPublished.Equals(expectedStatus.HasEverBeenPublished),
+                "HasEverBeenPublished from the process model is {0} but {1} is expected.",
+                retrivedProcessStatus.HasEverBeenPublished, expectedStatus.HasEverBeenPublished);
+        }
+
+        /// <summary>
         /// Create and Get the Default Process
         /// </summary>
         /// <param name="storyteller">The storyteller instance</param>

@@ -110,15 +110,6 @@ namespace Model.ArtifactModel
         LockResultInfo Lock(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Updates artifact name with a random string
-        /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        void UpdateArtifactName(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
-
-        /// <summary>
         /// Publish the artifact on Blueprint server.
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials

@@ -6,6 +6,7 @@ import {IProjectRepository} from "../services/project-repository";
 export {Models}
 
 export enum SubscriptionEnum { 
+    Initialize,
     ProjectLoad,
     ProjectLoaded,
     ProjectChildrenLoad,
@@ -33,7 +34,7 @@ export interface IProjectManager {
 
 
 export class ProjectManager implements IProjectManager {
-    private _currentProjet: Models.IProject;
+    private _currentProject: Models.IProject;
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
 
@@ -44,6 +45,7 @@ export class ProjectManager implements IProjectManager {
         private _repository: IProjectRepository) {
 
         //subscribe to event
+        this.subscribe(SubscriptionEnum.Initialize, this.initialize.bind(this));
         this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
         this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this));
         this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
@@ -63,22 +65,22 @@ export class ProjectManager implements IProjectManager {
 
 
     public set CurrentProject(project: Models.IProject) {
-        if (this._currentProjet && project && this._currentProjet.id === project.id) {
+        if (this._currentProject && project && this._currentProject.id === project.id) {
             return;
         }
-        this._currentProjet = project;
-        this.notify(SubscriptionEnum.ProjectChanged, this._currentProjet);
+        this._currentProject = project;
+        this.notify(SubscriptionEnum.ProjectChanged, this._currentProject);
     }
 
     public get CurrentProject(): Models.IProject {
-        return this._currentProjet;
+        return this._currentProject;
     }
 
     public set CurrentArtifact(artifact: Models.IArtifact) {
         if (artifact && angular.isDefined(this._currentArtifact) && this._currentArtifact.id === artifact.id) {
             return;
         }
-        if (artifact && artifact.projectId !== this._currentProjet.id) {
+        if (artifact && artifact.projectId !== this._currentProject.id) {
             let project = this.getProject(artifact.projectId);
             if (project) {
                 this.CurrentProject = project;
@@ -97,6 +99,13 @@ export class ProjectManager implements IProjectManager {
             this._projectCollection = [];
         }
         return this._projectCollection;
+    }
+
+
+    private initialize = () => {
+        this._projectCollection = [];
+        this._currentProject = null;
+        this._currentArtifact = null;
     }
 
     private loadProject = (projectId: number, projectName: string) => {

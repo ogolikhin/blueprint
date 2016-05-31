@@ -23,6 +23,7 @@ export class BPTreeControllerMock implements IBPTreeController {
     }
 
     public addNodeChildren(id: number, data: any[], propertyMap?: any) {
+        
         let node = this._datasource[0];
         node.children = [];
         for (let i = 100; i < 105; i++) {
@@ -41,6 +42,11 @@ export class BPTreeControllerMock implements IBPTreeController {
     public selectNode(id: number) { }
 
     public reload(data?: any[], id?: number) {
+        if (!data) {
+            this._datasource = data;
+            return;
+        }
+            
         for (let i = 0; i < 10; i++) {
             this._datasource.push(this.add(i));
         }

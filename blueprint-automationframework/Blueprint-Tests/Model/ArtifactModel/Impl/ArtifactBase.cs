@@ -231,14 +231,25 @@ namespace Model.ArtifactModel.Impl
             //Get list of artifacts which were created.
             List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var path = readOnly ? I18NHelper.FormatInvariant("{0}/{1}?readOnly=true", URL_NAVIGATION, String.Join("/", artifactIds))
-                : I18NHelper.FormatInvariant("{0}/{1}?readOnly=false", URL_NAVIGATION, String.Join("/", artifactIds));
+            var path = I18NHelper.FormatInvariant("{0}/{1}", URL_NAVIGATION, String.Join("/", artifactIds));
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (readOnly)
+            {
+                queryParameters.Add("readOnly", "true");
+            }
+            else
+            {
+                queryParameters.Add("readOnly", "false");
+            }
 
             var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             return response;

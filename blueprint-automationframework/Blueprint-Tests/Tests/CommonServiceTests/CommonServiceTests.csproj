@@ -78,6 +78,10 @@
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj">
+      <Project>{8a66038c-22fc-4c28-ba0d-714614a50418}</Project>
+      <Name>TestCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

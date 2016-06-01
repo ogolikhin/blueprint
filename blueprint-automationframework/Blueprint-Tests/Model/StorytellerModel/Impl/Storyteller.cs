@@ -163,9 +163,12 @@ namespace Model.StorytellerModel.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
+
+            var queryParameters = new Dictionary<string, string>();
+
             if (versionIndex.HasValue)
             {
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
+                queryParameters.Add("versionId", versionIndex.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
@@ -174,6 +177,7 @@ namespace Model.StorytellerModel.Impl
             var response = restApi.SendRequestAndDeserializeObject<Process>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
@@ -206,42 +210,6 @@ namespace Model.StorytellerModel.Impl
                 cookies: cookies);
 
             return response.ConvertAll(o => (IProcess)o);
-        }
-
-        public IProcess GetProcessWithBreadcrumb(IUser user, List<int> artifactIds, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetProcessWithBreadcrumb));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactIds, nameof(artifactIds));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
-            }
-
-            string breadcrumb = string.Join("/", artifactIds);
-            string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, breadcrumb);
-
-            if (versionIndex.HasValue)
-            {
-                path = I18NHelper.FormatInvariant("{0}/{1}", path, versionIndex);
-            }
-
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
-
-            Logger.WriteInfo("{0} Getting Process from the following breadcrumb: {1}", nameof(Storyteller), breadcrumb);
-            var response = restApi.SendRequestAndDeserializeObject<Process>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            return response;
         }
 
         public IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

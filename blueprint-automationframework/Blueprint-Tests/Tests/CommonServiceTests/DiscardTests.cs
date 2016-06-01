@@ -5,15 +5,14 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
-using System.Net;
 using System.Collections.Generic;
+using Helper;
+using TestCommon;
 
 namespace CommonServiceTests
 {
-    public class DiscardTests
+    public class DiscardTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
         private IUser _user;
         private IProject _project;
 
@@ -22,42 +21,15 @@ namespace CommonServiceTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(
-                string.IsNullOrWhiteSpace(_user.Token.AccessControlToken),
-                "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion
@@ -67,33 +39,24 @@ namespace CommonServiceTests
         [Description("Create process artifact, save, publish, discard - must return nothing to discard.")]
         public void DiscardPublishedArtifact_VerifyNothingToDiscard()
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             artifact.Save(_user);
             artifact.Publish(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
 
-            try
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
+
+            Assert.DoesNotThrow(() =>
             {
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact {0} has nothing to discard", artifact.Id);
+                discardResultList = artifact.NovaDiscard(_user);
+            }, "Discard must not throw errors.");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    discardResultList = artifact.NovaDiscard(_user);
-                }, "Discard must not throw errors.");
-
-                Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
-                        expectedMessage, discardResultList[0].Message);
-                Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                    NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
-            }
-
-            finally
-            {
-                artifact.Delete(_user);
-                artifact.Publish(_user);
-            }
+            Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
+                expectedMessage, discardResultList[0].Message);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
         }
 
         [TestCase]
@@ -101,7 +64,7 @@ namespace CommonServiceTests
         [Description("Create process artifact, save, don't publish, discard - must return successfully discarded.")]
         public void DiscardDraftUnpublishedArtifact_VerifyResult()
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             artifact.Save(_user);
 
@@ -114,10 +77,9 @@ namespace CommonServiceTests
             }, "Discard must throw no errors.");
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
-                        expectedMessage, discardResultList[0].Message);
+                expectedMessage, discardResultList[0].Message);
             Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
                 NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
-            // TODO: delete artifact created during the test.
         }
 
         [TestCase]
@@ -126,7 +88,7 @@ namespace CommonServiceTests
         [Description("Create process artifact, save, publish, delete, discard - must return successfully discarded.")]
         public void PublishDeleteDiscardArtifact_VerifyResult()
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             artifact.Save(_user);
             artifact.Publish(_user);
@@ -152,7 +114,7 @@ namespace CommonServiceTests
         [Description("Create process artifact, save, publish, delete, publish, discard - must return successfully discarded.")]
         public void DiscardDeletedArtifact_VerifyResult()
         {
-            var artifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             artifact.Save(_user);
             artifact.Publish(_user);

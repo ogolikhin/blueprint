@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.ArtifactModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Utilities;
 
 namespace Helper
@@ -123,6 +123,76 @@ namespace Helper
 
             // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcess(user, processReturnedFromGet);
+        }
+
+        /// <summary>
+        /// Verify process status by checking the status boolean parameters from the process model
+        /// </summary>
+        /// <param name="retrievedProcess">The process model retrieved from the server side</param>
+        /// <param name="processStatusState">The process status state that represents expected status of the returned process</param>
+        public static void VerifyProcessStatus(IProcess retrievedProcess, ProcessStatusState processStatusState)
+        {
+            ThrowIf.ArgumentNull(retrievedProcess, nameof(retrievedProcess));
+
+            ProcessStatus expectedStatus = null;
+
+            switch (processStatusState)
+            {
+                case ProcessStatusState.NeverPublishedAndUpdated:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: true, isDeleted: false,
+                        isReadOnly: false, isUnpublished: true,
+                        hasEverBeenPublished: false);
+                    break;
+                case ProcessStatusState.PublishedAndNotLocked:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: false, isLockedByMe: false, isDeleted: false,
+                        isReadOnly: false, isUnpublished: false,
+                        hasEverBeenPublished: true);
+                    break;
+                case ProcessStatusState.PublishedAndLockedByMe:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: true, isDeleted: false,
+                        isReadOnly: false, isUnpublished: true,
+                        hasEverBeenPublished: true);
+                    break;
+                case ProcessStatusState.PublishedAndLockedByAnotherUser:
+                    expectedStatus = new ProcessStatus(
+                        isLocked: true, isLockedByMe: false, isDeleted: false,
+                        isReadOnly: true, isUnpublished: false,
+                        hasEverBeenPublished: true);
+                    break;
+                default:
+                    throw new System.ComponentModel.InvalidEnumArgumentException(
+                        "ProcessStatus contains invalid enum argument.");
+            }
+
+            var retrievedProcessStatus = retrievedProcess.Status;
+
+            Assert.That(retrievedProcessStatus.IsLocked.Equals(expectedStatus.IsLocked),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.IsLocked), retrievedProcessStatus.IsLocked, expectedStatus.IsLocked);
+
+            Assert.That(retrievedProcessStatus.IsLockedByMe.Equals(expectedStatus.IsLockedByMe),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.IsLockedByMe), retrievedProcessStatus.IsLockedByMe, expectedStatus.IsLockedByMe);
+
+            Assert.That(retrievedProcessStatus.IsDeleted.Equals(expectedStatus.IsDeleted),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.IsDeleted), retrievedProcessStatus.IsDeleted, expectedStatus.IsDeleted);
+
+            Assert.That(retrievedProcessStatus.IsReadOnly.Equals(expectedStatus.IsReadOnly),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.IsReadOnly), retrievedProcessStatus.IsReadOnly, expectedStatus.IsReadOnly);
+
+            Assert.That(retrievedProcessStatus.IsUnpublished.Equals(expectedStatus.IsUnpublished),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.IsUnpublished), retrievedProcessStatus.IsUnpublished, expectedStatus.IsUnpublished);
+
+            Assert.That(retrievedProcessStatus.HasEverBeenPublished.Equals(expectedStatus.HasEverBeenPublished),
+                "{0} from the process model is {1} but {2} is expected.",
+                nameof(retrievedProcessStatus.HasEverBeenPublished), retrievedProcessStatus.HasEverBeenPublished,
+                expectedStatus.HasEverBeenPublished);
         }
 
         /// <summary>

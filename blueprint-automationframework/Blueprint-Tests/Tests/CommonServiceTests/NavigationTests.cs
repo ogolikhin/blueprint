@@ -2,58 +2,35 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using TestCommon;
 using Utilities;
 
 namespace CommonServiceTests
 {
     [TestFixture]
     [Category(Categories.Navigation)]
-    public class NavigationTests
+    public class NavigationTests : TestBase
     {
-        // TODO This will need to be updated with the value that cannot does not exist in the system 
-        //Non-existence artifact Id sample
-        private const int NONEXISTENT_ARTIFACT_ID = 99999999;
-        //Invalid process artifact Id sample
-        private const int INVALID_ID = -33;
-
         private const int MAXIUM_ALLOWABLE_NAVIGATION = 23;
-        private const string INVALID_TOKEN = "Invalid_Token_value";
 
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
         private IUser _primaryUser;
         private IUser _secondaryUser;
         private IProject _project;
         private List<IArtifact> _artifacts;
-        private IList<int> _invalidList;
+
         #region Setup and Cleanup
 
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _invalidList = new List<int>() { NONEXISTENT_ARTIFACT_ID, INVALID_ID }.AsReadOnly();
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _primaryUser = UserFactory.CreateUserAndAddToDatabase();
-            _secondaryUser = UserFactory.CreateUserAndAddToDatabase();
-            _project = ProjectFactory.GetProject(_primaryUser, shouldRetrievePropertyTypes: true);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            _adminStore.AddSession(_primaryUser);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.AccessControlToken), "The primary user didn't get an Access Control token!");
-            _adminStore.AddSession(_secondaryUser);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.AccessControlToken), "The secondary user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_primaryUser, string.Empty);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_primaryUser.Token.OpenApiToken), "The primary user didn't get an OpenApi token!");
-            _blueprintServer.LoginUsingBasicAuthorization(_secondaryUser, string.Empty);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_secondaryUser.Token.OpenApiToken), "The secondary user didn't get an OpenApi token!");
+            Helper = new TestHelper();
+            _primaryUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _secondaryUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_primaryUser);
         }
 
         [SetUp]
@@ -62,72 +39,17 @@ namespace CommonServiceTests
             _artifacts = new List<IArtifact>();
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _artifacts.Clear();
+            _artifacts = null;
+        }
+
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_primaryUser != null)
-            {
-                _primaryUser.DeleteUser();
-                _primaryUser = null;
-            }
-
-            if (_secondaryUser != null)
-            {
-                _secondaryUser.DeleteUser();
-                _secondaryUser = null;
-            }
-        }
-
-        [TearDown]
-        public void Teardown()
-        {
-            if (_artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsListPrimaryUser = new List<IArtifactBase>();
-                var savedArtifactsListSecondaryUser = new List<IArtifactBase>();
-                foreach (var artifact in _artifacts.ToArray())
-                {
-                    if (!_invalidList.Contains(artifact.Id) && artifact.IsPublished)
-                    {
-                        Artifact.DeleteArtifact(artifact, artifact.CreatedBy, deleteChildren: true);
-                    }
-
-                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_primaryUser))
-                    {
-                        savedArtifactsListPrimaryUser.Add(artifact);
-                    }
-
-                    if (!_invalidList.Contains(artifact.Id) && !artifact.IsPublished && artifact.CreatedBy.Equals(_secondaryUser))
-                    {
-                        savedArtifactsListSecondaryUser.Add(artifact);
-                    }
-                }
-
-                if (savedArtifactsListPrimaryUser.Any())
-                {
-                    Artifact.DiscardArtifacts(savedArtifactsListPrimaryUser, _blueprintServer.Address, _primaryUser);
-                }
-
-                if (savedArtifactsListSecondaryUser.Any())
-                {
-                    Artifact.DiscardArtifacts(savedArtifactsListSecondaryUser, _blueprintServer.Address, _secondaryUser);
-                }
-
-                // Clear all possible List Items
-                savedArtifactsListPrimaryUser.Clear();
-                savedArtifactsListSecondaryUser.Clear();
-                _artifacts.Clear();
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -145,9 +67,8 @@ namespace CommonServiceTests
 
             foreach (var baseArtifactType in baseArtifactTypes)
             {
-                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: baseArtifactType);
-                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                var artifact = Helper.CreateArtifact(_project, _primaryUser, baseArtifactType);
+                artifact.Save();
 
                 //Add an artifact to artifact list for navigation call
                 _artifacts.Add(artifact);
@@ -168,16 +89,14 @@ namespace CommonServiceTests
         public void GetNavigationWithMaximumArtifacts_VerifyExpectedError()
         {
             //Create an artifact with process artifact type
-            var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process);
-            Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+            var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
+            artifact.Save();
 
             //Add the same artifact repeatedly in the artifact list to create a navigation list which exceeds the maximum
             //allowable number of artifacts
-            for (int i =0; i< MAXIUM_ALLOWABLE_NAVIGATION; i++)
+            for (int i = 0; i < MAXIUM_ALLOWABLE_NAVIGATION; i++)
             {
-                var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
-                nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+                var nonExistingArtifact = CreateNonExistentArtifact();
                 _artifacts.Add(nonExistingArtifact);
             }
 
@@ -198,8 +117,7 @@ namespace CommonServiceTests
         public void GetNavigationWithInvalidData_VerifyNotFoundException()
         {
             //Create invalid artifact
-            var invalidArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
-            invalidArtifact.Id = INVALID_ID;
+            var invalidArtifact = CreateInvalidArtifact();
 
             //Add the artifact to artifact list for navigation call
             _artifacts.Add(invalidArtifact);
@@ -219,11 +137,10 @@ namespace CommonServiceTests
         public void GetNavigationWithAccessibleProcessArtifacts_VerifyReturnedNavigation(int numberOfArtifacts)
         {
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
-            for (int i=0; i < numberOfArtifacts; i++)
+            for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process);
-                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
+                artifact.Save();
                 _artifacts.Add(artifact);
             }
 
@@ -252,17 +169,15 @@ namespace CommonServiceTests
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process);
-                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
+                artifact.Save();
                 _artifacts.Add(artifact);
             }
 
             //Inject nonexistent artifact(s) into artifact list used for navigation
             foreach (var nonExistentArtifactIndex in nonExistentArtifactIndexes)
             {
-                var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, BaseArtifactType.Actor);
-                nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+                var nonExistingArtifact = CreateNonExistentArtifact();
                 _artifacts.Insert(nonExistentArtifactIndex, nonExistingArtifact);
             }
 
@@ -291,17 +206,16 @@ namespace CommonServiceTests
             //Create artifact(s) with process artifact type and add to artifact list for navigation call
             for (int i = 0; i < numberOfArtifacts; i++)
             {
-                var artifact = ArtifactFactory.CreateArtifact(project: _project, user: _primaryUser,
-                artifactType: BaseArtifactType.Process);
-                Artifact.SaveArtifact(artifactToSave: artifact, user: _primaryUser);
+                var artifact = Helper.CreateArtifact(_project, _primaryUser, BaseArtifactType.Process);
+                artifact.Save();
                 _artifacts.Add(artifact);
             }
 
             //Create and inject artifacts created by another user, which are inaccessible by the main user
             foreach (var inaccessibleArtifactIndex in inaccessibleArtifactIndexes)
             {
-                var inaccessbileArtifact = ArtifactFactory.CreateArtifact(_project, _secondaryUser, BaseArtifactType.Actor);
-                Artifact.SaveArtifact(artifactToSave: inaccessbileArtifact, user: _secondaryUser);
+                var inaccessbileArtifact = Helper.CreateArtifact(_project, _secondaryUser, BaseArtifactType.Actor);
+                inaccessbileArtifact.Save();
                 _artifacts.Insert(inaccessibleArtifactIndex, inaccessbileArtifact);
             }
 
@@ -314,5 +228,34 @@ namespace CommonServiceTests
 
         #endregion Tests
 
+        /// <summary>
+        /// Creates an artifact with an ID that doesn't exist.
+        /// </summary>
+        /// <param name="baseArtifactType">(optional) The artifact type.</param>
+        /// <returns>The non-existent artifact.</returns>
+        private IArtifact CreateNonExistentArtifact(BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
+        {
+            // Non-existence artifact Id sample
+            const int NONEXISTENT_ARTIFACT_ID = 99999999;
+
+            var nonExistingArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
+            nonExistingArtifact.Id = NONEXISTENT_ARTIFACT_ID;
+            return nonExistingArtifact;
+        }
+
+        /// <summary>
+        /// Creates an artifact with an invalid ID.
+        /// </summary>
+        /// <param name="baseArtifactType">(optional) The artifact type.</param>
+        /// <returns>The invalid artifact.</returns>
+        private IArtifact CreateInvalidArtifact(BaseArtifactType baseArtifactType = BaseArtifactType.Actor)
+        {
+            // Invalid process artifact Id sample
+            const int INVALID_ID = -33;
+
+            var invalidArtifact = ArtifactFactory.CreateArtifact(_project, _primaryUser, baseArtifactType);
+            invalidArtifact.Id = INVALID_ID;
+            return invalidArtifact;
+        }
     }
 }

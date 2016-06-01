@@ -17,6 +17,14 @@ export class ProjectExplorerController {
         this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
         this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
     }
+    
+    public $onDestroy() {
+        //clear all Project Manager event subscription
+        this.projectManager.unsubscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
+        this.projectManager.unsubscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
+        this.projectManager.unsubscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+    }
+
 
     // the object defines how data will map to ITreeNode
     // key: data property names, value: ITreeNode property names
@@ -28,6 +36,21 @@ export class ProjectExplorerController {
         artifacts: "children"
     }; 
 
+    public columns = [{
+        headerName: "",
+        field: "name",
+        cellClassRules: {
+            "has-children": function (params) { return params.data.hasChildren; },
+            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
+        },
+        cellRenderer: "group",
+        suppressMenu: true,
+        suppressSorting: true,
+        suppressFiltering: true
+    }];
+
+
     private loadProject = (artifact: Models.IArtifact) => {
         artifact = angular.extend(artifact, {
             loaded: true,
@@ -38,23 +61,9 @@ export class ProjectExplorerController {
         this.tree.selectNode(artifact.id);
     }
 
-    public closeProject(projects: Models.IProject[]) {
+    private closeProject(projects: Models.IProject[]) {
         this.tree.reload(this.projectManager.ProjectCollection);
     }
-
-    public columns = [{
-        headerName: "",
-        field: "name",
-        cellClassRules: {
-            "has-children": function (params) { return params.data.hasChildren; },
-            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
-            "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
-        },
-        cellRenderer: "group",
-        suppressMenu: true, 
-        suppressSorting: true,
-        suppressFiltering: true
-    }];
 
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load

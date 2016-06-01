@@ -132,6 +132,33 @@ describe("Global Notification", () => {
         expect(handler.callbacks.length).toBe(1);
     });
 
+    it("detach by calback id ", () => {
+        // Arrange
+        let first = function (delta: number) {
+        };
+        let second = function (delta: number) {
+        };
+        let callback1 = eventManager.attach(hostId, "first", first);
+
+        eventManager.detachById(callback1);
+        // Assert
+        expect(eventManager["handlers"]).toEqual(jasmine.any(Array));
+        expect(eventManager["handlers"].length).toBe(0);
+    });
+
+    it("detach by calback id unsuccsessful ", () => {
+        // Arrange
+        let first = function (delta: number) {
+        };
+        let second = function (delta: number) {
+        };
+        let callback1 = eventManager.attach(hostId, "first", first);
+
+        eventManager.detachById("TEST");
+        // Assert
+        expect(eventManager["handlers"]).toEqual(jasmine.any(Array));
+        expect(eventManager["handlers"].length).toBe(1);
+    });
 
     it("dispatch successful", () => {
         // Arrange

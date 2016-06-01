@@ -17,21 +17,29 @@ export interface IMainViewController {
 }
 
 export class MainViewController implements IMainViewController {
+    private _events: string[];
     private _currentArtifact: string;
-    public get currentArtifact() {
+    public get currentArtifact() { 
         return this._currentArtifact;
     }
 
     public static $inject: [string] = ["eventManager", "dialogService"];
     constructor(private eventManager: IEventManager, private dialogService: IDialogService) {
-        this.eventManager.attach(EventSubscriber.Main, "exception", this.showError.bind(this));
-        this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this));
     }
 
     public $onInit() {
-        this.eventManager.dispatch(EventSubscriber.ProjectManager, "initialize");
+        this._events = [
+            this.eventManager.attach(EventSubscriber.Main, "exception", this.showError.bind(this)),
+            this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this))
+        ];
     }
-
+    public $onDestroy() {
+        this.eventManager.dispatch(EventSubscriber.ProjectManager, "initialize");
+        this._events.map(function (it) {
+            this.eventManager.detachById(it);
+        }.bind(this));
+    }
+    
     private displayArtifact(artifact: Models.IArtifact) {
         this._currentArtifact = `${artifact.prefix}${artifact.id}: ${artifact.name}`;
     }

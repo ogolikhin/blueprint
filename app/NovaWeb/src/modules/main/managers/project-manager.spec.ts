@@ -267,7 +267,7 @@ describe("Project Manager Test", () => {
 
             //Act
 
-            let artifact = projectManager.selectArtifact(22);
+            let artifact = projectManager.getArtifact(22);
 
             //Asserts
             expect(artifact).toBeDefined();
@@ -282,7 +282,7 @@ describe("Project Manager Test", () => {
 
             //Act
 
-            let artifact = projectManager.selectArtifact(305);
+            let artifact = projectManager.getArtifact(305);
 
             //Asserts
             expect(artifact).toBeUndefined();

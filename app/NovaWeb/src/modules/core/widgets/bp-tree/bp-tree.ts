@@ -66,10 +66,6 @@ export interface IBPTreeController {
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
 
-    addNode(data: any[], index?: number, propertyMap?: any); //to add a data node to the datasource
-    addNodeChildren(id: number, data: any[], propertyMap?: any); //to add a data node to the datasource
-    removeNode(id: number);                     //to remove a data node (by id) from the datasource
-
     isEmpty: boolean;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);                    
@@ -153,6 +149,7 @@ export class BPTreeController implements IBPTreeController  {
                 groupContracted: "<i class='fonticon-' />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
+            //onRowSelected: this.rowSelected,
             onCellFocused: this.cellFocused,
             onRowClicked: this.rowClicked,
             onRowDoubleClicked: this.rowDoubleClicked,
@@ -183,62 +180,11 @@ export class BPTreeController implements IBPTreeController  {
         };
         return item;
     }
+
     public get isEmpty(): boolean {
         return !Boolean(this._datasource && this._datasource.length);
     }
 
-    //to add a data node to the datasource
-    public addNode(data: any[], index: number = 0, propertyMap?: any) {
-
-        this._datasource = this._datasource || [];
-
-        data = data.map(function (it) {
-            it = this.mapData(it, propertyMap);
-            return it;
-        }.bind(this));
-
-        this._datasource.splice.apply(this._datasource, [index < 0 ? 0 : index, 0].concat(data));
-    }
-
-    public addNodeChildren(nodeId: number, data: any[], propertyMap?: any) {
-        let node = this.getNode(nodeId, this._datasource);
-        if (node) {
-            data = data.map(function (it) {
-                it = this.mapData(it, propertyMap);
-                //set parent node reference
-                it.parentNode = node;
-                return it;
-            }.bind(this));
-            node.children = data;
-            node.loaded = true;
-            node.open = true;
-        }
-    }
-
-    //to remove a data node (by id) from the datasource
-    public removeNode(id: number) {
-        let node = this.getNode(id, this._datasource || []);
-        if (node) {
-            if (node.parentNode) {
-                node.parentNode.children = node.parentNode.children.filter(function (it: ITreeNode) {
-                    return it.id !== id;
-                });
-            } else {
-                this._datasource = this._datasource.filter(function (it: ITreeNode) {
-                    return it.id !== id;
-                });
-            }
-        }
-        this.options.api.clearRangeSelection();
-    }
-
-    //to select a tree node in ag grid
-    public selectNode(id: number) {
-        let cell = this.options.api.getFocusedCell();
-
-        this.options.api.getModel().forEachNode(function (it) {
-            it.setSelected(it.data.id === id, true);        });
-    }
 
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
         let item: ITreeNode;
@@ -253,6 +199,12 @@ export class BPTreeController implements IBPTreeController  {
         }
         return item;
     };
+
+    //to select a tree node in ag grid
+    public selectNode(id: number) {
+        this.options.api.getModel().forEachNode(function (it) {
+            it.setSelected(it.data.id === id, true);        });
+    }
 
 
     //sets a new datasource or add a datasource to specific node  children collection
@@ -335,36 +287,40 @@ export class BPTreeController implements IBPTreeController  {
         node.data.open = node.expanded;
     };
 
-    private cellFocused = (params: any) => {
-        var model = this.options.api.getModel();
-        this.selectedRow = model.getRow(params.rowIndex);
-        this.selectedRow.setSelected(true, true);
-        if (angular.isFunction(this.onSelect)) {
-            this.onSelect({item: this.selectedRow.data});
+    private rowSelected = (data: any) => {
+        var self = this;
+
+        if (angular.isFunction(self.onSelect)) {
+            self.onSelect({ item: data });
         }
     };
 
-    private rowFocus = (target: any) => {
-        var clickedCell = Helper.findAncestorByCssClass(target, "ag-cell");
-        if (clickedCell) {
-            clickedCell.focus();
-        }
+
+    private cellFocused = (params: any) => {
+        var model = this.options.api.getModel();
+        let selectedRow = model.getRow(params.rowIndex);
+        selectedRow.setSelected(true, true);
     };
+
+    //private rowFocus = (target: any) => {
+    //    var clickedCell = Helper.findAncestorByCssClass(target, "ag-cell");
+    //    if (clickedCell) {
+    //        clickedCell.focus();
+    //    }
+    //};
 
     private rowClicked = (params: any) => {
             var self = this;
 
-        self.rowFocus(params.event.target);
+        //self.rowFocus(params.event.target);
         params.node.setSelected(true, true);
 
-            self.clickTimeout = self.$timeout(function () {
-                if (self.clickTimeout.$$state.status === 2) {
-                    return; // click event canceled by double-click
-                }
-
-            if (angular.isFunction(self.onRowClick)) {
-                self.onRowClick({prms: params});
+        self.clickTimeout = self.$timeout(function () {
+            if (self.clickTimeout.$$state.status === 2) {
+                return; // click event canceled by double-click
             }
+            self.rowSelected(params.node.data);
+
         }, 250);
     };
 

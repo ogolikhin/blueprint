@@ -29,7 +29,8 @@ export interface IProjectManager {
 
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
-    selectArtifact(artifactId: number): Models.IArtifact;
+    getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
+    updateArtifact(artifact: Models.IArtifact, data: any): Models.IArtifact;
 }
 
 
@@ -108,6 +109,7 @@ export class ProjectManager implements IProjectManager {
         this._currentArtifact = null;
     }
 
+
     private loadProject = (projectId: number, projectName: string) => {
         try {
             let self = this;
@@ -118,15 +120,18 @@ export class ProjectManager implements IProjectManager {
                     return it !== project;
                 });
                 this._projectCollection.unshift(project);
-                self.notify(SubscriptionEnum.ProjectLoaded, project);
                 this.CurrentProject = project;
+                this.CurrentArtifact = project;
+
+                this.notify(SubscriptionEnum.ProjectLoaded, project);
             } else {
                 this._repository.getArtifacts(projectId)
                     .then((result: Models.IArtifact[]) => {
                         project = new Models.Project(projectId, projectName, result);
                         self._projectCollection.unshift(project);
-                        self.notify(SubscriptionEnum.ProjectLoaded, project);
                         self.CurrentProject = project;
+                        self.CurrentArtifact = project;
+                        self.notify(SubscriptionEnum.ProjectLoaded, project);
                     }).catch((error: any) => {
                         this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
                     });
@@ -143,7 +148,7 @@ export class ProjectManager implements IProjectManager {
             if (!project) {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
-            let artifact = project.getArtifact(artifactId);
+            let artifact = this.getArtifact(artifactId, project);
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
@@ -189,15 +194,37 @@ export class ProjectManager implements IProjectManager {
         })[0];
         return project;
     }
-    public selectArtifact(artifactId: number): Models.IArtifact {
-        let artifact: Models.IArtifact;
-        for (let i = 0, project: Models.IProject; project = this.ProjectCollection[i++]; ) {
-            artifact = project.getArtifact(artifactId);
-            if (artifact) {
-                break;
+
+    public getArtifact(id: number, project?: Models.IArtifact): Models.IArtifact {
+        let foundArtifact: Models.IArtifact;
+        if (project) {
+            if (project.id === id) {
+                foundArtifact = project;
+            }
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]);) {
+                if (it.id === id) {
+                    foundArtifact = it;
+                } else if (it.artifacts) {
+                    foundArtifact = this.getArtifact(id, it);
+                }
+            }
+        } else {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.ProjectCollection[i++]);) {
+                foundArtifact = this.getArtifact(id, it);
             }
         }
+        return foundArtifact;
+    };
 
-        return this.CurrentArtifact = artifact;
+    public updateArtifact(artifact: Models.IArtifact, data?: any): Models.IArtifact {
+        try {
+            if (artifact && data) {
+                angular.extend(artifact, data);
+            }
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+        }
+        return artifact;
     }
+
 }

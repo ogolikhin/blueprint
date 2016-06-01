@@ -334,6 +334,12 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
+        public NovaPublishArtifactResult NovaPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        {
+            return PublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
+                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+        }
+
         #endregion Methods
 
         #region Static Methods
@@ -426,7 +432,7 @@ namespace Model.ArtifactModel.Impl
 
                 if (discardedArtifact != null)
                 {
-                    discardedArtifact.IsSaved = false;
+                discardedArtifact.IsSaved = false;
                 }
             }
 
@@ -548,6 +554,45 @@ namespace Model.ArtifactModel.Impl
                 cookies: cookies);
 
             return response;
+        }
+
+        /// <summary>
+        /// Publish a single artifact on Blueprint server
+        /// </summary>
+        /// <param name="artifactToPublish">The artifact to publish</param>
+        /// <param name="user">The user saving the artifact</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>Resut of Publish operation</returns>
+        ///TODO: override the Publish() function in the Artifact class to call this PublishArtifact() function
+        public static NovaPublishArtifactResult PublishArtifact(IArtifactBase artifactToPublish,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
+            string tokenValue = user.Token?.AccessControlToken;
+            var cookies = new Dictionary<string, string>();
+
+            if (sendAuthorizationAsCookie)
+            {
+                cookies.Add(SessionTokenCookieName, tokenValue);
+                tokenValue = string.Empty;
+            }
+
+            const string path = "/svc/shared/artifacts/publish";
+            RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, user.Username, user.Password, tokenValue);
+
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
+                new List<int> { artifactToPublish.Id },
+                expectedStatusCodes: expectedStatusCodes);
+
+            ///TODO: update after fix in PublishArtifacts from ArtifactBase.cs 
+            //if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
+            artifactToPublish.IsPublished = true;
+                artifactToPublish.IsSaved = false;
+            return publishResults[0];
         }
 
         #endregion Static Methods

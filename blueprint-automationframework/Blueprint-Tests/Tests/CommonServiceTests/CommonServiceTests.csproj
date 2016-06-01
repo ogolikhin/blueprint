@@ -50,6 +50,7 @@
     <Compile Include="DiscardTests.cs" />
     <Compile Include="NavigationTests.cs" />
     <Compile Include="LockArtifactTests.cs" />
+    <Compile Include="PublishTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -77,6 +78,10 @@
     <ProjectReference Include="..\..\Utilities\Utilities.csproj">
       <Project>{D52D51B2-AEC5-4118-A9C2-2A590BD083A3}</Project>
       <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj">
+      <Project>{8a66038c-22fc-4c28-ba0d-714614a50418}</Project>
+      <Name>TestCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

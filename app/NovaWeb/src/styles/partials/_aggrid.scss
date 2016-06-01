@@ -131,7 +131,7 @@
     > span .ag-group-value::before {
       content: '\e85f';
       font-size: $font-size-smaller;
-      text-indent: -.2em;
+      text-indent: -3px;
     }
   }
 
@@ -139,7 +139,7 @@
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e802';
-      text-indent: 0;
+      text-indent: 1px !important;
     }
   }
 
@@ -147,7 +147,7 @@
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       content: '\e879';
-      text-indent: 0;
+      text-indent: 0 !important;
     }
   }
 
@@ -170,17 +170,17 @@
   .ag-row-group .ag-group-expanded i::before {
     content: '\e85f';
     font-size: $font-size-smaller;
-    text-indent: -.2em;
+    text-indent: -4px;
   }
 
   .ag-row-group .is-folder .ag-group-contracted i::before {
     content: '\e802';
-    text-indent: 0;
+    text-indent: -1px !important;
   }
 
   .ag-row-group .is-folder .ag-group-expanded i::before {
     content: '\e83e';
-    text-indent: 0;
+    text-indent: 0 !important;
   }
 
   .ag-row-group .is-project .ag-group-contracted i::before,
@@ -200,6 +200,9 @@
   }
 
   .ag-cell.has-children {
+    //fix for vertical alignment of folder
+    padding-left: 3px;
+
     > span {
       margin-left: 0;
     }

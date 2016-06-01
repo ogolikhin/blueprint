@@ -72,6 +72,22 @@ namespace Model.ArtifactModel.Impl
         public int ProjectId { get; set; }
     }
 
+    public class NovaPublishArtifactResult
+    {
+        public enum Result
+        {
+            None = 0, //CA1008
+            Success = 200,
+            ArtifactAlreadyPublished = 113,
+            Failure = 1 ///TODO: check code for fail
+        }
+
+        public int ArtifactId { get; set; }
+        public string Message { get; set; }
+        public Result StatusCode { get; set; }
+        public int ProjectId { get; set; }
+    }
+
     public class NovaDiscardArtifactResults
     {
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

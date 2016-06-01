@@ -368,14 +368,31 @@ namespace ConfigControl.Controllers
         [UnhandledExceptionFilter]
         public IHttpActionResult GetLog()
         {
-            var limitRecords = ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32();
+            try
+            {
+                var limitRecords = ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32();
 
-            var response = Request.CreateResponse();
+                var response = Request.CreateResponse();
 
-            response.Content = new CsvLogContent().Generate(limitRecords,true);
-            response.StatusCode = HttpStatusCode.OK;
+                response.Content = new CsvLogContent().Generate(limitRecords, true);
+                response.StatusCode = HttpStatusCode.OK;
 
-            return ResponseMessage(response);
+                return ResponseMessage(response);
+            }
+            catch (System.Exception ex)
+            {
+                BlueprintEventSource.Log.Error(
+                        GetIpAddress(),
+                        WebApiConfig.LogRecordStatus,
+                        ex.Message,
+                        System.DateTime.Now,
+                        null,
+                        null,
+                        0,
+                        LogHelper.GetStackTrace(ex));
+
+                throw;
+            }
         }
 
         private string GetIpAddress()

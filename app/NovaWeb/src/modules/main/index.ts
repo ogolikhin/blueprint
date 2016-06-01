@@ -3,7 +3,7 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import * as agGrid from "ag-grid/main";
-import "ag-grid-enterprise/main";
+import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
 import "../shell";
 import {ProjectRepository} from "./services/project-repository";
@@ -28,6 +28,11 @@ export function config($rootScope: ng.IRootScopeService) {
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
 }
+
+if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {
+    agGridEnterprise["LicenseManager"].setLicenseKey("Blueprint_Software_Systems_Inc._19-May-2016_MTQ5NTE0ODQwMDAwMA==5e9a534267a22bce0af6682e4bbcb799");
+}
+
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable"])
     .run(config)

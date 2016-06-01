@@ -33,6 +33,10 @@ export class SessionSvcMock implements ISession {
     constructor(private $q: ng.IQService) {
     }
 
+    public getLoginMessage(): string {
+        return "";
+    }
+
     public ensureAuthenticated() {
         var deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
@@ -41,6 +45,12 @@ export class SessionSvcMock implements ISession {
     }
 
     public logout() {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public onExpired() {
         var deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;

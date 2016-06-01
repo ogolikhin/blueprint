@@ -17,7 +17,7 @@ export enum LoginState {
     SamlLoginForm
 }
 
-export class LoginCtrl {
+export class LoginCtrl{
 
     public labelError: boolean;
     public fieldError: boolean;
@@ -65,7 +65,8 @@ export class LoginCtrl {
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         /* tslint:enable */
         this.formState = LoginState.LoginForm;
-        this.errorMsg = localization.get("Login_Session_EnterCredentials");
+        //this.errorMsg = localization.get("Login_Session_EnterCredentials");
+        this.errorMsg = session.getLoginMessage();
 
         this.enableForgetPasswordScreen = false;
 

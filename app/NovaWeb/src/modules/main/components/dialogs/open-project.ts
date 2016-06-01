@@ -65,7 +65,7 @@ export class OpenProjectController extends BaseDialogController {
             name: (item && item["name"]) || "",
             type: (item && item["type"]) || -1,
             description: (item && item["description"]) || ""
-        }
+        };
         if (this._selectedItem.description) {
             var description = this._selectedItem.description;
             var virtualDiv = window.document.createElement("DIV");
@@ -77,9 +77,7 @@ export class OpenProjectController extends BaseDialogController {
             description = virtualDiv.innerHTML;
             this._selectedItem.description = this.$sce.trustAsHtml(description);
         }
-
     }
-
 
     private onEnterKeyPressed = (e: any) => {
         var key = e.which || e.keyCode;

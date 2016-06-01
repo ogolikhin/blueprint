@@ -35,9 +35,11 @@ export interface IProjectManager {
 
 
 export class ProjectManager implements IProjectManager {
+    private _handlers: string[] = [];
     private _currentProject: Models.IProject;
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
+
 
     static $inject: [string] = ["localization", "eventManager", "projectRepository"];
     constructor(
@@ -46,14 +48,23 @@ export class ProjectManager implements IProjectManager {
         private _repository: IProjectRepository) {
 
         //subscribe to event
-        this.subscribe(SubscriptionEnum.Initialize, this.initialize.bind(this));
-        this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
-        this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this));
-        this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
+        this._handlers = [
+            this.subscribe(SubscriptionEnum.Initialize, this.initialize.bind(this)),
+            this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this)),
+            this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this)),
+            this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this)),
+        ];
     }
 
-    public subscribe(type: SubscriptionEnum, func: Function) {
-        this.eventManager.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
+    public $onDestroy() {
+        //clear all Project Manager event subscription
+        this._handlers.map(function (it) {
+            this.eventManager.detachById(it);
+        }.bind(this));
+    }
+
+    public subscribe(type: SubscriptionEnum, func: Function): string {
+        return this.eventManager.attach(EventSubscriber.ProjectManager, SubscriptionEnum[type], func);
     }
 
     public unsubscribe(type: SubscriptionEnum, func: Function) {
@@ -78,7 +89,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     public set CurrentArtifact(artifact: Models.IArtifact) {
-        if (artifact && angular.isDefined(this._currentArtifact) && this._currentArtifact.id === artifact.id) {
+        if (artifact && this._currentArtifact && this._currentArtifact.id === artifact.id) {
             return;
         }
         if (artifact && artifact.projectId !== this._currentProject.id) {

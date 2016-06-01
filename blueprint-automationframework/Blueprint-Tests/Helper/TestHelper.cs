@@ -25,9 +25,9 @@ namespace Helper
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
 
         // Lists of objects created by this class to be disposed:
-        public IList<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
-        public IList<IProject> Projects { get; } = new List<IProject>();
-        public IList<IUser> Users { get; } = new List<IUser>();
+        public List<IArtifactBase> Artifacts { get; } = new List<IArtifactBase>();
+        public List<IProject> Projects { get; } = new List<IProject>();
+        public List<IUser> Users { get; } = new List<IUser>();
 
         #region Artifact Management
 

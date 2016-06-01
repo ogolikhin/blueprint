@@ -105,7 +105,7 @@ namespace Model.StorytellerModel
         // isLocked: true, isLockedByMe: false, isDeleted: false,
         // isReadOnly: true, isUnpublished: false,
         // hasEverBeenPublished: true
-        PublishedAndLocked,
+        PublishedAndLockedByAnotherUser,
         // isLocked: true, isLockedByMe: true, isDeleted: false,
         // isReadOnly: false, isUnpublished: true,
         // hasEverBeenPublished: true

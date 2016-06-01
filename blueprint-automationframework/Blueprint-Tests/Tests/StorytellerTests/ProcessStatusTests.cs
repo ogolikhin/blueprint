@@ -82,7 +82,7 @@ namespace StorytellerTests
             // Get the process with the first user
             process = Helper.Storyteller.GetProcess(_primaryUser, process.Id);
 
-            expectedProcessStatus = ProcessStatusState.PublishedAndLocked;
+            expectedProcessStatus = ProcessStatusState.PublishedAndLockedByAnotherUser;
 
             StorytellerTestHelper.VerifyProcessStatus(process, expectedProcessStatus);
         }
@@ -117,7 +117,7 @@ namespace StorytellerTests
             // Get the process with the first user
             process = Helper.Storyteller.GetProcess(_primaryUser, process.Id);
 
-            expectedProcessStatus = ProcessStatusState.PublishedAndLocked;
+            expectedProcessStatus = ProcessStatusState.PublishedAndLockedByAnotherUser;
 
             StorytellerTestHelper.VerifyProcessStatus(process, expectedProcessStatus);
         }

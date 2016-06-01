@@ -53,9 +53,7 @@ export interface IArtifact  {
 }
 
 export interface IProject extends IArtifact {
-    getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact;
 }
-
 
 export class Project implements IProject {
     public id: number;
@@ -78,7 +76,6 @@ export class Project implements IProject {
 
     public artifacts: IArtifact[];
 
-
     constructor(id: number, name: string, data?: IArtifact[]) {
         this.id = id;
         this.name = name;
@@ -86,23 +83,6 @@ export class Project implements IProject {
             this.artifacts = data;
         }
     };
-
-    public getArtifact(artifactId: number, artifacts?: IArtifact[]): IArtifact {
-        let artifact: IArtifact;
-        if (angular.isArray(artifacts)) {
-            for (let i = 0, it: IArtifact; !artifact && (it = artifacts[i++]); ) {
-                if (it.id === artifactId) {
-                    artifact = it;
-                } else if (it.artifacts) {
-                    artifact = this.getArtifact(artifactId, it.artifacts);
-                }
-            }
-        } else {
-            artifact = this.getArtifact(artifactId, this.artifacts);
-        }
-        return artifact;
-    };
-
 }
 
 

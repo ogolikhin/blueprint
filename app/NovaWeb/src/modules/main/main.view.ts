@@ -28,6 +28,10 @@ export class MainViewController implements IMainViewController {
         this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this));
     }
 
+    public $onInit() {
+        this.eventManager.dispatch(EventSubscriber.ProjectManager, "initialize");
+    }
+
     private displayArtifact(artifact: Models.IArtifact) {
         this._currentArtifact = `${artifact.prefix}${artifact.id}: ${artifact.name}`;
     }

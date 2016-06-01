@@ -6,6 +6,7 @@ import {IProjectRepository} from "../services/project-repository";
 export {Models}
 
 export enum SubscriptionEnum { 
+    Initialize,
     ProjectLoad,
     ProjectLoaded,
     ProjectChildrenLoad,
@@ -28,12 +29,13 @@ export interface IProjectManager {
 
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
-    selectArtifact(artifactId: number): Models.IArtifact;
+    getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
+    updateArtifact(artifact: Models.IArtifact, data: any): Models.IArtifact;
 }
 
 
 export class ProjectManager implements IProjectManager {
-    private _currentProjet: Models.IProject;
+    private _currentProject: Models.IProject;
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
 
@@ -44,6 +46,7 @@ export class ProjectManager implements IProjectManager {
         private _repository: IProjectRepository) {
 
         //subscribe to event
+        this.subscribe(SubscriptionEnum.Initialize, this.initialize.bind(this));
         this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this));
         this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this));
         this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this));
@@ -63,22 +66,22 @@ export class ProjectManager implements IProjectManager {
 
 
     public set CurrentProject(project: Models.IProject) {
-        if (this._currentProjet && project && this._currentProjet.id === project.id) {
+        if (this._currentProject && project && this._currentProject.id === project.id) {
             return;
         }
-        this._currentProjet = project;
-        this.notify(SubscriptionEnum.ProjectChanged, this._currentProjet);
+        this._currentProject = project;
+        this.notify(SubscriptionEnum.ProjectChanged, this._currentProject);
     }
 
     public get CurrentProject(): Models.IProject {
-        return this._currentProjet;
+        return this._currentProject;
     }
 
     public set CurrentArtifact(artifact: Models.IArtifact) {
         if (artifact && angular.isDefined(this._currentArtifact) && this._currentArtifact.id === artifact.id) {
             return;
         }
-        if (artifact && artifact.projectId !== this._currentProjet.id) {
+        if (artifact && artifact.projectId !== this._currentProject.id) {
             let project = this.getProject(artifact.projectId);
             if (project) {
                 this.CurrentProject = project;
@@ -99,6 +102,14 @@ export class ProjectManager implements IProjectManager {
         return this._projectCollection;
     }
 
+
+    private initialize = () => {
+        this._projectCollection = [];
+        this._currentProject = null;
+        this._currentArtifact = null;
+    }
+
+
     private loadProject = (projectId: number, projectName: string) => {
         try {
             let self = this;
@@ -109,15 +120,18 @@ export class ProjectManager implements IProjectManager {
                     return it !== project;
                 });
                 this._projectCollection.unshift(project);
-                self.notify(SubscriptionEnum.ProjectLoaded, project);
                 this.CurrentProject = project;
+                this.CurrentArtifact = project;
+
+                this.notify(SubscriptionEnum.ProjectLoaded, project);
             } else {
                 this._repository.getArtifacts(projectId)
                     .then((result: Models.IArtifact[]) => {
                         project = new Models.Project(projectId, projectName, result);
                         self._projectCollection.unshift(project);
-                        self.notify(SubscriptionEnum.ProjectLoaded, project);
                         self.CurrentProject = project;
+                        self.CurrentArtifact = project;
+                        self.notify(SubscriptionEnum.ProjectLoaded, project);
                     }).catch((error: any) => {
                         this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
                     });
@@ -134,7 +148,7 @@ export class ProjectManager implements IProjectManager {
             if (!project) {
                 throw new Error(this.localization.get("Project_NotFound"));
             }
-            let artifact = project.getArtifact(artifactId);
+            let artifact = this.getArtifact(artifactId, project);
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
@@ -180,15 +194,37 @@ export class ProjectManager implements IProjectManager {
         })[0];
         return project;
     }
-    public selectArtifact(artifactId: number): Models.IArtifact {
-        let artifact: Models.IArtifact;
-        for (let i = 0, project: Models.IProject; project = this.ProjectCollection[i++]; ) {
-            artifact = project.getArtifact(artifactId);
-            if (artifact) {
-                break;
+
+    public getArtifact(id: number, project?: Models.IArtifact): Models.IArtifact {
+        let foundArtifact: Models.IArtifact;
+        if (project) {
+            if (project.id === id) {
+                foundArtifact = project;
+            }
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]);) {
+                if (it.id === id) {
+                    foundArtifact = it;
+                } else if (it.artifacts) {
+                    foundArtifact = this.getArtifact(id, it);
+                }
+            }
+        } else {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.ProjectCollection[i++]);) {
+                foundArtifact = this.getArtifact(id, it);
             }
         }
+        return foundArtifact;
+    };
 
-        return this.CurrentArtifact = artifact;
+    public updateArtifact(artifact: Models.IArtifact, data?: any): Models.IArtifact {
+        try {
+            if (artifact && data) {
+                angular.extend(artifact, data);
+            }
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+        }
+        return artifact;
     }
+
 }

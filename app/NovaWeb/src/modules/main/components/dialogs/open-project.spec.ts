@@ -25,7 +25,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 describe("Open Project.", () => {
     var controller: OpenProjectController;
 
-
     beforeEach( ()  => {
         controller = new OpenProjectController(
             null,
@@ -34,72 +33,75 @@ describe("Open Project.", () => {
             null,
             null, null, null);
 
-        controller["tree"] = new BPTreeControllerMock();
     });
 
-    describe("Return value.", () => {
-        it("check return empty value", () => {
+    it("Test InnerRenderer", () => {
+        // Arrange
+        var paramsMock = {
+            data: {
+                name: "artifact"
+            }
+        };
+        var paramsMockFolder = {
+            data: {
+                type: "Folder",
+                name: "folder"
+            }
+        };
+        var paramsMockProject = {
+            data: {
+                type: "Project",
+                name: "<button onclick=\"alert('HEY!')\";>project</button>"
+            },
+            eGridCell: document.createElement("div")
+        };
 
-            // Arrange
-            // Act
+        // Act
+        var columns = controller.columns;
+        var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        var cellRendererFolder = columns[0].cellRendererParams.innerRenderer(paramsMockFolder);
+        var cellRendererProject = columns[0].cellRendererParams.innerRenderer(paramsMockProject);
 
-            // Assert
-            expect(controller.returnValue).toBeNull();
-        });
-
-        it("innerRenderer", () => {
-            // Arrange
-            var paramsMock = {
-                data: {
-                    name: "artifact"
-                }
-            };
-            var paramsMockFolder = {
-                data: {
-                    type: "Folder",
-                    name: "folder"
-                }
-            };
-            var paramsMockProject = {
-                data: {
-                    type: "Project",
-                    name: "<button onclick=\"alert('HEY!')\";>project</button>"
-                },
-                eGridCell: document.createElement("div")
-            };
-
-            // Act
-            var columns = controller.columns;
-            var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-            var cellRendererFolder = columns[0].cellRendererParams.innerRenderer(paramsMockFolder);
-            var cellRendererProject = columns[0].cellRendererParams.innerRenderer(paramsMockProject);
-
-            // Assert
-            expect(cellRenderer).toEqual("artifact");
-            expect(cellRendererFolder).toEqual("folder");
-            expect(cellRendererProject).toContain("project");
-            expect(cellRendererProject).not.toContain("<button");
-        });
-
-        it("Checking options: ", () => {
-
-            // Arrange
-
-            // Act
-            var columns = controller.columns;
-
-            //// Assert
-            expect(columns).toBeDefined();
-            expect(columns).toEqual(jasmine.any(Array));
-            expect(columns.length).toBeGreaterThan(0);
-            expect(columns[0].field).toBeDefined();
-            expect(columns[0].headerName).toBe("App_Header_Name");
-            expect(columns[0].cellRenderer).toBeDefined();
-            expect(columns[0].cellRendererParams).toBeDefined();
-            expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
-        });
+        // Assert
+        expect(cellRenderer).toEqual("artifact");
+        expect(cellRendererFolder).toEqual("folder");
+        expect(cellRendererProject).toContain("project");
+        expect(cellRendererProject).not.toContain("<button");
     });
+
+    it("Test options ", () => {
+
+        // Arrange
+
+        // Act
+        var columns = controller.columns;
+
+        //// Assert
+        expect(columns).toBeDefined();
+        expect(columns).toEqual(jasmine.any(Array));
+        expect(columns.length).toBeGreaterThan(0);
+        expect(columns[0].field).toBeDefined();
+        expect(columns[0].headerName).toBe("App_Header_Name");
+        expect(columns[0].cellRenderer).toBeDefined();
+        expect(columns[0].cellRendererParams).toBeDefined();
+        expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
+    });
+
+    it("check property map", () => {
+        // Arrange
+        // Act
+        // Assert
+
+        expect(controller.propertyMap).toBeDefined();
+        expect(controller.propertyMap["id"]).toEqual("id");
+        expect(controller.propertyMap["type"]).toEqual("type");
+        expect(controller.propertyMap["name"]).toEqual("name");
+        expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
+
+    });
+
     
+
     describe("Embedded ag-grid events", () => {
         let $scope ;
         let elem;
@@ -125,6 +127,9 @@ describe("Open Project.", () => {
                 null,
                 null,
                 null);
+
+            controller["tree"] = new BPTreeControllerMock();
+
             $compile(elem)($scope);
             $scope.$digest();
         }));
@@ -172,18 +177,18 @@ describe("Open Project.", () => {
             expect(cellRenderer).toContain("project");
         }));
         
-        //it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
+        it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
 
-        //    // Arrange
+            // Arrange
 
-        //    // Act, load empty datasource
-        //    controller.doLoad({ id: -1 });
-        //    $rootScope.$digest();
+            // Act, load empty datasource
+            controller.doLoad({ id: -1 });
+            $rootScope.$digest();
 
-        //    // Assert
-        //    expect(controller.hasError).toBeTruthy();
-        //    expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
-        //}));
+            // Assert
+            expect(controller.hasError).toBeTruthy();
+            expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
+        }));
 
 
     });

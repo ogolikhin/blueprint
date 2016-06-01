@@ -13,7 +13,6 @@ export class ProjectExplorerController {
     
     public static $inject: [string] = ["projectManager"];
     constructor(private projectManager: IProjectManager) {
-        this.projectManager.subscribe(SubscriptionEnum.ProjectChanged, this.activateProject.bind(this));
         this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
         this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
         this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
@@ -29,18 +28,14 @@ export class ProjectExplorerController {
         artifacts: "children"
     }; 
 
-    private activateProject(project: Models.IProject) {
-        if (project) {
-            this.tree.selectNode(project.id);
-        }
-    }
-
     private loadProject = (artifact: Models.IArtifact) => {
         artifact = angular.extend(artifact, {
             loaded: true,
             open: true
         });
+
         this.tree.reload(this.projectManager.ProjectCollection);
+        this.tree.selectNode(artifact.id);
     }
 
     public closeProject(projects: Models.IProject[]) {
@@ -67,15 +62,22 @@ export class ProjectExplorerController {
             return null;
         }
         //check passesed in parameter
-        let artifactId = angular.isNumber(prms.id) ? prms.id : null;
+        let projectId = angular.isNumber(prms.projectId) ? prms.projectId : -1;
+        let artifactId = angular.isNumber(prms.id) ? prms.id : -1;
         //notify the repository to load the node children
-        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, this.projectManager.CurrentProject.id, artifactId);
+        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, projectId, artifactId);
     };
 
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.projectManager.selectArtifact(node.id);
+        let artifact = this.projectManager.getArtifact(node.id);
+        this.projectManager.updateArtifact(artifact, {
+            loaded: node["loaded"],
+            open: node["open"]
+        });
+
+        this.projectManager.CurrentArtifact = artifact;
     };
 
 }

@@ -26,7 +26,7 @@ export class ProjectRepository implements IProjectRepository {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("", "Error")
+                    message: (err ? err.message : "") || this.localization.get("Folder_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);
@@ -36,11 +36,8 @@ export class ProjectRepository implements IProjectRepository {
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();
-        if (!projectId) {
-            throw new Error("Inavlid parameter ");
-        }
 
-        let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : `` ) + `/children`;
+        let url: string = `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`;
 
         this.$http.get<any>(url)
             .success((result: Models.IArtifact[]) => {
@@ -48,7 +45,7 @@ export class ProjectRepository implements IProjectRepository {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("", "Error")
+                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
                 this.$log.error(error);
                 defer.reject(error);

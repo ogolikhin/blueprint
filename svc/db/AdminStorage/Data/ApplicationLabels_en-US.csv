@@ -88,6 +88,7 @@ Login_Session_NewPasswordCriteria,"Your new password must contain at least one n
 
 Input_Required,"Required"
 
+Folder_NotFound,"Couldn't find specified project or folder"
 Project_NotFound,"Couldn't find the project"
 Artifact_NotFound,"Couldn't find the artifact"
 

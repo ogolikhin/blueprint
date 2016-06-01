@@ -589,9 +589,11 @@ namespace Model.ArtifactModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             ///TODO: update after fix in PublishArtifacts from ArtifactBase.cs 
-            //if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
-            artifactToPublish.IsPublished = true;
+            if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
+            {
+                artifactToPublish.IsPublished = true;
                 artifactToPublish.IsSaved = false;
+            }
             return publishResults[0];
         }
 

@@ -381,24 +381,31 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Description("")]
-        [TestRail(000)]
+        [Description("Create and publish process, generate user story, check that user story has expected title.")]
+        [TestRail(125529)]
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingSTTitle()
         {
             // Create and publish a process artifact
             var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
-            // Checking Object: The Process that contains shapes including user task shapes
+            // Get process
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
             
             var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
+            // Get value of the persona property
             var persona = userTasksOnProcess[0].PropertyValues["persona"].Value;
+            // Get value of the User Task name
             var taskName = userTasksOnProcess[0].Name;
-            string expectedStoryTitle = I18NHelper.FormatInvariant("<html>\r\n<body>\r\n<p style=\"margin: 0px\">As a <span style=\"color: #3398db;\">{0}</span>, I want to <span style=\"color: #3398db;\">{1}</span></p>\r\n</body>\r\n</html>\r\n",
-                persona.ToString(), taskName);
+            // User story title must be 'As a <persona> I want to <taskName>'
+            const string css_font_normal = "<span style=\"font-weight: normal;color: #565656;";
+            const string css_font_bold = "<span style=\"font-weight: bold;color: #565656;";
+            string expectedStoryTitle = I18NHelper.FormatInvariant("<html>\r\n<body>\r\n<p style=\"margin: 0px;\">{0}\">As a </span><span style=\"font-weight: bold;color: #565656;\">{2}</span>{0}\">, I want to </span>{1}\">{3}</span></p>\r\n</body>\r\n</html>\r\n",
+                css_font_normal, css_font_bold, persona.ToString(), taskName);
 
-            // Test Object: Generated User Stories from the Process
+            // Generated User Stories from the Process
             List <IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            // Check that ST-Title property has expected value
+            // TODO: change CustomProperties[0] with more readable code like GetTitle
             Assert.AreEqual(expectedStoryTitle, userStories[0].CustomProperties[0].Value);
         }
 

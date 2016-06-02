@@ -17,24 +17,6 @@
       }
     }
 
-    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
-      font-size: $font-size-root;
-      margin-left: 3px;
-      margin-right: 5px;
-    }
-
-    .fonticon-folder-open::before,
-    .fonticon-folder::before,
-    .fonticon-project::before {
-      position: relative;
-      top: 1px;
-    }
-
-    .ag-group-contracted,
-    .ag-group-expanded {
-      padding-left: 5px;
-    }
-
     .ag-body {
       padding-top: $aggrid-row-height;
     }
@@ -74,9 +56,9 @@
       .has-children .ag-group-expanded::before,
       .has-children .ag-group-contracted::before,
       span > span,
-      i {
-        background: $brand-secondary;
-        color: $white;
+      i::before {
+        background: $brand-secondary !important;
+        color: $white !important;
       }
 
       > span .ag-group-inline-edit::before,
@@ -100,13 +82,16 @@
       margin-left: 15px;
     }
 
+    > span .ag-group-contracted i::before,
+    > span .ag-group-expanded i::before,
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
       box-sizing: border-box;
       color: $brand-secondary;
       display: inline-block;
-      font-family: 'bp-font';
+      font-family: 'bp-line-icons';
       font-size: $font-size-smaller;
+      font-style: normal;
       padding: 0 0 0 5px;
       text-align: left;
       vertical-align: bottom;
@@ -122,25 +107,21 @@
   .ag-cell {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      content: '\e85f';
-      font-size: $font-size-smaller;
-      text-indent: -3px;
+      content: '\e80e';
     }
   }
 
   .ag-cell.is-folder {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      content: '\e802';
-      text-indent: 1px !important;
+      content: '\e80d';
     }
   }
 
   .ag-cell.is-project {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
-      content: '\e879';
-      text-indent: 0 !important;
+      content: '\e80a';
     }
   }
 
@@ -161,25 +142,20 @@
 // group specific icons
   .ag-row-group .ag-group-contracted i::before,
   .ag-row-group .ag-group-expanded i::before {
-    content: '\e85f';
-    font-size: $font-size-smaller;
-    text-indent: -4px;
+    content: '\e80e';
   }
 
   .ag-row-group .is-folder .ag-group-contracted i::before {
-    content: '\e802';
-    text-indent: -1px !important;
+    content: '\e80d';
   }
 
   .ag-row-group .is-folder .ag-group-expanded i::before {
-    content: '\e83e';
-    text-indent: 0 !important;
+    content: '\e80d'; //should change to open folder icon
   }
 
   .ag-row-group .is-project .ag-group-contracted i::before,
   .ag-row-group .is-project .ag-group-expanded i::before {
-    content: '\e879';
-    text-indent: 0;
+    content: '\e80a';
   }
 
   .ag-row-loading .ag-cell .ag-group-contracted i::before,
@@ -193,9 +169,6 @@
   }
 
   .ag-cell.has-children {
-    //fix for vertical alignment of folder
-    padding-left: 3px;
-
     > span {
       margin-left: 0;
     }
@@ -209,7 +182,6 @@
       font-size: $font-size-smallest;
       padding-left: 3px;
       text-align: left;
-      width: 15px;
     }
 
     .ag-group-expanded::before {
@@ -229,6 +201,10 @@
 }
 
 .project-tree {
+  .ag-row-level-0 .ag-cell.is-folder {
+    //padding-left: 0;
+  }
+
   .ag-overlay-loading-wrapper {
     font-size: $font-size-smallest;
     padding-top: $aggrid-row-height;
@@ -239,15 +215,6 @@
 
 //drag and drop related styles
 $aggrid-dnd-handle-width: 14px;
-
-.project-tree {
-  .ag-row-level-0 {
-    .ag-group-contracted,
-    .ag-group-expanded {
-      padding-left: 0;
-    }
-  }
-}
 
 .project-explorer {
   .ag-row-dnd-handle {
@@ -266,7 +233,7 @@ $aggrid-dnd-handle-width: 14px;
   .ag-row-dnd-handle::before {
     color: $brand-secondary;
     content: '\e829';
-    font-family: 'bp-font';
+    font-family: 'bp-line-icons';
   }
 
   .ag-body:not(.ag-body-inline-editing) .ag-row:hover .ag-row-dnd-handle {

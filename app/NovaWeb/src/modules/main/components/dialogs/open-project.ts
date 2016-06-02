@@ -105,7 +105,8 @@ export class OpenProjectController extends BaseDialogController {
                     cell.addEventListener("keydown", this.onEnterKeyPressed);
                 }
                 return sanitizedName;
-            }
+            },
+            padding: 16
         },
         suppressMenu: true,
         suppressSorting: true,

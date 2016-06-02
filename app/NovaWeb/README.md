@@ -15,7 +15,7 @@ Then run `devsetup` (on Windows) to install required npm packages globally.
 devsetup
 ```
 
-We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
+We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies. You may also need to run \blueprint\svc\db\AdminStorage\AdminStorage_Migration.sql, otherwise new label will not show up in the interface.
 
 ### npm - single package manager for front-end and dev dependencies 
 Use `npm install --save-dev` to install node-modules used in development/build or testing.
@@ -25,7 +25,7 @@ Use `npm install --save` for grabbing open source client side libraries (bower i
 Client side libraries that are not open source (example mxgraph) should be added under version control (libs folder)
 
 ### typings - TypeScript definition files
-Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions.
+Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions. We are not using latest version of typings yet because of breaking changes between version 0.8.x and version 1.x - should be addressed soon.
 
 Use `typings install {library-name} --ambient --save` to install TypeScript definition for library-name from DefinitelyTyped registry.
 
@@ -37,7 +37,7 @@ Use `typings install {library-name} --ambient --save` to install TypeScript defi
   * Use ES2015/TS import/export to define dependencies (instead of TS references)
   * Use [Angular 1.5 components](https://code.angularjs.org/1.5.3/docs/guide/component) /[Course on Pluralsight](https://app.pluralsight.com/library/courses/building-components-angular-1-5/table-of-contents)/ instead of separated view and controller . Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
   * Avoid using $scope object (it is possible to use it when you need to notify Angular about changes completed outside of Angular scope. For example use $scope.$applyAsync when integrating with non Angular libraries)
-2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). While the following document explains how to create and maintain localization strings for Nova client. [Nova Web Application - Localization Primer](https://github.com/BlueprintSys/blueprint/blob/develop/app/NovaWeb/doc/Nova%20Web%20Application%20-%20Localization%20Primer.docx?raw=true)
+2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). While the following document explains how to create and maintain localization strings for Nova client. [Nova Web Application - Localization Primer](https://github.com/BlueprintSys/blueprint/blob/develop/app/NovaWeb/doc/Nova%20Web%20Application%20-%20Localization%20Primer.docx?raw=true). svc\db\AdminStorage\AdminStorage_Migration.sql needs to be executed when you getting latest version from Git, otherwise no new label will show up in the interface.
  
 Some of these rules are enforced by tslint (for `npm run dev` and `npm run test` tasks). Please, pay attention for tslint warning messages and fix them when working with the code.
 

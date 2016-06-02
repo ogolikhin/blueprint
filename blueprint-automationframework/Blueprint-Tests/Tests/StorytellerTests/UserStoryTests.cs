@@ -73,7 +73,6 @@ namespace StorytellerTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]//https://trello.com/c/GFj2bmZm
         [Description("Verify the contents of generated or updated user stories")]
         public void UserStoryGenerationProcessWithDefaultUserTask_VerifyingContents()
         {

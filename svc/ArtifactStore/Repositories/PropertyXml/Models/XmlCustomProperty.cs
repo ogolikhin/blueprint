@@ -28,8 +28,9 @@ namespace ArtifactStore.Repositories.PropertyXml.Models
         [XmlAttribute(AttributeName = "SId")]
         public string StandardPropertyTypeId { get; set; }
 
+        private List<XmlCustomPropertyValidValue> _validValues;
         [XmlArray(ElementName = "VVS")]
         [XmlArrayItem(ElementName = "VV")]
-        public List<XmlCustomPropertyValidValue> ValidValues { get; set; }
+        public List<XmlCustomPropertyValidValue> ValidValues => _validValues ?? (_validValues = new List<XmlCustomPropertyValidValue>());
     }
 }

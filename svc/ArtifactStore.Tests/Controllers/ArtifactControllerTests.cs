@@ -25,14 +25,14 @@ namespace ArtifactStore.Controllers
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId)).ReturnsAsync(children);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var instanceController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
-            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var result = await instanceController.GetProjectChildrenAsync(projectId);
+            var result = await artifactController.GetProjectChildrenAsync(projectId);
 
             //Assert
             Assert.AreSame(children, result);
@@ -50,14 +50,14 @@ namespace ArtifactStore.Controllers
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockArtifactRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId)).ReturnsAsync(children);
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-            var instanceController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
+            var artifactController = new ArtifactController(mockArtifactRepository.Object, mockServiceLogRepository.Object)
             {
                 Request = new HttpRequestMessage()
             };
-            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
+            artifactController.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var result = await instanceController.GetArtifactChildrenAsync(projectId, artifactId);
+            var result = await artifactController.GetArtifactChildrenAsync(projectId, artifactId);
 
             //Assert
             Assert.AreSame(children, result);

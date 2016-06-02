@@ -50,6 +50,15 @@ namespace Model.StorytellerModel.Impl
 
             foreach (var deletedArtifactId in deletedArtifactIds)
             {
+                Artifacts.ForEach(a =>
+                {
+                    if (a.Id == deletedArtifactId)
+                    {
+                        a.IsDeleted = true;
+                        a.IsPublished = false;
+                        a.IsSaved = false;
+                    }
+                });
                 Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
             }
         }
@@ -435,8 +444,6 @@ namespace Model.StorytellerModel.Impl
                     // Separate the published from the unpublished artifacts.  Delete the published ones, and discard the saved ones.
                     foreach (var artifact in Artifacts.ToArray())
                     {
-                        artifact.UnregisterObserver(this);
-
                         if (artifact.IsPublished)
                         {
                             DeleteProcessArtifact(artifact);
@@ -452,6 +459,8 @@ namespace Model.StorytellerModel.Impl
                                 savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
                             }
                         }
+
+                        artifact.UnregisterObserver(this);
                     }
 
                     // For each user that created artifacts, discard the list of artifacts they created.

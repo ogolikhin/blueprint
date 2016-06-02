@@ -24,7 +24,9 @@ namespace ArtifactStore.Models
         public int? IconImageId { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? UsedInThisProject { get; set; }
+
+        private List<int> _customPropertyTypeIds;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<int> CustomPropertyTypeIds { get; set; }
+        public List<int> CustomPropertyTypeIds => _customPropertyTypeIds ?? (_customPropertyTypeIds = new List<int>());
     }
 }

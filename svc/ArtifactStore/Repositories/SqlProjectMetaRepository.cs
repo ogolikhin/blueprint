@@ -49,7 +49,7 @@ namespace ArtifactStore.Repositories
             var project = (await ConnectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
-            if (!project.IsAccesible)
+            if (!project.IsAccesible.GetValueOrDefault())
                 throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
 
             prm = new DynamicParameters();
@@ -67,12 +67,7 @@ namespace ArtifactStore.Repositories
             var itPtMap = typeGrid.Item3.Where(r => ptIdMap.Contains(r.PropertyTypeId))
                 .GroupBy(r => r.ItemTypeId).ToDictionary(r => r.Key, r => r.ToList().Select(mr => mr.PropertyTypeId));
 
-            var projectTypes = new ProjectTypes
-            {
-                ArtifactTypes = new List<ItemType>(),
-                SubArtifactTypes = new List<ItemType>(),
-                PropertyTypes = new List<PropertyType>()
-            };
+            var projectTypes = new ProjectTypes();
 
             // Process properties
             foreach (var pv in ptVersions)
@@ -132,7 +127,7 @@ namespace ArtifactStore.Repositories
                                       ? PropertyHelper.ToDecimal(pv.MaxNumber) : null,
                 DecimalPlaces = pv.PrimitiveType == PropertyPrimitiveType.Number ? pv.DecimalPlaces : null,
                 ValidValues = pv.PrimitiveType == PropertyPrimitiveType.Choice
-                                      ? propertyFromXml?.ValidValues.OrderBy(v => int.Parse(v.OrderIndex)).Select(v => v.Value).ToList()
+                                      ? propertyFromXml?.ValidValues.OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex)).Select(v => v.Value).ToList()
                                       : null,
                 DefaultValidValueIndex = pv.PrimitiveType == PropertyPrimitiveType.Choice
                                       ? FindDefaultValidValueIndex(propertyFromXml.ValidValues)
@@ -142,7 +137,7 @@ namespace ArtifactStore.Repositories
 
         private ItemType ConvertItemTypeVersion(ItemTypeVersion itv, IEnumerable<int> ptIds, int projectId)
         {
-            return new ItemType
+            var it = new ItemType
             {
                 Id = itv.ItemTypeId,
                 Name = itv.Name,
@@ -151,10 +146,14 @@ namespace ArtifactStore.Repositories
                 InstanceItemTypeId = itv.InstanceItemTypeId,
                 BaseType = itv.BasePredefined ?? itv.Predefined,
                 Prefix = itv.Prefix,
-                CustomPropertyTypeIds = ptIds?.ToList() ?? new List<int>(),
                 IconImageId = itv.IconImageId,
                 UsedInThisProject = itv.UsedInThisProject
             };
+
+            if(ptIds != null)
+                it.CustomPropertyTypeIds.AddRange(ptIds);
+
+            return it;
         }
 
         private static List<UserGroup> ParseUserGroups(string userGroups)
@@ -163,7 +162,7 @@ namespace ArtifactStore.Repositories
                 return null;
 
             var result = new List<UserGroup>();
-            var tokens = userGroups.Split(' ');
+            var tokens = userGroups.Split('\n');
             foreach (var token in tokens)
             {
                 var isGroup = token.StartsWith("g", StringComparison.Ordinal);
@@ -180,7 +179,7 @@ namespace ArtifactStore.Repositories
             if (validValues == null)
                 return null;
 
-            var orderedValidValues = validValues.OrderBy(v => int.Parse(v.OrderIndex)).ToList();
+            var orderedValidValues = validValues.OrderBy(v => I18NHelper.Int32ParseInvariant(v.OrderIndex)).ToList();
             for (var i = 0; i < orderedValidValues.Count; i++)
             {
                 if (orderedValidValues.ElementAt(i)?.Selected == "1")
@@ -192,7 +191,7 @@ namespace ArtifactStore.Repositories
 
         internal class ProjectVersion
         {
-            internal bool IsAccesible { get; set; }
+            internal bool? IsAccesible { get; set; }
         }
 
         internal class PropertyTypeVersion

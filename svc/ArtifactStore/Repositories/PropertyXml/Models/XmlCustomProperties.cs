@@ -7,7 +7,8 @@ namespace ArtifactStore.Repositories.PropertyXml.Models
     [XmlRoot(ElementName = "CPS")]
     public class XmlCustomProperties
     {
+        private List<XmlCustomProperty> _customProperties;
         [XmlElement(ElementName = "CP")]
-        public List<XmlCustomProperty> CustomProperties { get; set; }
+        public List<XmlCustomProperty> CustomProperties => _customProperties ?? (_customProperties = new List<XmlCustomProperty>());
     }
 }

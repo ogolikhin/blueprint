@@ -123,6 +123,7 @@ export class BPTreeController implements IBPTreeController  {
                     ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
+                            gridCol.cellRendererParams.padding = 17;
                         }
 
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
@@ -203,7 +204,8 @@ export class BPTreeController implements IBPTreeController  {
     //to select a tree node in ag grid
     public selectNode(id: number) {
         this.options.api.getModel().forEachNode(function (it) {
-            it.setSelected(it.data.id === id, true);        });
+            it.setSelected(it.data.id === id, true);
+        });
     }
 
 

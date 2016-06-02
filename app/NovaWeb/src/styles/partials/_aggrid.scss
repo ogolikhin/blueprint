@@ -35,13 +35,6 @@
       padding-left: 5px;
     }
 
-    .ag-row-level-0 {
-      .ag-group-contracted,
-      .ag-group-expanded {
-        padding-left: 0;
-      }
-    }
-
     .ag-body {
       padding-top: $aggrid-row-height;
     }
@@ -246,6 +239,15 @@
 
 //drag and drop related styles
 $aggrid-dnd-handle-width: 14px;
+
+.project-tree {
+  .ag-row-level-0 {
+    .ag-group-contracted,
+    .ag-group-expanded {
+      padding-left: 0;
+    }
+  }
+}
 
 .project-explorer {
   .ag-row-dnd-handle {

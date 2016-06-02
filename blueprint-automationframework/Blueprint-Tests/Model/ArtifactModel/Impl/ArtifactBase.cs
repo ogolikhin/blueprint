@@ -415,7 +415,6 @@ namespace Model.ArtifactModel.Impl
 
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
                 deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
-                deletedArtifact.Id = -1;
             }
         }
 

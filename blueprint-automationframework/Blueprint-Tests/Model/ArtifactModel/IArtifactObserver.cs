@@ -5,7 +5,7 @@ namespace Model.ArtifactModel
     public interface IArtifactObserver
     {
         /// <summary>
-        /// Notifies this observer about artifacts that were deleted & published.
+        /// Notifies this observer about artifacts that were deleted and published.
         /// </summary>
         /// <param name="deletedArtifactIds">The list of artifact IDs that were deleted.</param>
         void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds);
@@ -28,7 +28,7 @@ namespace Model.ArtifactModel
         void UnregisterObserver(IArtifactObserver observer);
 
         /// <summary>
-        /// Notifies all registered observers about artifacts that were deleted & published.
+        /// Notifies all registered observers about artifacts that were deleted and published.
         /// </summary>
         /// <param name="deletedArtifactsList">The list of artifacts that were deleted.</param>
         void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList);

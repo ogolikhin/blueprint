@@ -41,10 +41,7 @@ namespace Model.StorytellerModel.Impl
 
         #region IArtifactObserver methods
 
-        /// <summary>
-        /// Removes all deleted artifacts from our list of artifacts.
-        /// </summary>
-        /// <param name="deletedArtifactIds">The list of artifact IDs that were deleted.</param>
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
         public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));

@@ -17,10 +17,6 @@ namespace ArtifactStore.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        private const int VersionHead = int.MaxValue;
-        private const int VersionDraft = 1;
-        private const int VersionDraftDeleted = -1;
-
         public SqlArtifactRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -231,8 +227,8 @@ namespace ArtifactStore.Repositories
                 "ItemId or HasDraft properties of Head and Draft are different.");
 
             var headOrDraft = headAndDraft[0].HasDraft 
-                ? headAndDraft.FirstOrDefault(v => v.StartRevision == VersionDraft && v.EndRevision != VersionDraftDeleted)
-                : headAndDraft.FirstOrDefault(v => v.EndRevision == VersionHead);
+                ? headAndDraft.FirstOrDefault(v => v.StartRevision == ServiceConstants.VersionDraft && v.EndRevision != ServiceConstants.VersionDraftDeleted)
+                : headAndDraft.FirstOrDefault(v => v.EndRevision == ServiceConstants.VersionHead);
 
             // Adjust the versions count
             if (headOrDraft?.VersionsCount != null)

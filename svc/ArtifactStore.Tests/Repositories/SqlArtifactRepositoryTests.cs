@@ -202,7 +202,7 @@ namespace ArtifactStore.Repositories
             input[0].DirectPermissions = null;
             input[0].ParentId = 9;
             input[1].HasDraft = false;
-            var project = CreateArtifactVersion(1, 1, null, 33, int.MaxValue, RolePermissions.Read, false);
+            var project = CreateArtifactVersion(1, 1, null, 33, ServiceConstants.VersionHead, RolePermissions.Read, false);
             input.Add(project);
 
             var expected = new List<Artifact>
@@ -243,13 +243,13 @@ namespace ArtifactStore.Repositories
             input[0].ParentId = 9;
             input[1].HasDraft = false;
 
-            var ancestor1 = CreateArtifactVersion(9, 1, 8, 33, int.MaxValue, null, false);
+            var ancestor1 = CreateArtifactVersion(9, 1, 8, 33, ServiceConstants.VersionHead, null, false);
             input.Add(ancestor1);
 
-            var ancestor2 = CreateArtifactVersion(8, 1, 7, 33, int.MaxValue, null, false);
+            var ancestor2 = CreateArtifactVersion(8, 1, 7, 33, ServiceConstants.VersionHead, null, false);
             input.Add(ancestor2);
 
-            var ancestor3 = CreateArtifactVersion(7, 1, 6, 33, int.MaxValue, RolePermissions.Read, false);
+            var ancestor3 = CreateArtifactVersion(7, 1, 6, 33, ServiceConstants.VersionHead, RolePermissions.Read, false);
             input.Add(ancestor3);
 
             var expected = new List<Artifact>
@@ -402,7 +402,7 @@ namespace ArtifactStore.Repositories
             input[0].ParentId = null;
             input[1].ParentId = projectId;
 
-            var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
+            var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
                 name: "BaselinesAndReviews",
                 orderIndex: -1,
                 itemTypePredefined: ItemTypePredefined.BaselineFolder,
@@ -413,7 +413,7 @@ namespace ArtifactStore.Repositories
                 versionsCount: 1);
             input.Add(baselinesAndReviews);
 
-            var collections = CreateArtifactVersion(3, 1, 1, 99, int.MaxValue, RolePermissions.Read, false,
+            var collections = CreateArtifactVersion(3, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
                 name: "Collections",
                 orderIndex: -1,
                 itemTypePredefined: ItemTypePredefined.CollectionFolder,
@@ -770,8 +770,8 @@ namespace ArtifactStore.Repositories
         {
             return new List<ArtifactVersion>
             {
-                CreateArtifactVersion(10, 1, 1, 99, int.MaxValue, RolePermissions.Read, false),
-                CreateArtifactVersion(20, 1, 10, 99, int.MaxValue, RolePermissions.Read, true,
+                CreateArtifactVersion(10, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false),
+                CreateArtifactVersion(20, 1, 10, 99, ServiceConstants.VersionHead, RolePermissions.Read, true,
                                         name: "parent",
                                         orderIndex: 10,
                                         itemTypePredefined: ItemTypePredefined.PrimitiveFolder,
@@ -789,7 +789,7 @@ namespace ArtifactStore.Repositories
                                         lockedByUserId: 1,
                                         lockedByUserTime: DateTime.Now,
                                         versionsCount: 22),
-                CreateArtifactVersion(30, 1, 20, 99, int.MaxValue, RolePermissions.Read, false)
+                CreateArtifactVersion(30, 1, 20, 99, ServiceConstants.VersionHead, RolePermissions.Read, false)
             };
         } 
 

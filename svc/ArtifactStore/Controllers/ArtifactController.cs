@@ -15,7 +15,7 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactController : LoggableApiController
     {
-        internal readonly ISqlArtifactRepository _artifactRepository;
+        internal readonly ISqlArtifactRepository ArtifactRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Artifact";
 
@@ -25,12 +25,12 @@ namespace ArtifactStore.Controllers
 
         public ArtifactController(ISqlArtifactRepository instanceRepository) : base()
         {
-            _artifactRepository = instanceRepository;
+            ArtifactRepository = instanceRepository;
         }
 
         public ArtifactController(ISqlArtifactRepository instanceRepository, IServiceLogRepository log) : base(log)
         {
-            _artifactRepository = instanceRepository;
+            ArtifactRepository = instanceRepository;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _artifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
         }
 
     }

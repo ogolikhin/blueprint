@@ -1,4 +1,5 @@
 ﻿import "angular";
+import {Helper} from "./utils/helper";
 
 export enum EventSubscriber {
     Main,
@@ -7,28 +8,34 @@ export enum EventSubscriber {
 
 
 export interface IEventManager {
-    attach(subsriberId: EventSubscriber, name: string, callback: any);
+    attach(subsriberId: EventSubscriber, name: string, callback: any): string;
     detach(subsriberId: EventSubscriber, name: string, callback: any);
+    detachById(id: string);
     dispatch(subsriberId: EventSubscriber, name: string, ...prms: any[]);
     destroy(subsriberId?: EventSubscriber);
 }
 
-class ICallbacks {
+interface ICallback {
+    id: string;
+    callback: Function;
+}
+
+interface IEventHandlers {
     name: string;
-    callbacks: Function[];
+    callbacks: ICallback[];
 }
 
 export class EventManager implements IEventManager {
-    public handlers: ICallbacks[] = [];
+    public handlers: IEventHandlers[] = [];
 
     constructor() { }
 
-    private getHandlers(name: string): ICallbacks {
-        let handler = (this.handlers.filter(function (it: ICallbacks) {
+    private getHandlers(name: string): IEventHandlers {
+        let handler = (this.handlers.filter(function (it: IEventHandlers) {
             return it.name === name;
         }))[0];
         if (!handler) {
-            handler = <ICallbacks>{ name: name, callbacks: [] };
+            handler = <IEventHandlers>{ name: name, callbacks: [] };
             this.handlers.push(handler);
         }
         return handler;
@@ -38,27 +45,42 @@ export class EventManager implements IEventManager {
         return args.join(`.`).toLowerCase();
     }
 
-    public attach(subsriberId: EventSubscriber, name: string, callback: Function)  {
+    public attach(subsriberId: EventSubscriber, name: string, callback: Function): string  {
         if (!name || !callback) {
             return;
         }
         let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
-        handler.callbacks.push(callback);
+        let item = <ICallback>{ id: Helper.UID, callback: callback };
+        handler.callbacks.push(item);
+        return item.id;        
     };
 
-    public detach(subsriberId: EventSubscriber, name: string, callback: Function) {
+    
+    public detach(subsriberId: EventSubscriber, name: string , callback?: Function) {
         if (!callback) {
             return;
         }
         let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
-        handler.callbacks = handler.callbacks.filter(function (it: Function, index: number) {
-            return it !== callback;
+        handler.callbacks = handler.callbacks.filter(function (it: ICallback, index: number) {
+            return it.callback !== callback;
         });
         if (!handler.callbacks.length) {
-            this.handlers = this.handlers.filter(function (it: ICallbacks) {
+            this.handlers = this.handlers.filter(function (it: IEventHandlers) {
                 return it.name !== handler.name;
             });
         }
+    };
+    public detachById(id: string) {
+        this.handlers.forEach(function (handler: IEventHandlers) {
+            handler.callbacks = handler.callbacks.filter(function (it: ICallback) {
+                return it.id !== id;
+            })
+            if (!handler.callbacks.length) {
+                this.handlers = this.handlers.filter(function (it: IEventHandlers) {
+                    return it.name !== handler.name;
+                });
+            }
+        }.bind(this));
     };
 
     public dispatch(subsriberId: EventSubscriber, name: string, ...prms: any[]) {
@@ -66,8 +88,8 @@ export class EventManager implements IEventManager {
             return;
         }
         let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
-        handler.callbacks.map(function (it: Function) {
-            it.apply(it, prms);
+        handler.callbacks.map(function (it: ICallback) {
+            it.callback.apply(it.callback, prms);
         });
     }
 

@@ -272,6 +272,8 @@ describe("Storyteller end to end test", () => {
         logger.info("======= START Include Artifacts and navigate to the attached artifacts thru Bread curmbs =======");
         
             it("Should be able  include Artifacts at Edit Detail modal at footer", () => {
+                //Arrange 
+                createArtifact.createArt();
                 //Act
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index

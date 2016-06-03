@@ -32,7 +32,7 @@ export class ProjectRepository implements IProjectRepository {
                 defer.reject(error);
             });
         return defer.promise;
-    }
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();

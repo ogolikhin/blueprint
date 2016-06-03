@@ -34,7 +34,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
                 "description": "Process description",
                 "type": "Project"
             }
-        ];
+        ]; 
         if (id || id < 0) {
             folders = null;
         }
@@ -52,7 +52,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
             predefinedType: Math.floor(Math.random() * 100),
             projectId: projectId,
             hasChildren: false
-        } as Models.IArtifact;
+        } ;
     }
 
     public getArtifacts(id?: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {

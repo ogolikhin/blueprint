@@ -22,7 +22,7 @@ interface ICallback {
 
 interface IEventHandlers {
     name: string;
-    callbacks: ICallback[];
+    callbacks: ICallback[]; 
 }
 
 export class EventManager implements IEventManager {

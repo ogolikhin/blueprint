@@ -6,19 +6,20 @@ import {IProjectRepository} from "../services/project-repository";
 export {Models}
 
 export enum SubscriptionEnum { 
-    Initialize,
+    PropertyChanged,
+    ProjectChanged,
+    ArtifactChanged,
     ProjectLoad,
     ProjectLoaded,
     ProjectChildrenLoad,
     ProjectChildrenLoaded,
     ProjectClose,
-    ProjectClosed,
-    ProjectChanged,
-    ArtifactChanged
+    ProjectClosed
 }
 
 export interface IProjectManager {
     // eventManager
+    initialize();
     subscribe(type: SubscriptionEnum, func: Function);
     unsubscribe(type: SubscriptionEnum, func: Function);
     notify(type: SubscriptionEnum, ...prms: any[]);
@@ -35,7 +36,7 @@ export interface IProjectManager {
 
 
 export class ProjectManager implements IProjectManager {
-    private _handlers: string[] = [];
+    private _listeners: string[] = [];
     private _currentProject: Models.IProject;
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
@@ -48,8 +49,8 @@ export class ProjectManager implements IProjectManager {
         private _repository: IProjectRepository) {
 
         //subscribe to event
-        this._handlers = [
-            this.subscribe(SubscriptionEnum.Initialize, this.initialize.bind(this)),
+        this._listeners = [
+            this.subscribe(SubscriptionEnum.PropertyChanged, this.onPropertyChanged.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this)),
@@ -58,9 +59,15 @@ export class ProjectManager implements IProjectManager {
 
     public $onDestroy() {
         //clear all Project Manager event subscription
-        this._handlers.map(function (it) {
+        this._listeners.map(function (it) {
             this.eventManager.detachById(it);
         }.bind(this));
+    }
+
+    public initialize = () => {
+        this._projectCollection = [];
+        this._currentProject = null;
+        this._currentArtifact = null;
     }
 
     public subscribe(type: SubscriptionEnum, func: Function): string {
@@ -75,6 +82,9 @@ export class ProjectManager implements IProjectManager {
         this.eventManager.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
     }
 
+    private onPropertyChanged(item: any, propertyName: string, value: any, oldValue: any) {
+
+    }
 
     public set CurrentProject(project: Models.IProject) {
         if (this._currentProject && project && this._currentProject.id === project.id) {
@@ -113,12 +123,6 @@ export class ProjectManager implements IProjectManager {
         return this._projectCollection;
     }
 
-
-    private initialize = () => {
-        this._projectCollection = [];
-        this._currentProject = null;
-        this._currentArtifact = null;
-    }
 
 
     private loadProject = (projectId: number, projectName: string) => {
@@ -196,7 +200,11 @@ export class ProjectManager implements IProjectManager {
     }
 
     public getFolders(id?: number) {
-        return this._repository.getFolders(id);
+        try {
+            return this._repository.getFolders(id);
+        } catch (ex) {
+            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+        }
     }
 
     public getProject(id: number) {

@@ -7,6 +7,9 @@
     .ag-font-style {
       font-size: $font-size-smallest;
     }
+    .ag-grid *:focus {
+        outline:none;
+    }
 
     .ag-header-cell {
       text-align: left;
@@ -42,30 +45,54 @@
         vertical-align: bottom;
       }
     }
-
-    .ag-row-focus,
-    .ag-row-selected,
-    .ag-cell-range-selected {
-      outline: none;
-
-      .has-children .ag-group-expanded,
-      .has-children .ag-group-contracted {
-        background: transparent;
-      }
-
-      .has-children .ag-group-expanded::before,
-      .has-children .ag-group-contracted::before,
-      span > span,
-      i::before {
-        background: $brand-secondary !important;
-        color: $white !important;
-      }
-
-      > span .ag-group-inline-edit::before,
-      > span .ag-group-value::before {
-        color: $white;
-      }
+    .ag-row-focus {
+        .ag-cell-focus {
+            outline:none;
+            span > span,
+            i::before {
+                background: $blue-lightest;
+                color: $text-color;
+            }
+            > span .ag-group-inline-edit::before,
+            > span .ag-group-value::before {
+                color: $text-color;
+            }
+        }
     }
+
+    .ag-row-selected {
+        .ag-cell {
+            outline: none;
+
+            .has-children .ag-group-expanded,
+            .has-children .ag-group-contracted {
+                //background: transparent;
+            }
+
+            .has-children .ag-group-expanded::before,
+            .has-children .ag-group-contracted::before,
+            span > span,
+            i::before {
+                background: $brand-secondary !important;
+                color: $white !important;
+            }
+            > span .ag-group-inline-edit::before,
+            > span .ag-group-value::before {
+                color: $white;
+            }
+        }
+    }
+
+
+
+        /*.ag-row-selected {
+            .ag-cell-range-selected {
+                span > span {
+                    background: $brand-secondary !important;
+                    color: $white !important;
+              }                  
+        }
+            }*/
 
     input {
       border: solid 1px $brand-secondary;
@@ -98,6 +125,7 @@
       display: none !important;
     }
   }
+
 
   // vertical alignment adjustments
   .ag-body-container {

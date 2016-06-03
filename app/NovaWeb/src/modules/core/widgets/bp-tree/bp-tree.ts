@@ -150,8 +150,6 @@ export class BPTreeController implements IBPTreeController  {
                 groupContracted: "<i />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
-            //onRowSelected: this.rowSelected,
-            //onSelectionChanged: this.selectionChanged.bind(this),
             onCellFocused: this.cellFocused,
             onRowClicked: this.rowClicked,
             onRowDoubleClicked: this.rowDoubleClicked,
@@ -292,6 +290,7 @@ export class BPTreeController implements IBPTreeController  {
 
     private rowSelected = (node: any) => {
         var self = this;
+
         node.setSelected(true, true);
 
         if (angular.isFunction(self.onSelect)) {
@@ -313,7 +312,6 @@ export class BPTreeController implements IBPTreeController  {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }
-            self.rowSelected(params.node);
 
         }, 250);
     };

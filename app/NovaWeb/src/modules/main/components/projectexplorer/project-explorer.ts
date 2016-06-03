@@ -79,7 +79,6 @@ export class ProjectExplorerController {
 
 
     public doSelect = (node: ITreeNode) => {
-        console.log(`Selected node ${node.id}`);
                 //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
         this.projectManager.updateArtifact(artifact, artifact.hasChildren ?  {
@@ -88,6 +87,7 @@ export class ProjectExplorerController {
         } : null);
 
         this.projectManager.CurrentArtifact = artifact;
+        console.log(`Selected node ${this.projectManager.CurrentArtifact.id}`);
     };
 
 }

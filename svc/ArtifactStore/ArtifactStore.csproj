@@ -107,6 +107,7 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ArtifactController.cs" />
+    <Compile Include="Controllers\ArtifactVersionsController.cs" />
     <Compile Include="Controllers\ProjectMetaController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Global.asax.cs">
@@ -114,6 +115,7 @@
     </Compile>
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Models\Artifact.cs" />
+    <Compile Include="Models\GetArtifactHistoryResult.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ItemTypePredefined.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
@@ -123,12 +125,14 @@
     <Compile Include="Models\UserGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
+    <Compile Include="Repositories\ISqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
     <Compile Include="Repositories\PropertyXml\XmlModelSerializer.cs" />
     <Compile Include="Repositories\SqlArtifactRepository.cs" />
+    <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
   </ItemGroup>
   <ItemGroup>

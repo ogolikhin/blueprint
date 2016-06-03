@@ -1,7 +1,16 @@
 ﻿import "angular";
 import {ISession} from "./session.svc";
-import {IHttpInterceptorConfig} from "./auth.svc";
 import {SessionTokenHelper} from "./session.token.helper";
+
+export class HttpHandledErrorStatusCodes {
+    public static get handledUnauthorizedStatus() {
+        return 1401;
+    }
+}
+
+export interface IHttpInterceptorConfig extends ng.IRequestConfig {
+    ignoreInterceptor: boolean;
+}
 
 export class HttpErrorInterceptor {
 
@@ -22,7 +31,7 @@ export class HttpErrorInterceptor {
         } else if (response.status === 401) {
             session.onExpired().then(
                 () => {
-                    response.status = 1401;
+                    response.status = HttpHandledErrorStatusCodes.handledUnauthorizedStatus;
                     deferred.reject(response);
                 },
                 () => deferred.reject(response)

@@ -38,7 +38,6 @@ export class SessionSvc implements ISession {
 
     private _currentUser: IUser;
     private _loginMsg: string;
-    //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
     private _isExpired: boolean;
     private _isForceSameUsername: boolean;
@@ -104,7 +103,6 @@ export class SessionSvc implements ISession {
         var defer = this.$q.defer();
         if (!this._isExpired) {
             this._isExpired = true;
-            //this._loginMsg = "session timeout, please relogin";
             this._loginMsg = this.localization.get("Login_Session_Timeout");
             this._isForceSameUsername = true;
             this.showLogin(defer);

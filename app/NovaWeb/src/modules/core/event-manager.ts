@@ -89,6 +89,7 @@ export class EventManager implements IEventManager {
         }
         let handler = this.getHandlers(this.mask(EventSubscriber[subsriberId], name));
         handler.callbacks.map(function (it: ICallback) {
+            //console.log(`Dispatch event ${it.id}`);
             it.callback.apply(it.callback, prms);
         });
     }

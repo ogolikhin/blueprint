@@ -1,7 +1,7 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
-import "../core";
+import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
 import {ISession, SessionSvc} from "./login/session.svc";
@@ -12,7 +12,7 @@ import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 
 angular.module("app.shell",
     [
-        "app.core",
+        core,
         "ui.router",
         "ui.bootstrap",
         "ngSanitize"

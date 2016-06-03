@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization";
+import { ILocalizationService } from "../../../core";
 /*
 tslint:disable
 */ /*

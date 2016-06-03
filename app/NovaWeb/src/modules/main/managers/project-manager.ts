@@ -1,6 +1,8 @@
 ﻿import * as Models from "../models/models";
-import {ILocalizationService} from "../../core/localization";
-import {IEventManager, EventSubscriber} from "../../core/event-manager";
+import {
+    ILocalizationService,
+    IEventManager,
+    EventSubscriber } from "../../core";
 import {IProjectRepository} from "../services/project-repository";
 
 export {Models}

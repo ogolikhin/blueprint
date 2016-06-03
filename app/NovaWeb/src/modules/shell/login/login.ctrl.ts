@@ -1,7 +1,8 @@
 ﻿import "angular";
-import {ILocalizationService} from "../../core/localization";
-import {IConfigValueHelper} from "../../core/config.value.helper";
-import {ISession} from "./session.svc";
+import {
+    ILocalizationService,
+    IConfigValueHelper } from "../../core";
+import { ISession } from "./session.svc";
 
 export class ILoginInfo {
     public userName: string;
@@ -17,7 +18,7 @@ export enum LoginState {
     SamlLoginForm
 }
 
-export class LoginCtrl{
+export class LoginCtrl {
 
     public labelError: boolean;
     public fieldError: boolean;

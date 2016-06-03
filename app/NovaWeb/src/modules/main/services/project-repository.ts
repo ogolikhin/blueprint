@@ -1,4 +1,4 @@
-﻿import {ILocalizationService} from "../../core/localization";
+﻿import { ILocalizationService } from "../../core";
 import * as Models from "../models/models";
 
 export {Models}

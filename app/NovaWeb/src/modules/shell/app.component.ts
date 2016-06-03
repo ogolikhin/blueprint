@@ -1,6 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-import {IConfigValueHelper} from "../core/config.value.helper";
+import {IConfigValueHelper} from "../core";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template

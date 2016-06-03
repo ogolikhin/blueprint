@@ -1,9 +1,9 @@
 ﻿import "angular";
-import {Helper} from "../../../core/utils/helper";
-import {ILocalizationService} from "../../../core/localization";
-import {IBPTreeController} from "../../../core/widgets/bp-tree/bp-tree";
-import {IDialogSettings, BaseDialogController, IDialogService} from "../../../services/dialog.svc";
-import {IProjectManager, Models} from "../../managers/project-manager";
+import { Helper } from "../../../core/utils/helper";
+import { ILocalizationService } from "../../../core";
+import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
+import { IDialogSettings, BaseDialogController, IDialogService } from "../../../services/dialog.svc";
+import { IProjectManager, Models } from "../../managers/project-manager";
 
 export interface IOpenProjectResult {
     id: number;

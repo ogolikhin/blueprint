@@ -20,18 +20,18 @@ export interface ISession {
     onExpired(): ng.IPromise<any>;
 
     getLoginMessage(): string;
+    forceUsername(): string;
 }
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService", "loginCtrl"];
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
     constructor(
         private $q: ng.IQService,
         private auth: IAuth,
         private $uibModal: ng.ui.bootstrap.IModalService,
         private localization: ILocalizationService,
-        private dialogService: IDialogService,
-        private loginCtrl: ILoginCtrl) {
+        private dialogService: IDialogService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -41,9 +41,18 @@ export class SessionSvc implements ISession {
     //TODO investigate neccessity to save previous login (session expiration for saml)
     private _prevLogin: string;
     private _isExpired: boolean;
+    private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
         return this._currentUser;
+    }
+
+    public forceUsername(): string {
+        if (this._currentUser) {
+            return this._currentUser.Login;
+        } else {
+            return undefined;
+        }
     }
 
     public getLoginMessage(): string {
@@ -95,10 +104,12 @@ export class SessionSvc implements ISession {
         var defer = this.$q.defer();
         if (!this._isExpired) {
             this._isExpired = true;
-            this._loginMsg = "session timeout, please relogin";
+            //this._loginMsg = "session timeout, please relogin";
+            this._loginMsg = this.localization.get("Login_Session_Timeout");
+            this._isForceSameUsername = true;
             this.showLogin(defer);
         }
-        defer.reject();
+        defer.resolve();
         return defer.promise;
     }
 
@@ -107,7 +118,8 @@ export class SessionSvc implements ISession {
             return this.$q.resolve();
         }
         var defer = this.$q.defer();
-        this._loginMsg = "please enter credentials";
+        this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
+        this._isForceSameUsername = false;
         this.auth.getCurrentUser().then(
             (result: IUser) => {
                 if (result) {

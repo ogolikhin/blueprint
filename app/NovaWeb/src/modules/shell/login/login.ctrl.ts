@@ -44,7 +44,10 @@ export class LoginCtrl{
     public get isInSAMLScreen(): boolean {
         return this.formState === LoginState.SamlLoginForm || this.transitionFromState === LoginState.SamlLoginForm;
     }
-
+    public get isUsernameDisabled(): boolean {
+        return !!this.session.forceUsername();
+    }
+    
     public enableForgetPasswordScreen: boolean;
     public forgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
@@ -65,8 +68,8 @@ export class LoginCtrl{
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         /* tslint:enable */
         this.formState = LoginState.LoginForm;
-        //this.errorMsg = localization.get("Login_Session_EnterCredentials");
         this.errorMsg = session.getLoginMessage();
+        this.novaUsername = session.forceUsername();
 
         this.enableForgetPasswordScreen = false;
 

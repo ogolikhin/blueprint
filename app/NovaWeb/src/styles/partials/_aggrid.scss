@@ -78,10 +78,6 @@
   }
 
   .ag-cell {
-    > span {
-      margin-left: 15px;
-    }
-
     > span .ag-group-contracted i::before,
     > span .ag-group-expanded i::before,
     > span .ag-group-inline-edit::before,
@@ -103,7 +99,24 @@
     }
   }
 
-// icons for artifacts and folders
+  // vertical alignment adjustments
+  .ag-body-container {
+    padding-left: 10px;
+  }
+
+  .ag-cell.has-children > span {
+    margin-left: -10px;
+  }
+
+  .ag-row-level-0 .ag-cell.has-children > span {
+    margin-left: -15px;
+  }
+
+  .ag-row-level-0 .ag-cell > span {
+    padding-left: 5px;
+  }
+
+  // icons for artifacts and folders
   .ag-cell {
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
@@ -170,7 +183,7 @@
 
   .ag-cell.has-children {
     > span {
-      margin-left: 0;
+      //margin-left: 0;
     }
 
     .ag-group-expanded::before,
@@ -201,10 +214,6 @@
 }
 
 .project-tree {
-  .ag-row-level-0 .ag-cell.is-folder {
-    //padding-left: 0;
-  }
-
   .ag-overlay-loading-wrapper {
     font-size: $font-size-smallest;
     padding-top: $aggrid-row-height;

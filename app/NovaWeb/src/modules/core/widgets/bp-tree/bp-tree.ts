@@ -123,7 +123,7 @@ export class BPTreeController implements IBPTreeController  {
                     ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
-                            gridCol.cellRendererParams.padding = 16;
+                            gridCol.cellRendererParams.padding = 20;
                         }
 
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;

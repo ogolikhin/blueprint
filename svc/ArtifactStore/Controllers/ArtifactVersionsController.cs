@@ -41,9 +41,15 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/version"), NoSessionRequired]
         [ActionName("GetArtifactHistory")]
-        public GetArtifactHistoryResult GetArtifactHistory(int artifactId, int? limit = 0, int? offset = 0, int? userId = 0, bool? asc = true)
+        public GetArtifactHistoryResult GetArtifactHistory(int artifactId, int? limit = 10, int? offset = 0, int? userId = 0, bool? asc = false)
         {
             //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if ((limit != null && limit < 1) 
+                || (offset != null && offset < 1) 
+                || (userId != null && userId < 1))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+            }
             return ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit.GetValueOrDefault(), offset.GetValueOrDefault(), userId.GetValueOrDefault(), asc.GetValueOrDefault());
         }
 

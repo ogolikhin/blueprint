@@ -106,7 +106,7 @@ export class OpenProjectController extends BaseDialogController {
                 }
                 return sanitizedName;
             },
-            padding: 16
+            padding: 20
         },
         suppressMenu: true,
         suppressSorting: true,

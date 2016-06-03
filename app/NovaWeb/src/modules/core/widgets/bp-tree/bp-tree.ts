@@ -123,7 +123,7 @@ export class BPTreeController implements IBPTreeController  {
                     ) {
                         if (!gridCol.cellRendererParams) {
                             gridCol.cellRendererParams = {};
-                            gridCol.cellRendererParams.padding = 17;
+                            gridCol.cellRendererParams.padding = 20;
                         }
 
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
@@ -146,8 +146,8 @@ export class BPTreeController implements IBPTreeController  {
             enableColResize: true,
             columnDefs: this.gridColumns,
             icons: {
-                groupExpanded: "<i class='fonticon-' />",
-                groupContracted: "<i class='fonticon-' />"
+                groupExpanded: "<i />",
+                groupContracted: "<i />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
             //onRowSelected: this.rowSelected,

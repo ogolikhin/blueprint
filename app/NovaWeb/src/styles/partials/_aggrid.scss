@@ -4,11 +4,13 @@
     height: 100%;
     padding-top: 5px;
 
+    // removes focus globally inside ag-grid. May need to be reworked
+    *:focus {
+      outline: none;
+    }
+
     .ag-font-style {
       font-size: $font-size-smallest;
-    }
-    .ag-grid *:focus {
-        outline:none;
     }
 
     .ag-header-cell {
@@ -45,54 +47,27 @@
         vertical-align: bottom;
       }
     }
-    .ag-row-focus {
-        .ag-cell-focus {
-            outline:none;
-            span > span,
-            i::before {
-                background: $blue-lightest;
-                color: $text-color;
-            }
-            > span .ag-group-inline-edit::before,
-            > span .ag-group-value::before {
-                color: $text-color;
-            }
-        }
-    }
 
+    .ag-row-focus,
     .ag-row-selected {
-        .ag-cell {
-            outline: none;
+      .has-children .ag-group-expanded,
+      .has-children .ag-group-contracted {
+        background: transparent;
+      }
 
-            .has-children .ag-group-expanded,
-            .has-children .ag-group-contracted {
-                //background: transparent;
-            }
+      .ag-group-expanded::before,
+      .ag-group-contracted::before,
+      span > span,
+      *::before {
+        background: $brand-secondary !important;
+        color: $white !important;
+      }
 
-            .has-children .ag-group-expanded::before,
-            .has-children .ag-group-contracted::before,
-            span > span,
-            i::before {
-                background: $brand-secondary !important;
-                color: $white !important;
-            }
-            > span .ag-group-inline-edit::before,
-            > span .ag-group-value::before {
-                color: $white;
-            }
-        }
+      > span .ag-group-inline-edit::before,
+      > span .ag-group-value::before {
+        color: $white;
+      }
     }
-
-
-
-        /*.ag-row-selected {
-            .ag-cell-range-selected {
-                span > span {
-                    background: $brand-secondary !important;
-                    color: $white !important;
-              }                  
-        }
-            }*/
 
     input {
       border: solid 1px $brand-secondary;
@@ -125,7 +100,6 @@
       display: none !important;
     }
   }
-
 
   // vertical alignment adjustments
   .ag-body-container {

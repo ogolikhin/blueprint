@@ -16,6 +16,11 @@ export interface ISession {
     loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 
     resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
+
+    onExpired(): ng.IPromise<any>;
+
+    getLoginMessage(): string;
+    forceUsername(): string;
 }
 
 export class SessionSvc implements ISession {
@@ -32,11 +37,25 @@ export class SessionSvc implements ISession {
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
-    //TODO investigate neccessity to save previous login (session expiration for saml)
+    private _loginMsg: string;
     private _prevLogin: string;
+    private _isExpired: boolean;
+    private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
         return this._currentUser;
+    }
+
+    public forceUsername(): string {
+        if (this._currentUser) {
+            return this._currentUser.Login;
+        } else {
+            return undefined;
+        }
+    }
+
+    public getLoginMessage(): string {
+        return this._loginMsg;
     }
 
     public logout(): ng.IPromise<any> {
@@ -80,11 +99,25 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
+    public onExpired(): ng.IPromise<any> {
+        var defer = this.$q.defer();
+        if (!this._isExpired) {
+            this._isExpired = true;
+            this._loginMsg = this.localization.get("Login_Session_Timeout");
+            this._isForceSameUsername = true;
+            this.showLogin(defer);
+        }
+        defer.resolve();
+        return defer.promise;
+    }
+
     public ensureAuthenticated(): ng.IPromise<any> {
         if (this._currentUser || this._modalInstance) {
             return this.$q.resolve();
         }
         var defer = this.$q.defer();
+        this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
+        this._isForceSameUsername = false;
         this.auth.getCurrentUser().then(
             (result: IUser) => {
                 if (result) {
@@ -116,6 +149,7 @@ export class SessionSvc implements ISession {
                 if (result) {
                     var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
+                        this._isExpired = false;
                         done.resolve();
                     } else if (result.samlLogin) {
                         this.dialogService
@@ -124,6 +158,7 @@ export class SessionSvc implements ISession {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {
+                                        this._isExpired = false;
                                         done.resolve();
                                     },
                                     (err) => {
@@ -140,6 +175,7 @@ export class SessionSvc implements ISession {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(
                                     () => {
+                                        this._isExpired = false;
                                         done.resolve();
                                     },
                                     (err) => {

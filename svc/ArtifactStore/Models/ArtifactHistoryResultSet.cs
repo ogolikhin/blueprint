@@ -15,7 +15,6 @@ namespace ArtifactStore.Models
     {
         public string DisplayName { get; set; }
         public int VersionNumber { get; set; }
-        public DateTime Edit { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }

@@ -43,7 +43,6 @@ namespace Model.Factories
             using (IDatabase database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
-                //string query = @"SELECT [Value] FROM [dbo].[ApplicationSettings] WHERE [Key] = 'StorytellerShapeLimit'";
                 string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'", Storyteller.APPLICATION_SETTINGS_TABLE, Storyteller.STORYTELLER_LIMIT_KEY);
 
                 Logger.WriteDebug("Running: {0}", query);

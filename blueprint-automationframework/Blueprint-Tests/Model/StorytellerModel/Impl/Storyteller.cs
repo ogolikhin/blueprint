@@ -26,6 +26,9 @@ namespace Model.StorytellerModel.Impl
 
         private const string SVC_UPLOAD_PATH = "svc/components/filestore/files";
 
+        public const string APPLICATION_SETTINGS_TABLE = "[dbo].[ApplicationSettings]";
+        public const string STORYTELLER_LIMIT_KEY = "StorytellerShapeLimit";
+
         public string Address { get; }
 
         #region Constructor

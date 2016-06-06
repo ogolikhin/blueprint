@@ -34,7 +34,7 @@ namespace ArtifactStore.Repositories
                 throw new ArgumentOutOfRangeException(nameof(userId));
             var prm = new DynamicParameters();
             prm.Add("@artifactId", artifactId);
-            prm.Add("@limit", limit);
+            prm.Add("@lim", limit);
             prm.Add("@offset", offset);
             if (userId.HasValue)
             {
@@ -44,7 +44,7 @@ namespace ArtifactStore.Repositories
             {
                 prm.Add("@userId", null);
             }
-            prm.Add("@asc", asc);
+            prm.Add("@ascd", asc);
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
             var numEntriesForQuery = await GetNumEntriesForQuery(artifactId, offset, userId, asc);
@@ -69,7 +69,7 @@ namespace ArtifactStore.Repositories
             {
                 prm.Add("@userId", null);
             }
-            prm.Add("@asc", asc);
+            prm.Add("@ascd", asc);
             return (await ConnectionWrapper.QueryAsync<int>("GetNumVersionEntries", prm,
                     commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }

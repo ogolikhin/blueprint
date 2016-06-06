@@ -30,29 +30,48 @@ namespace ArtifactStore.Repositories
                 throw new ArgumentOutOfRangeException(nameof(limit));
             if (offset < 0)
                 throw new ArgumentOutOfRangeException(nameof(offset));
-            if (userId != null && userId < 1)
+            if (userId.HasValue && userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
-
             var prm = new DynamicParameters();
             prm.Add("@artifactId", artifactId);
             prm.Add("@limit", limit);
             prm.Add("@offset", offset);
-            if (userId != null)
+            if (userId.HasValue)
             {
-                prm.Add("@userId", userId);
+                prm.Add("@userId", userId.Value);
+            }
+            else
+            {
+                prm.Add("@userId", null);
             }
             prm.Add("@asc", asc);
-
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
-
+            var numEntriesForQuery = await GetNumEntriesForQuery(artifactId, offset, userId, asc);
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
                 ArtifactHistoryVersions = artifactVersions,
-                HasMore = limit > artifactVersions.Count
+                HasMore = numEntriesForQuery > limit
             };
-
             return result;
+        }
+
+        private async Task<int> GetNumEntriesForQuery(int artifactId, int offset, int? userId, bool asc)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@artifactId", artifactId);
+            prm.Add("@offset", offset);
+            if (userId.HasValue)
+            {
+                prm.Add("@userId", userId.Value);
+            }
+            else
+            {
+                prm.Add("@userId", null);
+            }
+            prm.Add("@asc", asc);
+            return (await ConnectionWrapper.QueryAsync<int>("GetNumVersionEntries", prm,
+                    commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }
 }

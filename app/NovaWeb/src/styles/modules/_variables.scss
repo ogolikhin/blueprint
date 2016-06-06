@@ -24,7 +24,11 @@ $modal-bg-color:    #f0f0f0;
 $link-color:        $brand-secondary;
 $link-hover-color:  lighten($brand-secondary, 10%);
 
-//font
+$tree-hover-background: #e5f3fb;
+$tree-focus-background: #e5f3fb;
+$tree-focus-border: #70c0e7;
+
+  //font
 $font-family-base: 'Open Sans', sans-serif;
 
 $font-size-root:     16px;

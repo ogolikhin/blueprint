@@ -1,6 +1,11 @@
 ﻿using ArtifactStore.Models;
+using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
+using System;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
@@ -17,9 +22,37 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
         }
-        public ArtifactHistoryResultSet GetArtifactVersions(int artifactId, int limit, int offset, int userId, bool asc)
+        public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc)
         {
-            return new ArtifactHistoryResultSet();
+            if (artifactId < 1)
+                throw new ArgumentOutOfRangeException(nameof(artifactId));
+            if (limit < 1 || limit > 100)
+                throw new ArgumentOutOfRangeException(nameof(limit));
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset));
+            if (userId != null && userId < 1)
+                throw new ArgumentOutOfRangeException(nameof(userId));
+
+            var prm = new DynamicParameters();
+            prm.Add("@artifactId", artifactId);
+            prm.Add("@limit", limit);
+            prm.Add("@offset", offset);
+            if (userId != null)
+            {
+                prm.Add("@userId", userId);
+            }
+            prm.Add("@asc", asc);
+
+            var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
+                    commandType: CommandType.StoredProcedure)).ToList();
+
+            var result = new ArtifactHistoryResultSet {
+                ArtifactId = artifactId,
+                ArtifactHistoryVersions = artifactVersions,
+                HasMore = limit > artifactVersions.Count
+            };
+
+            return result;
         }
     }
 }

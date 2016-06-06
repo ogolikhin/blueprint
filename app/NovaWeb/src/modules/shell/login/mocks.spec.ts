@@ -131,8 +131,11 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
+        // typescript trick
+        var controller: any = <any>options.controller;
+        
         /* tslint:disable:no-unused-variable */
-        var ctrl = new options.controller(
+        var ctrl = new controller(
             new LocalizationServiceMock(),
             this.instanceMock,
             new SessionSvcMock(this.$q),
@@ -168,4 +171,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public opened: angular.IPromise<any>;
 
     public rendered: angular.IPromise<any>;
+
+    public closed: angular.IPromise<any>;
 }

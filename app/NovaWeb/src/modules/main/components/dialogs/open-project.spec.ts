@@ -18,9 +18,9 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public opened: angular.IPromise<any>;
 
     public rendered: angular.IPromise<any>;
+
+    public closed: angular.IPromise<any>;
 }
-
-
 
 describe("Open Project.", () => {
     var controller: OpenProjectController;

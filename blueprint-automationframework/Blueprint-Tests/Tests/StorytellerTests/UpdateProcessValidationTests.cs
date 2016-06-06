@@ -264,10 +264,49 @@ namespace StorytellerTests
             // the artifact can be deleted by the second user
             Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
         }
+        
+        [TestCase]
+        [Description(
+            "Publish a process that has more than the shape limit in the backend.")]
+        public void PublishProcess_ExceedShapeLimit_VerifyPublishDoesNotSucceed()
+        {
+            // Get limit from the database
+            int limit = StorytellerFactory.GetStorytellerShapeLimitFromDb();
+            
+            // Number of pairs to create.  Subtract 5, for the number of shapes in the default process.
+            int pairs = (limit - 5)/2;
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateProcessWithXAdditionalTaskPairs(Helper.Storyteller, _project, _user, pairs);
+
+            // Get the end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find outgoing process link for precondition
+            var endPointIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            // Adds a pair of user/system tasks to exceed over the limit.
+            process.AddUserAndSystemTask(endPointIncomingLink);
+
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                   // Get and deserialize response
+                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process)
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            // Assert that the deserialized response indicates that the process name is required
+            var expectedReturnResponse = I18NHelper.FormatInvariant(ProcessValidationResponse.ArtifactLimitExceeded, limit);
+
+            AssertValidationResponse(deserializedResponse, expectedReturnResponse);
+        }
 
         #endregion Tests
 
-        #region Private Methods
+            #region Private Methods
 
         private static void AssertValidationResponse(ProcessValidationResponse deserializedResponse, string expectedContent)
         {
@@ -300,6 +339,8 @@ namespace StorytellerTests
         public static readonly string OrphanedShapes = "Orphaned shapes discovered";
 
         public static readonly string ArtifactAlreadyLocked = "Artifact \"{0}: {1}\" is locked by user \"{2}\"";
+
+        public static readonly string ArtifactLimitExceeded = "The Process cannot be saved or published. It has exceeded the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.";
 
         // The message returned in the update process validation response
         public string Message { get; set; }

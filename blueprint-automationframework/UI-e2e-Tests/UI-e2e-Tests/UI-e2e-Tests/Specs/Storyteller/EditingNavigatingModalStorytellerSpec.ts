@@ -273,7 +273,7 @@ describe("Storyteller end to end test", () => {
         
             it("Should be able  include Artifacts at Edit Detail modal at footer", () => {
                 //Arrange 
-                createArtifact.ArtifactPublish();
+                createArtifact.ArtifactPublish();//Creating new artifacts and publish it to ensure artifact is avaiable to be include
                 //Act
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index
@@ -396,7 +396,7 @@ describe("Storyteller end to end test", () => {
                  expect(el.length).toEqual(3);//@parm is initial shape count. After delete total shape count should not increase.
                 });
            }); 
-    /*TODO: discard make the Artifacts read only. might be bug introduce on May 25
+   
             it("Should be able discard user task ", () => {
                 //Act
                 svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
@@ -407,14 +407,14 @@ describe("Storyteller end to end test", () => {
                 svgElementsPage.getDiscardWarningPopUpOKButton.click();
                 //TODO
                 //expect(svgElementsPage.getPublishArtifactSucessMessage.getText()).toBe("Changes Were Discarded");//should displaying sucess message
-                browser.driver.sleep(1000);
+                browser.driver.sleep(5000);
                 svgElementsPage.getLabelBody.then((el) => {
-                    logger.info("Length of body level array is : " + + el.length);
-                    console.log("Length of body level array is : " + el.length);
+                    logger.info("Length of body lebel array is : " + + el.length);
+                    console.log("Length of body lebel array is : " + el.length);
                  expect(el.length).toEqual(3);//@parm is initial shape count. After discard total shape count should not be increased.
                 });
             });
-    */
+    
          it("Should be able to save user task ", () => {
                 //Act
                 svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon

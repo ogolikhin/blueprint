@@ -273,7 +273,7 @@ describe("Storyteller end to end test", () => {
         
             it("Should be able  include Artifacts at Edit Detail modal at footer", () => {
                 //Arrange 
-                createArtifact.createArt();
+                createArtifact.ArtifactPublish();
                 //Act
                 //Open edit detail modal
                 svgElementsPage.navFooterEditDetailButton(2).then((el) => { el.click(); });//@parm edit detail button index

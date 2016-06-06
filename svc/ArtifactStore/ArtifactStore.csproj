@@ -115,7 +115,7 @@
     </Compile>
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Models\Artifact.cs" />
-    <Compile Include="Models\GetArtifactHistoryResult.cs" />
+    <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ItemTypePredefined.cs" />
     <Compile Include="Models\ProjectTypes.cs" />

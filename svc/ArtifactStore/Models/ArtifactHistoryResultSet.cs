@@ -5,10 +5,10 @@ using System.Web;
 
 namespace ArtifactStore.Models
 {
-    public class GetArtifactHistoryResult
+    public class ArtifactHistoryResultSet
     {
         public int ArtifactId;
-        public int Offset;
+        public bool HasMore;
         public IEnumerable<ArtifactHistoryVersion> ArtifactHistoryVersions;
     }
     public class ArtifactHistoryVersion

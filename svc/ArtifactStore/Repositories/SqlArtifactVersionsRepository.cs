@@ -17,9 +17,9 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
         }
-        public GetArtifactHistoryResult GetArtifactVersions(int artifactId, int limit, int offset, int userId, bool asc)
+        public ArtifactHistoryResultSet GetArtifactVersions(int artifactId, int limit, int offset, int userId, bool asc)
         {
-            return new GetArtifactHistoryResult();
+            return new ArtifactHistoryResultSet();
         }
     }
 }

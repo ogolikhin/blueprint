@@ -186,6 +186,7 @@ CREATE TABLE [dbo].[MigrationLog](
 
 GO
 
+
 /******************************************************************************************************************************
 Name:			IsSchemaVersionLessOrEqual
 
@@ -734,7 +735,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'7.2.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.3.0';
 GO
 -- --------------------------------------------------
 

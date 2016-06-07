@@ -171,6 +171,17 @@ namespace Model.StorytellerModel.Impl
             return userTask;
         }
 
+        public void AddXUserTaskAndSystemTask(ProcessLink processLink, int numberOfPairs)
+        {
+            ThrowIf.ArgumentNull(processLink, nameof(processLink));
+            AddUserAndSystemTask(processLink);
+            for (int i = 1; i < numberOfPairs; i ++)
+            {
+                var userTaskSystemTaskLink = GetOutgoingLinkForShape(Shapes.Last());
+                AddUserAndSystemTask(userTaskSystemTaskLink);
+            }
+        }
+
         public IProcessShape AddUserDecisionPointWithBranchBeforeShape(
             IProcessShape nextShape, 
             double orderIndexOfBranch, 

@@ -15,6 +15,11 @@ namespace ArtifactStore.Controllers
     [BaseExceptionFilter]
     public class ArtifactVersionsController : LoggableApiController
     {
+        private const int DEFAULT_LIMIT = 10;
+        private const int DEFAULT_OFFSET = 0;
+        private const int MIN_LIMIT = 1;
+        private const int MAX_LIMIT = 100;
+
         internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
@@ -39,16 +44,16 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/version"), NoSessionRequired]
         [ActionName("GetArtifactHistory")]
-        public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = 10, int offset = 0, int? userId = null, bool asc = false)
+        public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (limit < 1 || offset < 0 || userId < 1)
+            if (limit < MIN_LIMIT || offset < 0 || userId < 1)
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }
-            if (limit > 100)
+            if (limit > MAX_LIMIT)
             {
-                limit = 100;
+                limit = MAX_LIMIT;
             }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);
             return result;

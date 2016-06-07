@@ -846,7 +846,29 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
+        
+        public static IProcess CreateProcessWithXAdditionalTaskPairs(IStoryteller storyteller, IProject project,
+            IUser user, int pairs)
+        {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
+            // Create and get the default process
+            var process = CreateAndGetDefaultProcess(storyteller, project, user);
+
+            // Get the end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find outgoing process link for precondition
+            var endPointIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            // Adds x number of user tasks/system tasks pairs
+            process.AddXUserTaskAndSystemTask(endPointIncomingLink, pairs);
+
+            // Returns the updated process after the save process.
+            return  storyteller.UpdateProcess(user, process);
+        }
         #endregion Public Methods
 
         #region Private Methods

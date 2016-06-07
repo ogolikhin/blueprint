@@ -150,7 +150,6 @@ export class BPTreeController implements IBPTreeController  {
                 groupContracted: "<i />"
             },
             getNodeChildDetails: this.getNodeChildDetails,
-            //onRowSelected: this.rowSelected,
             onCellFocused: this.cellFocused,
             onRowClicked: this.rowClicked,
             onRowDoubleClicked: this.rowDoubleClicked,
@@ -289,39 +288,30 @@ export class BPTreeController implements IBPTreeController  {
         node.data.open = node.expanded;
     };
 
-    private rowSelected = (data: any) => {
+    private rowSelected = (node: any) => {
         var self = this;
 
+        node.setSelected(true, true);
+
         if (angular.isFunction(self.onSelect)) {
-            self.onSelect({ item: data });
+            self.onSelect({ item: node.data });
         }
     };
 
-
     private cellFocused = (params: any) => {
-        var model = this.options.api.getModel();
+        var self = this;
+        var model = self.options.api.getModel();
         let selectedRow = model.getRow(params.rowIndex);
-        selectedRow.setSelected(true, true);
+        self.rowSelected(selectedRow);
     };
-
-    //private rowFocus = (target: any) => {
-    //    var clickedCell = Helper.findAncestorByCssClass(target, "ag-cell");
-    //    if (clickedCell) {
-    //        clickedCell.focus();
-    //    }
-    //};
-
+    
     private rowClicked = (params: any) => {
-            var self = this;
-
-        //self.rowFocus(params.event.target);
-        params.node.setSelected(true, true);
+        var self = this;
 
         self.clickTimeout = self.$timeout(function () {
             if (self.clickTimeout.$$state.status === 2) {
                 return; // click event canceled by double-click
             }
-            self.rowSelected(params.node.data);
 
         }, 250);
     };

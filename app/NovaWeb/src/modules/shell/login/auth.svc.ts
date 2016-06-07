@@ -1,7 +1,10 @@
 ﻿import "angular";
-import {SessionTokenHelper} from "./session.token.helper";
-import {ILocalizationService} from "../../core/localization";
-import {IConfigValueHelper} from "../../core/config.value.helper";
+import { SessionTokenHelper } from "./session.token.helper";
+import { 
+    ILocalizationService,
+    IConfigValueHelper
+    } from "../../core";
+import { IHttpInterceptorConfig } from "./http-error-interceptor";
 
 export interface IUser {
     DisplayName: string;
@@ -20,10 +23,6 @@ export interface IAuth {
     logout(userInfo: IUser, skipSamlLogout: boolean): ng.IPromise<any>;
 
     resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
-}
-
-export interface IHttpInterceptorConfig extends ng.IRequestConfig {
-    ignoreInterceptor: boolean;
 }
 
 export class AuthSvc implements IAuth {

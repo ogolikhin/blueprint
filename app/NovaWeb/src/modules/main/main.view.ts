@@ -1,6 +1,7 @@
 ﻿import "angular";
 //import {ILocalizationService} from "../core/localization";
 import {IEventManager, EventSubscriber} from "../core/event-manager";
+import {IProjectManager} from "./managers/project-manager";
 import {IDialogService} from "../services/dialog.svc";
 import * as Models from "./models/models";
 
@@ -17,25 +18,29 @@ export interface IMainViewController {
 }
 
 export class MainViewController implements IMainViewController {
-    private _events: string[];
+    private _listeners: string[];
     private _currentArtifact: string;
     public get currentArtifact() { 
         return this._currentArtifact;
     }
 
-    public static $inject: [string] = ["eventManager", "dialogService"];
-    constructor(private eventManager: IEventManager, private dialogService: IDialogService) {
+    static $inject: [string] = ["$state", "eventManager", "projectManager", "dialogService"];
+    constructor(
+        private $state: ng.ui.IState,
+        private eventManager: IEventManager,
+        private projectManager: IProjectManager,
+        private dialogService: IDialogService) {
     }
 
     public $onInit() {
-        this._events = [
+        this.projectManager.initialize();
+        this._listeners = [
             this.eventManager.attach(EventSubscriber.Main, "exception", this.showError.bind(this)),
             this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this))
         ];
     }
     public $onDestroy() {
-        this.eventManager.dispatch(EventSubscriber.ProjectManager, "initialize");
-        this._events.map(function (it) {
+        this._listeners.map(function (it) {
             this.eventManager.detachById(it);
         }.bind(this));
     }

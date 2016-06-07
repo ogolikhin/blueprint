@@ -1,4 +1,4 @@
-﻿import {ILocalizationService} from "../../core/localization";
+﻿import { ILocalizationService } from "../../core";
 import * as Models from "../models/models";
 
 export {Models}
@@ -32,7 +32,7 @@ export class ProjectRepository implements IProjectRepository {
                 defer.reject(error);
             });
         return defer.promise;
-    }
+    } 
 
     public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
         var defer = this.$q.defer<any>();

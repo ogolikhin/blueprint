@@ -180,6 +180,21 @@ describe("SessionSvc", () => {
         }));
     });
 
+    describe("onExpired", () => {
+        it("set correct login message", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
+            // Arrange
+
+            // Act
+            var error: any;
+            session.onExpired().then(() => { }, (err) => { error = err; });
+            $rootScope.$digest();
+
+            // Assert
+            expect(error).toBe(undefined, "error is set");
+            expect(session.getLoginMessage()).toBe("Login_Session_Timeout");
+        }));
+    });
+
     describe("resetPassword", () => {
         it("return success", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
             // Arrange

@@ -12,9 +12,10 @@ namespace ArtifactStore.Models
     }
     public class ArtifactHistoryVersion
     {
+        public int VersionId { get; set; }
+        public int UserId { get; set; }
         public string DisplayName { get; set; }
-        public int VersionNumber { get; set; }
-        public DateTime Timestamp { get; set; }
         public bool HasUserIcon { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }

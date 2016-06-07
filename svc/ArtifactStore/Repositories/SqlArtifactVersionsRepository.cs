@@ -47,31 +47,11 @@ namespace ArtifactStore.Repositories
             prm.Add("@ascd", asc);
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
-            var numEntriesForQuery = await GetNumEntriesForQuery(artifactId, offset, userId, asc);
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
-                ArtifactHistoryVersions = artifactVersions,
-                HasMore = numEntriesForQuery > limit
+                ArtifactHistoryVersions = artifactVersions
             };
             return result;
-        }
-
-        private async Task<int> GetNumEntriesForQuery(int artifactId, int offset, int? userId, bool asc)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@artifactId", artifactId);
-            prm.Add("@offset", offset);
-            if (userId.HasValue)
-            {
-                prm.Add("@userId", userId.Value);
-            }
-            else
-            {
-                prm.Add("@userId", null);
-            }
-            prm.Add("@ascd", asc);
-            return (await ConnectionWrapper.QueryAsync<int>("GetNumVersionEntries", prm,
-                    commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }
 }

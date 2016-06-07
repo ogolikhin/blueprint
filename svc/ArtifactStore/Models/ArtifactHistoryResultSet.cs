@@ -8,7 +8,6 @@ namespace ArtifactStore.Models
     public class ArtifactHistoryResultSet
     {
         public int ArtifactId;
-        public bool HasMore;
         public IEnumerable<ArtifactHistoryVersion> ArtifactHistoryVersions;
     }
     public class ArtifactHistoryVersion
@@ -16,5 +15,6 @@ namespace ArtifactStore.Models
         public string DisplayName { get; set; }
         public int VersionNumber { get; set; }
         public DateTime Timestamp { get; set; }
+        public bool HasUserIcon { get; set; }
     }
 }

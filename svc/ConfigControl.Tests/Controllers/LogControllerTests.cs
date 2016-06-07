@@ -508,13 +508,13 @@ namespace ConfigControl.Controllers
 
 
 
-        private IEnumerable<string> GetTestLogEntries()
+        private IEnumerable<LogRecord> GetTestLogEntries()
         {
-            return new List<string> {
-                "id,IpAddress,Source,FormattedMessage,MethodName,FilePath,LineNumber,StackTrace,InstanceName,ProviderId,ProviderName,EventId,EventKeywords,Level,Opcode,Task,Timestamp,Version,Payload,ActivityId,RelatedActivityId,ProcessId,ThreadId",
-                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,27144",
-                ",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,29172",
-                ",::1,,, [PROFILING], 0, 00000000-0000-0000-0000-000000000000, ,,,0,,BlueprintSys-Blueprint-Blueprint,2530ba0d-e71b-5cc1-54a7-f40c531356b0,BlueprintSys-Blueprint-PerformanceLog,500,0,5,0,65034,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime><CorrelationId>00000000-0000-0000-0000-000000000000</CorrelationId><Duration>0</Duration></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,15120"};
+            return new List<LogRecord> {
+                new LogRecord{Id=0, Line="id,IpAddress,Source,FormattedMessage,MethodName,FilePath,LineNumber,StackTrace,InstanceName,ProviderId,ProviderName,EventId,EventKeywords,Level,Opcode,Task,Timestamp,Version,Payload,ActivityId,RelatedActivityId,ProcessId,ThreadId" },
+                new LogRecord{Id=0, Line=",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,27144" },
+                new LogRecord{Id=1, Line=",::1,,,,,0,,BlueprintSys-Blueprint-Blueprint,7395ba7f-7335-5dbf-2878-6ba4dfdbd1a0,BlueprintSys-Blueprint-StandardLog,400,0,4,0,65134,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,29172" },
+                new LogRecord{Id=2, Line=",::1,,, [PROFILING], 0, 00000000-0000-0000-0000-000000000000, ,,,0,,BlueprintSys-Blueprint-Blueprint,2530ba0d-e71b-5cc1-54a7-f40c531356b0,BlueprintSys-Blueprint-PerformanceLog,500,0,5,0,65034,1/1/0001 12:00:00 AM -05:00,0,<Payload><IpAddress>::1</IpAddress><DateTime>1/1/0001 12:00:00 AM</DateTime><CorrelationId>00000000-0000-0000-0000-000000000000</CorrelationId><Duration>0</Duration></Payload>,00000000-0000-0000-0000-000000000000,00000000-0000-0000-0000-000000000000,31240,15120"} };
         }
 
         [TestMethod]
@@ -523,14 +523,13 @@ namespace ConfigControl.Controllers
 
             // Arrange
             var entries = GetTestLogEntries();
-            var length = entries.Sum(it => it.Length + Environment.NewLine.Length);
+            var length = entries.Sum(it => it.Line.Length + Environment.NewLine.Length);
             var mockLogRepository = new Mock<ILogRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-
-            mockLogRepository.Setup(o => o.GetLogEntries(It.IsAny<int>(), It.IsAny<bool>())).Returns(entries);
+            mockLogRepository.Setup(o => o.GetRecords(It.IsAny<int>(), It.IsAny<long?>(), It.IsAny<bool>())).Returns(entries);
 
             // Act
-            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), true);
+            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), It.IsAny<long>(), null, true);
 
 
             // Assert
@@ -547,14 +546,13 @@ namespace ConfigControl.Controllers
 
             // Arrange
             var entries = GetTestLogEntries().Skip(1);
-            var length = entries.Sum(it => it.Length + Environment.NewLine.Length);
+            var length = entries.Sum(it => it.Line.Length + Environment.NewLine.Length);
             var mockLogRepository = new Mock<ILogRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
-
-            mockLogRepository.Setup(o => o.GetLogEntries(It.IsAny<int>(), It.IsAny<bool>())).Returns(entries);
+            mockLogRepository.Setup(o => o.GetRecords(It.IsAny<int>(), It.IsAny<long?>(), It.IsAny<bool>())).Returns(entries);
 
             // Act
-            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), false);
+            var result = new CsvLogContent(mockLogRepository.Object, mockServiceLogRepository.Object).Generate(It.IsAny<int>(), It.IsAny<long>(), null, false);
 
 
             // Assert

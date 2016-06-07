@@ -366,33 +366,17 @@ namespace ConfigControl.Controllers
         [Route("GetLog")]
         [ResponseType(typeof(HttpResponseMessage))]
         [UnhandledExceptionFilter]
-        public IHttpActionResult GetLog()
+        public IHttpActionResult GetLog(int? limit = null, long? id = null, int? chunks = null)
         {
-            try
-            {
-                var limitRecords = ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32();
+            limit = limit ?? ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32(-1);
+            chunks = chunks ?? ConfigurationManager.AppSettings["LogRecordsChunkSize"].ToInt32(-1);
 
-                var response = Request.CreateResponse();
+            var response = Request.CreateResponse();
 
-                response.Content = new CsvLogContent().Generate(limitRecords, true);
-                response.StatusCode = HttpStatusCode.OK;
+            response.Content = new CsvLogContent().Generate(limit.Value, id, chunks);
+            response.StatusCode = HttpStatusCode.OK;
 
-                return ResponseMessage(response);
-            }
-            catch (System.Exception ex)
-            {
-                BlueprintEventSource.Log.Error(
-                        GetIpAddress(),
-                        WebApiConfig.LogRecordStatus,
-                        ex.Message,
-                        System.DateTime.Now,
-                        null,
-                        null,
-                        0,
-                        LogHelper.GetStackTrace(ex));
-
-                throw;
-            }
+            return ResponseMessage(response);
         }
 
         private string GetIpAddress()
@@ -409,5 +393,6 @@ namespace ConfigControl.Controllers
 
             return ipAdress;
         }
+
     }
 }

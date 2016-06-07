@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Exceptions;
@@ -260,7 +261,7 @@ namespace ArtifactStore.Repositories
             {
                 new PropertyType
                 {
-                    PrimitiveType = PropertyPrimitiveType.Text,
+                    PrimitiveType = ptVersions[0].PrimitiveType,
                     StringDefaultValue = ptVersions[0].StringDefaultValue,
                     Name = ptVersions[0].Name,
                     Id = ptVersions[0].PropertyTypeId,
@@ -269,6 +270,212 @@ namespace ArtifactStore.Repositories
                     IsMultipleAllowed = ptVersions[0].AllowMultiple,
                     IsRequired = ptVersions[0].Required,
                     IsRichText = ptVersions[0].RichText
+                }
+            };
+
+            // Act
+            var actual = await _repository.GetCustomProjectTypesAsync(_projectId, _userId);
+
+            // Assert
+            _cxn.Verify();
+            string errorMessage;
+            Assert.IsTrue(Compare(expected, actual.PropertyTypes, out errorMessage), errorMessage);
+        }
+
+        [TestMethod]
+        public async Task GetCustomProjectTypesAsync_NumberPropertyType()
+        {
+            // Arrange
+            var ptVersions = new List<PropertyTypeVersion>
+            {
+                new PropertyTypeVersion
+                {
+                    PropertyTypeId = 66,
+                    InstancePropertyTypeId = 77,
+                    Name = "Number Property",
+                    VersionId = 88,
+                    PrimitiveType = PropertyPrimitiveType.Number,
+                    Required = true,
+                    DecimalDefaultValue = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    DecimalPlaces = 1,
+                    MaxNumber = new byte[] { 19,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    MinNumber = new byte[] { 11,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0 },
+                    Validate = true,
+                    XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
+                }
+            };
+            var itVersions = new List<ItemTypeVersion>();
+            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+
+            InitRepository(ptVersions, itVersions, itptMap);
+
+            var expected = new List<PropertyType>
+            {
+                new PropertyType
+                {
+                    PrimitiveType = ptVersions[0].PrimitiveType,
+                    Name = ptVersions[0].Name,
+                    Id = ptVersions[0].PropertyTypeId,
+                    VersionId = ptVersions[0].VersionId,
+                    InstancePropertyTypeId = ptVersions[0].InstancePropertyTypeId,
+                    IsRequired = ptVersions[0].Required,
+                    IsValidated = ptVersions[0].Validate,
+                    DecimalPlaces = ptVersions[0].DecimalPlaces,
+                    MaxNumber = PropertyHelper.ToDecimal(ptVersions[0].MaxNumber),
+                    MinNumber = PropertyHelper.ToDecimal(ptVersions[0].MinNumber),
+                    DecimalDefaultValue = PropertyHelper.ToDecimal(ptVersions[0].DecimalDefaultValue)
+                }
+            };
+
+            // Act
+            var actual = await _repository.GetCustomProjectTypesAsync(_projectId, _userId);
+
+            // Assert
+            _cxn.Verify();
+            string errorMessage;
+            Assert.IsTrue(Compare(expected, actual.PropertyTypes, out errorMessage), errorMessage);
+        }
+
+        [TestMethod]
+        public async Task GetCustomProjectTypesAsync_DatePropertyType()
+        {
+            // Arrange
+            var ptVersions = new List<PropertyTypeVersion>
+            {
+                new PropertyTypeVersion
+                {
+                    PropertyTypeId = 66,
+                    InstancePropertyTypeId = 77,
+                    Name = "Date Property",
+                    VersionId = 88,
+                    PrimitiveType = PropertyPrimitiveType.Date,
+                    Required = true,
+                    DateDefaultValue = DateTime.UtcNow,
+                    MaxDate = DateTime.UtcNow.Add(TimeSpan.FromDays(10)),
+                    MinDate = DateTime.UtcNow.Add(TimeSpan.FromDays(1)),
+                    Validate = true,
+                    XmlInfo = "<CPS><CP Id=\"2269\" T=\"0\" N=\"ST-Non-Functional Requirements\" R=\"0\" AM=\"1\" AC=\"1\" SId=\"337\"><VVS/></CP></CPS>"
+                }
+            };
+            var itVersions = new List<ItemTypeVersion>();
+            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+
+            InitRepository(ptVersions, itVersions, itptMap);
+
+            var expected = new List<PropertyType>
+            {
+                new PropertyType
+                {
+                    PrimitiveType = ptVersions[0].PrimitiveType,
+                    Name = ptVersions[0].Name,
+                    Id = ptVersions[0].PropertyTypeId,
+                    VersionId = ptVersions[0].VersionId,
+                    InstancePropertyTypeId = ptVersions[0].InstancePropertyTypeId,
+                    IsRequired = ptVersions[0].Required,
+                    IsValidated = ptVersions[0].Validate,
+                    DateDefaultValue = ptVersions[0].DateDefaultValue,
+                    MaxDate = ptVersions[0].MaxDate,
+                    MinDate = ptVersions[0].MinDate
+                }
+            };
+
+            // Act
+            var actual = await _repository.GetCustomProjectTypesAsync(_projectId, _userId);
+
+            // Assert
+            _cxn.Verify();
+            string errorMessage;
+            Assert.IsTrue(Compare(expected, actual.PropertyTypes, out errorMessage), errorMessage);
+        }
+
+        [TestMethod]
+        public async Task GetCustomProjectTypesAsync_ChoicePropertyType()
+        {
+            // Arrange
+            var ptVersions = new List<PropertyTypeVersion>
+            {
+                new PropertyTypeVersion
+                {
+                    PropertyTypeId = 66,
+                    InstancePropertyTypeId = 77,
+                    Name = "Choice Property",
+                    VersionId = 88,
+                    PrimitiveType = PropertyPrimitiveType.Choice,
+                    Required = true,
+                    Validate = false,
+                    AllowMultiple = true,
+                    XmlInfo = "<CPS><CP Id=\"66\" T=\"4\" N=\"Choice Property\" R=\"1\" AC=\"0\" AM=\"1\"><VVS><VV Id=\"6447\" S=\"0\" V=\"Low\" O=\"0\" /><VV Id=\"6448\" S=\"1\" V=\"Medium\" O=\"1\" /><VV Id=\"6449\" S=\"0\" V=\"High\" O=\"2\" /></VVS></CP></CPS>"
+                }
+            };
+            var itVersions = new List<ItemTypeVersion>();
+            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+
+            InitRepository(ptVersions, itVersions, itptMap);
+
+            var expected = new List<PropertyType>
+            {
+                new PropertyType
+                {
+                    PrimitiveType = ptVersions[0].PrimitiveType,
+                    Name = ptVersions[0].Name,
+                    Id = ptVersions[0].PropertyTypeId,
+                    VersionId = ptVersions[0].VersionId,
+                    InstancePropertyTypeId = ptVersions[0].InstancePropertyTypeId,
+                    IsRequired = ptVersions[0].Required,
+                    IsValidated = ptVersions[0].Validate,
+                    IsMultipleAllowed = ptVersions[0].AllowMultiple,
+                    ValidValues = new List<string>{"Low", "Medium", "High"},
+                    DefaultValidValueIndex = 1
+                }
+            };
+
+            // Act
+            var actual = await _repository.GetCustomProjectTypesAsync(_projectId, _userId);
+
+            // Assert
+            _cxn.Verify();
+            string errorMessage;
+            Assert.IsTrue(Compare(expected, actual.PropertyTypes, out errorMessage), errorMessage);
+        }
+
+        [TestMethod]
+        public async Task GetCustomProjectTypesAsync_UserPropertyType()
+        {
+            // Arrange
+            var ptVersions = new List<PropertyTypeVersion>
+            {
+                new PropertyTypeVersion
+                {
+                    PropertyTypeId = 66,
+                    InstancePropertyTypeId = 77,
+                    Name = "User Property",
+                    VersionId = 88,
+                    PrimitiveType = PropertyPrimitiveType.User,
+                    Required = true,
+                    UserDefaultValue = "3\ng1",
+                    XmlInfo = "<CPS><CP Id=\"5619\" T=\"3\" N=\"User Property\" R=\"1\" AC=\"1\" AM=\"0\"><VVS /></CP></CPS>"
+                }
+            };
+            var itVersions = new List<ItemTypeVersion>();
+            var itptMap = new List<ItemTypePropertyTypeMapRecord>();
+
+            InitRepository(ptVersions, itVersions, itptMap);
+
+            var expected = new List<PropertyType>
+            {
+                new PropertyType
+                {
+                    PrimitiveType = ptVersions[0].PrimitiveType,
+                    Name = ptVersions[0].Name,
+                    Id = ptVersions[0].PropertyTypeId,
+                    VersionId = ptVersions[0].VersionId,
+                    InstancePropertyTypeId = ptVersions[0].InstancePropertyTypeId,
+                    IsRequired = ptVersions[0].Required,
+                    UserGroupDefaultValue = new List<UserGroup>
+                    {
+                        new UserGroup {Id = 3, IsGroup = false},
+                        new UserGroup {Id = 1, IsGroup = true}
+                    }
                 }
             };
 

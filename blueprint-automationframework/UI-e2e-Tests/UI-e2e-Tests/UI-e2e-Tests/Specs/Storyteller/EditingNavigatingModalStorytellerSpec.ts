@@ -465,11 +465,11 @@ describe("Storyteller end to end test", () => {
      
             it("Should be able to click '+' to add system decision point ", () => {
                 //Act
-                browser.driver.sleep(1000);
+                browser.driver.sleep(5000);
                 svgElementsPage.navAddTaskButton(2).then((el) => { el.click(); });//@parm index for '+' icon
                 svgElementsPage.selectAddItem(0).then((el) => { el.click(); });//@parm if array has more than 1 elements,then 1 for add user task , 4 for add user decision point, else 0 for system decision
                 //Assert
-                browser.driver.sleep(1000);
+                browser.driver.sleep(5000);
                 svgElementsPage.getLabelBody.then((el) => {
                     logger.info("Length of body lebel array is : " + + el.length);
                     console.log("Length of body lebel array is : " + el.length);

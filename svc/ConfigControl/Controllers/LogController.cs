@@ -366,14 +366,14 @@ namespace ConfigControl.Controllers
         [Route("GetLog")]
         [ResponseType(typeof(HttpResponseMessage))]
         [UnhandledExceptionFilter]
-        public IHttpActionResult GetLog(int? limit = null, long? id = null, int? chunks = null)
+        public IHttpActionResult GetLog(int? records = null, long? id = null, int? chunks = null)
         {
-            limit = limit ?? ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32(-1);
+            records = records ?? ConfigurationManager.AppSettings["LogRecordsLimit"].ToInt32(-1);
             chunks = chunks ?? ConfigurationManager.AppSettings["LogRecordsChunkSize"].ToInt32(-1);
 
             var response = Request.CreateResponse();
 
-            response.Content = new CsvLogContent().Generate(limit.Value, id, chunks);
+            response.Content = new CsvLogContent().Generate(records.Value, id, chunks);
             response.StatusCode = HttpStatusCode.OK;
 
             return ResponseMessage(response);

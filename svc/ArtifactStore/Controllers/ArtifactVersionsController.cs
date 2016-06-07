@@ -8,6 +8,8 @@ using ArtifactStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http;
+using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -54,6 +56,25 @@ namespace ArtifactStore.Controllers
             if (limit > MAX_LIMIT)
             {
                 limit = MAX_LIMIT;
+            }
+
+            var artifactIds = new List<int> { artifactId };
+            var permissions = await ArtifactVersionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+
+            if (!permissions.ContainsKey(artifactId))
+            {
+                HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.Forbidden);
+                message.Content = new StringContent(permissions.ToJSON());
+                throw new HttpResponseException(message);
+            } else
+            {
+                RolePermissions permission = RolePermissions.None;
+                permissions.TryGetValue(artifactId, out permission);
+
+                if (!permission.HasFlag(RolePermissions.Read))
+                {
+                    throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+                }
             }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);
             return result;

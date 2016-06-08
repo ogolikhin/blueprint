@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -14,6 +16,9 @@ namespace ConfigControl.Repositories
         private const string defaultStoredProcedure = "GetLogs";
         private string csvDelemiter = ",";
 
+        DbConnection dbConnection = null;
+
+
         public LogRepository() : this(new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
         }
@@ -23,8 +28,9 @@ namespace ConfigControl.Repositories
             ConnectionWrapper = connectionWrapper;
         }
 
-        private string GetSingleEntry(IDataReader reader, bool nameOnly = false)
+        private LogRecord GetSingleEntry(IDataReader reader, bool nameOnly = false)
         {
+            var result = new LogRecord(); 
             var line = new StringBuilder();
             // column loop
             for (var fieldCounter = 0; fieldCounter < reader.FieldCount; fieldCounter++)
@@ -34,43 +40,53 @@ namespace ConfigControl.Repositories
                     csvValue = reader.GetName(fieldCounter);
                 else
                 {
+                    if (fieldCounter == 0) {
+                        result.Id = (long)reader.GetValue(fieldCounter);
+                    }
                     var value = reader.GetValue(fieldCounter);
                     csvValue = value is string ? string.Concat("\"", value.ToString().Replace("\"","'"),"\"") : value;
                 }
                 line.AppendFormat("{0}{1}", csvValue, csvDelemiter);
             }
             line.Length--;
-            return line.ToString();
+
+            result.Line = line.ToString();
+            return result;
 
         }
-        public IEnumerable<string> GetLogEntries(int numberOfRecords, bool showHeader)
-        {
 
-            DbConnection dbConnection = null;
-            try
+        
+        public IEnumerable<LogRecord> GetRecords(int numberOfRecords, long? recordId, bool showHeader = false)
+        {
+            if (dbConnection == null)
             {
                 dbConnection = ConnectionWrapper.CreateConnection();
-                dbConnection.Open();
-
-
-                var prm = new DynamicParameters();
-                prm.Add("@limit", numberOfRecords);
-                var reader = dbConnection.ExecuteReader(defaultStoredProcedure, prm,
-                    commandType: CommandType.StoredProcedure);
-
-                if (showHeader)
-                    yield return GetSingleEntry(reader, true);
-
-                while (reader.Read())
-                {
-                    yield return GetSingleEntry(reader);
-                }
-
             }
-            finally
+            if (dbConnection.State == ConnectionState.Closed)
             {
-                dbConnection?.Close();
+                dbConnection.Open();
+            }
+            var prm = new DynamicParameters();
+            prm.Add("@recordlimit", numberOfRecords);
+            prm.Add("@recordid", recordId);
+
+            var reader = dbConnection.ExecuteReader(defaultStoredProcedure, prm, commandType: CommandType.StoredProcedure);
+
+            if (showHeader)
+            {
+                yield return GetSingleEntry(reader, true);
+            }
+
+            while (reader.Read())
+            {
+                yield return GetSingleEntry(reader);
             }
         }
+
+        public void Close()
+        {
+            dbConnection?.Close();
+        }
+
     }
 }

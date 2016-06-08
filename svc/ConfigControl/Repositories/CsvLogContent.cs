@@ -34,25 +34,45 @@ namespace ConfigControl.Repositories
             _log = log;
 
         }
-        public HttpContent Generate(int limitRecords = 0, bool showHeader = true)
+        public HttpContent Generate(int recordLimit, long? recordId = null, int? chunkSize = null, bool showHeader = true)
         {
-            try
-            {
+            try {
                 using (var writer = new StreamWriter(_stream, Encoding.Default, 512, true))
                 {
-                    foreach (var line in _repository.GetLogEntries(limitRecords, showHeader))
+                    writer.AutoFlush = true;
+                    try
                     {
-                        writer.WriteLine(line);
+                        if (!chunkSize.HasValue || chunkSize.Value < 0 || chunkSize.Value > recordLimit)
+                            chunkSize = recordLimit;
+                        int? totalRecords = 0;
+                        long currentId = 0;
+                        do
+                        {
+                            foreach (var record in _repository.GetRecords(chunkSize.Value, recordId, showHeader && currentId == 0))
+                            {
+                                currentId = record.Id;
+                                writer.WriteLine(record.Line);
+                            }
+                            //remember the last id to start the next chunk request with that id-1 
+                            recordId = currentId - 1;
+                            totalRecords += chunkSize;
+                        } while (totalRecords < recordLimit);
                     }
-                    writer.Flush();
-                    var b = _stream.ToArray().Select(it=>Convert.ToChar(it)).ToArray();
+                    catch (Exception ex)
+                    {
+                        writer.WriteLine(ex.Message);
+                        writer.WriteLine(ex.StackTrace);
+                        throw;
+                    }
+                    finally
+                    {
+                        _repository.Close();
+                    }
                 }
             }
-
             catch (Exception ex)
             {
                 _log.LogError(WebApiConfig.LogRecordStatus, ex.Message).Wait();
-                throw;
             }
             finally
             {

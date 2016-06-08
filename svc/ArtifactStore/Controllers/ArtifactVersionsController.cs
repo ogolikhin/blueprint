@@ -46,7 +46,7 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/version"), NoSessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/version"), SessionRequired]
         [ActionName("GetArtifactHistory")]
         public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false)
         {

@@ -5,9 +5,6 @@
     "angular-ui-bootstrap": "registry:dt/angular-ui-bootstrap#0.13.3+20160602140119",
     "angular-ui-router": "registry:dt/angular-ui-router#1.1.5+20160521151413",
     "jasmine": "registry:dt/jasmine#2.2.0+20160505161446",
-    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
-    "lodash": "registry:dt/lodash#3.10.0+20160330154726",
-    "source-map": "registry:dt/source-map#0.0.0+20160317120654",
-    "uglify-js": "registry:dt/uglify-js#2.6.1+20160316155526"
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236"
   }
 }

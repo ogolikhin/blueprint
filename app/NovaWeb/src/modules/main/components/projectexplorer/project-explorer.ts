@@ -1,6 +1,5 @@
-﻿import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
-import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
-
+﻿import {IProjectManager, Models, SubscriptionEnum } from "../..";
+import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
     public template: string = require("./project-explorer.html");

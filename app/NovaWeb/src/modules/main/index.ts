@@ -6,8 +6,8 @@ import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
 import "../shell";
-import {ProjectRepository} from "./services/project-repository";
-import {ProjectManager} from "./managers/project-manager";
+import {IProjectRepository, ProjectRepository} from "./services/project-repository";
+import {IProjectManager, ProjectManager, Models, SubscriptionEnum} from "./managers/project-manager";
 import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
@@ -19,6 +19,11 @@ import {MainViewComponent} from "./main.view";
 import {config as routesConfig} from "./main.state";
 
 config.$inject = ["$rootScope"];
+
+export {
+    IProjectRepository, ProjectRepository, 
+    IProjectManager, ProjectManager, Models, SubscriptionEnum,
+};
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;

@@ -1,8 +1,7 @@
 ﻿import "angular";
 //import {ILocalizationService} from "../core/localization";
-import {IEventManager, EventSubscriber} from "../core/event-manager";
-import {IProjectManager} from "./managers/project-manager";
-import {IDialogService} from "../services/dialog.svc";
+import {IDialogService, IEventManager, EventSubscriber} from "../core/";
+import {IProjectManager} from "./";
 import * as Models from "./models/models";
 
 

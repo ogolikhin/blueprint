@@ -55,10 +55,7 @@ namespace ArtifactStore.Repositories
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", userId);
-            prm.Add("@itemIds", tvp);
-            prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
-            prm.Add("@addDrafts", (revisionId == null));
-            var result = await ConnectionWrapper.QueryAsync<bool>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure);
 
             var isInstanceAdmin = result.SingleOrDefault();
             if (isInstanceAdmin)
@@ -68,6 +65,12 @@ namespace ArtifactStore.Repositories
             }
             else
             {
+                prm = new DynamicParameters();
+                prm.Add("@contextUser", contextUser);
+                prm.Add("@userId", userId);
+                prm.Add("@itemIds", tvp);
+                prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
+                prm.Add("@addDrafts", (revisionId == null));
                 var multipleResult = await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure);
                 var projectsArtifactsItems = multipleResult.Item2.ToList();//???Do we need always do it
                 var versionProjectInfos = multipleResult.Item3;

@@ -62,6 +62,7 @@ export interface ITreeNode {
 export interface IBPTreeController {
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
+    onSync?: Function;                //to be called on time of ag-grid row selection
     onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
@@ -90,6 +91,7 @@ export class BPTreeController implements IBPTreeController  {
     //events
     public onLoad: Function;
     public onSelect: Function;
+    public onSync: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
@@ -155,7 +157,7 @@ export class BPTreeController implements IBPTreeController  {
             onRowDoubleClicked: this.rowDoubleClicked,
             onRowGroupOpened: this.rowGroupOpened,
             processRowPostCreate: this.rowPostCreate,
-            onGridReady: this.onGridReady
+            onGridReady: this.onGridReady,
         };
     };
 
@@ -242,14 +244,14 @@ export class BPTreeController implements IBPTreeController  {
         return `<span ${inlineEditing}${cancelDragndrop}>${Helper.escapeHTMLText(currentValue)}</span>`;
     };
 
-    private getNodeChildDetails(rowItem) {
-        if (rowItem.children) {
+    private getNodeChildDetails(node: ITreeNode) {
+        if (node.children) {
             return {
                 group: true,
-                expanded: rowItem.open,
-                children: rowItem.children,
+                expanded: node.open,
+                children: node.children,
                 field: "name",
-                key: rowItem.id // the key is used by the default group cellRenderer
+                key: node.id // the key is used by the default group cellRenderer
             };
         } else {
             return null;
@@ -277,6 +279,9 @@ export class BPTreeController implements IBPTreeController  {
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
+                let rowIndex = node.rowTop / self.options.rowHeight;
+                let row = self.$element[0].querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
+                row.className += " ag-row-loading";
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
@@ -286,6 +291,9 @@ export class BPTreeController implements IBPTreeController  {
             }
         }
         node.data.open = node.expanded;
+        if (angular.isFunction(self.onSync)) {
+            self.onSync({ item: node.data });
+        }
     };
 
     private rowSelected = (node: any) => {

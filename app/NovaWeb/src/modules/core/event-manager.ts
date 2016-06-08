@@ -74,7 +74,7 @@ export class EventManager implements IEventManager {
         this.handlers.forEach(function (handler: IEventHandlers) {
             handler.callbacks = handler.callbacks.filter(function (it: ICallback) {
                 return it.id !== id;
-            })
+            });
             if (!handler.callbacks.length) {
                 this.handlers = this.handlers.filter(function (it: IEventHandlers) {
                     return it.name !== handler.name;

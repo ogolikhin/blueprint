@@ -171,6 +171,7 @@ describe("Storyteller end to end test", () => {
             
             it("Should be able to navigate History tab", () => {
                 //Act
+                browser.driver.sleep(5000);
                 svgElementsPage.getPanelHistory.click();
                 //Assert
                 expect(svgElementsPage.getPanelHistory.getText()).toEqual(['History']);

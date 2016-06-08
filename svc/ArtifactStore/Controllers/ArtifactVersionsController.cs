@@ -23,14 +23,16 @@ namespace ArtifactStore.Controllers
         private const int MAX_LIMIT = 100;
 
         internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
+        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
-        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository())
+        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new ArtifactPermissionsRepository())
         {
         }
-        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository) : base()
+        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         /// <summary>
@@ -59,7 +61,7 @@ namespace ArtifactStore.Controllers
             }
 
             var artifactIds = new List<int> { artifactId };
-            var permissions = await ArtifactVersionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
 
             if (!permissions.ContainsKey(artifactId))
             {

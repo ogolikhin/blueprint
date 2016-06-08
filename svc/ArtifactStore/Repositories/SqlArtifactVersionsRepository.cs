@@ -78,7 +78,8 @@ namespace ArtifactStore.Repositories
             var isInstanceAdmin = result.SingleOrDefault();
             if (isInstanceAdmin)
             {
-                return itemIds.ToDictionary(itemId => itemId, itemId =>GetAllPermissions()); // RolePermissions.All
+                var allPermissions = GetAllPermissions();
+                return itemIds.ToDictionary(itemId => itemId, itemId => allPermissions); // RolePermissions.All
             }
             else
             {

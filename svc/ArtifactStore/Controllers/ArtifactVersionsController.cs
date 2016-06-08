@@ -8,6 +8,8 @@ using ArtifactStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http;
+using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -21,14 +23,16 @@ namespace ArtifactStore.Controllers
         private const int MAX_LIMIT = 100;
 
         internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
+        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
-        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository())
+        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new ArtifactPermissionsRepository())
         {
         }
-        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository) : base()
+        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         /// <summary>
@@ -42,7 +46,7 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/version"), NoSessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/version"), SessionRequired]
         [ActionName("GetArtifactHistory")]
         public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false)
         {
@@ -54,6 +58,24 @@ namespace ArtifactStore.Controllers
             if (limit > MAX_LIMIT)
             {
                 limit = MAX_LIMIT;
+            }
+
+            var artifactIds = new List<int> { artifactId };
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+
+            if (!permissions.ContainsKey(artifactId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            else
+            {
+                RolePermissions permission = RolePermissions.None;
+                permissions.TryGetValue(artifactId, out permission);
+
+                if (!permission.HasFlag(RolePermissions.Read))
+                {
+                    throw new HttpResponseException(HttpStatusCode.Forbidden);
+                }
             }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);
             return result;

@@ -1,8 +1,11 @@
-﻿using ArtifactStore.Models;
+﻿using ArtifactStore.Helpers;
+using ArtifactStore.Models;
 using Dapper;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +14,7 @@ namespace ArtifactStore.Repositories
 {
     public class SqlArtifactVersionsRepository : ISqlArtifactVersionsRepository
     {
+
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
         public SqlArtifactVersionsRepository()
@@ -22,6 +26,7 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
         }
+
         public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc)
         {
             if (artifactId < 1)

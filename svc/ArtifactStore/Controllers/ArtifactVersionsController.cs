@@ -63,17 +63,16 @@ namespace ArtifactStore.Controllers
 
             if (!permissions.ContainsKey(artifactId))
             {
-                HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.Forbidden);
-                message.Content = new StringContent(permissions.ToJSON());
-                throw new HttpResponseException(message);
-            } else
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            else
             {
                 RolePermissions permission = RolePermissions.None;
                 permissions.TryGetValue(artifactId, out permission);
 
                 if (!permission.HasFlag(RolePermissions.Read))
                 {
-                    throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+                    throw new HttpResponseException(HttpStatusCode.Forbidden);
                 }
             }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);

@@ -8,6 +8,8 @@ using ArtifactStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http;
+using System.Net;
 
 namespace ArtifactStore.Controllers
 {
@@ -21,14 +23,16 @@ namespace ArtifactStore.Controllers
         private const int MAX_LIMIT = 100;
 
         internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
+        internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
-        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository())
+        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new ArtifactPermissionsRepository())
         {
         }
-        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository) : base()
+        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
+            ArtifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         /// <summary>
@@ -54,6 +58,24 @@ namespace ArtifactStore.Controllers
             if (limit > MAX_LIMIT)
             {
                 limit = MAX_LIMIT;
+            }
+
+            var artifactIds = new List<int> { artifactId };
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+
+            if (!permissions.ContainsKey(artifactId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            else
+            {
+                RolePermissions permission = RolePermissions.None;
+                permissions.TryGetValue(artifactId, out permission);
+
+                if (!permission.HasFlag(RolePermissions.Read))
+                {
+                    throw new HttpResponseException(HttpStatusCode.Forbidden);
+                }
             }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);
             return result;

@@ -47,13 +47,12 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, int? revisionId = null)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, bool contextUser = true, int? revisionId = null)
         {
             if (itemIds.Count() > 50)
             {
                 throw new ArgumentOutOfRangeException("Cannot get artifact permissions for this many artifacts");
             }
-            bool contextUser = false;
             DataTable itemIdsTable = new DataTable();
             itemIdsTable.Columns.Add("Int32Value", typeof(int));
             foreach (int itemId in itemIds)

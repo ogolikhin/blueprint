@@ -7,7 +7,7 @@ import { IAuth} from "./auth.svc";
 import {LocalizationServiceMock} from "../../core/localization.mock";
 import {AuthSvcMock,
         ModalServiceMock } from "./mocks.spec";
-import { DialogService} from "../../services/dialog.svc";
+import { DialogService} from "../../core/services/dialog";
 
 describe("SessionSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

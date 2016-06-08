@@ -1,6 +1,5 @@
-﻿import { ILocalizationService } from "../../../core";
-import { IDialogSettings, IDialogService } from "../../../services/dialog.svc";
-import { IProjectManager, SubscriptionEnum } from "../../managers/project-manager";
+﻿import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
+import { IProjectManager, SubscriptionEnum } from "../../";
 import { IOpenProjectResult, OpenProjectController } from "../dialogs/open-project";
 
 interface IBPToolbarController {

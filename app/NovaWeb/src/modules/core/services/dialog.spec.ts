@@ -1,8 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
-import * as $D from "./dialog.svc";
-import {LocalizationServiceMock} from "../core/localization.mock";
-import {ModalServiceInstanceMock} from "../shell/login/mocks.spec";
+import * as $D from "./dialog";
+import {LocalizationServiceMock} from "../localization.mock";
 
 class ModalMock implements ng.ui.bootstrap.IModalService {
     public static $inject = ["$q"];
@@ -14,6 +13,34 @@ class ModalMock implements ng.ui.bootstrap.IModalService {
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
         return this.instanceMock;
     }
+}
+
+class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
+    public static $inject = ["$q"];
+    private resultDeffered = this.$q.defer<any>();
+    private openedDeffered = this.$q.defer<any>();
+
+    constructor(private $q: ng.IQService) {
+        this.opened = this.openedDeffered.promise;
+        this.rendered = this.openedDeffered.promise;
+        this.result = this.resultDeffered.promise;
+    }
+
+    public close(result?: any): void {
+        this.resultDeffered.resolve(result);
+    }
+
+    public dismiss(reason?: any): void {
+        this.resultDeffered.reject();
+    }
+
+    public result: angular.IPromise<any>;
+
+    public opened: angular.IPromise<any>;
+
+    public rendered: angular.IPromise<any>;
+
+    public closed: angular.IPromise<any>;
 }
 
 describe("DialogService", () => {

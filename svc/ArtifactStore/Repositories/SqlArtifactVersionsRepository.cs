@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace ArtifactStore.Repositories
 {
@@ -23,7 +24,7 @@ namespace ArtifactStore.Repositories
         public class VersionProjectInfo
         {
             public int ProjectId;
-            public long Permissions;
+            public long? Permissions;
         }
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
@@ -47,7 +48,12 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, bool contextUser = true, int? revisionId = null)
+        private ICustomQueryParameter GetIntCollectionTableValueParameter(DataTable dataTable)
+        {
+            return dataTable.AsTableValuedParameter("[dbo].[Int32Collection]");
+        }
+
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, bool contextUser = false, int? revisionId = null)
         {
             if (itemIds.Count() > 50)
             {
@@ -59,7 +65,8 @@ namespace ArtifactStore.Repositories
             {
                 itemIdsTable.Rows.Add(itemId);
             }
-            var tvp = itemIdsTable.AsTableValuedParameter("[dbo].[Int32Collection]");
+
+            var tvp = GetIntCollectionTableValueParameter(itemIdsTable);
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", userId);
@@ -71,56 +78,36 @@ namespace ArtifactStore.Repositories
             var isInstanceAdmin = result.SingleOrDefault();
             if (isInstanceAdmin)
             {
-                return itemIds.ToDictionary(itemId => itemId, itemId => GetAllPermissions()); // RolePermissions.All
+                return itemIds.ToDictionary(itemId => itemId, itemId =>GetAllPermissions()); // RolePermissions.All
             }
             else
             {
-                ISet<int> projectIds = null;
-                IList<Tuple<int, int, int>> projectIdsArtifactIdsItemIds = null;
-                IDictionary<int, RolePermissions?> projectOnlyScopeIdsPermissions = null;
                 var multipleResult = await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure);
-                var projectsArtifactsItems = multipleResult.Item2;
+                var projectsArtifactsItems = multipleResult.Item2.ToList();//???Do we need always do it
                 var versionProjectInfos = multipleResult.Item3;
 
-                projectIds = new HashSet<int>();
-                projectIdsArtifactIdsItemIds = new List<Tuple<int, int, int>>(itemIds.Count());
-                foreach (var projectsArtifactsItem in projectsArtifactsItems)
+                var projectIds = new HashSet<int>(projectsArtifactsItems.Select(i => i.VersionProjectId));
+                Dictionary<int, RolePermissions> itemIdsPermissions = new Dictionary<int, RolePermissions>(projectsArtifactsItems.Count);
+                foreach (var projectInfo in versionProjectInfos)
                 {
-                    int versionProjectId = projectsArtifactsItem.VersionProjectId;
-                    int versionArtifactId = projectsArtifactsItem.VersionArtifactId;
-                    int holderId = projectsArtifactsItem.HolderId;
-                    projectIds.Add(versionProjectId);
-                    projectIdsArtifactIdsItemIds.Add(new Tuple<int, int, int>(versionProjectId, versionArtifactId, holderId));
-                }
-
-                projectOnlyScopeIdsPermissions = new Dictionary<int, RolePermissions?>();
-                foreach (var versionProjectInfo in versionProjectInfos)
-                {
-                    int projectId = versionProjectInfo.ProjectId;
-                    RolePermissions? permissions = (RolePermissions?)versionProjectInfo.Permissions;
-                    projectOnlyScopeIdsPermissions.Add(projectId, permissions);
-                }
-
-                Dictionary<int, RolePermissions> itemIdsPermissions = new Dictionary<int, RolePermissions>(projectIdsArtifactIdsItemIds.Count);
-                foreach (KeyValuePair<int, RolePermissions?> projectIdPermissions in projectOnlyScopeIdsPermissions)
-                {
-                    if (!projectIdPermissions.Value.HasValue)
+                    if (!projectInfo.Permissions.HasValue)
                     {
                         continue;
                     }
-                    foreach (Tuple<int, int, int> projectIdArtifactIdItemId in projectIdsArtifactIdsItemIds)
+                    foreach (var projectArtifactItem in projectsArtifactsItems)
                     {
-                        if (projectIdArtifactIdItemId.Item1 == projectIdPermissions.Key)
+                        if (projectArtifactItem.VersionProjectId == projectInfo.ProjectId)
                         {
-                            itemIdsPermissions.Add(projectIdArtifactIdItemId.Item3, projectIdPermissions.Value.Value);
+                            itemIdsPermissions.Add(projectArtifactItem.HolderId, (RolePermissions)projectInfo.Permissions);
                         }
                     }
                 }
 
                 ISet<int> projectArtifactIds = null;
+                var projectOnlyScopeIdsPermissions = new HashSet<int>(versionProjectInfos.Select(i => i.ProjectId));
                 foreach (int projectId in projectIds)
                 {
-                    if (projectOnlyScopeIdsPermissions.ContainsKey(projectId))
+                    if (projectOnlyScopeIdsPermissions.Contains(projectId))
                     {
                         continue;
                     }
@@ -132,11 +119,11 @@ namespace ArtifactStore.Repositories
                     {
                         projectArtifactIds.Clear();
                     }
-                    foreach (Tuple<int, int, int> projectIdArtifactIdItemId in projectIdsArtifactIdsItemIds)
+                    foreach (var projectArtifactItem in projectsArtifactsItems)
                     {
-                        if (projectIdArtifactIdItemId.Item1 == projectId)
+                        if (projectArtifactItem.VersionProjectId == projectId)
                         {
-                            projectArtifactIds.Add(projectIdArtifactIdItemId.Item2);
+                            projectArtifactIds.Add(projectArtifactItem.VersionArtifactId);
                         }
                     }
                 }

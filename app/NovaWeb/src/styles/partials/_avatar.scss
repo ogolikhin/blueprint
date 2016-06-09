@@ -1,0 +1,25 @@
+bp-avatar {
+    $avatar-size: 40px;
+
+    .avatar, .avatar-placeholder {
+        height: $avatar-size;
+        width: $avatar-size;
+        border: 2px solid $gray-lighter;
+        border-radius: 50%;
+        
+        img, div {
+            margin-left: 2px;
+            margin-top: 2px;
+            height: ($avatar-size - 8px);
+            width: ($avatar-size - 8px);
+            border-radius: 50%;
+            border: 0;
+        }
+    }
+    .avatar-placeholder {
+        line-height: ($avatar-size - 8px);
+        text-align: center;
+        font-size: $font-size-root;
+        text-transform: uppercase;
+    }
+}

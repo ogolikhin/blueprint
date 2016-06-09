@@ -12,6 +12,12 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
+    public class UserInfo
+    {
+        public int UserId { get; set; }
+        public string DisplayName { get; set; }
+        public int? Image_ImageId { get; set; }
+    }
     public class SqlArtifactVersionsRepository : ISqlArtifactVersionsRepository
     {
 
@@ -27,7 +33,7 @@ namespace ArtifactStore.Repositories
             ConnectionWrapper = connectionWrapper;
         }
 
-        public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc)
+        public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId)
         {
             if (artifactId < 1)
                 throw new ArgumentOutOfRangeException(nameof(artifactId));
@@ -52,6 +58,33 @@ namespace ArtifactStore.Repositories
             prm.Add("@ascd", asc);
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
+
+            var prm2 = new DynamicParameters();
+            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+            prm2.Add("@userId", sessionUserId);
+            prm2.Add("@artifactIds", artifactIdsTable);
+            var doesCurrentUserHaveDraft = (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", prm2, commandType: CommandType.StoredProcedure)).Count() == 1;
+
+            if (doesCurrentUserHaveDraft)
+            {
+                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("SELECT [UserId],[DisplayName],[Image_ImageId] FROM [dbo].[Users] WHERE UserId = " + sessionUserId, commandType: CommandType.Text)).SingleOrDefault();
+
+                var draftItem = new ArtifactHistoryVersion {
+                    VersionId = int.MaxValue,
+                    UserId = sessionUserId,
+                    DisplayName = userInfo.DisplayName,
+                    HasUserIcon = userInfo.Image_ImageId != null,
+                    Timestamp = null
+                };
+                if (asc && artifactVersions.Count < limit)
+                {
+                    artifactVersions.Insert(artifactVersions.Count, draftItem);
+                }
+                else if (!asc && offset == 0)
+                {
+                    artifactVersions.Insert(0, draftItem);
+                }
+            }
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
                 ArtifactHistoryVersions = artifactVersions

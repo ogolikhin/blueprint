@@ -16,6 +16,6 @@ namespace ArtifactStore.Models
         public int UserId { get; set; }
         public string DisplayName { get; set; }
         public bool HasUserIcon { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime? Timestamp { get; set; }
     }
 }

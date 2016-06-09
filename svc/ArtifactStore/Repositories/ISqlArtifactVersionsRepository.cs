@@ -10,6 +10,6 @@ namespace ArtifactStore.Repositories
 {
     public interface ISqlArtifactVersionsRepository
     {
-        Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc);
+        Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId);
     }
 }

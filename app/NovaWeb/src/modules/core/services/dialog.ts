@@ -120,7 +120,7 @@ export class BaseDialogController implements IDialogController {
     };
 
     public cancel = () => {
-        this.$instance.dismiss("cancel");
+        this.$instance.close(false);
     };
 }
 

@@ -6,6 +6,6 @@ namespace ArtifactStore.Repositories
 {
     public interface IArtifactPermissionsRepository
     {
-        Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, bool contextUser = false, int? revisionId = null);
+        Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null);
     }
 }

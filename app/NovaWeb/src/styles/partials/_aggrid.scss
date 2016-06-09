@@ -31,48 +31,97 @@
     .ag-cell {
       height: $aggrid-row-height;
       overflow: visible;
-      top: 2px;
 
       > span > span {
         display: inline-block;
-        line-height: $aggrid-row-height;
+        line-height: #{$aggrid-row-height - 2px};
       }
 
-      span.ag-group-value {
-        padding-right: 10px;
+      .ag-group-contracted,
+      .ag-group-expanded {
+        border-color: $white;
+        border-style: solid;
+        border-width: 1px 0 1px 1px;
+      }
+
+      .ag-group-inline-edit,
+      .ag-group-value {
+        border-color: $white;
+        border-style: solid;
+        border-width: 1px;
+        padding-right: 5px;
+      }
+
+      &.has-children {
+        .ag-group-inline-edit,
+        .ag-group-value {
+          border-width: 1px 1px 1px 0;
+        }
       }
 
       i {
         color: $brand-secondary;
         display: inline-block;
-        height: $aggrid-row-height;
+        height: #{$aggrid-row-height - 2px};
         vertical-align: bottom;
       }
     }
+
+    .ag-group-inline-edit input {
+      border: 0;
+      box-sizing: border-box;
+      color: $body-color;
+      height: calc(#{$aggrid-row-height} - 2px);
+      line-height: calc(#{$aggrid-row-height} - 2px);
+      padding: 0 1px 1px 0;
+      width: calc(100% - 20px); // 20px is the width of the icon
+    }
+
+    .has-children .ag-group-inline-edit input {
+      width: calc(100% + 5px); // 5px is the padding due to the children indicator
+    }
+
+// ag-grid has a bug which causes ag-row-group-expanded/contracted not to reflect the actual status
+    .ag-group-contracted[style*='inline'],
+    .ag-group-expanded[style*='inline'] {
+      display: inline-block !important;
+    }
+//    .ag-row.ag-row-group-contracted .ag-group-contracted,
+//    .ag-row.ag-row-group-expanded .ag-group-expanded {
+//      display: inline-block !important;
+//    }
 
     .ag-row:hover {
       .ag-group-expanded::before,
       .ag-group-contracted::before,
       span > span,
       *::before {
-        background: $body-bg-color;
+        background: $tree-hover-background;
+      }
+
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $tree-hover-background;
       }
     }
 
     .ag-row-focus {
-      .has-children .ag-group-expanded,
-      .has-children .ag-group-contracted {
-        background: transparent;
+      .ag-group-expanded::before,
+      .ag-group-contracted::before,
+      span > span,
+      *::before {
+        background: $tree-focus-background !important;
       }
 
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $tree-focus-border !important;
+      }
     }
 
     .ag-row-selected {
-      .has-children .ag-group-expanded,
-      .has-children .ag-group-contracted {
-        background: transparent;
-      }
-
       .ag-group-expanded::before,
       .ag-group-contracted::before,
       span > span,
@@ -83,17 +132,15 @@
 
       > span .ag-group-inline-edit::before,
       > span .ag-group-value::before {
-        color: $white;
+        color: $white !important;
       }
-    }
 
-    input {
-      border: solid 1px $brand-secondary;
-      box-sizing: border-box;
-      color: $body-color;
-      height: $aggrid-row-height;
-      line-height: calc(#{$aggrid-row-height} - 2px);
-      width: 100%;
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-inline-edit,
+      .ag-group-value {
+        border-color: $brand-secondary !important;
+    }
     }
   }
 
@@ -160,11 +207,6 @@
 
   .ag-row-group-contracted .ag-cell,
   .ag-row-group-expanded .ag-cell {
-    .ag-group-contracted i::before,
-    .ag-group-expanded i::before {
-      line-height: $aggrid-row-height;
-    }
-
     // disables the icons for groups (to show the group-specific ones)
     > span .ag-group-inline-edit::before,
     > span .ag-group-value::before {
@@ -191,22 +233,22 @@
     content: '\e80a';
   }
 
-  .ag-row-loading .ag-cell .ag-group-contracted i::before,
-  .ag-row-loading .ag-cell .ag-group-expanded i::before {
-    -webkit-animation: spin 1.5s infinite linear;
-    -moz-animation: spin 1.5s infinite linear;
-    -o-animation: spin 1.5s infinite linear;
-    animation: spin 1.5s infinite linear;
-    content: '\e031';
-    font-family: 'Glyphicons Halflings';
-    background-color : transparent!important ;
+  .ag-row-loading .ag-cell .ag-group-contracted i,
+  .ag-row-loading .ag-cell .ag-group-expanded i {
+    background: transparent !important;
+
+    &::before {
+      -webkit-animation: spin 1.5s infinite linear;
+      -moz-animation: spin 1.5s infinite linear;
+      -o-animation: spin 1.5s infinite linear;
+      animation: spin 1.5s infinite linear;
+      background: transparent !important;
+      content: '\e031';
+      font-family: 'Glyphicons Halflings';
+    }
   }
 
   .ag-cell.has-children {
-    > span {
-      //margin-left: 0;
-    }
-
     .ag-group-expanded::before,
     .ag-group-contracted::before {
       box-sizing: border-box;
@@ -232,6 +274,10 @@
   .ag-overlay-loading-wrapper {
     display: none;
   }
+
+  .ag-cell {
+    top: 2px;
+  }
 }
 
 .project-tree {
@@ -244,32 +290,7 @@
 }
 
 //drag and drop related styles
-$aggrid-dnd-handle-width: 14px;
-
 .project-explorer {
-  .ag-row-dnd-handle {
-    background: transparent;
-    cursor: move;
-    display: none;
-    font-size: $aggrid-row-height;
-    height: $aggrid-row-height;
-    line-height: #{$aggrid-row-height - 2px};
-    position: absolute;
-    text-indent: #{($aggrid-dnd-handle-width - $aggrid-row-height) / 2};
-    top: 2px;
-    width: $aggrid-dnd-handle-width;
-  }
-
-  .ag-row-dnd-handle::before {
-    color: $brand-secondary;
-    content: '\e829';
-    font-family: 'bp-line-icons';
-  }
-
-  .ag-body:not(.ag-body-inline-editing) .ag-row:hover .ag-row-dnd-handle {
-    display: block;
-  }
-
   .ag-row-draggable {
     .ag-group-value::before {
       cursor: move;
@@ -279,41 +300,13 @@ $aggrid-dnd-handle-width: 14px;
   .ag-row:not(.drag-over) .ag-cell {
     z-index: 100;
 
-    &.ag-group-cell.drag-enter > span > .ag-group-value {
-      border: dashed 1px $body-color;
-      border-left: 0;
-      left: -1px;
-      line-height: #{$aggrid-row-height - 2px};
-      position: relative;
+    &.drag-enter {
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $body-color;
+        border-style: dashed;
     }
-
-    &.ag-group-cell.drag-enter > span > .ag-group-contracted,
-    &.ag-group-cell.drag-enter > span > .ag-group-expanded {
-      i {
-        border: dashed 1px $body-color;
-        border-left: 0;
-        border-right: 0;
-        padding-right: 1px;
-
-        &::before {
-          position: relative;
-          top: -1px;
-        }
-      }
-
-      &::before {
-        border: dashed 1px $body-color;
-        border-right: 0;
-        line-height: #{$aggrid-row-height - 2px};
-        padding-left: #{$has-children-padding-before-arrow - 1px};
-      }
-    }
-
-    &.drag-enter:not(.ag-group-cell) > span > .ag-group-value {
-      border: dashed 1px $body-color;
-      left: -1px;
-      line-height: #{$aggrid-row-height - 2px};
-      position: relative;
     }
   }
 
@@ -327,9 +320,8 @@ $aggrid-dnd-handle-width: 14px;
     background: transparent;
     font-size: 0;
     height: 2px;
-    left: $aggrid-dnd-handle-width;
     position: absolute;
-    width: calc(100% - #{$aggrid-dnd-handle-width});
+    width: calc(100% - 10px);
   }
 
   .ag-row-dnd-pre {

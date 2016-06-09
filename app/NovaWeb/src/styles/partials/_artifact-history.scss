@@ -4,7 +4,6 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
 
 .history-panel {
     $item-gap: 15px;
-    $avatar-size: 40px;
 
     height: 100%;
     
@@ -64,30 +63,10 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
         .author {
             padding-top: 2px;
         }
-        
-        .avatar, .avatar-placeholder {
-            height: $avatar-size;
-            width: $avatar-size;
-            border: 2px solid $gray-lighter;
-            border-radius: 50%;
+
+        bp-avatar {
             float: left;
             margin: 0 10px 0 0;
-            
-            img, div {
-                margin-left: 2px;
-                margin-top: 2px;
-                height: ($avatar-size - 8px);
-                width: ($avatar-size - 8px);
-                border-radius: 50%;
-                border: 0;
-            }
-        }
-        .avatar-placeholder {
-            line-height: 32px;
-            text-align: center;
-            // color: #fff;
-            font-size: $font-size-root;
-            text-transform: uppercase;
         }
 
         // .overlay {
@@ -106,9 +85,9 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
         &:hover {
             background: $gray-lightest;
             
-            .overlay {
-                display: block;
-            }
+            // .overlay {
+            //     display: block;
+            // }
         }
     }
 

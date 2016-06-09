@@ -58,9 +58,12 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
                 content: '\E831';
             }
         }
-        // .author {
-        //     font-weight: bold;
-        // }
+        .version {
+            margin-bottom: 3px;
+        }
+        .author {
+            padding-top: 2px;
+        }
         
         .avatar, .avatar-placeholder {
             height: $avatar-size;

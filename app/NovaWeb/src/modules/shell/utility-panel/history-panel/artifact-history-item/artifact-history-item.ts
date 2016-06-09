@@ -1,8 +1,4 @@
-﻿// import {IProjectManager, Models, SubscriptionEnum } from "../../managers/project-manager";
-
-
-export class ArtifactHistoryItem implements ng.IComponentOptions {
-    
+﻿export class ArtifactHistoryItem implements ng.IComponentOptions {
     public template: string = require("./artifact-history-item.html");
     public controller: Function = ArtifactHistoryItemController;
     public bindings: any = {
@@ -16,29 +12,30 @@ export class ArtifactHistoryItemController {
     constructor(private $log: ng.ILogService) {
     }
 
-    public getAvatarUrl(): string {
-        let userNames: string[] = this["artifactInfo"].displayName.split(" ");
-        let user: string = "";
+    // Potentially to be used in future US to display included user icon
+    // public getAvatarUrl(): string {
+    //     let userNames: string[] = this["artifactInfo"].displayName.split(" ");
+    //     let user: string = "";
 
-        userNames.map( (value: string) => {
-            user += value[0]; 
-        });
-        let color: string = this.stringToHex(this["artifactInfo"].displayName);
-        let url: string = `https://placeholdit.imgix.net/~text?txtsize=72&bg=${color}&txtclr=ffffff&txt=${user.toUpperCase()}&w=128&h=128&txttrack=3`;
+    //     userNames.map( (value: string) => {
+    //         user += value[0]; 
+    //     });
+    //     let color: string = this.stringToHex(this["artifactInfo"].displayName);
+    //     let url: string = `https://placeholdit.imgix.net/~text?txtsize=72&bg=${color}&txtclr=ffffff&txt=${user.toUpperCase()}&w=128&h=128&txttrack=3`;
 
-        return url;
-    }
+    //     return url;
+    // }
 
-    public getAvatarBg() {
+    public getAvatarBg(): string {
         return "#" + this.stringToHex(this["artifactInfo"].displayName);
     }
     
-    public getAvatarInitials() {
+    public getAvatarInitials(): string {
         let userNames: string[] = this["artifactInfo"].displayName.trim().split(" ");
         let user: string = "";
 
         // only keep first and last words in the name, remove middle names
-        if (userNames && userNames.length > 1) {
+        if (userNames && userNames.length > 2) {
             userNames.splice(1, userNames.length - 2);
         }
 
@@ -49,7 +46,7 @@ export class ArtifactHistoryItemController {
         return user.toUpperCase();
     }
 
-    public getAvatarInitialsColor() {
+    public getAvatarInitialsColor(): string {
         return this.isDarkColor(this.getAvatarBg()) ? "#FFFFFF" : "#000000";
     }
 

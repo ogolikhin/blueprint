@@ -1,7 +1,8 @@
 ﻿<div class="artifact-history-item">
     <div class="version">Version {{ $ctrl.artifactInfo.versionId }}</div>
-    <div ng-if="$ctrl.artifactInfo.hasUserIcon" class="avatar"><img src="{{ $ctrl.getAvatarUrl() }}" alt="avatar" /></div>
-    <div ng-if="!$ctrl.artifactInfo.hasUserIcon" class="avatar-placeholder"><div style="background-color: {{ $ctrl.getAvatarBg() }}; color: {{ $ctrl.getAvatarInitialsColor() }}">{{ $ctrl.getAvatarInitials() }}</div></div>
+    <!--<div ng-if="$ctrl.artifactInfo.hasUserIcon" class="avatar"><img src="{{ $ctrl.getAvatarUrl() }}" alt="avatar" /></div>-->
+    <!-- include in div below for future US: ng-if="$ctrl.artifactInfo.hasUserIcon -->
+    <div class="avatar-placeholder"><div style="background-color: {{ $ctrl.getAvatarBg() }}; color: {{ $ctrl.getAvatarInitialsColor() }}">{{ $ctrl.getAvatarInitials() }}</div></div>
     <div class="author">{{ $ctrl.artifactInfo.displayName }}</div>
     <div class="timestamp">{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>
     

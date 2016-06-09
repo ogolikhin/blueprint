@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace AdminStore.Helpers
+namespace ServiceLibrary.Helpers
 {
     public class RemoveSecurityRelatedHeadersHttpModule : IHttpModule
     {

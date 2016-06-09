@@ -34,14 +34,19 @@ export class ArtifactHistoryItemController {
     }
     
     public getAvatarInitials() {
-        let userNames: string[] = this["artifactInfo"].displayName.split(" ");
+        let userNames: string[] = this["artifactInfo"].displayName.trim().split(" ");
         let user: string = "";
+
+        // only keep first and last words in the name, remove middle names
+        if (userNames && userNames.length > 1) {
+            userNames.splice(1, userNames.length - 2);
+        }
 
         userNames.map( (value: string) => {
             user += value.charAt(0);
         });
 
-        return user.substring(0, 2).toUpperCase();
+        return user.toUpperCase();
     }
 
     public getAvatarInitialsColor() {

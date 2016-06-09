@@ -9,6 +9,7 @@ import { BPTreeInlineEditing } from "./widgets/bp-tree-inline-editing/bp-tree-in
 import { BPTreeDragndrop } from "./widgets/bp-tree-dragndrop/bp-tree-dragndrop";
 import { BPTooltip } from "./widgets/bp-tooltip/bp-tooltip";
 import { BPInfiniteScroll } from "./widgets/bp-infinite-scroll/bp-infinite-scroll";
+import { BPAvatar } from "./widgets/bp-avatar/bp-avatar";
 
 
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
@@ -19,7 +20,8 @@ let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())
     .directive("bpTreeDragndrop", BPTreeDragndrop.factory())
     .directive("bpTooltip", BPTooltip.factory())
-    .directive("bpInfiniteScroll", BPInfiniteScroll.factory());
+    .directive("bpInfiniteScroll", BPInfiniteScroll.factory())
+    .component("bpAvatar", new BPAvatar());
 
 export default module.name;
 export {

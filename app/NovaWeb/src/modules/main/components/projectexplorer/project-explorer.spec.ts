@@ -61,7 +61,7 @@ describe("Project Explorer Test", () => {
     it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
         isReloadCalled = false;
-        projectManager["loadProject"](1, "Project 1");    
+        projectManager["loadProject"]({ id: 1, name:"Project 1", artifacts:[]});    
         $rootScope.$digest();
 
         // Act

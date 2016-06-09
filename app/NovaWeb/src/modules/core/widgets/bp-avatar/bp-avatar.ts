@@ -10,16 +10,20 @@ export class BPAvatar implements ng.IComponentOptions {
 export class AvatarController {
     public static $inject: [string] = ["$log"];
 
+    // bindings vars
+    public icon: string;
+    public name: string;
+
     public background: string;
     public initials: string;
     public initialsColor: string;
     // public iconUrl: string;
 
     constructor(private $log: ng.ILogService) {
-        this.background = this.getAvatarBg(this["name"]);
-        this.initials = this.getAvatarInitials(this["name"]);
-        this.initialsColor = this.getAvatarInitialsColor(this["name"]);
-        // this.iconUrl = this["icon"]; 
+        this.background = this.getAvatarBg(this.name);
+        this.initials = this.getAvatarInitials(this.name);
+        this.initialsColor = this.getAvatarInitialsColor(this.name);
+        // this.iconUrl = this.icon;
     }
 
     public getAvatarBg(name: string): string {

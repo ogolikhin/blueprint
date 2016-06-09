@@ -2,8 +2,12 @@
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import * as Models from "../../../main/models/models";
 
+interface ISortOptions {
+    value: boolean;
+    label: string;
+}
+
 export class HistoryPanel implements ng.IComponentOptions {
-    
     public template: string = require("./history-panel.html");
     public controller: Function = HistoryPanelController;
 }
@@ -15,7 +19,7 @@ export class HistoryPanelController {
     private _listeners: string[];
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
-    public sortOptions: any[];
+    public sortOptions: ISortOptions[];
     public sortByLatest: boolean = true;
     
     constructor(

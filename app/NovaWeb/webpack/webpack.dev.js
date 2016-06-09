@@ -54,7 +54,8 @@ module.exports = {
             },
             ui: false,
             online: false,
-            notify: false
+            notify: false,
+            ghostMode: false
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.js"),
         // Uncomment next lines if jQuery is required for the app

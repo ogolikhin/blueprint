@@ -18,7 +18,7 @@ describe("Project Manager Test", () => {
     describe("Load projects: ", () => {
         it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1"});
             $rootScope.$digest();
             //Act
             let project = projectManager.CurrentProject;
@@ -31,10 +31,10 @@ describe("Project Manager Test", () => {
 
         it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1);
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2);
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
             $rootScope.$digest();
 
             //Act
@@ -50,7 +50,7 @@ describe("Project Manager Test", () => {
         it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             let project: Models.IProject = projectManager.CurrentProject;
@@ -70,7 +70,7 @@ describe("Project Manager Test", () => {
         it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let error;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
@@ -88,7 +88,7 @@ describe("Project Manager Test", () => {
         it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let error;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
@@ -117,7 +117,7 @@ describe("Project Manager Test", () => {
             projectManager.subscribe(SubscriptionEnum.ProjectChanged, func);
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             //Asserts
@@ -131,9 +131,9 @@ describe("Project Manager Test", () => {
             projectManager.subscribe(SubscriptionEnum.ProjectChanged, function (project: Models.IProject) {
                 changedProject = project;
             });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             //Act
@@ -155,7 +155,7 @@ describe("Project Manager Test", () => {
             projectManager.subscribe(SubscriptionEnum.ArtifactChanged, func);
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             //Asserts
@@ -168,7 +168,7 @@ describe("Project Manager Test", () => {
             projectManager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
                 changed = artifact;
             });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             //Act
@@ -184,7 +184,7 @@ describe("Project Manager Test", () => {
         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let changed;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
 
             //Act
@@ -208,11 +208,11 @@ describe("Project Manager Test", () => {
             });
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
             $rootScope.$digest();
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
             $rootScope.$digest();
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             let artifact = projectManager.ProjectCollection[1].artifacts[1];
@@ -229,9 +229,9 @@ describe("Project Manager Test", () => {
     describe("Delete Project: ", () => {
         it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             //Act
@@ -243,9 +243,9 @@ describe("Project Manager Test", () => {
         }));
         it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             //Act
@@ -260,9 +260,9 @@ describe("Project Manager Test", () => {
     describe("Select Artifact ", () => {
         it("Select Artifact successful", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             //Act
@@ -275,9 +275,9 @@ describe("Project Manager Test", () => {
         }));
         it("Select Artifact unsuccessful", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 1, "Project 1");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 2, "Project 2");
-            projectManager.notify(SubscriptionEnum.ProjectLoad, 3, "Project 3");
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
             $rootScope.$digest();
 
             //Act

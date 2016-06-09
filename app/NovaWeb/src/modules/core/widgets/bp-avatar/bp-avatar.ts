@@ -47,21 +47,22 @@ export class AvatarController {
     }
 
     private stringToHex(str: string): string {
-        /* tslint:disable */
-        // str to hash
+        /* tslint:disable:no-bitwise */
         let hash: number = 0,
             color: string = "";
-        for (let i = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+
+        // str to hash
+        for (let i = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) {};
 
         // int/hash to hex
-        for (let i = 0; i < 3; color += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
+        for (let i = 0; i < 3; color += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2)) {};
 
         return color;
-        /* tslint:enable */
+        /* tslint:enable:no-bitwise */
     }
 
     private isDarkColor(color: string): boolean {
-        /* tslint:disable */
+        /* tslint:disable:no-bitwise */
         const c = color.substring(1);  // strip #
         const rgb = parseInt(c, 16);   // convert rrggbb to decimal
         const r = (rgb >> 16) & 0xff;  // extract red
@@ -71,6 +72,6 @@ export class AvatarController {
         const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
 
         return luma < 130;
-        /* tslint:enable */
+        /* tslint:enable:no-bitwise */
     }
 }

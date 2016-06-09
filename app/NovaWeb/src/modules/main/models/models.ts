@@ -37,11 +37,8 @@ export interface IProjectNode {
     children?: IProjectNode[];
 }
 
-export interface IObservable {
-    setProperty(name: string, value: any);
-}
 
-export interface IArtifact extends IObservable  {
+export interface IArtifact  {
     id: number;
     name: string;
     projectId: number;
@@ -56,38 +53,30 @@ export interface IArtifact extends IObservable  {
 }
 
 export interface IProject extends IArtifact {
+    description: string;
 }
 
 
 export class Project implements IProject {
-    private _data: any;
-    constructor(id: number, name: string, data?: IArtifact[]) { //
-        this._data = {
-            id: id,
-            name: name,
-            artifacts: data
-        };
-        this.notificator = angular.injector(["app.core"]).get("eventManager");
+    constructor(...data: any[]) { //
+        for (let i = 0, arg; arg = data[i++];)
+            angular.extend(this, arg);
     };
+    
+    public id: number;
 
-    public get id(): number {
-        return this._data["id"] as number;
-    }
-    public set id(value: number) {
-        this.setProperty("id", value);
-    }
+    public name: string;
 
-    public get name(): string { 
-        return this._data["name"] as string;
-    }
-    public set name(value: string) {
-        this.setProperty("name", value);
-    }
+    public description: string;
+
+    public typeId: number;
+
+    public artifacts: IArtifact[];
 
     public get projectId() {
         return this.id;
     }
-    public typeId: number;
+
     public get parentId() {
         return -1;
     }
@@ -100,39 +89,8 @@ export class Project implements IProject {
         return this.artifacts.length > 0;
     }
 
-    public get artifacts(): IArtifact[] {
-        return this._data["artifacts"] as IArtifact[];
-    }
-    public set artifacts(value: IArtifact[]) {
-        this.setProperty("artifacts", value);
-    }
 
-    private notificator;
-
-    public setProperty(name: string, value: any) {
-        if (name in this._data) {
-            let oldValue = this._data[name];
-            this._data[name] = value;
-            if (this.notificator) {
-                this.notificator.dispatch("main", "propertychange", this, name, value, oldValue);
-            }
-        }
-    }
-}
-
-
-export class BaseItem {
-    private notificator;
-    constructor() {
-        let injector = angular.injector["app.core"];
-        this.notificator = injector.get("eventManager");
-    }
-
-    public setProperty(name: string, value: any) {
-        if (this[name]) {
-            this[name] = value;
-        }
-    }
+    
 }
 
 

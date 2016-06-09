@@ -1,6 +1,6 @@
 ﻿import { ILocalizationService, IDialogSettings, IDialogService } from "../../../core";
-import { IProjectManager, SubscriptionEnum } from "../../";
-import { IOpenProjectResult, OpenProjectController } from "../dialogs/open-project";
+import { IProjectManager, SubscriptionEnum, Models } from "../../";
+import { OpenProjectController } from "../dialogs/open-project";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -54,9 +54,9 @@ class BPToolbarController implements IBPToolbarController {
             template: require("../dialogs/open-project.template.html"),
             controller: OpenProjectController,
             css: "nova-open-project"
-        }).then((selected: IOpenProjectResult) => {
+        }).then((selected: Models.IProject) => {
             if (selected && selected.id) {
-                this.projectManager.notify(SubscriptionEnum.ProjectLoad, selected.id, selected.name);
+                this.projectManager.notify(SubscriptionEnum.ProjectLoad, selected );
             }
         });
     }

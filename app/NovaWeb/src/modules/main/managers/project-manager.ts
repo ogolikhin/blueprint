@@ -1,4 +1,5 @@
 ﻿import {
+    Helper,
     ILocalizationService,
     IEventManager,
     EventSubscriber } from "../../core";
@@ -109,8 +110,10 @@ export class ProjectManager implements IProjectManager {
                 this.CurrentProject = project;
             }
         }
+
         this._currentArtifact = artifact;
         this.notify(SubscriptionEnum.ArtifactChanged, this._currentArtifact);
+
     }
 
     public get CurrentArtifact(): Models.IArtifact {
@@ -126,10 +129,10 @@ export class ProjectManager implements IProjectManager {
 
 
 
-    private loadProject = (projectId: number, projectName: string) => {
+    private loadProject = (prj: Models.IProject) => {
         try {
             let self = this;
-            let project = this.getProject(projectId);
+            let project = this.getProject(prj.id);
 
             if (project) {
                 this._projectCollection = this._projectCollection.filter(function (it) {
@@ -141,9 +144,9 @@ export class ProjectManager implements IProjectManager {
 
                 this.notify(SubscriptionEnum.ProjectLoaded, project);
             } else {
-                this._repository.getArtifacts(projectId)
+                this._repository.getArtifacts(prj.id)
                     .then((result: Models.IArtifact[]) => {
-                        project = new Models.Project(projectId, projectName, result);
+                        project = new Models.Project(prj, {artifacts: result});
                         self._projectCollection.unshift(project);
                         self.CurrentProject = project;
                         self.CurrentArtifact = project;

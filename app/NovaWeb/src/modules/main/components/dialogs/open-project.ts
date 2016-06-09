@@ -5,16 +5,16 @@ import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../core/services/dialog";
 import { IProjectManager, Models } from "../../";
 
-export interface IOpenProjectResult {
-    id: number;
-    type: number;
-    name: string;
-    description: string;
-}
+//export interface IProject {
+//    id: number;
+//    type: number;
+//    name: string;
+//    description: string;
+//}
 
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: IOpenProjectResult;
+    private _selectedItem: Models.IProject;
     private _errorMessage: string;
     private tree: IBPTreeController;
 
@@ -40,7 +40,7 @@ export class OpenProjectController extends BaseDialogController {
     };
 
     //Dialog return value
-    public get returnValue(): IOpenProjectResult {
+    public get returnValue(): Models.IProject {
         return this.selectedItem || null;
     };
 
@@ -52,7 +52,7 @@ export class OpenProjectController extends BaseDialogController {
     }
 
     public get isProjectSelected(): boolean {
-        return this.returnValue && this.returnValue.type === 1;
+        return this.returnValue && this.returnValue.typeId === 1;
     }
 
     public get selectedItem() {
@@ -60,12 +60,14 @@ export class OpenProjectController extends BaseDialogController {
     }
 
     public set selectedItem(item: any) {
-        this._selectedItem = <IOpenProjectResult>{
+        this._selectedItem = <Models.IProject>{
             id: (item && item["id"]) || -1,
             name: (item && item["name"]) || "",
-            type: (item && item["type"]) || -1,
-            description: (item && item["description"]) || ""
+            description: (item && item["description"]) || "",
+            typeId: (item && item["type"]) || -1
+            
         };
+
         if (this._selectedItem.description) {
             var description = this._selectedItem.description;
             var virtualDiv = window.document.createElement("DIV");

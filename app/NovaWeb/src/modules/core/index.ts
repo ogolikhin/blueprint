@@ -1,7 +1,9 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
+import { Helper } from "./utils/helper";
 import { LocalizationService, ILocalizationService } from "./localization";
+
 import { EventManager, IEventManager, EventSubscriber } from "./event-manager";
 import { ConfigValueHelper, IConfigValueHelper } from "./config.value.helper";
 import { IDialogSettings, IDialogService, DialogService } from "./services/dialog";
@@ -20,9 +22,11 @@ let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
 
 export default module.name;
 export {
+    Helper,
     ILocalizationService,
     IConfigValueHelper,
     IEventManager,
+    EventManager,
     EventSubscriber,
     IDialogSettings,
     IDialogService,

@@ -107,5 +107,6 @@ export class EventManager implements IEventManager {
                 
         });
     }
+
 };
 

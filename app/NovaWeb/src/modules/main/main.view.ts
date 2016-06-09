@@ -35,13 +35,18 @@ export class MainViewController implements IMainViewController {
         this.projectManager.initialize();
         this._listeners = [
             this.eventManager.attach(EventSubscriber.Main, "exception", this.showError.bind(this)),
-            this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this))
+            this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.displayArtifact.bind(this)),
+            this.eventManager.attach(EventSubscriber.Main, "propertychanged", this.alert.bind(this))
         ];
     }
     public $onDestroy() {
         this._listeners.map(function (it) {
             this.eventManager.detachById(it);
         }.bind(this));
+    }
+
+    private alert(obj, property, value) {
+        this.dialogService.alert(`Object changed: Property:[${property} Value:[${value}]`);
     }
     
     private displayArtifact(artifact: Models.IArtifact) {

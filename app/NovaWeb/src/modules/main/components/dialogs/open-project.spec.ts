@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {EventManager} from "../../../core/event-manager";
-import {IOpenProjectResult, OpenProjectController} from "./open-project";
+import {OpenProjectController} from "./open-project";
 import {ProjectManager, IProjectManager} from "../../managers/project-manager";
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization.mock";

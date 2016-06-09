@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
                     throw new HttpResponseException(HttpStatusCode.Forbidden);
                 }
             }
-            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc);
+            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId);
             return result;
         }
     }

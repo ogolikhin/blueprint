@@ -9,6 +9,9 @@ import {HttpErrorInterceptor} from "./login/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
+import {ArtifactHistory} from "./utility-panel/history-panel/artifact-history.svc";
+import {HistoryPanel} from "./utility-panel/history-panel/history-panel";
+import {ArtifactHistoryItem} from "./utility-panel/history-panel/artifact-history-item/artifact-history-item";
 
 angular.module("app.shell",
     [
@@ -23,6 +26,9 @@ angular.module("app.shell",
     .service("sessionTokenInterceptor", SessionTokenInterceptor)
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
+    .service("artifactHistory", ArtifactHistory)
+    .component("historyPanel", new HistoryPanel())
+    .component("artifactHistoryItem", new ArtifactHistoryItem())
     .config(Logger)
     .config(initializeInterceptors);
 

@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Net;
 using Common;
 using Utilities;
+using Model.Factories;
+using Utilities.Facades;
+using Newtonsoft.Json;
+using NUnit.Framework;
 
 namespace Model.Impl
 {
     public class ArtifactStore : NovaServiceBase, IArtifactStore
     {
         private const string SVC_PATH = "svc/artifactstore";
+        private const string TOKEN_HEADER = BlueprintToken.ACCESS_CONTROL_TOKEN_HEADER;
 
         /// <summary>
         /// Constructor.
@@ -33,6 +38,73 @@ namespace Model.Impl
         public HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
+        }
+
+        public List<ArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
+            ISession session = null;
+            List<ArtifactType> artifactList = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, projectId, session, expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
+            }
+
+            return artifactList;
+        }
+
+        public List<ArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);
+            ISession session = null;
+            List <ArtifactType> artifactList = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
+            }
+
+            return artifactList;
+        }
+
+        private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
+        {
+            RestApiFacade restApi;
+            if (session != null)
+                restApi = new RestApiFacade(Address, string.Empty);
+            else
+                restApi = new RestApiFacade(Address, null);
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (session != null)
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+
+            try
+            {
+                Logger.WriteInfo("Getting artifact - " + id);
+                return restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting response - {0}", ex.Message);
+                throw;
+            }
         }
 
         #endregion Members inherited from IArtifactStore

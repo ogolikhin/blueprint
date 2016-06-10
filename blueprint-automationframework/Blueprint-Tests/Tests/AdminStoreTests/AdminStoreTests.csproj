@@ -59,6 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessControlDoubleTests.cs" />
+    <Compile Include="InstanceFolderTests.cs" />
+    <Compile Include="InstanceProjectTests.cs" />
     <Compile Include="LicensesTests.cs" />
     <Compile Include="LoginTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

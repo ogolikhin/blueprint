@@ -324,47 +324,83 @@ namespace Model.Impl
             return GetLicenseTransactions(numberOfDays, session, expectedStatusCodes);
         }
 
-        public HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false)
+        public IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string instanceFolderPath = "{0}/instance/folders/{1}";
+
+            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            ISession session = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
+
+            var primitiveFolder = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
+            Assert.IsNotNull(primitiveFolder, "Object could not be deserialized properly");
+
+            return primitiveFolder;
+        }
+
+        public List<PrimitiveFolder> GetFolderChildrenByFolderId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string instanceFolderPath = "{0}/instance/folders/{1}/children";
+            string path = I18NHelper.FormatInvariant(instanceFolderPath, SVC_PATH, id);
+            ISession session = null;
+            List<PrimitiveFolder> primitiveFolderList = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                    primitiveFolderList = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
+                    Assert.IsNotNull(primitiveFolderList, "Object could not be deserialized properly");
+            }
+            return primitiveFolderList;
+        }
+
+        public IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant("{0}/instance/projects/{1}", SVC_PATH, id);
+            ISession session = null;
+
+            if (user != null)
+                session = SessionFactory.CreateSessionWithToken(user);
+
+            RestResponse response = GetResponseFromRequest(path, id, session, expectedStatusCodes);
+
+            IProject project = JsonConvert.DeserializeObject<InstanceProject>(response.Content);
+            Assert.IsNotNull(project, "Object could not be deserialized properly");
+
+            return project;
+        }
+
+        private RestResponse GetResponseFromRequest(string path, int id, ISession session, List<HttpStatusCode> expectedStatusCodes)
         {
             RestApiFacade restApi;
-            if (!badKey)
+            if (session != null)
                 restApi = new RestApiFacade(Address, string.Empty);
             else
                 restApi = new RestApiFacade(Address, null);
 
-            string command = hasChildren ? "{0}/instance/folders/{1}/children" : "{0}/instance/folders/{1}";
-
-            string path = I18NHelper.FormatInvariant(command, SVC_PATH, folderId);
-
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "folderId", folderId.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "id", id.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+
             try
             {
-                Logger.WriteInfo("Getting folder or its children - " + folderId);
-                RestResponse response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                    if (!hasChildren)
-                    {
-                        var pf = JsonConvert.DeserializeObject<PrimitiveFolder>(response.Content);
-                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
-                    }
-                    else
-                    {
-                        var pf = JsonConvert.DeserializeObject<List<PrimitiveFolder>>(response.Content);
-                        Assert.IsNotNull(pf, "Object could not be deserialized properly");
-                    }
-
-                return response.StatusCode;
+                Logger.WriteInfo("Getting artifact - " + id);
+                return restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, additionalHeaders: additionalHeaders, queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
             }
-
             catch (WebException ex)
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
-                Logger.WriteError("Error while getting folder or list of its children - {0}", ex.Message);
+                Logger.WriteError("Error while getting response - {0}", ex.Message);
                 throw;
             }
         }

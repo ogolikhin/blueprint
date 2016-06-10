@@ -9,7 +9,6 @@ using Common;
 using Utilities;
 using Utilities.Facades;
 
-
 namespace Model.Impl
 {
     [DataContract(Name = "Project", Namespace = "Model")]
@@ -23,7 +22,6 @@ namespace Model.Impl
         private const string SVC_PROJECTS_PATH = "/api/v1/projects";
         private const string URL_ARTIFACTTYPES = "metadata/artifactTypes";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
 
         /// <summary>
         /// Id of the project

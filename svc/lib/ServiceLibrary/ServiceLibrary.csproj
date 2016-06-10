@@ -90,6 +90,7 @@
     <Compile Include="Filters\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\LoggableApiController.cs" />
+    <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />

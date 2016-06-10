@@ -59,8 +59,9 @@ export interface IProject extends IArtifact {
 
 export class Project implements IProject {
     constructor(...data: any[]) { //
-        for (let i = 0, arg; arg = data[i++];)
-            angular.extend(this, arg);
+        for (let i = 0; i < data.length; i++) {
+            angular.extend(this, data[i]);
+        }
     };
     
     public id: number;

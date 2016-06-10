@@ -6,8 +6,11 @@ using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace ArtifactStore.Repositories
 {
@@ -20,6 +23,12 @@ namespace ArtifactStore.Repositories
     internal class VersionProjectInfo
     {
         public int ProjectId;
+        public long? Permissions;
+    }
+
+    internal class OpenArtifactPermission
+    {
+        public int HolderId;
         public long? Permissions;
     }
 
@@ -45,7 +54,28 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int userId, bool contextUser = false, int? revisionId = null)
+        private async void GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId, int? userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userId", (userId == null) ? sessionUserId : userId);
+            prm.Add("@artifactIds", DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds));
+            prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId);
+            prm.Add("@addDrafts", (revisionId == null));
+            var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            foreach (var openArtifactPermission in openArtifactPermissions)
+            {
+                foreach (var projectIdArtifactIdItemId in projectIdsArtifactIdsItemIds)
+                {
+                    if (projectIdArtifactIdItemId.HolderId == openArtifactPermission.HolderId)
+                    {
+                        itemIdsPermissions.Add(projectIdArtifactIdItemId.VersionArtifactId, (RolePermissions)openArtifactPermission.Permissions);
+                    }
+                }
+            }
+        }
+
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
         {
             if (itemIds.Count() > 50)
             {
@@ -54,7 +84,7 @@ namespace ArtifactStore.Repositories
             var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
-            prm.Add("@userId", userId);
+            prm.Add("@userId", sessionUserId);
             var result = await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure);
 
             var isInstanceAdmin = result.SingleOrDefault();
@@ -67,7 +97,7 @@ namespace ArtifactStore.Repositories
             {
                 prm = new DynamicParameters();
                 prm.Add("@contextUser", contextUser);
-                prm.Add("@userId", userId);
+                prm.Add("@userId", sessionUserId);
                 prm.Add("@itemIds", tvp);
                 prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
                 prm.Add("@addDrafts", (revisionId == null));
@@ -113,6 +143,19 @@ namespace ArtifactStore.Repositories
                         if (projectArtifactItem.VersionProjectId == projectId)
                         {
                             projectArtifactIds.Add(projectArtifactItem.VersionArtifactId);
+                        }
+                    }
+
+                    try
+                    {
+                        GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId, sessionUserId);
+                    }
+                    catch (SqlException sqle)
+                    {
+                        // 0x80131904: The statement terminated. The maximum recursion 100 has been exhausted before statement completion.
+                        if (sqle.ErrorCode == -2146232060)
+                        { // keeping this here for future optimization purposes
+                            throw new HttpResponseException(HttpStatusCode.InternalServerError);
                         }
                     }
                 }

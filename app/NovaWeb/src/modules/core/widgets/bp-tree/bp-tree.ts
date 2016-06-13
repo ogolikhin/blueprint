@@ -288,7 +288,7 @@ export class BPTreeController implements IBPTreeController  {
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                let row = self.$element[0].querySelector(`[row-id="${node.key}"]`)
+                let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
                 if (row) {
                     row.className += " ag-row-loading";
                 }

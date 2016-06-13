@@ -8,14 +8,28 @@ namespace ArtifactStore.Models
     public class ArtifactHistoryResultSet
     {
         public int ArtifactId;
-        public IEnumerable<ArtifactHistoryVersion> ArtifactHistoryVersions;
+        public IEnumerable<ArtifactHistoryVersionWithUserInfo> ArtifactHistoryVersions;
     }
-    public class ArtifactHistoryVersion
+    public class ArtifactHistoryVersionWithUserInfo
     {
         public int VersionId { get; set; }
         public int UserId { get; set; }
         public string DisplayName { get; set; }
         public bool HasUserIcon { get; set; }
         public DateTime? Timestamp { get; set; }
+    }
+
+    public class ArtifactHistoryVersion
+    {
+        public int VersionId { get; set; }
+        public int UserId { get; set; }
+        public DateTime? Timestamp { get; set; }
+    }
+
+    public class UserInfo
+    {
+        public int UserId { get; set; }
+        public string DisplayName { get; set; }
+        public int? Image_ImageId { get; set; }
     }
 }

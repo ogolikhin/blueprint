@@ -58,7 +58,7 @@ export class ProjectExplorerController {
             hasChildren: artifact.hasChildren,
             loaded: true,
             open: true
-        } as ITreeNode)
+        } as ITreeNode);
 
         this.tree.reload(this.projectManager.ProjectCollection);
         this.tree.selectNode(artifact.id);

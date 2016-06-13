@@ -4,6 +4,7 @@ import {ComponentTest} from "../../../../util/component.test";
 import { BPArtifactHistoryItemController} from "./bp-artifact-history-item";
 
 describe("Component BPArtifactHistoryItem", () => {
+xdescribe("Component BPArtifactHistoryItem", () => {
 
     beforeEach(angular.mock.module("app.shell"));
 

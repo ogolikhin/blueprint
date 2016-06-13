@@ -1,4 +1,5 @@
-﻿import {IEventManager, EventSubscriber} from "../../../core/event-manager";
+﻿import { IAppConstants } from "../../../core";
+import {IEventManager, EventSubscriber} from "../../../core/event-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import * as Models from "../../../main/models/models";
 
@@ -13,28 +14,37 @@ export class HistoryPanel implements ng.IComponentOptions {
 }
 
 export class HistoryPanelController {
-    public static $inject: [string] = ["$log", "artifactHistory", "eventManager"];
+    public static $inject: [string] = [
+        "$log", 
+        "artifactHistory",
+        "eventManager",
+        "$q",
+        "appConstants"];
 
+    private loadLimit: number = 10;
     private artifactId: number;
     private _listeners: string[];
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
-    public sortByLatest: boolean = true;
+    public sortAscending: boolean = false;
+    public selectedArtifactVersion: IArtifactHistoryVersion;
     
     constructor(
         private $log: ng.ILogService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private eventManager: IEventManager) {
+        private eventManager: IEventManager,
+        private $q: ng.IQService,
+        private appConstants: IAppConstants) {
 
         this.sortOptions = [
-            {value: true, label: "sort by latest"},
-            {value: false, label: "sort by earliest"},
+            {value: false, label: "sort by latest"},
+            {value: true, label: "sort by earliest"},
         ];
 
         // TODO: remove 2 lines below
         // this.artifactId = 306; //331;
-        // this.getHistoricalVersions(10, 0);
+        // this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     public $onInit() {
@@ -48,19 +58,41 @@ export class HistoryPanelController {
         }.bind(this));
     }
 
+    public changeSortOrder() {
+        this.artifactHistoryList = [];
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+    }
+
     private setArtifactId(artifact: Models.IArtifact) {
         this.artifactId = artifact.id;
         this.artifactHistoryList = [];
-        this.getHistoricalVersions(10, 0);
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     public loadMoreHistoricalVersions(): ng.IPromise<void> {
         let offset: number = this.artifactHistoryList.length;
-        return this.getHistoricalVersions(10, offset);
+        let lastItem: IArtifactHistoryVersion = null;
+
+        if (this.artifactHistoryList.length) {
+            lastItem = this.artifactHistoryList[this.artifactHistoryList.length - 1];
+        }
+
+        // if reached the end (version 1 or draft), don't try to load more
+        if (lastItem && lastItem.versionId !== 1 && lastItem.versionId !== this.appConstants.draftVersion) {
+            return this.getHistoricalVersions(this.loadLimit, offset, null, this.sortAscending);
+        } else {
+            let deferred: ng.IDeferred<any> = this.$q.defer();
+            deferred.resolve([]);
+            return deferred.promise;
+        }
     }
 
-    private getHistoricalVersions(limit: number = 10, offset: number = 0): ng.IPromise<void> {
-        return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset).then((result) => {
+    public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
+        this.selectedArtifactVersion = artifactHistoryItem;
+    }
+
+    private getHistoricalVersions(limit: number = this.loadLimit, offset: number = 0, userId: string = null, asc: boolean = false): ng.IPromise<void> {
+        return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc).then((result) => {
             this.artifactHistoryList = this.artifactHistoryList.concat(result);
         });
     }

@@ -1,4 +1,6 @@
-﻿export class ArtifactHistoryItem implements ng.IComponentOptions {
+﻿import { IAppConstants } from "../../../../core";
+
+export class ArtifactHistoryItem implements ng.IComponentOptions {
     public template: string = require("./artifact-history-item.html");
     public controller: Function = ArtifactHistoryItemController;
     public bindings: any = {
@@ -7,8 +9,10 @@
 }
 
 export class ArtifactHistoryItemController {
-    public static $inject: [string] = ["$log"];
+    public static $inject: [string] = ["$log", "appConstants"];
     
-    constructor(private $log: ng.ILogService) {
+    constructor(
+        private $log: ng.ILogService,
+        private appConstants: IAppConstants) {
     }
 }

@@ -99,7 +99,7 @@ namespace ArtifactStore.Repositories
                   { "offset", offset },
                   { "userId", userId.Value },
                   { "ascd", asc } };
-            var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
+            var testResult = new ArtifactHistoryVersionWithUserInfo[] { new ArtifactHistoryVersionWithUserInfo { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
@@ -132,7 +132,7 @@ namespace ArtifactStore.Repositories
                   { "offset", offset },
                   { "userId", userId.Value },
                   { "ascd", asc } };
-            var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
+            var testResult = new ArtifactHistoryVersionWithUserInfo[] { new ArtifactHistoryVersionWithUserInfo { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };

@@ -46,11 +46,11 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/version"), SessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/version"), NoSessionRequired]
         [ActionName("GetArtifactHistory")]
         public async Task<ArtifactHistoryResultSet> GetArtifactHistory(int artifactId, int limit = DEFAULT_LIMIT, int offset = DEFAULT_OFFSET, int? userId = null, bool asc = false)
         {
-            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (limit < MIN_LIMIT || offset < 0 || userId < 1)
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
@@ -61,7 +61,7 @@ namespace ArtifactStore.Controllers
             }
 
             var artifactIds = new List<int> { artifactId };
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, 2);
 
             if (!permissions.ContainsKey(artifactId))
             {
@@ -77,7 +77,7 @@ namespace ArtifactStore.Controllers
                     throw new HttpResponseException(HttpStatusCode.Forbidden);
                 }
             }
-            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId);
+            var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, 2);
             return result;
         }
     }

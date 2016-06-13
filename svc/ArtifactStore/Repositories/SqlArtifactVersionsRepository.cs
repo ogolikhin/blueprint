@@ -12,17 +12,9 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class UserInfo
-    {
-        public int UserId { get; set; }
-        public string DisplayName { get; set; }
-        public int? Image_ImageId { get; set; }
-    }
     public class SqlArtifactVersionsRepository : ISqlArtifactVersionsRepository
     {
-
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-
         public SqlArtifactVersionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
@@ -31,6 +23,19 @@ namespace ArtifactStore.Repositories
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
+        }
+
+        private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId)
+        {
+            if (!userId.HasValue || userId.Value == sessionUserId)
+            {
+                var artifactWithDraftPrm = new DynamicParameters();
+                var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
+                artifactWithDraftPrm.Add("@userId", sessionUserId);
+                artifactWithDraftPrm.Add("@artifactIds", artifactIdsTable);
+                return (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", artifactWithDraftPrm, commandType: CommandType.StoredProcedure)).Count() == 1;
+            }
+            return false;
         }
 
         public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId)
@@ -44,33 +49,22 @@ namespace ArtifactStore.Repositories
             if (userId.HasValue && userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
-            var prm = new DynamicParameters();
-            prm.Add("@artifactId", artifactId);
-            prm.Add("@lim", limit);
-            prm.Add("@offset", offset);
-            if (userId.HasValue) { prm.Add("@userId", userId.Value); }
-            else { prm.Add("@userId", null); }
-            prm.Add("@ascd", asc);
-            var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
-                    commandType: CommandType.StoredProcedure)).ToList();
+            var artifactVersionsPrm = new DynamicParameters();
+            artifactVersionsPrm.Add("@artifactId", artifactId);
+            artifactVersionsPrm.Add("@lim", limit);
+            artifactVersionsPrm.Add("@offset", offset);
+            if (userId.HasValue) { artifactVersionsPrm.Add("@userId", userId.Value); }
+            else { artifactVersionsPrm.Add("@userId", null); }
+            artifactVersionsPrm.Add("@ascd", asc);
+            var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
 
-            var prm2 = new DynamicParameters();
-            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
-            prm2.Add("@userId", sessionUserId);
-            prm2.Add("@artifactIds", artifactIdsTable);
-            var doesCurrentUserHaveDraft = (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", prm2, commandType: CommandType.StoredProcedure)).Count() == 1;
-            if (doesCurrentUserHaveDraft)
+            if (await IncludeDraftVersion(userId, sessionUserId, artifactId))
             {
-                var getUserInfosPrm = new DynamicParameters();
-                var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new int[]{ sessionUserId });
-                getUserInfosPrm.Add("@userIds", userIdsTable);
-                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", getUserInfosPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-
+                distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
                 var draftItem = new ArtifactHistoryVersion {
                     VersionId = int.MaxValue,
                     UserId = sessionUserId,
-                    DisplayName = userInfo?.DisplayName,
-                    HasUserIcon = userInfo?.Image_ImageId != null,
                     Timestamp = null
                 };
                 if (asc && artifactVersions.Count < limit)
@@ -82,9 +76,29 @@ namespace ArtifactStore.Repositories
                     artifactVersions.Insert(0, draftItem);
                 }
             }
+
+            var userInfosPrm = new DynamicParameters();
+            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(distinctUserIds);
+            userInfosPrm.Add("@userIds", userIdsTable);
+            var userInfos = (await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure)).ToDictionary(a => a.UserId);
+
+            var artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
+
+            foreach (var artifactVersion in artifactVersions)
+            {
+                UserInfo userInfo;
+                userInfos.TryGetValue(artifactVersion.UserId, out userInfo);
+                artifactHistoryVersionWithUserInfos.Add(
+                    new ArtifactHistoryVersionWithUserInfo {
+                                                             VersionId = artifactVersion.VersionId,
+                                                             UserId = artifactVersion.UserId,
+                                                             Timestamp = artifactVersion.Timestamp,
+                                                             DisplayName = userInfo.DisplayName,
+                                                             HasUserIcon = userInfo.Image_ImageId != null });
+            }
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
-                ArtifactHistoryVersions = artifactVersions
+                ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos
             };
             return result;
         }

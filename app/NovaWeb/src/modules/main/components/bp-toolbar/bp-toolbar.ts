@@ -54,9 +54,9 @@ class BPToolbarController implements IBPToolbarController {
             template: require("../dialogs/open-project.template.html"),
             controller: OpenProjectController,
             css: "nova-open-project modal-resize-both"
-        }).then((selected: Models.IProject) => {
-            if (selected && selected.id) {
-                this.projectManager.notify(SubscriptionEnum.ProjectLoad, selected );
+        }).then((project: Models.IProject) => {
+            if (project) {
+                this.projectManager.notify( SubscriptionEnum.ProjectLoad, project );
             }
         });
     }

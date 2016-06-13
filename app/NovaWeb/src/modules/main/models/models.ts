@@ -1,5 +1,4 @@
-﻿
-export enum ArtifactTypeEnum {
+﻿export enum ArtifactTypeEnum {
     Project = -1,
 
     Unknown = 0,
@@ -93,5 +92,7 @@ export class Project implements IProject {
 
     
 }
+
+
 
 

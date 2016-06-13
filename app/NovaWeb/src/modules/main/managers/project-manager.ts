@@ -1,4 +1,5 @@
-﻿import {
+﻿import "angular"
+import {
     Helper,
     ILocalizationService,
     IEventManager,
@@ -197,7 +198,10 @@ export class ProjectManager implements IProjectManager {
                 return result;
             });
             self.notify(SubscriptionEnum.ProjectClosed, projectsToRemove);
+
             this.CurrentProject = this.ProjectCollection[0] || null;
+            self.CurrentArtifact = this.CurrentProject;
+            self.notify(SubscriptionEnum.ProjectLoaded, this.CurrentProject);
         } catch (ex) {
             this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
         }

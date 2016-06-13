@@ -1,3 +1,5 @@
+$modal-side-clearance: 8px;
+
 .modal.in {
   margin: 0;
 
@@ -43,7 +45,7 @@
     max-height: 450px;
     max-width: 440px;
     min-width: 320px;
-    padding: 0 8px;
+    padding: 0 $modal-side-clearance;
     position: absolute;
     right: 0;
     top: 0;
@@ -63,8 +65,15 @@
   }
 }
 
+$modal-open-project-height: 450px;
 .modal.in.nova-open-project {
   .modal-dialog {
+    min-height: $modal-open-project-height;
+    min-width: #{700px + (2 * $modal-side-clearance)};
+  }
+
+  .modal-content {
+    min-height: $modal-open-project-height;
     min-width: 700px;
   }
 

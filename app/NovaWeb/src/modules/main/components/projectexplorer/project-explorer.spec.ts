@@ -46,7 +46,7 @@ describe("Project Explorer Test", () => {
         // Arrange
         isReloadCalled = false;
 
-        projectManager["loadProject"](1, "Project 1");
+        projectManager["loadProject"]({ id: 1, name: "Project 1", artifacts: [] });
                         
         // Act
         $rootScope.$digest();
@@ -58,18 +58,16 @@ describe("Project Explorer Test", () => {
         expect(projectManager.CurrentProject["open"]).toBeTruthy();
 
     }));
-    it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+    it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectRepository: ProjectRepositoryMock ) => {
         // Arrange
         isReloadCalled = false;
-        projectManager["loadProject"]({ id: 1, name:"Project 1", artifacts:[]});    
+        
+        projectManager["loadProject"]({ id: 1, name: "Project 1", artifacts: projectRepository.getArtifacts(10)});    
         $rootScope.$digest();
 
         // Act
         projectManager["loadProjectChildren"](1, 10);    
         $rootScope.$digest();
-
-        // Assert
-        //let dsAfter = explorer.tree["_datasource"];
 
         expect(isReloadCalled).toBeTruthy();
         expect(projectManager.CurrentProject.artifacts[0]["loaded"]).toBeTruthy();
@@ -80,7 +78,7 @@ describe("Project Explorer Test", () => {
     it("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
         isReloadCalled = false;
-        projectManager["loadProject"](1, "Project 1");    
+        projectManager["loadProject"]({ id: 1, name: "Project 1" });    
         $rootScope.$digest();
 
         // Act
@@ -97,11 +95,11 @@ describe("Project Explorer Test", () => {
     it("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
         // Arrange
         isReloadCalled = false;
-        projectManager["loadProject"](1, "Project 1");
+        projectManager["loadProject"]({ id: 1, name: "Project 1", artifacts: [] });
         $rootScope.$digest();
-        projectManager["loadProject"](2, "Project 2");
+        projectManager["loadProject"]({ id: 2, name: "Project 2", artifacts: [] });
         $rootScope.$digest();
-        projectManager["loadProject"](3, "Project 3");
+        projectManager["loadProject"]({ id: 1, name: "Project 3", artifacts: [] });
         $rootScope.$digest();
 
 

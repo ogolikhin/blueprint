@@ -174,6 +174,7 @@ export class ProjectManager implements IProjectManager {
             this._repository.getArtifacts(projectId, artifactId)
                 .then((result: Models.IArtifact[]) => {
                     artifact.artifacts = result;
+                    artifact.hasChildren = true;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }).catch((error: any) => {
                     this.eventManager.dispatch(EventSubscriber.Main, "exception", error);

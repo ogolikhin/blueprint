@@ -51,10 +51,14 @@ export class ProjectExplorerController {
 
 
     private loadProject = (artifact: Models.IArtifact) => {
-        artifact = angular.extend(artifact, {
+        this.doSync({
+            id: artifact.id,
+            type: 0,
+            name: artifact.name,
+            hasChildren: artifact.hasChildren,
             loaded: true,
             open: true
-        });
+        } as ITreeNode)
 
         this.tree.reload(this.projectManager.ProjectCollection);
         this.tree.selectNode(artifact.id);
@@ -78,21 +82,19 @@ export class ProjectExplorerController {
 
 
     public doSelect = (node: ITreeNode) => {
-                //check passed in parameter
-        this.doSync(node);
-        let artifact = this.projectManager.getArtifact(node.id);
-
-        this.projectManager.CurrentArtifact = artifact;
+        //check passed in parameter
+        this.projectManager.CurrentArtifact = this.doSync(node);
         console.log(`Selected node ${this.projectManager.CurrentArtifact.id}`);
     };
 
-    public doSync = (node: ITreeNode) => {
+    public doSync = (node: ITreeNode): Models.IArtifact => {
         //check passed in parameter
         let artifact = this.projectManager.getArtifact(node.id);
         this.projectManager.updateArtifact(artifact, artifact.hasChildren ? {
             loaded: node.loaded,
             open: node.open
         } : null);
+        return artifact;
     };
 
 }

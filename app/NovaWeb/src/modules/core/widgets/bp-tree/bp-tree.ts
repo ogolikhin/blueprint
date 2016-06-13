@@ -45,6 +45,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //events
         onLoad: "&?",
         onSelect: "&?",
+        onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?"
@@ -162,6 +163,7 @@ export class BPTreeController implements IBPTreeController  {
             getBusinessKeyForNode: this.getBusinessKeyForNode
         };
     };
+
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
@@ -286,9 +288,10 @@ export class BPTreeController implements IBPTreeController  {
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                //let rowIndex = node.rowTop / self.options.rowHeight;
                 let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
-                row.className += " ag-row-loading";
+                if (row) {
+                    row.className += " ag-row-loading";
+                }
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method

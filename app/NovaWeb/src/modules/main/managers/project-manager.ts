@@ -166,7 +166,7 @@ export class ProjectManager implements IProjectManager {
             let project = this.getProject(projectId);
             if (!project) {
                 throw new Error(this.localization.get("Project_NotFound"));
-            }
+            } 
             let artifact = this.getArtifact(artifactId, project);
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));

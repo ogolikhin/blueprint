@@ -1,6 +1,7 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
 import {Helper} from "../../../core/utils/helper";
+import {RowNode} from "ag-grid/main";
 
 /*
 tslint:disable
@@ -44,6 +45,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //events
         onLoad: "&?",
         onSelect: "&?",
+        onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?"
@@ -162,9 +164,6 @@ export class BPTreeController implements IBPTreeController  {
         };
     };
 
-    public getBusinessKeyForNode(node: any) {
-        return node.key
-    }
 
     private mapData(data: any, propertyMap?: any): ITreeNode {
         propertyMap = propertyMap || this.propertyMap;
@@ -184,7 +183,7 @@ export class BPTreeController implements IBPTreeController  {
             } else {
                 item.children = [];
             }
-        };
+        }
         return item;
     }
 
@@ -263,6 +262,11 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
+    private getBusinessKeyForNode(node: RowNode) {
+        return node.data.id;
+        //return node.key; //it is initially undefined for non folder???
+    };
+
     private onGridReady = (params: any) => {
         let self = this;
         if (params && params.api) {
@@ -284,12 +288,10 @@ export class BPTreeController implements IBPTreeController  {
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                let rowIndex = node.rowTop / self.options.rowHeight;
                 let row = self.$element[0].querySelector(`[row-id="${node.key}"]`)
                 if (row) {
                     row.className += " ag-row-loading";
                 }
-                
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method

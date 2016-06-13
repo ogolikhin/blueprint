@@ -13,6 +13,11 @@ import {ArtifactHistory} from "./utility-panel/history-panel/artifact-history.sv
 import {HistoryPanel} from "./utility-panel/history-panel/history-panel";
 import {ArtifactHistoryItem} from "./utility-panel/history-panel/artifact-history-item/artifact-history-item";
 
+
+import {MessageDirective} from "./messages/message";
+import {MessagesContainerDirective} from "./messages/message-container";
+import {MessageService} from "./messages/message.svc";
+
 angular.module("app.shell",
     [
         core,
@@ -27,6 +32,9 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
+    .service("messageService", MessageService)
+    .directive("message", MessageDirective.directive)
+    .directive("messagesContainer", MessagesContainerDirective.directive)
     .component("historyPanel", new HistoryPanel())
     .component("artifactHistoryItem", new ArtifactHistoryItem())
     .config(Logger)

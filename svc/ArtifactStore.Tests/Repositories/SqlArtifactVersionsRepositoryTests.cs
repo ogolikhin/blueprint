@@ -99,11 +99,14 @@ namespace ArtifactStore.Repositories
                   { "offset", offset },
                   { "userId", userId.Value },
                   { "ascd", asc } };
-            var testResult = new ArtifactHistoryVersionWithUserInfo[] { new ArtifactHistoryVersionWithUserInfo { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
+            var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new List<int>());
+
+            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
 
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
@@ -132,7 +135,7 @@ namespace ArtifactStore.Repositories
                   { "offset", offset },
                   { "userId", userId.Value },
                   { "ascd", asc } };
-            var testResult = new ArtifactHistoryVersionWithUserInfo[] { new ArtifactHistoryVersionWithUserInfo { VersionId = 1, UserId = 1, DisplayName = "David", HasUserIcon = true, Timestamp = new DateTime() } };
+            var testResult = new ArtifactHistoryVersion[] { new ArtifactHistoryVersion { VersionId = 1, UserId = 1, Timestamp = new DateTime() } };
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
             var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };

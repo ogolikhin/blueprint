@@ -67,13 +67,16 @@ namespace ArtifactStore.Repositories
 
             if (doesCurrentUserHaveDraft)
             {
-                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("SELECT [UserId],[DisplayName],[Image_ImageId] FROM [dbo].[Users] WHERE UserId = " + sessionUserId, commandType: CommandType.Text)).SingleOrDefault();
+                var getUserInfosPrm = new DynamicParameters();
+                var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+                getUserInfosPrm.Add("@userIds", userIdsTable);
+                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", getUserInfosPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
 
                 var draftItem = new ArtifactHistoryVersion {
                     VersionId = int.MaxValue,
                     UserId = sessionUserId,
-                    DisplayName = userInfo.DisplayName,
-                    HasUserIcon = userInfo.Image_ImageId != null,
+                    DisplayName = userInfo?.DisplayName,
+                    HasUserIcon = userInfo?.Image_ImageId != null,
                     Timestamp = null
                 };
                 if (asc && artifactVersions.Count < limit)

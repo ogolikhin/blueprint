@@ -54,12 +54,12 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        private async void GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId, int? userId)
+        private async void GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
         {
             var prm = new DynamicParameters();
-            prm.Add("@userId", (userId == null) ? sessionUserId : userId);
+            prm.Add("@userId", sessionUserId);
             prm.Add("@artifactIds", DapperHelper.GetIntCollectionTableValueParameter(projectArtifactIds));
-            prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId);
+            prm.Add("@revisionId", revisionId ?? int.MaxValue);
             prm.Add("@addDrafts", (revisionId == null));
             var openArtifactPermissions = (await ConnectionWrapper.QueryAsync<OpenArtifactPermission>("GetOpenArtifactPermissions", prm, commandType: CommandType.StoredProcedure)).ToList();
 
@@ -67,7 +67,7 @@ namespace ArtifactStore.Repositories
             {
                 foreach (var projectIdArtifactIdItemId in projectIdsArtifactIdsItemIds)
                 {
-                    if (projectIdArtifactIdItemId.HolderId == openArtifactPermission.HolderId)
+                    if (projectIdArtifactIdItemId.HolderId == openArtifactPermission.HolderId && !itemIdsPermissions.Keys.Contains(projectIdArtifactIdItemId.VersionArtifactId))
                     {
                         itemIdsPermissions.Add(projectIdArtifactIdItemId.VersionArtifactId, (RolePermissions)openArtifactPermission.Permissions);
                     }
@@ -148,7 +148,7 @@ namespace ArtifactStore.Repositories
 
                     try
                     {
-                        GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId, sessionUserId);
+                        GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
                     }
                     catch (SqlException sqle)
                     {

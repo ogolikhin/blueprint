@@ -3,7 +3,7 @@
 // export {Models}
 
 export interface IArtifactHistory {
-    getArtifactHistory(artifactId: number, limit?: number, offset?: number): ng.IPromise<IArtifactHistoryVersion[]>;
+    getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 
 export interface IArtifactHistoryVersion {
@@ -33,7 +33,13 @@ export class ArtifactHistory implements IArtifactHistory {
         private localization: ILocalizationService) {
     }
 
-    public getArtifactHistory(artifactId: number, limit: number = 10, offset: number = 0): ng.IPromise<IArtifactHistoryVersion[]> {
+    public getArtifactHistory(
+        artifactId: number, 
+        limit: number = 10, 
+        offset: number = 0, 
+        userId: string = null, 
+        asc: boolean = false): ng.IPromise<IArtifactHistoryVersion[]> {
+
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/ArtifactStore/artifacts/${artifactId}/version`, 
@@ -41,7 +47,8 @@ export class ArtifactHistory implements IArtifactHistory {
             params: {
                 limit: limit,
                 offset: offset,
-                userId: null
+                userId: userId,
+                asc: asc
             }
         };
 

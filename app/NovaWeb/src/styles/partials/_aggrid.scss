@@ -1,4 +1,5 @@
-﻿$has-children-padding-before-arrow: 3px;
+﻿$aggrid-left-spacing: 10px;
+$has-children-padding-before-arrow: 3px;
 
 .project-tree,
 .project-explorer {
@@ -20,7 +21,9 @@
 
       .ag-header-cell-text {
         color: $brand-secondary;
+        display: inline-block;
         font-weight: 600;
+        text-indent: 6px;
       }
     }
 
@@ -168,19 +171,29 @@
 
   // vertical alignment adjustments
   .ag-body-container {
-    padding-left: 10px;
-  }
+    padding-left: $aggrid-left-spacing;
 
-  .ag-cell.has-children > span {
-    margin-left: -10px;
-  }
+    .ag-row {
+      width: calc(100% - #{$aggrid-left-spacing}) !important;
 
-  .ag-row-level-0 .ag-cell.has-children > span {
-    margin-left: -15px;
-  }
+      &.ag-row-level-0 .ag-cell {
+        > span {
+          padding-left: 5px;
+        }
 
-  .ag-row-level-0 .ag-cell > span {
-    padding-left: 5px;
+        &.has-children > span {
+          margin-left: -15px;
+        }
+      }
+    }
+
+    .ag-cell {
+      width: calc(100% - #{2 * $aggrid-left-spacing}) !important;
+
+      &.has-children > span {
+        margin-left: -$aggrid-left-spacing;
+      }
+    }
   }
 
   // icons for artifacts and folders

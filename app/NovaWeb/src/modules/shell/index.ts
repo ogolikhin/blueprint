@@ -9,9 +9,9 @@ import {HttpErrorInterceptor} from "./login/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
-import {ArtifactHistory} from "./utility-panel/history-panel/artifact-history.svc";
-import {HistoryPanel} from "./utility-panel/history-panel/history-panel";
-import {ArtifactHistoryItem} from "./utility-panel/history-panel/artifact-history-item/artifact-history-item";
+import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
+import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
+import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
 
 
 import {MessageDirective} from "./messages/message";
@@ -32,11 +32,11 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
+    .component("bpHistoryPanel", new BPHistoryPanel())
+    .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.directive)
-    .directive("messagesContainer", MessagesContainerDirective.directive)
-    .component("historyPanel", new HistoryPanel())
-    .component("artifactHistoryItem", new ArtifactHistoryItem())
+    .directive("messagesContainer", MessagesContainerDirective.directive)   
     .config(Logger)
     .config(initializeInterceptors);
 

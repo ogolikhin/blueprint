@@ -3,27 +3,28 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
 }
 
 .history-panel {
-    $item-gap: 15px;
+    $item-gap: $padding-bigger;
 
     height: 100%;
     
     .filter-bar {
-        padding: 0 10px;
-        // h6 {
-        //     display: inline-block;
-        //     font-weight: bold;
-        //     text-transform: uppercase;
-        // }
         select {
-            margin: 8px;
+            border-radius: 3px;
+            margin: $padding-root;
+            padding: 1px $padding-smaller;
             float: right;
+
+            &:hover {
+                border-color: $brand-secondary;
+                color: $brand-secondary;
+            }
         }
     }
 
     .scrollable-content {
         padding: 0 10px;
         width: 100%;
-        height: calc(100% - 37px);
+        height: calc(100% - 43px);
         overflow: auto;
     }
     
@@ -42,55 +43,61 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
             display: none;
         }
     }
-    .artifact-history-item {
-        margin: $item-gap 0;
-        border: 1px solid $gray-lighter;
-        border-radius: 5px;
-        padding: 5px 8px 12px 8px;
-        
-        .timestamp {
-            color: $gray-light;
-            font-size: $font-size-tiny;
-            
-            &::before {
-                font-family: 'bp-font';
-                content: '\E831';
-            }
-        }
-        .version {
-            margin-bottom: 3px;
-        }
-        .author {
-            padding-top: 2px;
-        }
 
-        bp-avatar {
-            float: left;
-            margin: 0 10px 0 0;
-        }
+    artifact-history-item {
+        line-height: 100%;
 
-        // .overlay {
-        //     position: absolute;
-        //     top: 25px;
-        //     bottom: 0;
-        //     right: 0;
-        //     display: none;
-
-        //     button {
-        //         float: right;
-        //         clear: both;
-        //     }
-        // }
-        
         &:hover {
+            cursor: pointer;
+        }
+
+        &.selected .artifact-history-item {
             background: $gray-lightest;
-            
-            // .overlay {
-            //     display: block;
+            border: 1px solid $brand-secondary;
+
+            // &::before {
+            //     float: right;
+            //     font-family: 'bp-font';
+            //     content: '\E831';
+            //     color: $brand-secondary;
             // }
         }
-    }
 
+        .artifact-history-item {
+            margin: 0 0 $item-gap 0;
+            border: 1px solid $gray-lighter;
+            border-radius: 3px;
+            padding: $padding-smaller $padding-root;
+            min-height: 74px;
+            
+            .timestamp {
+                color: $gray-light;
+                font-size: $font-size-tiny;
+                margin-top: $padding-smaller;
+                
+                &::before {
+                    font-family: 'bp-font';
+                    content: '\E831';
+                }
+            }
+            .version {
+                margin-bottom: 3px;
+            }
+            .author {
+                padding-top: 2px;
+            }
+
+            bp-avatar {
+                float: left;
+                margin: 0 $padding-root 0 0;
+            }
+
+            &:hover {
+                background: $gray-lightest;
+            }
+        }
+    }
+    
     .empty-state {
         font-size: $font-size-smaller;
         color: $gray-light;

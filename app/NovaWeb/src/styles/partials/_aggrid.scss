@@ -20,7 +20,9 @@
 
       .ag-header-cell-text {
         color: $brand-secondary;
+        display: inline-block;
         font-weight: 600;
+        text-indent: 6px;
       }
     }
 

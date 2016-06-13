@@ -11,6 +11,75 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactVersionsRepositoryTests
     {
+
+        [TestMethod]
+        [ExpectedException (typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactVersions_ArtifactIdOutOfRange_ArgumentOutOfBoundsException()
+        {
+            // Arrange
+            int artifactId = -1;
+            int limit = 1;
+            int offset = 1;
+            int? userId = 1;
+            bool asc = false;
+            int sessionUserId = 1;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactVersionsRepository(cxn.Object);
+            // Act
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactVersions_LimitOutOfRange_ArgumentOutOfBoundsException()
+        {
+            // Arrange
+            int artifactId = 1;
+            int limit = -1;
+            int offset = 1;
+            int? userId = 1;
+            bool asc = false;
+            int sessionUserId = 1;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactVersionsRepository(cxn.Object);
+            // Act
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactVersions_OffSetOutOfRange_ArgumentOutOfBoundsException()
+        {
+            // Arrange
+            int artifactId = 1;
+            int limit = 1;
+            int offset = -1;
+            int? userId = 1;
+            bool asc = false;
+            int sessionUserId = 1;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactVersionsRepository(cxn.Object);
+            // Act
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetArtifactVersions_UserIdOutOfRange_ArgumentOutOfBoundsException()
+        {
+            // Arrange
+            int artifactId = 1;
+            int limit = 1;
+            int offset = 1;
+            int? userId = -1;
+            bool asc = false;
+            int sessionUserId = 1;
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactVersionsRepository(cxn.Object);
+            // Act
+            await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
+        }
+
         [TestMethod]
         public async Task GetArtifactVersions_NoDrafts_Success()
         {

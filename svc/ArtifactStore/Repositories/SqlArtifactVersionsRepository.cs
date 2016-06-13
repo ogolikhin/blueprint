@@ -43,18 +43,13 @@ namespace ArtifactStore.Repositories
                 throw new ArgumentOutOfRangeException(nameof(offset));
             if (userId.HasValue && userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
+
             var prm = new DynamicParameters();
             prm.Add("@artifactId", artifactId);
             prm.Add("@lim", limit);
             prm.Add("@offset", offset);
-            if (userId.HasValue)
-            {
-                prm.Add("@userId", userId.Value);
-            }
-            else
-            {
-                prm.Add("@userId", null);
-            }
+            if (userId.HasValue) { prm.Add("@userId", userId.Value); }
+            else { prm.Add("@userId", null); }
             prm.Add("@ascd", asc);
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
@@ -64,7 +59,6 @@ namespace ArtifactStore.Repositories
             prm2.Add("@userId", sessionUserId);
             prm2.Add("@artifactIds", artifactIdsTable);
             var doesCurrentUserHaveDraft = (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", prm2, commandType: CommandType.StoredProcedure)).Count() == 1;
-
             if (doesCurrentUserHaveDraft)
             {
                 var getUserInfosPrm = new DynamicParameters();

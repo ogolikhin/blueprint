@@ -62,7 +62,7 @@ namespace ArtifactStore.Repositories
             if (doesCurrentUserHaveDraft)
             {
                 var getUserInfosPrm = new DynamicParameters();
-                var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
+                var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new int[]{ sessionUserId });
                 getUserInfosPrm.Add("@userIds", userIdsTable);
                 var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", getUserInfosPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
 

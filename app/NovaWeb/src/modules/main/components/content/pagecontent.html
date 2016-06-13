@@ -4,6 +4,7 @@
     <li><a href="#">Selected Artifact</a></li>
     <li>Infrastructure for directing change</li>
 </ul>
+<messages-container></messages-container>
 <div class="page-content-wrapper">
 
     <div class="page-content">
@@ -13,7 +14,8 @@
                 <div class="name">Client Login
                     <i class="readonly-indicator" bp-tooltip="Read-only"></i>
                     <i class="lock-indicator" bp-tooltip="Locked"></i>
-                    <i class="dirty-indicator" bp-tooltip="Dirty"></i>
+                                                      <!--TODO  please do not remove, I'll remove after testing-->
+                    <i class="dirty-indicator" bp-tooltip="Dirty" ng-click="pageContentCtrl.addMsg()"></i>
                 </div>
                 <div class="type-id">User story - US123456</div>
             </div>

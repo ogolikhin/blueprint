@@ -13,6 +13,11 @@ import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-hist
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
 
+
+import {MessageDirective} from "./messages/message";
+import {MessagesContainerDirective} from "./messages/message-container";
+import {MessageService} from "./messages/message.svc";
+
 angular.module("app.shell",
     [
         core,
@@ -29,6 +34,9 @@ angular.module("app.shell",
     .service("artifactHistory", ArtifactHistory)
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
+    .service("messageService", MessageService)
+    .directive("message", MessageDirective.directive)
+    .directive("messagesContainer", MessagesContainerDirective.directive)   
     .config(Logger)
     .config(initializeInterceptors);
 

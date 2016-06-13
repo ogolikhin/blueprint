@@ -5,7 +5,7 @@
     <div ng-if="$ctrl.hasError">
         {{$ctrl.errorMessage}}
     </div>
-    <div ng-if="!$ctrl.hasError">
+    <div ng-if="!$ctrl.hasError" class="project-wrapper">
         <div class="project-tree-container"><bp-tree bp-ref="$ctrl.tree"
                  grid-class="project-tree"
                  header-height="20"

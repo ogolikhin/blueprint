@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
@@ -70,7 +71,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int artifactId = 1;
             int limit = 1;
-            int offset = 1;
+            int offset = 0;
             int? userId = -1;
             bool asc = false;
             int sessionUserId = 1;
@@ -108,7 +109,9 @@ namespace ArtifactStore.Repositories
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
             // Assert
             cxn.Verify();
-            //string errorMessage;
+            Assert.AreEqual(actual.ArtifactId, 1);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList().Count(), 1);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[0].VersionId, 1);
         }
 
         [TestMethod]
@@ -117,7 +120,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int artifactId = 1;
             int limit = 1;
-            int offset = 1;
+            int offset = 0;
             int? userId = 1;
             bool asc = false;
             int sessionUserId = 1;
@@ -142,7 +145,10 @@ namespace ArtifactStore.Repositories
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
             // Assert
             cxn.Verify();
-            //string errorMessage;
+            Assert.AreEqual(actual.ArtifactId, 1);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList().Count(), 2);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[0].VersionId, int.MaxValue);
+            Assert.AreEqual(actual.ArtifactHistoryVersions.ToList()[1].VersionId, 1);
         }
     }
 }

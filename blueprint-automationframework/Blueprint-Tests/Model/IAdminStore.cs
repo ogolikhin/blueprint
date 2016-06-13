@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -185,17 +186,34 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
 
-        ///</summary>
-        /// Returns HTTP code for REST request to get folder or folder elements.
-        /// (Runs: GET instance/folders/folderId or instance/folders/folderId/children)
+        /// <summary>
+        /// Returns HTTP code for REST request to get project.
+        /// (Runs: GET instance/projects/projectId)
         /// </summary>
-        /// <param name="folderId">Folder Id.</param>
-        /// <param name="session">(optional) A session to identify a user.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <param name="hasChildren">Flag to differenciate two calls. With children and without.</param>
-        /// <param name="badKey">Flag to set incorrect or correct key to produce Bad Request.</param>
-        /// <returns>HTTP Status Code</returns>
-        HttpStatusCode GetReturnCodeFromFolderOrItsChildrenRequest(int folderId, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null, bool hasChildren = false, bool badKey = false);
+        /// <param name="id">An id of specific project.</param>
+        /// <param name="user">A user object.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Response content.</returns>
+        IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Returns list of aerifacts for REST request to get folder. 
+        /// (Runs: GET instance/folders/folderId/children)
+        /// </summary>
+        /// <param name="id">An id of specific folder.</param>
+        /// <param name="user">A user object.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Response content.</returns>
+        List<PrimitiveFolder> GetFolderChildrenByFolderId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns PrimitiveFolder for REST request to get folder. 
+        /// (Runs: GET instance/folders/folderId)
+        /// </summary>
+        /// <param name="id">An id of specific folder.</param>
+        /// <param name="user">A user object.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Response content.</returns>
+        IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

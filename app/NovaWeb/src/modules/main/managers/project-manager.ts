@@ -166,7 +166,7 @@ export class ProjectManager implements IProjectManager {
             let project = this.getProject(projectId);
             if (!project) {
                 throw new Error(this.localization.get("Project_NotFound"));
-            }
+            } 
             let artifact = this.getArtifact(artifactId, project);
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
@@ -174,6 +174,7 @@ export class ProjectManager implements IProjectManager {
             this._repository.getArtifacts(projectId, artifactId)
                 .then((result: Models.IArtifact[]) => {
                     artifact.artifacts = result;
+                    artifact.hasChildren = true;
                     self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }).catch((error: any) => {
                     this.eventManager.dispatch(EventSubscriber.Main, "exception", error);

@@ -777,63 +777,6 @@ GO
 -- Always add your code just above this comment block
 -- -----------------------------------------------------------------------------------------------
 IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.1.0') <> 0)
--- -----------------------------------------------------------------------------------------------
--- Migration 7.1.0.0
--- -----------------------------------------------------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.1.0') <> 0) 
-	set noexec on
-Print 'Migrating 7.1.0.0 ...'
--- -----------------------------------------------------------------------------------------------
-
-/******************************************************************************************************************************
-Name:			ApplicationLabels
-
-Description: 
-			
-Change History:
-Date			Name					Change
-2015/11/03		Chris Dufour			Initial Version
-2016/09/29		Areag Osman				Extends character limit for Key & Text columns, adds index for table
-******************************************************************************************************************************/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ApplicationLabels]') AND type in (N'U'))
-DROP TABLE [dbo].[ApplicationLabels]
-GO
-
-CREATE TABLE [dbo].[ApplicationLabels](
-	[ApplicationLabelId] [int] IDENTITY(1,1) NOT NULL,
-	[Key] [nvarchar](128) NOT NULL,
-	[Locale] [nvarchar](32) NOT NULL,
-	[Text] [nvarchar](512) NOT NULL,
-
-	CONSTRAINT [PK_ApplicationLabels_ApplicationLabelId] PRIMARY KEY CLUSTERED 
-	(
-		[ApplicationLabelId] ASC
-	)
-) ON [PRIMARY]
-GO
-
-IF EXISTS (SELECT name FROM sys.indexes WHERE name = N'IX_ApplicationLabels_Key_Locale')
-	DROP INDEX IX_ApplicationLabels_Key_Locale on [dbo].[ApplicationLabels]
-GO
-
-CREATE NONCLUSTERED INDEX IX_ApplicationLabels_Key_Locale on  [dbo].[ApplicationLabels] 
-(
-	[Key] ASC,
-	[Locale] ASC
-)
-GO
-
-
--- -----------------------------------------------------------------------------------------------
--- Always add your code just above this comment block
--- -----------------------------------------------------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.1.0') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'7.1.0';
-GO
-set noexec off
--- -----------------------------------------------------------------------------------------------
-
 	EXEC [dbo].[SetSchemaVersion] @value = N'7.1.0';
 GO
 set noexec off
@@ -928,6 +871,11 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_A
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Relationships', 'en-US', N'Relationships')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_History', 'en-US', N'History')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Reviews', 'en-US', N'Reviews')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByLatest', 'en-US', N'sort by latest')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByEarliest', 'en-US', N'sort by earliest')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_Version', 'en-US', N'Version')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_Draft', 'en-US', N'Draft')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_No_Artifact', 'en-US', N'Please, select an artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_CannotGetUser', 'en-US', N'Cannot get current user')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_IncorrectRequestId', 'en-US', N'Wrong request id. Please click ''Retry'' in Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_LoginFailed', 'en-US', N'Login Failed')

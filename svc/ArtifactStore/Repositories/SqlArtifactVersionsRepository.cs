@@ -43,18 +43,13 @@ namespace ArtifactStore.Repositories
                 throw new ArgumentOutOfRangeException(nameof(offset));
             if (userId.HasValue && userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
+
             var prm = new DynamicParameters();
             prm.Add("@artifactId", artifactId);
             prm.Add("@lim", limit);
             prm.Add("@offset", offset);
-            if (userId.HasValue)
-            {
-                prm.Add("@userId", userId.Value);
-            }
-            else
-            {
-                prm.Add("@userId", null);
-            }
+            if (userId.HasValue) { prm.Add("@userId", userId.Value); }
+            else { prm.Add("@userId", null); }
             prm.Add("@ascd", asc);
             var artifactVersions = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", prm,
                     commandType: CommandType.StoredProcedure)).ToList();
@@ -64,16 +59,18 @@ namespace ArtifactStore.Repositories
             prm2.Add("@userId", sessionUserId);
             prm2.Add("@artifactIds", artifactIdsTable);
             var doesCurrentUserHaveDraft = (await ConnectionWrapper.QueryAsync<int>("GetArtifactsWithDraft", prm2, commandType: CommandType.StoredProcedure)).Count() == 1;
-
             if (doesCurrentUserHaveDraft)
             {
-                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("SELECT [UserId],[DisplayName],[Image_ImageId] FROM [dbo].[Users] WHERE UserId = " + sessionUserId, commandType: CommandType.Text)).SingleOrDefault();
+                var getUserInfosPrm = new DynamicParameters();
+                var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new int[]{ sessionUserId });
+                getUserInfosPrm.Add("@userIds", userIdsTable);
+                var userInfo = (await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", getUserInfosPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
 
                 var draftItem = new ArtifactHistoryVersion {
                     VersionId = int.MaxValue,
                     UserId = sessionUserId,
-                    DisplayName = userInfo.DisplayName,
-                    HasUserIcon = userInfo.Image_ImageId != null,
+                    DisplayName = userInfo?.DisplayName,
+                    HasUserIcon = userInfo?.Image_ImageId != null,
                     Timestamp = null
                 };
                 if (asc && artifactVersions.Count < limit)

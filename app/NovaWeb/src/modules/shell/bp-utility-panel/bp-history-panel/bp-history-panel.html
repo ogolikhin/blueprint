@@ -20,5 +20,5 @@
         </div>
     </div>
 
-    <div ng-if="!$ctrl.artifactHistoryList.length" class="empty-state">Please, select an artifact.</div>
+    <div ng-if="!$ctrl.artifactHistoryList.length" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>
 </div>

@@ -1,4 +1,4 @@
-﻿import { IAppConstants } from "../../../core";
+﻿import { IAppConstants, ILocalizationService } from "../../../core";
 import {IEventManager, EventSubscriber} from "../../../core/event-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import * as Models from "../../../main/models/models";
@@ -16,6 +16,7 @@ export class BPHistoryPanel implements ng.IComponentOptions {
 export class BPHistoryPanelController {
     public static $inject: [string] = [
         "$log", 
+        "localization",
         "artifactHistory",
         "eventManager",
         "$q",
@@ -32,14 +33,15 @@ export class BPHistoryPanelController {
     
     constructor(
         private $log: ng.ILogService,
+        private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
         private eventManager: IEventManager,
         private $q: ng.IQService,
         private appConstants: IAppConstants) {
 
         this.sortOptions = [
-            {value: false, label: "sort by latest"},
-            {value: true, label: "sort by earliest"},
+            { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
+            { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
 
         // TODO: remove 2 lines below
@@ -53,9 +55,9 @@ export class BPHistoryPanelController {
         ];
     }
     public $onDestroy() {
-        this._listeners.map(function (it) {
+        this._listeners.map( (it) => {
             this.eventManager.detachById(it);
-        }.bind(this));
+        });
     }
 
     public changeSortOrder() {

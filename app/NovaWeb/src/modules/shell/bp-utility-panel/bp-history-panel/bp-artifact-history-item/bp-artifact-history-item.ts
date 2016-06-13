@@ -1,4 +1,4 @@
-﻿import { IAppConstants } from "../../../../core";
+﻿import { IAppConstants, ILocalizationService } from "../../../../core";
 
 export class BPArtifactHistoryItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-history-item.html");
@@ -9,10 +9,14 @@ export class BPArtifactHistoryItem implements ng.IComponentOptions {
 }
 
 export class BPArtifactHistoryItemController {
-    public static $inject: [string] = ["$log", "appConstants"];
+    public static $inject: [string] = [
+        "$log",
+        "localization",
+        "appConstants"];
     
     constructor(
         private $log: ng.ILogService,
+        private localization: ILocalizationService,
         private appConstants: IAppConstants) {
     }
 }

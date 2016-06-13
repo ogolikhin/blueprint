@@ -1,6 +1,8 @@
 ﻿<div class="artifact-history-item">
-    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion" class="version">Version {{ $ctrl.artifactInfo.versionId }}</div>
-    <div ng-if="$ctrl.artifactInfo.versionId === $ctrl.appConstants.draftVersion" class="version">Draft</div>
+    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion"
+         class="version">{{ $ctrl.localization.get('App_UP_History_Version') + " " + $ctrl.artifactInfo.versionId }}</div>
+    <div ng-if="$ctrl.artifactInfo.versionId === $ctrl.appConstants.draftVersion"
+         class="version">{{ $ctrl.localization.get('App_UP_History_Draft') }}</div>
 
     <bp-avatar icon="" name="{{ $ctrl.artifactInfo.displayName }}"></bp-avatar>
     <div class="author">{{ $ctrl.artifactInfo.displayName }}</div>

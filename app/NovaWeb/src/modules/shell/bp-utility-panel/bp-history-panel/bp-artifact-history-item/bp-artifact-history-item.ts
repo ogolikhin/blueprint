@@ -1,14 +1,14 @@
 ﻿import { IAppConstants } from "../../../../core";
 
-export class ArtifactHistoryItem implements ng.IComponentOptions {
-    public template: string = require("./artifact-history-item.html");
-    public controller: Function = ArtifactHistoryItemController;
+export class BPArtifactHistoryItem implements ng.IComponentOptions {
+    public template: string = require("./bp-artifact-history-item.html");
+    public controller: Function = BPArtifactHistoryItemController;
     public bindings: any = {
         artifactInfo: "="
     };
 }
 
-export class ArtifactHistoryItemController {
+export class BPArtifactHistoryItemController {
     public static $inject: [string] = ["$log", "appConstants"];
     
     constructor(

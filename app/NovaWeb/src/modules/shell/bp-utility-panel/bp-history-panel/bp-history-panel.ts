@@ -8,12 +8,12 @@ interface ISortOptions {
     label: string;
 }
 
-export class HistoryPanel implements ng.IComponentOptions {
-    public template: string = require("./history-panel.html");
-    public controller: Function = HistoryPanelController;
+export class BPHistoryPanel implements ng.IComponentOptions {
+    public template: string = require("./bp-history-panel.html");
+    public controller: Function = BPHistoryPanelController;
 }
 
-export class HistoryPanelController {
+export class BPHistoryPanelController {
     public static $inject: [string] = [
         "$log", 
         "artifactHistory",

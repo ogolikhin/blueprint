@@ -12,11 +12,11 @@
         <div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList" 
              class="artifact-history-item-wrapper">
             <div class="separator"></div>
-            <artifact-history-item 
+            <bp-artifact-history-item 
                 artifact-info="artifactHistoryItem"
                 ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)" 
                 ng-class="{ 'selected': $ctrl.selectedArtifactVersion === artifactHistoryItem }">
-            </artifact-history-item>
+            </bp-artifact-history-item>
         </div>
     </div>
 

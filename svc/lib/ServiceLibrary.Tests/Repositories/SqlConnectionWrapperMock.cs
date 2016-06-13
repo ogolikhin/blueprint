@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using Dapper;
 using Moq;
 using static Dapper.SqlMapper;
 
@@ -93,7 +94,7 @@ namespace ServiceLibrary.Repositories
 
         public void SetupQueryMultipleAsync<T1, T2, T3>(string sql, Dictionary<string, object> param, Tuple<IEnumerable<T1>, IEnumerable<T2>, IEnumerable<T3>> result, Dictionary<string, object> outParameters = null)
         {
-            Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)));
+            Expression<Func<object, bool>> match = p => param == null || param.All(kv => Matches(kv.Value, SqlConnectionWrapper.Get<object>(p, kv.Key)) || kv.Value is SqlMapper.ICustomQueryParameter);
             var setup = Setup(c => c.QueryMultipleAsync<T1, T2, T3>(sql, It.Is(match), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure))
                 .ReturnsAsync(result);
             if (outParameters != null)

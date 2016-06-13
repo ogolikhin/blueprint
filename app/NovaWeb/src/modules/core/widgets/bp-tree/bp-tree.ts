@@ -1,6 +1,7 @@
 ﻿import "angular";
 import * as Grid from "ag-grid/main";
 import {Helper} from "../../../core/utils/helper";
+import {RowNode} from "ag-grid/main";
 
 /*
 tslint:disable
@@ -158,6 +159,7 @@ export class BPTreeController implements IBPTreeController  {
             onRowGroupOpened: this.rowGroupOpened,
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
+            getBusinessKeyForNode: this.getBusinessKeyForNode
         };
     };
 
@@ -179,7 +181,7 @@ export class BPTreeController implements IBPTreeController  {
             } else {
                 item.children = [];
             }
-        };
+        }
         return item;
     }
 
@@ -258,6 +260,11 @@ export class BPTreeController implements IBPTreeController  {
         }
     };
 
+    private getBusinessKeyForNode(node: RowNode) {
+        return node.data.id;
+        //return node.key; //it is initially undefined for non folder???
+    };
+
     private onGridReady = (params: any) => {
         let self = this;
         if (params && params.api) {
@@ -279,8 +286,8 @@ export class BPTreeController implements IBPTreeController  {
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
             if (angular.isFunction(self.onLoad)) {
-                let rowIndex = node.rowTop / self.options.rowHeight;
-                let row = self.$element[0].querySelectorAll(".ag-body .ag-body-viewport-wrapper .ag-row")[rowIndex];
+                //let rowIndex = node.rowTop / self.options.rowHeight;
+                let row = self.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
                 row.className += " ag-row-loading";
                 let nodes = self.onLoad({ prms: node.data });
                 //this verifes and updates current node to inject children

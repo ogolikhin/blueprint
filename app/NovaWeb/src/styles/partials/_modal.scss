@@ -83,17 +83,19 @@
     height: 310px;
     padding: 15px 30px;
 
+    .project-tree-container {
+      box-sizing: border-box;
+      display: block;
+      float: left;
+      margin: 0 15px 0 0;
+      width: $project-picker-tree-width;
+    }
+
     .project-tree {
       background: $white;
       border: solid 1px $gray-lightest;
       border-radius: $border-radius-amount;
-      box-sizing: border-box;
-      display: block;
-      float: left;
       height: $project-picker-tree-height;
-      margin: 0 15px 0 0;
-      padding-left: 10px;
-      width: $project-picker-tree-width;
     }
 
     .project-data {

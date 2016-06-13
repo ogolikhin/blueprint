@@ -2,7 +2,7 @@
     <!--<div ng-if="$ctrl.icon" class="avatar">
         <img src="{{ $ctrl.iconUrl }}" alt="avatar" />
     </div>-->
-    <div style="background-color: {{ $ctrl.background }}; color: {{ $ctrl.initialsColor }}">
+    <div ng-style="{ 'background-color': $ctrl.background, 'color': $ctrl.initialsColor }">
         {{ $ctrl.initials }}
     </div>
 </div>

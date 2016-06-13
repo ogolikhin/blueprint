@@ -41,6 +41,12 @@ $font-size-nano:     .5rem; //~9px
 $font-size-bigger:   1.125rem; //~18px
 $font-size-biggest:  1.25rem;  //~20px
 
+// padding
+$padding-smaller: 7px;
+$padding-root: 10px;
+$padding-bigger: 15px;
+$padding-biggest: 30px;
+
 //navbar
 $navbar-height: 40px;
 $navbar-color: #01206a;
@@ -66,7 +72,6 @@ $utility-panel-border-color: $right-sidebar-border;
 $aggrid-row-height: 20px;
 
 //project picker
-$project-picker-tree-width: 380px;
 $project-picker-tree-height: 244px;
 $project-picker-data-width: 350px;
 

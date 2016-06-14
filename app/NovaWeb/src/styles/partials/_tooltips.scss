@@ -14,6 +14,12 @@
   }
 }
 
+// disables tooltips for currently focused areas
+.mce-edit-focus + .bp-tooltip,
+:focus + .bp-tooltip {
+  display: none !important;
+}
+
 .bp-tooltip-content {
   background: $black;
   border: 0;

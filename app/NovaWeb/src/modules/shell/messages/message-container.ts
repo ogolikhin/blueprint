@@ -1,5 +1,4 @@
-﻿import {IMessageService,MessageService} from "./message.svc";
-import { Message, MessageType} from "./message";
+﻿import {IMessageService, MessageService, Message, MessageType} from "../../shell";
 
 export interface IMessageContainerController {
 

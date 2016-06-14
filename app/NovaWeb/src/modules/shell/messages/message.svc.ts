@@ -1,4 +1,4 @@
-﻿import {Message, MessageType} from "./message";
+﻿import {Message, MessageType} from "../../shell";
 
 export interface IMessageService {
     addMessage(msg: Message): void;

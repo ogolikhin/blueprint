@@ -149,7 +149,7 @@ namespace FileStoreTests
         }
 
         /// <summary>
-        /// Posts & Puts a file to FileStore using the specified filename, then gets the file and verifies it matches with what we sent.
+        /// Posts and Puts a file to FileStore using the specified filename, then gets the file and verifies it matches with what we sent.
         /// </summary>
         /// <param name="charSet">The name of the character set in the filename.</param>
         /// <param name="fakeFileName">The filename to use.</param>

@@ -5,13 +5,14 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
 .history-panel {
     $item-gap: $padding-bigger;
 
+    overflow: hidden;
     height: 100%;
     
     .filter-bar {
         select {
             border-radius: 3px;
             margin: $padding-root;
-            padding: 1px $padding-smaller;
+            padding: 1px 0  1px $padding-smaller;
             float: right;
 
             &:hover {

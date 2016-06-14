@@ -1,0 +1,42 @@
+.error-msg_container{
+    display: inline-block;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+     color: white;
+
+    .error-msg_icon{
+      float:left; 
+      display:inline-block;
+   }
+    .error-msg_text{
+      float:left; 
+      display:inline-block;
+    }
+     .error-msg_btn{
+      float:right; 
+      display:inline-block;
+     
+    }
+
+     .fonticon-close:before {
+       color: white;
+     }
+
+     .close{
+         opacity: 1;
+     }
+}
+
+.alert-error{
+    background-color: $brand-error;
+}
+
+.alert-warning{
+    background-color: $brand-warning;
+}
+
+.alert-info{
+    background-color: $brand-info;
+}
+

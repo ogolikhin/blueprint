@@ -5,39 +5,25 @@ export interface IMessageContainerController {
 }
 
 export class MessageContainerController implements IMessageContainerController {
-    public messages: any;
-    public nmbrOfMessages: number;
     public hasMessages: (nType: MessageType) => boolean;
 
     public static $inject = ["messageService"];
     constructor(private messageService: IMessageService) {
-        this.messages = this.messageService.getMessages();
-
         this.hasMessages = (mType) => {
-            this.nmbrOfMessages = this.countsMessageByType(mType);
-            return this.nmbrOfMessages > 0;
+            return this.messageService.hasMessages(mType);
         };
     }
 
     private countsMessageByType(messageType: MessageType) {
-        var count = 0;
-        for (var i = 0; i < this.messages.length; i++) {
-            if (this.messages[i].messageType === messageType) {
-                count = count + 1;
-                if (count > 1) {
-                    break;
-                }
-            }
-        }
-        return count;
+        return this.messageService.countsMessageByType(messageType);
     }
 
-    public closeMessages(messageType: MessageType) {
-        for (var i = this.messages.length - 1; i >= 0; i--) {
-            if (this.messages[i].messageType === messageType) {
-                this.messages.splice(i, 1);
-            }
-        }
+    public closeMessages(messageType: MessageType) {     
+        this.messageService.deleteMessages(messageType);
+    }
+
+    public getFirstOfTypeMessage(messageType: MessageType): Message {
+        return this.messageService.getFirstOfTypeMessage(messageType);
     }
 }
 
@@ -48,24 +34,22 @@ export class MessagesContainerDirective implements ng.IDirective {
         isPopup: "@"
     };
 
-    public static directive: any[] = [
-        "$compile",     
-        ($compile: ng.ICompileService) => new MessagesContainerDirective($compile)];
-
+    public static factory() {
+        const directive = ($compile: ng.ICompileService) => new MessagesContainerDirective($compile);
+        directive["$inject"] = ["$compile"];
+        return directive;
+    }
     constructor(private $compile: ng.ICompileService) {
     }
 
     public link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery) => {       
-        for (var i = 1; i <= 3; i++) {
-            var mType = MessageType[i].toLowerCase();
+        for (let i = 1; i <= 3; i++) {
+            let mType = MessageType[i].toLowerCase();
             $element
                 .append(this.$compile("<message id=\"" + mType + "\" data-ng-if=\"messageContainterCntrl.hasMessages(" + i + ")\" data-message-type=\"" + mType +
                     "\"  data-on-message-closed=\"messageContainterCntrl.closeMessages(" + i + ")\">" +
-                    "<ul ng-class=\"{nobullets: results.length < 2}\" >" +
-                    "<li data-ng-repeat=\"m in messageContainterCntrl.messages | filter:{messageType:" + i + "} as results\">" +
-                    "<div data-bp-compile-html=\"m.messageText\" data-on-message-action=\"m.onMessageAction\"></div>" +
-                    "</li>" +
-                    "</ul>" +
+                    "<div data-bp-compile-html=\"messageContainterCntrl.getFirstOfTypeMessage(" + i + ").messageText\"" +
+                    "data-on-message-action=\"messageContainterCntrl.getFirstOfTypeMessage(" + i + ").onMessageAction\"></div>" +
                     "</message>")($scope));
         }
     };

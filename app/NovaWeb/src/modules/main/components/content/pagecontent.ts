@@ -14,6 +14,9 @@ class PageContentCtrl {
     }
     //TODO remove after testing
     public addMsg() {
-        this.messageService.addMessage(new Message(3,"warning"));
+        this.messageService.addMessage(new Message(1, "1"));
+        this.messageService.addMessage(new Message(2, "2"));
+        this.messageService.addMessage(new Message(3, "3"));
+      
     }
 }

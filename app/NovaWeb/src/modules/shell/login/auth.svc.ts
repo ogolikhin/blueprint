@@ -2,7 +2,8 @@
 import { SessionTokenHelper } from "./session.token.helper";
 import { 
     ILocalizationService,
-    IConfigValueHelper
+    IConfigValueHelper,
+    Helper
     } from "../../core";
 import { IHttpInterceptorConfig } from "./http-error-interceptor";
 
@@ -98,20 +99,10 @@ export class AuthSvc implements IAuth {
         return origin + "/";
     }
 
-
-    private generateGuid(): string {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-            /* tslint:disable:no-bitwise */
-            var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
-            /* tslint:enable:no-bitwise */
-            return v.toString(16);
-        });
-    }
-
     public loginWithSaml(overrideSession: boolean = false, prevLogin: string): ng.IPromise<any> {
         var deferred = this.$q.defer<IUser>();
 
-        var guid: string = this.generateGuid();
+        var guid: string = Helper.UID;
 
         this.$window.name = guid;
 

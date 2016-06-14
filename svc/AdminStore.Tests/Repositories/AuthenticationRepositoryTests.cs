@@ -10,6 +10,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Exceptions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AdminStore.Repositories
 {
@@ -730,6 +731,65 @@ namespace AdminStore.Repositories
             // Assert
             Assert.IsNotNull(exception);
             Assert.AreEqual(ErrorCodes.ChangePasswordCooldownInEffect, exception.ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task ResetPassword_CooldownOverNoApplicationSettings_Success()
+        {
+            // Arrange
+            Exception exception = null;
+
+            _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-24);
+
+            _applicationSettingsRepositoryMock
+                .Setup(m => m.GetSettings())
+                .Returns(() => Task.Run(() => Enumerable.Empty<ApplicationSetting>()));
+
+            // Act
+            try
+            {
+                await _authenticationRepository.ResetPassword(_loginUser, Password, NewPassword);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public async Task ResetPassword_CooldownOverInvalidApplicationSettings_Success()
+        {
+            // Arrange
+            Exception exception = null;
+
+            _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-24);
+
+            _applicationSettingsRepositoryMock
+                .Setup(m => m.GetSettings())
+                .Returns(() => Task.Run(() => new ApplicationSetting[] 
+                {
+                    new ApplicationSetting
+                    {
+                        Key = PasswordChangeCooldownInHoursKey,
+                        Value = "value"
+                    }
+                }.AsEnumerable()));
+
+            // Act
+            try
+            {
+                await _authenticationRepository.ResetPassword(_loginUser, Password, NewPassword);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(exception);
         }
 
         [TestMethod]

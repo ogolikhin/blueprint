@@ -11,17 +11,19 @@ namespace FileStoreTests
     [Explicit(IgnoreReasons.ProductBug)]    // Bug: 179397
     public class NonAsciiFilenames : TestBase
     {
-        private const string ARABIC_CHARS = "غ	ظ	ض	ذ	خ	ث	ت	ش	ر	ق	ص	ف	ع	س	ن	م	ل	ك	ي	ط	ح	ز	و	ه	د	ج	ب	ا";
+        private const string ARABIC_CHARS = "غظضذخثتشرقصفعسنملكيطحزوهدجبا";
         private const string FRENCH_CHARS = "ÀàÂâÆæÇçÉéÈèÊêËëÎîÏïÔôŒœÙùÛûÜüŸÿ";
         private const string GERMAN_CHARS = "ÄÖÜäöüß";
         private const string JAPANESE_HIRAGANA_CHARS = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわん";
         private const string JAPANESE_KANJI_CHARS = "亜哀愛悪握圧扱安案暗以衣位囲医依委威胃為尉異移偉意違維慰遺緯域育";
         private const string KOREAN_HANGUL_CHARS = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕㅛㅠㄲㄸㅃㅆㅉㄳㄵㄶㄺㄻㄼㄽㄾㄿㅀㅄㅐㅒㅔㅖㅢㅘㅙㅚㅝㅞㅟ";
         private const string RUSSIAN_CHARS = "ЗэыяёюиЛДПБГЧЙЖШЮЦЩФЁЪ";
-        private const string SIMPLIFIED_CHINESE_CHARS = "安吧爸八百北不大岛的弟地东都对多儿二方港哥个关贵国过海好很会家见叫姐京九可老李零六吗妈么没美妹们明名哪那南你您朋七起千去人认日三上谁什生师识十是四他她台天湾万王我五西息系先香想小谢姓休学也一亿英友月再张这中字";
+        private const string SIMPLIFIED_CHINESE_CHARS = "安吧爸八百北不大岛的弟地东都对多儿二方港哥个关贵国过海好很会家见叫姐京九可老李零六吗妈么没美妹们明名哪";
         private const string SPANISH_CHARS = "áéíóúñÑüÜ¿¡ÁÉÍÓÚç";
         private const string SPECIAL_CHARS = "©®™~!@#$%^&*()_¢€£¤¥¦§¨ª«»¬¯°±¹²³´µ¶·¸º¼½¾¿";
         private const string TRADITIONAL_CHINESE_CHARS = "電買開東車紅馬無鳥熱時語假罐佛德拜黑冰兔妒壤每步";
+
+        private const string MIX_ALL_CHARS = "غظضذخ" + "ÀâÆçéÊÎÔŒù" + "ÄÖÜß" + "あいうえお" + "亜哀愛悪握" + "ㄱㄴㄷㄹㅁ" + "Зэыяю" + "安吧爸八百" + "Ñ¿¡ç" + "©®™¢€£¤¥" + "電買開東車";
 
         private IUser _user;
 
@@ -44,6 +46,7 @@ namespace FileStoreTests
 
         #region Post tests
 
+        [TestCase("Mixture of all languages", MIX_ALL_CHARS)]
         [TestCase(nameof(ARABIC_CHARS), ARABIC_CHARS)]
         [TestCase(nameof(FRENCH_CHARS), FRENCH_CHARS)]
         [TestCase(nameof(GERMAN_CHARS), GERMAN_CHARS)]
@@ -62,6 +65,7 @@ namespace FileStoreTests
             PostFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
         }
 
+        [TestCase("Mixture of all languages", MIX_ALL_CHARS)]
         [TestCase(nameof(ARABIC_CHARS), ARABIC_CHARS)]
         [TestCase(nameof(FRENCH_CHARS), FRENCH_CHARS)]
         [TestCase(nameof(GERMAN_CHARS), GERMAN_CHARS)]
@@ -113,6 +117,7 @@ namespace FileStoreTests
 
         #region Put tests
 
+        [TestCase("Mixture of all languages", MIX_ALL_CHARS)]
         [TestCase(nameof(ARABIC_CHARS), ARABIC_CHARS)]
         [TestCase(nameof(FRENCH_CHARS), FRENCH_CHARS)]
         [TestCase(nameof(GERMAN_CHARS), GERMAN_CHARS)]
@@ -131,6 +136,7 @@ namespace FileStoreTests
             PutFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
         }
 
+        [TestCase("Mixture of all languages", MIX_ALL_CHARS)]
         [TestCase(nameof(ARABIC_CHARS), ARABIC_CHARS)]
         [TestCase(nameof(FRENCH_CHARS), FRENCH_CHARS)]
         [TestCase(nameof(GERMAN_CHARS), GERMAN_CHARS)]

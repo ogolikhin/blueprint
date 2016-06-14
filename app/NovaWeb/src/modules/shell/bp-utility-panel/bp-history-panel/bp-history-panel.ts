@@ -30,6 +30,7 @@ export class BPHistoryPanelController {
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
     public selectedArtifactVersion: IArtifactHistoryVersion;
+    public artifactHistoryListObserver;
     
     constructor(
         private $log: ng.ILogService,
@@ -44,9 +45,17 @@ export class BPHistoryPanelController {
             { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
 
+        this.artifactHistoryListObserver = this._artifactHistoryRepository.artifactHistory;
+        this.artifactHistoryListObserver.subscribe( (value) => {
+            console.log("updated value: " + value);
+            this.artifactHistoryList = this.artifactHistoryList.concat(value);
+        });
+
+        console.log("about to make a request to get value");
+
         // TODO: remove 2 lines below
-        // this.artifactId = 306; //331;
-        // this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+        this.artifactId = 306; //331;
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     public $onInit() {
@@ -98,7 +107,7 @@ export class BPHistoryPanelController {
 
     private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<void> {
         return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc).then((result) => {
-            this.artifactHistoryList = this.artifactHistoryList.concat(result);
+            //this.artifactHistoryList = this.artifactHistoryList.concat(result);
         });
     }
 }

@@ -17,6 +17,14 @@
     border-color: darken($brand-secondary, 10%);
     color: $white;
   }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: $gray-lighter ;
+    border-color: $gray-light;
+    color: $gray-light;
+    opacity: 1;
+  }
 }
 
 .btn-secondary {

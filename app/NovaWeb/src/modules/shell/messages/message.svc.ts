@@ -12,7 +12,7 @@ export interface IMessageService {
 }
 
 export class MessageService implements IMessageService {
-    private timer: ng.IPromise<any>;
+    private timers: ng.IPromise<any>[] = [];
 
     public static $inject = ["$rootScope", "$timeout"];
     constructor(private $rootScope: ng.IRootScopeService, private $timeout: ng.ITimeoutService) {
@@ -20,16 +20,16 @@ export class MessageService implements IMessageService {
 
     private messages: Message[] = [];
 
-    private cancelTimer = () => {
-        if (this.timer) {
-            this.$timeout.cancel(this.timer);
-            this.timer = null;
-        }
+    private cancelTimer = (messageType: MessageType) => {
+        //if (this.timer) {
+        //    this.$timeout.cancel(this.timer);
+        //    this.timer = null;
+        //}
     }
 
     private clearMessagesAfterInterval = (messageType: MessageType) => {
         this.deleteMessages(messageType);
-        this.cancelTimer();
+        this.cancelTimer(messageType);
     }
 
     private getMessageTimeout(messageType: MessageType): number {
@@ -80,11 +80,11 @@ export class MessageService implements IMessageService {
 
     public addMessage(msg: Message): void {       
         this.messages.push(msg);
-        this.cancelTimer();
+       // this.cancelTimer();
 
         let messageTimeout = this.getMessageTimeout(msg.messageType);
         if (messageTimeout > 0) {           
-            this.timer = this.$timeout(this.clearMessagesAfterInterval.bind(null, msg.messageType), messageTimeout);
+            this.timers.push(this.$timeout(this.clearMessagesAfterInterval.bind(null, msg.messageType), messageTimeout));
         }
     }
 

@@ -353,8 +353,12 @@ namespace FileStore.Controllers
 
         private async Task<UploadResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
         {
-            if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
-                    string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
+            string decodedFileName = "";
+            if (Request.Content.Headers.ContentDisposition != null)
+                decodedFileName = HttpUtility.UrlDecode(Request.Content.Headers.ContentDisposition.FileName);
+            if (string.IsNullOrEmpty(decodedFileName) || 
+                //string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
+                string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
             {
                 return new UploadResult
                 {
@@ -363,7 +367,7 @@ namespace FileStore.Controllers
                 };
             }
             // Grabs all available information from the header
-            var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
+            var fileName = decodedFileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Posting non-multi-part file {fileName}");
             var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);

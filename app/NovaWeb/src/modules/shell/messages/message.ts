@@ -25,13 +25,13 @@ export interface IMessageScope extends ng.IScope {
     messageCntrl: MessageController;    
 }
 
-export class MessageComponent implements ng.IComponentOptions {
-    public template: string = require("./message.html");
-    public controller: Function = MessageController;
-    public bindings: any = {
-        onMessageClosed: "&"
-    };
-}
+//export class MessageComponent implements ng.IComponentOptions {
+//    public template: string = require("./message.html");
+//    public controller: Function = MessageController;
+//    public bindings: any = {
+//        onMessageClosed: "&"
+//    };
+//}
 
 export class MessageDirective implements ng.IDirective { 
     public template: string = require("./message.html");
@@ -43,22 +43,20 @@ export class MessageDirective implements ng.IDirective {
         onMessageClosed: "&"     
     };
 
-    public static directive: any[] = [
-        "$timeout",
-        "$rootScope",
-        ($timeout: ng.ITimeoutService, $rootScope: ng.IRootScopeService) => {
-            return new MessageDirective($timeout, $rootScope);
-        }];
-
-    constructor(private $timeout, private $rootScope) {
+    public static factory() {
+        const directive = () => new MessageDirective();
+        directive["$inject"] = [];
+        return directive;
     }
 
+    constructor() {}
+
     public link: ng.IDirectiveLinkFn = ($scope: IMessageScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
-        $scope.messageCntrl.closeAlert = () => {
-            if ($scope.messageCntrl.onMessageClosed) {
-                $scope.messageCntrl.onMessageClosed();
-            }
-        }
+        //$scope.messageCntrl.closeAlert = () => {
+        //    if ($scope.messageCntrl.onMessageClosed) {
+        //        $scope.messageCntrl.onMessageClosed();
+        //    }
+        //}
         $scope.messageCntrl.messageType = attrs["messageType"];
     };
 

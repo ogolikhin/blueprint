@@ -59,7 +59,8 @@ export class MessagesContainerDirective implements ng.IDirective {
         for (var i = 1; i <= 3; i++) {
             var mType = MessageType[i].toLowerCase();
             $element
-                .append(this.$compile("<message id=\"" + mType + "\" data-ng-if=\"messageContainterCntrl.hasMessages(" + i + ")\" data-message-type=\"" + mType + "\"  data-on-message-closed=\"messageContainterCntrl.closeMessages(" + i + ")\">" +
+                .append(this.$compile("<message id=\"" + mType + "\" data-ng-if=\"messageContainterCntrl.hasMessages(" + i + ")\" data-message-type=\"" + mType +
+                    "\"  data-on-message-closed=\"messageContainterCntrl.closeMessages(" + i + ")\">" +
                     "<ul ng-class=\"{nobullets: results.length < 2}\" >" +
                     "<li data-ng-repeat=\"m in messageContainterCntrl.messages | filter:{messageType:" + i + "} as results\">" +
                     "<div data-bp-compile-html=\"m.messageText\" data-on-message-action=\"m.onMessageAction\"></div>" +

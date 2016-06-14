@@ -62,3 +62,6 @@ export class AuthenticationRequired {
 }
 
 export { IServerLogger } from "./log/server-logger.svc";
+export {MessageDirective, MessagesContainerDirective, MessageService};
+export { IMessageService } from "./messages/message.svc";
+export { Message, MessageType} from "./messages/message";

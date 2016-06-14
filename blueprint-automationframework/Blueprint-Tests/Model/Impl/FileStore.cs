@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using System.Text;
+using System.Web;
 using Common;
 using NUnit.Framework;
 using Utilities;
@@ -185,7 +187,9 @@ namespace Model.Impl
 
             if (!string.IsNullOrEmpty(file.FileName))
             {
-                additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name=attachment; filename={0}", file.FileName));
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        HttpUtility.UrlEncode(file.FileName, System.Text.Encoding.UTF8)));
             }
 
             if (expectedStatusCodes == null)
@@ -246,7 +250,9 @@ namespace Model.Impl
 
             if (!string.IsNullOrEmpty(file.FileName))
             {
-                additionalHeaders.Add("Content-Disposition", I18NHelper.FormatInvariant("form-data; name=attachment; filename={0}", file.FileName));
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        HttpUtility.UrlEncode(file.FileName, System.Text.Encoding.UTF8)));
             }
 
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
@@ -301,6 +307,9 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
@@ -309,9 +318,7 @@ namespace Model.Impl
                         DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
                             null),
                     FileType = response.ContentType,
-                    FileName =
-                        new ContentDisposition(
-                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName
+                    FileName = filename
                 };
             }
 

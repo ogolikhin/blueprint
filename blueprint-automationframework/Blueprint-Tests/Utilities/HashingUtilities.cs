@@ -14,10 +14,8 @@ namespace Utilities
         /// <returns>The Base64 encoded string.</returns>
         public static string EncodeTo64UTF8(string valueToEncode)
         {
-            byte[] toEncodeAsBytes =
-            System.Text.Encoding.UTF8.GetBytes(valueToEncode);
-            string returnValue =
-            System.Convert.ToBase64String(toEncodeAsBytes);
+            byte[] toEncodeAsBytes = Encoding.UTF8.GetBytes(valueToEncode);
+            string returnValue = Convert.ToBase64String(toEncodeAsBytes);
             return returnValue;
         }
 

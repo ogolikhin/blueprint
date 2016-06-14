@@ -8,7 +8,6 @@ import "ng-draggable";
 import "../shell";
 import {IProjectRepository, ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models, SubscriptionEnum} from "./managers/project-manager";
-import {BPTreeComponent} from "../core/widgets/bp-tree/bp-tree";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -43,7 +42,6 @@ angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstra
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)
-    .component("bpTree", new BPTreeComponent())
     .component("bpMainView", new MainViewComponent())
     .component("pagecontent", new PageContent())
     .component("bpToolbar", new BPToolbarComponent())

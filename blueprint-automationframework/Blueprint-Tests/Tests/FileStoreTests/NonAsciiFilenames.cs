@@ -54,6 +54,8 @@ namespace FileStoreTests
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
+        [TestRail(134136)]
+        [Description("POST a file with a non-ASCII filename to FileStore (using Multipart-mime), then GET the file and compare against what we sent.")]
         public void PostFileWithMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
         {
             PostFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
@@ -70,6 +72,8 @@ namespace FileStoreTests
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
+        [TestRail(134137)]
+        [Description("POST a file with a non-ASCII filename to FileStore (not using Multipart-mime), then GET the file and compare against what we sent.")]
         public void PostFileWithoutMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
         {
             PostFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: false);
@@ -86,11 +90,11 @@ namespace FileStoreTests
             uint fileSize = 0;
             const string fileType = "text/plain";
 
-            // Setup: create a fake file with a random byte array.
+            // Setup: Create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
             IFile storedFile = null;
 
-            // Add the file to Filestore.
+            // Execute: Post the file to Filestore.
             Assert.DoesNotThrow(() =>
             {
                 storedFile = Helper.FileStore.PostFile(file, _user, useMultiPartMime: useMultiPartMime);
@@ -98,7 +102,7 @@ namespace FileStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
-            // Verify that the file was stored properly by getting it back and comparing it with original.
+            // Verify: that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
@@ -119,6 +123,8 @@ namespace FileStoreTests
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
+        [TestRail(134138)]
+        [Description("POST and then PUT a file with a non-ASCII filename to FileStore (using Multipart-mime), then GET the file and compare against what we sent.")]
         public void PutFileWithMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
         {
             PutFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: true);
@@ -135,6 +141,8 @@ namespace FileStoreTests
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
+        [TestRail(134139)]
+        [Description("POST and then PUT a file with a non-ASCII filename to FileStore (not using Multipart-mime), then GET the file and compare against what we sent.")]
         public void PutFileWithoutMultiPartMime_VerifyFileExists(string charSet, string fakeFileName)
         {
             PutFile_VerifyFileExists(charSet, fakeFileName, useMultiPartMime: false);
@@ -151,16 +159,17 @@ namespace FileStoreTests
             uint fileSize = 0;
             const string fileType = "text/plain";
 
-            // Setup: create a fake file with a random byte array.
+            // Setup: Create a fake file with a random byte array.
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
             IFile storedFile = null;
 
-            // Add the file to Filestore.
+            // Post the file to Filestore.
             Assert.DoesNotThrow(() =>
             {
                 storedFile = Helper.FileStore.PostFile(file, _user, useMultiPartMime: useMultiPartMime);
             }, "FileStore POST failed for file with {0} characters ({1} multipart-mime).", charSet, (useMultiPartMime ? "with" : "without"));
 
+            // Execute: Put the file chunk to FileStore.
             Assert.DoesNotThrow(() =>
             {
                 storedFile = Helper.FileStore.PutFile(file, new byte[] { }, _user, useMultiPartMime);
@@ -168,7 +177,7 @@ namespace FileStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);
 
-            // Verify that the file was stored properly by getting it back and comparing it with original.
+            // Verify: that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = Helper.FileStore.GetFile(storedFile.Id, _user);
 
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);

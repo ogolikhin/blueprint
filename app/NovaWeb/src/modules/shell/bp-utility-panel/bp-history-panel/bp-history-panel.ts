@@ -66,9 +66,12 @@ export class BPHistoryPanelController {
     }
 
     private setArtifactId(artifact: Models.IArtifact) {
-        this.artifactId = artifact.id;
         this.artifactHistoryList = [];
-        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+
+        if (artifact !== null) {
+            this.artifactId = artifact.id;
+            this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+        }
     }
 
     public loadMoreHistoricalVersions(): ng.IPromise<void> {
@@ -93,7 +96,7 @@ export class BPHistoryPanelController {
         this.selectedArtifactVersion = artifactHistoryItem;
     }
 
-    private getHistoricalVersions(limit: number = this.loadLimit, offset: number = 0, userId: string = null, asc: boolean = false): ng.IPromise<void> {
+    private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<void> {
         return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc).then((result) => {
             this.artifactHistoryList = this.artifactHistoryList.concat(result);
         });

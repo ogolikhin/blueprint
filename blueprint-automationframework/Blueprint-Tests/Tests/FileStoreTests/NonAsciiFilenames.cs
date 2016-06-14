@@ -8,6 +8,7 @@ namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
+    [Explicit(IgnoreReasons.ProductBug)]    // Bug: 179397
     public class NonAsciiFilenames : TestBase
     {
         private const string ARABIC_CHARS = "غ	ظ	ض	ذ	خ	ث	ت	ش	ر	ق	ص	ف	ع	س	ن	م	ل	ك	ي	ط	ح	ز	و	ه	د	ج	ب	ا";

@@ -112,6 +112,8 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
     width: $property-label-width;
   }
 
+  .field-input-text,
+  .field-textarea,
   input[type=text],
   textarea {
     border: solid 1px #eef0f0;
@@ -127,10 +129,15 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
       border-color: transparent;
     }
 
-    &.editable:focus,
     &.editable:hover {
       background: #fbf8e7 url('images/editable-icon.png') no-repeat #{$property-input-width - 20px} 6px;
       padding-right: 20px;
+    }
+
+    &.editable:focus,
+    &.mce-edit-focus:focus {
+      background: #fbf8e7;
+      padding-right: 6px;
     }
 
     &.typeahead {
@@ -143,15 +150,50 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
     }
   }
 
+  .field-input-text,
   input[type=text] {
     min-height: $property-min-height;
     padding-right: 6px;
   }
 
+  .field-input-text {
+    line-height: #{$property-min-height - 4px};
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+
+    &::before {
+      background: #fbf8e7 url('images/editable-icon.png') no-repeat 2px 6px;
+      content: '';
+      display: none;
+      height: $property-min-height;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 20px;
+      z-index: 1;
+    }
+
+    &:not(.mce-edit-focus):hover::before {
+      display: block;
+    }
+
+    > * {
+      margin: 0;
+    }
+  }
+
+  .field-textarea,
   textarea {
     min-height: #{1.5 * $property-min-height};
     overflow: auto;
     padding-right: 20px;
+  }
+
+  .field-textarea,
+  .field-input-text {
+    padding-bottom: 1px; // mimic browser's style for input fields
+    padding-top: 1px; // mimic browser's style for input fields
   }
 
   &.error {
@@ -159,6 +201,8 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
       display: inline-block;
       position: relative;
 
+      .field-input-text,
+      .field-textarea,
       input[type=text],
       textarea {
         border-bottom: solid 1px $brand-error;

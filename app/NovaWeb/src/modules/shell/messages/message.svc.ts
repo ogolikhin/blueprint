@@ -12,7 +12,8 @@ export interface IMessageService {
 }
 
 export class MessageService implements IMessageService {
-    private timers: ng.IPromise<any>[] = [];
+    private timers: { [type: string]: ng.IPromise<any>; } = {};
+
 
     public static $inject = ["$rootScope", "$timeout"];
     constructor(private $rootScope: ng.IRootScopeService, private $timeout: ng.ITimeoutService) {
@@ -21,10 +22,11 @@ export class MessageService implements IMessageService {
     private messages: Message[] = [];
 
     private cancelTimer = (messageType: MessageType) => {
-        //if (this.timer) {
-        //    this.$timeout.cancel(this.timer);
-        //    this.timer = null;
-        //}
+    
+        if (this.timers && this.timers[messageType]) {           
+            this.$timeout.cancel(this.timers[messageType]);
+                this.timers[messageType] = null;                
+        }
     }
 
     private clearMessagesAfterInterval = (messageType: MessageType) => {
@@ -80,11 +82,10 @@ export class MessageService implements IMessageService {
 
     public addMessage(msg: Message): void {       
         this.messages.push(msg);
-       // this.cancelTimer();
-
+     
         let messageTimeout = this.getMessageTimeout(msg.messageType);
-        if (messageTimeout > 0) {           
-            this.timers.push(this.$timeout(this.clearMessagesAfterInterval.bind(null, msg.messageType), messageTimeout));
+        if (messageTimeout > 0) {
+            this.timers[msg.messageType] = this.$timeout(this.clearMessagesAfterInterval.bind(null, msg.messageType), messageTimeout);
         }
     }
 
@@ -93,7 +94,6 @@ export class MessageService implements IMessageService {
         while (i--) {       
             if (this.messages[i].messageType === messageType) {
                 this.messages.splice(i, 1);
-
             }
         }
     }

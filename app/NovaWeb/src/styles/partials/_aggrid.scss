@@ -238,7 +238,7 @@ $has-children-padding-before-arrow: 3px;
   }
 
   .ag-row-group .is-folder .ag-group-expanded i::before {
-    content: '\e80d'; //should change to open folder icon
+    content: '\e80f';
   }
 
   .ag-row-group .is-project .ag-group-contracted i::before,
@@ -294,6 +294,11 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .project-tree {
+  .ag-grid,
+  .ag-grid > div {
+    min-height: $project-picker-tree-height;
+  }
+
   .ag-overlay-loading-wrapper {
     font-size: $font-size-smallest;
     padding-top: $aggrid-row-height;

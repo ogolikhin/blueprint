@@ -36,7 +36,7 @@ angular.module("app.shell",
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .service("messageService", MessageService)
     .directive("message", MessageDirective.factory())
-    .directive("messagesContainer", MessagesContainerDirective.directive)   
+    .directive("messagesContainer", MessagesContainerDirective.factory())   
     .config(Logger)
     .config(initializeInterceptors);
 

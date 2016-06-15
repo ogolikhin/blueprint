@@ -96,17 +96,33 @@ namespace Helper
         }
 
         /// <summary>
-        /// Create a file consisting of a random byte array
+        /// Create a file consisting of a random byte array.
         /// </summary>
-        /// <param name="fileSize">The size of the file being created</param>
-        /// <param name="fakeFileName">The filename of the file being created</param>
-        /// <param name="fileType">The mime filetype of the file being created</param>
-        /// <returns>The created file</returns>
+        /// <param name="fileSize">The size of the file being created.</param>
+        /// <param name="fakeFileName">The filename of the file being created.</param>
+        /// <param name="fileType">The mime filetype of the file being created.</param>
+        /// <returns>The created file.</returns>
         public static IFile CreateFileWithRandomByteArray(uint fileSize, string fakeFileName, string fileType)
         {
             string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
             byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
             IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileContents);
+            return file;
+        }
+
+        /// <summary>
+        /// Create a file with the specified contents.
+        /// </summary>
+        /// <param name="fakeFileName">The filename of the file being created.</param>
+        /// <param name="fileType">The mime filetype of the file being created.</param>
+        /// <param name="fileContents">The contents of the file.</param>
+        /// <param name="encoding">(optional) The encoding of the file contents.  Default is Unicode.</param>
+        /// <returns>The created file.</returns>
+        public static IFile CreateFileWithStringContents(string fakeFileName, string fileType, string fileContents, Encoding encoding = null)
+        {
+            encoding = encoding ?? Encoding.Unicode;
+            byte[] fileBytes = encoding.GetBytes(fileContents);
+            IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileBytes);
             return file;
         }
     }

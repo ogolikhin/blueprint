@@ -5,14 +5,16 @@ export interface IMessageContainerController {
 }
 
 export class MessageContainerController implements IMessageContainerController {
-    public hasMessages: (nType: MessageType) => boolean;
+   // public hasMessages: (nType: MessageType) => boolean;
 
     public static $inject = ["messageService"];
     constructor(private messageService: IMessageService) {
-        this.hasMessages = (mType) => {
-            return this.messageService.hasMessages(mType);
-        };
+      
     }
+
+   public hasMessages(mType){
+    return this.messageService.hasMessages(mType);
+}
 
     private countsMessageByType(messageType: MessageType) {
         return this.messageService.countsMessageByType(messageType);
@@ -55,6 +57,7 @@ export class MessagesContainerDirective implements ng.IDirective {
                     "<div data-bp-compile-html=\"messageContainterCntrl.getFirstOfTypeMessage(" + i + ").messageText\"" +
                     "data-on-message-action=\"messageContainterCntrl.getFirstOfTypeMessage(" + i + ").onMessageAction\"></div>" +
                     "</message>")($scope));
+          
         }
 
         $scope.$on('$destroy', function () {

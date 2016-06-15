@@ -13,17 +13,20 @@
             font-size: 1.6rem;
             vertical-align: middle;
         }
+        width:5%;
    }
     .error-msg_text{
       float:left; 
       display:inline-block;
       line-height: 1.6rem;
       vertical-align: middle;
+        width:90%;
     }
      .error-msg_btn{
       position: absolute;
       top: 0px;
       right: 0px;
+        width:5%;
     }
 
      .fonticon-close:before {

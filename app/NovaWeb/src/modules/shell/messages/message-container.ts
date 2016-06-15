@@ -25,6 +25,10 @@ export class MessageContainerController implements IMessageContainerController {
     public getFirstOfTypeMessage(messageType: MessageType): Message {
         return this.messageService.getFirstOfTypeMessage(messageType);
     }
+
+    public destroy() {
+        this.messageService.clearMessages();
+    }
 }
 
 export class MessagesContainerDirective implements ng.IDirective {
@@ -42,7 +46,7 @@ export class MessagesContainerDirective implements ng.IDirective {
     constructor(private $compile: ng.ICompileService) {
     }
 
-    public link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery) => {       
+    public link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attr: ng.IAttributes, $cntr: MessageContainerController) => {       
         for (let i = 1; i <= 3; i++) {
             let mType = MessageType[i].toLowerCase();
             $element
@@ -52,6 +56,10 @@ export class MessagesContainerDirective implements ng.IDirective {
                     "data-on-message-action=\"messageContainterCntrl.getFirstOfTypeMessage(" + i + ").onMessageAction\"></div>" +
                     "</message>")($scope));
         }
+
+        $scope.$on('$destroy', function () {
+            $cntr.destroy();
+        });
     };
 
     public controller = MessageContainerController;

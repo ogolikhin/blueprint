@@ -27,6 +27,7 @@
   "devDependencies": {
     "angular-mocks": "~1.5.2",
     "angular-module-mocks": "~1.2.19",
+    "angular-perfect-scrollbar-2": "^1.2.3",
     "babel-core": "^6.7.2",
     "babel-istanbul": "^0.8.0",
     "browser-sync": "^2.11.1",

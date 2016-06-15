@@ -7,12 +7,15 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using FileStore.Repositories;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Filters;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
+    [BaseExceptionFilter]
+    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
@@ -20,18 +23,22 @@ namespace FileStore.Controllers
         internal readonly string _preAuthorizedKey;
 
         public StatusController()
-            : this(new StatusControllerHelper(
-                        new List<IStatusRepository>
-                        {
-                            new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
-                            //new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
-                            //new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
-                        },
-                        "FileStore",
-                        new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus), 
-                        WebApiConfig.StatusCheckPreauthorizedKey
-                  )
+            : this
+            (
+                new StatusControllerHelper
+                (
+                    new List<IStatusRepository>
+                    {
+                        new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
+                    },
+                    "FileStore",
+                    new ServiceLogRepository(),
+                    WebApiConfig.LogSourceStatus
+                ), 
+                WebApiConfig.StatusCheckPreauthorizedKey
+            )
         {
         }
 

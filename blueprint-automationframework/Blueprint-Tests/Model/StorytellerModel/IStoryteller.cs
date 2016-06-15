@@ -158,8 +158,15 @@ namespace Model.StorytellerModel
         List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool? deleteChildren = null);
 
         /// <summary>
+        /// Retrieves the Storyteller limit from the ApplicationSettings table
+        /// </summary>
+        /// <returns>Returns shape limit for storyteller</returns>
+        int GetStorytellerShapeLimitFromDb { get; }
+
+        /// <summary>
         /// Returns URL of the Blueprint server
         /// </summary>
         string Address { get; }
+
     }
 }

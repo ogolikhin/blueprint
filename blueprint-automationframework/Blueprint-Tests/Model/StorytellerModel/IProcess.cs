@@ -291,9 +291,9 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Adds x number of pairs of User Task and System Task
         /// </summary>
-        /// <param name="processLink">The link to start adding the pairs of user tasks/system tasks</param>
+        /// <param name="processShape">The shape to start adding the pairs of user tasks/system tasks</param>
         /// <param name="numberOfPairs">The number of pairs of user tasks/system tasks to add</param>
-        void AddXUserTaskAndSystemTask(ProcessLink processLink, int numberOfPairs);
+        IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs);
 
         /// <summary>
         /// Get the Process Shape by the Shape Name

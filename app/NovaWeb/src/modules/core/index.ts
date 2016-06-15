@@ -37,6 +37,7 @@ export {
     IAppConstants,
     ILocalizationService,
     IConfigValueHelper,
+    ConfigValueHelper,
     IEventManager,
     EventManager,
     EventSubscriber,

@@ -4,23 +4,32 @@
     padding-top: 10px;
     padding-bottom: 10px;
      color: white;
+    position: relative;
 
     .error-msg_icon{
       float:left; 
       display:inline-block;
+        span:before {
+            font-size: 1.6rem;
+            vertical-align: middle;
+        }
    }
     .error-msg_text{
       float:left; 
       display:inline-block;
+      line-height: 1.6rem;
+      vertical-align: middle;
     }
      .error-msg_btn{
-      float:right; 
-      display:inline-block;
-     
+      position: absolute;
+      top: 0px;
+      right: 0px;
     }
 
      .fonticon-close:before {
        color: white;
+       font-size: 0.9rem;
+       
      }
 
      .close{

@@ -67,11 +67,20 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private async Task<StatusResponse> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-            var responseData = new StatusResponse() { Name = statusRepo.Name, AccessInfo = statusRepo.AccessInfo };
+            var responseData = new StatusResponse()
+            {
+                Name = statusRepo.Name,
+                AccessInfo = statusRepo.AccessInfo
+            };
 
             try
             {
+                await Log.LogInformation("Server", string.Format("Getting status for service {0}", statusRepo.Name), "TryGetStatusResponse");
+
                 var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
+
+                await Log.LogInformation("Server", string.Format("Status for service {0} is {1}", statusRepo.Name, result), "TryGetStatusResponse");
+
                 responseData.Result = result;
                 responseData.NoErrors = true;
             }

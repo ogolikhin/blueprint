@@ -18,15 +18,14 @@ namespace FileStore.Controllers
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
         internal readonly string _preAuthorizedKey;
-        private readonly IServiceLogRepository _serviceLogRepository;
 
         public StatusController()
             : this(new StatusControllerHelper(
                         new List<IStatusRepository>
                         {
                             new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
-                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
-                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
+                            //new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
+                            //new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
                         },
                         "FileStore",
                         new ServiceLogRepository(),
@@ -34,7 +33,6 @@ namespace FileStore.Controllers
                         WebApiConfig.StatusCheckPreauthorizedKey
                   )
         {
-            _serviceLogRepository = new ServiceLogRepository();
         }
 
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
@@ -56,11 +54,6 @@ namespace FileStore.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            if (_serviceLogRepository != null)
-            {
-                await _serviceLogRepository.LogInformation("Server", "Starting getting status for File Store");
-            }
-
             //Check pre-authorized key
             if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
             {
@@ -69,32 +62,13 @@ namespace FileStore.Controllers
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
 
-            try
+            if (serviceStatus.NoErrors)
             {
-                if (serviceStatus.NoErrors)
-                {
-                    return Ok(serviceStatus);
-                }
+                return Ok(serviceStatus);
+            }
 
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
-            }
-            catch (Exception ex)
-            {
-                if (_serviceLogRepository != null)
-                {
-                    await _serviceLogRepository.LogError(WebApiConfig.LogSourceStatus, ex);
-                }
-
-                return InternalServerError();
-            }
-            finally
-            {
-                if (_serviceLogRepository != null)
-                {
-                    await _serviceLogRepository.LogInformation("Server", "Finished getting status for File Store");
-                }
-            }
+            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+            return ResponseMessage(response);
         }
 
         /// <summary>

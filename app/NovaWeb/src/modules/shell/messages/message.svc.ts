@@ -1,4 +1,5 @@
 ﻿import {Message, MessageType} from "../../shell";
+import {IConfigValueHelper } from "../../core";
 
 export interface IMessageService {
     addMessage(msg: Message): void;
@@ -14,9 +15,8 @@ export interface IMessageService {
 export class MessageService implements IMessageService {
     private timers: { [type: string]: ng.IPromise<any>; } = {};
 
-
-    public static $inject = ["$rootScope", "$timeout"];
-    constructor(private $rootScope: ng.IRootScopeService, private $timeout: ng.ITimeoutService) {
+    public static $inject = ["$timeout", "configValueHelper"];
+    constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
     }
 
     private messages: Message[] = [];
@@ -40,12 +40,8 @@ export class MessageService implements IMessageService {
          * {"Warning": 0,"Info": 30000,"Error": 0}
          */
         let result = 0;
-        let timeout = null;
-
-        //TODO
-        //if (this.$rootScope["config"] && this.$rootScope["config"]["settings"]) {
-        //    timeout = this.$rootScope["config"]["settings"]["StorytellerMessageTimeout"];
-        //}
+        let timeout = this.configValueHelper.getStringValue("StorytellerMessageTimeout");  //TODO to change name?
+     
         if (timeout) {
             timeout = JSON.parse(timeout);
         }
@@ -74,6 +70,9 @@ export class MessageService implements IMessageService {
 
     public clearMessages(): void {
         this.messages.length = 0;
+        for (var item in MessageType) {
+            Object.keys(MessageType).map(k => this.cancelTimer(MessageType[k]));
+        }        
     }
 
     public addError(text: string): void {

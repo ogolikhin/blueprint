@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Text;
+using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
@@ -18,7 +19,8 @@ namespace FileStoreTests
         private const string JAPANESE_KANJI_CHARS = "亜哀愛悪握圧扱安案暗以衣位囲医依委威胃為尉異移偉意違維慰遺緯域育";
         private const string KOREAN_HANGUL_CHARS = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕㅛㅠㄲㄸㅃㅆㅉㄳㄵㄶㄺㄻㄼㄽㄾㄿㅀㅄㅐㅒㅔㅖㅢㅘㅙㅚㅝㅞㅟ";
         private const string RUSSIAN_CHARS = "ЗэыяёюиЛДПБГЧЙЖШЮЦЩФЁЪ";
-        private const string SIMPLIFIED_CHINESE_CHARS = "安吧爸八百北不大岛的弟地东都对多儿二方港哥个关贵国过海好很会家见叫姐京九可老李零六吗妈么没美妹们明名哪";
+        private const string SIMPLIFIED_CHINESE_CHARS1 = "安吧爸八百北不大岛的弟地东都对多儿二方港哥个关贵国过海好很会家见叫姐京九可老李零六吗妈么没美妹们明名哪那";
+        private const string SIMPLIFIED_CHINESE_CHARS2 = "南你您朋七起千去人认日三上谁什生师识十是四他她台天湾万王我五西息系先香想小谢姓休学也一亿英友月再张这中字";
         private const string SPANISH_CHARS = "áéíóúñÑüÜ¿¡ÁÉÍÓÚç";
         private const string SPECIAL_CHARS = "©®™~!@#$%^&*()_¢€£¤¥¦§¨ª«»¬¯°±¹²³´µ¶·¸º¼½¾¿";
         private const string TRADITIONAL_CHINESE_CHARS = "電買開東車紅馬無鳥熱時語假罐佛德拜黑冰兔妒壤每步";
@@ -54,7 +56,8 @@ namespace FileStoreTests
         [TestCase(nameof(JAPANESE_KANJI_CHARS), JAPANESE_KANJI_CHARS)]
         [TestCase(nameof(KOREAN_HANGUL_CHARS), KOREAN_HANGUL_CHARS)]
         [TestCase(nameof(RUSSIAN_CHARS), RUSSIAN_CHARS)]
-        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS), SIMPLIFIED_CHINESE_CHARS)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS1), SIMPLIFIED_CHINESE_CHARS1)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS2), SIMPLIFIED_CHINESE_CHARS2)]
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
@@ -73,7 +76,8 @@ namespace FileStoreTests
         [TestCase(nameof(JAPANESE_KANJI_CHARS), JAPANESE_KANJI_CHARS)]
         [TestCase(nameof(KOREAN_HANGUL_CHARS), KOREAN_HANGUL_CHARS)]
         [TestCase(nameof(RUSSIAN_CHARS), RUSSIAN_CHARS)]
-        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS), SIMPLIFIED_CHINESE_CHARS)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS1), SIMPLIFIED_CHINESE_CHARS1)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS2), SIMPLIFIED_CHINESE_CHARS2)]
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
@@ -92,11 +96,10 @@ namespace FileStoreTests
         /// <param name="useMultiPartMime">Specifies whether or not to use Multipart-mime.</param>
         private void PostFile_VerifyFileExists(string charSet, string fakeFileName, bool useMultiPartMime)
         {
-            uint fileSize = 0;
             const string fileType = "text/plain";
 
-            // Setup: Create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            // Setup: Create a fake file with contents the same as filename.
+            IFile file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
             IFile storedFile = null;
 
             // Execute: Post the file to Filestore.
@@ -125,7 +128,8 @@ namespace FileStoreTests
         [TestCase(nameof(JAPANESE_KANJI_CHARS), JAPANESE_KANJI_CHARS)]
         [TestCase(nameof(KOREAN_HANGUL_CHARS), KOREAN_HANGUL_CHARS)]
         [TestCase(nameof(RUSSIAN_CHARS), RUSSIAN_CHARS)]
-        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS), SIMPLIFIED_CHINESE_CHARS)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS1), SIMPLIFIED_CHINESE_CHARS1)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS2), SIMPLIFIED_CHINESE_CHARS2)]
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
@@ -144,7 +148,8 @@ namespace FileStoreTests
         [TestCase(nameof(JAPANESE_KANJI_CHARS), JAPANESE_KANJI_CHARS)]
         [TestCase(nameof(KOREAN_HANGUL_CHARS), KOREAN_HANGUL_CHARS)]
         [TestCase(nameof(RUSSIAN_CHARS), RUSSIAN_CHARS)]
-        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS), SIMPLIFIED_CHINESE_CHARS)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS1), SIMPLIFIED_CHINESE_CHARS1)]
+        [TestCase(nameof(SIMPLIFIED_CHINESE_CHARS2), SIMPLIFIED_CHINESE_CHARS2)]
         [TestCase(nameof(SPANISH_CHARS), SPANISH_CHARS)]
         [TestCase(nameof(SPECIAL_CHARS), SPECIAL_CHARS)]
         [TestCase(nameof(TRADITIONAL_CHINESE_CHARS), TRADITIONAL_CHINESE_CHARS)]
@@ -163,23 +168,22 @@ namespace FileStoreTests
         /// <param name="useMultiPartMime">Specifies whether or not to use Multipart-mime.</param>
         private void PutFile_VerifyFileExists(string charSet, string fakeFileName, bool useMultiPartMime)
         {
-            uint fileSize = 0;
             const string fileType = "text/plain";
 
-            // Setup: Create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            // Setup: Create a fake file with contents the same as filename.
+            IFile file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
             IFile storedFile = null;
 
             // Post the file to Filestore.
             Assert.DoesNotThrow(() =>
             {
-                storedFile = Helper.FileStore.PostFile(file, _user, useMultiPartMime: useMultiPartMime);
+                storedFile = Helper.FileStore.PostFile(file, _user, useMultiPartMime: false);
             }, "FileStore POST failed for file with {0} characters ({1} multipart-mime).", charSet, (useMultiPartMime ? "with" : "without"));
 
             // Execute: Put the file chunk to FileStore.
             Assert.DoesNotThrow(() =>
             {
-                storedFile = Helper.FileStore.PutFile(file, new byte[] { }, _user, useMultiPartMime);
+                storedFile = Helper.FileStore.PutFile(file, Encoding.Unicode.GetBytes(fakeFileName), _user, useMultiPartMime);
             }, "FileStore PUT failed for file with {0} characters ({1} multipart-mime).", charSet, (useMultiPartMime ? "with" : "without"));
 
             FileStoreTestHelper.AssertFilesAreIdentical(file, storedFile, compareIds: false);

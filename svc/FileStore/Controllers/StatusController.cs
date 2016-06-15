@@ -18,6 +18,7 @@ namespace FileStore.Controllers
     {
         internal readonly IStatusControllerHelper _statusControllerHelper;
         internal readonly string _preAuthorizedKey;
+        private readonly IServiceLogRepository _serviceLogRepository;
 
         public StatusController()
             : this(new StatusControllerHelper(
@@ -33,6 +34,7 @@ namespace FileStore.Controllers
                         WebApiConfig.StatusCheckPreauthorizedKey
                   )
         {
+            _serviceLogRepository = new ServiceLogRepository();
         }
 
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
@@ -54,6 +56,11 @@ namespace FileStore.Controllers
         [ResponseType(typeof(ServiceStatus))]
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
+            if (_serviceLogRepository != null)
+            {
+                await _serviceLogRepository.LogInformation("Server", "Starting getting status for File Store");
+            }
+
             //Check pre-authorized key
             if (_preAuthorizedKey == null || preAuthorizedKey != _preAuthorizedKey)
             {
@@ -62,14 +69,31 @@ namespace FileStore.Controllers
 
             ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
 
-            if (serviceStatus.NoErrors)
+            try
             {
-                return Ok();
+                if (serviceStatus.NoErrors)
+                {
+                    return Ok(serviceStatus);
+                }
+
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
             }
-            else
+            catch (Exception ex)
             {
-                //var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                if (_serviceLogRepository != null)
+                {
+                    await _serviceLogRepository.LogError(WebApiConfig.LogSourceStatus, ex);
+                }
+
                 return InternalServerError();
+            }
+            finally
+            {
+                if (_serviceLogRepository != null)
+                {
+                    await _serviceLogRepository.LogInformation("Server", "Finished getting status for File Store");
+                }
             }
         }
 

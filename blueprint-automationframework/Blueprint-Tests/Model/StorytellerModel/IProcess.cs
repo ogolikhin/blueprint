@@ -289,9 +289,9 @@ namespace Model.StorytellerModel
             int destinationId);
 
         /// <summary>
-        /// Adds x number of pairs of User Task and System Task
+        /// Adds x number of pairs of User Task and System Task after a shape.
         /// </summary>
-        /// <param name="processShape">The shape to start adding the pairs of user tasks/system tasks</param>
+        /// <param name="processShape">User tasks/system tasks will be added after this shape.</param>
         /// <param name="numberOfPairs">The number of pairs of user tasks/system tasks to add</param>
         IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs);
 

@@ -7,9 +7,9 @@ namespace ArtifactStore.Models
 {
     public enum ArtifactState
     {
-        Draft,
-        Published,
-        Deleted
+        Published = 0,
+        Draft = 1,
+        Deleted = 2
     }
     public class ArtifactHistoryResultSet
     {
@@ -31,6 +31,7 @@ namespace ArtifactStore.Models
         public int VersionId { get; set; }
         public int UserId { get; set; }
         public DateTime? Timestamp { get; set; }
+        public ArtifactState ArtifactState { get; set; }
     }
 
     public class UserInfo

@@ -79,14 +79,16 @@ namespace ArtifactStore.Repositories
             var artifactVersions = (await GetPublishedArtifactHistory(artifactId, limit, offset, userId, asc)).ToList();
             var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
             var isDeleted = (await IsArtifactDeleted(artifactId));
+            var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId));
 
-            if (await IncludeDraftVersion(userId, sessionUserId, artifactId))
+            if (isDeleted || includeDraftVersion)
             {
                 distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
                 var draftItem = new ArtifactHistoryVersion {
                     VersionId = int.MaxValue,
                     UserId = sessionUserId,
-                    Timestamp = null
+                    Timestamp = null,
+                    ArtifactState = isDeleted? ArtifactState.Deleted : ArtifactState.Draft
                 };
                 if (asc && artifactVersions.Count < limit)
                 {
@@ -109,8 +111,17 @@ namespace ArtifactStore.Repositories
                                                              UserId = artifactVersion.UserId,
                                                              Timestamp = artifactVersion.Timestamp,
                                                              DisplayName = userInfo.DisplayName,
-                                                             HasUserIcon = userInfo.Image_ImageId != null });
+                                                             HasUserIcon = userInfo.Image_ImageId != null,
+                                                             ArtifactState = artifactVersion.ArtifactState 
+                                                             });
             }
+
+            // if the artifact was deleted and never published, return an empty result set.
+            if (isDeleted && artifactHistoryVersionWithUserInfos.Count() == 1)
+            {
+                artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
+            }
+
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
                 ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos

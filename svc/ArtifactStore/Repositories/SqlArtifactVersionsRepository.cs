@@ -49,6 +49,7 @@ namespace ArtifactStore.Repositories
             var isDeletedPrm = new DynamicParameters();
             isDeletedPrm.Add("@artifactId", artifactId);
             var result = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetDeletedVersionInfo", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            result.VersionId = int.MaxValue;
             result.ArtifactState = ArtifactState.Deleted;
             return result;
         }
@@ -104,10 +105,13 @@ namespace ArtifactStore.Repositories
             if (isDeleted)
             {
                 var deletedVersionInfo = await DeletedVersionInfo(artifactId);
-                InsertDraftOrDeletedVersion(limit, offset,asc, artifactVersions, deletedVersionInfo);
-                distinctUserIds = distinctUserIds.Union(new int[] { deletedVersionInfo.UserId });
+                if (userId == null || userId.Value == deletedVersionInfo.UserId)
+                {
+                    deletedVersionInfo.ArtifactState = ArtifactState.Deleted;
+                    InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, deletedVersionInfo);
+                    distinctUserIds = distinctUserIds.Union(new int[] { deletedVersionInfo.UserId });
+                }
             }
-
             if (!isDeleted && includeDraftVersion)
             {
                 distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
@@ -138,7 +142,7 @@ namespace ArtifactStore.Repositories
             }
 
             // if the artifact was deleted and never published, return an empty result set.
-            if (isDeleted && artifactHistoryVersionWithUserInfos.Count() == 1)
+            if (isDeleted && artifactHistoryVersionWithUserInfos.Count() == 1 && offset == 0)
             {
                 artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
             }

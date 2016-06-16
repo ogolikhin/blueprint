@@ -1,4 +1,4 @@
-import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc"
+import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 
 export class ArtifactHistoryMock implements IArtifactHistory {
 

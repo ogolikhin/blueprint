@@ -5,11 +5,9 @@ import "angular-sanitize";
 import { ComponentTest } from "../../../util/component.test";
 import { BPHistoryPanelController} from "./bp-history-panel";
 import { LocalizationServiceMock } from "../../../core/localization.mock";
-import { ArtifactHistory, IArtifactHistory } from "./artifact-history.svc";
 import { ArtifactHistoryMock } from "./artifact-history.mock";
-import { IEventManager, EventManager, EventSubscriber } from "../../../core/event-manager";
 import {ProjectRepositoryMock} from "../../../main/services/project-repository.mock";
-import {ProjectManager, Models, SubscriptionEnum} from "../../../main/managers/project-manager";
+import {ProjectManager, SubscriptionEnum} from "../../../main/managers/project-manager";
 
 describe("Component BPHistoryPanel", () => {
 

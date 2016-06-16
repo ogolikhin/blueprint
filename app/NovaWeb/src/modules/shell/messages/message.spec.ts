@@ -28,7 +28,7 @@ describe("message directive", () => {
         // Act
 
         // Assert      
-        expect($(element.children(".error-msg_container")[0]).attr("class")).toContain("alert-error");
+        expect($(element.children(".container")[0]).attr("class")).toContain("error");
 
     })));
 

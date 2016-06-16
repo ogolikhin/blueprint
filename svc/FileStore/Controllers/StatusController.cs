@@ -20,18 +20,22 @@ namespace FileStore.Controllers
         internal readonly string _preAuthorizedKey;
 
         public StatusController()
-            : this(new StatusControllerHelper(
-                        new List<IStatusRepository>
-                        {
-                            new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
-                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
-                            new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
-                        },
-                        "FileStore",
-                        new ServiceLogRepository(),
-                        WebApiConfig.LogSourceStatus), 
-                        WebApiConfig.StatusCheckPreauthorizedKey
-                  )
+            : this
+            (
+                new StatusControllerHelper
+                (
+                    new List<IStatusRepository>
+                    {
+                        new SqlStatusRepository(ConfigRepository.Instance.FileStoreDatabase, "FileStorageDB"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.AccessControl), "AccessControlEndpoint"),
+                        new ServiceDependencyStatusRepository(new Uri(WebApiConfig.ConfigControl), "ConfigControlEndpoint")
+                    },
+                    "FileStore",
+                    new ServiceLogRepository(),
+                    WebApiConfig.LogSourceStatus
+                ), 
+                WebApiConfig.StatusCheckPreauthorizedKey
+            )
         {
         }
 
@@ -66,11 +70,9 @@ namespace FileStore.Controllers
             {
                 return Ok(serviceStatus);
             }
-            else
-            {
-                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-                return ResponseMessage(response);
-            }
+
+            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+            return ResponseMessage(response);
         }
 
         /// <summary>

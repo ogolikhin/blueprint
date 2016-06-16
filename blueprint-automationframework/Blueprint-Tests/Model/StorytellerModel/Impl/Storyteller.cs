@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -356,6 +357,26 @@ namespace Model.StorytellerModel.Impl
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
         }
+        
+        public int GetStorytellerShapeLimitFromDb
+        {
+            get
+            {
+                using (IDatabase database = DatabaseFactory.CreateDatabase())
+                {
+                    database.Open();
+                    string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
+                        Storyteller.APPLICATION_SETTINGS_TABLE, Storyteller.STORYTELLER_LIMIT_KEY);
+
+                    Logger.WriteDebug("Running: {0}", query);
+                    using (SqlCommand cmd = database.CreateSqlCommand(query))
+                    {
+                        var result = cmd.ExecuteScalar();
+                        return ParseStorytellerLimitFromDb(result);
+                    }
+                }
+            }
+        }
 
         #endregion Implemented from IStoryteller
 
@@ -549,6 +570,25 @@ namespace Model.StorytellerModel.Impl
             return restResponse;
         }
 
+        /// <summary>
+        /// Parses the result from the database to an int value for Storyteller shape limit
+        /// </summary>
+        /// <param name="result">The result from the database</param>
+        /// <returns>Number value of the shape limit</returns>
+        /// <exception cref="ArgumentNullException">If key value does not exist in database, will throw an ArgumentNullException.</exception>
+        private static int ParseStorytellerLimitFromDb(object result)
+        {
+            int returnVal;
+            if (result != null && Int32.TryParse(result.ToString(), out returnVal))
+            {
+                return returnVal;
+            }
+            var errorMessage =
+                string.Format(CultureInfo.InvariantCulture,
+                    "Could not find {0} value from the {1} table. Please check that the migration.sql ran propertly.",
+                    STORYTELLER_LIMIT_KEY, APPLICATION_SETTINGS_TABLE);
+            throw new ArgumentNullException(errorMessage);
+        }
         #endregion Private Methods
 
     }

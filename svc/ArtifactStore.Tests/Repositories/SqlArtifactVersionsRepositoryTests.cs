@@ -1,6 +1,8 @@
 ﻿using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
 using System.Collections.Generic;
@@ -106,7 +108,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new List<int>());
 
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
-            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
@@ -142,7 +144,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new int[] { artifactId });
 
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
-            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
@@ -179,7 +181,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new int[] { artifactId });
 
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
-            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
 
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);

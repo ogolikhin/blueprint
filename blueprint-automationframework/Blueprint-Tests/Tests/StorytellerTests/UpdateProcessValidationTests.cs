@@ -266,15 +266,16 @@ namespace StorytellerTests
         }
         
         [TestCase]
+        [TestRail(134647)]
         [Description(
             "Publish a process that has more than the shape limit in the backend.")]
         public void PublishProcess_ExceedShapeLimit_VerifyPublishDoesNotSucceed()
         {
             // Get limit from the database
-            int limit = StorytellerFactory.GetStorytellerShapeLimitFromDb();
+            int limit = Helper.Storyteller.GetStorytellerShapeLimitFromDb;
             
             // Number of pairs to create.  Subtract 5, for the number of shapes in the default process.
-            int pairs = (limit - 5)/2;
+            int pairs = (limit - Process.NumberOfShapesInDefaultProcess)/2;
 
             // Create and get the default process
             var process = StorytellerTestHelper.CreateProcessWithXAdditionalTaskPairs(Helper.Storyteller, _project, _user, pairs);
@@ -290,10 +291,11 @@ namespace StorytellerTests
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
-                   // Get and deserialize response
-                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                    // Get and deserialize response
+                    Helper.Storyteller.UpdateProcessReturnResponseOnly(
                         _user,
-                        process)
+                        process),
+                    "Expected the update process to return error due to the number of shapes to update exceeds the limit in the database."
                 );
 
             var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);

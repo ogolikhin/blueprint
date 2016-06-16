@@ -68,6 +68,7 @@ namespace Model.StorytellerModel.Impl
 
         private const string DefaultDecisionLabelPrefix = "Condition";
 
+        public const int NumberOfShapesInDefaultProcess = 5;
         #endregion Constants
 
         #region Private Properties
@@ -171,15 +172,19 @@ namespace Model.StorytellerModel.Impl
             return userTask;
         }
 
-        public void AddXUserTaskAndSystemTask(ProcessLink processLink, int numberOfPairs)
+        public IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs)
         {
-            ThrowIf.ArgumentNull(processLink, nameof(processLink));
-            AddUserAndSystemTask(processLink);
-            for (int i = 1; i < numberOfPairs; i ++)
+            ThrowIf.ArgumentNull(processShape, nameof(processShape));
+            IProcessShape addedUserTaskShape = processShape;
+
+            for (int i = 0; i < numberOfPairs; i++)
             {
-                var userTaskSystemTaskLink = GetOutgoingLinkForShape(Shapes.Last());
-                AddUserAndSystemTask(userTaskSystemTaskLink);
+                ProcessLink outgoingLink = GetOutgoingLinkForShape(processShape);
+                addedUserTaskShape = AddUserAndSystemTask(outgoingLink);
+                processShape = GetNextShape(addedUserTaskShape);
             }
+
+            return addedUserTaskShape;
         }
 
         public IProcessShape AddUserDecisionPointWithBranchBeforeShape(

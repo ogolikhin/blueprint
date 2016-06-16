@@ -1,41 +1,43 @@
-﻿//import "angular";
-//import "angular-mocks";
-//import {MessagesContainerDirective, MessageService, Message, MessageType} from "../../shell";
-
-//describe("messages container directive", () => {
-//    var element: JQuery;
-
-//    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
-//        $compileProvider.directive("messagesContainer", <any>MessagesContainerDirective.factory());
-//    }));
-
-//    it("can show a directive", (inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-//        // Arrange
-//        var scope = $rootScope.$new();
+﻿import "angular";
+import "angular-mocks";
+import {MessagesContainerDirective, IMessageService, MessageService, Message, MessageType} from "../../shell";
+import {MessageContainerController} from "./message-container";
+import {IConfigValueHelper, ConfigValueHelper } from "../../core";
 
 
-//        var messages: Message[] = [];
+describe("messages container directive", () => {
+    var element: ng.IAugmentedJQuery;
 
-//        messages.push(new Message(MessageType.Error, "Error1"));
-//        messages.push(new Message(MessageType.Error, "Error2"));
-//        messages.push(new Message(MessageType.Info, "Info"));
-//        scope["messages"] = messages;
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
+        $compileProvider.directive("messagesContainer", <any>MessagesContainerDirective.factory());
+        $provide.service("messageService", MessageService);
+        $provide.service("configValueHelper", ConfigValueHelper);
+    }));
 
-//        scope["hasMessages"] = () => { return true; };
-//        scope["closeMessages"] = () => { };
+    beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
+        $rootScope["config"] = {
+            "settings": {
+                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 3000, "Error": 0 }'
+            }
+        };
+    }));
 
-//        element = $compile(" <messages-container has-messages='hasMessages'  data-messages='messages' data-close-messages='closeMessages' />")(scope);
-//        scope.$digest();
-//        // Act
+    it("can show a directive", (inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, messageService: IMessageService) => {
+        // Arrange
+        var controller: MessageContainerController;
+        var scope = $rootScope.$new();
+       
+        messageService.addMessage(new Message(MessageType.Error, "Error1"));
+        messageService.addMessage(new Message(MessageType.Error, "Error2"));
+        messageService.addMessage(new Message(MessageType.Info, "Info1"));   
+        messageService.addMessage(new Message(MessageType.Info, "Info2"));
+        messageService.addMessage(new Message(MessageType.Warning, "Warning1"));   
 
-//        // Assert
-//        // 3 types of messages
-//        expect(element[0].childElementCount).toEqual(4);
-//        // 2 error messages
-//        expect(element[0].children[0].getElementsByTagName("ul")[0].getElementsByTagName("li").length).toEqual(2);
-//        // 1 success messages
-//        expect(element[0].children[1].getElementsByTagName("ul")[0].getElementsByTagName("li").length).toEqual(1);
-//        // no warnings
-//        expect(element[0].children[2].getElementsByTagName("ul")[0].getElementsByTagName("li").length).toEqual(0);
-//    })));
-//});
+        element = $compile("<messages-container/>")(scope);
+        scope.$digest();
+        controller = element.isolateScope()["messageContainterCntrl"];      
+
+        // Assert       
+        expect(element.find("message").length).toEqual(3);
+    })));
+});

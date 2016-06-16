@@ -1,9 +1,12 @@
-﻿// import { ILocalizationService } from "../../../core";
+﻿interface IOption {
+    value: any;
+    label: string;
+}
 
 interface IBPSelectController {
     ngModelCtrl: ng.INgModelController;
     ngModel: any;
-    options: any[];
+    options: IOption[];
     buttonLabel: string;
 }
 
@@ -26,8 +29,8 @@ export class BPSelectController implements IBPSelectController {
     public ngModelCtrl: ng.INgModelController;
     public ngModel: any;
     public buttonLabel: string;
-    public options: any[];
-    public selectedOption: any;
+    public options: IOption[];
+    public selectedOption: IOption;
 
     constructor() { }
 
@@ -35,7 +38,7 @@ export class BPSelectController implements IBPSelectController {
         this.selectedOption = this.options.filter(o => o.value === this.ngModel)[0];
     }
 
-    public onOptionSelect(option: any) {
+    public onOptionSelect(option: IOption) {
         this.selectedOption = option;
         this.ngModel = option.value;
         this.ngModelCtrl.$setViewValue(option.value);

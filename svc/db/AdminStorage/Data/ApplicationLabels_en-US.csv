@@ -101,3 +101,7 @@ Artifact_NotFound,"Couldn't find the artifact"
 
 #Messages
 Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."
+Error_Page_Message1, "An error ocurred while loading the page."
+Error_Page_Message2, "Please try again."
+Error_Page_Message3, "If the problem persists, contact your Blueprint administrator."
+Error_Page_Label, "Error"

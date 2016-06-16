@@ -5,6 +5,12 @@ using System.Web;
 
 namespace ArtifactStore.Models
 {
+    public enum ArtifactState
+    {
+        Draft,
+        Published,
+        Deleted
+    }
     public class ArtifactHistoryResultSet
     {
         public int ArtifactId;
@@ -17,6 +23,7 @@ namespace ArtifactStore.Models
         public string DisplayName { get; set; }
         public bool HasUserIcon { get; set; }
         public DateTime? Timestamp { get; set; }
+        public ArtifactState ArtifactState { get; set; }
     }
 
     public class ArtifactHistoryVersion

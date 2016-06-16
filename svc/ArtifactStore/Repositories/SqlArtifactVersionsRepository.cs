@@ -38,6 +38,13 @@ namespace ArtifactStore.Repositories
             return false;
         }
 
+        private async Task<bool> IsArtifactDeleted(int artifactId)
+        {
+            var isDeletedPrm = new DynamicParameters();
+            isDeletedPrm.Add("@artifactId", artifactId);
+            return (await ConnectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
         private async Task<IEnumerable<ArtifactHistoryVersion>> GetPublishedArtifactHistory(int artifactId, int limit, int offset, int? userId, bool asc)
         {
             var artifactVersionsPrm = new DynamicParameters();
@@ -71,6 +78,7 @@ namespace ArtifactStore.Repositories
 
             var artifactVersions = (await GetPublishedArtifactHistory(artifactId, limit, offset, userId, asc)).ToList();
             var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
+            var isDeleted = (await IsArtifactDeleted(artifactId));
 
             if (await IncludeDraftVersion(userId, sessionUserId, artifactId))
             {
@@ -89,11 +97,8 @@ namespace ArtifactStore.Repositories
                     artifactVersions.Insert(0, draftItem);
                 }
             }
-
             var userInfoDictionary = (await GetUserInfos(distinctUserIds)).ToDictionary(a => a.UserId);
-
             var artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
-
             foreach (var artifactVersion in artifactVersions)
             {
                 UserInfo userInfo;

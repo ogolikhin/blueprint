@@ -45,8 +45,8 @@ export class BPHistoryPanelController {
         ];
 
         // TODO: remove 2 lines below
-        // this.artifactId = 306; //331;
-        // this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+        this.artifactId = 306; //331;
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     public $onInit() {

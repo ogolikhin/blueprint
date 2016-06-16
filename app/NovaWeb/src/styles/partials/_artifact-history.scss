@@ -9,15 +9,13 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
     height: 100%;
     
     .filter-bar {
-        select {
-            border-radius: 3px;
-            margin: $padding-root;
-            padding: 1px 0  1px $padding-smaller;
-            float: right;
+        bp-select .dropdown {
+            min-width: 115px;
 
-            &:hover {
-                border-color: $brand-secondary;
-                color: $brand-secondary;
+            // make the menu open on the right side
+            .dropdown-menu {
+                left: inherit;
+                right: 0;
             }
         }
     }

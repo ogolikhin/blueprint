@@ -5,7 +5,6 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Helpers;
 
 namespace FileStore.Controllers
@@ -47,7 +46,6 @@ namespace FileStore.Controllers
             Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
         }
 
-        [Ignore]
         [TestMethod]
         public async Task GetStatus_HelperReturnsGoodStatus_ReturnsOkWithCorrectContent()
         {
@@ -64,7 +62,6 @@ namespace FileStore.Controllers
             Assert.AreEqual("MyServiceName", result.Content.ServiceName);
         }
 
-        [Ignore]
         [TestMethod]
         public async Task GetStatus_HelperReturnsWithErrors_ReturnsInternalServerErrorWithCorrectContent()
         {

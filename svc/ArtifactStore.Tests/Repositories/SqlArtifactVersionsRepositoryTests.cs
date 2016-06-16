@@ -162,8 +162,6 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetDeletedVersionInfo", new Dictionary<string, object> { { "artifactId", artifactId } }, new List<ArtifactHistoryVersion> { new ArtifactHistoryVersion { VersionId = int.MaxValue, UserId = 1, Timestamp = null, ArtifactState = ArtifactState.Deleted } });
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
-            var prm2 = new Dictionary<string, object> { { "userId", sessionUserId }, { "artifactIds", artifactIdsTable } };
-            cxn.SetupQueryAsync("GetArtifactsWithDraft", prm2, new List<int>());
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
             cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
             // Act

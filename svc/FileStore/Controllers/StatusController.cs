@@ -7,15 +7,12 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using FileStore.Repositories;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Filters;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace FileStore.Controllers
 {
-    [BaseExceptionFilter]
-    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {

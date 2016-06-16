@@ -21,7 +21,7 @@ namespace ArtifactStore.Controllers
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
-        public AttachmentsController() : this(new SqlAttachmentsRepository(), new ArtifactPermissionsRepository())
+        public AttachmentsController() : this(new SqlAttachmentsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
         public AttachmentsController(ISqlAttachmentsRepository attachmentsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()

@@ -43,7 +43,7 @@ namespace ArtifactStore.Models
     public class Attachment
     {
         public string Name { get; set; }
-        public string FileGuid { get; set; }
+        public Guid FileGuid { get; set; }
     }
 
     public class DocumentReference

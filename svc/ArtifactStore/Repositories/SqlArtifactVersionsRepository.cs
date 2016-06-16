@@ -37,7 +37,12 @@ namespace ArtifactStore.Repositories
             }
             return false;
         }
-
+        private async Task<bool> DoesArtifactHavePublishedOrDraftVersions(int artifactId)
+        {
+            var isPublishOrDraftPrm = new DynamicParameters();
+            isPublishOrDraftPrm.Add("@artifactId", artifactId);
+            return (await ConnectionWrapper.QueryAsync<bool>("DoesArtifactHavePublishedOrDraftVersion", isPublishOrDraftPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
         private async Task<bool> IsArtifactDeleted(int artifactId)
         {
             var isDeletedPrm = new DynamicParameters();
@@ -97,6 +102,10 @@ namespace ArtifactStore.Repositories
             if (userId.HasValue && userId < 1)
                 throw new ArgumentOutOfRangeException(nameof(userId));
 
+            if (!(await DoesArtifactHavePublishedOrDraftVersions(artifactId)))
+            {
+                return new ArtifactHistoryResultSet { ArtifactId = artifactId, ArtifactHistoryVersions = new List<ArtifactHistoryVersionWithUserInfo>() };
+            }
             var artifactVersions = (await GetPublishedArtifactHistory(artifactId, limit, offset, userId, asc)).ToList();
             var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
             var isDeleted = (await IsArtifactDeleted(artifactId));
@@ -140,13 +149,6 @@ namespace ArtifactStore.Repositories
                                                              ArtifactState = artifactVersion.ArtifactState 
                                                              });
             }
-
-            // if the artifact was deleted and never published, return an empty result set.
-            if (isDeleted && artifactHistoryVersionWithUserInfos.Count() == 1 && offset == 0)
-            {
-                artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
-            }
-
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,
                 ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos

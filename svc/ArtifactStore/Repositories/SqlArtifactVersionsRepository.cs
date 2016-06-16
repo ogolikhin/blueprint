@@ -50,10 +50,10 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> UserIds)
+        private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
             var userInfosPrm = new DynamicParameters();
-            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(UserIds);
+            var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(userIds);
             userInfosPrm.Add("@userIds", userIdsTable);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
@@ -104,7 +104,7 @@ namespace ArtifactStore.Repositories
                                                              UserId = artifactVersion.UserId,
                                                              Timestamp = artifactVersion.Timestamp,
                                                              DisplayName = userInfo.DisplayName,
-                                                             HasUserIcon = userInfo.Image_ImageId != null });
+                                                             HasUserIcon = userInfo.ImageId != null });
             }
             var result = new ArtifactHistoryResultSet {
                 ArtifactId = artifactId,

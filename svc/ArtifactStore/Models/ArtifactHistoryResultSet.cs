@@ -26,10 +26,4 @@ namespace ArtifactStore.Models
         public DateTime? Timestamp { get; set; }
     }
 
-    public class UserInfo
-    {
-        public int UserId { get; set; }
-        public string DisplayName { get; set; }
-        public int? Image_ImageId { get; set; }
-    }
 }

@@ -63,26 +63,14 @@ bp-message {
 
     &.error {
       background-color: $messages-bg-error;
-
-      .icon span::before {
-        content: '\e823';
-      }
     }
 
     &.warning {
       background-color: $messages-bg-warning;
-
-      .icon span::before {
-        content: '\e824';
-      }
     }
 
     &.info {
       background-color: $messages-bg-info;
-
-      .icon span::before {
-        content: '\e87f';
-      }
     }
   }
 }

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Security.Authentication.ExtendedProtection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.Management;
 using Newtonsoft.Json;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -75,11 +70,7 @@ namespace ServiceLibrary.Helpers
 
             try
             {
-                await Log.LogInformation("Server", string.Format("Getting status for service {0}", statusRepo.Name), "TryGetStatusResponse");
-
                 var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
-
-                await Log.LogInformation("Server", string.Format("Status for service {0} is {1}", statusRepo.Name, result), "TryGetStatusResponse");
 
                 responseData.Result = result;
                 responseData.NoErrors = true;
@@ -99,7 +90,6 @@ namespace ServiceLibrary.Helpers
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
         }
-
     }
 
     // *************************************************************************************

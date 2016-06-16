@@ -5,8 +5,6 @@ namespace FileStore
 {
     public class FileUploadBufferPolicySelector : WebHostBufferPolicySelector
     {
-        private static string[] _unbufferedControllers = new string[1] { "Files" };
-
         public override bool UseBufferedInputStream(object hostContext)
         {
             return false;

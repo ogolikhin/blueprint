@@ -5,7 +5,7 @@ namespace ServiceLibrary.Models
     [Flags]
     public enum ProjectPermissions
     {
-        All = 0x0,
+        //All = 0x0,
         CommentsModificationDisabled = 1,
         CommentsDeletionDisabled = 2,
         IsReviewESignatureEnabled = 4,

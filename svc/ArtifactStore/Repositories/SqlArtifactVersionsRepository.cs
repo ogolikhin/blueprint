@@ -106,10 +106,10 @@ namespace ArtifactStore.Repositories
             {
                 return new ArtifactHistoryResultSet { ArtifactId = artifactId, ArtifactHistoryVersions = new List<ArtifactHistoryVersionWithUserInfo>() };
             }
+
             var artifactVersions = (await GetPublishedArtifactHistory(artifactId, limit, offset, userId, asc)).ToList();
             var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
             var isDeleted = (await IsArtifactDeleted(artifactId));
-            var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId));
 
             if (isDeleted)
             {
@@ -117,20 +117,25 @@ namespace ArtifactStore.Repositories
                 if (userId == null || userId.Value == deletedVersionInfo.UserId)
                 {
                     deletedVersionInfo.ArtifactState = ArtifactState.Deleted;
-                    InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, deletedVersionInfo);
                     distinctUserIds = distinctUserIds.Union(new int[] { deletedVersionInfo.UserId });
+                    InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, deletedVersionInfo);
                 }
             }
-            if (!isDeleted && includeDraftVersion)
+            else 
             {
-                distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
-                var draftItem = new ArtifactHistoryVersion {
-                    VersionId = int.MaxValue,
-                    UserId = sessionUserId,
-                    Timestamp = null,
-                    ArtifactState = ArtifactState.Draft
-                };
-                InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, draftItem);
+                var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId));
+                if (includeDraftVersion)
+                {
+                    distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
+                    var draftItem = new ArtifactHistoryVersion
+                    {
+                        VersionId = int.MaxValue,
+                        UserId = sessionUserId,
+                        Timestamp = null,
+                        ArtifactState = ArtifactState.Draft
+                    };
+                    InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, draftItem);
+                }
             }
 
             var userInfoDictionary = (await GetUserInfos(distinctUserIds)).ToDictionary(a => a.UserId);
@@ -149,10 +154,7 @@ namespace ArtifactStore.Repositories
                                                              ArtifactState = artifactVersion.ArtifactState 
                                                              });
             }
-            var result = new ArtifactHistoryResultSet {
-                ArtifactId = artifactId,
-                ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos
-            };
+            var result = new ArtifactHistoryResultSet { ArtifactId = artifactId, ArtifactHistoryVersions = artifactHistoryVersionWithUserInfos };
             return result;
         }
     }

@@ -7,6 +7,7 @@ using System.Net;
 using NUnit.Framework;
 using System.Reflection;
 using Common;
+using Model.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -159,7 +160,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = String.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", OpenApiArtifact.SVC_PATH, artifactToDelete.ProjectId, artifactToDelete.Id);
@@ -172,7 +173,7 @@ namespace Model.ArtifactModel.Impl
                 queryparameters.Add("Recursively", "true");
             }
 
-            RestApiFacade restApi = new RestApiFacade(artifactToDelete.Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DeleteArtifactResult>>(
                 path,
                 RestRequestMethod.DELETE,
@@ -244,7 +245,7 @@ namespace Model.ArtifactModel.Impl
                 queryParameters.Add("readOnly", "false");
             }
 
-            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
                 path,
@@ -302,7 +303,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = String.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var additionalHeaders = new Dictionary<string, string>();
@@ -312,7 +313,7 @@ namespace Model.ArtifactModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 OpenApiArtifact.URL_PUBLISH,
                 RestRequestMethod.POST,

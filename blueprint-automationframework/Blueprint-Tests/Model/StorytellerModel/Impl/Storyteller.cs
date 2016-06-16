@@ -131,11 +131,11 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var additionalHeaders = new Dictionary<string, string>();
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
             var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
@@ -163,7 +163,7 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, artifactId);
@@ -175,7 +175,7 @@ namespace Model.StorytellerModel.Impl
                 queryParameters.Add("versionId", versionIndex.ToString());
             }
 
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
             var response = restApi.SendRequestAndDeserializeObject<Process>(
@@ -200,11 +200,11 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/processes", SVC_PATH, projectId);
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(Storyteller), projectId);
             var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
@@ -228,7 +228,7 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             if (expectedStatusCodes == null)
@@ -237,7 +237,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/{2}/{3}", SVC_PATH, URL_PROJECTS, projectId, URL_ARTIFACTTYPES);
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
             var response = restApi.SendRequestAndDeserializeObject<ArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
@@ -277,7 +277,7 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             if (expectedStatusCodes == null)
@@ -295,7 +295,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             byte[] bytes = file.Content.ToArray();
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(Storyteller), file.FileName, bytes.Length);
             var artifactResult = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST, fileName: file.FileName, fileContent: bytes, contentType: "application/json;charset=utf8", additionalHeaders: additionalHeaders, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
@@ -316,7 +316,7 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             if (expectedStatusCodes == null)
@@ -325,7 +325,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             const string path = "/svc/shared/artifacts/publish";
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
             restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST, new List<int> { process.Id },
@@ -550,11 +550,11 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/processes/{1}", SVC_PATH, process.Id);
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
             var restResponse = restApi.SendRequestAndGetResponse(

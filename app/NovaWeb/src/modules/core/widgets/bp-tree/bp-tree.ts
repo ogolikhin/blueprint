@@ -270,8 +270,8 @@ export class BPTreeController implements IBPTreeController  {
     private onGridReady = (params: any) => {
         let self = this;
         let viewport = self.$element[0].querySelector(".ag-body-viewport");
-        console.log(viewport);
-        //.attr('perfect-scrollbar', "");
+        viewport.setAttribute("perfect-scrollbar", "");
+        console.log(this)
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }

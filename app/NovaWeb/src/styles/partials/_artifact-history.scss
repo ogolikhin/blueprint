@@ -84,6 +84,8 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
             }
             .author {
                 padding-top: 2px;
+                padding-bottom: 2px;
+                @include text-ellipsis-flex-width(100%);
             }
 
             bp-avatar {

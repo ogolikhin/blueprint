@@ -44,6 +44,14 @@ namespace ArtifactStore.Repositories
             isDeletedPrm.Add("@artifactId", artifactId);
             return (await ConnectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
+        private async Task<ArtifactHistoryVersion> DeletedVersionInfo(int artifactId)
+        {
+            var isDeletedPrm = new DynamicParameters();
+            isDeletedPrm.Add("@artifactId", artifactId);
+            var result = (await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetDeletedVersionInfo", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            result.ArtifactState = ArtifactState.Deleted;
+            return result;
+        }
 
         private async Task<IEnumerable<ArtifactHistoryVersion>> GetPublishedArtifactHistory(int artifactId, int limit, int offset, int? userId, bool asc)
         {
@@ -65,6 +73,18 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
+        private void InsertDraftOrDeletedVersion(int limit, int offset, bool asc, List<ArtifactHistoryVersion> artifactVersions, ArtifactHistoryVersion deletedOrDraftEntry)
+        {
+            if (asc && artifactVersions.Count < limit)
+            {
+                artifactVersions.Insert(artifactVersions.Count, deletedOrDraftEntry);
+            }
+            else if (!asc && offset == 0)
+            {
+                artifactVersions.Insert(0, deletedOrDraftEntry);
+            }
+        }
+
         public async Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId)
         {
             if (artifactId < 1)
@@ -81,24 +101,25 @@ namespace ArtifactStore.Repositories
             var isDeleted = (await IsArtifactDeleted(artifactId));
             var includeDraftVersion = (await IncludeDraftVersion(userId, sessionUserId, artifactId));
 
-            if (isDeleted || includeDraftVersion)
+            if (isDeleted)
+            {
+                var deletedVersionInfo = await DeletedVersionInfo(artifactId);
+                InsertDraftOrDeletedVersion(limit, offset,asc, artifactVersions, deletedVersionInfo);
+                distinctUserIds = distinctUserIds.Union(new int[] { deletedVersionInfo.UserId });
+            }
+
+            if (!isDeleted && includeDraftVersion)
             {
                 distinctUserIds = distinctUserIds.Union(new int[] { sessionUserId });
                 var draftItem = new ArtifactHistoryVersion {
                     VersionId = int.MaxValue,
                     UserId = sessionUserId,
                     Timestamp = null,
-                    ArtifactState = isDeleted? ArtifactState.Deleted : ArtifactState.Draft
+                    ArtifactState = ArtifactState.Draft
                 };
-                if (asc && artifactVersions.Count < limit)
-                {
-                    artifactVersions.Insert(artifactVersions.Count, draftItem);
-                }
-                else if (!asc && offset == 0)
-                {
-                    artifactVersions.Insert(0, draftItem);
-                }
+                InsertDraftOrDeletedVersion(limit, offset, asc, artifactVersions, draftItem);
             }
+
             var userInfoDictionary = (await GetUserInfos(distinctUserIds)).ToDictionary(a => a.UserId);
             var artifactHistoryVersionWithUserInfos = new List<ArtifactHistoryVersionWithUserInfo>();
             foreach (var artifactVersion in artifactVersions)

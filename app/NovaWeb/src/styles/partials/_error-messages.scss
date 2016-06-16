@@ -1,54 +1,88 @@
-.error-msg_container{
-    display: inline-block;
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-     color: white;
+messages-container,
+bp-messages-container {
+  display: block;
+  flex-shrink: 0;
+}
+
+message,
+bp-message {
+  display: block;
+  font-size: 0;
+
+  .container {
+    border-radius: $border-radius-amount;
+    box-shadow: 0 2px 5px 0 rgba($black,.5);
+    color: $white;
+    margin: 0 20px 6px;
+    padding: 10px 0;
     position: relative;
+    width: calc(100% - 40px);
 
-    .error-msg_icon{
-      float:left; 
-      display:inline-block;
-        span:before {
-            font-size: 1.6rem;
-            vertical-align: middle;
-        }
-        width:5%;
-   }
-    .error-msg_text{
-      float:left; 
-      display:inline-block;
-      line-height: 1.6rem;
+    .icon {
+      display: inline-block;
+      float: left;
+      text-align: center;
+      width: 54px;
+    }
+
+    .text {
+      display: inline-block;
+      float: left;
+      font-size: $font-size-smaller;
+      //overflow: hidden;
+      padding-top: 2px;
+      //text-overflow: ellipsis;
       vertical-align: middle;
-        width:90%;
+      //white-space: nowrap;
+      width: calc(100% - 98px);
     }
-     .error-msg_btn{
+
+    .fonticon-close {
+      color: $white;
+      cursor: pointer;
+      opacity: 1;
       position: absolute;
-      top: 0px;
-      right: 0px;
-        width:5%;
+      right: 3px;
+      text-decoration: none;
+      top: 6px;
+
+      &::before {
+        font-size: 1rem;
+      }
     }
 
-     .fonticon-close:before {
-       color: white;
-       font-size: 0.9rem;
-       
-     }
+    &:first-child {
+      margin-top: 4px;
+    }
 
-     .close{
-         opacity: 1;
-     }
+    &::after { //self clearing
+      clear: both;
+      content: '';
+      display: table;
+    }
+
+    &.error {
+      background-color: $messages-bg-error;
+
+      .icon span::before {
+        content: '\e823';
+      }
+    }
+
+    &.warning {
+      background-color: $messages-bg-warning;
+
+      .icon span::before {
+        content: '\e824';
+      }
+    }
+
+    &.info {
+      background-color: $messages-bg-info;
+
+      .icon span::before {
+        content: '\e87f';
+      }
+    }
+  }
 }
-
-.alert-error{
-    background-color: $brand-error;
-}
-
-.alert-warning{
-    background-color: $brand-warning;
-}
-
-.alert-info{
-    background-color: $brand-info;
-}
-

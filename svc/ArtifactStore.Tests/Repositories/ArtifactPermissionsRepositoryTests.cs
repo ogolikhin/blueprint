@@ -6,6 +6,7 @@ using ArtifactStore.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Helpers;
 
 namespace ArtifactStore.Repositories
 {
@@ -18,7 +19,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             var itemIds = Enumerable.Range(1, 60);
 
             // Act
@@ -30,7 +31,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(true, cxn);
             var itemIds = new List<int> { 1 };
             var allPermissions = Enum.GetValues(typeof(RolePermissions)).Cast<long>().Aggregate(RolePermissions.None, (current, permission) => current | (RolePermissions)permission);
@@ -48,7 +49,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
             var mockBoolResult = new List<bool> { true }.AsEnumerable();
@@ -83,7 +84,7 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
             var mockBoolResult = new List<bool> { true }.AsEnumerable();
@@ -128,7 +129,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int? revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
             var mockBoolResult = new List<bool> { true }.AsEnumerable();
@@ -173,7 +174,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int? revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
             var mockBoolResult = new List<bool> { true }.AsEnumerable();
@@ -224,7 +225,7 @@ namespace ArtifactStore.Repositories
             // Arrange
             int? revisionId = 1;
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new ArtifactPermissionsRepository(cxn.Object);
+            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
             var mockBoolResult = new List<bool> { true }.AsEnumerable();

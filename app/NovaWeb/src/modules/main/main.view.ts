@@ -31,7 +31,7 @@ export class MainViewController implements IMainViewController {
     }
 
     public $onInit() {
-        this.projectManager.initialize();
+//        this.projectManager.initialize();
         this.projectManager.currentArtifact.asObservable().subscribe(this.displayArtifact);
         this._listeners = [
             this.eventManager.attach(EventSubscriber.Main, "exception", this.showError),

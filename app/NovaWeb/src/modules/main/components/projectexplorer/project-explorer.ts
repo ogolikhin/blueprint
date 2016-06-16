@@ -15,12 +15,15 @@ export class ProjectExplorerController {
     constructor(private projectManager: IProjectManager) {
         //subscribe to event
         this._listeners = [
-            this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject),
-            this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject),
-            this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject)
+            //this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject),
+            //this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject),
+            //this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject)
         ];
     }
-    
+    public $onInit(o) {
+        this.projectManager.projectCollection.asObservable().subscribeOnNext(this.loadProject, this);
+    }
+
     public $onDestroy() {
         //clear all Project Manager event subscription
         this._listeners.map(function (it) {
@@ -54,22 +57,25 @@ export class ProjectExplorerController {
     }];
 
 
-    private loadProject = (artifact: Models.IArtifact) => {
-        this.doSync({
-            id: artifact.id,
-            type: 0,
-            name: artifact.name,
-            hasChildren: artifact.hasChildren,
-            loaded: true,
-            open: true
-        } as ITreeNode);
-
-        this.tree.reload(this.projectManager.ProjectCollection);
-        this.tree.selectNode(artifact.id);
+    private loadProject = (projects: Models.IProject[]) => {
+        //this.doSync({
+        //    id: artifact.id,
+        //    type: 0,
+        //    name: artifact.name,
+        //    hasChildren: artifact.hasChildren,
+        //    loaded: true,
+        //    open: true
+        //} as ITreeNode);
+        if (this.tree) {
+            this.tree.reload(projects);
+            //        this.tree.selectNode(artifact.id);
+        }
     }
 
     private closeProject = (projects: Models.IProject[]) => {
-        this.tree.reload(this.projectManager.ProjectCollection);
+        if (this.tree) {
+            this.tree.reload(projects);
+        }
     }
 
     public doLoad = (prms: any): any[] => {
@@ -81,13 +87,13 @@ export class ProjectExplorerController {
         let projectId = angular.isNumber(prms.projectId) ? prms.projectId : -1;
         let artifactId = angular.isNumber(prms.id) ? prms.id : -1;
         //notify the repository to load the node children
-        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, projectId, artifactId);
+        this.projectManager.loadArtifact(prms as Models.IArtifact);
     };
 
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.projectManager.CurrentArtifact = this.doSync(node);
+        this.projectManager.currentArtifact.onNext(this.doSync(node));
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {

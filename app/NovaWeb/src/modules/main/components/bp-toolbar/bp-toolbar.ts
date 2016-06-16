@@ -27,10 +27,10 @@ class BPToolbarController implements IBPToolbarController {
         var element = evt.currentTarget;
         switch (element.id) {
             case `ProjectClose`:
-                this.projectManager.notify(SubscriptionEnum.ProjectClose);
+                this.projectManager.closeProject();
                 break;
             case `ProjectCloseAll`:
-                this.projectManager.notify(SubscriptionEnum.ProjectClose, true);
+                this.projectManager.closeProject(true);
                 break;
             default:
                 this.dialogService.alert(`Selected Action is ${element.id || element.innerText}`);
@@ -56,7 +56,7 @@ class BPToolbarController implements IBPToolbarController {
             css: "nova-open-project modal-resize-both"
         }).then((project: Models.IProject) => {
             if (project) {
-                this.projectManager.notify( SubscriptionEnum.ProjectLoad, project );
+                this.projectManager.loadProject(project);
             }
         });
     }

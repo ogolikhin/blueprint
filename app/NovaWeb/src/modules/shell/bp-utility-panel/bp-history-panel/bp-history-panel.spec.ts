@@ -43,7 +43,7 @@ describe("Component BPHistoryPanel", () => {
     it("should load data for a selected artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
 
         //Arrange
-        projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+        projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
         $rootScope.$digest();
 
         //Act

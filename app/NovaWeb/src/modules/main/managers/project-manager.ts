@@ -31,6 +31,10 @@ export interface IProjectManager {
     CurrentProject: Models.IProject;
     CurrentArtifact: Models.IArtifact;
 
+    projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
+    currentProject: Rx.BehaviorSubject<Models.IProject>;
+    currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
+
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
@@ -44,6 +48,11 @@ export class ProjectManager implements IProjectManager {
     private _currentArtifact: Models.IArtifact;
     private _projectCollection: Models.IProject[];
 
+    public projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
+
+    public currentProject: Rx.BehaviorSubject<Models.IProject>;
+
+    public currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
     static $inject: [string] = ["localization", "eventManager", "projectRepository"];
     constructor(
@@ -51,13 +60,14 @@ export class ProjectManager implements IProjectManager {
         private eventManager: IEventManager,
         private _repository: IProjectRepository) {
 
+
         //subscribe to event
         this._listeners = [
-            this.subscribe(SubscriptionEnum.PropertyChanged, this.onPropertyChanged.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectLoad, this.loadProject.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectChildrenLoad, this.loadProjectChildren.bind(this)),
             this.subscribe(SubscriptionEnum.ProjectClose, this.closeProject.bind(this)),
         ];
+        this.initialize();
     }
 
     public $onDestroy() {
@@ -68,6 +78,12 @@ export class ProjectManager implements IProjectManager {
     }
 
     public initialize = () => {
+        this.projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
+
+        this.currentProject = new Rx.BehaviorSubject<Models.IProject>({} as Models.IProject);
+
+        this.currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>({} as Models.IArtifact);
+
         this._projectCollection = [];
         this._currentProject = null;
         this._currentArtifact = null;
@@ -85,16 +101,14 @@ export class ProjectManager implements IProjectManager {
         this.eventManager.dispatch(EventSubscriber.ProjectManager, SubscriptionEnum[type], ...prms);
     }
 
-    private onPropertyChanged(item: any, propertyName: string, value: any, oldValue: any) {
-
-    }
-
     public set CurrentProject(project: Models.IProject) {
         if (this._currentProject && project && this._currentProject.id === project.id) {
             return;
         }
         this._currentProject = project;
+        this.currentProject.onNext(this._currentProject);
         this.notify(SubscriptionEnum.ProjectChanged, this._currentProject);
+
     }
 
     public get CurrentProject(): Models.IProject {
@@ -113,6 +127,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         this._currentArtifact = artifact;
+        this.currentArtifact.onNext(this._currentArtifact);
         this.notify(SubscriptionEnum.ArtifactChanged, this._currentArtifact);
 
     }
@@ -149,8 +164,7 @@ export class ProjectManager implements IProjectManager {
                     .then((result: Models.IArtifact[]) => {
                         project = new Models.Project(prj, {artifacts: result});
                         self._projectCollection.unshift(project);
-                        self.CurrentProject = project;
-                        self.CurrentArtifact = project;
+                        self.currentArtifact.onNext(project);
                         self.notify(SubscriptionEnum.ProjectLoaded, project);
                     }).catch((error: any) => {
                         this.eventManager.dispatch(EventSubscriber.Main, "exception", error);

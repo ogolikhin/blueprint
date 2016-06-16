@@ -1,4 +1,5 @@
 ﻿import { IAppConstants, ILocalizationService } from "../../../core";
+import { IProjectManager} from "../../../main";
 import {IEventManager, EventSubscriber} from "../../../core/event-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import * as Models from "../../../main/models/models";
@@ -19,6 +20,7 @@ export class BPHistoryPanelController {
         "localization",
         "artifactHistory",
         "eventManager",
+        "projectManager",
         "$q",
         "appConstants"];
 
@@ -37,6 +39,7 @@ export class BPHistoryPanelController {
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
         private eventManager: IEventManager,
+        private projectManager: IProjectManager,
         private $q: ng.IQService,
         private appConstants: IAppConstants) {
 
@@ -51,6 +54,7 @@ export class BPHistoryPanelController {
             this.artifactHistoryList = this.artifactHistoryList.concat(value);
         });
 
+        this.projectManager.currentArtifact.asObservable().subscribe(this.setArtifactId);
         console.log("about to make a request to get value");
 
         // TODO: remove 2 lines below
@@ -59,9 +63,9 @@ export class BPHistoryPanelController {
     }
 
     public $onInit() {
-        this._listeners = [
-            this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.setArtifactId.bind(this))
-        ];
+        //this._listeners = [
+        //    this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.setArtifactId.bind(this))
+        //];
     }
     public $onDestroy() {
         this._listeners.map( (it) => {
@@ -74,7 +78,7 @@ export class BPHistoryPanelController {
         this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
-    private setArtifactId(artifact: Models.IArtifact) {
+    private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactHistoryList = [];
 
         if (artifact !== null) {

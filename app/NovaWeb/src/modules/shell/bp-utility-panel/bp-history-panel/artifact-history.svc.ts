@@ -26,8 +26,7 @@ export class ArtifactHistory implements IArtifactHistory {
         "$q",
         "$http",
         "$log",
-        "localization",
-        "rx"];
+        "localization"];
 
     private _artifactHistory;
     public artifactHistory;
@@ -36,10 +35,8 @@ export class ArtifactHistory implements IArtifactHistory {
         private $q: ng.IQService,
         private $http: ng.IHttpService,
         private $log: ng.ILogService,
-        private localization: ILocalizationService,
-        private rx) {
-
-            this._artifactHistory = new this.rx.BehaviorSubject([]);
+        private localization: ILocalizationService) {
+            this._artifactHistory = new Rx.BehaviorSubject([]);
             this.artifactHistory = this._artifactHistory.asObservable();
     }
 

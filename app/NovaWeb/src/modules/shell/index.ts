@@ -1,7 +1,7 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
-import "rx-angular";
+import "rx-lite";
 import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
@@ -22,8 +22,7 @@ angular.module("app.shell",
         core,
         "ui.router",
         "ui.bootstrap",
-        "ngSanitize",
-        "rx"
+        "ngSanitize"
     ])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)

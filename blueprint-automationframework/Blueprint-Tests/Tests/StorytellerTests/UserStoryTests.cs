@@ -328,6 +328,7 @@ namespace StorytellerTests
             linkedArtifact.Save();
             linkedArtifact.Publish();
             string inlineTraceText;
+            int linkedArtifactId = linkedArtifact.Id;
 
             try
             {
@@ -350,10 +351,11 @@ namespace StorytellerTests
                 "Result of create inline trace must return one error message, but returns {0}",
                 updatePropertyResult.Messages.Count());
 
-            string expectedMessage = I18NHelper.FormatInvariant("Artifact with ID {0} was inaccessible. A manual trace was not created.", linkedArtifact.Id);
-            Assert.That(updatePropertyResult.Messages.ElementAt(0).Message.Equals(expectedMessage), "Returned message must be {0}, but it is {1}",
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact with ID {0} was inaccessible. A manual trace was not created.", linkedArtifactId);
+            Assert.That(updatePropertyResult.Messages.ElementAt(0).Message.Equals(expectedMessage), "Returned message must be '{0}', but it is '{1}'",
                 expectedMessage, updatePropertyResult.Messages.ElementAt(0).Message);
-            Assert.That(updatePropertyResult.Messages.ElementAt(0).ItemId == linkedArtifact.Id, "Returned ID must be {0}, but it is {1}");
+            Assert.AreEqual(updatePropertyResult.Messages.ElementAt(0).ItemId, linkedArtifactId, "Returned ID must be {0}, but it is {1}",
+                linkedArtifactId, updatePropertyResult.Messages.ElementAt(0).ItemId);
         }
 
         [TestCase]

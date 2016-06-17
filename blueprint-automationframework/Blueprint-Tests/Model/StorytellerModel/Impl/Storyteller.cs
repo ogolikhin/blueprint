@@ -16,7 +16,7 @@ using Utilities.Facades;
 
 namespace Model.StorytellerModel.Impl
 {
-    public class Storyteller : IStoryteller
+    public class Storyteller : IStoryteller, IArtifactObserver
     {
         private const string SVC_PATH = "svc/components/storyteller";
         private const string URL_PROJECTS = "projects";
@@ -43,6 +43,32 @@ namespace Model.StorytellerModel.Impl
 
         #endregion Constructor
 
+        #region IArtifactObserver methods
+
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
+        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(Storyteller), nameof(Storyteller.NotifyArtifactDeletion), string.Join(", ", deletedArtifactIds));
+
+            foreach (var deletedArtifactId in deletedArtifactIds)
+            {
+                Artifacts.ForEach(a =>
+                {
+                    if (a.Id == deletedArtifactId)
+                    {
+                        a.IsDeleted = true;
+                        a.IsPublished = false;
+                        a.IsSaved = false;
+                    }
+                });
+                Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
+            }
+        }
+
+        #endregion IArtifactObserver methods
+
         #region Implemented from IStoryteller
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
@@ -62,6 +88,7 @@ namespace Model.StorytellerModel.Impl
 
             // Add artifact to artifacts list
             Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
 
             return artifact;
         }
@@ -424,6 +451,8 @@ namespace Model.StorytellerModel.Impl
                                 savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
                             }
                         }
+
+                        artifact.UnregisterObserver(this);
                     }
 
                     // For each user that created artifacts, discard the list of artifacts they created.

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -27,6 +28,11 @@ namespace ServiceLibrary.Repositories
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(userIds);
             userInfosPrm.Add("@userIds", userIdsTable);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? getGuests = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

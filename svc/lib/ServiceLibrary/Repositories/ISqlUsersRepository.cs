@@ -7,5 +7,7 @@ namespace ServiceLibrary.Repositories
     public interface IUsersRepository
     {
         Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds);
+
+        Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? getGuests = false);
     }
 }

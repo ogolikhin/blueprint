@@ -114,7 +114,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\HtmlMentionHelper.cs" />
+    <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Models\Artifact.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
@@ -162,6 +162,10 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\HtmlLibrary\HtmlLibrary.csproj">
+      <Project>{fbb16370-f443-4e45-9c18-64d11239ae44}</Project>
+      <Name>HtmlLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\ServiceLibrary\ServiceLibrary.csproj">
       <Project>{42662de2-4604-427c-91f9-5f47af8f1e1b}</Project>
       <Name>ServiceLibrary</Name>

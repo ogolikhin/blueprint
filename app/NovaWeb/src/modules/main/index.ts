@@ -17,7 +17,7 @@ import {ProjectExplorerComponent} from "./components/projectexplorer/project-exp
 import {MainViewComponent} from "./main.view";
 import {config as routesConfig} from "./main.state";
 
-config.$inject = ["$rootScope"];
+config.$inject = ["$rootScope", "$state"];
 
 export {
     IProjectRepository, ProjectRepository, 
@@ -27,10 +27,15 @@ export {
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
 
-export function config($rootScope: ng.IRootScopeService) {
+export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
+  
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
+ 
+    if (!$rootScope["config"].labels) {
+        $state.transitionTo("error");
+    }
 }
 
 if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["LicenseManager"].setLicenseKey)) {

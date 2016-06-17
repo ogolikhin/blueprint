@@ -1,6 +1,7 @@
 import "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
+import "rx-lite";
 import core from "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc} from "./login/auth.svc";
@@ -12,11 +13,10 @@ import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
-
-
 import {MessageDirective} from "./messages/message";
 import {MessagesContainerDirective} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
+import {config as routesConfig} from "./error.state";
 
 angular.module("app.shell",
     [
@@ -38,6 +38,7 @@ angular.module("app.shell",
     .directive("message", MessageDirective.factory())
     .directive("messagesContainer", MessagesContainerDirective.factory())   
     .config(Logger)
+    .config(routesConfig)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

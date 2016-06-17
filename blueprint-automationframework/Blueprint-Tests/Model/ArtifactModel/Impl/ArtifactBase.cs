@@ -13,7 +13,7 @@ using Utilities.Facades;
 
 namespace Model.ArtifactModel.Impl
 {
-    public class ArtifactBase : IArtifactBase
+    public class ArtifactBase : IArtifactBase, IArtifactObservable
     {
         #region Constants
         public const string URL_LOCK = "svc/shared/artifacts/lock";
@@ -50,6 +50,8 @@ namespace Model.ArtifactModel.Impl
         public IUser CreatedBy { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSaved { get; set; }
+        public bool IsMarkedForDeletion { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
         public bool ShouldDeleteChildren { get; set; } = false;
 
         //TODO  Check if we can remove the setters and get rid of these warnings
@@ -112,6 +114,8 @@ namespace Model.ArtifactModel.Impl
         #endregion Constructors
 
         #region Delete methods
+
+        protected List<DeleteArtifactResult> DeletedArtifactResults { get; private set; }
 
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -180,10 +184,23 @@ namespace Model.ArtifactModel.Impl
                 queryParameters: queryparameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            foreach (var deletedArtifact in artifactResults)
+            ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+            artifaceBaseToDelete.DeletedArtifactResults = new List<DeleteArtifactResult>();
+
+            foreach (var deletedArtifactResult in artifactResults)
             {
                 Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifact.ArtifactId, deletedArtifact.Message, deletedArtifact.ResultCode);
+                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
+
+                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
+                    {
+                        artifactToDelete.IsMarkedForDeletion = true;
+                    }
+                }
             }
 
             // TODO:  Add an IsMarkedForDeletion flag to this class and set it to true if the delete was successful,
@@ -314,32 +331,95 @@ namespace Model.ArtifactModel.Impl
             }
 
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
+            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 OpenApiArtifact.URL_PUBLISH,
                 RestRequestMethod.POST,
                 artifactsToPublish,
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
-            var publishedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
+            var deletedArtifactsList = new List<IArtifactBase>();
 
             // When each artifact is successfully published, set IsSaved flag to false since there are no longer saved changes
             foreach (var publishedResult in publishedResultList)
             {
-                var publishedArtifact = artifactsToPublish.Find(a => a.Id.Equals(publishedResult.ArtifactId));
-                publishedArtifact.IsSaved = false;
-                publishedArtifact.IsPublished = true;
                 Logger.WriteDebug("Result Code for the Published Artifact {0}: {1}", publishedResult.ArtifactId, publishedResult.ResultCode);
+
+                var publishedArtifact = artifactsToPublish.Find(a => a.Id.Equals(publishedResult.ArtifactId));
+
+                if (publishedResult.ResultCode == HttpStatusCode.OK)
+                {
+                    publishedArtifact.IsSaved = false;
+
+                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
+                    if (publishedArtifact.IsMarkedForDeletion)
+                    {
+                        deletedArtifactsList.Add(publishedArtifact);
+
+                        publishedArtifact.IsPublished = false;
+                        publishedArtifact.IsDeleted = true;
+                    }
+                    else
+                    {
+                        publishedArtifact.IsPublished = true;
+                    }
+                }
+            }
+
+            if (deletedArtifactsList.Any())
+            {
+                deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
             }
 
             Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
                 "The number of artifacts passed for Publish was {0} but the number of artifacts returned was {1}",
                 artifactsToPublish.Count, publishedResultList.Count);
 
-            return artifactResults;
+            return publishedResultList;
         }
 
         #endregion Publish methods
+
+        #region IArtifactObservable methods
+
+        [JsonIgnore]
+        public List<IArtifactObserver> ArtifactObservers { get; private set; }
+
+        /// <seealso cref="RegisterObserver(IArtifactObserver)"/>
+        public void RegisterObserver(IArtifactObserver observer)
+        {
+            if (ArtifactObservers == null)
+            {
+                ArtifactObservers = new List<IArtifactObserver>();
+            }
+
+            ArtifactObservers.Add(observer);
+        }
+
+        /// <seealso cref="UnregisterObserver(IArtifactObserver)"/>
+        public void UnregisterObserver(IArtifactObserver observer)
+        {
+            ArtifactObservers?.Remove(observer);
+        }
+
+        /// <seealso cref="NotifyArtifactDeletion(List{IArtifactBase})"/>
+        public void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList)
+        {
+            ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
+
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
+            foreach (var deletedArtifact in deletedArtifactsList)
+            {
+                IEnumerable<int> deletedArtifactIds =
+                    from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
+                    select result.ArtifactId;
+
+                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
+                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
+            }
+        }
+
+        #endregion IArtifactObservable methods
 
         /// <summary>
         /// Replace properties in an artifact with properties from another artifact

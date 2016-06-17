@@ -5,7 +5,6 @@ import { Helper } from "./utils/helper";
 import { AppConstants, IAppConstants } from "./constants/app-constants";
 import { LocalizationService, ILocalizationService } from "./localization";
 
-import { EventManager, IEventManager, EventSubscriber } from "./event-manager";
 import { ConfigValueHelper, IConfigValueHelper } from "./config.value.helper";
 import { IDialogSettings, IDialogService, DialogService } from "./services/dialog";
 import { BPTreeComponent } from "./widgets/bp-tree/bp-tree";
@@ -15,12 +14,12 @@ import { BPTooltip } from "./widgets/bp-tooltip/bp-tooltip";
 import { BPInfiniteScroll } from "./widgets/bp-infinite-scroll/bp-infinite-scroll";
 import { BPCompileHtml } from "./widgets/bp-compile-html/bp-compile-html";
 import { BPAvatar } from "./widgets/bp-avatar/bp-avatar";
+import { BPSelect } from "./widgets/bp-select/bp-select";
 
 
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .constant("appConstants", new AppConstants())
     .service("localization", LocalizationService)
-    .service("eventManager", EventManager)
     .service("dialogService", DialogService)
     .service("configValueHelper", ConfigValueHelper)
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())
@@ -29,7 +28,8 @@ let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .directive("bpInfiniteScroll", BPInfiniteScroll.factory())
     .directive("bpCompileHtml", BPCompileHtml.factory())
     .component("bpTree", new BPTreeComponent())
-    .component("bpAvatar", new BPAvatar());
+    .component("bpAvatar", new BPAvatar())
+    .component("bpSelect", new BPSelect());
 
 export default module.name;
 export {
@@ -38,9 +38,6 @@ export {
     ILocalizationService,
     IConfigValueHelper,
     ConfigValueHelper,
-    IEventManager,
-    EventManager,
-    EventSubscriber,
     IDialogSettings,
     IDialogService,
     DialogService

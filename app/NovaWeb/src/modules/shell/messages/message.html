@@ -1,10 +1,5 @@
-﻿<div class="error-msg_container" data-ng-class="{'error':'alert-error', 'warning':'alert-warning', 'info':'alert-info'}[messageCntrl.messageType]">
-    <div class="error-msg_icon"><span class="fa" data-ng-class="{'error':'fonticon-error', 'warning':'fonticon-warning', 'info':'fonticon-information'}[messageCntrl.messageType]"></span></div>
-    <div class="error-msg_text"><span data-ng-transclude></span></div>
-    <div class="error-msg_btn">
-        <button type="button" class="close" data-dismiss="alert-msg-box" data-ng-click="messageCntrl.onMessageClosed()">
-            <span class="fonticon-close"></span>
-        </button>
-    </div>
-    <div class="clear"></div>
+﻿<div class="container" data-ng-class="{'error':'error', 'warning':'warning', 'info':'info'}[messageCntrl.messageType]">
+    <div class="icon"><span class="fa" data-ng-class="{'error':'fonticon-error', 'warning':'fonticon-warning', 'info':'fonticon-information'}[messageCntrl.messageType]"></span></div>
+    <div class="text" data-ng-transclude></div>
+    <a class="fonticon-close" data-dismiss="alert-msg-box" data-ng-click="messageCntrl.onMessageClosed()"></a>
 </div>

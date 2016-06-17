@@ -15,6 +15,7 @@ import { BPTooltip } from "./widgets/bp-tooltip/bp-tooltip";
 import { BPInfiniteScroll } from "./widgets/bp-infinite-scroll/bp-infinite-scroll";
 import { BPCompileHtml } from "./widgets/bp-compile-html/bp-compile-html";
 import { BPAvatar } from "./widgets/bp-avatar/bp-avatar";
+import { BPSelect } from "./widgets/bp-select/bp-select";
 
 
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
@@ -29,7 +30,8 @@ let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .directive("bpInfiniteScroll", BPInfiniteScroll.factory())
     .directive("bpCompileHtml", BPCompileHtml.factory())
     .component("bpTree", new BPTreeComponent())
-    .component("bpAvatar", new BPAvatar());
+    .component("bpAvatar", new BPAvatar())
+    .component("bpSelect", new BPSelect());
 
 export default module.name;
 export {

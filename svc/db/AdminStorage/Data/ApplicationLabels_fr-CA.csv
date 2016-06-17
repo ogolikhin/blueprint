@@ -56,3 +56,8 @@ Login_Session_NewPasswordSameAsOld,"New password cannot be the same as the old o
 Login_Session_NewPasswordCriteria,"New password must contain at least one capital letter, number and symbol"
 
 Input_Required,"Obligatoire"
+
+Error_Page_Message1, "An error ocurred while loading the page."
+Error_Page_Message2, "Please try again."
+Error_Page_Message3, "If the problem persists, contact your Blueprint administrator."
+Error_Page_Label, "Error"

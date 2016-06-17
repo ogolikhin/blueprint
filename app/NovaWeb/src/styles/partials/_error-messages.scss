@@ -1,54 +1,134 @@
-.error-msg_container{
-    display: inline-block;
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-     color: white;
+messages-container,
+bp-messages-container {
+  display: block;
+  flex-shrink: 0;
+}
+
+message,
+bp-message {
+  display: block;
+  font-size: 0;
+
+  .container {
+    border-radius: $border-radius-amount;
+    box-shadow: 0 2px 5px 0 rgba($black,.5);
+    color: $white;
+    margin: 0 20px 6px;
+    padding: 10px 0;
     position: relative;
+    width: calc(100% - 40px);
 
-    .error-msg_icon{
-      float:left; 
-      display:inline-block;
-        span:before {
-            font-size: 1.6rem;
-            vertical-align: middle;
-        }
-        width:5%;
-   }
-    .error-msg_text{
-      float:left; 
-      display:inline-block;
-      line-height: 1.6rem;
+    .icon {
+      display: inline-block;
+      float: left;
+      text-align: center;
+      width: 54px;
+    }
+
+    .text {
+      display: inline-block;
+      float: left;
+      font-size: $font-size-smaller;
+      //overflow: hidden;
+      padding-top: 2px;
+      //text-overflow: ellipsis;
       vertical-align: middle;
-        width:90%;
+      //white-space: nowrap;
+      width: calc(100% - 98px);
     }
-     .error-msg_btn{
+
+    .fonticon-close {
+      color: $white;
+      cursor: pointer;
+      opacity: 1;
       position: absolute;
-      top: 0px;
-      right: 0px;
-        width:5%;
+      right: 3px;
+      text-decoration: none;
+      top: 6px;
+
+      &::before {
+        font-size: 1rem;
+      }
     }
 
-     .fonticon-close:before {
-       color: white;
-       font-size: 0.9rem;
-       
-     }
+    &:first-child {
+      margin-top: 4px;
+    }
 
-     .close{
-         opacity: 1;
-     }
+    &::after { //self clearing
+      clear: both;
+      content: '';
+      display: table;
+    }
+
+    &.error {
+      background-color: $messages-bg-error;
+    }
+
+    &.warning {
+      background-color: $messages-bg-warning;
+    }
+
+
+}
 }
 
-.alert-error{
-    background-color: $brand-error;
+.error-page_container{
+    background-color:$blue-lightest;
+    width:100%;
+    height:100%; 
+    position:fixed;
+    top:0; 
+    left:0;
+    color: $gray-medium;
+    font-weight:bold;
+
+        .error-page_msg{
+            position:fixed;
+            top: 50%; 
+            left: 50%;
+            width:30em;
+            height:8em;
+            margin-top: -4em;
+            margin-left: -15em;
+            background-color: $gray-lightest;
+            border:1px solid $gray-medium;
+
+            .error-page_msg-left{
+               
+                  width:8em; 
+                  height:5em; 
+                  text-align:center; 
+                  vertical-align:middle;
+                  border-right:1px solid $gray-medium;
+                  display: table-cell;
+                  font-size:1.3rem;
+              
+                  div:nth-child(1){
+                      text-align:center;                
+                      display: inline-block;
+               
+                  }
+              } 
+
+             .error-page_msg-right{
+                 width:21em;
+                 height:8em;
+                 display: table-cell;
+                 vertical-align: middle;
+                 text-align: center;
+             }
+
+             .error-page_msg-right-inner{
+                 text-align:center; 
+                 font-size:0.8rem;
+                 display: inline-block;
+                 height:7em;
+             }
+         }
+
+
 }
 
-.alert-warning{
-    background-color: $brand-warning;
-}
 
-.alert-info{
-    background-color: $brand-info;
-}
 

@@ -16,6 +16,7 @@ import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-arti
 import {MessageDirective} from "./messages/message";
 import {MessagesContainerDirective} from "./messages/message-container";
 import {MessageService} from "./messages/message.svc";
+import {config as routesConfig} from "./error.state";
 
 angular.module("app.shell",
     [
@@ -37,6 +38,7 @@ angular.module("app.shell",
     .directive("message", MessageDirective.factory())
     .directive("messagesContainer", MessagesContainerDirective.factory())   
     .config(Logger)
+    .config(routesConfig)
     .config(initializeInterceptors);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {

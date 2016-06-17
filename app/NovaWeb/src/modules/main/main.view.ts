@@ -17,7 +17,7 @@ export interface IMainViewController {
 }
 
 export class MainViewController implements IMainViewController {
-    private _listeners: string[];
+    private _subscribers: Rx.IDisposable[];
     private _currentArtifact: string;
     public get currentArtifact() { 
         return this._currentArtifact;
@@ -31,11 +31,16 @@ export class MainViewController implements IMainViewController {
         private session: ISession) {
     }
 
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
         this.projectManager.initialize();
-        this.projectManager.currentArtifact.asObservable().subscribe(this.displayArtifact);
+        this._subscribers = [
+            this.projectManager.currentArtifact.asObservable().subscribe(this.displayArtifact)
+        ];
     }
-    public $onDestroy() {
+    public $onDestroy() {   
+        //dispose all subscribers
+        this._subscribers.map((it: Rx.IDisposable) => it.dispose());
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {

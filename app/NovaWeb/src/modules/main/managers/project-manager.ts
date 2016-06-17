@@ -50,6 +50,9 @@ export class ProjectManager implements IProjectManager {
         private messageService: IMessageService,
         private _repository: IProjectRepository) {
 
+    }
+
+    public $onInit() {
         this.initialize();
     }
 

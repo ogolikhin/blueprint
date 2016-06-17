@@ -24,7 +24,7 @@ export class BPHistoryPanelController {
 
     private loadLimit: number = 10;
     private artifactId: number;
-    private _listeners: string[];
+    private _subscribers: Rx.IDisposable[];
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
@@ -46,11 +46,7 @@ export class BPHistoryPanelController {
         ];
 
         this.artifactHistoryListObserver = this._artifactHistoryRepository.artifactHistory;
-        this.artifactHistoryListObserver.subscribe( (value) => {
-            console.log("updated value: " + value);
-            this.artifactHistoryList = this.artifactHistoryList.concat(value);
-        });
-
+        
         this.projectManager.currentArtifact.asObservable().subscribe(this.setArtifactId);
         console.log("about to make a request to get value");
 
@@ -58,6 +54,22 @@ export class BPHistoryPanelController {
         this.artifactId = 306; //331;
         this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
+
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
+    public $onInit(o) {
+        this._subscribers = [
+            this.artifactHistoryListObserver.subscribe((value) => {
+                console.log("updated value: " + value);
+                this.artifactHistoryList = this.artifactHistoryList.concat(value);
+            })
+        ];
+    }
+
+    public $onDestroy() {
+        //dispose all subscribers
+        (this._subscribers || []).map((it: Rx.IDisposable) => it.dispose());
+    }
+
 
     public changeSortOrder() {
         this.artifactHistoryList = [];

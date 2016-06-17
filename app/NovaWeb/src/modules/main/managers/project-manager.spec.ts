@@ -1,33 +1,33 @@
-﻿//import "angular";
-//import "angular-mocks";
-//import {LocalizationServiceMock} from "../../core/localization.mock";
-//import {EventManager, EventSubscriber} from "../../core/event-manager";
-//import {ProjectRepositoryMock} from "../services/project-repository.mock";
-//import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
+﻿import "angular";
+import "angular-mocks";
+import {LocalizationServiceMock} from "../../core/localization.mock";
+import {MessageService} from "../../shell/";
+import {ProjectRepositoryMock} from "../services/project-repository.mock";
+import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
 
 
-//describe("Project Manager Test", () => {
+describe("Project Manager Test", () => {
 
-//    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//        $provide.service("localization", LocalizationServiceMock);
-//        $provide.service("eventManager", EventManager);
-//        $provide.service("projectRepository", ProjectRepositoryMock);
-//        $provide.service("projectManager", ProjectManager);
-//    }));
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageService);
+        $provide.service("projectRepository", ProjectRepositoryMock);
+        $provide.service("projectManager", ProjectManager);
+    }));
 
-//    describe("Load projects: ", () => {
-//        it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-//            // Arrange
-//            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1"});
-//            $rootScope.$digest();
-//            //Act
-//            let project = projectManager.CurrentProject;
+    describe("Load projects: ", () => {
+        //it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        //    // Arrange
+        //    projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+        //    $rootScope.$digest();
+        //    //Act
+        //    let project = projectManager.currentProject.getValue();
 
-//            //Asserts
-//            expect(project).toBeDefined();
-//            expect(project.id).toEqual(1);
-//            expect(project.name).toEqual("Project 1");
-//        }));
+        //    //Asserts
+        //    expect(project).toBeDefined();
+        //    expect(project.id).toEqual(1);
+        //    expect(project.name).toEqual("Project 1");
+        //}));
 
 //        it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
 //            // Arrange
@@ -104,7 +104,7 @@
 //            expect(error.message).toBe("Artifact_NotFound");
 //        }));
 
-//    });
+    });
 
 //    describe("Current Project: ", () => {
 //        it("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
@@ -289,4 +289,4 @@
 //        }));
 //    });
 
-//});
+});

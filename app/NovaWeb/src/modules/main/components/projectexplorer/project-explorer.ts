@@ -9,15 +9,23 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 
 export class ProjectExplorerController {
     public tree: IBPTreeController;
-
+    private _subscribers: Rx.IDisposable[];
     public static $inject: [string] = ["projectManager"];
-    constructor(private projectManager: IProjectManager) {
-        this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this);
-        this.projectManager.currentArtifact.asObservable().subscribeOnNext(this.onSelectArtifact, this);
-    }
-    public $onInit(o) { }
+    constructor(private projectManager: IProjectManager) { }
 
-    public $onDestroy() { }
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
+    public $onInit(o) {
+        //use context reference as the last parameter on subscribe...
+        this._subscribers = [
+            this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this),
+            this.projectManager.currentArtifact.asObservable().subscribeOnNext(this.onSelectArtifact, this),
+        ];
+    }
+    
+    public $onDestroy() {
+        //dispose all subscribers
+        (this._subscribers || []).map((it: Rx.IDisposable) => it.dispose());
+    }
 
 
     // the object defines how data will map to ITreeNode
@@ -46,11 +54,15 @@ export class ProjectExplorerController {
 
 
     private onLoadProject = (projects: Models.IProject[]) => {
+        //NOTE: this method is called during "$onInit" and part of "Rx.BehaviorSubject" initialization.
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (below) 
+        // so, just need to do an extra check if it exists
         if (this.tree) {
             this.tree.reload(projects);
         }
     }
     private onSelectArtifact = (artifact: Models.IArtifact) => {
+        // so, just need to do an extra check if it exists
         if (this.tree && artifact) {
             this.tree.selectNode(artifact.id);
         }

@@ -132,61 +132,61 @@ describe("Open Project.", () => {
             $scope.$digest();
         }));
 
-        it("onEnterKeyOnProject", () => {
-            // Arrange
-            var event = new Event("keydown");
-            var div = document.createElement("div");
-            var paramsMock = {
-                data: {
-                    type: "Project",
-                    name: "project"
-                },
-                eGridCell: div
-            };
+        //it("onEnterKeyOnProject", () => {
+        //    // Arrange
+        //    var event = new Event("keydown");
+        //    var div = document.createElement("div");
+        //    var paramsMock = {
+        //        data: {
+        //            type: "Project",
+        //            name: "project"
+        //        },
+        //        eGridCell: div
+        //    };
 
-            // Act
-            var columns = controller.columns;
-            var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-            div.dispatchEvent(event);
+        //    // Act
+        //    var columns = controller.columns;
+        //    var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        //    div.dispatchEvent(event);
 
-            // Assert
-            expect(cellRenderer).toContain("project");
-        });
+        //    // Assert
+        //    expect(cellRenderer).toContain("project");
+        //});
 
-        it("Load data", inject(( $rootScope: ng.IRootScopeService) => {
-            // Arrange
-            controller.doLoad({ id: 1 });
-            var event = new Event("keydown");
-            var div = document.createElement("div");
-            var paramsMock = {
-                data: {
-                    type: "Project",
-                    name: "project"
-                },
-                eGridCell: div
-            };
+        //it("Load data", inject(( $rootScope: ng.IRootScopeService) => {
+        //    // Arrange
+        //    controller.doLoad({ id: 1 });
+        //    var event = new Event("keydown");
+        //    var div = document.createElement("div");
+        //    var paramsMock = {
+        //        data: {
+        //            type: "Project",
+        //            name: "project"
+        //        },
+        //        eGridCell: div
+        //    };
 
-            // Act
-            var columns = controller.columns;
-            var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
-            div.dispatchEvent(event);
+        //    // Act
+        //    var columns = controller.columns;
+        //    var cellRenderer = columns[0].cellRendererParams.innerRenderer(paramsMock);
+        //    div.dispatchEvent(event);
 
-            // Assert
-            expect(cellRenderer).toContain("project");
-        }));
+        //    // Assert
+        //    expect(cellRenderer).toContain("project");
+        //}));
         
-        it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
+        //it("Load empty data", inject(($rootScope: ng.IRootScopeService) => {
 
-            // Arrange
+        //    // Arrange
 
-            // Act, load empty datasource
-            controller.doLoad({ id: -1 });
-            $rootScope.$digest();
+        //    // Act, load empty datasource
+        //    controller.doLoad({ id: -1 });
+        //    $rootScope.$digest();
 
-            // Assert
-            expect(controller.hasError).toBeTruthy();
-            expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
-        }));
+        //    // Assert
+        //    expect(controller.hasError).toBeTruthy();
+        //    expect(controller.errorMessage).toEqual("Project_NoProjectsAvailable");
+        //}));
 
 
     });

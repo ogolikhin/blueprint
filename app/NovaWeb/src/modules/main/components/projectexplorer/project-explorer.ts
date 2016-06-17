@@ -8,24 +8,23 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 }
 
 export class ProjectExplorerController {
-    private _listeners: string[] = [];
     public tree: IBPTreeController;
-
+    private _subscribers: Rx.IDisposable[];
     public static $inject: [string] = ["projectManager"];
-    constructor(private projectManager: IProjectManager) {
-        //subscribe to event
-        this._listeners = [
-            this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject),
-            this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject),
-            this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject)
+    constructor(private projectManager: IProjectManager) { }
+
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
+    public $onInit(o) {
+        //use context reference as the last parameter on subscribe...
+        this._subscribers = [
+            this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this),
+            this.projectManager.currentArtifact.asObservable().subscribeOnNext(this.onSelectArtifact, this),
         ];
     }
     
     public $onDestroy() {
-        //clear all Project Manager event subscription
-        this._listeners.map(function (it) {
-            this.projectManager.detachById(it);
-        }.bind(this));
+        //dispose all subscribers
+        (this._subscribers || []).map((it: Rx.IDisposable) => it.dispose());
     }
 
 
@@ -54,22 +53,25 @@ export class ProjectExplorerController {
     }];
 
 
-    private loadProject = (artifact: Models.IArtifact) => {
-        this.doSync({
-            id: artifact.id,
-            type: 0,
-            name: artifact.name,
-            hasChildren: artifact.hasChildren,
-            loaded: true,
-            open: true
-        } as ITreeNode);
-
-        this.tree.reload(this.projectManager.ProjectCollection);
-        this.tree.selectNode(artifact.id);
+    private onLoadProject = (projects: Models.IProject[]) => {
+        //NOTE: this method is called during "$onInit" and part of "Rx.BehaviorSubject" initialization.
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (below) 
+        // so, just need to do an extra check if it exists
+        if (this.tree) {
+            this.tree.reload(projects);
+        }
+    }
+    private onSelectArtifact = (artifact: Models.IArtifact) => {
+        // so, just need to do an extra check if it exists
+        if (this.tree && artifact) {
+            this.tree.selectNode(artifact.id);
+        }
     }
 
     private closeProject = (projects: Models.IProject[]) => {
-        this.tree.reload(this.projectManager.ProjectCollection);
+        if (this.tree) {
+            this.tree.reload(projects);
+        }
     }
 
     public doLoad = (prms: any): any[] => {
@@ -81,13 +83,13 @@ export class ProjectExplorerController {
         let projectId = angular.isNumber(prms.projectId) ? prms.projectId : -1;
         let artifactId = angular.isNumber(prms.id) ? prms.id : -1;
         //notify the repository to load the node children
-        this.projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, projectId, artifactId);
+        this.projectManager.loadArtifact(prms as Models.IArtifact);
     };
 
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.projectManager.CurrentArtifact = this.doSync(node);
+        this.projectManager.currentArtifact.onNext(this.doSync(node));
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {

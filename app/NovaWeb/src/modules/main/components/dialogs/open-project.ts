@@ -5,13 +5,6 @@ import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../core/services/dialog";
 import { IProjectManager, Models } from "../../";
 
-//export interface IProject {
-//    id: number;
-//    type: number;
-//    name: string;
-//    description: string;
-//}
-
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private _selectedItem: Models.IProject;

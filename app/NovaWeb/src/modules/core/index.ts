@@ -5,7 +5,6 @@ import { Helper } from "./utils/helper";
 import { AppConstants, IAppConstants } from "./constants/app-constants";
 import { LocalizationService, ILocalizationService } from "./localization";
 
-import { EventManager, IEventManager, EventSubscriber } from "./event-manager";
 import { ConfigValueHelper, IConfigValueHelper } from "./config.value.helper";
 import { IDialogSettings, IDialogService, DialogService } from "./services/dialog";
 import { BPTreeComponent } from "./widgets/bp-tree/bp-tree";
@@ -21,7 +20,6 @@ import { BPSelect } from "./widgets/bp-select/bp-select";
 let module = angular.module("app.core", ["ui.router", "ui.bootstrap"])
     .constant("appConstants", new AppConstants())
     .service("localization", LocalizationService)
-    .service("eventManager", EventManager)
     .service("dialogService", DialogService)
     .service("configValueHelper", ConfigValueHelper)
     .directive("bpTreeInlineEditing", BPTreeInlineEditing.factory())
@@ -40,9 +38,6 @@ export {
     ILocalizationService,
     IConfigValueHelper,
     ConfigValueHelper,
-    IEventManager,
-    EventManager,
-    EventSubscriber,
     IDialogSettings,
     IDialogService,
     DialogService

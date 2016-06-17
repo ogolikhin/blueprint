@@ -110,9 +110,8 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107379)]
-        [Explicit(IgnoreReasons.ProductBug)]
-        [Description("Create process artifact, save, publish, delete, publish, discard - must return successfully discarded.")]
-        public void DiscardDeletedArtifact_VerifyResult()
+        [Description("Create process artifact, save, publish, delete, publish, discard - must return already deleted message.")]
+        public void DiscardDeletedArtifact_VerifyAlreadyDiscardedMessage()
         {
             var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
@@ -122,8 +121,9 @@ namespace CommonServiceTests
             artifact.Publish(_user);
 
             List<NovaDiscardArtifactResult> discardResultList = null;
-            string expectedMessage = "Successfully discarded";
-
+            string expectedMessage = I18NHelper.FormatInvariant("DItem with Id: {0} was deleted by some other user. Please refresh.", 
+                artifact.Id);
+            
             Assert.DoesNotThrow(() =>
             {
                 discardResultList = artifact.NovaDiscard(_user);
@@ -131,8 +131,8 @@ namespace CommonServiceTests
 
             Assert.AreEqual(expectedMessage, discardResultList[0].Message, "Returned message must be {0}, but {1} was returned",
                 expectedMessage, discardResultList[0].Message);
-            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
-                NovaDiscardArtifactResult.ResultCode.Success, discardResultList[0].Result);
+            Assert.AreEqual(NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result, "Returned code must be {0}, but {1} was returned",
+                NovaDiscardArtifactResult.ResultCode.Failure, discardResultList[0].Result);
         }
     }
 }

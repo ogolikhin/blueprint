@@ -1,6 +1,7 @@
 pagecontent {
   box-sizing: border-box;
-  display: block;
+  display: flex;
+  flex-flow: column nowrap;
   height: 100%;
   margin: 0;
   padding: 0;

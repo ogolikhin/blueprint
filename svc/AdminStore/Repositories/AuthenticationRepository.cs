@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
@@ -11,6 +12,11 @@ namespace AdminStore.Repositories
 {
     public class AuthenticationRepository : IAuthenticationRepository
     {
+        private const string PasswordChangeCooldownInHoursKey = "PasswordChangeCooldownInHours";
+        private const int DefaultPasswordChangeCooldownInHours = 24;
+
+        private readonly IApplicationSettingsRepository _applicationSettingsRepository;
+
         private readonly ISqlUserRepository _userRepository;
 
         private readonly ISqlSettingsRepository _settingsRepository;
@@ -21,18 +27,18 @@ namespace AdminStore.Repositories
 
         private readonly IServiceLogRepository _log;
 
-        public AuthenticationRepository()
-            : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository(), new ServiceLogRepository())
+        public AuthenticationRepository() : this(new SqlUserRepository(), new SqlSettingsRepository(), new LdapRepository(), new SamlRepository(), new ServiceLogRepository(), new ApplicationSettingsRepository())
         {
         }
 
-        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository, IServiceLogRepository logRepository)
+        public AuthenticationRepository(ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, ILdapRepository ldapRepository, ISamlRepository samlRepository, IServiceLogRepository logRepository, IApplicationSettingsRepository applicationSettingsRepository)
         {
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
             _ldapRepository = ldapRepository;
             _samlRepository = samlRepository;
             _log = logRepository;
+            _applicationSettingsRepository = applicationSettingsRepository;
         }
 
         public async Task<AuthenticationUser> AuthenticateUserAsync(string login, string password)
@@ -178,14 +184,21 @@ namespace AdminStore.Repositories
             {
                 throw new BadRequestException("Password reset failed, new password cannot be empty", ErrorCodes.EmptyPassword);
             }
+
             if (oldPassword == newPassword)
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
+
             string errorMsg;
             if (!PasswordValidationHelper.ValidatePassword(newPassword, true, out errorMsg))
             {
                 throw new BadRequestException("Password reset failed, new password is invalid", ErrorCodes.TooSimplePassword);
+            }
+
+            if (await IsChangePasswordCooldownInEffect(user))
+            {
+                throw new BadRequestException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
             }
 
             Guid newGuid = Guid.NewGuid();
@@ -193,6 +206,44 @@ namespace AdminStore.Repositories
             user.Password = HashingUtilities.GenerateSaltedHash(newPassword, user.UserSalt);
 
             await _userRepository.UpdateUserOnPasswordResetAsync(user);
+        }
+
+        private async Task<int> GetPasswordChangeCooldownInHoursAsync()
+        {
+            var applicationSettings = await _applicationSettingsRepository.GetSettings();
+
+            var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == PasswordChangeCooldownInHoursKey);
+            if (matchingSetting == null)
+            {
+                return DefaultPasswordChangeCooldownInHours;
+            }
+
+            string passwordChangeCooldownInHoursValue = matchingSetting.Value;
+
+            int passwordChangeCooldownInHours;
+            if (!int.TryParse(passwordChangeCooldownInHoursValue, out passwordChangeCooldownInHours))
+            {
+                return DefaultPasswordChangeCooldownInHours;
+            }
+
+            return passwordChangeCooldownInHours;
+        }
+
+        private async Task<bool> IsChangePasswordCooldownInEffect(AuthenticationUser user)
+        {
+            if (user.LastPasswordChangeTimestamp.HasValue)
+            {
+                var lastPasswordChangeTimestamp = user.LastPasswordChangeTimestamp.Value;
+                var hoursElapsedSinceLastPasswordChange = (DateTime.UtcNow - lastPasswordChangeTimestamp).TotalHours;
+                var passwordChangeCooldownInHours = await GetPasswordChangeCooldownInHoursAsync();
+
+                if (hoursElapsedSinceLastPasswordChange < passwordChangeCooldownInHours)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private AuthenticationStatus AuthenticateDatabaseUser(AuthenticationUser user, string password, int passwordExpirationInDays = 0)
@@ -266,13 +317,13 @@ namespace AdminStore.Repositories
         }
 
         private async Task ResetInvalidLogonAttemptsNumber(AuthenticationUser user)
-        {            
+        {
             if (user.InvalidLogonAttemptsNumber > 0)
-            {                                
+            {
                 user.InvalidLogonAttemptsNumber = 0;
                 user.LastInvalidLogonTimeStamp = null;
                 await _userRepository.UpdateUserOnInvalidLoginAsync(user);
-            }                        
+            }
         }
     }
 }

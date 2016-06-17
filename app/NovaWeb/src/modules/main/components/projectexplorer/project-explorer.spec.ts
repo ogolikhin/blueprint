@@ -1,8 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
-import {EventManager} from "../../../core/event-manager";
-import {ProjectManager, IProjectManager, SubscriptionEnum} from "../../managers/project-manager";
+import {EventManager} from "../../../core/";
+import {ProjectManager, IProjectManager, SubscriptionEnum, } from "../../";
 import {ProjectExplorerController} from "./project-explorer";
+
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
@@ -58,7 +59,10 @@ describe("Project Explorer Test", () => {
         expect(projectManager.CurrentProject["open"]).toBeTruthy();
 
     }));
-    it("Load project children succsessful", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectRepository: ProjectRepositoryMock ) => {
+    it("Load project children succsessful", inject((
+        $rootScope: ng.IRootScopeService,
+        projectManager: IProjectManager,
+        projectRepository: ProjectRepositoryMock) => {
         // Arrange
         isReloadCalled = false;
         

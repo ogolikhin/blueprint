@@ -20,6 +20,7 @@
         public const int EmptyPassword = 4000;
         public const int SamePassword = 4001;
         public const int TooSimplePassword = 4002;
+        public const int ChangePasswordCooldownInEffect = 4003;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

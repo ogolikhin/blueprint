@@ -846,9 +846,22 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
-        
-        public static IProcess CreateProcessWithXAdditionalTaskPairs(IStoryteller storyteller, IProject project,
-            IUser user, int pairs)
+
+        /// <summary>
+        /// Creates process with a specified number of pairs of user/system tasks.
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="pairs">The number of pairs to create</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateProcessWithXAdditionalTaskPairs(
+            IStoryteller storyteller, 
+            IProject project,
+            IUser user, 
+            int pairs, 
+            bool updateProcess = true)
         {
             ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
             ThrowIf.ArgumentNull(project, nameof(project));
@@ -860,14 +873,15 @@ namespace Helper
             // Get the end point
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Find outgoing process link for precondition
+            // Find incoming process link for the end shape to get the shape
             var endPointIncomingLink = process.GetIncomingLinkForShape(endShape);
+            var shapeBeforeEnd = process.GetProcessShapeById(endPointIncomingLink.SourceId);
 
             // Adds x number of user tasks/system tasks pairs
-            process.AddXUserTaskAndSystemTask(endPointIncomingLink, pairs);
+            process.AddXUserTaskAndSystemTask(shapeBeforeEnd, pairs);
 
-            // Returns the updated process after the save process.
-            return  storyteller.UpdateProcess(user, process);
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
         #endregion Public Methods
 

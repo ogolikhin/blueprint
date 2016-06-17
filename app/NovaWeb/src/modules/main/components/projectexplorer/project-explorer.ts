@@ -8,20 +8,24 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 }
 
 export class ProjectExplorerController {
+    private _listeners: string[] = [];
     public tree: IBPTreeController;
-    
+
     public static $inject: [string] = ["projectManager"];
     constructor(private projectManager: IProjectManager) {
-        this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
-        this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+        //subscribe to event
+        this._listeners = [
+            this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject),
+            this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject),
+            this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject)
+        ];
     }
     
     public $onDestroy() {
         //clear all Project Manager event subscription
-        this.projectManager.unsubscribe(SubscriptionEnum.ProjectLoaded, this.loadProject.bind(this));
-        this.projectManager.unsubscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject.bind(this));
-        this.projectManager.unsubscribe(SubscriptionEnum.ProjectClosed, this.closeProject.bind(this));
+        this._listeners.map(function (it) {
+            this.projectManager.detachById(it);
+        }.bind(this));
     }
 
 
@@ -58,13 +62,13 @@ export class ProjectExplorerController {
             hasChildren: artifact.hasChildren,
             loaded: true,
             open: true
-        } as ITreeNode)
+        } as ITreeNode);
 
         this.tree.reload(this.projectManager.ProjectCollection);
         this.tree.selectNode(artifact.id);
     }
 
-    private closeProject(projects: Models.IProject[]) {
+    private closeProject = (projects: Models.IProject[]) => {
         this.tree.reload(this.projectManager.ProjectCollection);
     }
 
@@ -84,7 +88,6 @@ export class ProjectExplorerController {
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
         this.projectManager.CurrentArtifact = this.doSync(node);
-        console.log(`Selected node ${this.projectManager.CurrentArtifact.id}`);
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {

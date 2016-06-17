@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Security.Authentication.ExtendedProtection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.Management;
 using Newtonsoft.Json;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
@@ -67,11 +62,16 @@ namespace ServiceLibrary.Helpers
         /// </summary>
         private async Task<StatusResponse> TryGetStatusResponse(IStatusRepository statusRepo)
         {
-            var responseData = new StatusResponse() { Name = statusRepo.Name, AccessInfo = statusRepo.AccessInfo };
+            var responseData = new StatusResponse()
+            {
+                Name = statusRepo.Name,
+                AccessInfo = statusRepo.AccessInfo
+            };
 
             try
             {
                 var result = await statusRepo.GetStatus(GET_STATUS_TIMEOUT);
+
                 responseData.Result = result;
                 responseData.NoErrors = true;
             }
@@ -90,7 +90,6 @@ namespace ServiceLibrary.Helpers
             System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
             return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
         }
-
     }
 
     // *************************************************************************************

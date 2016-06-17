@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Helpers;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -32,15 +31,15 @@ namespace ArtifactStore.Repositories
         public long? Permissions;
     }
 
-    public class ArtifactPermissionsRepository : IArtifactPermissionsRepository
+    public class SqlArtifactPermissionsRepository : IArtifactPermissionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        public ArtifactPermissionsRepository()
+        public SqlArtifactPermissionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
-        internal ArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
         }
@@ -161,6 +160,11 @@ namespace ArtifactStore.Repositories
                 }
                 return itemIdsPermissions;
             }
+        }
+
+        public ProjectPermissions GetProjectPermissions(int projectId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

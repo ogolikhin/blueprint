@@ -26,7 +26,7 @@ namespace ArtifactStore.Controllers
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
-        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new ArtifactPermissionsRepository())
+        public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
         public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()

@@ -34,10 +34,4 @@ namespace ArtifactStore.Models
         public ArtifactState ArtifactState { get; set; }
     }
 
-    public class UserInfo
-    {
-        public int UserId { get; set; }
-        public string DisplayName { get; set; }
-        public int? Image_ImageId { get; set; }
-    }
 }

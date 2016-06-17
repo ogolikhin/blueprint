@@ -53,7 +53,7 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        private async void GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
+        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
@@ -147,7 +147,7 @@ namespace ArtifactStore.Repositories
 
                     try
                     {
-                        GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
+                        await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
                     }
                     catch (SqlException sqle)
                     {

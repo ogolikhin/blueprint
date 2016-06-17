@@ -1,8 +1,7 @@
 ﻿import { IAppConstants, ILocalizationService } from "../../../core";
-import { IProjectManager} from "../../../main";
-import {IEventManager, EventSubscriber} from "../../../core/event-manager";
+import { IProjectManager, Models} from "../../../main";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
-import * as Models from "../../../main/models/models";
+
 
 interface ISortOptions {
     value: boolean;
@@ -19,7 +18,6 @@ export class BPHistoryPanelController {
         "$log", 
         "localization",
         "artifactHistory",
-        "eventManager",
         "projectManager",
         "$q",
         "appConstants"];
@@ -38,7 +36,6 @@ export class BPHistoryPanelController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private eventManager: IEventManager,
         private projectManager: IProjectManager,
         private $q: ng.IQService,
         private appConstants: IAppConstants) {
@@ -60,17 +57,6 @@ export class BPHistoryPanelController {
         // TODO: remove 2 lines below
         this.artifactId = 306; //331;
         this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
-    }
-
-    public $onInit() {
-        //this._listeners = [
-        //    this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.setArtifactId.bind(this))
-        //];
-    }
-    public $onDestroy() {
-        this._listeners.map( (it) => {
-            this.eventManager.detachById(it);
-        });
     }
 
     public changeSortOrder() {

@@ -8,28 +8,16 @@ export class ProjectExplorerComponent implements ng.IComponentOptions {
 }
 
 export class ProjectExplorerController {
-    private _listeners: string[] = [];
     public tree: IBPTreeController;
 
     public static $inject: [string] = ["projectManager"];
     constructor(private projectManager: IProjectManager) {
-        //subscribe to event
-        this._listeners = [
-            //this.projectManager.subscribe(SubscriptionEnum.ProjectLoaded, this.loadProject),
-            //this.projectManager.subscribe(SubscriptionEnum.ProjectChildrenLoaded, this.loadProject),
-            //this.projectManager.subscribe(SubscriptionEnum.ProjectClosed, this.closeProject)
-        ];
+        this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this);
+        this.projectManager.currentArtifact.asObservable().subscribeOnNext(this.onSelectArtifact, this);
     }
-    public $onInit(o) {
-        this.projectManager.projectCollection.asObservable().subscribeOnNext(this.loadProject, this);
-    }
+    public $onInit(o) { }
 
-    public $onDestroy() {
-        //clear all Project Manager event subscription
-        this._listeners.map(function (it) {
-            this.projectManager.detachById(it);
-        }.bind(this));
-    }
+    public $onDestroy() { }
 
 
     // the object defines how data will map to ITreeNode
@@ -57,18 +45,14 @@ export class ProjectExplorerController {
     }];
 
 
-    private loadProject = (projects: Models.IProject[]) => {
-        //this.doSync({
-        //    id: artifact.id,
-        //    type: 0,
-        //    name: artifact.name,
-        //    hasChildren: artifact.hasChildren,
-        //    loaded: true,
-        //    open: true
-        //} as ITreeNode);
+    private onLoadProject = (projects: Models.IProject[]) => {
         if (this.tree) {
             this.tree.reload(projects);
-            //        this.tree.selectNode(artifact.id);
+        }
+    }
+    private onSelectArtifact = (artifact: Models.IArtifact) => {
+        if (this.tree && artifact) {
+            this.tree.selectNode(artifact.id);
         }
     }
 

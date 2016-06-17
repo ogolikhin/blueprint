@@ -1,6 +1,5 @@
 ﻿import "angular";
 import "angular-mocks";
-import {EventManager} from "../../../core/event-manager";
 import {OpenProjectController} from "./open-project";
 import {ProjectManager, IProjectManager} from "../../managers/project-manager";
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
@@ -109,7 +108,6 @@ describe("Open Project.", () => {
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("projectRepository", ProjectRepositoryMock);
-            $provide.service("eventManager", EventManager);
             $provide.service("manager", ProjectManager);
 
         }));

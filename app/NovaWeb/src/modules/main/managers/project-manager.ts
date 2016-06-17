@@ -1,9 +1,6 @@
 ﻿import "angular"
-import {
-    Helper,
-    ILocalizationService,
-    IEventManager,
-    EventSubscriber } from "../../core";
+import {Helper, ILocalizationService } from "../../core";
+import {IMessageService} from "../../shell";
 import {IProjectRepository, Models} from "../services/project-repository";
 
 export {Models}
@@ -47,10 +44,10 @@ export class ProjectManager implements IProjectManager {
 
     public currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
-    static $inject: [string] = ["localization", "eventManager", "projectRepository"];
+    static $inject: [string] = ["localization", "messageService", "projectRepository"];
     constructor(
         private localization: ILocalizationService,
-        private eventManager: IEventManager,
+        private messageService: IMessageService,
         private _repository: IProjectRepository) {
 
         this.initialize();
@@ -62,19 +59,23 @@ export class ProjectManager implements IProjectManager {
     }
 
     private dispose() {
-        this.projectCollection && this.projectCollection.dispose();
-        this.currentProject && this.currentProject.dispose();
-        this.currentArtifact && this.currentArtifact.dispose();
+        if (this.projectCollection)
+            this.projectCollection.dispose();
+        if (this.currentProject)
+            this.currentProject.dispose();
+        if (this.currentArtifact)
+            this.currentArtifact.dispose();
     }
+
     public initialize = () => {
         //subscribe to event
         this.dispose();
 
         this.projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
 
-        this.currentProject = new Rx.BehaviorSubject<Models.IProject>({} as Models.IProject);
+        this.currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
 
-        this.currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>({} as Models.IArtifact);
+        this.currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
     }
 
     private setCurrentProject(project: Models.IProject) {
@@ -87,16 +88,16 @@ export class ProjectManager implements IProjectManager {
 
     private setCurrentArtifact(artifact: Models.IArtifact) {
         let _currentartifact = this.currentArtifact.getValue();
-        if (_currentartifact && artifact && _currentartifact.id === artifact.id) {
-            return;
-        }
-        if (artifact && _currentartifact && artifact.projectId !== _currentartifact.id) {
+        if (artifact) {
+            if (_currentartifact && _currentartifact.id === artifact.id) {
+                return;
+            } 
+
             let project = this.getProject(artifact.projectId);
             if (project) {
                 this.setCurrentProject(project);
             }
         }
-
         this.currentArtifact.onNext(artifact);
     }
 
@@ -126,23 +127,19 @@ export class ProjectManager implements IProjectManager {
                         self.projectCollection.onNext(_projectCollection);
                         self.setCurrentArtifact(_project);
                     }).catch((error: any) => {
-                        this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
+                        this.messageService.addError(error["message"] || "error");
                     });
             } 
         } catch (ex) {
-            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+            this.messageService.addError(ex["message"] || "error");
         }
     }
 
     public loadArtifact = (artifact: Models.IArtifact) => {
         try {
             let self = this;
-            //let project = this.getProject(projectId);
-            //if (!project) {
-            //    throw new Error(this.localization.get("Project_NotFound"));
-            //} 
             let _artifact = this.getArtifact(artifact.id);
-            if (!_artifact) {
+            if (_artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
             this._repository.getArtifacts(artifact.projectId, artifact.id)
@@ -154,32 +151,32 @@ export class ProjectManager implements IProjectManager {
                         open: true
                     });
                     self.projectCollection.onNext(self.projectCollection.getValue());
-//                    self.notify(SubscriptionEnum.ProjectChildrenLoaded, artifact);
                 }).catch((error: any) => {
-                    this.eventManager.dispatch(EventSubscriber.Main, "exception", error);
+                    this.messageService.addError(error["message"] || "error");
                 });
         } catch (ex) {
-            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+            this.messageService.addError(ex["message"] || "error");
+            this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
 
     public closeProject = (all: boolean = false) => {
         try {
-            let self = this;
+
             let projectsToRemove: Models.IProject[] = [];
             let _projectCollection = this.projectCollection.getValue().filter(function (it: Models.IProject) {
                 let result = true;
-                if (all || it.id === self.currentProject.getValue().id) {
+                if (all || it.id === this.currentProject.getValue().id) {
                     projectsToRemove.push(it);
                     result = false;
                 }
                 return result;
-            });
+            }.bind(this));
 
             this.projectCollection.onNext(_projectCollection);
             this.setCurrentArtifact(this.projectCollection.getValue()[0] || null);
         } catch (ex) {
-            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+            this.messageService.addError(ex["message"] || "error");
         }
 
     }
@@ -188,7 +185,7 @@ export class ProjectManager implements IProjectManager {
         try {
             return this._repository.getFolders(id);
         } catch (ex) {
-            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+            this.messageService.addError(ex["message"] || "error");
         }
     }
 
@@ -226,7 +223,7 @@ export class ProjectManager implements IProjectManager {
                 angular.extend(artifact, data);
             }
         } catch (ex) {
-            this.eventManager.dispatch(EventSubscriber.Main, "exception", ex);
+            this.messageService.addError(ex["message"] || "error");
         }
         return artifact;
     }

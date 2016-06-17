@@ -87,7 +87,7 @@ namespace Model.Impl
         /// <returns>A list of all projects on the Blueprint server.</returns>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token?.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
@@ -103,7 +103,7 @@ namespace Model.Impl
         /// <returns>a project associated with the projectId provided with the request.</returns>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
@@ -143,10 +143,10 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
             var path = shouldRetrievePropertyTypes ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
                 : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);

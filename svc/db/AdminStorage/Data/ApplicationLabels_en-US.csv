@@ -18,7 +18,7 @@ Tooltip_App_Header_Help, "Help"
 Tooltip_App_Header_Logout, "Log out"
 
 App_Project, "Project"
-App_Project_Open,"Open project"
+App_Project_Open,"Open Project"
 App_Project_Name,"Name"
 App_Project_Description,"Description"
 

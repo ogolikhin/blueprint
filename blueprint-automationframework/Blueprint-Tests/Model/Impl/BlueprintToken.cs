@@ -14,6 +14,17 @@ namespace Model.Impl
         /// </summary>
         public const string OPENAPI_START_OF_TOKEN = "BlueprintToken";
 
+        /// <summary>
+        /// Setting the token to this will prevent us from sending any Authentication headers in REST requests.
+        /// </summary>
+        public const string NO_TOKEN = null;
+
+        /// <summary>
+        /// Setting the token to this will send an Authentication header with no token, which should usually produce a 400 Bad Request.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]   // Ignore this warning.
+        public readonly string EMPTY_TOKEN = string.Empty;
+
         private string _accessControlToken;
         private string _openApiToken;
 
@@ -36,20 +47,8 @@ namespace Model.Impl
             get { return _accessControlToken; }
             set
             {
-                if ((value != null) && !value.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
-                {
-                    Logger.WriteDebug("Setting AccessControlToken to: {0}", value);
-                    _accessControlToken = value;
-                }
-                else if (value == string.Empty)
-                {
-                    // This is a hack for cases when you don't have a valid token, but you don't want Model classes to automatically authenticate the user.
-                    _accessControlToken = value;
-                }
-                else
-                {
-                    throw new ArgumentException("The specified token is not a valid Access Control token!");
-                }
+                Logger.WriteDebug("Setting AccessControlToken to: '{0}'", value);
+                _accessControlToken = value;
             }
         }
 
@@ -62,20 +61,8 @@ namespace Model.Impl
             get { return _openApiToken; }
             set
             {
-                if ((value != null) && value.StartsWithOrdinal(OPENAPI_START_OF_TOKEN))
-                {
-                    Logger.WriteDebug("Setting OpenApiToken to: {0}", value);
-                    _openApiToken = value;
-                }
-                else if (value == string.Empty)
-                {
-                    // This is a hack for cases when you don't have a valid token, but you don't want Model classes to automatically authenticate the user.
-                    _accessControlToken = value;
-                }
-                else
-                {
-                    throw new ArgumentException("The specified token is not a valid OpenAPI token!");
-                }
+                Logger.WriteDebug("Setting OpenApiToken to: {0}", value);
+                _openApiToken = value;
             }
         }
 

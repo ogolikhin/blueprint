@@ -135,7 +135,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToSave.ProjectId);
@@ -147,7 +147,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, user.Username, user.Password, tokenValue);
+                RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
                 var artifactResult = restApi.SendRequestAndDeserializeObject<ArtifactResult, ArtifactBase>(
                     path, restRequestMethod, artifactToSave as ArtifactBase, expectedStatusCodes: expectedStatusCodes);
 
@@ -206,7 +206,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = I18NHelper.FormatInvariant("{0}/{1}/artifacts", SVC_PATH, artifactToUpdate.ProjectId);
@@ -231,7 +231,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactsToUpdate = new List<ArtifactForUpdate> { artifactWithPropertyToUpdate };
 
-            RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
             var updateResultList = restApi.SendRequestAndDeserializeObject<List<ArtifactResult>, List<ArtifactForUpdate>>(
                 path, RestRequestMethod.PATCH, artifactsToUpdate, expectedStatusCodes: expectedStatusCodes);
 
@@ -277,7 +277,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             // TODO Why do we need to make copies of artifacts here?  Add comment
@@ -285,7 +285,7 @@ namespace Model.ArtifactModel.Impl
             var artifactObjectList = artifactsToDiscard.Select(artifact =>
                 new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<ArtifactBase>>(
                 URL_DISCARD,
@@ -337,10 +337,10 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(artifact.Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(artifact.Address, tokenValue);
             var path = I18NHelper.FormatInvariant("{0}/{1}/artifacts/{2}", SVC_PATH, artifact.ProjectId, artifact.Id);
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
                 resourcePath: path,
@@ -378,7 +378,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var queryParameters = new Dictionary<string, string> {
@@ -386,7 +386,7 @@ namespace Model.ArtifactModel.Impl
             };
 
             string path = I18NHelper.FormatInvariant(URL_DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
             var response = restApi.SendRequestAndDeserializeObject<Discussion>(
                 path,
                 RestRequestMethod.GET,
@@ -422,7 +422,7 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var queryParameters = new Dictionary<string, string> {
@@ -437,7 +437,7 @@ namespace Model.ArtifactModel.Impl
             //showBusyIndicator doesn't affect server side, it is added to make call similar to call from HTML
             queryParameters.Add("showBusyIndicator", "false");
 
-            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
                 URL_SEARCH,

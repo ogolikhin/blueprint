@@ -1,12 +1,13 @@
-﻿using Dapper;
+﻿using ArtifactStore.Helpers;
+using ArtifactStore.Models;
+using Dapper;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
-using ArtifactStore.Models;
-using ServiceLibrary.Models;
 
 namespace ArtifactStore.Repositories
 {
@@ -17,6 +18,8 @@ namespace ArtifactStore.Repositories
 
         internal readonly IUsersRepository SqlUsersRepository;
 
+        private readonly MentionHelper _mentionHelper;
+
         public SqlDiscussionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())
         {
@@ -26,6 +29,7 @@ namespace ArtifactStore.Repositories
         {
             ConnectionWrapper = connectionWrapper;
             SqlUsersRepository = sqlUsersRepository;
+            _mentionHelper = new MentionHelper(sqlUsersRepository);
         }
 
         public async Task<IEnumerable<Discussion>> GetDiscussions(int itemId)
@@ -33,7 +37,7 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@itemId", itemId);
 
-            var discussions = (await ConnectionWrapper.QueryAsync<Discussion>("NOVA_GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var discussions = (await ConnectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
             await InitializeDiscussionProperties(discussions);
 
             return discussions;
@@ -44,7 +48,7 @@ namespace ArtifactStore.Repositories
             var repliesPrm = new DynamicParameters();
             repliesPrm.Add("@discussionId", discussionId);
 
-            var replies = (await ConnectionWrapper.QueryAsync<Reply>("NOVA_GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
+            var replies = (await ConnectionWrapper.QueryAsync<Reply>("GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
             await InitializeDiscussionProperties(replies);
 
             return replies;
@@ -65,6 +69,7 @@ namespace ArtifactStore.Repositories
                 {
                     comment.UserName = userInfo.DisplayName;
                     comment.IsGuest = userInfo.IsGuest;
+                    comment.Comment = _mentionHelper.ProcessComment(comment.Comment, comment.ItemId);
                 }
             }
         }

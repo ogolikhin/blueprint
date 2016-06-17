@@ -114,7 +114,7 @@ namespace Helper
         /// <param name="statusCode">The status code to be injected.</param>
         public void StartInjectingErrors(RestRequestMethod method, HttpStatusCode statusCode)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(_address);
             string path = I18NHelper.FormatInvariant("{0}/InjectErrors/{1}/{2}", SvcPath, method.ToString(), (int)statusCode);
 
             Logger.WriteInfo("Injecting error into AccessControl {0}...", method.ToString());
@@ -128,7 +128,7 @@ namespace Helper
         /// <param name="method">The request method to stop injecting errors into (ex. GET, POST, DELETE...).</param>
         public void StopInjectingErrors(RestRequestMethod method)
         {
-            var restApi = new RestApiFacade(_address, string.Empty);
+            var restApi = new RestApiFacade(_address);
             string path = I18NHelper.FormatInvariant("{0}/InjectErrors/{1}", SvcPath, method.ToString());
 
             Logger.WriteInfo("Removing injected error from AccessControl {0}...", method.ToString());

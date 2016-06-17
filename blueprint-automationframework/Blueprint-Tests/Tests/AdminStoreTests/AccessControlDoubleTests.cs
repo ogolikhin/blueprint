@@ -252,7 +252,7 @@ namespace AdminStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);   // XXX: Why does GET /license/transactions make a DELETE request to AccessControl???
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(numberOfDays: 5); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(_user, numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for DELETE requests!", accessControlError);
             }
         }
@@ -269,7 +269,7 @@ namespace AdminStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(numberOfDays: 5); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(_user, numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for GET requests!", accessControlError);
             }
         }
@@ -286,7 +286,7 @@ namespace AdminStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(numberOfDays: 5); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(_user, numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for HEAD requests!", accessControlError);
             }
         }
@@ -303,7 +303,7 @@ namespace AdminStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(numberOfDays: 5); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(_user, numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for POST requests!", accessControlError);
             }
         }
@@ -320,7 +320,7 @@ namespace AdminStoreTests
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
-                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(numberOfDays: 5); },
+                Assert.Throws<Http401UnauthorizedException>(() => { Helper.AdminStore.GetLicenseTransactions(_user, numberOfDays: 5); },
                     "GetLicenseTransactions should return a 401 error if AccessControl returns a {0} error for PUT requests!", accessControlError);
             }
         }

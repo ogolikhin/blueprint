@@ -34,6 +34,25 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<Attachment>("GetItemAttachments", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
 
+        private async Task<IEnumerable<int>> GetDocumentReferenceArtifacts(int itemId, int userId, bool addDrafts = true)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemId", itemId);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            return await ConnectionWrapper.QueryAsync<int>("GetDocumentReferenceArtifacts", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        private async Task<IEnumerable<DocumentReference>> GetOnlyDocumentArtifacts(IEnumerable<int> artifactIds, int userId, bool addDrafts = true)
+        {
+            var parameters = new DynamicParameters();            
+            var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(artifactIds);
+            parameters.Add("@artifactIds", artifactIdsTable);
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            return await ConnectionWrapper.QueryAsync<DocumentReference>("GetOnlyDocumentArtifacts", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true)
         {
             var itemId = artifactId;
@@ -41,12 +60,16 @@ namespace ArtifactStore.Repositories
             {
                 itemId = subArtifactId.Value;
             }
-            var attachments = (await GetAttachments(itemId, userId, addDrafts)).ToList();
+            var attachments = (await GetAttachments(itemId, userId, addDrafts)).ToList();            
 
-            var result = new FilesInfo(attachments, new List<DocumentReference>())
+            var referenceArtifacts = (await GetDocumentReferenceArtifacts(itemId, userId, addDrafts)).ToList();
+
+            var documentReferenceArtifacts = (await GetOnlyDocumentArtifacts(referenceArtifacts, userId, addDrafts)).ToList();
+
+            var result = new FilesInfo(attachments, documentReferenceArtifacts)
             {
                 ArtifactId = artifactId,
-                SubartifactId = subArtifactId                
+                SubartifactId = subArtifactId
             };
 
             return result;

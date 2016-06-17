@@ -148,7 +148,7 @@ namespace ArtifactStore.Repositories
                     new ArtifactHistoryVersionWithUserInfo {
                                                              VersionId = artifactVersion.VersionId,
                                                              UserId = artifactVersion.UserId,
-                                                             Timestamp = artifactVersion.Timestamp,
+                                                             Timestamp = DateTime.SpecifyKind(artifactVersion.Timestamp.GetValueOrDefault(), DateTimeKind.Utc),
                                                              DisplayName = userInfo.DisplayName,
                                                              HasUserIcon = userInfo.ImageId != null,
                                                              ArtifactState = artifactVersion.ArtifactState 

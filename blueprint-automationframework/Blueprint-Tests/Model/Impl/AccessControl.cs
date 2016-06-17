@@ -79,7 +79,7 @@ namespace Model.Impl
             int? licenseLevel = null,
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
-            var restApi = new RestApiFacade(Address, string.Empty);
+            var restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, userId);
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
 
@@ -137,7 +137,7 @@ namespace Model.Impl
 
         public ISession GetSession(int? userId)    // GET /sessions/{userId}
         {
-            var restApi = new RestApiFacade(Address, string.Empty);
+            var restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/sessions/{1}", SVC_PATH, (userId.HasValue ? userId.Value.ToStringInvariant() : string.Empty));
 
             Logger.WriteTrace("path = '{0}'.", path);
@@ -164,7 +164,7 @@ namespace Model.Impl
 
         public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address, string.Empty);
+            var restApi = new RestApiFacade(Address);
             string path;
 
             Dictionary<string, string> additionalHeaders = null;
@@ -203,7 +203,7 @@ namespace Model.Impl
 
         public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/licenses/transactions", SVC_PATH);
 
             Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
@@ -231,7 +231,7 @@ namespace Model.Impl
 
         public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address, string.Empty);
+            RestApiFacade restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/sessions/select", SVC_PATH);
 
 

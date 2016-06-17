@@ -29,7 +29,7 @@ namespace Model.Impl
         /// <see cref="IConfigControl.GetLog(List{HttpStatusCode})"/>
         public IFile GetLog(List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address, token: string.Empty);
+            var restApi = new RestApiFacade(Address);
             var path = I18NHelper.FormatInvariant("{0}/log/getlog", SVC_PATH);
 
             var response = restApi.SendRequestAndGetResponse(

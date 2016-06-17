@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Attributes;
@@ -51,12 +53,39 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
             }            
 
+           
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, subArtifactId, addDrafts);
+
             var artifactIds = new List<int> { artifactId };
+            foreach (var documentReference in result.DocumentReferences)
+            {
+                artifactIds.Add(documentReference.VersionArtifactId);
+            }
+            
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
 
-            if (!permissions.ContainsKey(artifactId))
+            CheckReadPermissions(artifactId, permissions, () =>
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
+            });
+
+            var docRef = result.DocumentReferences.ToList();
+            foreach (var documentReference in docRef)
+            {
+                CheckReadPermissions(documentReference.VersionArtifactId, permissions, () =>
+                {
+                    result.DocumentReferences.Remove(documentReference);
+                });
+            }
+
+            return result;
+        }
+
+        private static void CheckReadPermissions(int artifactId, Dictionary<int, RolePermissions> permissions, Action action)
+        {
+            if (!permissions.ContainsKey(artifactId))
+            {
+                action();
             }
             else
             {
@@ -65,12 +94,9 @@ namespace ArtifactStore.Controllers
 
                 if (!permission.HasFlag(RolePermissions.Read))
                 {
-                    throw new HttpResponseException(HttpStatusCode.Forbidden);
+                    action();
                 }
             }
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, subArtifactId, addDrafts);
-            return result;
         }
-
     }
 }

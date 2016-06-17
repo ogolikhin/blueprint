@@ -12,7 +12,7 @@ describe("messageService", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
        $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 3000, "Error": 0 }'
+                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 7000, "Error": 0 }'
             }
         };       
     }));
@@ -53,25 +53,14 @@ describe("messageService", () => {
             var message = new Message(MessageType.Info, "someText");
             messageService.addMessage(message);
         }));
-        it("countsMessageByType",
-            inject((messageService: IMessageService) => {
-                // Assert
-                expect(messageService.countsMessageByType(MessageType.Error)).toEqual(2);
-                expect(messageService.countsMessageByType(MessageType.Warning)).toEqual(0);
-            }));
-        it("hasMessages",
-            inject((messageService: IMessageService) => {             
-                // Assert
-                expect(messageService.hasMessages(MessageType.Error)).toEqual(true);
-                expect(messageService.hasMessages(MessageType.Warning)).toEqual(false);
-            }));
+
         it("deleteMessages",
             inject((messageService: IMessageService) => {
                // Act
-                messageService.deleteMessages(MessageType.Error);
+                messageService.deleteMessageById(1);
 
                 // Assert
-                expect(messageService.getMessages().length).toEqual(1);
+                expect(messageService.getMessages().length).toEqual(2);
             }));
         it("clearMessages",
             inject((messageService: IMessageService) => {
@@ -81,13 +70,6 @@ describe("messageService", () => {
                 // Assert
                 expect(messageService.getMessages().length).toEqual(0);
             }));
-        it("getFirstOfTypeMessage",
-            inject((messageService: IMessageService) => {
-                // Act
-                var msg = messageService.getFirstOfTypeMessage(MessageType.Error);
-
-                // Assert
-                expect(msg.messageText).toEqual("test1");
-            }));        
+            
     });
 });

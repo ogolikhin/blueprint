@@ -73,7 +73,6 @@
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="Factories\FactoryCommon.cs" />
     <Compile Include="IArtifactStore.cs" />
-    <Compile Include="ArtifactModel\IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\InstanceProject.cs" />

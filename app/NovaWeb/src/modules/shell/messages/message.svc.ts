@@ -5,15 +5,13 @@ export interface IMessageService {
     addMessage(msg: Message): void;
     addError(text: string): void;
     getMessages(): Message[];
-    clearMessages(): void;
-    deleteMessages(messageType: MessageType): void;
-    getFirstOfTypeMessage(messageType: MessageType): Message;
-    countsMessageByType(messageType: MessageType): number;
-    hasMessages(messageType: MessageType): boolean;
+    clearMessages(): void;   
+    deleteMessageById(id: number): void;   
 }
 
 export class MessageService implements IMessageService {
-    private timers: { [type: string]: ng.IPromise<any>; } = {};
+    private timers: { [id: number]: ng.IPromise<any>; } = {};
+    private id: number = 0;
 
     public static $inject = ["$timeout", "configValueHelper"];
     constructor(private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
@@ -21,23 +19,23 @@ export class MessageService implements IMessageService {
 
     private messages: Message[] = [];
 
-    private cancelTimer = (messageType: MessageType) => {
-    
-        if (this.timers && this.timers[messageType]) {           
-            this.$timeout.cancel(this.timers[messageType]);
-                this.timers[messageType] = null;                
+    private cancelTimer = (id: number) => {
+
+        if (this.timers && this.timers[id]) {
+            this.$timeout.cancel(this.timers[id]);
+            this.timers[id] = null;
         }
     }
 
-    private clearMessagesAfterInterval = (messageType: MessageType) => {
-        this.deleteMessages(messageType);
-        this.cancelTimer(messageType);
+    private clearMessageAfterInterval = (id: number) => {
+        this.deleteMessageById(id);
+        this.cancelTimer(id);
     }
 
     private getMessageTimeout(messageType: MessageType): number {
         /**
          * Note: expect timeout settings to be a JSON formatted string:
-         * {"Warning": 0,"Info": 30000,"Error": 0}
+         * {"Warning": 0,"Info": 70000,"Error": 0}
          */
         let result = 0;
         let timeout = this.configValueHelper.getStringValue("StorytellerMessageTimeout");  //TODO to change name?
@@ -47,7 +45,7 @@ export class MessageService implements IMessageService {
         }
         else {
             // use defaults if timeout values not configured
-            timeout = JSON.parse('{ "Warning": 0, "Info": 3000, "Error": 0 }');
+            timeout = JSON.parse('{ "Warning": 0, "Info": 7000, "Error": 0 }');
         }
 
         switch (messageType) {
@@ -68,31 +66,34 @@ export class MessageService implements IMessageService {
         return result;
     }
 
-    public clearMessages(): void {
-        this.messages.length = 0;
-        for (var item in MessageType) {
-            Object.keys(MessageType).map(k => this.cancelTimer(MessageType[k]));
-        }        
+    public clearMessages(): void {        
+        for (var msg in this.messages) {
+            this.cancelTimer(msg["id"]);
+        }  
+        this.messages.length = 0;      
     }
 
     public addError(text: string): void {
         this.addMessage(new Message(MessageType.Error, text));
     }
 
-    public addMessage(msg: Message): void {       
+    public addMessage(msg: Message): void {
+        msg.id = this.id;
+        this.id++;
         this.messages.push(msg);
      
         let messageTimeout = this.getMessageTimeout(msg.messageType);
         if (messageTimeout > 0) {
-            this.timers[msg.messageType] = this.$timeout(this.clearMessagesAfterInterval.bind(null, msg.messageType), messageTimeout);
+            this.timers[msg.id ] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);
         }
     }
-
-    public deleteMessages(messageType: MessageType): void {
+  
+    public deleteMessageById(id: number): void {
         let i = this.messages.length
-        while (i--) {       
-            if (this.messages[i].messageType === messageType) {
+        while (i--) {
+            if (this.messages[i].id === id) {
                 this.messages.splice(i, 1);
+                break;
             }
         }
     }
@@ -101,31 +102,6 @@ export class MessageService implements IMessageService {
         return this.messages;
     }
 
-    public getFirstOfTypeMessage(messageType: MessageType): Message {
-        for (let i = 0; i< this.messages.length; i++) {
-            if (this.messages[i].messageType === messageType) {
-                return this.messages[i];
-            }
-        }
-        return null;
-    }
-
-    public countsMessageByType(messageType: MessageType): number {
-        let count = 0;
-        for (let i = 0; i < this.messages.length; i++) {
-            if (this.messages[i].messageType === messageType) {
-                count = count + 1;
-                if (count > 1) {
-                    break;
-                }
-            }
-        }
-        return count;
-    }
-
-    public hasMessages(messageType: MessageType): boolean {
-        return this.countsMessageByType(messageType) > 0;
-    };
 }
 
 

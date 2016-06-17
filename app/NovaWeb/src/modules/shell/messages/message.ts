@@ -4,6 +4,7 @@
 
 export class Message {
     public onMessageAction: (actionName: string) => void;
+    public id: number;
 
     constructor(public messageType: MessageType, public messageText) {
     }

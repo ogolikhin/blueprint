@@ -21,15 +21,15 @@ namespace ArtifactStore.Repositories
         private readonly MentionHelper _mentionHelper;
 
         public SqlDiscussionsRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository(), new SqlInstanceSettingsRepository())
         {
         }
 
-        internal SqlDiscussionsRepository(ISqlConnectionWrapper connectionWrapper, IUsersRepository sqlUsersRepository)
+        internal SqlDiscussionsRepository(ISqlConnectionWrapper connectionWrapper, IUsersRepository sqlUsersRepository, IInstanceSettingsRepository instanceSettingsRepository)
         {
             ConnectionWrapper = connectionWrapper;
             SqlUsersRepository = sqlUsersRepository;
-            _mentionHelper = new MentionHelper(sqlUsersRepository);
+            _mentionHelper = new MentionHelper(sqlUsersRepository, instanceSettingsRepository);
         }
 
         public async Task<IEnumerable<Discussion>> GetDiscussions(int itemId)
@@ -69,7 +69,7 @@ namespace ArtifactStore.Repositories
                 {
                     comment.UserName = userInfo.DisplayName;
                     comment.IsGuest = userInfo.IsGuest;
-                    comment.Comment = _mentionHelper.ProcessComment(comment.Comment, comment.ItemId);
+                    comment.Comment = await _mentionHelper.ProcessComment(comment.Comment, comment.ItemId);
                 }
             }
         }

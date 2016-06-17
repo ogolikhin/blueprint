@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HtmlLibrary
 {
@@ -11,7 +12,14 @@ namespace HtmlLibrary
         internal const string MENTION_LINK_OBJECT = "RichTextMentionLink";
         internal const string MENTION_EMAIL_ATTRIBUTE = "Email";
 
-        public string ProcessComment(string comment, bool areEmailDiscussionsEnabled, Func<string, bool> isEmailBlockedFunc)
+        private readonly IMentionValidator _mentionValidator;
+
+        public MentionProcessor(IMentionValidator mentionValidator)
+        {
+            _mentionValidator = mentionValidator;
+        }
+
+        public async Task<string> ProcessComment(string comment, bool areEmailDiscussionsEnabled)
         {
             var xDoc = new HtmlDocument();
             xDoc.LoadHtml(comment);
@@ -23,7 +31,7 @@ namespace HtmlLibrary
             {
                 var emailAttr = mention.Attributes.FirstOrDefault(a => a.Name.Equals(MENTION_EMAIL_ATTRIBUTE, StringComparison.CurrentCultureIgnoreCase));
                 var email = emailAttr == null ? string.Empty : emailAttr.Value.Trim();
-                var isEmailBlocked = isEmailBlockedFunc != null? isEmailBlockedFunc(email) : false;
+                var isEmailBlocked = await _mentionValidator.IsEmailBlocked(email);
                 if (emailAttr != null)
                 {
                     var innerHtml = mention.InnerHtml;

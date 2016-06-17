@@ -25,9 +25,7 @@ Use `npm install --save` for grabbing open source client side libraries (bower i
 Client side libraries that are not open source (example mxgraph) should be added under version control (libs folder)
 
 ### typings - TypeScript definition files
-Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions. We are not using latest version of typings yet because of breaking changes between version 0.8.x and version 1.x - should be addressed soon.
-
-Use `typings install {library-name} --ambient --save` to install TypeScript definition for library-name from DefinitelyTyped registry.
+Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)
 
 ## Development
 ### Standards

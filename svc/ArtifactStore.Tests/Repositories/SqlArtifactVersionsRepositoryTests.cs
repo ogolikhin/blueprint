@@ -166,7 +166,7 @@ namespace ArtifactStore.Repositories
             cxn.SetupQueryAsync("GetArtifactVersions", prm, testResult);
             var artifactIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { artifactId });
             var userIdsTable = DapperHelper.GetIntCollectionTableValueParameter(new List<int> { sessionUserId });
-            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", Image_ImageId = 1 } });
+            cxn.SetupQueryAsync("GetUserInfos", new Dictionary<string, object> { { "userIds", userIdsTable } }, new List<UserInfo> { new UserInfo { UserId = 1, DisplayName = "David", ImageId = 1 } });
             // Act
             var actual = await repository.GetArtifactVersions(artifactId, limit, offset, userId, asc, sessionUserId);
             // Assert

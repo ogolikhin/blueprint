@@ -47,7 +47,8 @@ namespace ArtifactStore.Models
     }
 
     public class DocumentReference
-    {      
-        public string ArtifactTitle { get; set; }     
+    {
+        public int VersionArtifactId { get; set; }
+        public string Name { get; set; }     
     }
 }

@@ -83,7 +83,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let count = messageService.countsMessageByType(MessageType.Error);
+            let count = messageService.getMessages().length;
 
             //Asserts
             expect(count).toBe(1);
@@ -96,7 +96,7 @@ describe("Project Manager Test", () => {
             $rootScope.$digest();
 
             //Act
-            let count = messageService.countsMessageByType(MessageType.Error);
+            let count = messageService.getMessages().length;
 
             //Asserts
             expect(count).toBe(1);

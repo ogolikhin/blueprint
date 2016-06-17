@@ -7,6 +7,7 @@ using Model.Factories;
 using Utilities.Facades;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using Model.ArtifactModel.Impl;
 
 namespace Model.Impl
 {
@@ -105,6 +106,20 @@ namespace Model.Impl
                 Logger.WriteError("Error while getting response - {0}", ex.Message);
                 throw;
             }
+        }
+
+        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/version", SVC_PATH, artifactId);
+
+            var restApi = new RestApiFacade(Address, token: user.Token.AccessControlToken);
+            Dictionary<string, string> queryParameters = null;
+
+            var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(path, RestRequestMethod.GET,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+            return artifactHistory.artifactHistoryVersions;
         }
 
         #endregion Members inherited from IArtifactStore

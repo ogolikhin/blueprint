@@ -1,4 +1,5 @@
 ﻿using Model.Impl;
+using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -46,6 +47,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Response content.</returns>
         List<ArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets artifacts history by artifact id.
+        /// (Runs: GET /svc/ArtifactStore/artifacts/{artifactId}/version)
+        /// </summary>
+        /// <param name="artifactId">The id of artifact.</param>
+        /// <param name="user">Current user.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of artifacts versions.</returns>
+        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
     }
 }

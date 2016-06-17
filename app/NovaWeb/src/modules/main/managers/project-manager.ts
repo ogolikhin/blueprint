@@ -139,7 +139,7 @@ export class ProjectManager implements IProjectManager {
         try {
             let self = this;
             let _artifact = this.getArtifact(artifact.id);
-            if (_artifact) {
+            if (!_artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
             this._repository.getArtifacts(artifact.projectId, artifact.id)

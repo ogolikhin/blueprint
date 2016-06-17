@@ -28,12 +28,13 @@ declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare var BUILD_YEAR: string;
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
-  
+
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
- 
-    if (!$rootScope["config"].labels) {
+
+    let labels = $rootScope["config"].labels;
+    if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {
         $state.transitionTo("error");
     }
 }

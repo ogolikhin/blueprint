@@ -32,8 +32,8 @@ export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateSer
     $rootScope["config"] = window["config"] || { settings: {}, labels: {} };
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
-   
-    if (!$rootScope["config"].settins || !$rootScope["config"].labels) {
+ 
+    if (!$rootScope["config"].labels) {
         $state.transitionTo("error");
     }
 }

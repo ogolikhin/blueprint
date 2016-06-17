@@ -2,13 +2,14 @@
 //import {ILocalizationService} from "../core/localization";
 import {IDialogService, IEventManager, EventSubscriber} from "../core/";
 import {IProjectManager, Models} from "./";
-
-
+import {ISession} from "../shell/login/session.svc";
+import {IUser} from "../shell/login/auth.svc";
 
 export class MainViewComponent implements ng.IComponentOptions {
     public template: string = require("./main.view.html");
     public controller: Function = MainViewController;
     public transclude: boolean = true;
+    public controllerAs = "main";
 }
 
 export interface IMainViewController {
@@ -22,12 +23,13 @@ export class MainViewController implements IMainViewController {
         return this._currentArtifact;
     }
 
-    static $inject: [string] = ["$state", "eventManager", "projectManager", "dialogService"];
+    static $inject: [string] = ["$state", "eventManager", "projectManager", "dialogService", "session"];
     constructor(
         private $state: ng.ui.IState,
         private eventManager: IEventManager,
         private projectManager: IProjectManager,
-        private dialogService: IDialogService) {
+        private dialogService: IDialogService,
+        private session: ISession) {
     }
 
     public $onInit() {
@@ -56,5 +58,9 @@ export class MainViewController implements IMainViewController {
     }
     private showError = (error: any) => {
         this.dialogService.alert(`Error: ${error["message"] || ""}`);
+    }
+
+    public get currentUser(): IUser {
+        return this.session.currentUser;
     }
 }

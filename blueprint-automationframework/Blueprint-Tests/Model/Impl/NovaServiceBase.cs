@@ -32,7 +32,7 @@ namespace Model.Impl
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
         protected string GetStatus(string svcPath, string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address, string.Empty);
+            var restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/status", svcPath);
 
             Dictionary<string, string> queryParameters = null;
@@ -56,7 +56,7 @@ namespace Model.Impl
         /// <returns>The status code returned by ArtifactStore.</returns>
         protected HttpStatusCode GetStatusUpcheck(string svcPath, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address, string.Empty);
+            var restApi = new RestApiFacade(Address);
             string path = I18NHelper.FormatInvariant("{0}/status/upcheck", svcPath);
 
             Logger.WriteInfo("Getting {0} ...", svcPath);

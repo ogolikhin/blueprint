@@ -48,7 +48,8 @@ namespace FileStoreTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         public void PostWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
@@ -73,7 +74,8 @@ namespace FileStoreTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "a", typeof(Http401UnauthorizedException))]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http400BadRequestException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, "", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", (uint)512, null, typeof(Http400BadRequestException))]
         public void PutWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
@@ -111,7 +113,8 @@ namespace FileStoreTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         public void GetWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
@@ -141,7 +144,8 @@ namespace FileStoreTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         public void GetHeadWithInvalidSessionToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
@@ -169,7 +173,8 @@ namespace FileStoreTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", typeof(Http401UnauthorizedException))]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "a", typeof(Http401UnauthorizedException))]
-        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http400BadRequestException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "", typeof(Http401UnauthorizedException))]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", null, typeof(Http400BadRequestException))]
         public void DeleteFileWithInvalidToken_VerifyUnauthorizedOrBadRequest(
             uint fileSize, 
             string fakeFileName, 
@@ -273,7 +278,7 @@ Content-Type: text/plain
 
 -------------------------------28947758029299--";
 
-            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -298,7 +303,7 @@ Content-Type: text/plain
 
 ";
 
-            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -318,7 +323,7 @@ Content-Type: text/plain
             const string contentType = "multipart/form-data; boundary=-----------------------------28947758029299";
             const string requestBody = "-------------------------------28947758029299\r\n"; // The end '\r\n' is important here.
 
-            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
             Assert.Throws<Http400BadRequestException>(() =>
             {
@@ -340,7 +345,7 @@ Content-Type: text/plain
 Content-Disposition: form-data; name=""Empty_File.txt""; filename=""Empty_File.txt""
 Content-Type: text/plain";
 
-            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Username, _user.Password, _user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.FileStore.Address, _user.Token.AccessControlToken);
 
             Assert.Throws<Http500InternalServerErrorException>(() =>
             {

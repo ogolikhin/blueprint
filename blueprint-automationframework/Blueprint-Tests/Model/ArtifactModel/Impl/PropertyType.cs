@@ -7,8 +7,8 @@ namespace Model.ArtifactModel.Impl
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public bool IsRichText { get; set; }
-        public bool IsRequired { get; set; }
+        public bool? IsRichText { get; set; }
+        public bool? IsRequired { get; set; }
     }
 
     public class OpenApiPropertyType : PropertyTypeBase
@@ -28,21 +28,32 @@ namespace Model.ArtifactModel.Impl
             public bool IsGroup { get; set; }
         }
 
-        public int VersionId { get; set; }
-        public int PrimitiveType { get; set; }
-        public int InstancePropertyTypeId { get; set; }
-        public int DecimalDefaultValue { get; set; }
-        public DateTime DateDefaultValue { get; set; }
+        public int? VersionId { get; set; }
+        public PropertyPrimitiveType? PrimitiveType { get; set; }
+        public int? InstancePropertyTypeId { get; set; }
+        public decimal? DecimalDefaultValue { get; set; }
+        public DateTime? DateDefaultValue { get; set; }
         public string StringDefaultValue { get; set; }
-        public int DecimalPlaces { get; set; }
-        public int MaxNumber { get; set; }
-        public int MinNumber { get; set; }
-        public DateTime MaxDate { get; set; }
-        public DateTime MinDate { get; set; }
-        public bool IsMultipleAllowed { get; set; }
-        public bool IsValidated { get; set; }
-        public int DefaultValidValueIndex { get; set; }
+        public int? DecimalPlaces { get; set; }
+        public decimal? MaxNumber { get; set; }
+        public decimal? MinNumber { get; set; }
+        public DateTime? MaxDate { get; set; }
+        public DateTime? MinDate { get; set; }
+        public bool? IsMultipleAllowed { get; set; }
+        public bool? IsValidated { get; set; }
+        public int? DefaultValidValueIndex { get; set; }
         public List<string> ValidValues { get; } = new List<string>();
         public List<UserGroup> UserGroupDefaultValue { get; } = new List<UserGroup>();
+    }
+
+    public enum PropertyPrimitiveType
+    {
+        // These are the names & values defined in the production code.
+        Text = 0,
+        Number = 1,
+        Date = 2,
+        User = 3,
+        Choice = 4,
+        Image = 5
     }
 }

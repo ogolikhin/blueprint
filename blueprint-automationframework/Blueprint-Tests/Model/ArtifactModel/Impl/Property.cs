@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-
 using System.Net;
-using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -39,7 +36,7 @@ namespace Model.ArtifactModel.Impl
                 BasePropertyType = returnedPropertyType.BasePropertyType,
                 // Set the value for the property with propertyValue parameter
                 TextOrChoiceValue = propertyValue ?? returnedPropertyType.DefaultValue,
-                IsRichText = returnedPropertyType.IsRichText,
+                IsRichText = returnedPropertyType.IsRichText ?? false,
                 IsReadOnly = returnedPropertyType.IsReadOnly
             };
 

@@ -1,5 +1,4 @@
-﻿using ArtifactStore.Helpers;
-using Dapper;
+﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -32,15 +31,15 @@ namespace ArtifactStore.Repositories
         public long? Permissions;
     }
 
-    public class ArtifactPermissionsRepository : IArtifactPermissionsRepository
+    public class SqlArtifactPermissionsRepository : IArtifactPermissionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
-        public ArtifactPermissionsRepository()
+        public SqlArtifactPermissionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
-        internal ArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlArtifactPermissionsRepository(ISqlConnectionWrapper connectionWrapper)
         {
             ConnectionWrapper = connectionWrapper;
         }
@@ -54,7 +53,7 @@ namespace ArtifactStore.Repositories
             return allPermissions;
         }
 
-        private async void GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
+        private async Task GetOpenArtifactPermissions(Dictionary<int, RolePermissions> itemIdsPermissions, IEnumerable<ProjectsArtifactsItem> projectIdsArtifactIdsItemIds, int sessionUserId, IEnumerable<int> projectArtifactIds, int? revisionId)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", sessionUserId);
@@ -148,7 +147,7 @@ namespace ArtifactStore.Repositories
 
                     try
                     {
-                        GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
+                        await GetOpenArtifactPermissions(itemIdsPermissions, projectsArtifactsItems, sessionUserId, projectArtifactIds, revisionId);
                     }
                     catch (SqlException sqle)
                     {
@@ -161,6 +160,14 @@ namespace ArtifactStore.Repositories
                 }
                 return itemIdsPermissions;
             }
+        }
+
+        public Task<ProjectPermissions> GetProjectPermissions(int projectId)
+        {
+            var discussionsPrm = new DynamicParameters();
+            discussionsPrm.Add("@ProjectId", projectId);
+
+            return  ConnectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿import { ILocalizationService } from "../../../core";
+// import { BehaviorSubject } from "rx-angular";
 // import * as Models from "../../../main/models/models";
 // export {Models}
 
 export interface IArtifactHistory {
+    artifactHistory;
     getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean): ng.IPromise<IArtifactHistoryVersion[]>;
 }
 
@@ -26,11 +28,16 @@ export class ArtifactHistory implements IArtifactHistory {
         "$log",
         "localization"];
 
+    private _artifactHistory;
+    public artifactHistory;
+
     constructor(
         private $q: ng.IQService,
         private $http: ng.IHttpService,
         private $log: ng.ILogService,
         private localization: ILocalizationService) {
+            this._artifactHistory = new Rx.BehaviorSubject([]);
+            this.artifactHistory = this._artifactHistory.asObservable();
     }
 
     public getArtifactHistory(
@@ -55,6 +62,8 @@ export class ArtifactHistory implements IArtifactHistory {
         this.$http(requestObj)
             .success((result: IArtifactHistoryResultSet) => {
                 defer.resolve(result.artifactHistoryVersions);
+                this._artifactHistory.onNext(result.artifactHistoryVersions);
+
             }).error((err: any, statusCode: number) => {
                 const error = {
                     statusCode: statusCode,

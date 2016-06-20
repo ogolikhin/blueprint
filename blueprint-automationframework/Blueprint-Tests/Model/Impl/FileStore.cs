@@ -114,7 +114,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             if (expectedStatusCodes == null)
@@ -123,7 +123,7 @@ namespace Model.Impl
             }
 
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             try
             {
@@ -175,7 +175,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var additionalHeaders = new Dictionary<string, string>();
@@ -199,7 +199,7 @@ namespace Model.Impl
 
             var path = I18NHelper.FormatInvariant("{0}/files", SVC_PATH);
 
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.POST,
@@ -238,7 +238,7 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var additionalHeaders = new Dictionary<string, string>();
@@ -256,7 +256,7 @@ namespace Model.Impl
             }
 
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, file.Id);
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
             restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PUT,
@@ -288,10 +288,10 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            var restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
             var path = I18NHelper.FormatInvariant("{0}/files/{1}", SVC_PATH, fileId);
 
             var response = restApi.SendRequestAndGetResponse(

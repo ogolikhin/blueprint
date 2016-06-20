@@ -5,6 +5,8 @@ using System.Net;
 
 namespace Model.ArtifactModel
 {
+    #region Enums
+
     public enum ItemTypePredefined
     {
         None = 0,
@@ -80,7 +82,9 @@ namespace Model.ArtifactModel
         UseCaseDiagram
     }
 
-    public interface IArtifactBase
+    #endregion Enums
+
+    public interface IArtifactBase : IArtifactObservable
     {
         BaseArtifactType BaseArtifactType { get; set; }
         ItemTypePredefined BaseItemTypePredefined { get; set; }
@@ -99,6 +103,8 @@ namespace Model.ArtifactModel
         IUser CreatedBy { get; set; }
         bool IsPublished { get; set; }
         bool IsSaved { get; set; }
+        bool IsMarkedForDeletion { get; set; }
+        bool IsDeleted { get; set; }
 
         /// <summary>
         /// Set this to true if you want the Delete method to also delete child artifacts.

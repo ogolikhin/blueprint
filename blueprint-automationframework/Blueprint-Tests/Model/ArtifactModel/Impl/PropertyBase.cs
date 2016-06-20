@@ -23,7 +23,7 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Properties
 
-        public PropertyType GetPropertyType(
+        public OpenApiPropertyType GetPropertyType(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,

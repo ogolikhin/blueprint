@@ -47,8 +47,8 @@ namespace Model.Impl
         public string Location { get; set; }
 
         [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactType>>))]
-        public List<ArtifactType> ArtifactTypes { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
+        public List<OpenApiArtifactType> ArtifactTypes { get; set; }
 
         #endregion Properties
 
@@ -56,7 +56,7 @@ namespace Model.Impl
 
         public Project()
         {
-            ArtifactTypes = new List<ArtifactType>();
+            ArtifactTypes = new List<OpenApiArtifactType>();
         }
 
         #endregion Constructors
@@ -87,7 +87,7 @@ namespace Model.Impl
         /// <returns>A list of all projects on the Blueprint server.</returns>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token?.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(SVC_PROJECTS_PATH, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
@@ -103,7 +103,7 @@ namespace Model.Impl
         /// <returns>a project associated with the projectId provided with the request.</returns>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Username, user?.Password, user?.Token.OpenApiToken);
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant("{0}/{1}", SVC_PROJECTS_PATH, projectId);
             Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
@@ -127,7 +127,7 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public List<ArtifactType> GetAllArtifactTypes(
+        public List<OpenApiArtifactType> GetAllArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
@@ -143,16 +143,16 @@ namespace Model.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
             var path = shouldRetrievePropertyTypes ? I18NHelper.FormatInvariant("{0}/{1}/{2}?PropertyTypes=true", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES)
                 : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
 
             // Retrieve the artifact type list for the project 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())
@@ -167,7 +167,7 @@ namespace Model.Impl
 
             ArtifactTypes = artifactTypes;
 
-            return artifactTypes.ConvertAll(o => (ArtifactType) o);
+            return artifactTypes;
         }
 
         #endregion Public Methods

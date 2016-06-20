@@ -1,27 +1,37 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization.mock";
-import {EventManager, EventSubscriber} from "../../core/event-manager";
+import {ConfigValueHelper } from "../../core";
+import {MessageService} from "../../shell/";
 import {ProjectRepositoryMock} from "../services/project-repository.mock";
-import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
+import {ProjectManager, Models} from "../managers/project-manager";
 
 
 describe("Project Manager Test", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("eventManager", EventManager);
+        $provide.service("configValueHelper", ConfigValueHelper);
+        $provide.service("messageService", MessageService);
         $provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("projectManager", ProjectManager);
+    }));
+    beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        $rootScope["config"] = {
+            "settings": {
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
+            }
+        };
+        projectManager.$onInit();
     }));
 
     describe("Load projects: ", () => {
         it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1"});
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
             //Act
-            let project = projectManager.CurrentProject;
+            let project = projectManager.currentProject.getValue();
 
             //Asserts
             expect(project).toBeDefined();
@@ -31,15 +41,13 @@ describe("Project Manager Test", () => {
 
         it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            $rootScope.$digest();
-
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
             $rootScope.$digest();
 
             //Act
-            let current = projectManager.CurrentProject;
-            let projects = projectManager.ProjectCollection;
+            let current = projectManager.currentProject.getValue();
+            let projects = projectManager.projectCollection.getValue();
 
             //Asserts
             expect(projects).toEqual(jasmine.any(Array));
@@ -50,16 +58,16 @@ describe("Project Manager Test", () => {
         it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
 
-            let project: Models.IProject = projectManager.CurrentProject;
+            //let project: Models.IProject = projectManager.currentProject.getValue();
 
-            projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, project.id, 10);
+            projectManager.loadArtifact({ id: 10, projectId: 1 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
-            let artifact = projectManager.CurrentProject.artifacts[0];
+            let artifact = projectManager.currentProject.getValue().artifacts[0];
 
             //Asserts
             expect(artifact).toBeDefined();
@@ -67,41 +75,72 @@ describe("Project Manager Test", () => {
             expect(artifact.artifacts.length).toEqual(5);
             expect(artifact.artifacts[0].id).toEqual(1000);
         }));
-        it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Load project children. Null. Project not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            let error;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            //let error;
+            projectManager.loadProject(null as Models.IProject);
             $rootScope.$digest();
-
-            projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
-                error = ex;
-            });
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, 5, 5);
-            $rootScope.$digest();
-
+            let messages = messageService.getMessages();
 
             //Asserts
-            expect(error.message).toBe("Project_NotFound");
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Project_NotFound");
+
         }));
-        it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Load project children. Null. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            let error;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadArtifact(null as Models.IArtifact);
             $rootScope.$digest();
-
-            projectManager["eventManager"].attach(EventSubscriber.Main, "exception", function (ex) {
-                error = ex;
-            });
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectChildrenLoad, 1, 5);
-            $rootScope.$digest();
-
+            let messages = messageService.getMessages();
 
             //Asserts
-            expect(error.message).toBe("Artifact_NotFound");
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
+
+        }));
+        it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
+            //let error;
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadArtifact({ id: 10, projectId: 2 } as Models.IArtifact);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Project_NotFound");
+
+        }));
+        it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
+            //let error;
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadArtifact({ id: 999, projectId: 1 } as Models.IArtifact);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
         }));
 
     });
@@ -109,183 +148,158 @@ describe("Project Manager Test", () => {
     describe("Current Project: ", () => {
         it("Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changedProject;
-            let func = function (project: Models.IProject) {
-                changedProject = project;
-            };
 
-            projectManager.subscribe(SubscriptionEnum.ProjectChanged, func);
-
-            //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
 
+            //Act
+            let first = projectManager.currentProject.getValue();
+
             //Asserts
-            expect(changedProject).toEqual(projectManager.CurrentProject);
+            expect(first).toBeDefined();
+            expect(first.id).toEqual(1);
+            expect(first.name).toEqual("Project 1");
         }));
 
         it("Set Current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
             let changedProject;
-            
-            projectManager.subscribe(SubscriptionEnum.ProjectChanged, function (project: Models.IProject) {
+
+            projectManager.currentProject.subscribe((project: Models.IProject) => {
                 changedProject = project;
             });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
-            $rootScope.$digest();
 
             //Act
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
 
-            let newProject = projectManager.ProjectCollection[0];
-
-            projectManager.CurrentProject = newProject;
             //Asserts
-            expect(changedProject).toEqual(newProject);
+            expect(changedProject).toBeDefined();
+            expect(changedProject.id).toEqual(1);
+            expect(changedProject.name).toEqual("Project 1");
         }));
 
-        it("Set current artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
+        it("Set Current artifact", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changed;
-            let func = function (artifact: Models.IArtifact) {
-                changed = artifact;
-            };
+            let changedArtifact;
 
-            projectManager.subscribe(SubscriptionEnum.ArtifactChanged, func);
+            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
+                changedArtifact = artifact;
+            });
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
 
             //Asserts
-            expect(changed).toEqual(projectManager.CurrentArtifact);
+            expect(changedArtifact).toBeDefined();
+            expect(changedArtifact.id).toEqual(1);
+            expect(changedArtifact.name).toEqual("Project 1");
+            expect(changedArtifact).toEqual(projectManager.currentProject.getValue());
         }));
+
+
 
         it("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changed;
-            projectManager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
-                changed = artifact;
+            let changedArtifact: Models.IArtifact[] = [];
+
+            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
+                changedArtifact.push(artifact);
             });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            $rootScope.$digest();
 
             //Act
-            let projectid = projectManager.CurrentProject.id;
-            let artifact = projectManager.ProjectCollection[0].artifacts[2];
-            projectManager.CurrentArtifact = artifact;
-            //Asserts
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadArtifact({ id: 10, projectId: 1 } as Models.IArtifact);
+            $rootScope.$digest();
 
-            expect(changed).toEqual(artifact);
-            expect(projectid).toEqual(projectManager.CurrentProject.id);
+            //Asserts
+            expect(changedArtifact).toBeDefined();
+            expect(changedArtifact).toEqual(jasmine.any(Array));
+            expect(changedArtifact.length).toBe(3);
+            expect(changedArtifact[0]).toBeNull();
+            expect(changedArtifact[1].id).toEqual(1);
+            expect(changedArtifact[2].id).toEqual(10);
 
         }));
         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            let changed;
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            $rootScope.$digest();
+            let changedArtifact: Models.IArtifact[] = [];
 
-            //Act
-            projectManager.CurrentArtifact = projectManager.CurrentProject.artifacts[0];
-
-            projectManager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
-                changed = artifact;
-            });
-            projectManager.CurrentArtifact = projectManager.ProjectCollection[0].artifacts[0];
-            //Asserts
-
-            expect(projectManager.CurrentArtifact).toBeDefined();
-            expect(changed).toBeUndefined();
-        }));
-
-        it("Current artifact has changed for multiple project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            let changed;
-            projectManager.subscribe(SubscriptionEnum.ArtifactChanged, function (artifact: Models.IArtifact) {
-                changed = artifact;
+            projectManager.currentArtifact.subscribe((artifact: Models.IArtifact) => {
+                changedArtifact.push(artifact);
             });
 
+
+
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            $rootScope.$digest();
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            $rootScope.$digest();
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
 
-            let artifact = projectManager.ProjectCollection[1].artifacts[1];
-            projectManager.CurrentArtifact = artifact;
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
 
             //Asserts
-            expect(changed).toEqual(artifact);
-            expect(projectManager.CurrentProject.id).toEqual(2);
+
+            
+            expect(changedArtifact).toBeDefined();
+            expect(changedArtifact).toEqual(jasmine.any(Array));
+            expect(changedArtifact.length).toBe(2);
+            expect(changedArtifact[0]).toBeNull();
 
         }));
-
     });
 
     describe("Delete Project: ", () => {
         it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadProject({ id: 3, name: "Project 3" } as Models.IProject);
             $rootScope.$digest();
 
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectClose );
+            let first = projectManager.currentProject.getValue();
+            projectManager.closeProject();
+            $rootScope.$digest();
+            let second = projectManager.currentProject.getValue();
+            let projects = projectManager.projectCollection.getValue();
 
             //Asserts
-            expect(projectManager.ProjectCollection.length).toBe(2);
-            expect(projectManager.CurrentProject.id).toBe(2);
+            expect(projects).toEqual(jasmine.any(Array));
+            expect(projects.length).toBe(2);
+            expect(first.id).toBe(3);
+            expect(second.id).toBe(2);
         }));
         it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadProject({ id: 2, name: "Project 2" } as Models.IProject);
+            $rootScope.$digest();
+            projectManager.loadProject({ id: 3, name: "Project 3" } as Models.IProject);
             $rootScope.$digest();
 
+
             //Act
-            projectManager.notify(SubscriptionEnum.ProjectClose, true);
-
-            //Asserts
-            expect(projectManager.ProjectCollection.length).toBe(0);
-            expect(projectManager.CurrentProject).toBeNull();
-        }));
-    });
-
-    describe("Select Artifact ", () => {
-        it("Select Artifact successful", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
+            projectManager.closeProject(true);
             $rootScope.$digest();
+            let projects = projectManager.projectCollection.getValue();
+            let artifact = projectManager.currentArtifact.getValue();
+            let project = projectManager.currentProject.getValue();
 
-            //Act
-
-            let artifact = projectManager.getArtifact(22);
-
-            //Asserts
-            expect(artifact).toBeDefined();
-            expect(artifact.projectId).toBeDefined(2);
-        }));
-        it("Select Artifact unsuccessful", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
-            // Arrange
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 1, name: "Project 1" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 2, name: "Project 2" });
-            projectManager.notify(SubscriptionEnum.ProjectLoad, { id: 3, name: "Project 3" });
-            $rootScope.$digest();
-
-            //Act
-
-            let artifact = projectManager.getArtifact(305);
 
             //Asserts
-            expect(artifact).toBeUndefined();
+            expect(projects).toEqual(jasmine.any(Array));
+            expect(projects.length).toBe(0);
+            expect(artifact).toBeNull();
+            expect(project).toBeNull();
         }));
     });
 

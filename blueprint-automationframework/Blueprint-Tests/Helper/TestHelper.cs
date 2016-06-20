@@ -8,10 +8,11 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.StorytellerModel;
 using NUnit.Framework;
+using Utilities;
 
 namespace Helper
 {
-    public class TestHelper : IDisposable
+    public class TestHelper : IDisposable, IArtifactObserver
     {
         private bool _isDisposed = false;
 
@@ -29,6 +30,32 @@ namespace Helper
         public List<IProject> Projects { get; } = new List<IProject>();
         public List<IUser> Users { get; } = new List<IUser>();
 
+        #region IArtifactObserver methods
+
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
+        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), string.Join(", ", deletedArtifactIds));
+
+            foreach (var deletedArtifactId in deletedArtifactIds)
+            {
+                Artifacts.ForEach(a =>
+                {
+                    if (a.Id == deletedArtifactId)
+                    {
+                        a.IsDeleted = true;
+                        a.IsPublished = false;
+                        a.IsSaved = false;
+                    }
+                });
+                Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
+            }
+        }
+
+        #endregion IArtifactObserver methods
+
         #region Artifact Management
 
         /// <summary>
@@ -43,6 +70,7 @@ namespace Helper
         {
             IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(address, user, project, artifactType);
             Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
             return artifact;
         }
 
@@ -57,6 +85,7 @@ namespace Helper
         {
             IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType);
             Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
             return artifact;
         }
 
@@ -72,6 +101,7 @@ namespace Helper
         {
             IArtifact artifact = ArtifactFactory.CreateArtifact(address, user, project, artifactType);
             Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
             return artifact;
         }
 
@@ -86,6 +116,7 @@ namespace Helper
         {
             IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType);
             Artifacts.Add(artifact);
+            artifact.RegisterObserver(this);
             return artifact;
         }
 
@@ -171,7 +202,7 @@ namespace Helper
 
             if ((targets & AuthenticationTokenTypes.OpenApiToken) != 0)
             {
-                BlueprintServer.LoginUsingBasicAuthorization(user, string.Empty);
+                BlueprintServer.LoginUsingBasicAuthorization(user);
                 Assert.NotNull(user.Token?.OpenApiToken, "User '{0}' didn't get an OpenAPI token!", user.Username);
             }
 
@@ -226,6 +257,8 @@ namespace Helper
                             savedArtifactsDictionary.Add(artifact.CreatedBy, new List<IArtifactBase> { artifact });
                         }
                     }
+
+                    artifact.UnregisterObserver(this);
                 }
 
                 // For each user that created artifacts, discard the list of artifacts they created.

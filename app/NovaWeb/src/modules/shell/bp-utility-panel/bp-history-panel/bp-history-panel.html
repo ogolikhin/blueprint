@@ -1,18 +1,19 @@
 ﻿<div class="history-panel">
     <div ng-if="$ctrl.artifactHistoryList.length" class="filter-bar">
-        <select 
-            ng-options="o.value as o.label for o in $ctrl.sortOptions" 
+        <bp-select
             ng-model="$ctrl.sortAscending" 
-            ng-change="$ctrl.changeSortOrder()">
-        </select>
+            ng-change="$ctrl.changeSortOrder()"
+            options="$ctrl.sortOptions">
+        </bp-select>
     </div>
     
     <div ng-if="$ctrl.artifactHistoryList.length" class="scrollable-content" bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()" perfect-scrollbar>
-        <!--<div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList | orderBy: 'timestamp' : $ctrl.sortByLatest" -->
         <div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList" 
              class="artifact-history-item-wrapper">
+
             <div class="separator"></div>
-            <bp-artifact-history-item 
+
+            <bp-artifact-history-item
                 artifact-info="artifactHistoryItem"
                 ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)" 
                 ng-class="{ 'selected': $ctrl.selectedArtifactVersion === artifactHistoryItem }">

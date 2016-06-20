@@ -9,10 +9,10 @@ namespace ServiceLibrary.Helpers
 
         public void Init(HttpApplication context)
         {
-            context.PreSendRequestHeaders += OnPreSendRequestHeaders;
+            context.BeginRequest += OnBegingRequest;
         }
 
-        void OnPreSendRequestHeaders(object sender, EventArgs e)
+        void OnBegingRequest(object sender, EventArgs e)
         {
             if (HttpContext.Current == null)
             {

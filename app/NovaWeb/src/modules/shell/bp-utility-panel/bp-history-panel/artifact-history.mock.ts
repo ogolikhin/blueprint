@@ -1,8 +1,11 @@
-import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc"
+import { IArtifactHistory, IArtifactHistoryVersion } from "./artifact-history.svc";
 
 export class ArtifactHistoryMock implements IArtifactHistory {
 
     public static $inject = ["$q"];
+
+    public artifactHistory;
+
     constructor(private $q: ng.IQService) { }
 
     public getArtifactHistory(artifactId: number, limit?: number, offset?: number, userId?: string, asc?: boolean): ng.IPromise<IArtifactHistoryVersion[]> {

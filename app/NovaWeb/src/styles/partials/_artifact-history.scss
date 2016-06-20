@@ -1,111 +1,108 @@
 bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:checked ~ .bp-accordion-panel-content {
-  padding: 0;
+    padding: 0;
 }
 
 .history-panel {
-  $item-gap: $padding-bigger;
+    $item-gap: $padding-bigger;
 
-  height: 100%;
-  overflow: hidden;
+    overflow: hidden;
+    height: 100%;
+    
+    .filter-bar {
+        bp-select .dropdown {
+            min-width: 115px;
 
-  .filter-bar {
-    select {
-      border-radius: 3px;
-      float: right;
-      margin: $padding-root;
-      padding: 1px 0 1px $padding-smaller;
-
-      &:hover {
-        border-color: $brand-secondary;
-        color: $brand-secondary;
-      }
-    }
-  }
-
-  .scrollable-content {
-    height: calc(100% - 43px);
-    overflow: auto;
-    padding: 0 10px;
-    width: 100%;
-  }
-
-  .artifact-history-item-wrapper {
-    position: relative;
-
-    .separator {
-      background: $gray-lighter;
-      bottom: -$item-gap;
-      height: $item-gap;
-      left: 28px;
-      position: absolute;
-      width: 2px;
-    }
-
-    &:last-child .separator {
-      display: none;
-    }
-  }
-
-  bp-artifact-history-item {
-    line-height: 100%;
-
-    &:hover {
-      cursor: pointer;
-    }
-
-    &.selected .artifact-history-item {
-      background: $gray-lightest;
-      border: 1px solid $brand-secondary;
-
-      // &::before {
-      //   float: right;
-      //   font-family: 'bp-font';
-      //   content: '\E831';
-      //   color: $brand-secondary;
-      // }
-    }
-
-    .artifact-history-item {
-      border: 1px solid $gray-lighter;
-      border-radius: 3px;
-      margin: 0 0 $item-gap;
-      min-height: 74px;
-      padding: $padding-smaller $padding-root;
-
-      .timestamp {
-        color: $gray-light;
-        font-size: $font-size-tiny;
-        margin-top: $padding-smaller;
-        
-        &::before {
-          content: '\E831';
-          font-family: 'bp-font';
+            // make the menu open on the right side
+            .dropdown-menu {
+                left: inherit;
+                right: 0;
+            }
         }
-      }
-
-      .version {
-        margin-bottom: 3px;
-      }
-
-      .author {
-        padding-top: 2px;
-      }
-
-      bp-avatar {
-        float: left;
-        margin: 0 $padding-root 0 0;
-      }
-
-      &:hover {
-        background: $gray-lightest;
-      }
     }
-  }
 
-  .empty-state {
-    color: $gray-light;
-    font-size: $font-size-smaller;
-    padding: 50px 0 0;
-    text-align: center;
-  }
+    .scrollable-content {
+        padding: 0 10px;
+        width: 100%;
+        height: calc(100% - 43px);
+        overflow: auto;
+    }
+    
+    .artifact-history-item-wrapper {
+        position: relative;
+        
+        .separator {
+            width: 2px;
+            height: $item-gap;
+            background: $gray-lighter;
+            position: absolute;
+            bottom: -$item-gap;
+            left: 28px;
+        }
+        &:last-child .separator {
+            display: none;
+        }
+    }
+
+    bp-artifact-history-item {
+        line-height: 100%;
+
+        &:hover {
+            cursor: pointer;
+        }
+
+        &.selected .artifact-history-item {
+            background: $gray-lightest;
+            border: 1px solid $brand-secondary;
+
+            // &::before {
+            //     float: right;
+            //     font-family: 'bp-font';
+            //     content: '\E831';
+            //     color: $brand-secondary;
+            // }
+        }
+
+        .artifact-history-item {
+            margin: 0 0 $item-gap 0;
+            border: 1px solid $gray-lighter;
+            border-radius: 3px;
+            padding: $padding-smaller $padding-root;
+            min-height: 74px;
+            
+            .timestamp {
+                color: $gray-light;
+                font-size: $font-size-tiny;
+                margin-top: $padding-smaller;
+                
+                &::before {
+                    font-family: 'bp-font';
+                    content: '\E831';
+                }
+            }
+            .version {
+                margin-bottom: 3px;
+            }
+            .author {
+                padding-top: 2px;
+                padding-bottom: 2px;
+                @include text-ellipsis-flex-width(100%);
+            }
+
+            bp-avatar {
+                float: left;
+                margin: 0 $padding-root 0 0;
+            }
+
+            &:hover {
+                background: $gray-lightest;
+            }
+        }
+    }
+    
+    .empty-state {
+        font-size: $font-size-smaller;
+        color: $gray-light;
+        padding: 50px 0 0 0;
+        text-align: center;
+    }
 }

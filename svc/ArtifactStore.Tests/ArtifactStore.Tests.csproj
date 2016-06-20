@@ -87,6 +87,7 @@
     <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepositoryTests.cs" />
+    <Compile Include="Repositories\SqlAttachmentsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>

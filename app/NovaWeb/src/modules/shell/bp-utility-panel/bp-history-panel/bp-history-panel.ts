@@ -1,7 +1,7 @@
 ﻿import { IAppConstants, ILocalizationService } from "../../../core";
-import {IEventManager, EventSubscriber} from "../../../core/event-manager";
+import { IProjectManager, Models} from "../../../main";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
-import * as Models from "../../../main/models/models";
+
 
 interface ISortOptions {
     value: boolean;
@@ -18,24 +18,25 @@ export class BPHistoryPanelController {
         "$log", 
         "localization",
         "artifactHistory",
-        "eventManager",
+        "projectManager",
         "$q",
         "appConstants"];
 
     private loadLimit: number = 10;
     private artifactId: number;
-    private _listeners: string[];
+    private _subscribers: Rx.IDisposable[];
 
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
     public selectedArtifactVersion: IArtifactHistoryVersion;
+    public artifactHistoryListObserver;
     
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private eventManager: IEventManager,
+        private projectManager: IProjectManager,
         private $q: ng.IQService,
         private appConstants: IAppConstants) {
 
@@ -44,28 +45,38 @@ export class BPHistoryPanelController {
             { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
 
+        this.artifactHistoryListObserver = this._artifactHistoryRepository.artifactHistory;
+        
+        this.projectManager.currentArtifact.asObservable().subscribe(this.setArtifactId);
+        console.log("about to make a request to get value");
+
         // TODO: remove 2 lines below
-        // this.artifactId = 306; //331;
-        // this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+        this.artifactId = 306; //331;
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
-    public $onInit() {
-        this._listeners = [
-            this.eventManager.attach(EventSubscriber.ProjectManager, "artifactchanged", this.setArtifactId.bind(this))
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
+    public $onInit(o) {
+        this._subscribers = [
+            this.artifactHistoryListObserver.subscribe((value) => {
+                console.log("updated value: " + value);
+                this.artifactHistoryList = this.artifactHistoryList.concat(value);
+            })
         ];
     }
+
     public $onDestroy() {
-        this._listeners.map( (it) => {
-            this.eventManager.detachById(it);
-        });
+        //dispose all subscribers
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
+
 
     public changeSortOrder() {
         this.artifactHistoryList = [];
         this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
-    private setArtifactId(artifact: Models.IArtifact) {
+    private setArtifactId = (artifact: Models.IArtifact) => {
         this.artifactHistoryList = [];
 
         if (artifact !== null) {
@@ -98,7 +109,7 @@ export class BPHistoryPanelController {
 
     private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<void> {
         return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc).then((result) => {
-            this.artifactHistoryList = this.artifactHistoryList.concat(result);
+            //this.artifactHistoryList = this.artifactHistoryList.concat(result);
         });
     }
 }

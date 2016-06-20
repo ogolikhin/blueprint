@@ -6,6 +6,7 @@ using Utilities;
 using NUnit.Framework;
 using Utilities.Facades;
 using Common;
+using Model.Impl;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -186,10 +187,10 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
             var path = I18NHelper.FormatInvariant("{0}/{1}", URL_ARTIFACT_INFO, Id);
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 resourcePath: path, method: RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
@@ -213,12 +214,12 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var artifactInfo = GetArtifactInfo(user: user);
             string path;
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
             switch (artifactInfo.BaseTypePredefined)
             {
                 case ItemTypePredefined.BusinessProcess:
@@ -253,12 +254,12 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var artifactInfo = GetArtifactInfo(user: user);
             string path;
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
                 path = I18NHelper.FormatInvariant("{0}/{1}", URL_USECASE, Id);
@@ -288,12 +289,12 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var artifactInfo = GetArtifactInfo(user: user);
             string path;
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
                 path = I18NHelper.FormatInvariant("{0}/{1}", URL_GLOSSARY, Id);
@@ -323,12 +324,12 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             string path = URL_ARTIFACTPROPERTIES;
             var artifactIds = new List<int> { Id };
-            RestApiFacade restApi = new RestApiFacade(Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
             var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(resourcePath: path,
                 method: RestRequestMethod.POST, jsonObject: artifactIds, expectedStatusCodes: expectedStatusCodes);
             return returnedArtifactProperties[0];
@@ -408,10 +409,10 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
             var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
             var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
@@ -537,14 +538,14 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var artifactIds = (
                 from IArtifactBase artifact in artifactsToLock
                 select artifact.Id).ToList();
 
-            var restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
                 URL_LOCK,
@@ -578,11 +579,11 @@ namespace Model.ArtifactModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             const string path = "/svc/shared/artifacts/publish";
-            RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
 
             var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
                 new List<int> { artifactToPublish.Id },

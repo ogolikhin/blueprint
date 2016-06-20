@@ -16,7 +16,7 @@ namespace Model.ArtifactModel
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The property type of the property</returns>
-        PropertyType GetPropertyType(
+        OpenApiPropertyType GetPropertyType(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,

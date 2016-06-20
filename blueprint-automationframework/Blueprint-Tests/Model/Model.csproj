@@ -54,6 +54,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArtifactModel\IArtifactObserver.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
@@ -72,7 +73,6 @@
     <Compile Include="Factories\ArtifactStoreFactory.cs" />
     <Compile Include="Factories\FactoryCommon.cs" />
     <Compile Include="IArtifactStore.cs" />
-    <Compile Include="ArtifactModel\IArtifactType.cs" />
     <Compile Include="IConfigControl.cs" />
     <Compile Include="Impl\ArtifactStore.cs" />
     <Compile Include="Impl\InstanceProject.cs" />

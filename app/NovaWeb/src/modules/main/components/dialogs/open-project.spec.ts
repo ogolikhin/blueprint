@@ -1,11 +1,13 @@
 ﻿import "angular";
 import "angular-mocks";
-import {EventManager} from "../../../core/event-manager";
 import {OpenProjectController} from "./open-project";
+import {ConfigValueHelper } from "../../../core";
+import {MessageService} from "../../../shell/";
 import {ProjectManager, IProjectManager} from "../../managers/project-manager";
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
+
 
 export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
 
@@ -21,6 +23,7 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
 
     public closed: angular.IPromise<any>;
 }
+
 
 describe("Open Project.", () => {
     var controller: OpenProjectController;
@@ -87,7 +90,7 @@ describe("Open Project.", () => {
         expect(columns[0].cellRendererParams.innerRenderer).toBeDefined();
     });
 
-    it("check property map", () => {
+    it("propertyMap", () => {
         // Arrange
         // Act
         // Assert
@@ -99,6 +102,39 @@ describe("Open Project.", () => {
         expect(controller.propertyMap["hasChildren"]).toEqual("hasChildren");
 
     });
+    it("selectItem", () => {
+        // Arrange
+        let item = { id: -1, name: "", description: "", typeId: -1 };
+        // Act
+        controller["setSelectedItem"](null);
+
+        let _selected = controller.selectedItem;
+        // Assert
+        expect(_selected).toEqual(item);
+
+    });
+    it("isProjectSelected", () => {
+        // Arrange
+        let item = { id: 1, name: "Project", description: "", type: 1 };
+        // Act
+        controller["setSelectedItem"](item);
+
+        let _selected = controller.isProjectSelected;
+        // Assert
+        expect(_selected).toBeTruthy();
+
+    });
+    it("returnValue", () => {
+        // Arrange
+        let item = { id: 1, name: "Project", description: "", type: 1 };
+        // Act
+        controller["setSelectedItem"](item);
+
+        let _selected = controller.returnValue;
+        // Assert
+        expect(_selected).toBeDefined;
+
+    });
 
     
 
@@ -108,13 +144,20 @@ describe("Open Project.", () => {
 
         beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
             $provide.service("localization", LocalizationServiceMock);
+            $provide.service("configValueHelper", ConfigValueHelper);
+            $provide.service("messageService", MessageService);
             $provide.service("projectRepository", ProjectRepositoryMock);
-            $provide.service("eventManager", EventManager);
             $provide.service("manager", ProjectManager);
 
         }));
-
         beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $compile: ng.ICompileService, manager: IProjectManager) => {
+            $rootScope["config"] = {
+                "settings": {
+                    "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
+                }
+            };
+            manager["$onInit"]();
+
             $scope = $rootScope.$new();
 
             elem = angular.element(`<div ag-grid="ctrl.gridOptions" class="ag-grid"></div>`);
@@ -133,6 +176,7 @@ describe("Open Project.", () => {
             $compile(elem)($scope);
             $scope.$digest();
         }));
+
 
         it("onEnterKeyOnProject", () => {
             // Arrange

@@ -64,7 +64,7 @@ describe("Project Repository", () => {
                         id: 10, name: "Project 10", typeId: 0, hasChildren: true,
                         artifacts: [
                             {
-                                id: 11, name: "Artifact 11", typeId: 10, projectId: 10, predefinedType: 100, parentId: 10, prefix:"AT", hasChildren: false,
+                                id: 11, name: "Artifact 11", typeId: 10, projectId: 10, predefinedType: 100, parentId: 10, prefix: "AT", hasChildren: false,
                             }
                         ]
                     }
@@ -80,7 +80,7 @@ describe("Project Repository", () => {
             expect(error).toBeUndefined();
             expect(data).toEqual(jasmine.any(Array));
             expect(data.length).toEqual(1);
-            expect(data[0].id).toEqual(10)
+            expect(data[0].id).toEqual(10);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -127,7 +127,7 @@ describe("Project Repository", () => {
 
             // Assert
             expect(error).toBeDefined();
-            expect(data).toBeUndefined()
+            expect(data).toBeUndefined();
             expect(error.statusCode).toEqual(401);
             expect(error.message).toEqual("Artifact_NotFound");
             $httpBackend.verifyNoOutstandingExpectation();

@@ -5,14 +5,16 @@ import { IBPTreeController } from "../../../core/widgets/bp-tree/bp-tree";
 import { IDialogSettings, BaseDialogController, IDialogService } from "../../../core/services/dialog";
 import { IProjectManager, Models } from "../../";
 
-//export interface IProject {
-//    id: number;
-//    type: number;
-//    name: string;
-//    description: string;
-//}
+export interface IOpenProjectController {
+    propertyMap: any;
+    errorMessage: string;
+    hasError: boolean;
+    isProjectSelected: boolean;
+    selectedItem?: Models.IProject;
 
-export class OpenProjectController extends BaseDialogController {
+}
+
+export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
     public hasCloseButton: boolean = true;
     private _selectedItem: Models.IProject;
     private _errorMessage: string;
@@ -59,7 +61,7 @@ export class OpenProjectController extends BaseDialogController {
         return this._selectedItem;
     }
 
-    public set selectedItem(item: any) {
+    private setSelectedItem(item: any) {
         this._selectedItem = <Models.IProject>{
             id: (item && item["id"]) || -1,
             name: (item && item["name"]) || "",
@@ -136,7 +138,7 @@ export class OpenProjectController extends BaseDialogController {
         //check passed in parameter
         let self = this;
         this.$scope.$applyAsync((s) => {
-            self.selectedItem = item;
+            self.setSelectedItem(item);
         });
     }
 

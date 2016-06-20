@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import {IMessageService, MessageService, Message, MessageType} from "../../shell";
-import {IConfigValueHelper, ConfigValueHelper } from "../../core";
+import {ConfigValueHelper } from "../../core";
 
 describe("messageService", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -12,7 +12,7 @@ describe("messageService", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
        $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 7000, "Error": 0 }'
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 7000, "Error": 0 }`
             }
         };       
     }));

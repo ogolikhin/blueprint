@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Impl;
 
 namespace Model.StorytellerModel
 {
@@ -91,7 +92,7 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The user story artifact type</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Upload a File

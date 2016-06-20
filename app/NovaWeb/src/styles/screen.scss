@@ -45,6 +45,10 @@ body {
   position: relative;
 }
 
+.ps-container {
+  position: relative;
+}
+
 @import 'partials/pagecontent';
 @import 'partials/sidebar';
 @import 'partials/breadcrumbs';

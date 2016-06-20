@@ -1,8 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
-import {MessagesContainerDirective, IMessageService, MessageService, Message, MessageType, MessageDirective} from "../../shell";
-import {MessageContainerController} from "./message-container";
-import {IConfigValueHelper, ConfigValueHelper } from "../../core";
+import {MessageService, MessageDirective} from "../../shell";
+//import {MessageContainerController} from "./message-container";
+import {ConfigValueHelper } from "../../core";
 
 describe("message directive", () => {
     var element: JQuery;
@@ -15,7 +15,7 @@ describe("message directive", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
         $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 3000, "Error": 0 }'
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
         };
     }));

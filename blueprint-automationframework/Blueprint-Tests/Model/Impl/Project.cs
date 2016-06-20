@@ -47,8 +47,8 @@ namespace Model.Impl
         public string Location { get; set; }
 
         [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactType>>))]
-        public List<ArtifactType> ArtifactTypes { get; set; }
+        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
+        public List<OpenApiArtifactType> ArtifactTypes { get; set; }
 
         #endregion Properties
 
@@ -56,7 +56,7 @@ namespace Model.Impl
 
         public Project()
         {
-            ArtifactTypes = new List<ArtifactType>();
+            ArtifactTypes = new List<OpenApiArtifactType>();
         }
 
         #endregion Constructors
@@ -127,7 +127,7 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        public List<ArtifactType> GetAllArtifactTypes(
+        public List<OpenApiArtifactType> GetAllArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
@@ -152,7 +152,7 @@ namespace Model.Impl
                 : I18NHelper.FormatInvariant("{0}/{1}/{2}", SVC_PROJECTS_PATH, Id, URL_ARTIFACTTYPES);
 
             // Retrieve the artifact type list for the project 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<ArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())
@@ -167,7 +167,7 @@ namespace Model.Impl
 
             ArtifactTypes = artifactTypes;
 
-            return artifactTypes.ConvertAll(o => (ArtifactType) o);
+            return artifactTypes;
         }
 
         #endregion Public Methods

@@ -1,6 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization.mock";
+//import {LocalizationServiceMock} from "../../core/localization.mock";
 import {HttpErrorInterceptor, HttpHandledErrorStatusCodes, IHttpInterceptorConfig} from "./http-error-interceptor";
 import {SessionSvcMock} from "./mocks.spec";
 
@@ -11,7 +11,8 @@ describe("HttpErrorInterceptor", () => {
     }));
 
     describe("responseError", () => {
-        it("process 401 error from http request", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+        it("process 401 error from http request", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var deferred: ng.IHttpPromiseCallbackArg<any> = $q.defer();
@@ -33,7 +34,8 @@ describe("HttpErrorInterceptor", () => {
             expect(processedResponse.status).toBe(HttpHandledErrorStatusCodes.handledUnauthorizedStatus);
         }));
 
-        it("process 401 error from http request that should be ignored", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+        it("process 401 error from http request that should be ignored", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var response: ng.IHttpPromiseCallbackArg<any> = $q.defer();
@@ -46,8 +48,8 @@ describe("HttpErrorInterceptor", () => {
                 () => {
                     processedResponse = undefined;
                 },
-                (response: any) => {
-                    processedResponse = response;
+                (resp: any) => {
+                    processedResponse = resp;
                 }
             );
             $rootScope.$digest();
@@ -57,7 +59,8 @@ describe("HttpErrorInterceptor", () => {
             expect(processedResponse.status).toBe(401);
         }));
 
-        it("process other error from http request", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
+        it("process other error from http request", inject(($rootScope: ng.IRootScopeService,
+            $q: ng.IQService, httpErrorInterceptor: HttpErrorInterceptor) => {
             // Arrange
             var processedResponse: ng.IHttpPromiseCallbackArg<any>;
             var deferred: ng.IHttpPromiseCallbackArg<any> = $q.defer();

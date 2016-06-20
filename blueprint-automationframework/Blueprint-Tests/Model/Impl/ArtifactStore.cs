@@ -41,11 +41,16 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
-        public List<ArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<OpenApiArtifactType> GetArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<OpenApiArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
             ISession session = null;
-            List<ArtifactType> artifactList = null;
+            List<OpenApiArtifactType> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -54,18 +59,18 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                artifactList = JsonConvert.DeserializeObject<List<OpenApiArtifactType>>(response.Content);
                 Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 
             return artifactList;
         }
 
-        public List<ArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<OpenApiArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);
             ISession session = null;
-            List <ArtifactType> artifactList = null;
+            List <OpenApiArtifactType> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -74,7 +79,7 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                artifactList = JsonConvert.DeserializeObject<List<ArtifactType>>(response.Content);
+                artifactList = JsonConvert.DeserializeObject<List<OpenApiArtifactType>>(response.Content);
                 Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 

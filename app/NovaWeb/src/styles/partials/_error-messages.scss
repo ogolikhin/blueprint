@@ -11,7 +11,7 @@ bp-message {
 
   .container {
     border-radius: $border-radius-amount;
-    box-shadow: 0 2px 5px 0 rgba($black,.5);
+    box-shadow: 0 2px 5px 0 rgba($black, .5);
     color: $white;
     margin: 0 20px 6px;
     padding: 10px 0;
@@ -69,8 +69,10 @@ bp-message {
       background-color: $messages-bg-warning;
     }
 
-
-}
+    &.info {
+      background-color: $messages-bg-info;
+    }
+  }
 }
 
 .error-page_container{

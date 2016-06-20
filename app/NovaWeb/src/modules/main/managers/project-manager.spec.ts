@@ -2,9 +2,9 @@
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization.mock";
 import {ConfigValueHelper } from "../../core";
-import {MessageService, MessageType} from "../../shell/";
+import {MessageService} from "../../shell/";
 import {ProjectRepositoryMock} from "../services/project-repository.mock";
-import {ProjectManager, Models, SubscriptionEnum} from "../managers/project-manager";
+import {ProjectManager, Models} from "../managers/project-manager";
 
 
 describe("Project Manager Test", () => {
@@ -19,10 +19,10 @@ describe("Project Manager Test", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
         $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 3000, "Error": 0 }'
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
         };
-        projectManager["$onInit"]();
+        projectManager.$onInit();
     }));
 
     describe("Load projects: ", () => {
@@ -61,7 +61,7 @@ describe("Project Manager Test", () => {
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
             $rootScope.$digest();
 
-            let project: Models.IProject = projectManager.currentProject.getValue();
+            //let project: Models.IProject = projectManager.currentProject.getValue();
 
             projectManager.loadArtifact({ id: 10, projectId: 1 } as Models.IArtifact);
             $rootScope.$digest();
@@ -75,31 +75,72 @@ describe("Project Manager Test", () => {
             expect(artifact.artifacts.length).toEqual(5);
             expect(artifact.artifacts[0].id).toEqual(1000);
         }));
-        it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, messageService: MessageService) => {
+        it("Load project children. Null. Project not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            let error;
+            //let error;
+            projectManager.loadProject(null as Models.IProject);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Project_NotFound");
+
+        }));
+        it("Load project children. Null. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            projectManager.loadArtifact(null as Models.IArtifact);
+            $rootScope.$digest();
+
+            //Act
+            let messages = messageService.getMessages();
+
+            //Asserts
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
+
+        }));
+        it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
+            // Arrange
+            //let error;
+            projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
             projectManager.loadArtifact({ id: 10, projectId: 2 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
-            let count = messageService.getMessages().length;
+            let messages = messageService.getMessages();
 
             //Asserts
-            expect(count).toBe(1);
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Project_NotFound");
+
         }));
-        it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, messageService: MessageService) => {
+        it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+            projectManager: ProjectManager, messageService: MessageService) => {
             // Arrange
-            let error;
+            //let error;
             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.IProject);
+            $rootScope.$digest();
             projectManager.loadArtifact({ id: 999, projectId: 1 } as Models.IArtifact);
             $rootScope.$digest();
 
             //Act
-            let count = messageService.getMessages().length;
+            let messages = messageService.getMessages();
 
             //Asserts
-            expect(count).toBe(1);
+            expect(messages).toEqual(jasmine.any(Array));
+            expect(messages.length).toBe(1);
+            expect(messages[0].messageText).toBe("Artifact_NotFound");
         }));
 
     });

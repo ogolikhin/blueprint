@@ -44,7 +44,7 @@ namespace ArtifactStore.Repositories
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
             discussionsPrm.Add("@UserId", userId);
-            discussionsPrm.Add("@IncludeDrafts", includeDrafts);
+            discussionsPrm.Add("@AddDrafts", includeDrafts);
 
             var discussions = (await ConnectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
             var discussionStates = (await GetItemDiscussionStates(itemId, userId, includeDrafts)).ToDictionary(k => k.DiscussionId);
@@ -69,14 +69,14 @@ namespace ArtifactStore.Repositories
             var repliesPrm = new DynamicParameters();
             repliesPrm.Add("@DiscussionId", discussionId);
             repliesPrm.Add("@UserId", userId);
-            repliesPrm.Add("@IncludeDrafts", includeDrafts);
+            repliesPrm.Add("@AddDrafts", includeDrafts);
 
             var replies = (await ConnectionWrapper.QueryAsync<Reply>("GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
             var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(0);
 
             await InitializeCommentsProperties(replies, areEmailDiscussionsEnabled);
 
-            return replies;
+            return replies.OrderBy(r => r.LastEditedOn);
         }
 
         public async Task<IEnumerable<DiscussionState>> GetItemDiscussionStates(int itemId, int userId, bool includeDrafts)

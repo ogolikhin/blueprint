@@ -5,6 +5,7 @@ import "angular-ui-bootstrap";
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
+import "angular-perfect-scrollbar-2";
 import "../shell";
 import {IProjectRepository, ProjectRepository} from "./services/project-repository";
 import {IProjectManager, ProjectManager, Models, SubscriptionEnum} from "./managers/project-manager";
@@ -44,7 +45,7 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 }
 
 agGrid.initialiseAgGridWithAngular1(angular);
-angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable"])
+angular.module("app.main", ["ngSanitize", "app.shell", "ui.router", "ui.bootstrap", "agGrid", "ngDraggable", "angular-perfect-scrollbar-2"])
     .run(config)
     .service("projectRepository", ProjectRepository)
     .service("projectManager", ProjectManager)

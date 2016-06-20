@@ -162,7 +162,6 @@ bp-accordion {
     > input[type=radio].bp-accordion-panel-state:checked ~ .bp-accordion-panel-content,
     > input[type=checkbox].bp-accordion-panel-pin:checked ~ .bp-accordion-panel-content {
       opacity: 1;
-      padding: 0 10px;
     }
   }
 

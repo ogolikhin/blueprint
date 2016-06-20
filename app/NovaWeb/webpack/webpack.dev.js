@@ -26,7 +26,9 @@ module.exports = {
             'bootstrap/dist/css/bootstrap.css',
             'ng-draggable',
             'ag-grid', 'ag-grid/dist/styles/ag-grid.css', 
-            'rx/dist/rx.lite.js']
+            'rx/dist/rx.lite.js',
+            'angular-perfect-scrollbar-2'
+        ]
 },
     output: {
         filename: 'app.js',
@@ -87,6 +89,7 @@ module.exports = {
           //
           // See: https://github.com/wbuchwalter/tslint-loader
             { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
-        ]
+        ],
+        noParse: [/angular-perfect-scrollbar-2/]
     }
 };

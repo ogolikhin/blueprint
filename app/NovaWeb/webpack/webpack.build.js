@@ -11,7 +11,13 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css', 'ng-draggable', 'ag-grid', 'ag-grid/dist/styles/ag-grid.css', 'rx-lite']
+        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
+            'bootstrap/dist/css/bootstrap.css', 
+            'ng-draggable',
+            'ag-grid', 'ag-grid/dist/styles/ag-grid.css',
+            'rx/dist/rx.lite.js',
+            'angular-perfect-scrollbar-2'
+        ]
     },
     output: {
         filename: 'app.js',
@@ -61,6 +67,7 @@ module.exports = {
          })
     ],
     module:{
-        loaders: loaders
+        loaders: loaders,
+        noParse: [/angular-perfect-scrollbar-2/]
     }
 };

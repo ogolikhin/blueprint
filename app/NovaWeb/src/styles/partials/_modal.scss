@@ -1,6 +1,6 @@
 $modal-side-clearance: 8px;
 
-.modal.in {
+.modal {
   margin: 0;
 
   .modal-content {
@@ -66,7 +66,7 @@ $modal-side-clearance: 8px;
 }
 
 $modal-open-project-height: 450px;
-.modal.in.nova-open-project {
+.modal.nova-open-project {
   .modal-dialog {
     min-height: $modal-open-project-height;
     min-width: #{700px + (2 * $modal-side-clearance)};
@@ -160,7 +160,7 @@ $modal-open-project-height: 450px;
   }
 }
 
-.modal.in.nova-messaging {
+.modal.nova-messaging {
   .modal-body {
     padding: 30px 56px;
 
@@ -172,7 +172,7 @@ $modal-open-project-height: 450px;
   }
 }
 
-.modal.in.nova-login {
+.modal.nova-login {
   .modal-header {
     background: $brand-secondary url('images/bp_logo_white.svg') center center no-repeat;
     background-size: 180px;

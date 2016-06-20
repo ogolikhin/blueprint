@@ -42,14 +42,14 @@ $has-children-padding-before-arrow: 3px;
 
       .ag-group-contracted,
       .ag-group-expanded {
-        border-color: $white;
+        border-color: transparent;
         border-style: solid;
         border-width: 1px 0 1px 1px;
       }
 
       .ag-group-inline-edit,
       .ag-group-value {
-        border-color: $white;
+        border-color: transparent;
         border-style: solid;
         border-width: 1px;
         padding-right: 5px;
@@ -172,6 +172,7 @@ $has-children-padding-before-arrow: 3px;
   // vertical alignment adjustments
   .ag-body-container {
     padding-left: $aggrid-left-spacing;
+    z-index: 0;
 
     .ag-row {
       width: calc(100% - #{$aggrid-left-spacing}) !important;

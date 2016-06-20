@@ -162,9 +162,12 @@ namespace ArtifactStore.Repositories
             }
         }
 
-        public ProjectPermissions GetProjectPermissions(int projectId)
+        public Task<ProjectPermissions> GetProjectPermissions(int projectId)
         {
-            throw new NotImplementedException();
+            var discussionsPrm = new DynamicParameters();
+            discussionsPrm.Add("@ProjectId", projectId);
+
+            return  ConnectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
     }
 }

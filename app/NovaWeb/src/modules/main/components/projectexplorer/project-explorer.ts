@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models, SubscriptionEnum } from "../..";
+﻿import {IProjectManager, Models} from "../..";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -14,7 +14,7 @@ export class ProjectExplorerController {
     constructor(private projectManager: IProjectManager) { }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
+    public $onInit() {
         //use context reference as the last parameter on subscribe...
         this._subscribers = [
             this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this),
@@ -24,7 +24,7 @@ export class ProjectExplorerController {
     
     public $onDestroy() {
         //dispose all subscribers
-        (this._subscribers || []).map((it: Rx.IDisposable) => it.dispose());
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {it.dispose(); return false;});
     }
 
 
@@ -68,20 +68,11 @@ export class ProjectExplorerController {
         }
     }
 
-    private closeProject = (projects: Models.IProject[]) => {
-        if (this.tree) {
-            this.tree.reload(projects);
-        }
-    }
-
-    public doLoad = (prms: any): any[] => {
+    public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
             return null;
         }
-        //check passesed in parameter
-        let projectId = angular.isNumber(prms.projectId) ? prms.projectId : -1;
-        let artifactId = angular.isNumber(prms.id) ? prms.id : -1;
         //notify the repository to load the node children
         this.projectManager.loadArtifact(prms as Models.IArtifact);
     };

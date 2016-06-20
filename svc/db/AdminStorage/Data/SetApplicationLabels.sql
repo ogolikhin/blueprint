@@ -182,7 +182,7 @@ UPDATE [dbo].[ApplicationLabels]
   JOIN #tempAppLabels 
 		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
 	   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
-	   AND [dbo].[ApplicationLabels].[Text] <> #tempAppLabels.[Text]
+	   AND [dbo].[ApplicationLabels].[Text] <> #tempAppLabels.[Text] COLLATE SQL_Latin1_General_CP437_BIN2
 
 -- Delete if [Key]/[Locale] combination no longer exists
 DELETE

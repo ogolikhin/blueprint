@@ -86,7 +86,7 @@ export class Project implements IProject {
     }
 
     public get hasChildren() {
-        return this.artifacts.length > 0;
+        return this.artifacts && this.artifacts.length > 0;
     }
 
 

@@ -1,65 +1,65 @@
-﻿using HtmlLibrary;
+﻿using ArtifactStore.Repositories;
+using HtmlLibrary;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArtifactStore.Helpers
 {
-    internal class MentionHelper
+    internal class MentionHelper : IMentionValidator
     {
 
         internal readonly IUsersRepository UsersRepository;
 
+        internal readonly IInstanceSettingsRepository InstanceSettingsRepository;
+
+        internal readonly IArtifactPermissionsRepository PermissionsRepository;
+
         private readonly MentionProcessor _mentionProcessor;
 
-        public MentionHelper() : this(new SqlUsersRepository())
+        public MentionHelper() : this(new SqlUsersRepository(), new SqlInstanceSettingsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
 
-        internal MentionHelper(IUsersRepository usersRepository)
+        internal MentionHelper(IUsersRepository usersRepository,
+            IInstanceSettingsRepository instanceSettingsRepository,
+            IArtifactPermissionsRepository permissionsRepository)
         {
             UsersRepository = usersRepository;
-            _mentionProcessor = new MentionProcessor();
+            InstanceSettingsRepository = instanceSettingsRepository;
+            PermissionsRepository = permissionsRepository;
+            _mentionProcessor = new MentionProcessor(this);
         }
 
-        private DEmailSettings _instanceEmailSettings;
-        public DEmailSettings GetInstanceEmailSettings()
+        public async Task<bool> IsEmailBlocked(string email)
         {
-            if (_instanceEmailSettings == null)
-            {
-                //Call to database
-                _instanceEmailSettings = new DEmailSettings();
-            }
-            return _instanceEmailSettings;
-        }
-
-        public bool AreEmailDiscussionsEnabled(int itemId)
-        {
-            if (!GetInstanceEmailSettings().EnableEmailReplies)
-            {
-                return false;
-            }
-
-            //var projectId = _dataAccess.ProjectService.GetItemById(itemId, VersionableState.Removed).NodeProjectId.GetValueOrDefault();
-            //return AreEmailDiscussionsEnabledForProject((int)projectId);
-            return false;
-        }
-
-        public bool IsEmailBlocked(string email)
-        {
-            var instanceEmailSettings = GetInstanceEmailSettings();
-            var user = UsersRepository.GetUsersByEmail(email, true).Result.SingleOrDefault();
-            if ((user != null) && ((user.IsGuest && !user.IsEnabled) || (!CheckUsersEmailDomain(email, user.IsEnabled, user.IsGuest, instanceEmailSettings))))
+            var emailSettings = await GetInstanceEmailSettings();
+            var user = (await UsersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
+            if ((user != null) && ((user.IsGuest && !user.IsEnabled) || (!CheckUsersEmailDomain(email, user.IsEnabled, user.IsGuest, emailSettings))))
             {
                 return true;
             }
             return false;
         }
 
-        public string ProcessComment(string comment, int itemId)
+        public async Task<bool> AreEmailDiscussionsEnabled(int projectId)
         {
-            return _mentionProcessor.ProcessComment(comment, false, IsEmailBlocked);
+            var emailSettings = await GetInstanceEmailSettings();
+            if (!emailSettings.EnableEmailReplies)
+            {
+                return false;
+            }
+
+            var permissions = await PermissionsRepository.GetProjectPermissions(projectId);
+            return permissions.HasFlag(ProjectPermissions.AreEmailRepliesEnabled);
+        }
+
+        public async Task<string> ProcessComment(string comment, bool areEmailDiscussionsEnabled)
+        {
+            return await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace ArtifactStore.Helpers
         /// Note that permissible email domains are defined within 
         ///     Main > Manage > Instance Administration > Email Settings > Edit Settings
         /// </summary>
-        internal bool CheckUsersEmailDomain(string email, bool isUserEnabled, bool isGuest, DEmailSettings emailSettings)
+        internal bool CheckUsersEmailDomain(string email, bool isUserEnabled, bool isGuest, EmailSettings emailSettings)
         {
             if (!isGuest)
                 return true;
@@ -96,14 +96,15 @@ namespace ArtifactStore.Helpers
 
             return domains.Any(email.EndsWith);
         }
-    }
 
-    //[DataContract(Name = "DEmailSettings", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Data.AccessAPI.Model.Serializable")]
-    internal class DEmailSettings
-    {
-        public string Domains { get; set; }
-        public bool EnableAllUsers { get; set; }
-        public bool EnableDomains { get; set; }
-        public bool EnableEmailReplies { get; set; }
+        private EmailSettings _instanceEmailSettings;
+        internal async Task<EmailSettings> GetInstanceEmailSettings()
+        {
+            if (_instanceEmailSettings == null)
+            {
+                _instanceEmailSettings = await InstanceSettingsRepository.GetEmailSettings();
+            }
+            return _instanceEmailSettings;
+        }
     }
 }

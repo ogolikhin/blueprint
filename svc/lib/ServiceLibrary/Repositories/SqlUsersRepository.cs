@@ -30,9 +30,12 @@ namespace ServiceLibrary.Repositories
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUserInfos", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
 
-        public Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? getGuests = false)
+        public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {
-            throw new NotImplementedException();
+            var userInfosPrm = new DynamicParameters();
+            userInfosPrm.Add("@Email", email);
+            userInfosPrm.Add("@GuestsOnly", guestsOnly);
+            return await ConnectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
     }
 }

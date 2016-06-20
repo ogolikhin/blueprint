@@ -29,7 +29,7 @@ namespace ArtifactStore.Models
 
         public int UserId { get; set; }
 
-        public DateTime LastEditedOnUtc { get; set; }
+        public DateTime LastEditedOn { get; set; }
 
         public string UserName { get; set; }
 
@@ -47,11 +47,24 @@ namespace ArtifactStore.Models
         //public IList<Reply> Replies { get; set; }
 
         public bool IsClosed { get; set; }
+
+        public string Status { get; set; }
     }
 
     public class Reply : CommentBase
     {
         public int ReplyId { get; set; }
+    }
+
+    public class DiscussionState
+    {
+        public DateTime LastEditedOn { get; set; }
+
+        public bool IsClosed { get; set; }
+
+        public string Status { get; set; }
+
+        public int DiscussionId { get; set; }
     }
 
 }

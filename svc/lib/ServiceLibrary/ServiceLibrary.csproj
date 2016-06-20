@@ -47,6 +47,7 @@
       <HintPath>..\..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
@@ -92,6 +93,7 @@
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
+    <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="LocalLog\LocalEventLog.cs" />
     <Compile Include="LocalLog\LocalFileLog.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />
@@ -121,7 +124,9 @@
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
-    <Compile Include="Repositories\ISqlUsersRepository.cs" />
+    <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
+    <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
+    <Compile Include="Repositories\IUsersRepository.cs" />
     <Compile Include="Repositories\SqlConnectionWrapper.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceConfigRepository.cs" />
     <Compile Include="Repositories\ServiceDependencyStatusRepository.cs" />

@@ -1,8 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import {ConfigValueHelper } from "../../../core";
-import {MessageService, MessageType} from "../../../shell/";
-import {ProjectManager, IProjectManager, SubscriptionEnum, Models } from "../../";
+import {MessageService} from "../../../shell/";
+import {ProjectManager, IProjectManager, Models } from "../../";
 import {ProjectExplorerController} from "./project-explorer";
 
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
@@ -25,7 +25,7 @@ describe("Project Explorer Test", () => {
     beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
         $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": '{ "Warning": 0, "Info": 3000, "Error": 0 }'
+                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
         };
 

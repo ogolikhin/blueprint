@@ -134,11 +134,11 @@ export class ProjectManager implements IProjectManager {
                         self.projectCollection.onNext(_projectCollection);
                         self.setCurrentArtifact(_project);
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || "error");
+                        this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                     });
             } 
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
     }
 
@@ -163,10 +163,10 @@ export class ProjectManager implements IProjectManager {
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     self.setCurrentArtifact(_artifact);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || "error");
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 });
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
@@ -188,7 +188,7 @@ export class ProjectManager implements IProjectManager {
             this.setCurrentArtifact(this.projectCollection.getValue()[0] || null);
             this.setCurrentProject(this.projectCollection.getValue()[0] || null);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
 
     }
@@ -197,7 +197,7 @@ export class ProjectManager implements IProjectManager {
         try {
             return this._repository.getFolders(id);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
     }
 
@@ -235,7 +235,7 @@ export class ProjectManager implements IProjectManager {
                 angular.extend(artifact, data);
             }
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"]);
         }
         return artifact;
     }

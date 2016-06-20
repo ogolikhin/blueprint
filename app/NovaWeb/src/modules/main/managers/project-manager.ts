@@ -1,5 +1,5 @@
-﻿import "angular"
-import {Helper, ILocalizationService } from "../../core";
+﻿import "angular";
+import {ILocalizationService } from "../../core";
 import {IMessageService} from "../../shell";
 import {IProjectRepository, Models} from "../services/project-repository";
 
@@ -61,12 +61,15 @@ export class ProjectManager implements IProjectManager {
     }
 
     private dispose() {
-        if (this.projectCollection)
+        if (this.projectCollection) {
             this.projectCollection.dispose();
-        if (this.currentProject)
+        }
+        if (this.currentProject) {
             this.currentProject.dispose();
-        if (this.currentArtifact)
+        }
+        if (this.currentArtifact) {
             this.currentArtifact.dispose();
+        }
     }
 
     public initialize = () => {
@@ -134,11 +137,11 @@ export class ProjectManager implements IProjectManager {
                         self.projectCollection.onNext(_projectCollection);
                         self.setCurrentArtifact(_project);
                     }).catch((error: any) => {
-                        this.messageService.addError(error["message"] || "error");
+                        this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                     });
             } 
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
     }
 
@@ -146,6 +149,10 @@ export class ProjectManager implements IProjectManager {
         try {
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
+            }
+            let _project = this.getProject(artifact.projectId);
+            if (!_project) {
+                throw new Error(this.localization.get("Project_NotFound"));
             }
             let self = this;
             let _artifact = this.getArtifact(artifact.id);
@@ -163,10 +170,10 @@ export class ProjectManager implements IProjectManager {
                     self.projectCollection.onNext(self.projectCollection.getValue());
                     self.setCurrentArtifact(_artifact);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || "error");
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 });
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
@@ -188,7 +195,7 @@ export class ProjectManager implements IProjectManager {
             this.setCurrentArtifact(this.projectCollection.getValue()[0] || null);
             this.setCurrentProject(this.projectCollection.getValue()[0] || null);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
 
     }
@@ -197,7 +204,7 @@ export class ProjectManager implements IProjectManager {
         try {
             return this._repository.getFolders(id);
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
     }
 
@@ -214,7 +221,7 @@ export class ProjectManager implements IProjectManager {
             if (project.id === id) {
                 foundArtifact = project;
             }
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]);) {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]); ) {
                 if (it.id === id) {
                     foundArtifact = it;
                 } else if (it.artifacts) {
@@ -222,7 +229,7 @@ export class ProjectManager implements IProjectManager {
                 }
             }
         } else {
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]);) {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]); ) {
                 foundArtifact = this.getArtifact(id, it);
             }
         }
@@ -235,7 +242,7 @@ export class ProjectManager implements IProjectManager {
                 angular.extend(artifact, data);
             }
         } catch (ex) {
-            this.messageService.addError(ex["message"] || "error");
+            this.messageService.addError(ex["message"]);
         }
         return artifact;
     }

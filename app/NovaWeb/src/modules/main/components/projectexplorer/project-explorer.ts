@@ -1,4 +1,4 @@
-﻿import {IProjectManager, Models, SubscriptionEnum } from "../..";
+﻿import {IProjectManager, Models} from "../..";
 import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
 
 export class ProjectExplorerComponent implements ng.IComponentOptions {
@@ -68,20 +68,11 @@ export class ProjectExplorerController {
         }
     }
 
-    private closeProject = (projects: Models.IProject[]) => {
-        if (this.tree) {
-            this.tree.reload(projects);
-        }
-    }
-
     public doLoad = (prms: any): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
             return null;
         }
-        //check passesed in parameter
-        let projectId = angular.isNumber(prms.projectId) ? prms.projectId : -1;
-        let artifactId = angular.isNumber(prms.id) ? prms.id : -1;
         //notify the repository to load the node children
         this.projectManager.loadArtifact(prms as Models.IArtifact);
     };

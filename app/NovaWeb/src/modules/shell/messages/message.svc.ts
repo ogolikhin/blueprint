@@ -1,5 +1,5 @@
 ﻿import {Message, MessageType} from "../../shell";
-import {IConfigValueHelper, ConfigValueHelper } from "../../core";
+import {IConfigValueHelper } from "../../core";
 
 export interface IMessageService {
     addMessage(msg: Message): void;
@@ -42,10 +42,9 @@ export class MessageService implements IMessageService {
      
         if (timeout) {
             timeout = JSON.parse(timeout);
-        }
-        else {
+        } else {
             // use defaults if timeout values not configured
-            timeout = JSON.parse('{ "Warning": 0, "Info": 7000, "Error": 0 }');
+            timeout = JSON.parse(`{ "Warning": 0, "Info": 7000, "Error": 0 }`);
         }
 
         switch (messageType) {
@@ -89,7 +88,7 @@ export class MessageService implements IMessageService {
     }
   
     public deleteMessageById(id: number): void {
-        let i = this.messages.length
+        let i = this.messages.length;
         while (i--) {
             if (this.messages[i].id === id) {
                 this.messages.splice(i, 1);

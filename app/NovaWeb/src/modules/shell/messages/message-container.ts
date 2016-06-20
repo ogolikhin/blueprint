@@ -1,4 +1,4 @@
-﻿import {IMessageService, MessageService, Message, MessageType} from "../../shell";
+﻿import {IMessageService, Message, MessageType} from "../../shell";
 
 export interface IMessageContainerController {
 
@@ -29,7 +29,7 @@ export class MessagesContainerDirective implements ng.IDirective {
     };
 
     public static factory() {
-        const directive = ($compile: ng.ICompileService, $sce : any) => new MessagesContainerDirective($compile, $sce);
+        const directive = ($compile: ng.ICompileService, $sce: any) => new MessagesContainerDirective($compile, $sce);
         directive["$inject"] = ["$compile", "$sce"];
         return directive;
     }
@@ -39,7 +39,7 @@ export class MessagesContainerDirective implements ng.IDirective {
     public link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, $attr: ng.IAttributes, $cntr: MessageContainerController) => {
         
 
-        $scope.$on('$destroy', function () {
+        $scope.$on("$destroy", function () {
             $cntr.destroy();
         });
 
@@ -51,7 +51,7 @@ export class MessagesContainerDirective implements ng.IDirective {
                 $element
                     .append(this.$compile("<message id=\"" + mType + "\"  data-message-type=\"" + mType +
                         "\"  data-on-message-closed=\"messageContainterCntrl.closeMessage(" + message.id + ")\">" +                      
-                        "<div data-on-message-action=\"" + message.onMessageAction + "\"> " + this.$sce.trustAsHtml(message.messageText)+ "</div>" +
+                        "<div data-on-message-action=\"" + message.onMessageAction + "\"> " + this.$sce.trustAsHtml(message.messageText) + "</div>" +
                         "</message>")($scope));
 
             }

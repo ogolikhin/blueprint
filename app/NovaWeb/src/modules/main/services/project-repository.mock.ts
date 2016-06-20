@@ -1,4 +1,4 @@
-﻿import {IProjectRepository, Models} from "./project-repository"
+﻿import {IProjectRepository, Models} from "./project-repository";
 
 export class ProjectRepositoryMock implements IProjectRepository {
 
@@ -63,7 +63,7 @@ export class ProjectRepositoryMock implements IProjectRepository {
             items = null;
         } else if (id && !artifactId) {
             items = ([0, 1, 2]).map(function (it) {
-                return this.createArtifact(id, id*10 + it);
+                return this.createArtifact(id, id * 10 + it);
             }.bind(this)) as Models.IArtifact[];
         } else if (id && artifactId) {
             items = ([0, 1, 2, 3, 4]).map(function (it) {

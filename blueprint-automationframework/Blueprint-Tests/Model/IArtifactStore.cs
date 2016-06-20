@@ -54,9 +54,14 @@ namespace Model
         /// </summary>
         /// <param name="artifactId">The id of artifact.</param>
         /// <param name="user">Current user.</param>
+        /// <param name="sortByDateAsc">(optional) False - the latest version comes first, true the latest version comes last.</param>
+        /// <param name="limit">(optional) The maximum number of history items returned in the request.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of artifacts versions.</returns>
-        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user,
+            bool? sortByDateAsc = null, int? limit = null, int? offset = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
     }
 }

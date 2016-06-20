@@ -20,6 +20,13 @@ namespace Model.ArtifactModel.Impl
         public string displayName { get; set; }
         public bool hasUserIcon { get; set; }
         public string timestamp { get; set; }
-        public int artifactState { get; set; }
+        public ArtifactState artifactState { get; set; }
+    }
+
+    public enum ArtifactState
+    {
+        Publised = 0,
+        Draft = 1,
+        Deleted = 2
     }
 }

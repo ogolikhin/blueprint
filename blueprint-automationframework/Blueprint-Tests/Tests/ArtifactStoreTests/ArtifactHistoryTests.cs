@@ -1,4 +1,5 @@
-﻿using Helper;
+﻿using System;
+using Helper;
 using Model;
 using NUnit.Framework;
 using CustomAttributes;
@@ -17,7 +18,7 @@ namespace ArtifactStoreTests
     public class ArtifactHistoryTests : TestBase
     {
         private IUser _user = null;
-        //private IUser _user2 = null;
+        private IUser _user2 = null;
         IProject _project = null;
 
         [SetUp]
@@ -26,7 +27,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-            //_user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
         }
 
         [TearDown]
@@ -35,7 +36,7 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        [Test]
+        [TestCase]
         [TestRail(145867)]
         [Description("...")]
         public void GetHistoryForPublishedArtifact_VerifyHistoryHasExpectedValue()
@@ -44,13 +45,94 @@ namespace ArtifactStoreTests
             artifact.Save(_user);
             artifact.Publish(_user);
 
-            ArtifactHistoryVersion artifactVersion = null;
+            List<ArtifactHistoryVersion> artifactHistory = null;
             Assert.DoesNotThrow(() =>
             {
-                artifactVersion = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user)[0];
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
             });
-            Assert.AreEqual(1, artifactVersion.versionId);
-            Assert.AreEqual(false, artifactVersion.hasUserIcon);
+            Assert.AreEqual(1, artifactHistory.Count);
+            Assert.AreEqual(1, artifactHistory[0].versionId);
+            Assert.AreEqual(false, artifactHistory[0].hasUserIcon);
+            Assert.AreEqual(_user.DisplayName, artifactHistory[0].displayName);
+            Assert.AreEqual(ArtifactState.Publised, artifactHistory[0].artifactState);
+        }
+
+        [TestCase]
+        [TestRail(145868)]
+        [Description("...")]
+        public void GetHistoryForArtifactInDraft_VerifyHistoryHasExpectedValue()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Save(_user);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            });
+            Assert.AreEqual(1, artifactHistory.Count);
+            Assert.AreEqual(Int32.MaxValue, artifactHistory[0].versionId);
+            Assert.AreEqual(false, artifactHistory[0].hasUserIcon);
+            Assert.AreEqual(_user.DisplayName, artifactHistory[0].displayName);
+            Assert.AreEqual(ArtifactState.Draft, artifactHistory[0].artifactState);
+        }
+
+        [TestCase]
+        [TestRail(145869)]
+        [Description("...")]
+        public void GetHistoryForDeletedArtifact_VerifyHistoryHasExpectedValue()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            artifact.Delete(_user);
+            artifact.Publish(_user);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            });
+            Assert.AreEqual(2, artifactHistory.Count);
+            Assert.AreEqual(Int32.MaxValue, artifactHistory[0].versionId);
+            Assert.AreEqual(false, artifactHistory[0].hasUserIcon);
+            Assert.AreEqual(_user.DisplayName, artifactHistory[0].displayName);
+            Assert.AreEqual(ArtifactState.Deleted, artifactHistory[0].artifactState);
+        }
+
+        [TestCase]
+        [TestRail(145870)]
+        [Description("...")]
+        public void GetHistoryForArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Save(_user);
+            artifact.Publish(_user);
+            artifact.Save(_user);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
+            });
+            Assert.AreEqual(1, artifactHistory.Count);
+            artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+        }
+
+        [TestCase]
+        [TestRail(145871)]
+        [Description("...")]
+        public void GetHistoryForArtifactInDraft_VerifyOtherAdminUserSeeEmptyHistory()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            artifact.Save(_user);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
+            });
+            Assert.AreEqual(0, artifactHistory.Count);
         }
     }
 }

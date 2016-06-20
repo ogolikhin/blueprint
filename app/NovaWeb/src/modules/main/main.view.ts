@@ -40,7 +40,7 @@ export class MainViewController implements IMainViewController {
     }
     public $onDestroy() {   
         //dispose all subscribers
-        this._subscribers.map((it: Rx.IDisposable) => it.dispose());
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
     private displayArtifact = (artifact: Models.IArtifact) => {

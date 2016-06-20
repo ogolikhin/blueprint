@@ -35,5 +35,32 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(result.Attachments.Count, 1);
             Assert.AreEqual(result.DocumentReferences.Count, 1);
         }
+
+        [TestMethod]
+        public async Task GetAttachmentsAndDocumentReferences_SubArtifactDontAddDrafts_ResultsReturned()
+        {
+            // Arrange
+            int artifactId = 1;
+            int userId = 1;
+            int? subArtifactId = 2;
+            bool addDrafts = false;
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetItemAttachments", new Dictionary<string, object> { { "itemId", subArtifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<Attachment> { new Attachment { Name = "Test File Name", FileGuid = new System.Guid() } });
+            cxn.SetupQueryAsync("GetDocumentReferenceArtifacts", new Dictionary<string, object> { { "itemId", subArtifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<int> { 1 });
+            cxn.SetupQueryAsync("GetOnlyDocumentArtifacts", new Dictionary<string, object> { { "artifactIds", DapperHelper.GetIntCollectionTableValueParameter(new List<int> { subArtifactId.GetValueOrDefault() }) }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<DocumentReference> { new DocumentReference { Name = "Test File Name", VersionArtifactId = 1 } });
+            var repository = new SqlAttachmentsRepository(cxn.Object);
+
+            // Act
+            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, subArtifactId, addDrafts);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.ArtifactId, 1);
+            Assert.AreEqual(result.SubartifactId, subArtifactId);
+            Assert.AreEqual(result.Attachments.Count, 1);
+            Assert.AreEqual(result.DocumentReferences.Count, 1);
+        }
+
     }
 }

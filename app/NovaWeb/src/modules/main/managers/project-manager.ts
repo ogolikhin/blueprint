@@ -49,7 +49,6 @@ export class ProjectManager implements IProjectManager {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private _repository: IProjectRepository) {
-
     }
 
     public $onInit() {
@@ -82,16 +81,18 @@ export class ProjectManager implements IProjectManager {
     }
 
     private setCurrentProject(project: Models.IProject) {
-        let _currentproject = this.currentProject.getValue();
-        if (_currentproject && project && _currentproject.id === project.id) {
-            return;
+        if (project) {
+            let _currentproject = this.currentProject.getValue();
+            if (_currentproject && _currentproject.id === project.id) {
+                return;
+            }
         }
         this.currentProject.onNext(project);
     }
 
     private setCurrentArtifact(artifact: Models.IArtifact) {
-        let _currentartifact = this.currentArtifact.getValue();
         if (artifact) {
+            let _currentartifact = this.currentArtifact.getValue();
             if (_currentartifact && _currentartifact.id === artifact.id) {
                 return;
             } 
@@ -106,6 +107,9 @@ export class ProjectManager implements IProjectManager {
 
     public loadProject = (project: Models.IProject) => {
         try {
+            if (!project) {
+                throw new Error(this.localization.get("Project_NotFound"));
+            }
             let self = this;
             var _projectCollection: Models.IProject[] = this.projectCollection.getValue();
             let _project = this.getProject(project.id);
@@ -140,6 +144,9 @@ export class ProjectManager implements IProjectManager {
 
     public loadArtifact = (artifact: Models.IArtifact) => {
         try {
+            if (!artifact) {
+                throw new Error(this.localization.get("Artifact_NotFound"));
+            }
             let self = this;
             let _artifact = this.getArtifact(artifact.id);
             if (!_artifact) {
@@ -154,6 +161,7 @@ export class ProjectManager implements IProjectManager {
                         open: true
                     });
                     self.projectCollection.onNext(self.projectCollection.getValue());
+                    self.setCurrentArtifact(_artifact);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || "error");
                 });
@@ -178,6 +186,7 @@ export class ProjectManager implements IProjectManager {
 
             this.projectCollection.onNext(_projectCollection);
             this.setCurrentArtifact(this.projectCollection.getValue()[0] || null);
+            this.setCurrentProject(this.projectCollection.getValue()[0] || null);
         } catch (ex) {
             this.messageService.addError(ex["message"] || "error");
         }

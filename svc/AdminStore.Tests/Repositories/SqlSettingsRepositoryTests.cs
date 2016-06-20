@@ -97,7 +97,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSettingsRepository(cxn.Object);
-            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings());
             dynamic dbObject = new ExpandoObject();
             dbObject.Settings = xml;
             dbObject.Certificate = null;

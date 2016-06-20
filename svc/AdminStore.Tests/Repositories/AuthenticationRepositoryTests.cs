@@ -470,7 +470,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsSamlEnabled = true;
             const string samlEncodedResponse = "fakeSamlResponce";
 
-            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings());
             var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
                 .ReturnsAsync(fedAuthSettings);
@@ -498,7 +498,7 @@ namespace AdminStore.Repositories
             const string samlEncodedResponse = "fakeSamlResponce";
 
             _sqlUserRepositoryMock.Setup(m => m.GetUserByLoginAsync(Login)).ReturnsAsync(new AuthenticationUser { IsEnabled = false });
-            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings());
             var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
                 .ReturnsAsync(fedAuthSettings);
@@ -523,7 +523,7 @@ namespace AdminStore.Repositories
             _instanceSettings.IsSamlEnabled = true;
             const string samlEncodedResponse = "fakeSamlResponce";
 
-            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings());
             var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
             _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
                 .ReturnsAsync(fedAuthSettings);

@@ -14,7 +14,7 @@ export class ProjectExplorerController {
     constructor(private projectManager: IProjectManager) { }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit(o) {
+    public $onInit() {
         //use context reference as the last parameter on subscribe...
         this._subscribers = [
             this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this),

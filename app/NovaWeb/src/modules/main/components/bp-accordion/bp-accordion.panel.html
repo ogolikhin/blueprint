@@ -2,5 +2,7 @@
 	<input type="radio" name="{{bpAccordionPanel.accordionGroupId}}" role="button" class="bp-accordion-panel-state"><input type="checkbox" class="bp-accordion-panel-pin" id="{{bpAccordionPanel.accordionPanelId}}-pin"><label for="{{bpAccordionPanel.accordionPanelId}}-pin" class="bp-accordion-panel-pin" bp-tooltip="Pin this panel"></label>
 	<i></i>
 	<div role="tab" class="bp-accordion-panel-heading {{bpAccordionPanel.accordionPanelHasIcon}}">{{bpAccordionPanel.accordionPanelHeading}}</div>
-	<div role="tabpanel" class="bp-accordion-panel-content" ng-transclude></div>
+	<div role="tabpanel" class="bp-accordion-panel-content" perfect-scrollbar>
+		<div ng-transclude></div>
+	</div>
 </div>

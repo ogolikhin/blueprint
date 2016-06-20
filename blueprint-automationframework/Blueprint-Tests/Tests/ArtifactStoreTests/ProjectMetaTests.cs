@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -64,6 +65,8 @@ namespace ArtifactStoreTests
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId and an unauthorized token and verifies it returns 401 Unauthorized.")]
         public void GetArtifactTypes_UnauthorizedToken_Unauthorized()
         {
+            _user.Token.AccessControlToken = (new Guid()).ToString();
+
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactTypes(_project, _user);
@@ -89,9 +92,11 @@ namespace ArtifactStoreTests
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a non-existing projectId and valid token and verifies it returns 404 Not Found.")]
         public void GetArtifactTypes_NonExistingProjectId_NotFound()
         {
+            IProject nonExistingProject = ProjectFactory.CreateProject(id: int.MaxValue);
+
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(_project, _user);
+                Helper.ArtifactStore.GetArtifactTypes(nonExistingProject, _user);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 404 Not Found for non-existing Project ID.");
         }
     }

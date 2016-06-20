@@ -1,5 +1,5 @@
-﻿import "angular"
-import {Helper, ILocalizationService } from "../../core";
+﻿import "angular";
+import {ILocalizationService } from "../../core";
 import {IMessageService} from "../../shell";
 import {IProjectRepository, Models} from "../services/project-repository";
 
@@ -61,12 +61,15 @@ export class ProjectManager implements IProjectManager {
     }
 
     private dispose() {
-        if (this.projectCollection)
+        if (this.projectCollection) {
             this.projectCollection.dispose();
-        if (this.currentProject)
+        }
+        if (this.currentProject) {
             this.currentProject.dispose();
-        if (this.currentArtifact)
+        }
+        if (this.currentArtifact) {
             this.currentArtifact.dispose();
+        }
     }
 
     public initialize = () => {
@@ -214,7 +217,7 @@ export class ProjectManager implements IProjectManager {
             if (project.id === id) {
                 foundArtifact = project;
             }
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]);) {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = project.artifacts[i++]); ) {
                 if (it.id === id) {
                     foundArtifact = it;
                 } else if (it.artifacts) {
@@ -222,7 +225,7 @@ export class ProjectManager implements IProjectManager {
                 }
             }
         } else {
-            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]);) {
+            for (let i = 0, it: Models.IArtifact; !foundArtifact && (it = this.projectCollection.getValue()[i++]); ) {
                 foundArtifact = this.getArtifact(id, it);
             }
         }

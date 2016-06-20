@@ -16,7 +16,7 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private IUser _user = null;
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
@@ -24,7 +24,7 @@ namespace ArtifactStoreTests
             _project = ProjectFactory.GetProject(_user);
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void TearDown()
         {
             Helper?.Dispose();
@@ -65,11 +65,16 @@ namespace ArtifactStoreTests
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId and an unauthorized token and verifies it returns 401 Unauthorized.")]
         public void GetArtifactTypes_UnauthorizedToken_Unauthorized()
         {
-            _user.Token.AccessControlToken = (new Guid()).ToString();
+            // Setup: Create a user with an unauthorized token.
+            IUser unauthorizedUser = UserFactory.CreateUserOnly();
+            string newToken = (new Guid()).ToString();
+            unauthorizedUser.SetToken(newToken);
+            unauthorizedUser.Token.AccessControlToken = newToken;
 
+            // Execute:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(_project, _user);
+                Helper.ArtifactStore.GetArtifactTypes(_project, unauthorizedUser);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 401 Unauthorized when an unauthorized token is passed.");
         }
 

@@ -7,7 +7,7 @@ using Model.ArtifactModel.Impl;
 namespace Model
 {
     /// <summary>
-    /// This is the data returned by:  GET /projects/{projectId}/meta/customtypes  which contains all the artifact/sub-artifact & property types in a project.
+    /// This is the data returned by:  GET /projects/{projectId}/meta/customtypes  which contains all the artifact/sub-artifact and property types in a project.
     /// </summary>
     public class ProjectArtifactTypesResult
     {
@@ -44,7 +44,7 @@ namespace Model
         /// <param name="project">The project whose types you are interested in.</param>
         /// <param name="user">(optional) The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of artifact, sub-artifact and property types.</returns>
+        /// <returns>An object containing a list of artifact, sub-artifact and property types for the specified project.</returns>
         ProjectArtifactTypesResult GetArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

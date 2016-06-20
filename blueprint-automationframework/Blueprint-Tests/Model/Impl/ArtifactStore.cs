@@ -45,6 +45,8 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
+            Logger.WriteInfo("Getting artifact types for project ID: {0}.", project.Id);
+
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/meta/customtypes", SVC_PATH, project.Id);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 

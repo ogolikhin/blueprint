@@ -1,4 +1,5 @@
-﻿using HtmlLibrary;
+﻿using ArtifactStore.Repositories;
+using HtmlLibrary;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System;
@@ -15,50 +16,50 @@ namespace ArtifactStore.Helpers
 
         internal readonly IInstanceSettingsRepository InstanceSettingsRepository;
 
+        internal readonly IArtifactPermissionsRepository PermissionsRepository;
+
         private readonly MentionProcessor _mentionProcessor;
 
-        public MentionHelper() : this(new SqlUsersRepository(), new SqlInstanceSettingsRepository())
+        public MentionHelper() : this(new SqlUsersRepository(), new SqlInstanceSettingsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
 
-        internal MentionHelper(IUsersRepository usersRepository, IInstanceSettingsRepository instanceSettingsRepository)
+        internal MentionHelper(IUsersRepository usersRepository,
+            IInstanceSettingsRepository instanceSettingsRepository,
+            IArtifactPermissionsRepository permissionsRepository)
         {
             UsersRepository = usersRepository;
             InstanceSettingsRepository = instanceSettingsRepository;
+            PermissionsRepository = permissionsRepository;
             _mentionProcessor = new MentionProcessor(this);
         }
 
-        //public bool AreEmailDiscussionsEnabled(int itemId)
-        //{
-        //    if (!GetInstanceEmailSettings().EnableEmailReplies)
-        //    {
-        //        return false;
-        //    }
-
-        //    //var projectId = _dataAccess.ProjectService.GetItemById(itemId, VersionableState.Removed).NodeProjectId.GetValueOrDefault();
-        //    //return AreEmailDiscussionsEnabledForProject((int)projectId);
-        //    return false;
-        //}
-
-        private EmailSettings _instanceEmailSettings;
         public async Task<bool> IsEmailBlocked(string email)
         {
-            if (_instanceEmailSettings == null)
-            {
-                _instanceEmailSettings = await InstanceSettingsRepository.GetEmailSettings();
-            }
-
+            var emailSettings = await GetInstanceEmailSettings();
             var user = (await UsersRepository.GetUsersByEmail(email, true)).FirstOrDefault();
-            if ((user != null) && ((user.IsGuest && !user.IsEnabled) || (!CheckUsersEmailDomain(email, user.IsEnabled, user.IsGuest, _instanceEmailSettings))))
+            if ((user != null) && ((user.IsGuest && !user.IsEnabled) || (!CheckUsersEmailDomain(email, user.IsEnabled, user.IsGuest, emailSettings))))
             {
                 return true;
             }
             return false;
         }
 
-        public async Task<string> ProcessComment(string comment, int itemId)
+        public async Task<bool> AreEmailDiscussionsEnabled(int projectId)
         {
-            return await _mentionProcessor.ProcessComment(comment, false);
+            var emailSettings = await GetInstanceEmailSettings();
+            if (!emailSettings.EnableEmailReplies)
+            {
+                return false;
+            }
+
+            var permissions = await PermissionsRepository.GetProjectPermissions(projectId);
+            return permissions.HasFlag(ProjectPermissions.AreEmailRepliesEnabled);
+        }
+
+        public async Task<string> ProcessComment(string comment, bool areEmailDiscussionsEnabled)
+        {
+            return await _mentionProcessor.ProcessComment(comment, areEmailDiscussionsEnabled);
         }
 
         /// <summary>
@@ -94,6 +95,16 @@ namespace ArtifactStore.Helpers
                 .ToArray();
 
             return domains.Any(email.EndsWith);
+        }
+
+        private EmailSettings _instanceEmailSettings;
+        internal async Task<EmailSettings> GetInstanceEmailSettings()
+        {
+            if (_instanceEmailSettings == null)
+            {
+                _instanceEmailSettings = await InstanceSettingsRepository.GetEmailSettings();
+            }
+            return _instanceEmailSettings;
         }
     }
 }

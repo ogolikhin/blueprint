@@ -67,7 +67,12 @@ namespace ServiceLibrary.Models
 
         public static EmailSettings CreateFromString(string data)
         {
-            return SerializationHelper.Deserialize<EmailSettings>(data);
+            var emailSettings = (EmailSettings)null;
+            if (SerializationHelper.TryDeserialize(data, out emailSettings))
+            {
+                return emailSettings;
+            }
+            return new EmailSettings();
         }
     }
 }

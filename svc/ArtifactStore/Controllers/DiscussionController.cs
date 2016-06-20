@@ -54,7 +54,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var discussions = await _discussionsRepository.GetDiscussions(itemId);
+            var discussions = await _discussionsRepository.GetDiscussions(itemId, session.UserId, true);
             var result = new DiscussionResultSet
             {
                 CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment),
@@ -88,7 +88,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var result = await _discussionsRepository.GetReplies(discussionId);
+            var result = await _discussionsRepository.GetReplies(discussionId, session.UserId, true);
             return result;
         }
     }

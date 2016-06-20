@@ -243,7 +243,8 @@ namespace Model.StorytellerModel.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
-        public IArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="Storyteller.GetUserStoryArtifactType(IUser, int, List{HttpStatusCode}, bool)"/>
+        public OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetUserStoryArtifactType));
 
@@ -267,7 +268,7 @@ namespace Model.StorytellerModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
-            var response = restApi.SendRequestAndDeserializeObject<ArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var response = restApi.SendRequestAndDeserializeObject<OpenApiArtifactType>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
 
             return response;
         }

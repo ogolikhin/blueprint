@@ -22,6 +22,20 @@ namespace ServiceLibrary.Helpers
             }
         }
 
+        public static bool TryDeserialize<T>(string xml, out T result)
+        {
+            try
+            {
+                result = Deserialize<T>(xml);
+                return true;
+            }
+            catch
+            {
+                result = default(T);
+                return false;
+            }
+        }
+
         public static string Serialize<T>(T data)
         {
             var serializer = new DataContractSerializer(typeof(T));

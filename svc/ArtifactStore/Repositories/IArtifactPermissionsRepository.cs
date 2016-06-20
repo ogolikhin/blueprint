@@ -8,7 +8,7 @@ namespace ArtifactStore.Repositories
     {
         Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null);
 
-        ProjectPermissions GetProjectPermissions(int projectId);
+        Task<ProjectPermissions> GetProjectPermissions(int projectId);
 
     }
 }

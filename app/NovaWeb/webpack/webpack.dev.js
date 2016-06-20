@@ -22,7 +22,11 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css', 'ng-draggable', 'ag-grid', 'ag-grid/dist/styles/ag-grid.css', 'rx-lite']
+        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 
+            'bootstrap/dist/css/bootstrap.css',
+            'ng-draggable',
+            'ag-grid', 'ag-grid/dist/styles/ag-grid.css', 
+            'rx/dist/rx.lite.js']
 },
     output: {
         filename: 'app.js',

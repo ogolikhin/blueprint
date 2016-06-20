@@ -22,7 +22,7 @@ describe("Project Manager Test", () => {
                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
             }
         };
-        projectManager["$onInit"]();
+        projectManager.$onInit();
     }));
 
     describe("Load projects: ", () => {

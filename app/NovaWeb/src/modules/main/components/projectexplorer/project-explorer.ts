@@ -24,7 +24,7 @@ export class ProjectExplorerController {
     
     public $onDestroy() {
         //dispose all subscribers
-        (this._subscribers || []).map((it: Rx.IDisposable) => it.dispose());
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {it.dispose(); return false;});
     }
 
 
@@ -68,7 +68,7 @@ export class ProjectExplorerController {
         }
     }
 
-    public doLoad = (prms: any): any[] => {
+    public doLoad = (prms: Models.IProject): any[] => {
         //the explorer must be empty on a first load
         if (!prms) {
             return null;

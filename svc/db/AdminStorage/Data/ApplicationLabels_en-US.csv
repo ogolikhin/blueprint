@@ -44,7 +44,7 @@ App_UP_Filter_SortByLatest, "sort by latest"
 App_UP_Filter_SortByEarliest, "sort by earliest"
 App_UP_History_Version, "Version"
 App_UP_History_Draft, "Draft"
-App_UP_History_No_Artifact, "Please, select an artifact."
+App_UP_History_No_Artifact, "No history available"
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"

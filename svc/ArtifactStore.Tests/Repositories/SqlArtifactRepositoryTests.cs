@@ -402,6 +402,8 @@ namespace ArtifactStore.Repositories
             input[0].ParentId = null;
             input[1].ParentId = projectId;
 
+            //NOTE:: Temporary filter Review and BaseLines ou from the list
+            // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
             //var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
             //    name: "BaselinesAndReviews",
             //    orderIndex: -1,
@@ -460,6 +462,8 @@ namespace ArtifactStore.Repositories
                     ProjectId = collections.VersionProjectId,
                     Prefix = collections.Prefix
                 },
+                //NOTE:: Temporary filter Review and BaseLines ou from the list
+                // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
                 //new Artifact
                 //{
                 //    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),

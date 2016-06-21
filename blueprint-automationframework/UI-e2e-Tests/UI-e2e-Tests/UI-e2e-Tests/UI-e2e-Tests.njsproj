@@ -35,24 +35,27 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
-    <Content Include="Json\OR.json" />
+    <Content Include="Locator\StorytellerLocator.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <TypeScriptCompile Include="Model\CreateArtifacts.ts" />
+    <TypeScriptCompile Include="Model\CreateArtifacts.ts">
+      <SubType>Code</SubType>
+      <TestFramework>ExportRunner</TestFramework>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="Pages\StorytellerPages\LoginPage.ts" />
     <TypeScriptCompile Include="Pages\StorytellerPages\SvgElementsPage.ts" />
     <TypeScriptCompile Include="Scripts\typings\angular-protractor\angular-protractor.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\selenium-webdriver\selenium-webdriver.d.ts" />
-    <TypeScriptCompile Include="Specs\Storyteller\EditingNavigatingModalStorytellerSpec.ts" />
-    <TypeScriptCompile Include="Specs\Storyteller\LoginTestSpec.ts" />
+    <TypeScriptCompile Include="Specs\Storyteller\StorytellerSpec.ts" />
+    <TypeScriptCompile Include="Specs\Storyteller\LoginSpec.ts" />
     <TypeScriptCompile Include="Utility\ArrayListPresenceOfAll.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
     <Folder Include="Log\" />
-    <Folder Include="Json\" />
+    <Folder Include="Locator\" />
     <Folder Include="allure-results\" />
     <Folder Include="Pages\CommonPages\" />
     <Folder Include="Pages\StorytellerPages\" />

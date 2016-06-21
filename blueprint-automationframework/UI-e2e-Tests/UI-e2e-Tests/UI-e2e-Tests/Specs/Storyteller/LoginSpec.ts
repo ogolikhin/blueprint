@@ -7,17 +7,17 @@
  * last modified by:
  * Last modified on:
  */
-import createArtifact = require("../../Model/CreateArtifacts");
+import CreateArtifact = require("../../Model/CreateArtifacts");
 import Page = require("../../Pages/StorytellerPages/LoginPage");
-
-var OR = require('../../Json/OR.json');
+var createArtifact: CreateArtifact;
+var OR = require('../../Locator/StorytellerLocator.json');
 var loginPage;
 
 describe("LoginPage- Storyteller",
     () => {
         beforeAll(() => {
             // Arrange
-            
+            createArtifact = new CreateArtifact();
             var ID = createArtifact.createArt();
             var site = OR.mockData.siteUrl + ID;
             
@@ -44,7 +44,7 @@ describe("LoginPage- Storyteller",
                             console.log("Session Dialog Box appears: " + presence);
                         }
                 });
-            //Assert
+            //Assert user name display
             expect(loginPage.getdisplayNameFinder.getText()).toBe("Default Instance Admin");
 
         });

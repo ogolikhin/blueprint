@@ -7,7 +7,7 @@
  * Last modified on:
  */
 
-var OR = require('../../Json/OR.json');
+var OR = require('../../Locator/StorytellerLocator.json');
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import ElementArrayFinder = protractor.ElementArrayFinder;

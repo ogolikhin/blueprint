@@ -11,7 +11,7 @@
 import Promise = protractor.promise.Promise;
 import ElementFinder = protractor.ElementFinder;
 import WebElementPromise = protractor.WebElementPromise;
-var OR = require('../../Json/OR.json');
+var OR = require('../../Locator/StorytellerLocator.json');
 class LoginPage {
  
     private loginField: ElementFinder;

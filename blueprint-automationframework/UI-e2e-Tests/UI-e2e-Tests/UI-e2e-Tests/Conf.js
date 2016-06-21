@@ -1,3 +1,11 @@
+/** 
+ * This protractor Config file
+ * Assumption: 
+ * Author : Mohammed Ali Akbar
+ * Created date: May10,2016
+ * 
+ */
+// Funtion for Allure report
 function allure_report_jetty_deploy() {
     console.log('Generating allure reports from xml using maven plugin and deploying them on port:1234[localhost or jenkins node ip] via jetty server.It should not take more than 1 minute......');
     console.log('If at times there is some issue in report deployment or reports are not available on mentioned port, please restart jenkins master and re run the test build');
@@ -13,7 +21,7 @@ function allure_report_jetty_deploy() {
 exports.config = {
     framework: 'jasmine2',
     seleniumAddress: 'http://localhost:4444/wd/hub',
-    specs: ['./Specs/Storyteller/LoginTestSpec.js', './Specs/Storyteller/EditingNavigatingModalStorytellerSpec.js'],
+    specs: ['./Specs/Storyteller/LoginSpec.js', './Specs/Storyteller/StorytellerSpec.js'],
     allScriptsTimeout: 20000,
     onPrepare: function () {
         browser.driver.manage().window().maximize();

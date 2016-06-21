@@ -402,16 +402,16 @@ namespace ArtifactStore.Repositories
             input[0].ParentId = null;
             input[1].ParentId = projectId;
 
-            var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
-                name: "BaselinesAndReviews",
-                orderIndex: -1,
-                itemTypePredefined: ItemTypePredefined.BaselineFolder,
-                itemTypeId: 22,
-                prefix: "BRF",
-                lockedByUserId: null,
-                lockedByUserTime: null,
-                versionsCount: 1);
-            input.Add(baselinesAndReviews);
+            //var baselinesAndReviews = CreateArtifactVersion(2, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
+            //    name: "BaselinesAndReviews",
+            //    orderIndex: -1,
+            //    itemTypePredefined: ItemTypePredefined.BaselineFolder,
+            //    itemTypeId: 22,
+            //    prefix: "BRF",
+            //    lockedByUserId: null,
+            //    lockedByUserTime: null,
+            //    versionsCount: 1);
+            //input.Add(baselinesAndReviews);
 
             var collections = CreateArtifactVersion(3, 1, 1, 99, ServiceConstants.VersionHead, RolePermissions.Read, false,
                 name: "Collections",
@@ -460,22 +460,22 @@ namespace ArtifactStore.Repositories
                     ProjectId = collections.VersionProjectId,
                     Prefix = collections.Prefix
                 },
-                new Artifact
-                {
-                    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),
-                    OrderIndex = baselinesAndReviews.OrderIndex,
-                    ParentId = baselinesAndReviews.ParentId,
-                    Id = baselinesAndReviews.ItemId,
-                    HasChildren = false,
-                    Name = baselinesAndReviews.Name,
-                    Permissions = baselinesAndReviews.DirectPermissions,
-                    LockedDateTime = baselinesAndReviews.LockedByUserTime,
-                    TypeId = baselinesAndReviews.ItemTypeId,
-                    LockedByUserId = baselinesAndReviews.LockedByUserId,
-                    Version = baselinesAndReviews.VersionsCount,
-                    ProjectId = baselinesAndReviews.VersionProjectId,
-                    Prefix = baselinesAndReviews.Prefix
-                }
+                //new Artifact
+                //{
+                //    PredefinedType = baselinesAndReviews.ItemTypePredefined.GetValueOrDefault(),
+                //    OrderIndex = baselinesAndReviews.OrderIndex,
+                //    ParentId = baselinesAndReviews.ParentId,
+                //    Id = baselinesAndReviews.ItemId,
+                //    HasChildren = false,
+                //    Name = baselinesAndReviews.Name,
+                //    Permissions = baselinesAndReviews.DirectPermissions,
+                //    LockedDateTime = baselinesAndReviews.LockedByUserTime,
+                //    TypeId = baselinesAndReviews.ItemTypeId,
+                //    LockedByUserId = baselinesAndReviews.LockedByUserId,
+                //    Version = baselinesAndReviews.VersionsCount,
+                //    ProjectId = baselinesAndReviews.VersionProjectId,
+                //    Prefix = baselinesAndReviews.Prefix
+                //}
             };
 
             // Act and Assert
@@ -667,7 +667,7 @@ namespace ArtifactStore.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId ?? projectId }, { "userId", userId } }, input);
-            if(artifactId == null)
+            if (artifactId == null)
                 cxn.SetupQueryAsync("GetProjectOrphans", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, inputOrphans);
             // Act
             var actual = await repository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId);
@@ -687,7 +687,7 @@ namespace ArtifactStore.Repositories
             }
 
 
-            for(int i = 0; i < expected.Count; i++)
+            for (int i = 0; i < expected.Count; i++)
             {
                 const string template =
                     "At index {0} {1} of Expected element : '{2}' does not match {1} of Actual element: {3}.";
@@ -791,7 +791,7 @@ namespace ArtifactStore.Repositories
                                         versionsCount: 22),
                 CreateArtifactVersion(30, 1, 20, 99, ServiceConstants.VersionHead, RolePermissions.Read, false)
             };
-        } 
+        }
 
         private ArtifactVersion CreateArtifactVersion(int itemId,
                                                         int versionProjectId,

@@ -124,7 +124,7 @@ namespace Model.Impl
             Dictionary<string, string> queryParameters = null;
             if (sortByDateAsc != null)
             {
-                queryParameters = new Dictionary<string, string> { { "sortByDateAsc", sortByDateAsc.ToString() } };
+                queryParameters = new Dictionary<string, string> { { "asc", sortByDateAsc.ToString() } };
             }
             if (limit != null)
             {

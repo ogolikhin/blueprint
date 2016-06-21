@@ -116,7 +116,6 @@ namespace ArtifactStoreTests
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
             });
             Assert.AreEqual(1, artifactHistory.Count);
-            artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
         }
 
         [TestCase]
@@ -133,6 +132,186 @@ namespace ArtifactStoreTests
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
             });
             Assert.AreEqual(0, artifactHistory.Count);
+        }
+
+        [TestCase]
+        [TestRail(145896)]
+        [Description("...")]
+        public void GetHistoryForArtifact_VerifyDefaultLimitIs10()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 12 versions
+            for (int i = 0; i < 12; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            });
+            Assert.AreEqual(10, artifactHistory.Count);//By default versions returns 10 versions
+        }
+
+        [TestCase]
+        [TestRail(145897)]
+        [Description("...")]
+        public void GetHistoryForArtifact_VerifyLimit5ReturnsNoMoreThan5Versions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 12 versions
+            for (int i = 0; i < 12; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                //get first 5 versions from artifact history
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 5);
+            });
+            Assert.AreEqual(5, artifactHistory.Count);
+        }
+
+        [TestCase]
+        [TestRail(145899)]
+        [Description("...")]
+        public void GetHistoryForArtifact_VerifyLimit12ReturnsNoMoreThan12Versions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 15 versions
+            for (int i = 0; i < 15; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                //get first 12 versions from artifact history
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 12);
+            });
+            Assert.AreEqual(12, artifactHistory.Count);
+        }
+
+        [TestCase]
+        [TestRail(145901)]
+        [Description("...")]
+        public void GetHistoryForArtifact_VerifyDeafaultAscIsFalse()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 5 versions
+            for (int i = 0; i < 5; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            });
+            Assert.AreEqual(5, artifactHistory.Count);
+            Assert.AreEqual(5, artifactHistory[0].versionId);//first version in the returned list is 5
+            Assert.AreEqual(1, artifactHistory[4].versionId);//last version in the returned list is 1
+        }
+
+        [TestCase]
+        [TestRail(145902)]
+        [Description("...")]
+        public void GetHistoryForArtifactWithAscIsTrue_VerifyOrderOfVersions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 5 versions
+            for (int i = 0; i < 5; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: true);
+            });
+            Assert.AreEqual(5, artifactHistory.Count);
+            Assert.AreEqual(1, artifactHistory[0].versionId);//first version in the returned list is 1
+            Assert.AreEqual(5, artifactHistory[4].versionId);//last version in the returned list is 5
+        }
+
+        [TestCase]
+        [TestRail(145903)]
+        [Description("...")]
+        public void GetHistoryForArtifactWithAscIsFalse_VerifyOrderOfVersions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 5 versions
+            for (int i = 0; i < 5; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: false);
+            });
+            Assert.AreEqual(5, artifactHistory.Count);
+            Assert.AreEqual(5, artifactHistory[0].versionId);//first version in the returned list is 5
+            Assert.AreEqual(1, artifactHistory[4].versionId);//last version in the returned list is 1
+        }
+
+        [TestCase]
+        [TestRail(145904)]
+        [Description("...")]
+        public void GetHistoryForArtifact_VerifyOffset2Skip2Versions()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 5 versions
+            for (int i = 0; i < 5; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+              artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, offset: 2);
+            });
+            Assert.AreEqual(3, artifactHistory.Count);
+            Assert.AreEqual(3, artifactHistory[0].versionId);//first version in the returned list is 3, versions 4 and 5 are skipped
+            Assert.AreEqual(1, artifactHistory[2].versionId);//last version in the returned list is 1
+        }
+
+        [TestCase]
+        [TestRail(145909)]
+        [Description("...")]
+        public void GetHistoryForArtifactWithNonDefaultParams_VerifyHistory()
+        {
+            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            //create artifact with 5 versions
+            for (int i = 0; i < 5; i++)
+            {
+                artifact.Save(_user);
+                artifact.Publish(_user);
+            }
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+            Assert.DoesNotThrow(() =>
+            {
+                //sortByDateAsc: true, offset: 3, limit: 1 for history with 5 versions must return version 4
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: true, offset: 3, limit: 1);
+            });
+            Assert.AreEqual(1, artifactHistory.Count);
+            Assert.AreEqual(4, artifactHistory[0].versionId);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145867)]
-        [Description("...")]
+        [Description("Create artifact, publish it, get history, check fields of returned version")]
         public void GetHistoryForPublishedArtifact_VerifyHistoryHasExpectedValue()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -60,7 +60,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145868)]
-        [Description("...")]
+        [Description("Create artifact, save it, get history - check that history contains draft version")]
         public void GetHistoryForArtifactInDraft_VerifyHistoryHasExpectedValue()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -80,7 +80,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145869)]
-        [Description("...")]
+        [Description("Create artifact, publish, delete, publish, get history - check that history contains deleted version")]
         public void GetHistoryForDeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145870)]
-        [Description("...")]
+        [Description("Create artifact, publish, save, check that other user doesn't see draft version")]
         public void GetHistoryForArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -121,7 +121,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145871)]
-        [Description("...")]
+        [Description("Create artifact, save, delete, check that other user sees empty history")]
         public void GetHistoryForArtifactInDraft_VerifyOtherAdminUserSeeEmptyHistory()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -137,7 +137,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145896)]
-        [Description("...")]
+        [Description("Create artifact with 12 versions, check that gethistory returns 10 items")]
         public void GetHistoryForArtifact_VerifyDefaultLimitIs10()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -158,7 +158,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145897)]
-        [Description("...")]
+        [Description("Create artifact with 12 versions, check that gethistory with limit 5 returns 5 items")]
         public void GetHistoryForArtifact_VerifyLimit5ReturnsNoMoreThan5Versions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -180,7 +180,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145899)]
-        [Description("...")]
+        [Description("Create artifact with 15 versions, check that gethistory with limit 12 returns 12 items")]
         public void GetHistoryForArtifact_VerifyLimit12ReturnsNoMoreThan12Versions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -202,7 +202,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145901)]
-        [Description("...")]
+        [Description("Create artifact with 5 versions, check that gethistory returns later versions first")]
         public void GetHistoryForArtifact_VerifyDeafaultAscIsFalse()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -225,7 +225,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145902)]
-        [Description("...")]
+        [Description("Create artifact with 5 versions, check that gethistory with asc=true returns later versions last")]
         public void GetHistoryForArtifactWithAscIsTrue_VerifyOrderOfVersions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -248,7 +248,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145903)]
-        [Description("...")]
+        [Description("Create artifact with 5 versions, check that gethistory with asc=false returns later versions first")]
         public void GetHistoryForArtifactWithAscIsFalse_VerifyOrderOfVersions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -271,7 +271,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145904)]
-        [Description("...")]
+        [Description("Create artifact with 5 versions, check that gethistory with offset=2 returns 3 versions")]
         public void GetHistoryForArtifact_VerifyOffset2Skip2Versions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -294,7 +294,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145909)]
-        [Description("...")]
+        [Description("Create artifact with 5 versions, check that gethistory with asc=true, offset=3, limit=1 returns version 4")]
         public void GetHistoryForArtifactWithNonDefaultParams_VerifyHistory()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);

@@ -13,9 +13,7 @@ export class BPInfiniteScroll implements ng.IDirective {
 
                 if (promise !== null) {
                     showLoader();
-                    promise.then( () => {
-                        hideLoader();
-                    }, () => {
+                    promise.finally( () => {
                         hideLoader();
                     });
                 }

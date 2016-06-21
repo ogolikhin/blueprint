@@ -9,11 +9,14 @@ export class BPInfiniteScroll implements ng.IDirective {
             const isAtTheBottom: boolean = (domElement.scrollTop + domElement.offsetHeight) >= domElement.scrollHeight - offset;
 
             if (isAtTheBottom && !loader) {
-                showLoader();
                 const promise: ng.IPromise<any> = $scope.$apply($attrs["bpInfiniteScroll"]);
-                promise.then( () => {
-                    hideLoader();
-                });
+
+                if (promise !== null) {
+                    showLoader();
+                    promise.then( () => {
+                        hideLoader();
+                    });
+                }
             }
         });
 

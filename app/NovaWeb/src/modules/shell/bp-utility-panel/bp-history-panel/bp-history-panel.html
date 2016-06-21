@@ -1,7 +1,7 @@
 ﻿<div class="history-panel">
     <div class="filter-bar">
         <bp-select
-            ng-class="{'disabled' : !$ctrl.artifactHistoryList.length}"
+            ng-if="$ctrl.artifactHistoryList.length"
             ng-model="$ctrl.sortAscending" 
             ng-change="$ctrl.changeSortOrder()"
             options="$ctrl.sortOptions">

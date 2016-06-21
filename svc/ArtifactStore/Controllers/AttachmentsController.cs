@@ -55,10 +55,8 @@ namespace ArtifactStore.Controllers
 
             if (subArtifactId.HasValue)
             {
-                var itemInfoDictionary = (await ArtifactPermissionsRepository.GetItemsInfos(subArtifactId.Value, session.UserId, addDrafts)).ToDictionary(a=>a.ItemId);
-                ArtifactItemProject subArtifactInfo = null;
-                itemInfoDictionary.TryGetValue(subArtifactId.Value, out subArtifactInfo);
-                if (subArtifactInfo == null || subArtifactInfo.ArtifactId != artifactId)
+                var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(subArtifactId.Value, session.UserId, addDrafts));
+                if (itemInfo == null || itemInfo.ArtifactId != artifactId)
                 {
                     throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
                 }

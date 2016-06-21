@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Models;
+﻿using ArtifactStore.Models;
+using ServiceLibrary.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +11,6 @@ namespace ArtifactStore.Repositories
 
         Task<ProjectPermissions> GetProjectPermissions(int projectId);
 
-        Task<IEnumerable<ArtifactItemProject>> GetItemsInfos(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
+        Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
     }
 }

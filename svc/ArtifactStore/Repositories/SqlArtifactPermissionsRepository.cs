@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using ArtifactStore.Models;
+using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -29,13 +30,6 @@ namespace ArtifactStore.Repositories
     {
         public int HolderId;
         public long? Permissions;
-    }
-
-    public class ArtifactItemProject
-    {
-        public int ProjectId;
-        public int ArtifactId;
-        public int ItemId;
     }
 
     public class SqlArtifactPermissionsRepository : IArtifactPermissionsRepository
@@ -185,14 +179,14 @@ namespace ArtifactStore.Repositories
             return  ConnectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<ArtifactItemProject>> GetItemsInfos(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        public async Task<ItemInfo> GetItemInfo(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
         {
             var itemsPrm = new DynamicParameters();
             itemsPrm.Add("@itemId", itemId);
             itemsPrm.Add("@userId", userId);
             itemsPrm.Add("@addDrafts", addDrafts);
             itemsPrm.Add("@revisionId", revisionId);
-            return (await ConnectionWrapper.QueryAsync<ArtifactItemProject>("GetItemsInfos", itemsPrm, commandType: CommandType.StoredProcedure));
+            return (await ConnectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
     }
 }

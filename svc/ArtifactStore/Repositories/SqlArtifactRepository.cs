@@ -147,11 +147,7 @@ namespace ArtifactStore.Repositories
                 Permissions = v.EffectivePermissions,
                 LockedByUserId = v.LockedByUserId,
                 LockedDateTime = v.LockedByUserTime
-            })
-            //NOTE:: Temporary filter Review and BaseLines ou from the list
-            // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-            .Where(a => a.PredefinedType != ItemTypePredefined.BaselineFolder) 
-            .OrderBy(a =>
+            }).OrderBy(a =>
             {
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)

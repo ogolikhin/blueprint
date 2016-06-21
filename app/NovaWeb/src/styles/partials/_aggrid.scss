@@ -1,166 +1,386 @@
-﻿.project-tree {
-  $padding-top: 5px;
+﻿$aggrid-left-spacing: 10px;
+$has-children-padding-before-arrow: 3px;
 
+.project-tree,
+.project-explorer {
   .ag-grid {
-    font-size: $font-size-smallest;
     height: 100%;
+    padding-top: 5px;
 
-    #agFilter {
-      display: none;
+    // removes focus globally inside ag-grid. May need to be reworked
+    *:focus {
+      outline: none;
     }
 
-    #agHeaderCellLabel {
-      color: $brand-secondary;
-      font-weight: 600;
+    .ag-font-style {
+      font-size: $font-size-smallest;
     }
 
-    #borderLayout_eGridPanel {
-      overflow: hidden !important;
-      overflow-y: auto !important;
-      padding-right: 1px;
-      padding-top: $padding-top;
+    .ag-header-cell {
+      text-align: left;
+
+      .ag-header-cell-text {
+        color: $brand-secondary;
+        display: inline-block;
+        font-weight: 600;
+        text-indent: 6px;
+      }
     }
 
-    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
-      font-size: $font-size-root;
-      margin-left: 5px;
-      margin-right: 7px;
-    }
-
-    .ag-header-row {
-      height: $aggrid-row-height;
+    .ag-body {
+      padding-top: $aggrid-row-height;
     }
 
     .ag-cell {
       height: $aggrid-row-height;
-      padding-right: 1px;
-      white-space: nowrap;
+      overflow: visible;
 
-      > span {
-        //display: block;
-        height: $aggrid-row-height;
-        line-height: $aggrid-row-height;
+      > span > span {
+        display: inline-block;
+        line-height: #{$aggrid-row-height - 2px};
+      }
 
-        > span.ag-group-value {
-          padding-right: 10px;
+      .ag-group-contracted,
+      .ag-group-expanded {
+        border-color: transparent;
+        border-style: solid;
+        border-width: 1px 0 1px 1px;
+      }
+
+      .ag-group-inline-edit,
+      .ag-group-value {
+        border-color: transparent;
+        border-style: solid;
+        border-width: 1px;
+        padding-right: 5px;
+      }
+
+      &.has-children {
+        .ag-group-inline-edit,
+        .ag-group-value {
+          border-width: 1px 1px 1px 0;
         }
       }
 
       i {
         color: $brand-secondary;
+        display: inline-block;
+        height: #{$aggrid-row-height - 2px};
+        vertical-align: bottom;
       }
     }
 
-    .ag-row-group {
-      padding-left: 5px;
+    .ag-group-inline-edit input {
+      border: 0;
+      box-sizing: border-box;
+      color: $body-color;
+      height: calc(#{$aggrid-row-height} - 2px);
+      line-height: calc(#{$aggrid-row-height} - 2px);
+      padding: 0 1px 1px 0;
+      width: calc(100% - 20px); // 20px is the width of the icon
+    }
 
-      &.ag-row-level-0 {
-        padding-left: 0;
+    .has-children .ag-group-inline-edit input {
+      width: calc(100% + 5px); // 5px is the padding due to the children indicator
+    }
+
+// ag-grid has a bug which causes ag-row-group-expanded/contracted not to reflect the actual status
+    .ag-group-contracted[style*='inline'],
+    .ag-group-expanded[style*='inline'] {
+      display: inline-block !important;
+    }
+//    .ag-row.ag-row-group-contracted .ag-group-contracted,
+//    .ag-row.ag-row-group-expanded .ag-group-expanded {
+//      display: inline-block !important;
+//    }
+
+    .ag-row:hover {
+      .ag-group-expanded::before,
+      .ag-group-contracted::before,
+      span > span,
+      *::before {
+        background: $tree-hover-background;
+      }
+
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $tree-hover-background;
       }
     }
 
-    .ag-cell-range-selected {
-      outline: none;
+    .ag-row-focus {
+      .ag-group-expanded::before,
+      .ag-group-contracted::before,
+      span > span,
+      *::before {
+        background: $tree-focus-background !important;
+      }
 
-      > span {
-        outline: none;
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $tree-focus-border !important;
+      }
+    }
 
+    .ag-row-selected {
+      .ag-group-expanded::before,
+      .ag-group-contracted::before,
+      span > span,
+      *::before {
+        background: $brand-secondary !important;
+        color: $white !important;
+      }
+
+      > span .ag-group-inline-edit::before,
+      > span .ag-group-value::before {
+        color: $white !important;
+      }
+
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-inline-edit,
+      .ag-group-value {
+        border-color: $brand-secondary !important;
+    }
+    }
+  }
+
+  .ag-cell {
+    > span .ag-group-contracted i::before,
+    > span .ag-group-expanded i::before,
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      box-sizing: border-box;
+      color: $brand-secondary;
+      display: inline-block;
+      font-family: 'bp-line-icons';
+      font-size: $font-size-smaller;
+      font-style: normal;
+      padding: 0 0 0 5px;
+      text-align: left;
+      vertical-align: bottom;
+      width: 25px;
+    }
+
+    &.ag-cell-inline-editing .ag-group-value {
+      display: none !important;
+    }
+  }
+
+  // vertical alignment adjustments
+  .ag-body-container {
+    padding-left: $aggrid-left-spacing;
+    z-index: 0;
+
+    .ag-row {
+      width: calc(100% - #{$aggrid-left-spacing}) !important;
+
+      &.ag-row-level-0 .ag-cell {
         > span {
-          background: $brand-secondary;
-          color: $white;
-          outline: none;
+          padding-left: 5px;
+        }
+
+        &.has-children > span {
+          margin-left: -15px;
         }
       }
+    }
 
-      i {
-        color: $white;
+    .ag-cell {
+      width: calc(100% - #{2 * $aggrid-left-spacing}) !important;
+
+      &.has-children > span {
+        margin-left: -$aggrid-left-spacing;
       }
     }
+  }
 
-    .ag-overlay-loading-wrapper {
-      background: $white;
-      padding-bottom: $aggrid-row-height;
-      padding-top: 5px;
+  // icons for artifacts and folders
+  .ag-cell {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e80e';
+    }
+  }
+
+  .ag-cell.is-folder {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e80d';
+    }
+  }
+
+  .ag-cell.is-project {
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      content: '\e80a';
+    }
+  }
+
+  .ag-row-group-contracted .ag-cell,
+  .ag-row-group-expanded .ag-cell {
+    // disables the icons for groups (to show the group-specific ones)
+    > span .ag-group-inline-edit::before,
+    > span .ag-group-value::before {
+      display: none;
+    }
+  }
+
+// group specific icons
+  .ag-row-group .ag-group-contracted i::before,
+  .ag-row-group .ag-group-expanded i::before {
+    content: '\e80e';
+  }
+
+  .ag-row-group .is-folder .ag-group-contracted i::before {
+    content: '\e80d';
+  }
+
+  .ag-row-group .is-folder .ag-group-expanded i::before {
+    content: '\e80f';
+  }
+
+  .ag-row-group .is-project .ag-group-contracted i::before,
+  .ag-row-group .is-project .ag-group-expanded i::before {
+    content: '\e80a';
+  }
+
+  .ag-row-loading .ag-cell .ag-group-contracted i,
+  .ag-row-loading .ag-cell .ag-group-expanded i {
+    background: transparent !important;
+
+    &::before {
+      -webkit-animation: spin 1.5s infinite linear;
+      -moz-animation: spin 1.5s infinite linear;
+      -o-animation: spin 1.5s infinite linear;
+      animation: spin 1.5s infinite linear;
+      background: transparent !important;
+      content: '\e031';
+      font-family: 'Glyphicons Halflings';
+    }
+  }
+
+  .ag-cell.has-children {
+    .ag-group-expanded::before,
+    .ag-group-contracted::before {
+      box-sizing: border-box;
+      color: $body-color;
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smallest;
+      padding-left: $has-children-padding-before-arrow;
+      text-align: left;
     }
 
-    .ag-body-container {
-      //height: $project-picker-tree-height - 2px - $aggrid-row-height - $padding-top - 17px !important;
-      //2px is for the project picker border
-      //17px ??
+    .ag-group-expanded::before {
+      content: '\e81d';
+    }
+
+    .ag-group-contracted::before {
+      content: '\e81f';
     }
   }
 }
 
 .project-explorer {
-  border-right: solid 5px $brand-secondary;
-  height: 100%;
+  .ag-overlay-loading-wrapper {
+    display: none;
+  }
 
-  .ag-grid {
+  .ag-cell {
+    top: 2px;
+  }
+}
+
+.project-tree {
+  .ag-grid,
+  .ag-grid > div {
+    min-height: $project-picker-tree-height;
+  }
+
+  .ag-overlay-loading-wrapper {
     font-size: $font-size-smallest;
-    height: 100%;
-//    width: calc(#{$project-picker-tree} - 10px - 2px);
+    padding-top: $aggrid-row-height;
+    text-align: left;
+    vertical-align: top;
+  }
+}
 
-    .ag-header {
-      display: none;
+//drag and drop related styles
+.project-explorer {
+  .ag-row-draggable {
+    .ag-group-value::before {
+      cursor: move;
     }
+  }
 
-    #borderLayout_eGridPanel {
-      overflow: hidden !important;
-      overflow-y: auto !important;
-      padding-top: 5px;
+  .ag-row:not(.drag-over) .ag-cell {
+    z-index: 100;
+
+    &.drag-enter {
+      .ag-group-contracted,
+      .ag-group-expanded,
+      .ag-group-value {
+        border-color: $body-color;
+        border-style: dashed;
     }
-
-    [class^="fonticon-"]::before, [class*=" fonticon-"]::before, [class*="fonticon-"]::after, [class*=" fonticon-"]::after {
-      font-size: $font-size-root;
-      margin-left: 5px;
-      margin-right: 7px;
     }
+  }
 
-    .ag-cell {
-      @include text-ellipsis-flex-width($project-picker-tree-width - $aggrid-row-height);
-      padding-right: 10px;
+  .ag-row.drag-over {
+    cursor: move;
+    opacity: .5;
+  }
 
-      i {
-        color: $brand-secondary;
+  .ag-row-dnd-pre,
+  .ag-row-dnd-post {
+    background: transparent;
+    font-size: 0;
+    height: 2px;
+    position: absolute;
+    width: calc(100% - 10px);
+  }
+
+  .ag-row-dnd-pre {
+    top: -1px;
+    z-index: 200;
+  }
+
+  .ag-row-dnd-post {
+    bottom: -1px;
+    z-index: 300;
+  }
+
+  .ag-row:not(.drag-over) .ag-row-dnd-pre.drag-enter,
+  .ag-row:not(.drag-over) .ag-row-dnd-post.drag-enter {
+    //generated with http://png-pixel.com/
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPk+Q8AAR0BDcnX0+sAAAAASUVORK5CYII=) left repeat-x;
+  }
+
+  .ag-row:not(.drag-over) .ag-row-dnd-pre.drag-enter::before,
+  .ag-row:not(.drag-over) .ag-row-dnd-post.drag-enter::before {
+    border: solid 5px transparent;
+    border-left: solid 5px $body-color;
+    content: '';
+    position: relative;
+    top: 1px;
+  }
+
+  $aggrid-dnd-max-level: 5;
+
+  @for $i from 0 through $aggrid-dnd-max-level - 1 {
+    .ag-row-level-#{$i} + .ag-row-level-#{$i + 1} .ag-row-dnd-pre {
+      z-index: 400;
+    }
+  }
+
+  @for $i from $aggrid-dnd-max-level through 1 {
+    @for $j from 0 through ($i - 1) {
+      .ag-row-level-#{$i} + .ag-row-level-#{$j} .ag-row-dnd-pre {
+        display: none;
       }
-    }
-
-    .ag-row-group {
-      padding-left: 5px;
-
-      &.ag-row-level-0 {
-        padding-left: 0;
-      }
-    }
-
-    .ag-cell-range-selected {
-      outline: none;
-
-      > span {
-        display: block;
-        outline: none;
-
-        > span {
-          background: $brand-secondary;
-          color: $white;
-          display: block;
-          outline: none;
-        }
-
-        > span.ag-group-expand {
-          float: left;
-        }
-      }
-
-      i {
-        color: $white;
-      }
-    }
-
-    .ag-overlay-loading-wrapper {
-      background: $white;
-      padding-bottom: $aggrid-row-height;
-      padding-top: 5px;
     }
   }
 }

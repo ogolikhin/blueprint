@@ -8,15 +8,30 @@ App_Button_Open,"Open"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
-App_LoadingMsg,"Loading …"
+App_LoadingMsg,"Loading ..."
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
+
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
+Tooltip_App_Header_Help, "Help"
+Tooltip_App_Header_Logout, "Log out"
 
 App_Project, "Project"
-App_Project_Open,"Open project"
+App_Project_Open,"Open Project"
+App_Project_Name,"Name"
 App_Project_Description,"Description"
+
+App_Toolbar_Project,"Project"
+App_Toolbar_Open_Project,"Open Project"
+App_Toolbar_Open_Recent_Projects,"Open Recent Projects"
+App_Toolbar_Close_Project,"Close Project"
+App_Toolbar_Close_All_Projects,"Close All Projects"
+App_Toolbar_Save_All,"Save All"
+App_Toolbar_Discard_All,"Discard All"
+App_Toolbar_Publish_All,"Publish All"
+App_Toolbar_Refresh_All,"Refresh All"
+App_Toolbar_Delete,"Delete"
 
 App_UtilityPanel_Discussions, Discussions
 App_UtilityPanel_Properties, Properties
@@ -24,6 +39,12 @@ App_UtilityPanel_Attachments, Attachments
 App_UtilityPanel_Relationships, Relationships
 App_UtilityPanel_History, History
 App_UtilityPanel_Reviews, Reviews
+
+App_UP_Filter_SortByLatest, "sort by latest"
+App_UP_Filter_SortByEarliest, "sort by earliest"
+App_UP_History_Version, "Version"
+App_UP_History_Draft, "Draft"
+App_UP_History_No_Artifact, "No history available"
 
 Login_Auth_CannotGetUser,"Cannot get current user"
 Login_Auth_IncorrectRequestId,"Wrong request id. Please click 'Retry' in Blueprint"
@@ -70,5 +91,17 @@ Login_Session_NewPasswordMinLength,"Your new password must be at least 8 charact
 Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
 Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
+Login_Session_Timeout,"Your session has expired. Please log in again."
 
 Input_Required,"Required"
+
+Folder_NotFound,"Couldn't find specified project or folder"
+Project_NotFound,"Couldn't find the project"
+Artifact_NotFound,"Couldn't find the artifact"
+
+#Messages
+Project_NoProjectsAvailable, "Either no projects are available or you do not have the required permissions to access them."
+Error_Page_Message1, "An error ocurred while loading the page."
+Error_Page_Message2, "Please try again."
+Error_Page_Message3, "If the problem persists, contact your Blueprint administrator."
+Error_Page_Label, "Error"

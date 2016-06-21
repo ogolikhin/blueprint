@@ -90,15 +90,27 @@ namespace Utilities.Facades
             Dictionary<string, string> cookies = null
             )
         {
-            client.Authenticator = new HttpBasicAuthenticator(_username, _password);
+            // Only use BasicAuthenticator if we passed a Username & Password but no Token.
+            // NOTE: This should only be needed in the OpenApi Login REST call.
+            if (string.IsNullOrWhiteSpace(_token) && !string.IsNullOrWhiteSpace(_username) && !string.IsNullOrWhiteSpace(_password))
+            {
+                client.Authenticator = new HttpBasicAuthenticator(_username, _password);
+            }
 
             var request = new RestRequest(resourcePath, ConvertToMethod(method));
 
             if (_token != null)
             {
                 Logger.WriteTrace("**** Adding Authorization headers.");
-                request.AddHeader("Authorization", _token);     // This is for old OpenAPI.
-                request.AddHeader("Session-Token", _token);     // This is for new AccessControl.
+
+                if (_token.StartsWithOrdinal("BlueprintToken"))
+                {
+                    request.AddHeader("Authorization", _token); // This is for old OpenAPI.
+                }
+                else
+                {
+                    request.AddHeader("Session-Token", _token); // This is for new AccessControl.
+                }
             }
 
             if (additionalHeaders == null)
@@ -196,45 +208,6 @@ namespace Utilities.Facades
         }
 
         /// <summary>
-        /// Authenticates the user and gets a token.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns>The authentication token, or null if no token was received.</returns>
-        private string GetUserToken(string username, string password)
-        {
-            var client = new RestClient(_baseUri);
-            client.Authenticator = new HttpBasicAuthenticator(username, password);
-
-            const string resource = "authentication/v1/login";
-            var authRequest = new RestRequest(resource, Method.GET);
-
-            var response = client.Execute(authRequest);
-
-            Logger.WriteDebug("GetUserToken() got Status Code '{0}' for user '{1}'.", response.StatusCode, username);
-
-            string fullAddress = I18NHelper.FormatInvariant("{0}/{1}", _baseUri.ToString().TrimEnd('/'), resource);
-            ThrowIfUnexpectedStatusCode(fullAddress, RestRequestMethod.GET, response.StatusCode, response.ErrorMessage);
-
-            // If there is no "Authorization" header, param will be null.
-            var param = response.Headers.FirstOrDefault(p => p.Name == "Authorization");
-
-            string token = null;
-
-            if (param != null)
-            {
-                token = (string) param.Value;
-                Logger.WriteDebug("Got token '{0}' for user '{1}'.", token, username);
-            }
-            else
-            {
-                Logger.WriteWarning("No token was returned for user: '{0}'!", username);
-            }
-
-            return token;
-        }
-
-        /// <summary>
         /// Throws a WebException derived exception if we got an unexpected status code.
         /// </summary>
         /// <param name="fullAddress">The full address of the REST request.</param>
@@ -300,15 +273,7 @@ namespace Utilities.Facades
             _baseUri = baseUri;
             _username = username;
             _password = password;
-
-            if (token == null)
-            {
-                _token = GetUserToken(_username, _password);
-            }
-            else if (token.HasValue())
-            {
-                _token = token;
-            }
+            _token = token;
         }
 
         /// <summary>
@@ -443,6 +408,54 @@ namespace Utilities.Facades
                     request.AddParameter(contentType, fileContent, ParameterType.RequestBody);
                 }
             }
+
+            try
+            {
+                var response = client.Execute(request);
+                Logger.WriteDebug("SendRequestAndGetResponse() got Status Code '{0}' for user '{1}'.",
+                    response.StatusCode, _username);
+
+                _restResponse = ConvertToRestResponse(response);
+
+                ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
+
+                return _restResponse;
+            }
+            catch (WebException e)
+            {
+                throw WebExceptionConverter.Convert(e, _restResponse);
+            }
+        }
+
+        /// <summary>
+        /// Creates the web request with a specific body and get the response object.
+        /// </summary>
+        /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
+        /// <param name="method">The method (GET, POST...).</param>
+        /// <param name="requestBody">The body to send in the request.</param>
+        /// <param name="contentType">(optional) The Mime content type.</param>
+        /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
+        /// <param name="queryParameters">(optional) Add query parameters</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected HTTP status codes.  By default only 200 OK is expected.</param>
+        /// <param name="cookies">(optional) Add cookies</param>
+        /// <returns>The RestResponse object.</returns>
+        /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
+        public RestResponse SendRequestBodyAndGetResponse(
+            string resourcePath,
+            RestRequestMethod method,
+            string requestBody,
+            string contentType = "text/plain",
+            Dictionary<string, string> additionalHeaders = null,
+            Dictionary<string, string> queryParameters = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            Dictionary<string, string> cookies = null)
+        {
+            ThrowIf.ArgumentNull(requestBody, nameof(requestBody));
+
+            Logger.WriteTrace("Base URI for REST request is: {0}", _baseUri);
+            var client = new RestClient(_baseUri);
+            var request = CreateRequest(client, resourcePath, method, additionalHeaders, queryParameters, cookies);
+            request.AddParameter(contentType, requestBody, ParameterType.RequestBody);
 
             try
             {

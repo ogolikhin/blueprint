@@ -2,6 +2,8 @@
 {
     public struct LoginInfo
     {
+        public string LdapUrl { get; set; }
+
         public string Domain { get; set; }
 
         public string UserName { get; set; }

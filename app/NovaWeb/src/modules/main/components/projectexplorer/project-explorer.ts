@@ -1,0 +1,98 @@
+﻿import {IProjectManager, Models} from "../..";
+import {IBPTreeController, ITreeNode} from "../../../core/widgets/bp-tree/bp-tree";
+
+export class ProjectExplorerComponent implements ng.IComponentOptions {
+    public template: string = require("./project-explorer.html");
+    public controller: Function = ProjectExplorerController;
+    public transclude: boolean = true;
+}
+
+export class ProjectExplorerController {
+    public tree: IBPTreeController;
+    private _subscribers: Rx.IDisposable[];
+    public static $inject: [string] = ["projectManager"];
+    constructor(private projectManager: IProjectManager) { }
+
+    //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
+    public $onInit() {
+        //use context reference as the last parameter on subscribe...
+        this._subscribers = [
+            //subscribe for project collection update
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            //subscribe for current artifact change (need to distinct artifact)
+            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this), 
+        ];
+    }
+    
+    public $onDestroy() {
+        //dispose all subscribers
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+    }
+
+
+    // the object defines how data will map to ITreeNode
+    // key: data property names, value: ITreeNode property names
+    public propertyMap = {
+        id: "id",
+        typeId: "type",
+        name: "name",
+        hasChildren: "hasChildren",
+        artifacts: "children"
+    }; 
+
+    public columns = [{
+        headerName: "",
+        field: "name",
+        cellClassRules: {
+            "has-children": function (params) { return params.data.hasChildren; },
+            "is-folder": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Folder; },
+            "is-project": function (params) { return params.data.predefinedType === Models.ArtifactTypeEnum.Project; }
+        },
+        cellRenderer: "group",
+        suppressMenu: true,
+        suppressSorting: true,
+        suppressFiltering: true
+    }];
+
+
+    private onLoadProject = (projects: Models.IProject[]) => {
+        //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
+        // so, just need to do an extra check if the component has created
+        if (this.tree) {
+            this.tree.reload(projects);
+        }
+    }
+    private onSelectArtifact = (artifact: Models.IArtifact) => {
+        // so, just need to do an extra check if the component has created
+        if (this.tree && artifact) {
+            this.tree.selectNode(artifact.id);
+        }
+    }
+
+    public doLoad = (prms: Models.IProject): any[] => {
+        //the explorer must be empty on a first load
+        if (!prms) {
+            return null;
+        }
+        //notify the repository to load the node children
+        this.projectManager.loadArtifact(prms as Models.IArtifact);
+    };
+
+
+    public doSelect = (node: ITreeNode) => {
+        //check passed in parameter
+        this.projectManager.currentArtifact.onNext(this.doSync(node));
+    };
+
+    public doSync = (node: ITreeNode): Models.IArtifact => {
+        //check passed in parameter
+        let artifact = this.projectManager.getArtifact(node.id);
+        this.projectManager.updateArtifact(artifact, artifact.hasChildren ? {
+            loaded: node.loaded,
+            open: node.open
+        } : null);
+        return artifact;
+    };
+
+}

@@ -5,7 +5,7 @@ var gulp = require('gulp-npm-run')(require('gulp-help')(require('gulp')), {
     //include: { 'necessary': 'a must-have task, because...' }, // just a helpful description 
     require: ['build'], // maybe because other tasks depend it 
     requireStrict: false,
-    npmRun: false // rather than `npm run script` gulp runs the script's value / command(s) 
+    npmRun: true // rather than `npm run script` gulp runs the script's value / command(s) 
 });
 var browserSync = require('browser-sync').create();
 

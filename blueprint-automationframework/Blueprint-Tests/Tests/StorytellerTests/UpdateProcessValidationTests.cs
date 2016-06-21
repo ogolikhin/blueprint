@@ -1,30 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Net;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
+using TestCommon;
 using Utilities;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class UpdateProcessValidationTests
+    public class UpdateProcessValidationTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
+        private IUser _user2;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -32,62 +28,16 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -100,7 +50,7 @@ namespace StorytellerTests
         public void UpdateProcessWithoutProcessName_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Modify default process Name
             process.Name = string.Empty;
@@ -108,7 +58,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   _storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
                         _user,
                         process)
                 );
@@ -126,7 +76,7 @@ namespace StorytellerTests
         public void UpdateProcessWithOrphanedTask_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -135,12 +85,12 @@ namespace StorytellerTests
             var processLink = process.GetOutgoingLinkForShape(preconditionTask);
 
             // Remove the process link between the precondition and the default user task
-            process.Links.Remove((ProcessLink)processLink);
+            process.Links.Remove(processLink);
 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   _storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
                         _user,
                         process)
                 );
@@ -160,7 +110,7 @@ namespace StorytellerTests
         public void DeleteTheOnlyUserTaskInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
@@ -169,7 +119,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   _storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
                         _user,
                         process)
                 );
@@ -190,7 +140,7 @@ namespace StorytellerTests
         public void DeleteTheOnlyUserTaskBetweenTwoUserDecisionsInProcess_VerifyGetProcessReturnsValidationError()
         {
             // Create and get the default process
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(_storyteller, _project, _user);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserDecisions(Helper.Storyteller, _project, _user);
 
             var precondition = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
@@ -216,7 +166,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   _storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
                         _user,
                         process)
                 );
@@ -232,12 +182,139 @@ namespace StorytellerTests
             AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
         }
 
+        [TestCase]
+        [TestRail(107369)]
+        [Description("Update a process without having a lock on the artifact (Another user has the lock). Verify that" +
+             "the update process does not succeed.")]
+        public void UpdateProcessWithoutArtifactLock_VerifyUpdateDoesNotSucceed()
+        {
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _user);
+
+            // Create an artifact representing the process artifact that was created and add it to the 
+            // list of artifacts to lock
+            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
+
+            // Second user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
+
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // First user attempts to update the process
+                Helper.Storyteller.UpdateProcess(_user, process),
+                "The first user attempted to update the process locked by another user and either an unexpected exception was thrown or" +
+                "the first user's attempted publish was successful."
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                    ProcessValidationResponse.ArtifactAlreadyLocked,
+                    process.Id,
+                    process.Name,
+                    _user2.Username);
+
+            // Assert that the deserialized response indicates that the artifact is locked
+            // by the second user
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+
+            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
+            // the artifact can be deleted by the second user
+            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]
+        [TestCase]
+        [TestRail(107370)]
+        [Description("Publish a process without having a lock on the artifact (Another user has the lock). Verify that" +
+                     "the publish process does not succeed.")]
+        public void PublishProcessWithoutArtifactLock_VerifyPublishDoesNotSucceed()
+        {
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
+
+            // Create an artifact representing the process artifact that was created and add it to the 
+            // list of artifacts to lock
+            var artifactsToLock = new List<IArtifactBase> { new ArtifactBase(Helper.BlueprintServer.Address, process.Id, process.ProjectId) };
+
+            // Second user locks the artifact
+            Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
+
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                // First user attempts to publish the process
+                Helper.Storyteller.PublishProcess(_user, process),
+                "The first user attempted to publish the process locked by another user and either an unexpected exception was thrown or" +
+                "the first user's attempted publish was successful."
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                    ProcessValidationResponse.ArtifactAlreadyLocked,
+                    process.Id,
+                    process.Name,
+                    _user2.Username);
+
+            // Assert that the deserialized response indicates that the artifact is locked
+            // by the second user
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
+
+            // (Cleanup) Update the user associated with the artifact to the username of the second user so that
+            // the artifact can be deleted by the second user
+            Helper.Storyteller.Artifacts.Find(a => a.CreatedBy == _user).CreatedBy = _user2;
+        }
+        
+        [TestCase]
+        [TestRail(134647)]
+        [Description(
+            "Publish a process that has more than the shape limit in the backend.")]
+        public void PublishProcess_ExceedShapeLimit_VerifyPublishDoesNotSucceed()
+        {
+            // Get limit from the database
+            int limit = Helper.Storyteller.GetStorytellerShapeLimitFromDb;
+            
+            // Number of pairs to create.  Subtract 5, for the number of shapes in the default process.
+            int pairs = (limit - Process.NumberOfShapesInDefaultProcess)/2;
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateProcessWithXAdditionalTaskPairs(Helper.Storyteller, _project, _user, pairs);
+
+            // Get the end point
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Find outgoing process link for precondition
+            var endPointIncomingLink = process.GetIncomingLinkForShape(endShape);
+
+            // Adds a pair of user/system tasks to exceed over the limit.
+            process.AddUserAndSystemTask(endPointIncomingLink);
+
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () =>
+                    // Get and deserialize response
+                    Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                        _user,
+                        process),
+                    "Expected the update process to return error due to the number of shapes to update exceeds the limit in the database."
+                );
+
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            // Assert that the deserialized response indicates that the process name is required
+            var expectedReturnResponse = I18NHelper.FormatInvariant(ProcessValidationResponse.ArtifactLimitExceeded, limit);
+
+            AssertValidationResponse(deserializedResponse, expectedReturnResponse);
+        }
+
         #endregion Tests
 
-        #region Private Methods
+            #region Private Methods
 
         private static void AssertValidationResponse(ProcessValidationResponse deserializedResponse, string expectedContent)
         {
+            ThrowIf.ArgumentNull(deserializedResponse, nameof(deserializedResponse));
+            ThrowIf.ArgumentNull(expectedContent, nameof(expectedContent));
+
             Assert.That(
                 deserializedResponse.Message.Contains(expectedContent),
                 "Response message should have included: {0} => But Actual response message was: {1}",
@@ -262,6 +339,10 @@ namespace StorytellerTests
         public static readonly string NameRequired = "Name is required for Process";
 
         public static readonly string OrphanedShapes = "Orphaned shapes discovered";
+
+        public static readonly string ArtifactAlreadyLocked = "Artifact \"{0}: {1}\" is locked by user \"{2}\"";
+
+        public static readonly string ArtifactLimitExceeded = "The Process cannot be saved or published. It has exceeded the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.";
 
         // The message returned in the update process validation response
         public string Message { get; set; }

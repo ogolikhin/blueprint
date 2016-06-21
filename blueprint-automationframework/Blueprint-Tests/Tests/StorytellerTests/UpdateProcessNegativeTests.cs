@@ -2,25 +2,20 @@
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
-using Model.StorytellerModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using System.Linq;
-using System.Collections.Generic;
+using TestCommon;
 using Utilities;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class UpdateProcessNegativeTests
+    public class UpdateProcessNegativeTests : TestBase
     {
         private const string STORYLINKSKEY = "storyLinks";
 
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -29,62 +24,15 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -98,13 +46,13 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithoutStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Get default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             addedArtifact.Save(_user);
             addedArtifact.Publish(_user);
 
@@ -113,7 +61,7 @@ namespace StorytellerTests
             defaultUserTask.PropertyValues[STORYLINKSKEY].Value = storyLink;
 
             // Update the process using UpdateProcess in attempt to add a story link
-            var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 
@@ -129,17 +77,17 @@ namespace StorytellerTests
         public void AddStoryLinkToUserTaskWithStoryLink_UpdateProcess_VerifyReturnedProcessDoesNotHaveStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
-            _storyteller.GenerateUserStories(_user, returnedProcess);
+            Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             // Get default process again with updated story link
-            returnedProcess = _storyteller.GetProcess(_user, returnedProcess.Id);
+            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
 
             // Get default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -149,7 +97,7 @@ namespace StorytellerTests
             var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Create and publish textual requirement artifact to simulate user story artifact
-            var addedArtifact = ArtifactFactory.CreateOpenApiArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             addedArtifact.Save(_user);
             addedArtifact.Publish(_user);
 
@@ -167,7 +115,7 @@ namespace StorytellerTests
             defaultUserTask.PropertyValues[STORYLINKSKEY] = newStoryLinksProperty;
 
             // Update the process using UpdateProcess in attempt to change the story link
-            var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 
@@ -177,9 +125,6 @@ namespace StorytellerTests
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
-
-            // Publish the process so teardown can properly delete the process
-            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         [TestCase]
@@ -189,17 +134,17 @@ namespace StorytellerTests
         public void DeleteStorylinkFromUserTask_VerifyReturnedProcessHasStoryLink()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Publish process; enable recursive delete flag
-            _storyteller.PublishProcess(_user, returnedProcess);
+            Helper.Storyteller.PublishProcess(_user, returnedProcess);
             //deleteChildren = true;
 
             // Generate user stories for process
-            _storyteller.GenerateUserStories(_user, returnedProcess);
+            Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             // Get default process again with updated story link
-            returnedProcess = _storyteller.GetProcess(_user, returnedProcess.Id);
+            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
 
             // Get original story link
             var originalStoryLinksProperty =
@@ -210,7 +155,7 @@ namespace StorytellerTests
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value = null;
 
             // Update the process using UpdateProcess in attempt to delete the story link
-            var modifiedReturnedProcess = _storyteller.UpdateProcess(_user, returnedProcess);
+            var modifiedReturnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
 
             Assert.IsNotNull(modifiedReturnedProcess, "The process returned from UpdateProcess() was null.");
 
@@ -221,9 +166,6 @@ namespace StorytellerTests
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
-
-            // Publish the process  so teardown can properly delete the process
-            _storyteller.PublishProcess(_user, modifiedReturnedProcess);
         }
 
         #endregion Tests

@@ -4,11 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -23,14 +24,13 @@ namespace Model.StorytellerModel.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "<Start with a verb, i.e. select, run, view>";
+        public const string DefaultUserTaskName = "UT";
 
-        public const string DefaultSystemTaskName = "<Start with a verb, i.e. display, print, calculate>";
+        public const string DefaultSystemTaskName = "ST";
 
         public const string EndName = "End";
 
         public const double DefaultOrderIndex = 0;
-
 
         private static readonly string Description = PropertyTypePredefined.Description.ToString();
 
@@ -68,6 +68,7 @@ namespace Model.StorytellerModel.Impl
 
         private const string DefaultDecisionLabelPrefix = "Condition";
 
+        public const int NumberOfShapesInDefaultProcess = 5;
         #endregion Constants
 
         #region Private Properties
@@ -100,11 +101,6 @@ namespace Model.StorytellerModel.Impl
 
         [SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ArtifactPathLink>>))]
-        public List<ArtifactPathLink> ArtifactPathLinks { get; set; }
-
-        [SuppressMessage("Microsoft.Usage",
-            "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
         public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
 
@@ -112,6 +108,10 @@ namespace Model.StorytellerModel.Impl
             "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
+
+        public ProcessStatus Status { get; set; }
+
+        public VersionInfo RequestedVersionInfo { get; set; }
 
         public ProcessType ProcessType
         {
@@ -141,7 +141,6 @@ namespace Model.StorytellerModel.Impl
         {
             Shapes = new List<ProcessShape>();
             Links = new List<ProcessLink>();
-            ArtifactPathLinks = new List<ArtifactPathLink>();
             DecisionBranchDestinationLinks = new List<DecisionBranchDestinationLink>();
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
@@ -171,6 +170,21 @@ namespace Model.StorytellerModel.Impl
             AddSystemTask(userLink);
 
             return userTask;
+        }
+
+        public IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs)
+        {
+            ThrowIf.ArgumentNull(processShape, nameof(processShape));
+            IProcessShape addedUserTaskShape = processShape;
+
+            for (int i = 0; i < numberOfPairs; i++)
+            {
+                ProcessLink outgoingLink = GetOutgoingLinkForShape(processShape);
+                addedUserTaskShape = AddUserAndSystemTask(outgoingLink);
+                processShape = GetNextShape(addedUserTaskShape);
+            }
+
+            return addedUserTaskShape;
         }
 
         public IProcessShape AddUserDecisionPointWithBranchBeforeShape(
@@ -381,15 +395,17 @@ namespace Model.StorytellerModel.Impl
 
         public List<IProcessShape> GetProcessShapesByShapeType(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = Shapes.Exists(shape => shape.PropertyValues.ContainsKey(clientType)) ? clientType : clientType.LowerCaseFirstCharacter();
 
             var shapesFound =
                 Shapes.FindAll(
-                    p =>
-                        Convert.ToInt32(p.PropertyValues[clientType].Value, CultureInfo.InvariantCulture) ==
-                        (int) processShapeType);
+                    shape =>
+                        Convert.ToInt32(shape.PropertyValues[clientType].Value, CultureInfo.InvariantCulture).
+                        Equals((int)processShapeType));
 
-            return shapesFound.ConvertAll(p => (IProcessShape) p);
+            return shapesFound.ConvertAll(o => (IProcessShape) o);
         }
 
         public ProcessLink GetIncomingLinkForShape(IProcessShape processShape)
@@ -736,7 +752,7 @@ namespace Model.StorytellerModel.Impl
         private IProcessShape CreateUserTask(
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -801,7 +817,7 @@ namespace Model.StorytellerModel.Impl
             string associatedImageUrl, 
             string persona, 
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             int? imageId, 
             double width, 
             double height, 
@@ -870,7 +886,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -894,7 +910,7 @@ namespace Model.StorytellerModel.Impl
         /// <returns>The new system decision point</returns>
         private IProcessShape CreateSystemDecisionPoint(
             string itemLabel, 
-            ArtifactPathLink associatedArtifact, 
+            AssociatedArtifact associatedArtifact, 
             double width, 
             double height, 
             int x, 
@@ -922,7 +938,7 @@ namespace Model.StorytellerModel.Impl
             ProcessShapeType processShapeType,
             string shapeNamePrefix,
             string itemLabel,
-            ArtifactPathLink associatedArtifact,
+            AssociatedArtifact associatedArtifact,
             double width,
             double height,
             int x,
@@ -1461,7 +1477,7 @@ namespace Model.StorytellerModel.Impl
 
         public string TypePrefix { get; set; }
 
-        public ArtifactPathLink AssociatedArtifact { get; set; }
+        public AssociatedArtifact AssociatedArtifact { get; set; }
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
@@ -1474,11 +1490,11 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public ArtifactPathLink AddAssociatedArtifact(IOpenApiArtifact artifact)
+        public AssociatedArtifact AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new ArtifactPathLink()
+            AssociatedArtifact = new AssociatedArtifact()
             {
                 BaseItemTypePredefined = artifact.BaseItemTypePredefined,
                 Id = artifact.Id,
@@ -1493,7 +1509,10 @@ namespace Model.StorytellerModel.Impl
 
         public bool IsTypeOf(ProcessShapeType processShapeType)
         {
-            string clientType = PropertyTypeName.clientType.ToString();
+            string clientType = PropertyTypeName.ClientType.ToString();
+
+            clientType = PropertyValues.ContainsKey(clientType) ? clientType : clientType.LowerCaseFirstCharacter();
+
             return
                 Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
                     (int) processShapeType);
@@ -1558,37 +1577,142 @@ namespace Model.StorytellerModel.Impl
         public string Label { get; set; }
 
     }
-    public class ArtifactPathLink
+
+    public class ProcessStatus
     {
-        /// <summary>
-        /// The Id of the Artifact
-        /// </summary>
-        public int Id { get; set; }
+        public ProcessStatus (
+            bool isLocked, 
+            bool isLockedByMe, 
+            bool isDeleted, 
+            bool isReadOnly, 
+            bool isUnpublished, 
+            bool hasEverBeenPublished)
+        {
+            IsLocked = isLocked;
+            IsLockedByMe = isLockedByMe;
+            IsDeleted = isDeleted;
+            IsReadOnly = isReadOnly;
+            IsUnpublished = isUnpublished;
+            HasEverBeenPublished = hasEverBeenPublished;
+        }
 
         /// <summary>
-        /// The Project Id for the artifact
+        /// Check if the process is locked
         /// </summary>
-        public int ProjectId { get; set; }
+        public bool IsLocked { get; set; }
 
         /// <summary>
-        /// The name of the artifact
+        /// Check if the process is locked by the user who retrieve the process model
         /// </summary>
-        public string Name { get; set; }
+        public bool IsLockedByMe { get; set; }
 
         /// <summary>
-        /// The type prefix for the artifact
+        /// Check if the process is deleted by the user who retrieve the process model
         /// </summary>
-        public string TypePrefix { get; set; }
+        public bool IsDeleted { get; set; }
 
         /// <summary>
-        /// The base item type for the artifact
+        /// Check if the process is read-only
         /// </summary>
-        public ItemTypePredefined BaseItemTypePredefined { get; set; }
+        public bool IsReadOnly { get; set; }
 
         /// <summary>
-        /// The link to navigate to the artifact
+        /// Check if the process has saved changes which are not published yet
         /// </summary>
-        public string Link { get; set; }
+        public bool IsUnpublished { get; set; }
+
+        /// <summary>
+        /// Check if the process is ever been published
+        /// </summary>
+        public bool HasEverBeenPublished { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public bool HasReadOnlyReuse { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public bool HasReuse { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int LockOwnerId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int RevisionId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int UserId { get; set; }
+
+        //TODO: process model contains the property but not clear if it is being used to verify the status of the process yet
+        public int VersionId { get; set; } 
+    }
+
+    public class VersionInfo
+    {
+        public VersionInfo(
+            int? artifactId,
+            DateTime? utcLockedDateTime,
+            string lockOwnerLogin,
+            int? projectId,
+            int? versionId,
+            int? revisionId,
+            int? baselineId)
+        {
+            ArtifactId = artifactId;
+            UtcLockedDateTime = utcLockedDateTime;
+            LockOwnerLogin = lockOwnerLogin;
+            ProjectId = projectId;
+            VersionId = versionId;
+            RevisionId = revisionId;
+            BaselineId = baselineId;
+        }
+
+        /// <summary>
+        /// Artifact Id of the Process artifact containing the process model
+        /// </summary>
+        public int? ArtifactId { get; set; }
+
+        /// <summary>
+        /// UTC Date/Time when the artifact was locked
+        /// </summary>
+        public DateTime? UtcLockedDateTime { get; set; }
+
+        /// <summary>
+        /// Login user that has a lock on the artifact
+        /// </summary>
+        public string LockOwnerLogin { get; set; }
+
+        /// <summary>
+        /// Project ID for the project containing the artifact
+        /// </summary>
+        public int? ProjectId { get; set; }
+
+        /// <summary>
+        /// Version Id of the artifact
+        /// </summary>
+        public int? VersionId { get; set; }
+
+        /// <summary>
+        /// Revision Id of the artifact
+        /// </summary>
+        public int? RevisionId { get; set; }
+
+        /// <summary>
+        /// Baseline Id of the baseline containing the artifact (if it exists)
+        /// </summary>
+        public int? BaselineId { get; set; }
+
+        /// <summary>
+        /// Flag indicating if full version information is provided
+        /// </summary>
+        public bool IsVersionInformationProvided { get; set; }
+
+        /// <summary>
+        /// Flag indicating if the artifact is at Head or Saved Draft version
+        /// </summary>
+        public bool IsHeadOrSavedDraftVersion { get; set; }
+    }
+
+    public class AssociatedArtifact : ArtifactReference
+    {
     }
 
     public class PropertyValueInformation

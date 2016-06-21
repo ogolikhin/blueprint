@@ -2,74 +2,33 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using NUnit.Framework;
+using TestCommon;
 using Utilities;
 
 namespace FileStoreTests
 {
     [TestFixture]
-    [Category(Categories.Filestore)]
-    public class CookieNegativeTests
+    [Category(Categories.FileStore)]
+    public class CookieNegativeTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IFileStore _filestore;
         private IUser _user;
         private IUser _userForCookieTests;
 
         [SetUp]
         public void TestSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _filestore = FileStoreFactory.GetFileStoreFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
-            _userForCookieTests = UserFactory.CreateUserAndAddToDatabase();
-
-            // Get a valid token for the user.
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Get a valid token for the user for authorization tests.
-            session = _adminStore.AddSession(_userForCookieTests.Username, _userForCookieTests.Password);
-            _userForCookieTests.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_userForCookieTests.Token.AccessControlToken), "The user for cookie tests didn't get an Access Control token!");
+            _userForCookieTests = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
         }
 
         [TearDown]
         public void TestTearDown()
         {
-            if (_filestore != null)
-            {
-                // Delete all the files that were added.
-                foreach (var file in _filestore.Files.ToArray())
-                {
-                    _filestore.DeleteFile(file.Id, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
-
-            if (_userForCookieTests != null)
-            {
-                _userForCookieTests.DeleteUser(deleteFromDatabase: true);
-                _userForCookieTests = null;
-            }
+            Helper?.Dispose();
         }
 
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
@@ -90,7 +49,7 @@ namespace FileStoreTests
             // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _filestore.AddFile(file, _userForCookieTests, sendAuthorizationAsCookie: true);
+                Helper.FileStore.AddFile(file, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because POST does not support authorization cookies!");
         }
 
@@ -114,7 +73,7 @@ namespace FileStoreTests
 
             // First POST the first chunk with a valid token.
             file.Content = chunk;
-            IFile postedFile = _filestore.PostFile(file, _user);
+            IFile postedFile = Helper.FileStore.PostFile(file, _user);
 
             byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
             chunk = rem.Take((int)chunkSize).ToArray();
@@ -125,7 +84,7 @@ namespace FileStoreTests
             // Assert that bad request exception is thrown for subsequent PUT request with invalid token
             Assert.Throws<Http400BadRequestException>(() => 
             {
-                _filestore.PutFile(postedFile, chunk, _userForCookieTests, sendAuthorizationAsCookie: true);
+                Helper.FileStore.PutFile(postedFile, chunk, _userForCookieTests, sendAuthorizationAsCookie: true);
             }, "HTTP Status Code 400 (Bad Request) was expected because PUT does not support authorization cookies!");
         }
 
@@ -142,7 +101,7 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
@@ -152,7 +111,7 @@ namespace FileStoreTests
             //       Empty authorization session header returns 400 Bad Request
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                _filestore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.GetFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
             }, "Did not throw HTTP Status Code 401 (Unauthorized) as expected");
         }
 
@@ -169,7 +128,7 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user, useMultiPartMime: true);
+            var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
 
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
@@ -177,7 +136,7 @@ namespace FileStoreTests
             // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _filestore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.GetFileMetadata(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
             }, "HTTP Status Code 400 (Bad Request) was expected because HEAD does not support authorization cookies!");
         }
 
@@ -194,7 +153,7 @@ namespace FileStoreTests
             IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
-            var storedFile = _filestore.AddFile(file, _user);
+            var storedFile = Helper.FileStore.AddFile(file, _user);
 
             // Replace token with invalid token
             _userForCookieTests.Token.AccessControlToken = accessControlToken;
@@ -202,7 +161,7 @@ namespace FileStoreTests
             // Assert that bad request exception is thrown
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                _filestore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
+                Helper.FileStore.DeleteFile(storedFile.Id, _userForCookieTests, sendAuthorizationAsCookie: true); 
             }, "HTTP Status Code 400 (Bad Request) was expected because DELETE does not support authorization cookies!");
         }
     }

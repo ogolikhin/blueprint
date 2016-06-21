@@ -1,18 +1,8 @@
 ﻿import "angular";
-import {ConfirmationDialogCtrl} from "./../messaging/confirmation.dialog.ctrl";
-import {ILocalizationService} from "../../core/localization";
-import {IConfigValueHelper} from "../../core/config.value.helper";
-import {ISession} from "./session.svc";
-
-export class SimpleDialogCtrl extends ConfirmationDialogCtrl {
-
-    constructor(localization: ILocalizationService, $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance) {
-        super(localization, $uibModalInstance);
-        this.acceptButtonName = localization.get("App_Button_Yes");
-        this.cancelButtonName = localization.get("App_Button_No");
-        this.msg = localization.get("Login_Session_DuplicateSession_Verbose");
-    }
-}
+import {
+    ILocalizationService,
+    IConfigValueHelper } from "../../core";
+import { ISession } from "./session.svc";
 
 export class ILoginInfo {
     public userName: string;
@@ -55,7 +45,10 @@ export class LoginCtrl {
     public get isInSAMLScreen(): boolean {
         return this.formState === LoginState.SamlLoginForm || this.transitionFromState === LoginState.SamlLoginForm;
     }
-
+    public get isUsernameDisabled(): boolean {
+        return !!this.session.forceUsername();
+    }
+    
     public enableForgetPasswordScreen: boolean;
     public forgetPasswordScreenError: boolean;
     public forgetPasswordScreenMessage: string;
@@ -76,7 +69,8 @@ export class LoginCtrl {
     constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private configValueHelper: IConfigValueHelper) {
         /* tslint:enable */
         this.formState = LoginState.LoginForm;
-        this.errorMsg = localization.get("Login_Session_EnterCredentials");
+        this.errorMsg = session.getLoginMessage();
+        this.novaUsername = session.forceUsername();
 
         this.enableForgetPasswordScreen = false;
 

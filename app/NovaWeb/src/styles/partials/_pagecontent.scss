@@ -1,0 +1,178 @@
+pagecontent {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  transition: all .4s ease;
+  width: 100%;
+
+  .page-content-wrapper {
+    height: calc(100% - #{$breadcrumbs-height});
+    overflow: auto;
+  }
+
+  .page-content {
+    margin: 15px 20px 10px;
+  }
+
+  .page-heading {
+    font-size: 0; // to remove unwanted space around elements. Specify font-size for inner elements!
+    white-space: nowrap;
+
+    &::after {
+      clear: both;
+      content: '';
+      display: table;
+    }
+  }
+
+  .page-top-toolbar {
+    float: right;
+    margin-bottom: 15px;
+
+    .btn-bluelight + .btn-bluelight {
+      margin-left: 5px;
+    }
+
+    .btn-bluelight + .btn-primary {
+      margin-left: 10px;
+    }
+  }
+
+  .artifact-heading,
+  .artifact-icon {
+    display: inline-block;
+    margin: 0 10px 15px 0;
+    min-height: 30px;
+    vertical-align: top;
+  }
+
+  .artifact-icon::before {
+    color: $gray-medium;
+    font-family: 'bp-font';
+    font-size: 24px;
+    line-height: 1.5em;
+    margin: 0;
+  }
+
+  .artifact-heading {
+    > .name {
+      color: $gray-dark;
+      display: block;
+      font-size: $font-size-bigger;
+      white-space: nowrap;
+
+      span:first-child {
+        margin-left: 5px;
+      }
+    }
+
+    > .type-id {
+      color: $gray-medium;
+      font-size: $font-size-micro;
+      white-space: nowrap;
+    }
+
+    .readonly-indicator,
+    .lock-indicator,
+    .dirty-indicator {
+      color: $gray-medium;
+      display: inline-block;
+      font-family: 'bp-font';
+      font-size: $font-size-smaller;
+      font-style: normal;
+    }
+
+    .readonly-indicator::before {
+      content: '\e832';
+      font-size: 1.4em;
+      line-height: 1em;
+      position: relative;
+      top: 2px;
+    }
+
+    .lock-indicator::before {
+      color: $brand-secondary;
+      content: '\e87c';
+    }
+
+    .dirty-indicator::before {
+      content: '\e87d';
+    }
+  }
+
+  .artifact-overview {
+    background: $white;
+    position: relative;
+
+    > .heading {
+      background: #cbcbcb;
+      color: $gray-dark;
+      font-size: $font-size-smaller;
+      font-weight: 600;
+      line-height: 1em;
+      min-height: 36px;
+      padding: 11px 14px;
+
+      + .content {
+        border-top: 0;
+      }
+    }
+
+    > .content {
+      border: solid 1px #d9d9d9;
+      padding: 18px 15px;
+    }
+
+    .nav-tabs {
+      margin-top: 20px;
+    }
+
+    .tab-pane {
+      // temporary
+      font-size: $font-size-smallest;
+    }
+  }
+}
+
+.right-panel .sidebar-content {
+  .utility-panel-title {
+    background: $blue-lightest;
+    border-right: solid 1px $utility-panel-border-color;
+    border-top: solid 1px $utility-panel-border-color;
+    height: $utility-panel-title-height;
+    line-height: $utility-panel-title-height;
+
+    > span {
+      color: $gray-dark;
+      display: inline-block;
+      font-size: $font-size-tiny;
+      font-weight: 600;
+      line-height: 92%;
+      margin-top: -4px;
+      padding: 0 10px 0 26px;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .icon {
+      display: block;
+      float: left;
+      left: 10px;
+      position: absolute;
+
+      &::before {
+        font-size: $font-size-smallest;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+      }
+    }
+  }
+
+  .utility-panel-content {
+    height: calc(100% - #{$utility-panel-title-height});
+  }
+}

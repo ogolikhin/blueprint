@@ -1,0 +1,48 @@
+bp-select {
+    &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .dropdown {
+        border: 1px solid $gray-light;
+        border-radius: 3px;
+        float: right;
+
+        .dropdown-toggle {
+            color: black;
+            display: inline-block;
+            text-decoration: none;
+            padding: 3px $padding-smaller;
+
+            &:hover {
+                color: $brand-secondary;
+            }
+
+            span {
+                padding-right: $padding-smaller*2;
+            }
+
+            .caret {
+                position: absolute;
+                top: 47%;
+                right: $padding-smaller;
+            }
+        }
+
+        &:hover {
+            border-color: $brand-secondary;
+            color: $brand-secondary;
+            a {
+                color: $brand-secondary;
+            }
+        }
+
+        .dropdown-menu {
+            > li > a:hover {
+                background-color: $brand-secondary;
+                color: #fff;
+            }
+        }
+    }
+}

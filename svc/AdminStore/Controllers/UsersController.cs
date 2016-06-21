@@ -85,13 +85,14 @@ namespace AdminStore.Controllers
         [Route("reset"), NoSessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [BaseExceptionFilter]
-        public async Task PostReset(string login, [FromBody]ResetPostContent body)
+        public async Task<IHttpActionResult> PostReset(string login, [FromBody]ResetPostContent body)
         {
             var decodedLogin = SystemEncryptions.Decode(login);
             var decodedOldPassword = SystemEncryptions.Decode(body.OldPass);
             var decodedNewPassword = SystemEncryptions.Decode(body.NewPass);
             var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
             await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
+            return Ok();
         }
     }
 }

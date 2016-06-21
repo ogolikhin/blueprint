@@ -3,6 +3,7 @@
 @import 'modules/mixins';
 @import 'modules/animations';
 @import 'modules/typography';
+@import 'modules/fonticons';
 @import 'modules/icons';
 
 html,
@@ -21,6 +22,7 @@ body {
 }
 
 @import 'partials/navbar';
+@import 'partials/toolbar';
 @import 'partials/modal';
 @import 'partials/form';
 @import 'partials/button';
@@ -43,24 +45,21 @@ body {
   position: relative;
 }
 
-pagecontent {
-  box-sizing: border-box;
-  display: block;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  transition: all .4s ease;
-  width: 100%;
-
-  .page-content-wrapper {
-    max-height: calc(100% - #{$breadcrumbs-height});
-    overflow: auto;
-  }
+.ps-container {
+  position: relative;
 }
 
+@import 'partials/pagecontent';
 @import 'partials/sidebar';
 @import 'partials/breadcrumbs';
+@import 'partials/properties';
+@import 'partials/tabs';
 @import 'partials/accordion';
+@import 'partials/tooltips';
+@import 'partials/resize';
 @import 'partials/aggrid';
+@import 'partials/artifact-history';
+@import 'partials/avatar';
+@import 'partials/select';
 @import 'partials/mobile-only';
-
+@import 'partials/error-messages';

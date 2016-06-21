@@ -1,4 +1,6 @@
-.modal.in {
+$modal-side-clearance: 8px;
+
+.modal {
   margin: 0;
 
   .modal-content {
@@ -43,7 +45,7 @@
     max-height: 450px;
     max-width: 440px;
     min-width: 320px;
-    padding: 0 8px;
+    padding: 0 $modal-side-clearance;
     position: absolute;
     right: 0;
     top: 0;
@@ -63,14 +65,19 @@
   }
 }
 
-.modal.in.nova-open-project {
+$modal-open-project-height: 450px;
+.modal.nova-open-project {
   .modal-dialog {
-    max-width: calc(8px + 30px + #{$project-picker-tree-width} + 15px + #{$project-picker-data-width} + 30px + 8px);
-    width: calc(8px + 30px + #{$project-picker-tree-width} + 15px + #{$project-picker-data-width} + 30px + 8px);
+    min-height: $modal-open-project-height;
+    min-width: #{700px + (2 * $modal-side-clearance)};
+  }
+
+  .modal-content {
+    min-height: $modal-open-project-height;
+    min-width: 700px;
   }
 
   .modal-header {
-    height: 70px;
     padding-left: 30px;
 
     h3 {
@@ -78,22 +85,37 @@
     }
   }
 
+  .modal-header,
+  .modal-footer {
+    height: 70px;
+  }
+
   .modal-body {
     background: $modal-bg-color;
-    height: 310px;
+    height: calc(100% - 70px - 70px); // only the main body of the dialog will resize, no header or footer
+    min-height: 310px;
     padding: 15px 30px;
+
+    .project-wrapper {
+      height: 100%;
+    }
+
+    .project-tree-container {
+      box-sizing: border-box;
+      display: block;
+      float: left;
+      height: calc(100% - 50px);
+      margin: 0 15px 0 0;
+      min-height: $project-picker-tree-height;
+      width: calc(100% - #{$project-picker-data-width + 15px});
+    }
 
     .project-tree {
       background: $white;
       border: solid 1px $gray-lightest;
       border-radius: $border-radius-amount;
-      box-sizing: border-box;
-      display: block;
-      float: left;
-      height: $project-picker-tree-height;
-      margin: 0 15px 0 0;
-      padding-left: 10px;
-      width: $project-picker-tree-width;
+      height: 100%;
+      min-height: $project-picker-tree-height;
     }
 
     .project-data {
@@ -109,6 +131,7 @@
         height: 36px;
         line-height: 36px;
         margin-bottom: 15px;
+        margin-top: 10px;
         padding: 0 15px;
         white-space: nowrap;
       }
@@ -116,18 +139,11 @@
       .project-description {
         background: $gray-lightest;
         border-radius: $border-radius-amount;
-        max-height: 165px;
         margin-top: 10px;
-        padding: 0 15px;
+        max-height: 137px;
+        min-height: 36px;
         overflow: auto;
-
-        > div {
-          padding: 8px 0;
-        }
-
-        p {
-          margin: 0;
-        }
+        padding: 8px 15px;
       }
     }
 
@@ -144,7 +160,7 @@
   }
 }
 
-.modal.in.nova-messaging {
+.modal.nova-messaging {
   .modal-body {
     padding: 30px 56px;
 
@@ -156,7 +172,7 @@
   }
 }
 
-.modal.in.nova-login {
+.modal.nova-login {
   .modal-header {
     background: $brand-secondary url('images/bp_logo_white.svg') center center no-repeat;
     background-size: 180px;

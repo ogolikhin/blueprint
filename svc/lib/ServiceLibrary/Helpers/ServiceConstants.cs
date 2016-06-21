@@ -1,9 +1,20 @@
-﻿namespace ServiceLibrary.Helpers
+﻿using System.Configuration;
+
+namespace ServiceLibrary.Helpers
 {
     public static class ServiceConstants
     {
         public const string SessionProperty = "Session";
 
         public const string ErrorCodeName = "ErrorCode";
+
+        public static string RaptorMain = ConfigurationManager.ConnectionStrings["RaptorMain"].ConnectionString;
+
+        // Revisions 
+        public const int VersionHead = int.MaxValue;
+
+        public const int VersionDraft = 1;
+
+        public const int VersionDraftDeleted = -1;
     }
 }

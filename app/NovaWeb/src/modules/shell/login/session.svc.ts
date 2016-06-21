@@ -1,9 +1,8 @@
 ﻿import "angular";
-import {ILocalizationService} from "../../core/localization";
+import {ILocalizationService, IDialogService } from "../../core/";
 import {IAuth, IUser} from "./auth.svc";
-//import {IConfigValueHelper} from "../../core/config.value.helper";
-import {SimpleDialogCtrl, LoginCtrl, ILoginInfo} from "./login.ctrl";
 
+import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
 
@@ -16,22 +15,46 @@ export interface ISession {
     loginWithSaml(overrideSession: boolean): ng.IPromise<any>;
 
     resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any>;
+
+    onExpired(): ng.IPromise<any>;
+
+    getLoginMessage(): string;
+    forceUsername(): string;
 }
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal", "localization"];
-    constructor(private $q: ng.IQService, private auth: IAuth, private $uibModal: ng.ui.bootstrap.IModalService, private localization: ILocalizationService) {
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
+    constructor(
+        private $q: ng.IQService,
+        private auth: IAuth,
+        private $uibModal: ng.ui.bootstrap.IModalService,
+        private localization: ILocalizationService,
+        private dialogService: IDialogService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
-    //TODO investigate neccessity to save previous login (session expiration for saml)
+    private _loginMsg: string;
     private _prevLogin: string;
+    private _isExpired: boolean;
+    private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
         return this._currentUser;
+    }
+
+    public forceUsername(): string {
+        if (this._currentUser) {
+            return this._currentUser.Login;
+        } else {
+            return undefined;
+        }
+    }
+
+    public getLoginMessage(): string {
+        return this._loginMsg;
     }
 
     public logout(): ng.IPromise<any> {
@@ -75,11 +98,25 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
+    public onExpired(): ng.IPromise<any> {
+        var defer = this.$q.defer();
+        if (!this._isExpired) {
+            this._isExpired = true;
+            this._loginMsg = this.localization.get("Login_Session_Timeout");
+            this._isForceSameUsername = true;
+            this.showLogin(defer);
+        }
+        defer.resolve();
+        return defer.promise;
+    }
+
     public ensureAuthenticated(): ng.IPromise<any> {
         if (this._currentUser || this._modalInstance) {
             return this.$q.resolve();
         }
         var defer = this.$q.defer();
+        this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
+        this._isForceSameUsername = false;
         this.auth.getCurrentUser().then(
             (result: IUser) => {
                 if (result) {
@@ -92,18 +129,6 @@ export class SessionSvc implements ISession {
             () => this.showLogin(defer)
         );
         return defer.promise;
-    }
-
-    private createConfirmationDialog(): ng.ui.bootstrap.IModalServiceInstance {
-        return this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-            template: require("./../messaging/confirmation.dialog.html"),
-            windowClass: "nova-messaging",
-            controller: SimpleDialogCtrl,
-            controllerAs: "ctrl",
-            keyboard: false, // cannot Escape ))
-            backdrop: false,
-            bindToController: true
-        });
     }
 
     private showLogin(done: ng.IDeferred<any>, error?: Error): void {
@@ -123,13 +148,16 @@ export class SessionSvc implements ISession {
                 if (result) {
                     var confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
+                        this._isExpired = false;
                         done.resolve();
                     } else if (result.samlLogin) {
-                        confirmationDialog = this.createConfirmationDialog();
-                        confirmationDialog.result.then((confirmed: boolean) => {
+                        this.dialogService
+                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                            .then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.loginWithSaml(true).then(
                                     () => {
+                                        this._isExpired = false;
                                         done.resolve();
                                     },
                                     (err) => {
@@ -142,11 +170,11 @@ export class SessionSvc implements ISession {
                             confirmationDialog = null;
                         });
                     } else if (result.userName && result.password) {
-                        confirmationDialog = this.createConfirmationDialog();
-                        confirmationDialog.result.then((confirmed: boolean) => {
+                        this.dialogService.confirm(this.localization.get("Login_Session_DuplicateSession_Verbose")).then((confirmed: boolean) => {
                             if (confirmed) {
                                 this.login(result.userName, result.password, true).then(
                                     () => {
+                                        this._isExpired = false;
                                         done.resolve();
                                     },
                                     (err) => {

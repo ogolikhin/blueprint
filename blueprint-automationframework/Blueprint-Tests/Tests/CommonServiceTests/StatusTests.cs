@@ -1,38 +1,46 @@
-﻿using Helper;
-using Model;
-using Model.Factories;
+﻿using System.Collections.Generic;
+using CustomAttributes;
+using Helper;
 using NUnit.Framework;
 using Utilities;
 
 namespace CommonServiceTests
 {
-    public class StatusTests
+    public static class StatusTests
     {
-        private readonly IBlueprintServer _blueprintSite = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-
         [TestCase]
+        [TestRail(106948)]
         [Description("Calls the /status endpoint for the main Blueprint site with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
-        public void Status_ValidateReturnedContent()
+        public static void Status_ValidateReturnedContent()
         {
-            string content = null;
-
-            Assert.DoesNotThrow(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                content = _blueprintSite.GetStatus();
-            }, "The GET /status endpoint should return 200 OK!");
+                string content = null;
 
-            CommonServiceHelper.ValidateStatusResponseContent(content);
+                Assert.DoesNotThrow(() =>
+                {
+                    content = helper.BlueprintServer.GetStatus();
+                }, "The GET /status endpoint should return 200 OK!");
+
+                var extraExpectedStrings = new List<string> { "AdminStorageDB", "RaptorDB", "AccessControl", "AdminStore", "ConfigControl", "FileStore" };
+
+                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+            }
         }
 
         [TestCase(null)]
         [TestCase("ABCDEFG123456")]
+        [TestRail(106949)]
         [Description("Calls the /status endpoint for the main Blueprint site and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
-        public void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
+        public static void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
         {
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            using (TestHelper helper = new TestHelper())
             {
-                _blueprintSite.GetStatus(preAuthorizedKey);
-            }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
+                Assert.Throws<Http401UnauthorizedException>(() =>
+                {
+                    helper.BlueprintServer.GetStatus(preAuthorizedKey);
+                }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
+            }
         }
     }
 }

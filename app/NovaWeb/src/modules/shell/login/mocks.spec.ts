@@ -1,15 +1,10 @@
 ﻿import "angular";
-import "angular-mocks"
-import {ILocalizationService} from "../../core/localization";
+import "angular-mocks";
+import {LocalizationServiceMock} from "../../core/localization.mock";
 import {IConfigValueHelper} from "../../core/config.value.helper";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
 
-export class LocalizationServiceMock implements ILocalizationService {
-    public get(name: string): string {
-        return name;
-    }
-}
 
 export class ConfigValueHelperMock implements IConfigValueHelper {
     getBooleanValue(setting: string, fallBack?: boolean) {
@@ -38,6 +33,14 @@ export class SessionSvcMock implements ISession {
     constructor(private $q: ng.IQService) {
     }
 
+    public getLoginMessage(): string {
+        return "";
+    }
+
+    public forceUsername(): string {
+        return "";
+    }
+
     public ensureAuthenticated() {
         var deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{ DisplayName: "Default Instance Admin", Login: "admin" };
@@ -46,6 +49,12 @@ export class SessionSvcMock implements ISession {
     }
 
     public logout() {
+        var deferred = this.$q.defer<any>();
+        deferred.resolve();
+        return deferred.promise;
+    }
+
+    public onExpired() {
         var deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
@@ -122,8 +131,19 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
     public loginCtrl;
 
     public open(options: ng.ui.bootstrap.IModalSettings): ng.ui.bootstrap.IModalServiceInstance {
-        var ctrl = new options.controller(new LocalizationServiceMock(), this.instanceMock, new SessionSvcMock(this.$q), this.$timeout, new ConfigValueHelperMock());
+        // typescript trick
+        var controller: any = <any>options.controller;
+        
+        /* tslint:disable:no-unused-variable */
+        var ctrl = new controller(
+            new LocalizationServiceMock(),
+            this.instanceMock,
+            new SessionSvcMock(this.$q),
+            this.$timeout,
+            new ConfigValueHelperMock()
+        );
         return this.instanceMock;
+        /* tslint:enable:no-unused-variable */
     }
 }
 
@@ -151,4 +171,6 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
     public opened: angular.IPromise<any>;
 
     public rendered: angular.IPromise<any>;
+
+    public closed: angular.IPromise<any>;
 }

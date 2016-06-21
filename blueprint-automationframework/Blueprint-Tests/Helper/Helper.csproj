@@ -47,14 +47,20 @@
   <ItemGroup>
     <Compile Include="AccessControlDoubleHelper.cs" />
     <Compile Include="CommonServiceHelper.cs" />
+    <Compile Include="ExceptionHelper.cs" />
     <Compile Include="StorytellerTestHelper.cs" />
     <Compile Include="FileStoreTestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{C7CDF470-B661-414D-B6C8-6C0E7E341D9A}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj">
+      <Project>{BD40AAA8-1CA8-43E9-867D-AADE6ACC8ED7}</Project>
+      <Name>CustomAttributes</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{52DB8811-A018-4CEC-BA81-8DDA947CC007}</Project>
@@ -69,9 +75,7 @@
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Factories\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

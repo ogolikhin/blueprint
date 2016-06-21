@@ -1,14 +1,10 @@
 {
-  "ambientDependencies": {
-    "angular": "github:DefinitelyTyped/DefinitelyTyped/angularjs/angular.d.ts#3cccf144977f93efb9484f5e7f62dd988acb3ebd",
-    "angular-mocks": "github:DefinitelyTyped/DefinitelyTyped/angularjs/angular-mocks.d.ts#5d0f2126c8dac8fce0ff020218aea06607213b0d",
-    "angular-ui-bootstrap": "registry:dt/angular-ui-bootstrap#0.13.3+20160212100300",
-    "angular-ui-router": "registry:dt/angular-ui-router#1.1.5+20160112161118",
-    "bowser": "registry:dt/bowser#1.0.0+20160317120654",
-    "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#5d0f2126c8dac8fce0ff020218aea06607213b0d",
-    "jquery": "github:DefinitelyTyped/DefinitelyTyped/jquery/jquery.d.ts#717a5fdb079f8dd7c19f1b22f7f656dd990f0ccf",
-    "lodash": "github:DefinitelyTyped/DefinitelyTyped/lodash/lodash.d.ts#5ea7d92bb39c7a26f49dc3de2c566d5ae325e19e",
-    "source-map": "github:DefinitelyTyped/DefinitelyTyped/source-map/source-map.d.ts#5d0f2126c8dac8fce0ff020218aea06607213b0d",
-    "uglify-js": "github:DefinitelyTyped/DefinitelyTyped/uglify-js/uglify-js.d.ts#5d0f2126c8dac8fce0ff020218aea06607213b0d"
+  "globalDependencies": {
+    "angular": "registry:dt/angular#1.5.0+20160614091201",
+    "angular-mocks": "registry:dt/angular-mocks#1.5.0+20160608104721",
+    "angular-ui-bootstrap": "registry:dt/angular-ui-bootstrap#0.13.3+20160602140119",
+    "angular-ui-router": "registry:dt/angular-ui-router#1.1.5+20160521151413",
+    "jasmine": "registry:dt/jasmine#2.2.0+20160505161446",
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236"
   }
 }

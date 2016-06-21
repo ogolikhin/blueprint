@@ -1,23 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CustomAttributes;
+﻿using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using Helper;
+using System.Linq;
+using TestCommon;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class ChangeBranchMergePointTests
+    public class ChangeBranchMergePointTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -26,69 +22,23 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            // TODO create a factory class that combines AdminStoreFactory, BlueprintServerFactory, StorytellerFactory, UserFactory, ProjectFactory
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
 
         #region Tests
 
-        [TestCase]
         [TestRail(96091)]
+        [TestCase]
         [Description("Change the merge point of the second branch of system decision. Verify that returned process after the save " +
                      "contains valid merge point information.")]
         public void ChangeSystemDecisionMergePointForSecondBranch_VerifyReturnProcess()
@@ -105,7 +55,7 @@ namespace StorytellerTests
                                   +----+--[ST3]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one system decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneSystemDecision(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneSystemDecision(Helper.Storyteller, _project, _user);
 
             // Locate the start shape to locate the outgoing link to Precondition
             var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
@@ -130,7 +80,7 @@ namespace StorytellerTests
             returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
@@ -143,8 +93,8 @@ namespace StorytellerTests
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96092)]
+        [TestCase]
         [Description("Change the merge point of the second branch of user decision. Verify that returned process after the save " +
                      "contains valid merge point information.")]
         public void ChangeUserDecisionMergePointForSecondBranch_VerifyReturnProcess()
@@ -161,7 +111,7 @@ namespace StorytellerTests
                            +-------[UT5]--+--[ST6]--+----------------------+
             */
             // Create and get the process with two sequential user tasks and one user decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneUserDecision(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneUserDecision(Helper.Storyteller, _project, _user);
 
             // Find the user decision
             var userDecision = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserDecision).First();
@@ -190,7 +140,7 @@ namespace StorytellerTests
             returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 1, outgoingLinkForSystemTaskFromSecondBranch, endShape);
 
             // Update and Verify the modified process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var secondDecisionBranchDestinationLink =
@@ -202,8 +152,8 @@ namespace StorytellerTests
                 endShape.Id, secondDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96093)]
+        [TestCase]
         [Description("Save the process with a system decision which contains two branches beside the main branch. " +
                      "Each branch merges to different locations. Verify that returned process after the save " +
                      "contains valid merge point information.")]
@@ -231,7 +181,7 @@ namespace StorytellerTests
             var returnedProcess =
                 StorytellerTestHelper
                     .CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneSystemDecisionContainingMultipleConditions
-                    (_storyteller, _project, _user, additionalBranches: 1);
+                    (Helper.Storyteller, _project, _user, additionalBranches: 1);
             
             // Locate the start shape to locate the outgoing link to Precondition
             var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
@@ -257,7 +207,7 @@ namespace StorytellerTests
             returnedProcess.ChangeBranchMergePoint(systemDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
 
@@ -270,8 +220,8 @@ namespace StorytellerTests
                 endShape.Id, thirdDecisionBranchDestinationLink.DestinationId);
         }
 
-        [TestCase]
         [TestRail(96094)]
+        [TestCase]
         [Description("Save the process with a user decision which contains two branches beside the main branch. " +
              "Each branch merges to different locations. Verify that returned process after the save " +
              "contains valid merge point information.")]
@@ -299,7 +249,7 @@ namespace StorytellerTests
             var returnedProcess =
                 StorytellerTestHelper
                     .CreateAndGetDefaultProcessWithTwoSequentialUserTasksAndOneUserDecisionContainingMultipleConditions
-                    (_storyteller, _project, _user, additionalBranches: 1);
+                    (Helper.Storyteller, _project, _user, additionalBranches: 1);
 
             // Locate the start shape to locate the outgoing link to Precondition
             var startShape = returnedProcess.GetProcessShapeByShapeName(Process.StartName);
@@ -328,7 +278,7 @@ namespace StorytellerTests
             returnedProcess.ChangeBranchMergePoint(userDecision, outgoingLinkForStartShape.Orderindex + 2, outgoingLinkForSystemTaskFromThirdBranch, endShape);
 
             // Update the process
-            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            var updatedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
             // Verify that DecisionBranchDestinationLinks contained updated information for the updated merge point
             var thirdDecisionBranchDestinationLink =

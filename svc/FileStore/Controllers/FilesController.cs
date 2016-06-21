@@ -298,6 +298,8 @@ namespace FileStore.Controllers
 
         private async Task<UploadResult> PostMultipartRequest(Stream stream, DateTime? expired)
         {
+            UploadResult result = null;
+
             using (var postReader = new PostMultipartReader(stream, expired, PostCompleteFile, _log))
             {
                 try
@@ -305,7 +307,7 @@ namespace FileStore.Controllers
                     await postReader.ReadAndExecuteRequestAsync();
                     var fileId = postReader.GetFileId();
 
-                    return new UploadResult
+                    result = new UploadResult
                     {
                         FileId = fileId,
                         Status = fileId.HasValue ? HttpStatusCode.Created : HttpStatusCode.BadRequest
@@ -319,14 +321,15 @@ namespace FileStore.Controllers
                     {
                         await DeleteFile(Models.File.ConvertFileId(guid.Value));
                     }
-                    return new UploadResult
+                    result = new UploadResult
                     {
                         FileId = null,
                         Status = HttpStatusCode.BadRequest
                     };
                 }
-
             }
+
+            return result;
         }
 
         private async Task<FileChunk> PostCompleteFile(string fileName, string fileType, Stream stream, DateTime? expired)
@@ -350,8 +353,12 @@ namespace FileStore.Controllers
 
         private async Task<UploadResult> PostNonMultipartRequest(Stream stream, DateTime? expired)
         {
-            if (string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
-                    string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
+            string decodedFileName = "";
+            if (Request.Content.Headers.ContentDisposition != null)
+                decodedFileName = HttpUtility.UrlDecode(Request.Content.Headers.ContentDisposition.FileName);
+            if (string.IsNullOrEmpty(decodedFileName) || 
+                //string.IsNullOrWhiteSpace(Request.Content.Headers.ContentDisposition?.FileName) ||
+                string.IsNullOrWhiteSpace(Request.Content.Headers.ContentType?.MediaType))
             {
                 return new UploadResult
                 {
@@ -360,7 +367,7 @@ namespace FileStore.Controllers
                 };
             }
             // Grabs all available information from the header
-            var fileName = Request.Content.Headers.ContentDisposition.FileName.Replace("\"", string.Empty).Replace("%20", " ");
+            var fileName = decodedFileName.Replace("\"", string.Empty).Replace("%20", " ");
             var fileMediaType = Request.Content.Headers.ContentType.MediaType;
             await _log.LogVerbose(WebApiConfig.LogSourceFiles, $"POST: Posting non-multi-part file {fileName}");
             var chunk = await PostCompleteFile(fileName, fileMediaType, stream, expired);

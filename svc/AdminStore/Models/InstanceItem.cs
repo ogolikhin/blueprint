@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
 
@@ -22,11 +23,13 @@ namespace AdminStore.Models
         [JsonProperty]
         public InstanceItemTypeEnum Type { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? HasChildren { get; set; }
+
         [JsonIgnore]
         public bool? IsAccesible { get; set; }
     }
 
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum InstanceItemTypeEnum
     {
         Folder = 0,

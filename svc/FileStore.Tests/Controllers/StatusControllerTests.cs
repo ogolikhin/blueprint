@@ -5,7 +5,6 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Helpers;
 
 namespace FileStore.Controllers

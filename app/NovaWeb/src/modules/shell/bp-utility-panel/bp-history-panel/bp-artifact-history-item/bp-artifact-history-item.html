@@ -1,0 +1,14 @@
+﻿<div class="artifact-history-item">
+    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion"
+         class="version">{{ $ctrl.localization.get('App_UP_History_Version') + " " + $ctrl.artifactInfo.versionId }}</div>
+    <div ng-if="$ctrl.artifactInfo.versionId === $ctrl.appConstants.draftVersion"
+         class="version">{{ $ctrl.localization.get('App_UP_History_Draft') }}</div>
+
+    <bp-avatar 
+        icon="" 
+        name="{{ $ctrl.artifactInfo.displayName }}"
+        color-base="{{ $ctrl.artifactInfo.userId + $ctrl.artifactInfo.displayName }}">
+    </bp-avatar>
+    <div class="author" title="{{ $ctrl.artifactInfo.displayName }}">{{ $ctrl.artifactInfo.displayName }}</div>
+    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion" class="timestamp">{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>
+</div>

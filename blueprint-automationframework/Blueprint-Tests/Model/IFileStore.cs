@@ -4,8 +4,13 @@ using System.Net;
 
 namespace Model
 {
-    public interface IFileStore
+    public interface IFileStore : IDisposable
     {
+        /// <summary>
+        /// The URL of the FileStore server (i.e. the part before the /svc/filestore).
+        /// </summary>
+        string Address { get; }
+
         /// <summary>
         /// The list of files added to the file store
         /// </summary>

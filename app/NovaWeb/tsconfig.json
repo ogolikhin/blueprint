@@ -13,8 +13,6 @@
     "node_modules",
     "dist",
     "dev",
-    "typings/main.d.ts",
-    "typings/main",
     "reports"
   ]
 }

@@ -7,33 +7,34 @@ using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using System.Data;
 using System.Linq;
-using AdminStore.Helpers;
 using ServiceLibrary.Exceptions;
 
 namespace AdminStore.Repositories
 {
     public class SqlInstanceRepository : ISqlInstanceRepository
     {
-        internal readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper ConnectionWrapper;
 
         public SqlInstanceRepository()
-            : this(new SqlConnectionWrapper(WebApiConfig.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
         internal SqlInstanceRepository(ISqlConnectionWrapper connectionWrapper)
         {
-            _connectionWrapper = connectionWrapper;
+            ConnectionWrapper = connectionWrapper;
         }
 
-        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId)
+        public async Task<InstanceItem> GetInstanceFolderAsync(int folderId, int userId)
         {
             if (folderId < 1)
                 throw new ArgumentOutOfRangeException(nameof(folderId));
 
             var prm = new DynamicParameters();
             prm.Add("@folderId", folderId);
-            var folder = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            prm.Add("@userId", userId);
+
+            var folder = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if(folder == null)
                 throw new ResourceNotFoundException(string.Format("Instance Folder (Id:{0}) is not found.", folderId), ErrorCodes.ResourceNotFound);
 
@@ -52,7 +53,7 @@ namespace AdminStore.Repositories
             prm.Add("@folderId", folderId);
             prm.Add("@userId", userId);
 
-            return  ((await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
+            return  ((await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceFolderChildren", prm, commandType: CommandType.StoredProcedure))
                 ?? Enumerable.Empty <InstanceItem>()).OrderBy(i => i.Type).ThenBy(i => i.Name).ToList();
         }
 
@@ -67,7 +68,7 @@ namespace AdminStore.Repositories
             prm.Add("@projectId", projectId);
             prm.Add("@userId", userId);
 
-            var project = (await _connectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
+            var project = (await ConnectionWrapper.QueryAsync<InstanceItem>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
                 throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
             if(!project.IsAccesible.GetValueOrDefault())

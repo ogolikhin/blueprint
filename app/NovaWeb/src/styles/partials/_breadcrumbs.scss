@@ -5,8 +5,8 @@
   box-sizing: border-box;
   color: $gray-pale;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
+  flex-shrink: 0;
   font-size: $font-size-smaller;
   height: $breadcrumbs-height;
   justify-content: flex-start;
@@ -45,6 +45,10 @@
       flex: none;
     }
 
+    &:hover ~ li:last-child {
+      flex: auto;
+    }
+
     a {
       color: $brand-secondary;
     }
@@ -52,9 +56,9 @@
 }
 
 .left-panel-visible .breadcrumbs {
-  padding-left: 10px;
+  padding-left: 20px;
 }
 
 .right-panel-visible .breadcrumbs {
-  padding-right: 10px;
+  padding-right: 20px;
 }

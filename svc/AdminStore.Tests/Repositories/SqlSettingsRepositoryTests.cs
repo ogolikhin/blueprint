@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
+using ServiceLibrary.Helpers;
 
 namespace AdminStore.Repositories
 {
@@ -24,7 +25,7 @@ namespace AdminStore.Repositories
             var repository = new SqlSettingsRepository();
 
             // Assert
-            Assert.AreEqual(WebApiConfig.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
+            Assert.AreEqual(ServiceConstants.RaptorMain, repository._connectionWrapper.CreateConnection().ConnectionString);
         }
 
         #endregion Constructor
@@ -96,7 +97,7 @@ namespace AdminStore.Repositories
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlSettingsRepository(cxn.Object);
-            var xml = SerializationHelper.Serialize(new SerializationHelper.FASettings());
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings());
             dynamic dbObject = new ExpandoObject();
             dbObject.Settings = xml;
             dbObject.Certificate = null;

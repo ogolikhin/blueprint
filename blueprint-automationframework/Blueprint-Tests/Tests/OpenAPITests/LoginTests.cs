@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomAttributes;
 using Common;
+using Helper;
 using Model.Factories;
+using TestCommon;
 using TestConfig;
 using Utilities;
 using Utilities.Facades;
@@ -17,7 +19,7 @@ namespace OpenAPITests
 {
     [TestFixture]
     [Category(Categories.OpenApi)]
-    public class LoginTests
+    public class LoginTests : TestBase
     {
         private static TestConfiguration _testConfig = TestConfiguration.GetInstance();
 
@@ -27,17 +29,14 @@ namespace OpenAPITests
         [SetUp]
         public void SetUp()
         {
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAddToDatabase();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_user != null)
-            {
-                _user.DeleteUser(deleteFromDatabase: true);
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #region Private Functions
@@ -108,11 +107,10 @@ namespace OpenAPITests
         private void LoginWithInvalidCredentials(string username)
         {
             const string badPassword = "bad-password";
-            string noToken = string.Empty;
             IUser invalidUser = UserFactory.CreateUserOnly(username, badPassword);
 
             Assert.Throws<Http401UnauthorizedException>(
-                () => { _server.LoginUsingBasicAuthorization(invalidUser, noToken); },
+                () => { _server.LoginUsingBasicAuthorization(invalidUser); },
                 I18NHelper.FormatInvariant("We were expecting an exception when logging into '{0}' with user '{1}' and password '{2}'.",
                     _server.Address, username, badPassword));
         }
@@ -126,10 +124,9 @@ namespace OpenAPITests
         private void LoginWithValidCredentials(IUser user, uint maxRetries = 1)
         {
             RestResponse response = null;
-            string noToken = string.Empty;
 
             // Login.
-            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(user, noToken, maxRetries); });
+            Assert.DoesNotThrow(() => { response = _server.LoginUsingBasicAuthorization(user, maxRetries: maxRetries); });
 
             // Verify login was successful.
             Assert.IsNotNull(response, "Login for user {0} returned a null RestResponse!", user.Username);
@@ -200,7 +197,7 @@ namespace OpenAPITests
                 // Create the users & threads.
                 for (int i = 0; i < numUsers; ++i)
                 {
-                    IUser user = UserFactory.CreateUserAndAddToDatabase();
+                    IUser user = UserFactory.CreateUserAndAddToDatabase();  // Don't use Helper here because the users are deleted in the finally block.
                     users.Add(user);
                     threads.Add(CreateThreadToLoginWithValidCredentials(user, maxRetries, exceptions, threads));
                 }

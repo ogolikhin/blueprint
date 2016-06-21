@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper.StrongName, Version=1.50.0.0, Culture=neutral, PublicKeyToken=e3e8412083d25dd3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Dapper.StrongName.1.50.0-beta1\lib\net45\Dapper.StrongName.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.SemanticLogging, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\EnterpriseLibrary.SemanticLogging.2.0.1406.1\lib\net45\Microsoft.Practices.EnterpriseLibrary.SemanticLogging.dll</HintPath>
@@ -88,6 +92,8 @@
     <Compile Include="Attributes\SessionRequiredAttributeTests.cs" />
     <Compile Include="EventSources\EventSourcesTests.cs" />
     <Compile Include="Helpers\TestHttpClientProvider.cs" />
+    <Compile Include="Helpers\TestsForHelpers\I18HelperTests.cs" />
+    <Compile Include="Helpers\TestsForHelpers\LoggableApiControllerTests.cs" />
     <Compile Include="Helpers\TestsForHelpers\StatusControllerHelperTests.cs" />
     <Compile Include="Helpers\WebApiConfigHelper.cs" />
     <Compile Include="LocalLog\LocalLogTests.cs" />

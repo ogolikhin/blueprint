@@ -6,19 +6,14 @@ using Helper;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using Utilities.Factories;
-using System.Collections.Generic;
-using System.Linq;
-using Model.OpenApiModel;
+using TestCommon;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class BranchLabelTests
+    public class BranchLabelTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -27,62 +22,15 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken), "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -100,7 +48,7 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
@@ -117,7 +65,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -130,7 +78,7 @@ namespace StorytellerTests
             ProcessType processType)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
@@ -150,7 +98,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase(5, 0.0)]
@@ -162,15 +110,15 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-               _storyteller,
+               Helper.Storyteller,
                _project,
                _user);
 
             // Save the process
-            _storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_user, process);
 
             // Get the process
-            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Get precondition shape in process
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -185,7 +133,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase(0.0)]
@@ -196,15 +144,15 @@ namespace StorytellerTests
             double orderIndexOfUserDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
             // Save the process
-            _storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_user, process);
 
             // Get the process
-            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Get precondition shape in process
             var precondition = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -219,7 +167,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase(1, 0.0)]
@@ -235,7 +183,7 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
@@ -252,7 +200,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase(5, 0.0, ProcessType.BusinessProcess)]
@@ -265,7 +213,7 @@ namespace StorytellerTests
             ProcessType processType)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
@@ -285,7 +233,7 @@ namespace StorytellerTests
             process.ProcessType = processType;
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _user);
         }
 
         [TestCase(5, 0.0)]
@@ -297,15 +245,15 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
             // Save the process
-            _storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_user, process);
 
             // Get the process
-            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -320,7 +268,7 @@ namespace StorytellerTests
             branchLink.Label = RandomGenerator.RandomAlphaNumericUpperAndLowerCase((uint)lengthOfLabelSent);
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase(0.0)]
@@ -331,15 +279,15 @@ namespace StorytellerTests
             double orderIndexOfSystemDecisionBranch)
         {
             var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(
-                _storyteller,
+                Helper.Storyteller,
                 _project,
                 _user);
 
             // Save the process
-            _storyteller.UpdateProcess(_user, process);
+            Helper.Storyteller.UpdateProcess(_user, process);
 
             // Get the process
-            var returnedProcess = _storyteller.GetProcess(_user, process.Id);
+            var returnedProcess = Helper.Storyteller.GetProcess(_user, process.Id);
 
             // Get default user task shape
             var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -354,7 +302,7 @@ namespace StorytellerTests
             branchLink.Label = null;
 
             // Update and Verify the returned process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
     }
 }

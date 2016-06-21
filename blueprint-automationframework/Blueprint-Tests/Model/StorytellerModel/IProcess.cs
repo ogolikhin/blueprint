@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel;
+using Model.ArtifactModel;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -20,18 +20,18 @@ namespace Model.StorytellerModel
     /// </summary>
     public enum PropertyTypeName
     {
-        associatedImageUrl,
-        clientType,
-        description,
-        height,
-        imageId,
-        itemLabel,
-        label,
-        persona,
-        storyLinks,
-        width,
-        x,
-        y
+        AssociatedImageUrl,
+        ClientType,
+        Description,
+        Height,
+        ImageId,
+        ItemLabel,
+        Label,
+        Persona,
+        StoryLinks,
+        Width,
+        X,
+        Y
     }
 
     /// <summary>
@@ -89,6 +89,29 @@ namespace Model.StorytellerModel
         CustomGroup = 16384
     }
 
+    /// <summary>
+    /// Enumeration of Process Status State
+    /// </summary>
+    public enum ProcessStatusState
+    {
+        // isLocked: true, isLockedByMe: true, isDeleted: false,
+        // isReadOnly: false, isUnpublished: true,
+        // hasEverBeenPublished: false
+        NeverPublishedAndUpdated,
+        // isLocked: false, isLockedByMe: false, isDeleted: false,
+        // isReadOnly: false, isUnpublished: false,
+        // hasEverBeenPublished: true
+        PublishedAndNotLocked,
+        // isLocked: true, isLockedByMe: false, isDeleted: false,
+        // isReadOnly: true, isUnpublished: false,
+        // hasEverBeenPublished: true
+        PublishedAndLockedByAnotherUser,
+        // isLocked: true, isLockedByMe: true, isDeleted: false,
+        // isReadOnly: false, isUnpublished: true,
+        // hasEverBeenPublished: true
+        PublishedAndLockedByMe
+    };
+
     public interface IProcess
     {
         #region Properties
@@ -129,15 +152,21 @@ namespace Model.StorytellerModel
         List<ProcessLink> Links { get; }
 
         /// <summary>
-        /// Artifact path links for the Process.  This supports breadcrumb navigation.
-        /// </summary>
-        List<ArtifactPathLink> ArtifactPathLinks { get; }
-
-        /// <summary>
         /// Decision branch destination links for decision shapes in the Process. This list contains list of merge point
         /// information for all available decisions in the process. The list is empty if the process contain only main branch
         /// </summary>
         List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; }
+
+
+        /// <summary>
+        /// Status contains the process status information that resides on the server side
+        /// </summary>
+        ProcessStatus Status { get; set; }
+
+        /// <summary>
+        /// The Artifact version information
+        /// </summary>
+        VersionInfo RequestedVersionInfo { get; set; }
 
         /// <summary>
         /// The Property values for the Process
@@ -258,6 +287,13 @@ namespace Model.StorytellerModel
             IProcessShape decisionPoint, 
             double orderIndex, 
             int destinationId);
+
+        /// <summary>
+        /// Adds x number of pairs of User Task and System Task after a shape.
+        /// </summary>
+        /// <param name="processShape">User tasks/system tasks will be added after this shape.</param>
+        /// <param name="numberOfPairs">The number of pairs of user tasks/system tasks to add</param>
+        IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs);
 
         /// <summary>
         /// Get the Process Shape by the Shape Name

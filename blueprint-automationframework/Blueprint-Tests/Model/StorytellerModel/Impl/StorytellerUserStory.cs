@@ -16,6 +16,7 @@ namespace Model.StorytellerModel.Impl
         private const string items = "items";
         private const string properties = "properties";
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
+
         #region Properties
 
         public int Id { get; set; }
@@ -58,13 +59,13 @@ namespace Model.StorytellerModel.Impl
             if (sendAuthorizationAsCookie)
             {
                 cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = string.Empty;
+                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var nonFunctionalRequirementProperty = CustomProperties.First(property => property.Name == "ST-Non-Functional Requirements");
             nonFunctionalRequirementProperty.Value = value;
             
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, tokenValue);
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
 
             var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(path,
                 RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, expectedStatusCodes: expectedStatusCodes);

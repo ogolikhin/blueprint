@@ -799,6 +799,7 @@ Description:	Returns last @limit records from Logs table
 Change History:
 Date			Name					Change
 Feb 25 2016		Dmitry Lopyrev			Initial Version
+Jun 7 2016		Dmitry Lopyrev			Updated
 ******************************************************************************************************************************/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLogs]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetLogs]
@@ -807,22 +808,23 @@ GO
 
 CREATE PROCEDURE [dbo].[GetLogs]  
 (
-  @limit int = 0
+  @recordlimit int,
+  @recordid int = null
 )
 AS
 BEGIN
-	DECLARE @total Int
-	SELECT @total = COUNT(*) FROM [Logs]	
-	
-	IF @limit > 0 AND @limit <= @total
-	BEGIN
-		SELECT * FROM [Logs] ORDER BY id 
-			OFFSET @total - @limit ROWS
-			FETCH NEXT @limit ROWS ONLY;
-	END
-	ELSE
-		SELECT * FROM [Logs] ORDER BY id 
-	
+	DECLARE @total int
+	DECLARE @fetch int
+	DECLARE @id int
+
+	SET @id = IsNULL(@recordid, 0);
+
+	SELECT @total = COUNT(*) FROM [Logs] where @id = 0 OR ID <= @id 	
+
+	SET @fetch = IIF(@recordlimit < 0, @total, @recordlimit)
+
+	SELECT TOP (@fetch) * FROM [Logs] WHERE @id = 0 OR ID <= @id ORDER BY Id DESC
+
 END
 
 
@@ -934,20 +936,38 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Cancel'
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Open', 'en-US', N'Open')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading …')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_PrerequisiteMsg_JavaScript', 'en-US', N'You must enable JavaScript to use this application')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Name', 'en-US', N'Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_SignedInAs', 'en-US', N'Signed in as')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome', 'en-US', N'Welcome')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Help', 'en-US', N'Help')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Logout', 'en-US', N'Log out')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project', 'en-US', N'Project')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Description', 'en-US', N'Description')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Project', 'en-US', N'Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Project', 'en-US', N'Open Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Recent_Projects', 'en-US', N'Open Recent Projects')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Close_Project', 'en-US', N'Close Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Close_All_Projects', 'en-US', N'Close All Projects')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Save_All', 'en-US', N'Save All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Discard_All', 'en-US', N'Discard All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Publish_All', 'en-US', N'Publish All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Refresh_All', 'en-US', N'Refresh All')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Delete', 'en-US', N'Delete')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Discussions', 'en-US', N'Discussions')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Properties', 'en-US', N'Properties')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Attachments', 'en-US', N'Attachments')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Relationships', 'en-US', N'Relationships')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_History', 'en-US', N'History')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Reviews', 'en-US', N'Reviews')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByLatest', 'en-US', N'sort by latest')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByEarliest', 'en-US', N'sort by earliest')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_Version', 'en-US', N'Version')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_Draft', 'en-US', N'Draft')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_History_No_Artifact', 'en-US', N'No history available')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_CannotGetUser', 'en-US', N'Cannot get current user')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_IncorrectRequestId', 'en-US', N'Wrong request id. Please click ''Retry'' in Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_LoginFailed', 'en-US', N'Login Failed')
@@ -993,7 +1013,16 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewP
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCannotBeEmpty', 'en-US', N'New password cannot be empty.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordSameAsOld', 'en-US', N'Ensure your new password is different <br>from the current one.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCriteria', 'en-US', N'Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_Timeout', 'en-US', N'Your session has expired. Please log in again.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Input_Required', 'en-US', N'Required')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Folder_NotFound', 'en-US', N'Couldn''t find specified project or folder')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NotFound', 'en-US', N'Couldn''t find the project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_NotFound', 'en-US', N'Couldn''t find the artifact')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NoProjectsAvailable', 'en-US', N'Either no projects are available or you do not have the required permissions to access them.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message1', 'en-US', N'An error ocurred while loading the page.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message2', 'en-US', N'Please try again.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message3', 'en-US', N'If the problem persists, contact your Blueprint administrator.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label', 'en-US', N'Error')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')
@@ -1048,6 +1077,10 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewP
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordSameAsOld', 'fr-CA', N'New password cannot be the same as the old one')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCriteria', 'fr-CA', N'New password must contain at least one capital letter, number and symbol')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Input_Required', 'fr-CA', N'Obligatoire')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message1', 'fr-CA', N'An error ocurred while loading the page.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message2', 'fr-CA', N'Please try again.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message3', 'fr-CA', N'If the problem persists, contact your Blueprint administrator.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Label', 'fr-CA', N'Error')
 
 -- Add application label if [Key]/[Locale] combination does not exist
 INSERT INTO [dbo].[ApplicationLabels] ([Key], [Locale], [Text])
@@ -1065,7 +1098,7 @@ UPDATE [dbo].[ApplicationLabels]
   JOIN #tempAppLabels 
 		ON [dbo].[ApplicationLabels].[Key] = #tempAppLabels.[Key]
 	   AND [dbo].[ApplicationLabels].[Locale] = #tempAppLabels.[Locale]
-	   AND [dbo].[ApplicationLabels].[Text] <> #tempAppLabels.[Text]
+	   AND [dbo].[ApplicationLabels].[Text] <> #tempAppLabels.[Text] COLLATE SQL_Latin1_General_CP437_BIN2
 
 -- Delete if [Key]/[Locale] combination no longer exists
 DELETE
@@ -1084,7 +1117,7 @@ DROP TABLE #tempAppLabels
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'7.2.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'7.3.0';
 GO
 -- --------------------------------------------------
 

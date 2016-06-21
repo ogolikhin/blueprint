@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization";
+import { ILocalizationService } from "../../../core";
 /*
 tslint:disable
 */ /*
@@ -61,7 +61,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
     public accordionOpenTop: any;
     public accordionPanels = [];
 
-    private defaultHeadingHeight: number = 40; // default heading height for all the accordion panels
+    private defaultHeadingHeight: number = 31; // default heading height for all the accordion panels
     private currentPanel: string;
     private openAtTheTop: boolean;
 
@@ -138,7 +138,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         var lastOpenPanel = null;
         var firstClosedPanel = null;
         var children = accordion.querySelectorAll("bp-accordion-panel");
-        for (var i = children.length - 1; i >= 0; i--) {
+        for (let i = children.length - 1; i >= 0; i--) {
             if (children[i].className.indexOf("bp-accordion-panel-open") > -1) {
                 lastOpenPanel = children[i];
                 break;
@@ -148,7 +148,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             firstClosedPanel = lastOpenPanel.nextSibling; // may be a text node, but we don't care
 
             children = accordion.querySelectorAll("bp-accordion-panel.bp-accordion-panel-closed");
-            for (var i = children.length - 1; i >= 0; i--) {
+            for (let i = children.length - 1; i >= 0; i--) {
                 accordion.insertBefore(children[i], firstClosedPanel);
                 firstClosedPanel = children[i]; //
             }
@@ -166,7 +166,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         var compensationForClosedHeaders = 0;
 
         var children = accordion.querySelectorAll(".bp-accordion-panel");
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             var accordionElement = children[i];
             /* tslint:disable */
             accordionElement.parentNode.className = accordionElement.parentNode.className.replace(" bp-accordion-panel-open", "").replace(" bp-accordion-panel-closed", "");
@@ -192,7 +192,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         }
 
         children = accordion.querySelectorAll(".bp-accordion-panel-open");
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             // 100% / N - H * (T - N) / N
             // T: total number of panels
             // N: number of opened panels
@@ -260,10 +260,11 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         var pinner = panel.querySelector(".bp-accordion-panel-pin");
         var heading = panel.querySelector(".bp-accordion-panel-heading");
 
-        if(this.accordionGroup.getPanels().length === 0) {
+        if (this.accordionGroup.getPanels().length === 0) {
             trigger.setAttribute("checked", "checked");
         }
         trigger.style.height = this.accordionPanelHeadingHeight + "px";
+        pinner.style.height = this.accordionPanelHeadingHeight + "px";
         heading.style.height = this.accordionPanelHeadingHeight + "px";
 
         trigger.addEventListener("click", this.tryToToggle);

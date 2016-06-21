@@ -2,22 +2,18 @@
 using Helper;
 using Model;
 using Model.Factories;
-using Model.OpenApiModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Linq;
+using TestCommon;
 
 namespace StorytellerTests
 {
     [TestFixture]
     [Category(Categories.Storyteller)]
-    public class DeleteSystemDecisionTests
+    public class DeleteSystemDecisionTests : TestBase
     {
-        private IAdminStore _adminStore;
-        private IBlueprintServer _blueprintServer;
-        private IStoryteller _storyteller;
         private IUser _user;
         private IProject _project;
 
@@ -26,63 +22,15 @@ namespace StorytellerTests
         [TestFixtureSetUp]
         public void ClassSetUp()
         {
-            _adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
-            _blueprintServer = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-            _storyteller = StorytellerFactory.GetStorytellerFromTestConfig();
-            _user = UserFactory.CreateUserAndAddToDatabase();
+            Helper = new TestHelper();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            // Get a valid Access Control token for the user (for the new Storyteller REST calls).
-            ISession session = _adminStore.AddSession(_user.Username, _user.Password);
-            _user.SetToken(session.SessionId);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.AccessControlToken),
-                "The user didn't get an Access Control token!");
-
-            // Get a valid OpenApi token for the user (for the OpenApi artifact REST calls).
-            _blueprintServer.LoginUsingBasicAuthorization(_user, string.Empty);
-
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_user.Token.OpenApiToken), "The user didn't get an OpenApi token!");
         }
 
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            if (_storyteller.Artifacts != null)
-            {
-                // Delete or Discard all the artifacts that were added.
-                var savedArtifactsList = new List<IOpenApiArtifact>();
-                foreach (var artifact in _storyteller.Artifacts.ToArray())
-                {
-                    if (artifact.IsPublished)
-                    {
-                        _storyteller.DeleteProcessArtifact(artifact, deleteChildren: true);
-                    }
-                    else
-                    {
-                        savedArtifactsList.Add(artifact);
-                    }
-                }
-                if (savedArtifactsList.Any())
-                {
-                    Storyteller.DiscardProcessArtifacts(savedArtifactsList, _blueprintServer.Address, _user);
-                }
-            }
-
-            if (_adminStore != null)
-            {
-                // Delete all the sessions that were created.
-                foreach (var session in _adminStore.Sessions.ToArray())
-                {
-                    _adminStore.DeleteSession(session);
-                }
-            }
-
-            if (_user != null)
-            {
-                _user.DeleteUser();
-                _user = null;
-            }
+            Helper?.Dispose();
         }
 
         #endregion Setup and Cleanup
@@ -102,7 +50,7 @@ namespace StorytellerTests
             [S]--[P]--+--[UT1]--+--[ST1]--[E]
             */
             // Create and get the default process with one system decision
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(Helper.Storyteller, _project, _user);
 
             // Find the system decision to delete from the updated process
             var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
@@ -114,7 +62,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -135,7 +83,7 @@ namespace StorytellerTests
                                                       |              |
                                                       +----+--[ST4]--+  
             */
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialSystemDecisions(_storyteller, _project, _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialSystemDecisions(Helper.Storyteller, _project, _user);
 
             // Find the first system decision to delete from the updated process
             var firstSystemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
@@ -148,9 +96,8 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(firstSystemDecisionToDelete, mergePointForFirstSystemDecision);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
-
 
         [TestCase]
         [Description("Delete a system decision with branch that is on the main branch but within an" +
@@ -173,7 +120,7 @@ namespace StorytellerTests
                                   +----+--[ST3]--+            
             */
             // Create and get the default process with inner and outer system decisions
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(_storyteller,
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(Helper.Storyteller,
                 _project, _user);
 
             // Find the default SystemTask
@@ -192,7 +139,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(innerSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -216,7 +163,7 @@ namespace StorytellerTests
                                   +----+--[ST2]--+            
             */
             // Create and get the default process with inner and outer system decisions
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(_storyteller,
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithInnerAndOuterSystemDecisions(Helper.Storyteller,
                 _project, _user);
 
             // Find the default UserTask
@@ -232,7 +179,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(outerSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
 
         [TestCase]
@@ -255,7 +202,7 @@ namespace StorytellerTests
             // Create and get the default process
             var returnedProcess =
                 StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecisionContainingMultipleConditions(
-                    _storyteller, _project, _user, additionalBranches: 1);
+                    Helper.Storyteller, _project, _user, additionalBranches: 1);
 
             // Find the system decision to delete from the updated process
             var systemDecisionToDelete = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.SystemDecision).First();
@@ -267,9 +214,8 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(systemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
-
 
         [TestCase]
         [Description("Delete a system decision that exists on the second branch of the main" +
@@ -294,7 +240,7 @@ namespace StorytellerTests
             // Create and get the default process with System Decision which contains another System Decision on the second branch
             var returnedProcess =
                 StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
-                    _storyteller, _project, _user);
+                    Helper.Storyteller, _project, _user);
 
             // Find the default UserTask
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -315,9 +261,8 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(nestedSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
-
 
         [TestCase]
         [Description("Delete a system decision that has an second branch that contains a second" +
@@ -340,7 +285,7 @@ namespace StorytellerTests
             // Create and get the default process with System Decision which contains another System Decision on the second branch
             var returnedProcess =
                 StorytellerTestHelper.CreateAndGetDefaultProcessWithSystemDecisionContainingSystemDecisionOnBranch(
-                    _storyteller, _project, _user);
+                    Helper.Storyteller, _project, _user);
 
             // Find the default UserTask
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -355,7 +300,7 @@ namespace StorytellerTests
             returnedProcess.DeleteSystemDecisionWithBranchesNotOfTheLowestOrder(rootSystemDecisionToDelete, endShape);
 
             // Update and Verify the modified process
-            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, _storyteller, _user);
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
         }
     }
 }

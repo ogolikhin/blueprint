@@ -48,30 +48,15 @@ namespace ServiceLibrary.Helpers
 
         #region Compare methods
 
-        public static bool StartsWithOrdinal(this string s, string value)
-        {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
-            return s.StartsWith(value, StringComparison.Ordinal);
-        }
-
         public static bool EndsWithOrdinal(this string s, string value)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
+            ThrowIf.ArgumentNull(s, nameof(s));
             return s.EndsWith(value, StringComparison.Ordinal);
         }
 
         public static bool EqualsOrdinalIgnoreCase(this string s, string value)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
+            ThrowIf.ArgumentNull(s, nameof(s));
             return s.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -81,22 +66,8 @@ namespace ServiceLibrary.Helpers
 
         public static string ToStringInvariant(this IFormattable value, string format = null)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+            ThrowIf.ArgumentNull(value, nameof(value));
             return value.ToString(format, CultureInfo.InvariantCulture);
-        }
-
-        public static string ToStringInvariant(object value)
-        {
-            return Convert.ToString(value, CultureInfo.InvariantCulture);
-        }
-
-        public static int ToInt32Invariant(object value, int defValue = default(int))
-        {
-            
-            return Convert.ToInt32(value, CultureInfo.InvariantCulture);
         }
 
         public static int ToInt32(this string value, int defValue = default(int))

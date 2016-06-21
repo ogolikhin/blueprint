@@ -11,7 +11,14 @@ del(['dist/*']);
 module.exports = {
     entry: {
         app: './index.ts',
-        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize', 'bootstrap/dist/css/bootstrap.css', 'bowser', 'ag-grid']
+        vendor: ['angular', 'angular-ui-router', 'angular-ui-bootstrap', 'angular-sanitize',
+            'bootstrap/dist/css/bootstrap.css', 
+            'ng-draggable',
+            'ag-grid', 'ag-grid/dist/styles/ag-grid.css',
+            'rx/dist/rx.lite.js',
+            'angular-perfect-scrollbar-2',
+            'tinymce']
+
     },
     output: {
         filename: 'app.js',
@@ -19,7 +26,11 @@ module.exports = {
     },
     resolve: {
         root: __dirname,
-        extensions: ['', '.ts', '.js', '.json']
+        extensions: ['', '.ts', '.js', '.json'],
+        alias: {          
+            tinymce: 'tinymce/tinymce'
+        }
+
     },
     resolveLoader: {
         modulesDirectories: ["node_modules"]
@@ -53,7 +64,12 @@ module.exports = {
             // {output}/file.txt 
             { from: '**/*.view.html' },
             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
-            { from: './unsupported-browser', to: './static' }
+            { from: './unsupported-browser', to: './static' },
+            { from: '../node_modules/tinymce/plugins', to: './plugins' },
+            { from: '../node_modules/tinymce/themes', to: './themes' },
+            { from: '../node_modules/tinymce/skins', to: './skins' }
+
+
          ]),
          new webpack.DefinePlugin({
              VERSION: JSON.stringify(require('../package.json').version),
@@ -61,6 +77,7 @@ module.exports = {
          })
     ],
     module:{
-        loaders: loaders
+        loaders: loaders,
+        noParse: [/angular-perfect-scrollbar-2/]
     }
 };

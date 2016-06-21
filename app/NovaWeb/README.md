@@ -4,7 +4,7 @@
 If you haven't installed node.js please install it first (latest LTS version from https://nodejs.org). 
 
 **Notes for Windows environment**:
-* Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015
+* Synchronize installed Node.JS version with Visual Studio 2015 if you are going to use Task runner from VS2015 - 
 [link](http://ryanhayes.net/synchronize-node-js-install-version-with-visual-studio-2015/)
 
 * If in the console window we are getting the error message that 'typings' is not recognized as an internal or external command, operable program or batch file,
@@ -15,7 +15,7 @@ Then run `devsetup` (on Windows) to install required npm packages globally.
 devsetup
 ```
 
-We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies.
+We don't have full list of required npm packages yet, so run `npm i` after pulling latest code from the repository or if gulp/npm complains about missing dependencies. You may also need to run \blueprint\svc\db\AdminStorage\AdminStorage_Migration.sql, otherwise new label will not show up in the interface.
 
 ### npm - single package manager for front-end and dev dependencies 
 Use `npm install --save-dev` to install node-modules used in development/build or testing.
@@ -25,9 +25,7 @@ Use `npm install --save` for grabbing open source client side libraries (bower i
 Client side libraries that are not open source (example mxgraph) should be added under version control (libs folder)
 
 ### typings - TypeScript definition files
-Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions.
-
-Use `typings install {library-name} --ambient --save` to install TypeScript definition for library-name from DefinitelyTyped registry.
+Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)
 
 ## Development
 ### Standards
@@ -35,11 +33,11 @@ Use `typings install {library-name} --ambient --save` to install TypeScript defi
   * Use lower-case hyphen separated name convention for file and folder names!
     * For example _class CustomPropertiesSvc_ should be located in `custom-properties.svc.ts` file
   * Use ES2015/TS import/export to define dependencies (instead of TS references)
-  * Use [Angular 1.5 components](https://code.angularjs.org/1.5.3/docs/guide/component) instead of separated view and controller. Use directives if you doing DOM manipulation, adding event listeners etc or when you need advanced directive definition options like priority, terminal, multi-element.
+  * Use [Angular 1.5 components](https://code.angularjs.org/1.5.3/docs/guide/component) /[Course on Pluralsight](https://app.pluralsight.com/library/courses/building-components-angular-1-5/table-of-contents)/ instead of separated view and controller. Use directives when you need advanced directive definition options like priority, terminal, multi-element or when restricted to attribute.
   * Avoid using $scope object (it is possible to use it when you need to notify Angular about changes completed outside of Angular scope. For example use $scope.$applyAsync when integrating with non Angular libraries)
-2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). While the following document explains how to create and maintain localization strings for Nova client. [Nova Web Application - Localization Primer](https://github.com/BlueprintSys/blueprint/blob/develop/app/NovaWeb/doc/Nova%20Web%20Application%20-%20Localization%20Primer.docx?raw=true)
+2. All client side labels and messages should be ready for localization (right now we supporting only en-US). Please look at existing [Localization Best Practices - Strings in HTML - Localization Keys](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=iBqQRHfCLTIEVJtpvZ0qquKLmr52v90H%2brBbSOmZRWI%3d&docid=0ad77a05c9de2460f86ca2dec01e8dfd4). While the following document explains how to create and maintain localization strings for Nova client. [Nova Web Application - Localization Primer](https://github.com/BlueprintSys/blueprint/blob/develop/app/NovaWeb/doc/Nova%20Web%20Application%20-%20Localization%20Primer.docx?raw=true). svc\db\AdminStorage\AdminStorage_Migration.sql needs to be executed when you getting latest version from Git, otherwise no new label will show up in the interface.
  
-Some of these rules are enforced by tslint (for `npm run dev` or `gulp dev` task only). Please, pay attention for tslint warning messages and fix them when working with the code.
+Some of these rules are enforced by tslint (for `npm run dev` and `npm run test` tasks). Please, pay attention for tslint warning messages and fix them when working with the code.
 
 ### Workflow
 We have number of npm scripts for main developer activities (look at `scripts` section of package.json). They also available as gulp tasks to support Task Runners in VS/VS Code.

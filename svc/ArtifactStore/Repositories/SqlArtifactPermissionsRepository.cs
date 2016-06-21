@@ -31,6 +31,13 @@ namespace ArtifactStore.Repositories
         public long? Permissions;
     }
 
+    internal class ArtifactItemProject
+    {
+        public int ArtifactId;
+        public int ItemId;
+        public int ProjectId;
+    }
+
     public class SqlArtifactPermissionsRepository : IArtifactPermissionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
@@ -74,19 +81,33 @@ namespace ArtifactStore.Repositories
             }
         }
 
+        private async Task<bool> IsInstanceAdmin(IEnumerable<int> itemIds, bool contextUser, int sessionUserId)
+        {
+            var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
+            var prm = new DynamicParameters();
+            prm.Add("@contextUser", contextUser);
+            prm.Add("@userId", sessionUserId);
+            return (await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
+        private async Task<Tuple <IEnumerable<bool>, IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int? revisionId, bool contextUser)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@contextUser", contextUser);
+            prm.Add("@userId", sessionUserId);
+            prm.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
+            prm.Add("@addDrafts", (revisionId == null));
+           return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+        }
+
         public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int? revisionId = null)
         {
             if (itemIds.Count() > 50)
             {
                 throw new ArgumentOutOfRangeException("Cannot get artifact permissions for this many artifacts");
             }
-            var tvp = DapperHelper.GetIntCollectionTableValueParameter(itemIds);
-            var prm = new DynamicParameters();
-            prm.Add("@contextUser", contextUser);
-            prm.Add("@userId", sessionUserId);
-            var result = await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure);
-
-            var isInstanceAdmin = result.SingleOrDefault();
+            var isInstanceAdmin = await IsInstanceAdmin(itemIds, contextUser, sessionUserId);
             if (isInstanceAdmin)
             {
                 var allPermissions = GetAllPermissions();
@@ -94,13 +115,7 @@ namespace ArtifactStore.Repositories
             }
             else
             {
-                prm = new DynamicParameters();
-                prm.Add("@contextUser", contextUser);
-                prm.Add("@userId", sessionUserId);
-                prm.Add("@itemIds", tvp);
-                prm.Add("@revisionId", (revisionId == null) ? int.MaxValue : revisionId); //HEAD revision
-                prm.Add("@addDrafts", (revisionId == null));
-                var multipleResult = await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure);
+                var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, contextUser);
                 var projectsArtifactsItems = multipleResult.Item2.ToList();//???Do we need always do it
                 var versionProjectInfos = multipleResult.Item3;
 

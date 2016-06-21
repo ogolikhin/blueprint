@@ -115,6 +115,8 @@ export class BPHistoryPanelController {
             .then( (list: IArtifactHistoryVersion[]) => {
                 this.isLoading = false;
                 return list;
+            }, () => {
+                this.isLoading = false;
             });
     }
 }

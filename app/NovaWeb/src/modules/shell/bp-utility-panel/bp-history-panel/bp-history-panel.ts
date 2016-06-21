@@ -1,4 +1,4 @@
-﻿import { IAppConstants, ILocalizationService } from "../../../core";
+﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 
@@ -17,8 +17,8 @@ export class BPHistoryPanelController {
         "$log", 
         "localization",
         "artifactHistory",
-        "projectManager",
-        "appConstants"];
+        "projectManager"
+    ];
 
     private loadLimit: number = 10;
     private artifactId: number;
@@ -34,17 +34,12 @@ export class BPHistoryPanelController {
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private projectManager: IProjectManager,
-        private appConstants: IAppConstants) {
+        private projectManager: IProjectManager) {
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
             { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
-
-        // TODO: remove 2 lines below
-        // this.artifactId = 306; //331;
-        // this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -94,7 +89,7 @@ export class BPHistoryPanelController {
         }
 
         // if reached the end (version 1 or draft), don't try to load more
-        if (lastItem && lastItem.versionId !== 1 && lastItem.versionId !== this.appConstants.draftVersion) {
+        if (lastItem && lastItem.versionId !== 1 && !this.isDeletedOrDraft(lastItem)) {
             return this.getHistoricalVersions(this.loadLimit, offset, null, this.sortAscending)
                 .then( (list: IArtifactHistoryVersion[]) => {
                     this.artifactHistoryList = this.artifactHistoryList.concat(list);
@@ -105,6 +100,11 @@ export class BPHistoryPanelController {
         }
     }
 
+    private isDeletedOrDraft(item: IArtifactHistoryVersion): boolean {
+        return item.artifactState === Models.ArtifactStateEnum.Draft 
+                || item.artifactState === Models.ArtifactStateEnum.Deleted;
+    }
+
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
         this.selectedArtifactVersion = artifactHistoryItem;
     }
@@ -113,9 +113,9 @@ export class BPHistoryPanelController {
         this.isLoading = true;
         return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc)
             .then( (list: IArtifactHistoryVersion[]) => {
-                this.isLoading = false;
                 return list;
-            }, () => {
+            })
+            .finally( () => {
                 this.isLoading = false;
             });
     }

@@ -31,7 +31,7 @@ namespace ArtifactStore.Repositories
         public long? Permissions;
     }
 
-    internal class ArtifactItemProject
+    public class ArtifactItemProject
     {
         public int ArtifactId;
         public int ItemId;
@@ -183,6 +183,13 @@ namespace ArtifactStore.Repositories
             discussionsPrm.Add("@ProjectId", projectId);
 
             return  ConnectionWrapper.ExecuteScalarAsync<ProjectPermissions>("GetProjectPermissions", discussionsPrm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<ArtifactItemProject>> GetItemsInfos(IEnumerable<int> itemIds)
+        {
+            var itemsPrm = new DynamicParameters();
+            itemsPrm.Add("@itemIds", DapperHelper.GetIntCollectionTableValueParameter(itemIds));
+            return (await ConnectionWrapper.QueryAsync<ArtifactItemProject>("GetItemsInfos", itemsPrm, commandType: CommandType.StoredProcedure));
         }
     }
 }

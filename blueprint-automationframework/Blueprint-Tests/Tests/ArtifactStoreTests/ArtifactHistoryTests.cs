@@ -55,6 +55,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(false, artifactHistory[0].hasUserIcon);
             Assert.AreEqual(_user.DisplayName, artifactHistory[0].displayName);
             Assert.AreEqual(ArtifactState.Publised, artifactHistory[0].artifactState);
+            Assert.AreEqual(_user.UserId, artifactHistory[0].userId);
         }
 
         [TestCase]

@@ -7,7 +7,7 @@ import { BPHistoryPanelController} from "./bp-history-panel";
 import { LocalizationServiceMock } from "../../../core/localization.mock";
 import { ArtifactHistoryMock } from "./artifact-history.mock";
 import { ProjectRepositoryMock } from "../../../main/services/project-repository.mock";
-import { ProjectManager, Models } from "../../../main/managers/project-manager";
+import { ProjectManager, Models } from "../../../main/services/project-manager";
 
 describe("Component BPHistoryPanel", () => {
 

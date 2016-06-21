@@ -270,9 +270,11 @@ export class BPTreeController implements IBPTreeController  {
     private onGridReady = (params: any) => {
         let self = this;
 
-        //let viewport = self.$element[0].querySelector(".ag-body-viewport");
-        //viewport.setAttribute("perfect-scrollbar", "");
-        //window['Ps'].initialize(viewport);
+        if (typeof (<any>window).PerfectScrollbar !== "undefined") {
+            let viewport = self.$element[0].querySelector(".ag-body-viewport");
+            //viewport.setAttribute("perfect-scrollbar", "");
+            (<any>window).PerfectScrollbar.initialize(viewport);
+        }
 
         if (params && params.api) {
             params.api.sizeColumnsToFit();
@@ -291,8 +293,10 @@ export class BPTreeController implements IBPTreeController  {
     private rowGroupOpened = (params: any) => {
         let self = this;
 
-        //let viewport = self.$element[0].querySelector(".ag-body-viewport");
-        //window['Ps'].update(viewport);
+        if (typeof (<any>window).PerfectScrollbar !== "undefined") {
+            let viewport = self.$element[0].querySelector(".ag-body-viewport");
+            (<any>window).PerfectScrollbar.update(viewport);
+        }
 
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {

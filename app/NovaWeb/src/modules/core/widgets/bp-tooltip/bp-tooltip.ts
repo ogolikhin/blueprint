@@ -97,7 +97,9 @@ export class BPTooltip implements ng.IDirective {
                     elem.removeEventListener("mousedown", hideTooltip);
                     elem.removeEventListener("mouseout", hideTooltip);
                     //elem.removeEventListener("transitionend", hideTooltip);
-                    tooltip.remove();
+                    if (tooltip.parentNode) {
+                        tooltip.parentNode.removeChild(tooltip);
+                    }
                 });
             }
         }

@@ -46,11 +46,12 @@ module.exports = {
     loaders: loaders,
     postLoaders: postLoaders,
     preLoaders: [
-          // Tslint loader support for *.ts files
-          //
-          // See: https://github.com/wbuchwalter/tslint-loader
-            { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
-        ]
+      // Tslint loader support for *.ts files
+      //
+      // See: https://github.com/wbuchwalter/tslint-loader
+        { test: /\.ts$/, loader: 'tslint-loader', exclude: ['../node_modules'] }
+    ],
+    noParse: [/angular-perfect-scrollbar-2/]
   }
 };
 

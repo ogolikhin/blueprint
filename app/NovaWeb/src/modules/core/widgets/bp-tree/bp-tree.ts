@@ -160,7 +160,8 @@ export class BPTreeController implements IBPTreeController  {
             onRowGroupOpened: this.rowGroupOpened,
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
-            getBusinessKeyForNode: this.getBusinessKeyForNode
+            getBusinessKeyForNode: this.getBusinessKeyForNode,
+            onViewportChanged: this.perfectScrollbars
         };
     };
 
@@ -240,6 +241,19 @@ export class BPTreeController implements IBPTreeController  {
         this.options.api.setRowData(this._datasource);
     }
 
+    private perfectScrollbars = () => {
+        let viewport = this.$element[0].querySelector(".ag-body-viewport");
+
+        if (viewport && !angular.isUndefined((<any>window).PerfectScrollbar)) {
+            if (viewport.getAttribute("data-ps-id")) {
+                // perfect-scrollbar has been initialized on the element (data-ps-id is not null/undefined/"" )
+                (<any>window).PerfectScrollbar.update(viewport);
+            } else {
+                (<any>window).PerfectScrollbar.initialize(viewport);
+            }
+        }
+    };
+
     private innerRenderer = (params: any) => {
         var currentValue = params.value;
         var inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
@@ -270,12 +284,6 @@ export class BPTreeController implements IBPTreeController  {
     private onGridReady = (params: any) => {
         let self = this;
 
-        if (typeof (<any>window).PerfectScrollbar !== "undefined") {
-            let viewport = self.$element[0].querySelector(".ag-body-viewport");
-            //viewport.setAttribute("perfect-scrollbar", "");
-            (<any>window).PerfectScrollbar.initialize(viewport);
-        }
-
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
@@ -288,15 +296,12 @@ export class BPTreeController implements IBPTreeController  {
                 this.reload(nodes);
             }
         }
+
+        //self.perfectScrollbars();
     };
 
     private rowGroupOpened = (params: any) => {
         let self = this;
-
-        if (typeof (<any>window).PerfectScrollbar !== "undefined") {
-            let viewport = self.$element[0].querySelector(".ag-body-viewport");
-            (<any>window).PerfectScrollbar.update(viewport);
-        }
 
         let node = params.node;
         if (node.data.hasChildren && !node.data.loaded) {
@@ -317,6 +322,8 @@ export class BPTreeController implements IBPTreeController  {
         if (angular.isFunction(self.onSync)) {
             self.onSync({ item: node.data });
         }
+
+        //self.perfectScrollbars();
     };
 
     private rowSelected = (node: any) => {

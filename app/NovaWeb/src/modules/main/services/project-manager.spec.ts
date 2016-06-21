@@ -3,8 +3,8 @@ import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization.mock";
 import {ConfigValueHelper } from "../../core";
 import {MessageService} from "../../shell/";
-import {ProjectRepositoryMock} from "../services/project-repository.mock";
-import {ProjectManager, Models} from "../managers/project-manager";
+import {ProjectRepositoryMock} from "./project-repository.mock";
+import {ProjectManager, Models} from "../services/project-manager";
 
 
 describe("Project Manager Test", () => {

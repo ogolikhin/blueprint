@@ -51,9 +51,17 @@ namespace ArtifactStore.Controllers
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
-            }            
+            }
 
-           
+            if (subArtifactId.HasValue)
+            {
+                var itemInfo = (await ArtifactPermissionsRepository.GetItemInfo(subArtifactId.Value, session.UserId, addDrafts));
+                if (itemInfo == null || itemInfo.ArtifactId != artifactId)
+                {
+                    throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+
             var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, subArtifactId, addDrafts);
 
             var artifactIds = new List<int> { artifactId };

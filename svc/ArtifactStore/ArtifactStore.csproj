@@ -121,6 +121,7 @@
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
+    <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ItemTypePredefined.cs" />
     <Compile Include="Models\ProjectTypes.cs" />

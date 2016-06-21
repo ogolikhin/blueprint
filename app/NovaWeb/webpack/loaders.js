@@ -27,5 +27,18 @@ module.exports = [
         test: /\.png$/,
         exclude: /node_modules/,
         loader: 'url'
-    }
+    }, {
+        test: require.resolve('tinymce/tinymce'),
+        loaders: [
+          'imports?this=>window',
+          'exports?window.tinymce'
+        ]
+    }, {
+          test: /tinymce\/(themes|plugins)\//,
+          loaders: [
+            'imports?this=>window'
+
+          ]
+      }
 ];
+

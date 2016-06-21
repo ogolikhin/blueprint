@@ -55,7 +55,7 @@ namespace ArtifactStore.Controllers
 
             if (subArtifactId.HasValue)
             {
-                var itemInfoDictionary = (await ArtifactPermissionsRepository.GetItemsInfos(new List<int> { subArtifactId.Value })).ToDictionary(a=>a.ItemId);
+                var itemInfoDictionary = (await ArtifactPermissionsRepository.GetItemsInfos(subArtifactId.Value, session.UserId, addDrafts)).ToDictionary(a=>a.ItemId);
                 ArtifactItemProject subArtifactInfo = null;
                 itemInfoDictionary.TryGetValue(subArtifactId.Value, out subArtifactInfo);
                 if (subArtifactInfo == null || subArtifactInfo.ArtifactId != artifactId)

@@ -10,6 +10,6 @@ namespace ArtifactStore.Repositories
 
         Task<ProjectPermissions> GetProjectPermissions(int projectId);
 
-        Task<IEnumerable<ArtifactItemProject>> GetItemsInfos(IEnumerable<int> itemIds);
+        Task<IEnumerable<ArtifactItemProject>> GetItemsInfos(int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue);
     }
 }

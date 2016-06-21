@@ -7,6 +7,10 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
 
     overflow: hidden;
     height: 100%;
+
+    .app-loading {
+        margin-top: 30px;
+    }
     
     .filter-bar {
         bp-select .dropdown {

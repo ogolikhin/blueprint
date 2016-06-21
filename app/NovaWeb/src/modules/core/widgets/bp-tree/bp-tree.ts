@@ -296,8 +296,6 @@ export class BPTreeController implements IBPTreeController  {
                 this.reload(nodes);
             }
         }
-
-        //self.perfectScrollbars();
     };
 
     private rowGroupOpened = (params: any) => {
@@ -322,8 +320,6 @@ export class BPTreeController implements IBPTreeController  {
         if (angular.isFunction(self.onSync)) {
             self.onSync({ item: node.data });
         }
-
-        //self.perfectScrollbars();
     };
 
     private rowSelected = (node: any) => {

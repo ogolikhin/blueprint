@@ -17,14 +17,16 @@ export class ProjectExplorerController {
     public $onInit() {
         //use context reference as the last parameter on subscribe...
         this._subscribers = [
-            this.projectManager.projectCollection.asObservable().subscribeOnNext(this.onLoadProject, this),
-            this.projectManager.currentArtifact.asObservable().subscribeOnNext(this.onSelectArtifact, this),
+            //subscribe for project collection update
+            this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
+            //subscribe for current artifact change (need to distinct artifact)
+            this.projectManager.currentArtifact.distinctUntilChanged().subscribeOnNext(this.onSelectArtifact, this), 
         ];
     }
     
     public $onDestroy() {
         //dispose all subscribers
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {it.dispose(); return false;});
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
     }
 
 
@@ -54,15 +56,15 @@ export class ProjectExplorerController {
 
 
     private onLoadProject = (projects: Models.IProject[]) => {
-        //NOTE: this method is called during "$onInit" and part of "Rx.BehaviorSubject" initialization.
-        // At this point the tree component (bp-tree) is not created yet due to component hierachy (below) 
-        // so, just need to do an extra check if it exists
+        //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
+        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant) 
+        // so, just need to do an extra check if the component has created
         if (this.tree) {
             this.tree.reload(projects);
         }
     }
     private onSelectArtifact = (artifact: Models.IArtifact) => {
-        // so, just need to do an extra check if it exists
+        // so, just need to do an extra check if the component has created
         if (this.tree && artifact) {
             this.tree.selectNode(artifact.id);
         }

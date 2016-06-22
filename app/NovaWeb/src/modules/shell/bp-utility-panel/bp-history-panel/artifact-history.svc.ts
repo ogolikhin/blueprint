@@ -1,4 +1,5 @@
 ﻿import { ILocalizationService } from "../../../core";
+import { Models } from "../../../main";
 
 export interface IArtifactHistory {
     artifactHistory: ng.IPromise<IArtifactHistoryVersion[]>;
@@ -11,6 +12,7 @@ export interface IArtifactHistoryVersion {
     timestamp: string;
     userId: number;
     versionId: number;
+    artifactState: Models.ArtifactStateEnum;
 }
 
 export interface IArtifactHistoryResultSet {

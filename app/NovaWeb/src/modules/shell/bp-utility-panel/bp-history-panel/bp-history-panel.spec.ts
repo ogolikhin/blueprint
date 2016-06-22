@@ -62,7 +62,8 @@ describe("Component BPHistoryPanel", () => {
            "userId": 1,
            "displayName": "admin",
            "hasUserIcon": false,
-           "timestamp": "2016-06-06T13:58:24.557"
+           "timestamp": "2016-06-06T13:58:24.557",
+           "artifactState" : Models.ArtifactStateEnum.Published
        }];
        vm.loadMoreHistoricalVersions();
        $timeout.flush();
@@ -79,7 +80,8 @@ describe("Component BPHistoryPanel", () => {
            "userId": 1,
            "displayName": "admin",
            "hasUserIcon": false,
-           "timestamp": "2016-06-06T13:58:24.557"
+           "timestamp": "2016-06-06T13:58:24.557",
+           "artifactState" : Models.ArtifactStateEnum.Published
        }];
        vm.loadMoreHistoricalVersions();
 
@@ -106,7 +108,8 @@ describe("Component BPHistoryPanel", () => {
            "userId": 1,
            "displayName": "admin",
            "hasUserIcon": false,
-           "timestamp": "2016-06-06T13:58:24.557"
+           "timestamp": "2016-06-06T13:58:24.557",
+           "artifactState" : Models.ArtifactStateEnum.Published
        };
        vm.artifactHistoryList = [artifact];
        vm.selectedArtifactVersion = null;

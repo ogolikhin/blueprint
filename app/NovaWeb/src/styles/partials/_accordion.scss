@@ -141,6 +141,8 @@ bp-accordion {
     }
 
     > .bp-accordion-panel-content {
+
+      border-left: solid 3px $right-sidebar-border;
       font-size: $font-size-smallest;
       height: 0;
       margin: 0;

@@ -140,6 +140,7 @@ pagecontent {
 .right-panel .sidebar-content {
   .utility-panel-title {
     background: $blue-lightest;
+    border-left: solid 3px $right-sidebar-border;
     border-right: solid 1px $utility-panel-border-color;
     border-top: solid 1px $utility-panel-border-color;
     height: $utility-panel-title-height;

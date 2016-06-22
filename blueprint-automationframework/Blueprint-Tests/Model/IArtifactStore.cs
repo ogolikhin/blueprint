@@ -7,9 +7,9 @@ using Model.ArtifactModel.Impl;
 namespace Model
 {
     /// <summary>
-    /// This is the data returned by:  GET /projects/{projectId}/meta/customtypes  which contains all the artifact/sub-artifact and property types in a project.
+    /// This is the data returned by:  GET /projects/{projectId}/meta/customtypes  which contains all the custom artifact/sub-artifact and property types in a project.
     /// </summary>
-    public class ProjectArtifactTypesResult
+    public class ProjectCustomArtifactTypesResult
     {
         public List<NovaArtifactType> ArtifactTypes { get; } = new List<NovaArtifactType>();
         public List<NovaArtifactType> SubArtifactTypes { get; } = new List<NovaArtifactType>();
@@ -38,14 +38,14 @@ namespace Model
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Returns artifact, sub-artifact and property types of the specified project.
+        /// Returns all custom artifact, sub-artifact and property types of the specified project.
         /// (Runs: GET /projects/{projectId}/meta/customtypes)
         /// </summary>
         /// <param name="project">The project whose types you are interested in.</param>
         /// <param name="user">(optional) The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifact, sub-artifact and property types for the specified project.</returns>
-        ProjectArtifactTypesResult GetArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>An object containing a list of custom artifact, sub-artifact and property types for the specified project.</returns>
+        ProjectCustomArtifactTypesResult GetCustomArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets all children artifacts for specified by id project.

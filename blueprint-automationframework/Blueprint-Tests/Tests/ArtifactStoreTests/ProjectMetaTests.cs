@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -35,18 +40,49 @@ namespace ArtifactStoreTests
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId and token and verifies it returns 200 OK and returns expected artifact types.")]
         public void GetArtifactTypes_ReturnsExpectedArtifactTypes()
         {
-            ProjectArtifactTypesResult artifactTypes = null;
+            ProjectCustomArtifactTypesResult artifactTypes = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactTypes = Helper.ArtifactStore.GetArtifactTypes(_project, _user);
+                artifactTypes = Helper.ArtifactStore.GetCustomArtifactTypes(_project, _user);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return OK for a valid user & project.");
 
-            // Verify expected artifact types are returned.
+            // Verify:  expected artifact types are returned.
             Assert.IsNotEmpty(artifactTypes.ArtifactTypes, "Project '{0}' contains no artifact types!", _project.Name);
             Assert.IsNotEmpty(artifactTypes.SubArtifactTypes, "Project '{0}' contains no sub-artifact types!", _project.Name);
             Assert.IsNotEmpty(artifactTypes.PropertyTypes, "Project '{0}' contains no property types!", _project.Name);
+
+            // These are just a small number of expected types to look for.
+            List<string> expectedArtifactTypeNames = new List<string>
+            {
+                "Actor", "Document", "Glossary", "Process", "Storyboard"
+            };
+
+            List<string> expectedSubArtifactTypeNames = new List<string>
+            {
+                "Document: Bookmark", "Glossary: Term", "Use Case: Pre Condition", "Process: Shape", "Storyboard: Connector"
+            };
+
+            // Search for specific Artifact types.
+            foreach (string expectedTypeName in expectedArtifactTypeNames)
+            {
+                Assert.That(artifactTypes.ArtifactTypes.Exists(a => a.Name == expectedTypeName),
+                    "Couldn't find '{0}' in list of artifact types.", expectedTypeName);
+            }
+
+            // Search for specific Sub-artifact types.
+            foreach (string expectedTypeName in expectedSubArtifactTypeNames)
+            {
+                Assert.That(artifactTypes.SubArtifactTypes.Exists(a => a.Name == expectedTypeName),
+                    "Couldn't find '{0}' in list of sub-artifact types.", expectedTypeName);
+            }
+
+            // Search for specific Property types.
+            Assert.That(artifactTypes.PropertyTypes.Exists(p => p.PrimitiveType == PropertyPrimitiveType.Text),
+                "There were no Text property types returned!");
+            Assert.That(artifactTypes.PropertyTypes.Exists(p => p.PrimitiveType == PropertyPrimitiveType.Number),
+                "There were no Number property types returned!");
         }
 
         [TestCase]
@@ -56,7 +92,7 @@ namespace ArtifactStoreTests
         {
             Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(_project);
+                Helper.ArtifactStore.GetCustomArtifactTypes(_project);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 400 Bad Request when no token header is provided.");
         }
 
@@ -74,23 +110,36 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(_project, unauthorizedUser);
+                Helper.ArtifactStore.GetCustomArtifactTypes(_project, unauthorizedUser);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 401 Unauthorized when an unauthorized token is passed.");
         }
 
-        /*
-        // TODO:  Add this test to TestRail and enable this test once we have the ability to set user permissions.
-        [TestCase]
-        [TestRail()]
+        // TODO: Once we have the ability to create custom roles, change this test to create a role with all permissions except 'Full Access to All Projects and Artifacts'.
+        //       The only permission that matters for this test is 'Full Access to All Projects and Artifacts' or if we can set permissions on a project level...
+        [TestCase(InstanceAdminRole.AdministerALLProjects)]
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
+        [TestCase(InstanceAdminRole.ProvisionProjects)]
+        [TestCase(InstanceAdminRole.ProvisionUsers)]
+        [TestCase(null)]
+        [TestRail(145905)]
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId and token, but the user doesn't have permission to access the project and verify it returns 403 Forbidden.")]
-        public void GetArtifactTypes_Forbidden()
+        public void GetArtifactTypes_InsufficientPermissions_Forbidden(InstanceAdminRole? role)
         {
+            // Setup: Create a user that isn't a Default Instance Admin (i.e. doesn't have access to the project).
+            IUser forbiddenUser = UserFactory.CreateUserAndAddToDatabase(role);
+            Helper.AdminStore.AddSession(forbiddenUser);
+
+            // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(_project, _user);
+                Helper.ArtifactStore.GetCustomArtifactTypes(_project, forbiddenUser);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 403 Forbidden when a user doesn't have permission to access the specified project.");
         }
-        */
 
         [TestCase]
         [TestRail(145881)]
@@ -101,7 +150,7 @@ namespace ArtifactStoreTests
 
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactTypes(nonExistingProject, _user);
+                Helper.ArtifactStore.GetCustomArtifactTypes(nonExistingProject, _user);
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 404 Not Found for non-existing Project ID.");
         }
     }

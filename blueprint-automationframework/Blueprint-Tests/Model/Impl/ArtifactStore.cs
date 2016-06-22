@@ -41,7 +41,8 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
-        public ProjectArtifactTypesResult GetArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetCustomArtifactTypes(IProject, IUser, List{HttpStatusCode})"/>
+        public ProjectCustomArtifactTypesResult GetCustomArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -50,14 +51,31 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/meta/customtypes", SVC_PATH, project.Id);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectArtifactTypesResult>(
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectCustomArtifactTypesResult>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
 
+            // Print all returned types for debugging.
+            foreach (var artifactType in artifactTypes.ArtifactTypes)
+            {
+                Logger.WriteDebug("*** Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+            }
+
+            foreach (var artifactType in artifactTypes.SubArtifactTypes)
+            {
+                Logger.WriteDebug("*** Sub-Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+            }
+
+            foreach (var propertyType in artifactTypes.PropertyTypes)
+            {
+                Logger.WriteDebug("*** Property Type - Name: '{0}', BaseType: '{1}'", propertyType.Name, propertyType.PrimitiveType.ToString());
+            }
+
             return artifactTypes;
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
         public List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
@@ -78,6 +96,7 @@ namespace Model.Impl
             return artifactList;
         }
 
+        /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
         public List<Artifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);

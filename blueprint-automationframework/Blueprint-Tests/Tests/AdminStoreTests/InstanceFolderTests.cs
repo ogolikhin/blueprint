@@ -73,7 +73,7 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(145865)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Returns 200 with an empty list instead of 404.
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug 1130:  Returns 200 with an empty list instead of 404.
         [Description("Get children of a non-existing folder and verify it returns '404 Not Found'.")]
         public void GetFolderChildrenByNonExistingFolderId_NotFound()
         {

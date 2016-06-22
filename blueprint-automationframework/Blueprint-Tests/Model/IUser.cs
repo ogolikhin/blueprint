@@ -21,11 +21,11 @@ namespace Model
         bool Enabled { get; set; }
         string FirstName { get; set; }
         List<IGroup> GroupMembership { get; }
-        InstanceAdminRole InstanceAdminRole { get; set; }   // (NULLABLE) From "InstanceAdminRoleId" field in database.
+        InstanceAdminRole? InstanceAdminRole { get; set; }  // (NULLABLE) From "InstanceAdminRoleId" field in database.
         string LastName { get; set; }
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
         string Password { get; set; }                       // (NULLABLE)
-        IEnumerable<byte> Picture { get; set; }                        // (NULLABLE) "Image_ImageId" in database.
+        IEnumerable<byte> Picture { get; set; }             // (NULLABLE) "Image_ImageId" in database.
         UserSource Source { get; }
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.

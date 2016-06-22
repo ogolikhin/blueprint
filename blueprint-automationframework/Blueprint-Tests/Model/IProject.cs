@@ -32,7 +32,7 @@ namespace Model
         /// Artifact type list for the project
         /// </summary>
         List<OpenApiArtifactType> ArtifactTypes { get; }
-        
+
         #endregion Properties
 
         #region Methods

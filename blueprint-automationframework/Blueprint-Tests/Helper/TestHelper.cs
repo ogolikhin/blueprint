@@ -146,11 +146,13 @@ namespace Helper
         /// <summary>
         /// Creates a new user object with random values and adds it to the Blueprint database.
         /// </summary>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new unique user object that was added to the database.</returns>
-        public IUser CreateUserAndAddToDatabase(UserSource source = UserSource.Database)
+        public IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
         {
-            IUser user = UserFactory.CreateUserAndAddToDatabase(source);
+            IUser user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source);
             Users.Add(user);
             return user;
         }
@@ -161,12 +163,14 @@ namespace Helper
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new user object.</returns>
         public IUser CreateUserAndAddToDatabase(string username, string password,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = UserFactory.CreateUserAndAddToDatabase(username, password, source);
+            IUser user = UserFactory.CreateUserAndAddToDatabase(username, password, instanceAdminRole, source);
             Users.Add(user);
             return user;
         }
@@ -188,11 +192,14 @@ namespace Helper
         /// then authenticates to AdminStore and/or OpenApi to get session tokens.
         /// </summary>
         /// <param name="targets">The authentication targets.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new user that has the requested access tokens.</returns>
-        public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets, UserSource source = UserSource.Database)
+        public IUser CreateUserAndAuthenticate(AuthenticationTokenTypes targets,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
         {
-            IUser user = CreateUserAndAddToDatabase(source);
+            IUser user = CreateUserAndAddToDatabase(instanceAdminRole, source);
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {

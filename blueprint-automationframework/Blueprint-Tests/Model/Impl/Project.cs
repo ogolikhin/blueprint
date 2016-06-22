@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Common;
 using Utilities;
@@ -46,20 +45,10 @@ namespace Model.Impl
         /// </summary>
         public string Location { get; set; }
 
-        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
-        public List<OpenApiArtifactType> ArtifactTypes { get; set; }
+        public List<OpenApiArtifactType> ArtifactTypes { get; } = new List<OpenApiArtifactType>();
 
         #endregion Properties
-
-        #region Constructors
-
-        public Project()
-        {
-            ArtifactTypes = new List<OpenApiArtifactType>();
-        }
-
-        #endregion Constructors
 
         #region Public Methods
 
@@ -158,14 +147,12 @@ namespace Model.Impl
             if (ArtifactTypes.Any())
             {
                 ArtifactTypes.Clear();
-
-                foreach (var artifactType in artifactTypes)
-                { 
-                    ArtifactTypes.Add(artifactType);   
-                }
             }
 
-            ArtifactTypes = artifactTypes;
+            foreach (var artifactType in artifactTypes)
+            {
+                ArtifactTypes.Add(artifactType);
+            }
 
             return artifactTypes;
         }

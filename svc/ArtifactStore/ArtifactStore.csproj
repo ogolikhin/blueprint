@@ -121,6 +121,7 @@
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
+    <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ItemTypePredefined.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
@@ -134,7 +135,7 @@
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\ISqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
-    <Compile Include="Repositories\ISqlArtifactVersionsRepository.cs" />
+    <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />

@@ -24,7 +24,10 @@ module.exports = {
   },
   resolve: {
     root: __dirname,
-    extensions: ['', '.ts', '.js', '.json']
+    extensions: ['', '.ts', '.js', '.json'],
+    alias: {
+        tinymce: 'tinymce/tinymce'
+    }
   },
   resolveLoader: {
     modulesDirectories: ["node_modules"]

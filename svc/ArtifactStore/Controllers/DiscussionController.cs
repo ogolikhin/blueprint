@@ -19,15 +19,20 @@ namespace ArtifactStore.Controllers
 
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
+        private readonly IArtifactVersionsRepository _artifactVersionsRepository;
+
         public override string LogSource { get; } = "ArtifactStore.ItemDiscussions";
 
-        public DiscussionController() : this(new SqlDiscussionsRepository(), new SqlArtifactPermissionsRepository())
+        public DiscussionController() : this(new SqlDiscussionsRepository(), new SqlArtifactPermissionsRepository(), new SqlArtifactVersionsRepository())
         {
         }
-        public DiscussionController(IDiscussionsRepository discussionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public DiscussionController(IDiscussionsRepository discussionsRepository,
+                                    IArtifactPermissionsRepository artifactPermissionsRepository,
+                                    IArtifactVersionsRepository artifactVersionsRepository) : base()
         {
             _discussionsRepository = discussionsRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _artifactVersionsRepository = artifactVersionsRepository;
         }
 
         /// <summary>
@@ -41,20 +46,38 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{itemId:int:min(1)}/discussions"), SessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/discussions"), SessionRequired]
         [ActionName("GetDiscussions")]
-        public async Task<DiscussionResultSet> GetDiscussions(int itemId)
+        public async Task<DiscussionResultSet> GetDiscussions(int artifactId, int? subArtifactId = null)
         {
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId);
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+            var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
+            var revisionId = int.MaxValue;
+            if (itemInfo == null && await _artifactVersionsRepository.IsItemDeleted(itemId))
+            {
+                itemInfo = await _artifactVersionsRepository.GetDeletedItemInfo(itemId);
+                revisionId = ((DeletedItemInfo)itemInfo).VersionId;
+            }
+            if (itemInfo == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var discussions = await _discussionsRepository.GetDiscussions(itemId, session.UserId, true);
+            var discussions = await _discussionsRepository.GetDiscussions(itemId, itemInfo.ProjectId);
             var result = new DiscussionResultSet
             {
                 CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment),
@@ -75,20 +98,38 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{itemId:int:min(1)}/discussions/{discussionId:int:min(1)}/replies"), SessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/discussions/{discussionId:int:min(1)}/replies"), SessionRequired]
         [ActionName("GetReplies")]
-        public async Task<IEnumerable<Reply>> GetReplies(int itemId, int discussionId)
+        public async Task<IEnumerable<Reply>> GetReplies(int artifactId, int discussionId, int? subArtifactId = null)
         {
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId);
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+            var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
+            var revisionId = int.MaxValue;
+            if (itemInfo == null && await _artifactVersionsRepository.IsItemDeleted(itemId))
+            {
+                itemInfo = await _artifactVersionsRepository.GetDeletedItemInfo(itemId);
+                revisionId = ((DeletedItemInfo)itemInfo).VersionId;
+            }
+            if (itemInfo == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { itemId }, session.UserId, false, revisionId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(itemId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var result = await _discussionsRepository.GetReplies(discussionId, session.UserId, true);
+            var result = await _discussionsRepository.GetReplies(discussionId, 0);
             return result;
         }
     }

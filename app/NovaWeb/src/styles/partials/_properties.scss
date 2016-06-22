@@ -3,6 +3,7 @@ $property-width: 392px;
 $property-horiz-spacing: 10px;
 $property-label-width: 100px;
 $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
+$property-content-min-width: $property-input-width + 3 * $property-horiz-spacing; // should be 4 * ...
 
 .properties {
   border: solid 1px $gray-lighter;
@@ -51,12 +52,12 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
       top: 0;
     }
 
-    > .content {
+    .content {
       display: none;
     }
   }
 
-  > .content {
+  .content {
     align-content: flex-start;
     align-items: flex-start;
     display: flex;
@@ -64,7 +65,8 @@ $property-input-width: $property-width - 2 * $property-horiz-spacing - $property
     font-size: $font-size-smallest;
     justify-content: space-between;
     margin: 0 10px;
-    overflow: auto;
+    min-width: $property-content-min-width;
+    //overflow: auto;
     padding: 0 0 10px;
 
     // create "padding" to align un-even numbers of property groups

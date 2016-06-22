@@ -26,6 +26,12 @@
     Collection = 17
 }
 
+export enum ArtifactStateEnum {
+    Published = 0,
+    Draft = 1,
+    Deleted = 2
+}
+
 export interface IProjectNode {
     id: number;
     type: number;

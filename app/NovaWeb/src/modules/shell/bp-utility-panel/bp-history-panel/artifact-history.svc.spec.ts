@@ -2,6 +2,7 @@
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
 import { IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
+import { Models } from "../../../main";
 
 describe("Artifact History Service", () => {
 
@@ -21,70 +22,80 @@ describe("Artifact History Service", () => {
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 51,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 50,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 49,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 48,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 47,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 46,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 45,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 44,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 43,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                 ]
             });
@@ -120,7 +131,8 @@ describe("Artifact History Service", () => {
                     "userId": 1,
                     "displayName": "admin",
                     "hasUserIcon": false,
-                    "timestamp": "2016-06-06T13:58:24.557"
+                    "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     }
                 ]
             });
@@ -182,14 +194,16 @@ describe("Artifact History Service", () => {
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 51,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     }
                 ]
             });
@@ -226,14 +240,16 @@ describe("Artifact History Service", () => {
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     },
                     {
                         "versionId": 52,
                         "userId": 1,
                         "displayName": "admin",
                         "hasUserIcon": false,
-                        "timestamp": "2016-06-06T13:58:24.557"
+                        "timestamp": "2016-06-06T13:58:24.557",
+                        "artifactState" : Models.ArtifactStateEnum.Published
                     }
                 ]
             });

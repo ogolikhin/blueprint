@@ -19,6 +19,7 @@ bp-accordion {
       &.bp-accordion-panel-open {
         .bp-accordion-panel-heading {
           background: $brand-secondary !important;
+          border-bottom: 0;
         }
 
         .bp-accordion-panel > input[type=radio].bp-accordion-panel-state {
@@ -115,7 +116,7 @@ bp-accordion {
 
     > .bp-accordion-panel-heading {
       background: $gray-dark;
-      border-top: solid 1px $utility-panel-border-color;
+      border-bottom: solid 1px $utility-panel-border-color;
       box-sizing: border-box;
       color: $white;
       cursor: pointer;
@@ -141,6 +142,7 @@ bp-accordion {
     }
 
     > .bp-accordion-panel-content {
+      border-left: solid 2px $right-sidebar-border;
       font-size: $font-size-smallest;
       height: 0;
       margin: 0;

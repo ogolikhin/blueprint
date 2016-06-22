@@ -161,7 +161,8 @@ export class BPTreeController implements IBPTreeController  {
             processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
-            onViewportChanged: this.perfectScrollbars
+            onViewportChanged: this.perfectScrollbars,
+            onModelUpdated: this.perfectScrollbars
         };
     };
 

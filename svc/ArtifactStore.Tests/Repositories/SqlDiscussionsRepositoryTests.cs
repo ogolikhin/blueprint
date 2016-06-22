@@ -31,12 +31,11 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             int itemId = 1;
-            int userId = 1;
-            bool includeDrafts = true;
-            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId }, { "UserId", userId }, { "AddDrafts", includeDrafts } }, new List<Discussion>());
-            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }, { "UserId", userId }, { "IncludeDrafts", includeDrafts } }, new List<DiscussionState>());
+            int projectId = 1;
+            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId }}, new List<Discussion>());
+            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState>());
             // Act
-            var result = (await discussionsRepository.GetDiscussions(itemId, userId, includeDrafts)).ToList();
+            var result = (await discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
             Assert.AreEqual(0, result.Count);
         }
         [TestMethod]
@@ -44,12 +43,11 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             int itemId = 1;
-            int userId = 1;
-            bool includeDrafts = true;
-            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId}, { "UserId", userId }, { "AddDrafts", includeDrafts } }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = userId, Comment = "<html></html>"} });
-            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }, { "UserId", userId }, { "IncludeDrafts", includeDrafts } }, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
+            int projectId = 1;
+            cxn.SetupQueryAsync("GetItemDiscussions", new Dictionary<string, object> { { "ItemId", itemId} }, new List<Discussion> { new Discussion { ItemId = itemId, DiscussionId = 1, UserId = 1, Comment = "<html></html>"} });
+            cxn.SetupQueryAsync("GetItemDiscussionStates", new Dictionary<string, object> { { "ItemId", itemId }}, new List<DiscussionState> { new DiscussionState { DiscussionId = 1, IsClosed = false, Status = "Test Status" } });
             // Act
-            var result = (await discussionsRepository.GetDiscussions(itemId, userId, includeDrafts)).ToList();
+            var result = (await discussionsRepository.GetDiscussions(itemId, projectId)).ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].UserId);
@@ -62,23 +60,21 @@ namespace ArtifactStore.Repositories
         {
             // Arrange
             int discussionId = 1;
-            int userId = 1;
-            bool includeDrafts = true;
-            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId }, { "UserId", userId }, { "AddDrafts", includeDrafts } }, new List<Reply>());
+            int projectId = 1;
+            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId } }, new List<Reply>());
             // Act
-            var result = (await discussionsRepository.GetReplies(discussionId, userId, includeDrafts)).ToList();
+            var result = (await discussionsRepository.GetReplies(discussionId, projectId)).ToList();
             Assert.AreEqual(0, result.Count);
         }
         [TestMethod]
         public async Task GetReplies_CommentReturned_CorrectCommentReturned()
         {
             // Arrange
-            int itemId = 1;
-            int userId = 1;
-            bool includeDrafts = true;
-            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", itemId }, { "UserId", userId }, { "AddDrafts", includeDrafts } }, new List<Reply> { new Reply { ItemId = itemId, DiscussionId = 1, ReplyId = 2, UserId = userId, Comment = "<html></html>" } });
+            int discussionId = 1;
+            int projectId = 1;
+            cxn.SetupQueryAsync("GetItemReplies", new Dictionary<string, object> { { "DiscussionId", discussionId }}, new List<Reply> { new Reply { ItemId = 1, DiscussionId = 1, ReplyId = 2, UserId = 1, Comment = "<html></html>" } });
             // Act
-            var result = (await discussionsRepository.GetReplies(itemId, userId, includeDrafts)).ToList();
+            var result = (await discussionsRepository.GetReplies(discussionId, projectId)).ToList();
 
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].UserId);

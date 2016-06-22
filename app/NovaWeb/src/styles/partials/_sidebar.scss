@@ -112,12 +112,11 @@ bp-sidebar-layout {
       right: 0;
 
       .sidebar-content {
-        height: calc(100% - #{$breadcrumbs-height - 1px});
+        height: calc(100% - #{$breadcrumbs-height});
       }
 
       .sidebar-title {
-        border-left: solid 3px $right-sidebar-border;
-        height: $breadcrumbs-height - 1px;
+        border-left: solid 2px $right-sidebar-border;
         padding-left: 36px;
       }
 

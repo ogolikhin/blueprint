@@ -70,6 +70,7 @@ class CreateArtifact {
         let temArtifactId = resFromPost.body.toString();
 
         let objArtifact = JSON.parse(temArtifactId);// parsing response to Json object
+        console.log("Response: " + temArtifactId);
         artifactId = objArtifact.Artifact.Id;
         this.projectID = objArtifact.Artifact.ProjectId;
         console.log("Artifact ID IS " + artifactId);
@@ -79,20 +80,22 @@ class CreateArtifact {
     public  ArtifactPublish() {
 
         let optionsForPostRequest = {
+            body: JSON.stringify([{
+                Id: this.createArt(),
+                ProjectId: this.projectID
+            }]),
             method: 'POST',
             headers: {
                 'Authorization': this.blueprintAuthorizationToken,
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify([{
-                Id: this.createArt(),
-                ProjectId: this.projectID
-            }])
+            }
+            
         };
 
         // post request to publish an artifact
         var resFromPost = request('POST', postPublishArtifactUrl, optionsForPostRequest);
-        var temTesFromPost = resFromPost.body.toString();
+        var temTestFromPost = resFromPost.body.toString();
+        console.log("Response: " + temTestFromPost);
 
     }
 

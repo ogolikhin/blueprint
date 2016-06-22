@@ -9,18 +9,17 @@ namespace Model.ArtifactModel.Impl
     public class ArtifactHistory
     {
         public int ArtifactId { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<ArtifactHistoryVersion> artifactHistoryVersions { get; set; }
+        public List<ArtifactHistoryVersion> ArtifactHistoryVersions { get; } = new List<ArtifactHistoryVersion>();
     }
 
     public class ArtifactHistoryVersion
     {
-        public long versionId { get; set; }
-        public int userId { get; set; }
-        public string displayName { get; set; }
-        public bool hasUserIcon { get; set; }
-        public DateTime timestamp { get; set; }
-        public ArtifactState artifactState { get; set; }
+        public long VersionId { get; set; }
+        public int UserId { get; set; }
+        public string DisplayName { get; set; }
+        public bool HasUserIcon { get; set; }
+        public DateTime Timestamp { get; set; }
+        public ArtifactState ArtifactState { get; set; }
     }
 
     public enum ArtifactState

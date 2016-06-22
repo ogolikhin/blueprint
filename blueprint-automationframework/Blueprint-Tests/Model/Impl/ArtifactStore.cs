@@ -143,7 +143,7 @@ namespace Model.Impl
             var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(path, RestRequestMethod.GET,
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
-            return artifactHistory.artifactHistoryVersions;
+            return artifactHistory.ArtifactHistoryVersions;
         }
 
         #endregion Members inherited from IArtifactStore

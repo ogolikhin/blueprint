@@ -120,25 +120,24 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/version", SVC_PATH, artifactId);
 
-            var restApi = new RestApiFacade(Address, token: user.Token.AccessControlToken);
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+
             Dictionary<string, string> queryParameters = null;
-            if (sortByDateAsc != null)
+            if ((sortByDateAsc != null) || (limit != null) || (offset != null))
             {
-                queryParameters = new Dictionary<string, string> { { "asc", sortByDateAsc.ToString() } };
-            }
-            if (limit != null)
-            {
-                if (queryParameters == null)
-                { queryParameters = new Dictionary<string, string> { { "limit", limit.ToString() } }; }
-                else
-                { queryParameters.Add("limit", limit.ToString()); }
-            }
-            if (offset != null)
-            {
-                if (queryParameters == null)
-                { queryParameters = new Dictionary<string, string> { { "offset", offset.ToString() } }; }
-                else
-                { queryParameters.Add("offset", offset.ToString()); }
+                queryParameters = new Dictionary<string, string>();
+                if (sortByDateAsc != null)
+                {
+                    queryParameters.Add("asc", sortByDateAsc.ToString());
+                };
+                if (limit != null)
+                {
+                    queryParameters.Add("limit", limit.ToString());
+                }
+                if (offset != null)
+                {
+                    queryParameters.Add("offset", offset.ToString());
+                }
             }
 
             var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(path, RestRequestMethod.GET,

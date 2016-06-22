@@ -47,12 +47,12 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(1, artifactHistory[0].versionId, "VersionId must be 1, but it is {0}", artifactHistory[0].versionId);
             Assert.AreEqual(false, artifactHistory[0].hasUserIcon, "HasUserIcon must be false, but it is {0}", artifactHistory[0].hasUserIcon);
             Assert.AreEqual(_user.DisplayName, artifactHistory[0].displayName, "DisplayName must be {0}, but it is {1}", _user.DisplayName, artifactHistory[0].displayName);
-            Assert.AreEqual(ArtifactState.Publised, artifactHistory[0].artifactState, "ArtifactState must be Published, but it is {0}", artifactHistory[0].artifactState);
+            Assert.AreEqual(ArtifactState.Published, artifactHistory[0].artifactState, "ArtifactState must be Published, but it is {0}", artifactHistory[0].artifactState);
             Assert.AreEqual(_user.UserId, artifactHistory[0].userId, "UserId must be {0}, but it is {1}", _user.UserId, artifactHistory[0].userId);
         }
 
@@ -68,7 +68,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(Int32.MaxValue, artifactHistory[0].versionId, "VersionId must be {0}, but it is {1}", Int32.MaxValue, artifactHistory[0].versionId);
             Assert.AreEqual(false, artifactHistory[0].hasUserIcon, "HasUserIcon must be false, but it is {0}", artifactHistory[0].hasUserIcon);
@@ -91,7 +91,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(2, artifactHistory.Count, "Artifact history must have 2 items, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(Int32.MaxValue, artifactHistory[0].versionId, "VersionId must be {0}, but it is {1}", Int32.MaxValue, artifactHistory[0].versionId);
             Assert.AreEqual(false, artifactHistory[0].hasUserIcon, "HasUserIcon must be false, but it is {0}", artifactHistory[0].hasUserIcon);
@@ -102,7 +102,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(145870)]
         [Description("Create artifact, publish, save, check that other user doesn't see draft version")]
-        public void GetHistoryForArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
+        public void GetHistoryForPublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
@@ -113,13 +113,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
         }
 
         [TestCase]
         [TestRail(145871)]
-        [Description("Create artifact, save, delete, check that other user sees empty history")]
+        [Description("Create artifact, save, check that other user sees empty history")]
         public void GetHistoryForArtifactInDraft_VerifyOtherAdminUserSeeEmptyHistory()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
@@ -129,7 +129,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(0, artifactHistory.Count, "Artifact history must be empty, but it has {0} items", artifactHistory.Count);
         }
 
@@ -150,18 +150,18 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(10, artifactHistory.Count, "Artifact history must have 10 items, but it has {0} items", artifactHistory.Count);//By default versions returns 10 versions
         }
 
         [TestCase]
         [TestRail(145897)]
-        [Description("Create artifact with 12 versions, check that gethistory with limit 5 returns 5 items")]
+        [Description("Create artifact with 11 versions, check that gethistory with limit 5 returns 5 items")]
         public void GetHistoryForArtifact_VerifyLimit5ReturnsNoMoreThan5Versions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            //create artifact with 12 versions
-            for (int i = 0; i < 12; i++)
+            //create artifact with 11 versions
+            for (int i = 0; i < 11; i++)
             {
                 artifact.Save(_user);
                 artifact.Publish(_user);
@@ -172,18 +172,18 @@ namespace ArtifactStoreTests
             {
                 //get first 5 versions from artifact history
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 5);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(5, artifactHistory.Count, "Artifact history must have 5 items, but it has {0} items", artifactHistory.Count);
         }
 
         [TestCase]
         [TestRail(145899)]
-        [Description("Create artifact with 15 versions, check that gethistory with limit 12 returns 12 items")]
+        [Description("Create artifact with 13 versions, check that gethistory with limit 12 returns 12 items")]
         public void GetHistoryForArtifact_VerifyLimit12ReturnsNoMoreThan12Versions()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            //create artifact with 15 versions
-            for (int i = 0; i < 15; i++)
+            //create artifact with 13 versions
+            for (int i = 0; i < 13; i++)
             {
                 artifact.Save(_user);
                 artifact.Publish(_user);
@@ -194,14 +194,14 @@ namespace ArtifactStoreTests
             {
                 //get first 12 versions from artifact history
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: 12);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(12, artifactHistory.Count, "Artifact history must have 12 items, but it has {0} items", artifactHistory.Count);
         }
 
         [TestCase]
         [TestRail(145901)]
         [Description("Create artifact with 5 versions, check that gethistory returns later versions first")]
-        public void GetHistoryForArtifact_VerifyDeafaultAscIsFalse()
+        public void GetHistoryForArtifact_VerifyDefaultAscIsFalse()
         {
             IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             //create artifact with 5 versions
@@ -215,7 +215,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(5, artifactHistory.Count, "Artifact history must have 5 items, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(5, artifactHistory[0].versionId, "VersionId must be 5, but it is {0}", artifactHistory[0].versionId);//first version in the returned list is 5
             Assert.AreEqual(1, artifactHistory[4].versionId, "VersionId must be 1, but it is {0}", artifactHistory[4].versionId);//last version in the returned list is 1
@@ -238,7 +238,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: true);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(5, artifactHistory.Count, "Artifact history must have 5 items, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(1, artifactHistory[0].versionId, "VersionId must be 1, but it is {0}", artifactHistory[0].versionId);//first version in the returned list is 1
             Assert.AreEqual(5, artifactHistory[4].versionId, "VersionId must be 5, but it is {0}", artifactHistory[4].versionId);//last version in the returned list is 5
@@ -261,7 +261,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: false);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(5, artifactHistory.Count, "Artifact history must have 5 items, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(5, artifactHistory[0].versionId, "VersionId must be 5, but it is {0}", artifactHistory[0].versionId);//first version in the returned list is 5
             Assert.AreEqual(1, artifactHistory[4].versionId, "VersionId must be 1, but it is {0}", artifactHistory[4].versionId);//last version in the returned list is 1
@@ -284,7 +284,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
               artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, offset: 2);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(3, artifactHistory.Count, "Artifact history must have 3 items, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(3, artifactHistory[0].versionId, "VersionId must be 3, but it is {0}", artifactHistory[0].versionId);//first version in the returned list is 3, versions 4 and 5 are skipped
             Assert.AreEqual(1, artifactHistory[2].versionId, "VersionId must be 1, but it is {0}", artifactHistory[2].versionId);//last version in the returned list is 1
@@ -308,7 +308,7 @@ namespace ArtifactStoreTests
             {
                 //sortByDateAsc: true, offset: 3, limit: 1 for history with 5 versions must return version 4
                 artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: true, offset: 3, limit: 1);
-            }, "GetArtifactHistory shoudn't throw any error.");
+            }, "GetArtifactHistory shouldn't throw any error.");
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
             Assert.AreEqual(4, artifactHistory[0].versionId, "VersionId must be 4, but it is {0}", artifactHistory[0].versionId);
         }

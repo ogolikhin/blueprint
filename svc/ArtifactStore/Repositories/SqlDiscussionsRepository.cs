@@ -39,16 +39,14 @@ namespace ArtifactStore.Repositories
             _mentionHelper = new MentionHelper(sqlUsersRepository, instanceSettingsRepository, permissionsRepository);
         }
 
-        public async Task<IEnumerable<Discussion>> GetDiscussions(int itemId, int userId, bool includeDrafts)
+        public async Task<IEnumerable<Discussion>> GetDiscussions(int itemId, int projectId)
         {
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
-            discussionsPrm.Add("@UserId", userId);
-            discussionsPrm.Add("@AddDrafts", includeDrafts);
 
             var discussions = (await ConnectionWrapper.QueryAsync<Discussion>("GetItemDiscussions", discussionsPrm, commandType: CommandType.StoredProcedure)).ToList();
-            var discussionStates = (await GetItemDiscussionStates(itemId, userId, includeDrafts)).ToDictionary(k => k.DiscussionId);
-            var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(0);
+            var discussionStates = (await GetItemDiscussionStates(itemId)).ToDictionary(k => k.DiscussionId);
+            var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
 
             await InitializeCommentsProperties(discussions, areEmailDiscussionsEnabled, (discussion) => {
                 var discussionState = (DiscussionState)null;
@@ -64,27 +62,23 @@ namespace ArtifactStore.Repositories
             return discussions.OrderByDescending(d => d.LastEditedOn);
         }
 
-        public async Task<IEnumerable<Reply>> GetReplies(int discussionId, int userId, bool includeDrafts)
+        public async Task<IEnumerable<Reply>> GetReplies(int discussionId, int projectId)
         {
             var repliesPrm = new DynamicParameters();
             repliesPrm.Add("@DiscussionId", discussionId);
-            repliesPrm.Add("@UserId", userId);
-            repliesPrm.Add("@AddDrafts", includeDrafts);
 
             var replies = (await ConnectionWrapper.QueryAsync<Reply>("GetItemReplies", repliesPrm, commandType: CommandType.StoredProcedure)).ToList();
-            var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(0);
+            var areEmailDiscussionsEnabled = await _mentionHelper.AreEmailDiscussionsEnabled(projectId);
 
             await InitializeCommentsProperties(replies, areEmailDiscussionsEnabled);
 
             return replies.OrderBy(r => r.LastEditedOn);
         }
 
-        public async Task<IEnumerable<DiscussionState>> GetItemDiscussionStates(int itemId, int userId, bool includeDrafts)
+        public async Task<IEnumerable<DiscussionState>> GetItemDiscussionStates(int itemId)
         {
             var discussionsPrm = new DynamicParameters();
             discussionsPrm.Add("@ItemId", itemId);
-            discussionsPrm.Add("@UserId", userId);
-            discussionsPrm.Add("@IncludeDrafts", includeDrafts);
 
             return await ConnectionWrapper.QueryAsync<DiscussionState>("GetItemDiscussionStates", discussionsPrm, commandType: CommandType.StoredProcedure);
         }

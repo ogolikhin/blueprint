@@ -6,8 +6,8 @@ namespace ArtifactStore.Repositories
 {
     public interface IDiscussionsRepository
     {
-        Task<IEnumerable<Discussion>> GetDiscussions(int itemId, int userId, bool includeDrafts);
+        Task<IEnumerable<Discussion>> GetDiscussions(int itemId, int projectId);
 
-        Task<IEnumerable<Reply>> GetReplies(int discussionId, int userId, bool includeDrafts);
+        Task<IEnumerable<Reply>> GetReplies(int discussionId, int projectId);
     }
 }

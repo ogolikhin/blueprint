@@ -135,7 +135,7 @@
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\ISqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
-    <Compile Include="Repositories\ISqlArtifactVersionsRepository.cs" />
+    <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\ISqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperties.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />

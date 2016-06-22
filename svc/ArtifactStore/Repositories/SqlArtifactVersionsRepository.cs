@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ArtifactStore.Repositories
 {
-    public class SqlArtifactVersionsRepository : ISqlArtifactVersionsRepository
+    public class SqlArtifactVersionsRepository : IArtifactVersionsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         public SqlArtifactVersionsRepository()
@@ -37,18 +37,28 @@ namespace ArtifactStore.Repositories
             }
             return false;
         }
+
         private async Task<bool> DoesArtifactHavePublishedOrDraftVersions(int artifactId)
         {
             var isPublishOrDraftPrm = new DynamicParameters();
             isPublishOrDraftPrm.Add("@artifactId", artifactId);
             return (await ConnectionWrapper.QueryAsync<bool>("DoesArtifactHavePublishedOrDraftVersion", isPublishOrDraftPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
-        private async Task<bool> IsArtifactDeleted(int artifactId)
+
+        public async Task<bool> IsItemDeleted(int itemId)
         {
             var isDeletedPrm = new DynamicParameters();
-            isDeletedPrm.Add("@artifactId", artifactId);
+            isDeletedPrm.Add("@artifactId", itemId);
             return (await ConnectionWrapper.QueryAsync<bool>("IsArtifactDeleted", isDeletedPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
+
+        public async Task<DeletedItemInfo> GetDeletedItemInfo(int itemId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemId", itemId);
+            return (await ConnectionWrapper.QueryAsync<DeletedItemInfo>("GetDeletedItemInfo", parameters, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
+
         private async Task<ArtifactHistoryVersion> DeletedVersionInfo(int artifactId)
         {
             var isDeletedPrm = new DynamicParameters();
@@ -109,7 +119,7 @@ namespace ArtifactStore.Repositories
 
             var artifactVersions = (await GetPublishedArtifactHistory(artifactId, limit, offset, userId, asc)).ToList();
             var distinctUserIds = artifactVersions.Select(a => a.UserId).Distinct();
-            var isDeleted = (await IsArtifactDeleted(artifactId));
+            var isDeleted = (await IsItemDeleted(artifactId));
 
             if (isDeleted)
             {

@@ -1,7 +1,6 @@
-﻿import { IAppConstants, ILocalizationService } from "../../../core";
+﻿import { ILocalizationService } from "../../../core";
 import { IProjectManager, Models} from "../../../main";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
-
 
 interface ISortOptions {
     value: boolean;
@@ -18,9 +17,8 @@ export class BPHistoryPanelController {
         "$log", 
         "localization",
         "artifactHistory",
-        "projectManager",
-        "$q",
-        "appConstants"];
+        "projectManager"
+    ];
 
     private loadLimit: number = 10;
     private artifactId: number;
@@ -30,50 +28,44 @@ export class BPHistoryPanelController {
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
     public selectedArtifactVersion: IArtifactHistoryVersion;
-    public artifactHistoryListObserver;
+    public isLoading: boolean = false;
     
     constructor(
         private $log: ng.ILogService,
         private localization: ILocalizationService,
         private _artifactHistoryRepository: IArtifactHistory,
-        private projectManager: IProjectManager,
-        private $q: ng.IQService,
-        private appConstants: IAppConstants) {
+        private projectManager: IProjectManager) {
 
         this.sortOptions = [
             { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
             { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         ];
-
-        this.artifactHistoryListObserver = this._artifactHistoryRepository.artifactHistory;
-        
-        this.projectManager.currentArtifact.asObservable().subscribe(this.setArtifactId);
-        console.log("about to make a request to get value");
-
-        // TODO: remove 2 lines below
-        this.artifactId = 306; //331;
-        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit(o) {
-        this._subscribers = [
-            this.artifactHistoryListObserver.subscribe((value) => {
-                console.log("updated value: " + value);
-                this.artifactHistoryList = this.artifactHistoryList.concat(value);
-            })
-        ];
+        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
+            .distinctUntilChanged( (v: Models.IArtifact) => v ? v.id : -1) // do not reload if same id is re-selected
+            .asObservable()
+            .subscribe(this.setArtifactId);
+
+        this._subscribers = [ selectedArtifactSubscriber ];
     }
 
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
-    }
 
+        // clean up history list
+        this.artifactHistoryList = null;
+    }
 
     public changeSortOrder() {
         this.artifactHistoryList = [];
-        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+        this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)
+            .then( (list: IArtifactHistoryVersion[]) => {
+                this.artifactHistoryList = list;
+            });
     }
 
     private setArtifactId = (artifact: Models.IArtifact) => {
@@ -81,11 +73,14 @@ export class BPHistoryPanelController {
 
         if (artifact !== null) {
             this.artifactId = artifact.id;
-            this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending);
+            this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending)
+                .then( (list: IArtifactHistoryVersion[]) => {
+                    this.artifactHistoryList = list;
+                });
         }
     }
 
-    public loadMoreHistoricalVersions(): ng.IPromise<void> {
+    public loadMoreHistoricalVersions(): ng.IPromise<IArtifactHistoryVersion[]> {
         let offset: number = this.artifactHistoryList.length;
         let lastItem: IArtifactHistoryVersion = null;
 
@@ -94,22 +89,34 @@ export class BPHistoryPanelController {
         }
 
         // if reached the end (version 1 or draft), don't try to load more
-        if (lastItem && lastItem.versionId !== 1 && lastItem.versionId !== this.appConstants.draftVersion) {
-            return this.getHistoricalVersions(this.loadLimit, offset, null, this.sortAscending);
+        if (lastItem && lastItem.versionId !== 1 && !this.isDeletedOrDraft(lastItem)) {
+            return this.getHistoricalVersions(this.loadLimit, offset, null, this.sortAscending)
+                .then( (list: IArtifactHistoryVersion[]) => {
+                    this.artifactHistoryList = this.artifactHistoryList.concat(list);
+                    return list;
+                });
         } else {
-            let deferred: ng.IDeferred<any> = this.$q.defer();
-            deferred.resolve([]);
-            return deferred.promise;
+            return null;
         }
+    }
+
+    private isDeletedOrDraft(item: IArtifactHistoryVersion): boolean {
+        return item.artifactState === Models.ArtifactStateEnum.Draft 
+                || item.artifactState === Models.ArtifactStateEnum.Deleted;
     }
 
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
         this.selectedArtifactVersion = artifactHistoryItem;
     }
 
-    private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<void> {
-        return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc).then((result) => {
-            //this.artifactHistoryList = this.artifactHistoryList.concat(result);
-        });
+    private getHistoricalVersions(limit: number, offset: number, userId: string, asc: boolean): ng.IPromise<IArtifactHistoryVersion[]> {
+        this.isLoading = true;
+        return this._artifactHistoryRepository.getArtifactHistory(this.artifactId, limit, offset, userId, asc)
+            .then( (list: IArtifactHistoryVersion[]) => {
+                return list;
+            })
+            .finally( () => {
+                this.isLoading = false;
+            });
     }
 }

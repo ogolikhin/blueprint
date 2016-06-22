@@ -7,8 +7,6 @@ using ArtifactStore.Models;
 using ArtifactStore.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Net.Http;
 using System.Net;
 
 namespace ArtifactStore.Controllers
@@ -22,14 +20,14 @@ namespace ArtifactStore.Controllers
         private const int MIN_LIMIT = 1;
         private const int MAX_LIMIT = 100;
 
-        internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
+        internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
         public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
-        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public ArtifactVersionsController(IArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;
@@ -53,15 +51,23 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (limit < MIN_LIMIT || offset < 0 || userId < 1)
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.BadRequest);
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
             if (limit > MAX_LIMIT)
             {
                 limit = MAX_LIMIT;
             }
 
+            var revisionId = int.MaxValue;
+            var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(artifactId);
+            if (isDeleted)
+            {
+                var deletedInfo = await ArtifactVersionsRepository.GetDeletedItemInfo(artifactId);
+                revisionId = deletedInfo.VersionId;
+            }
+
             var artifactIds = new List<int> { artifactId };
-            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+            var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId, false, revisionId);
 
             if (!permissions.ContainsKey(artifactId))
             {

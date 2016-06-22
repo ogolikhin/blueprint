@@ -27,6 +27,10 @@ Client side libraries that are not open source (example mxgraph) should be added
 ### typings - TypeScript definition files
 Since `tsd` marked as obsolete we are using `typings` to manage TypeScript definitions [(Usage examples)](https://www.npmjs.com/package/typings#quick-start)
 
+If typings definitions are not available anywhere:
+1. create your own definitions `.d.ts` file and place it in `typings/custom/` directory.
+2. add a reference to that file in `typings/addons.d.ts`
+
 ## Development
 ### Standards
 1. Difference with existing TypeScript [Coding Standards](https://blueprintsys.sharepoint.com/rnd/_layouts/15/guestaccess.aspx?guestaccesstoken=M15zPSIw%2b8V38RkXKY7kVTZ0wsb%2brsHTC0x3J28C%2bhs%3d&docid=0c8dac94f55404e1680e2a2146c6350c2):

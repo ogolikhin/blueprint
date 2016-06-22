@@ -7,8 +7,15 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
 
     overflow: hidden;
     height: 100%;
+
+    .app-loading {
+        margin-top: 30px;
+    }
     
     .filter-bar {
+        height: 45px;
+        padding: $padding-root $padding-root 0;
+
         bp-select .dropdown {
             min-width: 115px;
 
@@ -23,7 +30,7 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
     .scrollable-content {
         padding: 0 10px;
         width: 100%;
-        height: calc(100% - 43px);
+        height: calc(100% - 45px);
         overflow: auto;
     }
     
@@ -102,7 +109,7 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
     .empty-state {
         font-size: $font-size-smaller;
         color: $gray-light;
-        padding: 50px 0 0 0;
+        padding: 5px 0 0;
         text-align: center;
     }
 }

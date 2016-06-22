@@ -9,11 +9,14 @@ export class BPInfiniteScroll implements ng.IDirective {
             const isAtTheBottom: boolean = (domElement.scrollTop + domElement.offsetHeight) >= domElement.scrollHeight - offset;
 
             if (isAtTheBottom && !loader) {
-                showLoader();
                 const promise: ng.IPromise<any> = $scope.$apply($attrs["bpInfiniteScroll"]);
-                promise.then( () => {
-                    hideLoader();
-                });
+
+                if (promise !== null) {
+                    showLoader();
+                    promise.finally( () => {
+                        hideLoader();
+                    });
+                }
             }
         });
 
@@ -35,8 +38,16 @@ export class BPInfiniteScroll implements ng.IDirective {
         }
 
         function scrollUpByLoaderHeight(): void {
-            const loaderHeight: number = loader[0].offsetHeight;
-            domElement.scrollTop -= (loaderHeight + offset + 1);
+            const loaderHeight: number = loader[0].offsetHeight + getMarginHeight(loader[0]);
+            domElement.scrollTop -= (loaderHeight + offset - 10);
+        }
+
+        function getMarginHeight(element): number {
+            const elementStyle = window.getComputedStyle(element);
+            const marginTop = parseInt(elementStyle.getPropertyValue("margin-top"), 10);
+            const marginBottom = parseInt(elementStyle.getPropertyValue("margin-bottom"), 10);
+
+            return marginTop + marginBottom;
         }
     };
 

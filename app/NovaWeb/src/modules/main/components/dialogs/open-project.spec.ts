@@ -3,7 +3,7 @@ import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {ConfigValueHelper } from "../../../core";
 import {MessageService} from "../../../shell/";
-import {ProjectManager, IProjectManager} from "../../managers/project-manager";
+import {ProjectManager } from "../../services/project-manager";
 import {BPTreeControllerMock} from "../../../core/widgets/bp-tree/bp-tree.mock";
 import {LocalizationServiceMock} from "../../../core/localization.mock";
 import {ProjectRepositoryMock} from "../../services/project-repository.mock";
@@ -150,7 +150,7 @@ describe("Open Project.", () => {
             $provide.service("manager", ProjectManager);
 
         }));
-        beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $compile: ng.ICompileService, manager: IProjectManager) => {
+        beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $compile: ng.ICompileService, manager: ProjectManager) => {
             $rootScope["config"] = {
                 "settings": {
                     "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`

@@ -1,14 +1,16 @@
 ﻿<div class="artifact-history-item">
-    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion"
+    <div ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Published')"
          class="version">{{ $ctrl.localization.get('App_UP_History_Version') + " " + $ctrl.artifactInfo.versionId }}</div>
-    <div ng-if="$ctrl.artifactInfo.versionId === $ctrl.appConstants.draftVersion"
+    <div ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Draft')"
          class="version">{{ $ctrl.localization.get('App_UP_History_Draft') }}</div>
+    <div ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Deleted')"
+         class="version">{{ $ctrl.localization.get('App_UP_History_Deleted') }}</div>
 
     <bp-avatar 
         icon="" 
         name="{{ $ctrl.artifactInfo.displayName }}"
         color-base="{{ $ctrl.artifactInfo.userId + $ctrl.artifactInfo.displayName }}">
     </bp-avatar>
-    <div class="author">{{ $ctrl.artifactInfo.displayName }}</div>
-    <div ng-if="$ctrl.artifactInfo.versionId !== $ctrl.appConstants.draftVersion" class="timestamp">{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>
+    <div class="author" title="{{ $ctrl.artifactInfo.displayName }}">{{ $ctrl.artifactInfo.displayName }}</div>
+    <div ng-if="$ctrl.artifactInfo.artifactState !== $ctrl.getArtifactState('Draft')" class="timestamp">{{ $ctrl.artifactInfo.timestamp | date:'medium' }}</div>
 </div>

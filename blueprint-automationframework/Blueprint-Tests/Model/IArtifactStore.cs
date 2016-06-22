@@ -1,8 +1,8 @@
 ﻿using Model.Impl;
+using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Impl;
 
 namespace Model
 {
@@ -67,6 +67,21 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
         List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets artifacts history by artifact id.
+        /// (Runs: GET /svc/ArtifactStore/artifacts/{artifactId}/version)
+        /// </summary>
+        /// <param name="artifactId">The id of artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="sortByDateAsc">(optional) False - the latest version comes first, true the latest version comes last. Without this param call return versions as for sortByDateAsc=false.</param>
+        /// <param name="limit">(optional) The maximum number of history items returned in the request. Without this param call return 10 versions.</param>
+        /// <param name="offset">(optional) The offset for the pagination.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of artifacts versions.</returns>
+        List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user,
+            bool? sortByDateAsc = null, int? limit = null, int? offset = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
     }
 }

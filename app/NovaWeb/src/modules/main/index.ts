@@ -7,8 +7,8 @@ import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "ng-draggable";
 import "angular-perfect-scrollbar-2";
 import "../shell";
-import {IProjectRepository, ProjectRepository} from "./services/project-repository";
-import {IProjectManager, ProjectManager, Models, SubscriptionEnum} from "./managers/project-manager";
+import {ProjectRepository} from "./services/project-repository";
+import {IProjectManager, ProjectManager, Models} from "./services/project-manager";
 import {PageContent} from "./components/content/pagecontent";
 import {BPToolbarComponent} from "./components/bp-toolbar/bp-toolbar";
 import {BpSidebarLayout} from "./components/bp-sidebar-layout/bp-sidebar-layout";
@@ -21,8 +21,8 @@ import {config as routesConfig} from "./main.state";
 config.$inject = ["$rootScope", "$state"];
 
 export {
-    IProjectRepository, ProjectRepository, 
-    IProjectManager, ProjectManager, Models, SubscriptionEnum,
+    ProjectRepository, 
+    IProjectManager, ProjectManager, Models
 };
 
 declare var VERSION: string; //Usages replaced by webpack.DefinePlugin

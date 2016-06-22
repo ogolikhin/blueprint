@@ -11,6 +11,7 @@ import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger.ts";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
 import {ArtifactHistory} from "./bp-utility-panel/bp-history-panel/artifact-history.svc";
+import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPArtifactHistoryItem} from "./bp-utility-panel/bp-history-panel/bp-artifact-history-item/bp-artifact-history-item";
 import {MessageDirective} from "./messages/message";
@@ -32,6 +33,7 @@ angular.module("app.shell",
     .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
+    .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpArtifactHistoryItem", new BPArtifactHistoryItem())
     .service("messageService", MessageService)

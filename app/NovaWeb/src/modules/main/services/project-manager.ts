@@ -1,21 +1,9 @@
 ﻿import "angular";
 import {ILocalizationService } from "../../core";
 import {IMessageService} from "../../shell";
-import {IProjectRepository, Models} from "../services/project-repository";
+import {IProjectRepository, Models} from "./project-repository";
 
 export {Models}
-
-export enum SubscriptionEnum { 
-    PropertyChanged,
-    ProjectChanged,
-    ArtifactChanged,
-    ProjectLoad,
-    ProjectLoaded,
-    ProjectChildrenLoad,
-    ProjectChildrenLoaded,
-    ProjectClose,
-    ProjectClosed
-}
 
 export interface IProjectManager {
     // eventManager

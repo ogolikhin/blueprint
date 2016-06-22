@@ -7,22 +7,20 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlDiscussionsRepositoryTests
     {
-        /*private IUsersRepository userRepository;
+        private IUsersRepository userRepository;
         private IInstanceSettingsRepository instanceSettingsRepository;
         private IArtifactPermissionsRepository artifactPermissionsRepository;
+        private IDiscussionsRepository discussionsRepository;
         private Mock<ISqlConnectionWrapper> cxn;
 
         [TestInitialize]
         public void Initialize()
         {
             cxn = new SqlConnectionWrapperMock();
-            userRepository = new SqlUsersRepository(cxn.Object);
+            userRepository = new SqlUserRepositoryMock();
+            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock();
+            artifactPermissionsRepository = new SqlArtifactPermissionsRepository(cxn.Object);
+            discussionsRepository = new SqlDiscussionsRepository(cxn.Object, userRepository, instanceSettingsRepository, artifactPermissionsRepository);
         }
-
-        [TestMethod]
-        public void basdjkbdas()
-        {
-            var repository = new SqlDiscussionsRepository(cxn.Object);
-        }*/
     }
 }

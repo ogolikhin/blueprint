@@ -25,7 +25,7 @@ namespace ServiceLibrary.Repositories
                                 IsGuest = false
                            });
             }
-            return new List<UserInfo>();
+            return result;
         }
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {

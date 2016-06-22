@@ -7,6 +7,7 @@ using Model.Factories;
 using Utilities.Facades;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using Model.ArtifactModel.Impl;
 
 namespace Model.Impl
 {
@@ -110,6 +111,39 @@ namespace Model.Impl
                 Logger.WriteError("Error while getting response - {0}", ex.Message);
                 throw;
             }
+        }
+
+        public List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user, 
+            bool? sortByDateAsc = null, int? limit = null, int? offset = null, 
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/version", SVC_PATH, artifactId);
+
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParameters = null;
+            if ((sortByDateAsc != null) || (limit != null) || (offset != null))
+            {
+                queryParameters = new Dictionary<string, string>();
+                if (sortByDateAsc != null)
+                {
+                    queryParameters.Add("asc", sortByDateAsc.ToString());
+                };
+                if (limit != null)
+                {
+                    queryParameters.Add("limit", limit.ToString());
+                }
+                if (offset != null)
+                {
+                    queryParameters.Add("offset", offset.ToString());
+                }
+            }
+
+            var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(path, RestRequestMethod.GET,
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+
+            return artifactHistory.ArtifactHistoryVersions;
         }
 
         #endregion Members inherited from IArtifactStore

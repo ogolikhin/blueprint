@@ -46,7 +46,7 @@ namespace ArtifactStore.Controllers
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("artifacts/{artifactId:int:min(1)}/discussions"), NoSessionRequired]
+        [Route("artifacts/{artifactId:int:min(1)}/discussions"), SessionRequired]
         [ActionName("GetDiscussions")]
         public async Task<DiscussionResultSet> GetDiscussions(int artifactId, int? subArtifactId = null)
         {
@@ -55,7 +55,7 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            var session = new Session { UserId = 2};//Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);
@@ -107,7 +107,7 @@ namespace ArtifactStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            var session = new Session { UserId = 2 };//Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId);

@@ -1,15 +1,15 @@
 ﻿using ArtifactStore.Models;
-using ServiceLibrary.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace ArtifactStore.Repositories
 {
-    public interface ISqlArtifactVersionsRepository
+    public interface IArtifactVersionsRepository
     {
         Task<ArtifactHistoryResultSet> GetArtifactVersions(int artifactId, int limit, int offset, int? userId, bool asc, int sessionUserId);
+
+        Task<bool> IsItemDeleted(int itemId);
+
+        Task<DeletedItemInfo> GetDeletedItemInfo(int itemId);
+
     }
 }

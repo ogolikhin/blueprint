@@ -22,14 +22,14 @@ namespace ArtifactStore.Controllers
         private const int MIN_LIMIT = 1;
         private const int MAX_LIMIT = 100;
 
-        internal readonly ISqlArtifactVersionsRepository ArtifactVersionsRepository;
+        internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         public override string LogSource { get; } = "ArtifactStore.ArtifactVersions";
 
         public ArtifactVersionsController() : this(new SqlArtifactVersionsRepository(), new SqlArtifactPermissionsRepository())
         {
         }
-        public ArtifactVersionsController(ISqlArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
+        public ArtifactVersionsController(IArtifactVersionsRepository artifactVersionsRepository, IArtifactPermissionsRepository artifactPermissionsRepository) : base()
         {
             ArtifactVersionsRepository = artifactVersionsRepository;
             ArtifactPermissionsRepository = artifactPermissionsRepository;

@@ -11,28 +11,29 @@ namespace ServiceLibrary.Repositories
     {
         public async Task<EmailSettings> GetEmailSettings()
         {
-            await Task.Run(() => { });
-            return new EmailSettings { Id = "Fake",
-                                       Authenticated = false,
-                                       Domains = "FakeDomain",
-                                       EnableAllUsers = false,
-                                       EnableDomains = false,
-                                       EnableEmailDiscussion = false,
-                                       EnableEmailReplies = false,
-                                       EnableNotifications = false,
-                                       EnableSSL = false,
-                                       HostName = "FakeHostName",
-                                       IncomingEnableSSL = false,
-                                       IncomingHostName = "FakeIncomingHostName",
-                                       IncomingPassword = "FakeIncomingPassword",
-                                       IncomingPort = 1234,
-                                       IncomingServerType = 1,
-                                       IncomingUserName = "FakeIncomingUserName",
-                                       Password = "FakePassword",
-                                       Port = 1234,
-                                       SenderEmailAddress = "FakeSenderAddress",
-                                       UserName = "FakeUserName"
-            };
+            return await Task.FromResult(new EmailSettings
+            {
+                Id = "Fake",
+                Authenticated = false,
+                Domains = "FakeDomain",
+                EnableAllUsers = false,
+                EnableDomains = false,
+                EnableEmailDiscussion = false,
+                EnableEmailReplies = false,
+                EnableNotifications = false,
+                EnableSSL = false,
+                HostName = "FakeHostName",
+                IncomingEnableSSL = false,
+                IncomingHostName = "FakeIncomingHostName",
+                IncomingPassword = "FakeIncomingPassword",
+                IncomingPort = 1234,
+                IncomingServerType = 1,
+                IncomingUserName = "FakeIncomingUserName",
+                Password = "FakePassword",
+                Port = 1234,
+                SenderEmailAddress = "FakeSenderAddress",
+                UserName = "FakeUserName"
+            });
 
         }
     }

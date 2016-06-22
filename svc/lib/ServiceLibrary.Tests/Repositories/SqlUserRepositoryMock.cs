@@ -11,8 +11,6 @@ namespace ServiceLibrary.Repositories
     {
         public async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
-            await Task.Run(() => { });
-
             var result = new List<UserInfo>();
             foreach (int userId in userIds)
             {
@@ -25,19 +23,18 @@ namespace ServiceLibrary.Repositories
                                 IsGuest = false
                            });
             }
-            return result;
+            return await Task.FromResult(result);
         }
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {
-            await Task.Run(() => { });
-            return new List<UserInfo> { new UserInfo
+            return await Task.FromResult(new List<UserInfo> { new UserInfo
                            {
                                 UserId = 1,
                                 DisplayName = "User1",
                                 ImageId = 1,
                                 IsEnabled = true,
                                 IsGuest = false
-                           }};
+                           }});
         }
     }
 }

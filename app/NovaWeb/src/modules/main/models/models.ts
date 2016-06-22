@@ -56,17 +56,58 @@ export interface IArtifact  {
     artifacts?: IArtifact[];
     //flags:
 }
+export interface IProperty {
+    id: number;
+    name: string;
+}
 
-export interface IProject extends IArtifact {
-    description: string;
+export interface IArtifactDetails extends IArtifact {
+    systemProperties: IProperty[];
+    customProperties: IProperty[];
+    //flags:
+}
+export interface IProjectMeta {
+    artifactTypes: IProperty[];
+    propertyTypes: IProperty[];
+    subArtifactTypes: IProperty[];
+    //flags:
 }
 
 
+export interface IProject extends IArtifact {
+    description: string;
+    meta?: IProjectMeta;
+}
+
+
+export class Artifact implements IArtifactDetails {
+    private _systemProperties: IProperty[];
+    private _customProperties: IProperty[];
+    constructor(...data: any[]) { //
+        angular.extend(this, ...data);
+    };
+    public id: number;
+
+    public name: string;
+
+    public projectId: number;
+    public parentId: number;
+    public predefinedType: ArtifactTypeEnum;
+    public typeId: number;
+
+    public get systemProperties() {
+        return this._systemProperties || (this._systemProperties = []);
+    }
+    public get customProperties() {
+        return this._customProperties || (this._customProperties = []);
+    }
+
+    public artifacts: IArtifact[];
+}
+
 export class Project implements IProject {
     constructor(...data: any[]) { //
-        for (let i = 0; i < data.length; i++) {
-            angular.extend(this, data[i]);
-        }
+        angular.extend(this, ...data);
     };
     
     public id: number;

@@ -13,8 +13,12 @@ export interface IProjectManager {
     currentProject: Rx.BehaviorSubject<Models.IProject>;
     currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
+    setCurrentProject(project: Models.IProject): void;
+    setCurrentArtifact(artifact: Models.IArtifact): void;
+
     loadProject(project: Models.IProject): void;
     loadArtifact(project: Models.IArtifact): void;
+    loadArtifactDetails(artifact: Models.IArtifact): void;
 
     closeProject(all?: boolean): void;
     getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
@@ -26,11 +30,9 @@ export interface IProjectManager {
 
 export class ProjectManager implements IProjectManager {
 
-    public projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
-
-    public currentProject: Rx.BehaviorSubject<Models.IProject>;
-
-    public currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
+    private _projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
+    private _currentProject: Rx.BehaviorSubject<Models.IProject>;
+    private _currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
 
     static $inject: [string] = ["localization", "messageService", "projectRepository"];
     constructor(
@@ -63,15 +65,25 @@ export class ProjectManager implements IProjectManager {
     public initialize = () => {
         //subscribe to event
         this.dispose();
-
-        this.projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
-
-        this.currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
-
-        this.currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
+        this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]);
+        this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null);
+        this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
+        
+        this.currentProject.subscribeOnNext(this.loadProjectMeta, this);
     }
 
-    private setCurrentProject(project: Models.IProject) {
+    public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
+        return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]));
+    }
+    public get currentProject(): Rx.BehaviorSubject<Models.IProject> {
+        return this._currentProject || (this._currentProject = new Rx.BehaviorSubject<Models.IProject>(null));
+    }
+
+    public get currentArtifact(): Rx.BehaviorSubject<Models.IArtifact> {
+        return this._currentArtifact || (this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null));
+    }
+
+    public setCurrentProject(project: Models.IProject) {
         if (project) {
             let _currentproject = this.currentProject.getValue();
             if (_currentproject && _currentproject.id === project.id) {
@@ -81,7 +93,7 @@ export class ProjectManager implements IProjectManager {
         this.currentProject.onNext(project);
     }
 
-    private setCurrentArtifact(artifact: Models.IArtifact) {
+    public setCurrentArtifact(artifact: Models.IArtifact) {
         if (artifact) {
             let _currentartifact = this.currentArtifact.getValue();
             if (_currentartifact && _currentartifact.id === artifact.id) {
@@ -163,6 +175,54 @@ export class ProjectManager implements IProjectManager {
         } catch (ex) {
             this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
             this.projectCollection.onNext(this.projectCollection.getValue());
+        }
+    }
+
+    public loadArtifactDetails = (artifact: Models.IArtifact) => {
+        try {
+        
+            if (!artifact) {
+                throw new Error(this.localization.get("Artifact_NotFound"));
+            }
+            let _project = this.getProject(artifact.projectId);
+            if (!_project) {
+                throw new Error(this.localization.get("Project_NotFound"));
+            }
+            let self = this;
+            let _artifact = this.getArtifact(artifact.id);
+            if (!_artifact) {
+                throw new Error(this.localization.get("Artifact_NotFound"));
+            }
+            this._repository.getArtifactDetails(artifact.id)
+                .then((result: Models.IArtifactDetails) => {
+                    
+                }).catch((error: any) => {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                });
+        } catch (ex) {
+            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
+        }
+    }
+
+    public loadProjectMeta = (project: Models.IProject) => {
+        try {
+            if (project === null) {
+                return;
+            }
+            if (!project) {
+                throw new Error(this.localization.get("Project_NotFound"));
+            }
+            let self = this;
+            this._repository.getProjectMeta(project.id)
+                .then((result: Models.IProjectMeta) => {
+                    project = self.currentProject.getValue();
+                    project.meta = result;
+                    self.setCurrentProject(project);
+                }).catch((error: any) => {
+                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                });
+        } catch (ex) {
+            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
         }
     }
 

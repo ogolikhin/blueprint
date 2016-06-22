@@ -6,6 +6,8 @@ export {Models}
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
+    getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifactDetails>;
+    getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
 export class ProjectRepository implements IProjectRepository {
@@ -26,7 +28,7 @@ export class ProjectRepository implements IProjectRepository {
             }).error((err: any, statusCode: number) => {
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.message : "") || this.localization.get("Folder_NotFound", "Error")
+                    message: (err ? err.message : "") || this.localization.get("Folder_NotFound")
                 };
                 this.$log.error(error);
                 defer.reject(error);
@@ -46,6 +48,44 @@ export class ProjectRepository implements IProjectRepository {
                 var error = {
                     statusCode: statusCode,
                     message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound", "Error")
+                };
+                this.$log.error(error);
+                defer.reject(error);
+            });
+        return defer.promise;
+    }
+
+    public getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifactDetails> {
+        var defer = this.$q.defer<any>();
+
+        let url: string = `svc/artifactstore/artifact/${artifactId}`;
+
+        this.$http.get<any>(url)
+            .success((result: Models.IArtifactDetails[]) => {
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound")
+                };
+                this.$log.error(error);
+                defer.reject(error);
+            });
+        return defer.promise;
+    }
+
+    public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
+        var defer = this.$q.defer<any>();
+
+        let url: string = `svc/artifactstore/projects/${projectId}/meta/customtypes`;
+
+        this.$http.get<any>(url)
+            .success((result: Models.IProjectMeta) => {
+                defer.resolve(result);
+            }).error((err: any, statusCode: number) => {
+                var error = {
+                    statusCode: statusCode,
+                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound")
                 };
                 this.$log.error(error);
                 defer.reject(error);

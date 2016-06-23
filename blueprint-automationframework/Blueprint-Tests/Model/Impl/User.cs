@@ -34,7 +34,9 @@ namespace Model.Impl
         public bool Enabled { get; set; }
         public string FirstName { get; set; }
         public List<IGroup> GroupMembership { get { return _GroupMembership; } }
-        public InstanceAdminRole InstanceAdminRole { get; set; }
+
+        public InstanceAdminRole? InstanceAdminRole { get; set; }
+
         public string LastName { get; set; }
         public LicenseType License { get; set; }
         public string Password { get; set; }
@@ -270,7 +272,7 @@ namespace Model.Impl
                 object[] valueArray =
                 {
                     AllowFallback, CurrentVersion, Department, DisplayName, Email, Enabled, EndTimestamp,
-                    EULAccepted, ExpirePassword, FirstName, Guest, Picture, (int)InstanceAdminRole,
+                    EULAccepted, ExpirePassword, FirstName, Guest, Picture, (int?)InstanceAdminRole,
                     InvalidLogonAttemptsNumber, LastInvalidLogonTimeStamp, LastName, LastPasswordChangeTimestamp,
                     Username, EncryptedPassword, (int)Source, StartTimestamp, Title, UserSALT
                 };

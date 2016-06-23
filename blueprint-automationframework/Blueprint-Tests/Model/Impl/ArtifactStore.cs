@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using Common;
+using Model.ArtifactModel.Impl;
 using Utilities;
 using Model.Factories;
 using Utilities.Facades;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Model.ArtifactModel.Impl;
 
 namespace Model.Impl
 {
@@ -41,16 +41,46 @@ namespace Model.Impl
             return GetStatusUpcheck(SVC_PATH, expectedStatusCodes);
         }
 
-        public List<OpenApiArtifactType> GetArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetCustomArtifactTypes(IProject, IUser, List{HttpStatusCode})"/>
+        public ProjectCustomArtifactTypesResult GetCustomArtifactTypes(IProject project, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            throw new NotImplementedException();
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            Logger.WriteInfo("Getting artifact types for project ID: {0}.", project.Id);
+
+            string path = I18NHelper.FormatInvariant("{0}/projects/{1}/meta/customtypes", SVC_PATH, project.Id);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectCustomArtifactTypesResult>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Print all returned types for debugging.
+            foreach (var artifactType in artifactTypes.ArtifactTypes)
+            {
+                Logger.WriteDebug("*** Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+            }
+
+            foreach (var artifactType in artifactTypes.SubArtifactTypes)
+            {
+                Logger.WriteDebug("*** Sub-Artifact Type - Name: '{0}', BaseType: '{1}', Prefix: '{2}'", artifactType.Name, artifactType.BaseType, artifactType.Prefix);
+            }
+
+            foreach (var propertyType in artifactTypes.PropertyTypes)
+            {
+                Logger.WriteDebug("*** Property Type - Name: '{0}', BaseType: '{1}'", propertyType.Name, propertyType.PrimitiveType.ToString());
+            }
+
+            return artifactTypes;
         }
 
-        public List<OpenApiArtifactType> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
+        public List<Artifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/artifacts/{2}/children", SVC_PATH, projectId, artifactId);
             ISession session = null;
-            List<OpenApiArtifactType> artifactList = null;
+            List<Artifact> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -59,18 +89,19 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                artifactList = JsonConvert.DeserializeObject<List<OpenApiArtifactType>>(response.Content);
+                artifactList = JsonConvert.DeserializeObject<List<Artifact>>(response.Content);
                 Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 
             return artifactList;
         }
 
-        public List<OpenApiArtifactType> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
+        public List<Artifact> GetProjectChildrenByProjectId(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant("{0}/projects/{1}/children", SVC_PATH, id);
             ISession session = null;
-            List <OpenApiArtifactType> artifactList = null;
+            List <Artifact> artifactList = null;
 
             if (user != null)
                 session = SessionFactory.CreateSessionWithToken(user);
@@ -79,7 +110,7 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                artifactList = JsonConvert.DeserializeObject<List<OpenApiArtifactType>>(response.Content);
+                artifactList = JsonConvert.DeserializeObject<List<Artifact>>(response.Content);
                 Assert.IsNotNull(artifactList, "Object could not be deserialized properly.");
             }
 

@@ -1,10 +1,8 @@
 //colors
-$text-color:        #0c0c0c;
+
 $gray-darker:       #333;
-$gray-dark:         #4c4c4c;
-$gray:              #616161;
-$gray-pale:         #838383;
-$gray-medium:       #999;
+$gray-dark:         #616161;
+$gray:              #999;
 $gray-light:        #aaa;
 $gray-lighter:      #ccc;
 $gray-lightest:     #e8e8e8;
@@ -14,12 +12,15 @@ $black:             #000;
 
 $brand-primary:     #1c285c;
 $brand-secondary:   #009cdc;
-$brand-success:     #3ca2ae;
-$brand-error:       #d76061;
+$brand-success:     #36a2b0;
+$brand-error:       #d95f5e;
+$brand-warning:     #e4b169;
 
-$messages-bg-error:   #d95f5e;
-$messages-bg-info:    #36a2b0;
-$messages-bg-warning: #e4b169;
+$text-color:        $gray-darker;
+
+$messages-bg-error:   $brand-error;
+$messages-bg-info:    $brand-success;
+$messages-bg-warning: $brand-warning;
 
 $body-bg-color:     $blue-lightest;
 $body-color:        $text-color;

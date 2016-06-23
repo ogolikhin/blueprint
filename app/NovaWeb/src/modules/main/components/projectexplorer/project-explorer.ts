@@ -82,7 +82,7 @@ export class ProjectExplorerController {
 
     public doSelect = (node: ITreeNode) => {
         //check passed in parameter
-        this.projectManager.currentArtifact.onNext(this.doSync(node));
+        this.projectManager.setCurrentArtifact(this.doSync(node));
     };
 
     public doSync = (node: ITreeNode): Models.IArtifact => {

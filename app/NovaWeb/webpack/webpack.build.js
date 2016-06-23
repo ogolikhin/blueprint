@@ -65,9 +65,9 @@ module.exports = {
             { from: '**/*.view.html' },
             { from: '../node_modules/bowser/bowser.js', to: './static/bowser.js' },
             { from: './unsupported-browser', to: './static' },
-            { from: '../node_modules/tinymce/plugins', to: './plugins' },
-            { from: '../node_modules/tinymce/themes', to: './themes' },
-            { from: '../node_modules/tinymce/skins', to: './skins' }
+            { from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins' },
+            { from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes' },
+            { from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins' }
 
 
          ]),

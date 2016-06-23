@@ -15,7 +15,7 @@ $modal-side-clearance: 8px;
 
     .modal-title {
       color: $white;
-      font-size: $font-size-bigger;
+      font-size: $font-size-biggest;
 
       .fonticon-information::before {
         vertical-align: bottom;
@@ -166,7 +166,7 @@ $modal-open-project-height: 450px;
 
     .nova-message {
       box-sizing: content-box;
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       min-height: 3em;
     }
   }
@@ -227,7 +227,7 @@ $modal-open-project-height: 450px;
 
     .nova-login-message {
       box-sizing: content-box;
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       min-height: 3em;
       padding: 17px 0 25px;
       text-align: center;
@@ -239,7 +239,7 @@ $modal-open-project-height: 450px;
 
     #modal-login-saml {
       .nova-login-message {
-        font-size: $font-size-smaller;
+        font-size: $font-size-big;
         text-align: left;
       }
     }
@@ -249,7 +249,7 @@ $modal-open-project-height: 450px;
 
       a {
         color: $gray-dark;
-        font-size: $font-size-smallest;
+        font-size: $font-size-normal;
         text-decoration: none;
       }
 
@@ -261,7 +261,7 @@ $modal-open-project-height: 450px;
 
     .nova-login-to {
       color: $brand-secondary;
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       margin-top: 4px;
     }
   }
@@ -273,7 +273,7 @@ $modal-open-project-height: 450px;
 
     div {
       display: table-cell;
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       padding: 8px 0;
       text-align: center;
       vertical-align: middle;

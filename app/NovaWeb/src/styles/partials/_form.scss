@@ -184,7 +184,7 @@ textarea[rows="2"].nova-form-control {
 }
 
 .nova-floating-label .nova-form-control ~ .nova-label {
-  font-size: $font-size-root;
+  font-size: $font-size-bigger;
   top: 6px;
 
   i {
@@ -192,7 +192,7 @@ textarea[rows="2"].nova-form-control {
   }
 
   i::before {
-    font-size: 1.5 * $font-size-root;
+    font-size: 1.5 * $font-size-bigger;
     line-height: 1.2em;
     margin-left: 0;
     margin-right: 0;
@@ -202,11 +202,11 @@ textarea[rows="2"].nova-form-control {
 //https://developer.mozilla.org/en-US/docs/Web/CSS/:-webkit-autofill
 .nova-floating-label .nova-form-control:-webkit-autofill ~ .nova-label {
   color: $gray-dark;
-  font-size: $font-size-smallest !important;
+  font-size: $font-size-normal !important;
   top: -16px;
 
   i::before {
-    font-size: 1.15 * $font-size-root;
+    font-size: 1.15 * $font-size-bigger;
   }
 }
 
@@ -216,10 +216,10 @@ textarea[rows="2"].nova-form-control {
 .nova-floating-label .nova-form-control.ng-not-empty ~ .nova-label,
 .nova-floating-label .nova-form-control.input-is-dirty ~ .nova-label {
   color: $gray-dark;
-  font-size: $font-size-smallest !important;
+  font-size: $font-size-normal !important;
   top: -16px;
 
   i::before {
-    font-size: 1.15 * $font-size-root;
+    font-size: 1.15 * $font-size-bigger;
   }
 }

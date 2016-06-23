@@ -21,7 +21,7 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
   > .heading {
     color: $gray-dark;
     cursor: pointer;
-    font-size: $font-size-smaller;
+    font-size: $font-size-big;
     font-weight: 600;
     line-height: 1em;
     min-height: 36px;
@@ -108,7 +108,7 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
   label {
     color: $gray-dark;
     display: inline-block;
-    font-size: $font-size-smallest;
+    font-size: $font-size-normal;
     font-weight: 400;
     margin: 6px 0 0;
     width: $property-label-width;
@@ -121,7 +121,7 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
     border: solid 1px #eef0f0;
     box-sizing: border-box;
     color: $gray-dark;
-    font-size: $font-size-smallest;
+    font-size: $font-size-normal;
     font-weight: 400;
     max-width: $property-input-width;
     padding-left: 6px;
@@ -217,10 +217,10 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
 
     label + span::after {
       //background: rgba($white, .5);
-      bottom: -$font-size-smallest;
+      bottom: -$font-size-normal;
       color: $brand-error;
       content: attr(data-validation);
-      font-size: $font-size-micro;
+      font-size: $font-size-smallest;
       padding: 1px;
       position: absolute;
       right: 2px;
@@ -232,7 +232,7 @@ $property-content-min-width: $property-input-width + 3 * $property-horiz-spacing
     border: solid 1px $gray-lighter;
     border-radius: 0;
     color: $gray-dark;
-    font-size: $font-size-smallest;
+    font-size: $font-size-normal;
     padding: 0;
     width: $property-input-width;
 

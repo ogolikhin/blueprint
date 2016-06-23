@@ -9,7 +9,7 @@
   margin-bottom: 10px;
 
   > li {
-    font-size: $font-size-smallest;
+    font-size: $font-size-normal;
 
     &:first-child > a {
       margin-left: 0;
@@ -30,7 +30,7 @@
 
   > li > a {
     border: 0;
-    color: #565656;
+    color: $gray-dark;
     font-size: 105%;
     font-weight: 600;
     margin: 0 15px;

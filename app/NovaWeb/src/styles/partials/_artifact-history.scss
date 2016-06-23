@@ -78,7 +78,7 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
             
             .timestamp {
                 color: $gray-light;
-                font-size: $font-size-tiny;
+                font-size: $font-size-small;
                 margin-top: $padding-smaller;
                 
                 &::before {
@@ -107,7 +107,7 @@ bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:ch
     }
     
     .empty-state {
-        font-size: $font-size-smaller;
+        font-size: $font-size-big;
         color: $gray-light;
         padding: 5px 0 0;
         text-align: center;

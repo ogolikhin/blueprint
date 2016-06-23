@@ -1,4 +1,4 @@
-﻿$aggrid-left-spacing: 10px;
+$aggrid-left-spacing: 10px;
 $has-children-padding-before-arrow: 3px;
 
 .project-tree,
@@ -13,7 +13,7 @@ $has-children-padding-before-arrow: 3px;
     }
 
     .ag-font-style {
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
     }
 
     .ag-header-cell {
@@ -156,7 +156,7 @@ $has-children-padding-before-arrow: 3px;
       color: $brand-secondary;
       display: inline-block;
       font-family: 'bp-line-icons';
-      font-size: $font-size-smaller;
+      font-size: $font-size-big;
       font-style: normal;
       padding: 0 0 0 5px;
       text-align: left;
@@ -269,7 +269,7 @@ $has-children-padding-before-arrow: 3px;
       color: $body-color;
       display: inline-block;
       font-family: 'bp-font';
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       padding-left: $has-children-padding-before-arrow;
       text-align: left;
     }
@@ -301,7 +301,7 @@ $has-children-padding-before-arrow: 3px;
   }
 
   .ag-overlay-loading-wrapper {
-    font-size: $font-size-smallest;
+    font-size: $font-size-normal;
     padding-top: $aggrid-row-height;
     text-align: left;
     vertical-align: top;

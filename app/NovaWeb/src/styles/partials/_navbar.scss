@@ -30,7 +30,7 @@
     .navbar-right {
       color: $white;
       float: right !important; //override media query
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
       line-height: $navbar-height;
       margin: 0 0 0 15px;
       white-space: nowrap;
@@ -50,7 +50,7 @@
         color: $white;
         cursor: pointer;
         display: inline-block;
-        font-size: $font-size-biggest;
+        font-size: 20px;
         margin-top: -3px;
         text-decoration: none;
         vertical-align: middle;

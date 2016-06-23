@@ -27,6 +27,7 @@
                 <ModulePath>.*\.Tests\.dll$</ModulePath>
                 <!-- Skip 3rd party assemblies -->
                 <ModulePath>.*testadapter\.dll$</ModulePath>
+                <ModulePath>.*HtmlAgilityPack\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
             <Attributes>

@@ -1,0 +1,121 @@
+.ps-container {
+  position: relative;
+
+  > .ps-scrollbar-x-rail .ps-scrollbar-x,
+  > .ps-scrollbar-y-rail .ps-scrollbar-y {
+    background: transparent !important;
+    opacity: 1 !important;
+    transition: all 0s;
+    z-index: 1;
+
+    &::before {
+      background: $white;
+      content: '';
+      display: block;
+      font-size: 0;
+      position: absolute;
+    }
+
+    &::after {
+      background: $gray-light;
+      border-radius: 4px;
+      content: '';
+      display: block;
+      font-size: 0;
+      position: absolute;
+    }
+  }
+
+  > .ps-scrollbar-x-rail .ps-scrollbar-x {
+    &::before {
+      border-radius: 4px 4px 0 0;
+      height: 11px;
+      width: 100%;
+    }
+
+    &::after {
+      height: 8px;
+      width: 100%;
+    }
+  }
+
+  > .ps-scrollbar-y-rail .ps-scrollbar-y {
+    &::before {
+      border-radius: 4px 0 0 4px;
+      height: 100%;
+      width: 11px;
+    }
+
+    &::after {
+      height: 100%;
+      width: 8px;
+    }
+  }
+
+  &:hover > .ps-scrollbar-x-rail:hover,
+  &:hover > .ps-scrollbar-y-rail:hover,
+  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail,
+  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+    background: transparent !important;
+
+    &::before {
+      background: $white;
+      content: '';
+      display: block;
+      font-size: 0;
+      position: absolute;
+    }
+
+    &::after {
+      background: $gray-lightest;
+      border-radius: 4px;
+      content: '';
+      display: block;
+      font-size: 0;
+      position: absolute;
+      z-index: 0;
+    }
+  }
+
+  &:hover,
+  &.ps-in-scrolling.ps-x,
+  &.ps-in-scrolling.ps-y {
+    > .ps-scrollbar-x-rail,
+    > .ps-scrollbar-y-rail {
+      opacity: 1 !important;
+    }
+  }
+
+  > .ps-scrollbar-x-rail:hover,
+  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
+    &::before {
+      height: 11px;
+      width: 100%;
+    }
+
+    &::after {
+      height: 8px;
+      width: 100%;
+    }
+  }
+
+  > .ps-scrollbar-y-rail:hover,
+  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail {
+    &::before {
+      height: 100%;
+      width: 11px;
+    }
+
+    &::after {
+      height: 100%;
+      width: 8px;
+    }
+  }
+
+  > .ps-scrollbar-x-rail .ps-scrollbar-x:hover::after,
+  > .ps-scrollbar-y-rail .ps-scrollbar-y:hover::after,
+  &.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail .ps-scrollbar-x::after,
+  &.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail .ps-scrollbar-y::after {
+    background: $gray;
+  }
+}

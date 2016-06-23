@@ -32,7 +32,7 @@ bp-toolbar {
         text-align: center;
 
         .fonticon::before {
-          font-size: $font-size-biggest;
+          font-size: 20px;
           margin: 0;
         }
 
@@ -42,7 +42,7 @@ bp-toolbar {
 
         span {
           display: block;
-          font-size: $font-size-nano;
+          font-size: $font-size-tiny;
           font-weight: 700;
           margin-top: -3px;
           white-space: nowrap;

@@ -8,12 +8,12 @@ namespace Model.Impl
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
         public string Prefix { get; set; }
     }
 
     public class OpenApiArtifactType : ArtifactTypeBase
     {
+        public string Description { get; set; }
         public BaseArtifactType BaseArtifactType { get; set; }
         public List<OpenApiPropertyType> PropertyTypes { get; } = new List<OpenApiPropertyType>();
     }

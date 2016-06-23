@@ -80,8 +80,8 @@ namespace ArtifactStore.Controllers
             var discussions = await _discussionsRepository.GetDiscussions(itemId, itemInfo.ProjectId);
             var result = new DiscussionResultSet
             {
-                CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment),
-                CanCreate = permission.HasFlag(RolePermissions.Comment),
+                CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
+                CanCreate = permission.HasFlag(RolePermissions.Comment) && revisionId == int.MaxValue,
                 Discussions = discussions
             };
             return result;
@@ -102,7 +102,7 @@ namespace ArtifactStore.Controllers
         [ActionName("GetReplies")]
         public async Task<IEnumerable<Reply>> GetReplies(int artifactId, int discussionId, int? subArtifactId = null)
         {
-            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            if (artifactId < 1 || discussionId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -129,7 +129,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            var result = await _discussionsRepository.GetReplies(discussionId, 0);
+            var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
             return result;
         }
     }

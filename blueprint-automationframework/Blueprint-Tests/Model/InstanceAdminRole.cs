@@ -1,9 +1,9 @@
 ﻿
 namespace Model
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]    // Production doesn't have a 0 value.  Use null instead.
     public enum InstanceAdminRole
     {
-        NotAssigned = 0,
         AdministerALLProjects = 7,
         AssignInstanceAdministrators = 8,
         BlueprintAnalytics = 9,

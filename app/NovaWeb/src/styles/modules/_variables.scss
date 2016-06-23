@@ -67,12 +67,12 @@ $breadcrumbs-height: 48px;
 $wrapper-height: $navbar-height;
 $sidebar-size: 250px;
 $left-sidebar-border: $brand-secondary;
-$right-sidebar-border: #dde1e2;
+$right-sidebar-border: $brand-secondary;
 
 //utility panel
 $utility-panel-title-height: 33px;
 $utility-panel-heading-height: 31px;
-$utility-panel-border-color: $right-sidebar-border;
+$utility-panel-border-color: #dde1e2;;
 
 //project tree/picker
 $aggrid-row-height: 20px;

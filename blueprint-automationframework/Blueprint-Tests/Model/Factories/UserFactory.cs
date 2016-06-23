@@ -41,11 +41,14 @@ namespace Model.Factories
         /// <summary>
         /// Creates a new user object with random values and adds it to the Blueprint database.
         /// </summary>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new unique user object that was added to the database.</returns>
-        public static IUser CreateUserAndAddToDatabase(UserSource source = UserSource.Database)
+        public static IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
         {
             IUser user = CreateUserOnly(source);
+            user.InstanceAdminRole = instanceAdminRole;
             user.CreateUser();
             return user;
         }
@@ -56,12 +59,15 @@ namespace Model.Factories
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new user object.</returns>
         public static IUser CreateUserAndAddToDatabase(string username, string password,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
             IUser user = CreateUserOnly(username, password, source);
+            user.InstanceAdminRole = instanceAdminRole;
             user.CreateUser();
             return user;
         }

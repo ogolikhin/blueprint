@@ -43,7 +43,7 @@ bp-sidebar-layout {
 
       .sidebar-toggle {
         color: $white;
-        left: -4px;
+        left: -3px;
         transition-duration: .01s;
       }
     }
@@ -88,7 +88,7 @@ bp-sidebar-layout {
     }
 
     &.left-panel {
-      border-right: solid 1px $left-sidebar-border;
+      border-right: solid 2px $left-sidebar-border;
       left: 0;
       margin-left: -$sidebar-size;
 
@@ -101,23 +101,22 @@ bp-sidebar-layout {
       }
 
       .project-explorer {
-        border-right: solid 5px $brand-secondary;
         height: 100%;
         padding-left: 1px;
       }
     }
 
     &.right-panel {
-      border-left: solid 1px $right-sidebar-border;
+      border-left: 0; //solid 0 $right-sidebar-border;
       margin-right: -$sidebar-size;
       right: 0;
 
       .sidebar-content {
-        height: calc(100% - #{$breadcrumbs-height - 1px});
+        height: calc(100% - #{$breadcrumbs-height});
       }
 
       .sidebar-title {
-        height: $breadcrumbs-height - 1px;
+        border-left: solid 2px $right-sidebar-border;
         padding-left: 36px;
       }
 

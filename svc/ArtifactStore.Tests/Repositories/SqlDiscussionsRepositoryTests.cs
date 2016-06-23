@@ -1,6 +1,7 @@
 ﻿using ArtifactStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +17,38 @@ namespace ArtifactStore.Repositories
         private IArtifactPermissionsRepository artifactPermissionsRepository;
         private IDiscussionsRepository discussionsRepository;
         private SqlConnectionWrapperMock cxn;
+        private EmailSettings fakeEmailSettings;
+
 
         [TestInitialize]
         public void Initialize()
         {
+            fakeEmailSettings = new EmailSettings
+            {
+                Id = "Fake",
+                Authenticated = false,
+                Domains = "Domain;MyDomain",
+                EnableAllUsers = true,
+                EnableDomains = true,
+                EnableEmailDiscussion = false,
+                EnableEmailReplies = false,
+                EnableNotifications = false,
+                EnableSSL = false,
+                HostName = "FakeHostName",
+                IncomingEnableSSL = false,
+                IncomingHostName = "FakeIncomingHostName",
+                IncomingPassword = "FakeIncomingPassword",
+                IncomingPort = 1234,
+                IncomingServerType = 1,
+                IncomingUserName = "FakeIncomingUserName",
+                Password = "FakePassword",
+                Port = 1234,
+                SenderEmailAddress = "FakeSenderAddress",
+                UserName = "FakeUserName"
+            };
             cxn = new SqlConnectionWrapperMock();
             userRepository = new SqlUserRepositoryMock();
-            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock();
+            instanceSettingsRepository = new SqlInstanceSettingsRepositoryMock(fakeEmailSettings);
             artifactPermissionsRepository = new SqlArtifactPermissionsRepository(cxn.Object);
             discussionsRepository = new SqlDiscussionsRepository(cxn.Object, userRepository, instanceSettingsRepository, artifactPermissionsRepository);
         }

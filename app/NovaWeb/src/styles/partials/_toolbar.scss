@@ -23,6 +23,8 @@ bp-toolbar {
     }
 
     > ul > li {
+      font-size: $font-size-bigger;
+
       > a {
         box-sizing: border-box;
         color: $gray-dark;

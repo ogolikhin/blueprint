@@ -45,10 +45,7 @@ body {
   position: relative;
 }
 
-.ps-container {
-  position: relative;
-}
-
+@import 'partials/perfect-scrollbar';
 @import 'partials/pagecontent';
 @import 'partials/sidebar';
 @import 'partials/breadcrumbs';
@@ -58,7 +55,7 @@ body {
 @import 'partials/tooltips';
 @import 'partials/resize';
 @import 'partials/aggrid';
-@import 'partials/artifact-history';
+@import 'partials/utility-panel';
 @import 'partials/avatar';
 @import 'partials/select';
 @import 'partials/mobile-only';

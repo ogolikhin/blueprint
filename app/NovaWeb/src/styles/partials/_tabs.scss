@@ -9,7 +9,7 @@
   margin-bottom: 10px;
 
   > li {
-    font-size: $font-size-normal;
+    font-size: $font-size-big;
 
     &:first-child > a {
       margin-left: 0;
@@ -17,7 +17,7 @@
   }
 
   > li.active {
-    font-size: $font-size-smallest;
+    font-size: $font-size-big;
 
     > a,
     > a:hover,
@@ -31,7 +31,6 @@
   > li > a {
     border: 0;
     color: $gray-dark;
-    font-size: 105%;
     font-weight: 600;
     margin: 0 15px;
     padding: 3px 1px 7px;

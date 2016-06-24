@@ -41,8 +41,8 @@
 
   > .ps-scrollbar-y-rail .ps-scrollbar-y {
     &::before {
-      border-radius: 4px 0 0 4px;
-      height: 100%;
+      border-radius: 4px 0 0 4px; //
+      height: calc(100% - 11px);
       width: 11px;
     }
 

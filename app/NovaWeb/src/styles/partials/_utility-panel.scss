@@ -1,0 +1,103 @@
+bp-utility-panel {
+    $item-gap: $padding-bigger;
+
+    bp-accordion .bp-accordion-panel > input[type=radio].bp-accordion-panel-state:checked ~ .bp-accordion-panel-content {
+        padding: 0;
+    }
+
+    .app-loading {
+        margin-top: 30px;
+    }
+    
+    .filter-bar {
+        height: 45px;
+        padding: $padding-root $padding-root 0;
+
+        bp-select .dropdown {
+            min-width: 115px;
+
+            // make the menu open on the right side
+            .dropdown-menu {
+                left: inherit;
+                right: 0;
+            }
+        }
+    }
+    
+    .scrollable-content {
+        padding: 0 10px;
+        width: 100%;
+        height: calc(100% - 45px);
+        overflow: auto;
+    }
+
+    .empty-state {
+        font-size: $font-size-big;
+        color: $gray-light;
+        padding: 5px 0 0;
+        text-align: center;
+    }
+    
+    .artifact-item-wrapper {
+        position: relative;
+        
+        .separator {
+            width: 2px;
+            height: $item-gap;
+            background: $gray-lighter;
+            position: absolute;
+            bottom: -$item-gap;
+            left: 28px;
+        }
+        &:last-child .separator {
+            display: none;
+        }
+    }
+
+    .timestamp {
+        color: $gray-light;
+        font-size: $font-size-small;
+        margin-top: $padding-smaller;
+        
+        &::before {
+            font-family: 'bp-font';
+            content: '\E831';
+        }
+    }
+
+    .thumb {
+        float: left;
+        margin: 0 $padding-root 0 0;
+    }
+    
+    .author {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        @include text-ellipsis-flex-width(100%);
+    }
+
+    .button-bar {
+        border-top: 1px solid $gray-lighter;
+        margin-left: -10px;
+        margin-right: -10px;
+        font-size: $font-size-tiny;
+        color: $gray-light;
+    }
+
+    &:first-child {
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .utility-panel-artifact-item {
+        line-height: 100%;
+        margin: 0 0 $item-gap 0;
+        border: 1px solid $gray-lighter;
+        border-radius: 3px;
+        padding: $padding-smaller $padding-root;
+        min-height: 74px;
+        display: block;
+    }
+}
+
+@import './utility-panel/history';

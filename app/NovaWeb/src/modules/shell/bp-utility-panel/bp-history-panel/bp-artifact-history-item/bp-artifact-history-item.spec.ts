@@ -31,8 +31,7 @@ describe("Component BPArtifactHistoryItem", () => {
         directiveTest.createComponent({});
 
         //Assert
-        expect(directiveTest.element.find(".version")).toBeDefined();
-        expect(directiveTest.element.find(".author")).toBeDefined();
-        expect(directiveTest.element.find("bp-avatar")).toBeDefined();
+        expect(directiveTest.element.find(".author").length).toBe(1);
+        expect(directiveTest.element.find("bp-avatar").length).toBe(1);
     });
 });

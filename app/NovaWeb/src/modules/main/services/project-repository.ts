@@ -6,7 +6,7 @@ export {Models}
 export interface IProjectRepository {
     getFolders(id?: number): ng.IPromise<any[]>;
     getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifactDetails>;
+    getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
 }
 
@@ -26,11 +26,11 @@ export class ProjectRepository implements IProjectRepository {
             .success((result: Models.IProjectNode[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
                     message: (err ? err.message : "") || this.localization.get("Folder_NotFound")
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;
@@ -45,30 +45,36 @@ export class ProjectRepository implements IProjectRepository {
             .success((result: Models.IArtifact[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
                     message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound", "Error")
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;
     }
 
-    public getArtifactDetails(artifactId?: number): ng.IPromise<Models.IArtifactDetails> {
+    public getArtifactDetails(projectId: number, artifactId: number): ng.IPromise<Models.IArtifactDetails> {
         var defer = this.$q.defer<any>();
 
-        let url: string = `svc/artifactstore/artifact/${artifactId}`;
+        const request: ng.IRequestConfig = {
+            url: `/svc/artifactstore/artifacts/${artifactId}`,
+            method: "GET",
+            params: {
+                types: true
+            }
+        };
 
-        this.$http.get<any>(url)
+        this.$http(request)
             .success((result: Models.IArtifactDetails[]) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
                     message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound")
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;
@@ -83,11 +89,11 @@ export class ProjectRepository implements IProjectRepository {
             .success((result: Models.IProjectMeta) => {
                 defer.resolve(result);
             }).error((err: any, statusCode: number) => {
+                this.$log.error(err);
                 var error = {
                     statusCode: statusCode,
-                    message: (err ? err.Message : "") || this.localization.get("Artifact_NotFound")
+                    message: (err ? err.Message : "") || this.localization.get("Project_NotFound")
                 };
-                this.$log.error(error);
                 defer.reject(error);
             });
         return defer.promise;

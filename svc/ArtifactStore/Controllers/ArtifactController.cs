@@ -75,5 +75,29 @@ namespace ArtifactStore.Controllers
             return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
         }
 
+        /// <summary>
+        /// Get child artifacts of the artifact.
+        /// </summary>
+        /// <remarks>
+        /// Returns child artifacts of the artifact with the specified project and artifact ids.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
+        /// <response code="404">Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}"), SessionRequired]
+        [ActionName("GetArtifact")]
+        public async Task<ArtifactDetailsResultSet> GetArtifact(int artifactId, [FromUri]ArtifactDetailsOptions options)
+        {
+            // NOTE: this is temporary solution  to fake request from the client
+            // TODO: MUST be rework.
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await ArtifactRepository.GeArtifactAsync(artifactId, session.UserId);
+        }
+
+
     }
 }

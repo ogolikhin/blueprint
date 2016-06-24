@@ -1,6 +1,6 @@
 ﻿import "angular";
 import {ILocalizationService } from "../../core";
-import {IMessageService} from "../../shell";
+import {IMessageService, Message, MessageType} from "../../shell";
 import {IProjectRepository, Models} from "./project-repository";
 
 export {Models}
@@ -12,6 +12,8 @@ export interface IProjectManager {
     projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
     currentProject: Rx.BehaviorSubject<Models.IProject>;
     currentArtifact: Rx.BehaviorSubject<Models.IArtifact>;
+    isProjectSelected: boolean;
+    isArtifactSelected: boolean;
 
     setCurrentProject(project: Models.IProject): void;
     setCurrentArtifact(artifact: Models.IArtifact): void;
@@ -19,12 +21,11 @@ export interface IProjectManager {
     loadProject(project: Models.IProject): void;
     loadArtifact(project: Models.IArtifact): void;
     loadArtifactDetails(artifact: Models.IArtifact): void;
+    loadFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     closeProject(all?: boolean): void;
-    getFolders(id?: number): ng.IPromise<Models.IProjectNode[]>;
 
     getArtifact(artifactId: number, project?: Models.IArtifact): Models.IArtifact;
-    updateArtifact(artifact: Models.IArtifact, data: any): Models.IArtifact;
 }
 
 
@@ -70,6 +71,7 @@ export class ProjectManager implements IProjectManager {
         this._currentArtifact = new Rx.BehaviorSubject<Models.IArtifact>(null);
         
         this.currentProject.subscribeOnNext(this.loadProjectMeta, this);
+        this.currentArtifact.subscribeOnNext(this.loadArtifactDetails, this);
     }
 
     public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
@@ -147,13 +149,13 @@ export class ProjectManager implements IProjectManager {
 
     public loadArtifact = (artifact: Models.IArtifact) => {
         try {
+            if (artifact === null) {
+                return;
+            }
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
-            let _project = this.getProject(artifact.projectId);
-            if (!_project) {
-                throw new Error(this.localization.get("Project_NotFound"));
-            }
+
             let self = this;
             let _artifact = this.getArtifact(artifact.id);
             if (!_artifact) {
@@ -180,22 +182,21 @@ export class ProjectManager implements IProjectManager {
 
     public loadArtifactDetails = (artifact: Models.IArtifact) => {
         try {
-        
+            if (artifact === null) {
+                return;
+            }
             if (!artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
-            }
-            let _project = this.getProject(artifact.projectId);
-            if (!_project) {
-                throw new Error(this.localization.get("Project_NotFound"));
             }
             let self = this;
             let _artifact = this.getArtifact(artifact.id);
             if (!_artifact) {
                 throw new Error(this.localization.get("Artifact_NotFound"));
             }
-            this._repository.getArtifactDetails(artifact.id)
+            this._repository.getArtifactDetails(artifact.projectId, artifact.id)
                 .then((result: Models.IArtifactDetails) => {
-                    
+//                    angular.extend(_artifact, result);
+//                    self.setCurrentArtifact(_artifact);
                 }).catch((error: any) => {
                     this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
                 });
@@ -219,16 +220,19 @@ export class ProjectManager implements IProjectManager {
                     project.meta = result;
                     self.setCurrentProject(project);
                 }).catch((error: any) => {
-                    this.messageService.addError(error["message"] || this.localization.get("Artifact_NotFound"));
+                    this.messageService.addError(error["message"] || this.localization.get("Project_NotFound"));
                 });
         } catch (ex) {
-            this.messageService.addError(ex["message"] || this.localization.get("Artifact_NotFound"));
+            this.messageService.addError(ex["message"] || this.localization.get("Project_NotFound"));
         }
     }
 
     public closeProject = (all: boolean = false) => {
         try {
-
+            if (!this.currentProject.getValue()) {
+                this.messageService.addMessage(new Message(MessageType.Warning, "Not selected projects"));
+                return;
+            }
             let projectsToRemove: Models.IProject[] = [];
             let _projectCollection = this.projectCollection.getValue().filter(function (it: Models.IProject) {
                 let result = true;
@@ -248,7 +252,7 @@ export class ProjectManager implements IProjectManager {
 
     }
 
-    public getFolders(id?: number) {
+    public loadFolders(id?: number) {
         try {
             return this._repository.getFolders(id);
         } catch (ex) {
@@ -284,15 +288,13 @@ export class ProjectManager implements IProjectManager {
         return foundArtifact;
     };
 
-    public updateArtifact(artifact: Models.IArtifact, data?: any): Models.IArtifact {
-        try {
-            if (artifact && data) {
-                angular.extend(artifact, data);
-            }
-        } catch (ex) {
-            this.messageService.addError(ex["message"]);
-        }
-        return artifact;
+    public get isProjectSelected(): boolean {
+        //NOTE: current Project must have a refference if project collection has any items
+        return !!this.currentProject.getValue();
     }
+    public get isArtifactSelected(): boolean {
+        return !!this.currentArtifact.getValue();
+    }
+
 
 }

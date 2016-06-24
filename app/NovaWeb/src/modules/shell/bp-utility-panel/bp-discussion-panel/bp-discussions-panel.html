@@ -1,0 +1,28 @@
+﻿<div class="filter-bar">
+    <!--<bp-select
+        ng-if="$ctrl.artifactDiscussionList.length"
+        ng-model="$ctrl.sortAscending"
+        options="$ctrl.sortOptions">
+    </bp-select>-->
+</div>
+
+<div ng-if="$ctrl.artifactDiscussionList.length"
+     class="scrollable-content"
+     perfect-scrollbar>
+
+    <div ng-repeat="discussion in $ctrl.artifactDiscussionList" class="artifact-history-item-wrapper">
+        <div class="separator"></div>
+        <bp-artifact-discussion-item 
+            class="utility-panel-artifact-item"
+            discussion-info="discussion"
+            ng-click="$ctrl.selectDiscussion(discussion)"
+            ng-class="{ 'selected': $ctrl.selectedDiscussion === discussion }">
+        </bp-artifact-discussion-item>
+    </div>
+</div>
+
+<div ng-if="!$ctrl.artifactDiscussionList.length && $ctrl.isLoading" class="app-loading">
+    <span class="glyphicon glyphicon-refresh spin"></span>
+</div>
+
+<div ng-if="!$ctrl.artifactDiscussionList.length && !$ctrl.isLoading" class="empty-state">{{ $ctrl.localization.get('App_UP_History_No_Artifact') }}</div>

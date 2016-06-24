@@ -24,11 +24,15 @@
             <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-upload-cloud"></i><span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span></a>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-refresh"></i><span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span></a>
+            <a href="#" id="refresh" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-refresh"></i><span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span></a>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" ng-click="$ctrl.deleteArtifact()"><i class="fonticon fonticon-delete"></i><span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span></a>
+            <a href="#" id="deleteartifact" ng-click="$ctrl.execute($event)"><i class="fonticon fonticon-delete"></i><span>{{::$root.config.labels["App_Toolbar_Delete"]}}</span></a>
         </li>
+       
+    </ul>
+    <ul class="nav navbar-nav nav-right" ng-show="$ctrl.currentArtifact">
+        <li><a href="#" ng-click="$ctrl.goToImpactAnalysis()"><i class="fonticon-bp-impact-analysis"></i></a></li>
     </ul>
 </div>

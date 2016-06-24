@@ -1,0 +1,24 @@
+bp-discussion-panel {
+    $item-gap: $padding-bigger;
+    
+    bp-artifact-discussion-item {
+        &:hover {
+            cursor: pointer;
+            background: $gray-lightest;
+        }
+
+        &.selected {
+            background: $gray-lightest;
+            border: 1px solid $brand-secondary;
+        }
+
+        .username {
+            color: #01A7E1;
+        }
+
+        .discussion-info{
+            margin-left:50px;
+            margin-top:-40px;
+        }
+    }
+}

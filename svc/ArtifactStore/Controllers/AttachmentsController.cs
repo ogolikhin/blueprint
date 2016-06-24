@@ -67,7 +67,7 @@ namespace ArtifactStore.Controllers
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {
-                artifactIds.Add(documentReference.VersionArtifactId);
+                artifactIds.Add(documentReference.ArtifactId);
             }
             
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
@@ -80,7 +80,7 @@ namespace ArtifactStore.Controllers
             var docRef = result.DocumentReferences.ToList();
             foreach (var documentReference in docRef)
             {
-                CheckReadPermissions(documentReference.VersionArtifactId, permissions, () =>
+                CheckReadPermissions(documentReference.ArtifactId, permissions, () =>
                 {
                     result.DocumentReferences.Remove(documentReference);
                 });

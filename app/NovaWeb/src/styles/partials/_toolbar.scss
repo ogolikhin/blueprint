@@ -7,6 +7,7 @@ bp-toolbar {
     .navbar-nav {
       float: left;
       margin: 0;
+      display: inline-block;      
 
       > li {
         float: left !important; //override media query
@@ -23,6 +24,8 @@ bp-toolbar {
     }
 
     > ul > li {
+      font-size: $font-size-bigger;
+
       > a {
         box-sizing: border-box;
         color: $gray-dark;
@@ -32,7 +35,7 @@ bp-toolbar {
         text-align: center;
 
         .fonticon::before {
-          font-size: $font-size-biggest;
+          font-size: 20px;
           margin: 0;
         }
 
@@ -42,7 +45,7 @@ bp-toolbar {
 
         span {
           display: block;
-          font-size: $font-size-nano;
+          font-size: $font-size-tiny;
           font-weight: 700;
           margin-top: -3px;
           white-space: nowrap;
@@ -109,5 +112,9 @@ bp-toolbar {
         }
       }
     }
+
+    .nav-right{
+          float:right;
+      }
   }
 }

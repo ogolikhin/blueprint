@@ -27,6 +27,18 @@ namespace ServiceLibrary.Repositories
         }
         public async Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false)
         {
+            if (email == "DisabledUser@MyDomain")
+            {
+                return await Task.FromResult(new List<UserInfo> { new UserInfo
+                           {
+                                UserId = 1,
+                                DisplayName = "User1",
+                                ImageId = 1,
+                                IsEnabled = false,
+                                IsGuest = true
+                           }});
+
+            }
             return await Task.FromResult(new List<UserInfo> { new UserInfo
                            {
                                 UserId = 1,

@@ -50,7 +50,7 @@ pagecontent {
   }
 
   .artifact-icon::before {
-    color: $gray-medium;
+    color: $gray;
     font-family: 'bp-font';
     font-size: 24px;
     line-height: 1.5em;
@@ -61,7 +61,7 @@ pagecontent {
     > .name {
       color: $gray-dark;
       display: block;
-      font-size: $font-size-bigger;
+      font-size: $font-size-biggest;
       white-space: nowrap;
 
       span:first-child {
@@ -70,18 +70,18 @@ pagecontent {
     }
 
     > .type-id {
-      color: $gray-medium;
-      font-size: $font-size-micro;
+      color: $gray;
+      font-size: $font-size-smallest;
       white-space: nowrap;
     }
 
     .readonly-indicator,
     .lock-indicator,
     .dirty-indicator {
-      color: $gray-medium;
+      color: $gray;
       display: inline-block;
       font-family: 'bp-font';
-      font-size: $font-size-smaller;
+      font-size: $font-size-big;
       font-style: normal;
     }
 
@@ -110,7 +110,7 @@ pagecontent {
     > .heading {
       background: #cbcbcb;
       color: $gray-dark;
-      font-size: $font-size-smaller;
+      font-size: $font-size-big;
       font-weight: 600;
       line-height: 1em;
       min-height: 36px;
@@ -132,7 +132,7 @@ pagecontent {
 
     .tab-pane {
       // temporary
-      font-size: $font-size-smallest;
+      font-size: $font-size-normal;
     }
   }
 }
@@ -148,7 +148,7 @@ pagecontent {
     > span {
       color: $gray-dark;
       display: inline-block;
-      font-size: $font-size-tiny;
+      font-size: $font-size-small;
       font-weight: 600;
       line-height: 92%;
       margin-top: -4px;
@@ -164,7 +164,7 @@ pagecontent {
       position: absolute;
 
       &::before {
-        font-size: $font-size-smallest;
+        font-size: $font-size-normal;
         margin: 0;
         padding: 0;
         text-align: left;

@@ -66,23 +66,15 @@ namespace ArtifactStore.Controllers
                 revisionId = deletedInfo.VersionId;
             }
 
-            var artifactIds = new List<int> { artifactId };
+            var artifactIds = new [] { artifactId };
             var permissions = await ArtifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId, false, revisionId);
 
-            if (!permissions.ContainsKey(artifactId))
+            RolePermissions permission = RolePermissions.None;
+            if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            else
-            {
-                RolePermissions permission = RolePermissions.None;
-                permissions.TryGetValue(artifactId, out permission);
 
-                if (!permission.HasFlag(RolePermissions.Read))
-                {
-                    throw new HttpResponseException(HttpStatusCode.Forbidden);
-                }
-            }
             var result = await ArtifactVersionsRepository.GetArtifactVersions(artifactId, limit, offset, userId, asc, session.UserId);
             return result;
         }

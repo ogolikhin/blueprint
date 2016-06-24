@@ -63,7 +63,7 @@ bp-sidebar-layout {
       background: $brand-secondary;
       box-sizing: border-box;
       color: $white;
-      font-size: $font-size-root;
+      font-size: $font-size-bigger;
       font-weight: 600;
       height: $breadcrumbs-height;
       padding: 13px 15px 0;
@@ -102,7 +102,6 @@ bp-sidebar-layout {
 
       .project-explorer {
         height: 100%;
-        padding-left: 1px;
       }
     }
 

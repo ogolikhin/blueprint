@@ -29,7 +29,7 @@ body {
 
 .app-loading {
   color: $gray-light;
-  font-size: $font-size-bigger;
+  font-size: $font-size-biggest;
   padding: 32px;
   text-align: center;
   width: 100%;
@@ -45,10 +45,7 @@ body {
   position: relative;
 }
 
-.ps-container {
-  position: relative;
-}
-
+@import 'partials/perfect-scrollbar';
 @import 'partials/pagecontent';
 @import 'partials/sidebar';
 @import 'partials/breadcrumbs';
@@ -58,7 +55,7 @@ body {
 @import 'partials/tooltips';
 @import 'partials/resize';
 @import 'partials/aggrid';
-@import 'partials/artifact-history';
+@import 'partials/utility-panel';
 @import 'partials/avatar';
 @import 'partials/select';
 @import 'partials/mobile-only';

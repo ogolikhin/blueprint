@@ -1,4 +1,4 @@
-﻿.nova-form-group {
+.nova-form-group {
   margin-bottom: 19px;
   position: relative;
 
@@ -31,7 +31,7 @@
   border-top: 0;
   box-shadow: none;
   color: $text-color;
-  font-size: $font-size-root;
+  font-size: $font-size-bigger;
   height: 37px;
   padding: 0;
   width: 100%;
@@ -52,11 +52,11 @@
 .nova-form-control.required ~ .nova-label::before,
 .nova-form-control[required] ~ .nova-label::before {
   bottom: -$font-size-smallest;
-  color: $gray;
+  color: $gray-dark;
   content: attr(required);
   text-transform: lowercase;
   display: block;
-  font-size: $font-size-micro;
+  font-size: $font-size-smallest;
   position: absolute;
   right: 0;
 }
@@ -184,15 +184,15 @@ textarea[rows="2"].nova-form-control {
 }
 
 .nova-floating-label .nova-form-control ~ .nova-label {
-  font-size: $font-size-root;
+  font-size: $font-size-bigger;
   top: 6px;
 
   i {
-    color: $gray;
+    color: $gray-dark;
   }
 
   i::before {
-    font-size: 1.5 * $font-size-root;
+    font-size: 1.5 * $font-size-bigger;
     line-height: 1.2em;
     margin-left: 0;
     margin-right: 0;
@@ -201,12 +201,12 @@ textarea[rows="2"].nova-form-control {
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/:-webkit-autofill
 .nova-floating-label .nova-form-control:-webkit-autofill ~ .nova-label {
-  color: $gray;
-  font-size: $font-size-smallest !important;
+  color: $gray-dark;
+  font-size: $font-size-normal !important;
   top: -16px;
 
   i::before {
-    font-size: 1.15 * $font-size-root;
+    font-size: 1.15 * $font-size-bigger;
   }
 }
 
@@ -215,11 +215,11 @@ textarea[rows="2"].nova-form-control {
 .nova-floating-label .nova-form-control.fake-focus ~ .nova-label,
 .nova-floating-label .nova-form-control.ng-not-empty ~ .nova-label,
 .nova-floating-label .nova-form-control.input-is-dirty ~ .nova-label {
-  color: $gray;
-  font-size: $font-size-smallest !important;
+  color: $gray-dark;
+  font-size: $font-size-normal !important;
   top: -16px;
 
   i::before {
-    font-size: 1.15 * $font-size-root;
+    font-size: 1.15 * $font-size-bigger;
   }
 }

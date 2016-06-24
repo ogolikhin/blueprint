@@ -3,11 +3,11 @@
   background: $body-bg-color;
   border-bottom: solid 1px $white;
   box-sizing: border-box;
-  color: $gray-pale;
+  color: $gray;
   display: flex;
   flex-flow: row nowrap;
   flex-shrink: 0;
-  font-size: $font-size-smaller;
+  font-size: $font-size-big;
   height: $breadcrumbs-height;
   justify-content: flex-start;
   margin: 0;
@@ -21,7 +21,7 @@
 
   li {
     @include text-ellipsis-flex-width(500px);
-    color: $gray-pale;
+    color: $gray;
     list-style-type: none;
     padding-left: 2px;
     padding-right: 2px;

@@ -127,6 +127,7 @@ namespace ArtifactStoreTests
         [TestCase(InstanceAdminRole.ProvisionUsers)]
         [TestCase(null)]
         [TestRail(145905)]
+        [Explicit(IgnoreReasons.ProductBug)]//TFS1266
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId and token, but the user doesn't have permission to access the project and verify it returns 403 Forbidden.")]
         public void GetArtifactTypes_InsufficientPermissions_Forbidden(InstanceAdminRole? role)
         {

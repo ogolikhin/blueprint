@@ -1,0 +1,19 @@
+bp-history-panel {
+    $item-gap: $padding-bigger;
+    
+    bp-artifact-history-item {
+        &:hover {
+            cursor: pointer;
+            background: $gray-lightest;
+        }
+
+        &.selected {
+            background: $gray-lightest;
+            border: 1px solid $brand-secondary;
+        }
+
+        .version {
+            margin-bottom: 3px;
+        }
+    }
+}

@@ -14,9 +14,16 @@ export class BPToolbarComponent implements ng.IComponentOptions {
 
 class BPToolbarController implements IBPToolbarController {
 
-    static $inject = ["localization", "dialogService", "projectManager" ];
+    static $inject = ["localization", "dialogService", "projectManager", "$rootScope" ];
 
-    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private projectManager: IProjectManager) {
+    constructor(private localization: ILocalizationService, private dialogService: IDialogService, private projectManager: IProjectManager, private $rootScope: ng.IRootScopeService) {
+    }
+
+    private _subscribers: Rx.IDisposable[];
+    private _currentArtifact: number;
+
+    public get currentArtifact() {
+        return this._currentArtifact;
     }
 
     execute(evt: any): void {
@@ -53,7 +60,7 @@ class BPToolbarController implements IBPToolbarController {
             okButton: this.localization.get("App_Button_Open"),
             template: require("../dialogs/open-project.template.html"),
             controller: OpenProjectController,
-            css: "nova-open-project modal-resize-both"
+            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
         }).then((project: Models.IProject) => {
             if (project) {
                 this.projectManager.loadProject(project);
@@ -69,6 +76,30 @@ class BPToolbarController implements IBPToolbarController {
                     this.dialogService.alert("Delete is confirmed");
                 }
             });
+    }
+
+    public goToImpactAnalysis() {
+        let url = this.$rootScope["config"].settings['ImpactAnalysis'] + 'Web/#/ImpactAnalysis/' + this._currentArtifact;
+        window.open(url);
+    }
+
+    public $onInit(o) {
+        let selectedArtifactSubscriber: Rx.IDisposable = this.projectManager.currentArtifact
+            .distinctUntilChanged()
+            .subscribe(this.displayArtifact);
+
+        this._subscribers = [
+            selectedArtifactSubscriber
+        ];
+    }
+
+    public $onDestroy() {
+        //dispose all subscribers
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => { it.dispose(); return false; });
+    }
+
+    private displayArtifact = (artifact: Models.IArtifact) => {
+        this._currentArtifact = artifact && artifact.prefix !== "ACO" && artifact.prefix!=='_CFL' ? artifact.id : null;
     }
 
 }

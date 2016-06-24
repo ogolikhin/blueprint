@@ -1,0 +1,14 @@
+﻿<div>
+    <div>
+        <bp-avatar icon=""
+                   name="{{ $ctrl.discussionInfo.userName }}"
+                   color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+        </bp-avatar>
+    </div>
+    <div class="discussion-info">
+        <div class="username" title="{{ $ctrl.discussionInfo.userName }}">{{ $ctrl.discussionInfo.userName }}</div>
+        <div ng-bind-html="$ctrl.discussionInfo.comment"></div>
+        <div class="timestamp">{{ $ctrl.discussionInfo.lastEditedOn | date:'medium' }}</div>
+    </div>
+    <div></div>
+</div>

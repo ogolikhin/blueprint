@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using Common;
 using Model.ArtifactModel.Impl;
+using Model.ArtifactModel;
 using Utilities;
 using Model.Factories;
 using Utilities.Facades;
@@ -175,6 +176,19 @@ namespace Model.Impl
                 queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
             return artifactHistory.ArtifactHistoryVersions;
+        }
+
+        public Discussions GetArtifactDiscussions(IArtifactBase artifact, IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            string path = I18NHelper.FormatInvariant("{0}/artifacts/{1}/discussions", SVC_PATH, artifact.Id);
+
+            var restApi = new RestApiFacade(Address, token: user.Token?.AccessControlToken);
+            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(path,
+                RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            return artifactDiscussions;
         }
 
         #endregion Members inherited from IArtifactStore

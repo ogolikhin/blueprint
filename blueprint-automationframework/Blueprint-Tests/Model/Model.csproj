@@ -59,6 +59,7 @@
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
+    <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\RapidReviewContent.cs" />
     <Compile Include="ArtifactModel\IPropertyBase.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiComment.cs" />

@@ -1,4 +1,5 @@
 ﻿using Model.Impl;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,17 @@ namespace Model
         /// <returns>List of artifacts versions.</returns>
         List<ArtifactHistoryVersion> GetArtifactHistory(int artifactId, IUser user,
             bool? sortByDateAsc = null, int? limit = null, int? offset = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets discussions for the specified artifact
+        /// (Runs: GET svc/ArtifactStore/artifacts/{artifactId}/discussions)
+        /// </summary>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Discussions for the specified artifact.</returns>
+        Discussions GetArtifactDiscussions(IArtifactBase artifact, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
     }
